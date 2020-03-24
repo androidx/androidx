@@ -16,8 +16,6 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Direction
@@ -25,12 +23,11 @@ import androidx.ui.core.DrawModifier
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DoubleTapGestureDetector
+import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
-import androidx.ui.core.setContent
+import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.DrawBackground
@@ -54,23 +51,19 @@ import androidx.ui.unit.toRect
 /**
  * Demonstration for how multiple DragGestureDetectors interact.
  */
-class NestedScrollingDemo : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            // Outer composable that scrollsAll mea
-            Draggable {
-                RepeatingList(repititions = 3) {
-                    Box(LayoutHeight(398.dp), padding = 72.dp) {
-                        // Inner composable that scrolls
-                        Draggable {
-                            RepeatingList(repititions = 5) {
-                                // Composable that indicates it is being pressed
-                                Pressable(
-                                    height = 72.dp
-                                )
-                            }
-                        }
+@Composable
+fun NestedScrollingDemo() {
+    // Outer composable that scrollsAll mea
+    Draggable {
+        RepeatingList(repetitions = 3) {
+            Box(LayoutHeight(398.dp), padding = 72.dp) {
+                // Inner composable that scrolls
+                Draggable {
+                    RepeatingList(repetitions = 5) {
+                        // Composable that indicates it is being pressed
+                        Pressable(
+                            height = 72.dp
+                        )
                     }
                 }
             }
@@ -110,22 +103,20 @@ private fun Draggable(children: @Composable() () -> Unit) {
         }
     }
 
-    TouchSlopDragGestureDetector(dragObserver, canDrag) {
-        Layout(
-            children = children,
-            modifier = ClipModifier,
-            measureBlock = { measurables, constraints ->
-                val placeable =
-                    measurables.first()
-                        .measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
+    Layout(
+        children = children,
+        modifier = DragGestureDetector(dragObserver, canDrag) + ClipModifier,
+        measureBlock = { measurables, constraints, _ ->
+            val placeable =
+                measurables.first()
+                    .measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
 
-                maxOffset.value = constraints.maxHeight.value.px - placeable.height
+            maxOffset.value = constraints.maxHeight.value.px - placeable.height
 
-                layout(constraints.maxWidth, constraints.maxHeight) {
-                    placeable.place(0.ipx, offset.value.round())
-                }
-            })
-    }
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                placeable.place(0.ipx, offset.value.round())
+            }
+        })
 }
 
 val ClipModifier = object : DrawModifier {
@@ -172,32 +163,31 @@ private fun Pressable(
         showPressed.value = false
     }
 
-    PressIndicatorGestureDetector(onPress, onRelease, onRelease) {
-        PressReleasedGestureDetector(onTap, false) {
-            DoubleTapGestureDetector(onDoubleTap) {
-                LongPressGestureDetector(onLongPress) {
-                    val pressOverlay =
-                        if (showPressed.value) DrawBackground(pressedColor) else Modifier.None
-                    Box(
-                        LayoutWidth.Fill + LayoutHeight(height) +
-                                DrawBackground(color = color.value) + pressOverlay
-                    )
-                }
-            }
-        }
-    }
+    val gestureDetectors = PressIndicatorGestureDetector(
+        onPress,
+        onRelease,
+        onRelease
+    ) + TapGestureDetector(onTap) +
+            DoubleTapGestureDetector(onDoubleTap) +
+            LongPressGestureDetector(onLongPress)
+
+    val layout = LayoutWidth.Fill + LayoutHeight(height)
+
+    val pressOverlay =
+        if (showPressed.value) DrawBackground(pressedColor) else Modifier.None
+    Box(gestureDetectors + layout + DrawBackground(color = color.value) + pressOverlay)
 }
 
 /**
- * A simple composable that repeats it's children as a vertical list of divided items [repititions]
+ * A simple composable that repeats its children as a vertical list of divided items [repetitions]
  * times.
  */
 @Composable
-private fun RepeatingList(repititions: Int, row: @Composable() () -> Unit) {
+private fun RepeatingList(repetitions: Int, row: @Composable() () -> Unit) {
     Column(DrawBorder(border = Border(2.dp, BorderColor))) {
-        for (i in 1..repititions) {
+        for (i in 1..repetitions) {
             row()
-            if (i != repititions) {
+            if (i != repetitions) {
                 Box(
                     LayoutWidth.Fill + LayoutHeight(1.dp),
                     backgroundColor = Color(0f, 0f, 0f, .12f)

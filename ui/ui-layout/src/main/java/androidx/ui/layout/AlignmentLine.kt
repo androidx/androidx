@@ -51,7 +51,7 @@ fun AlignmentLineOffset(
     after: Dp = 0.dp,
     children: @Composable() () -> Unit
 ) {
-    Layout(children, modifier) { measurables, constraints ->
+    Layout(children, modifier) { measurables, constraints, _ ->
         require(measurables.isNotEmpty()) { "No child found in AlignmentLineOffset" }
         val placeable = measurables.first().measure(
             // Loose constraints perpendicular on the alignment line.
@@ -77,7 +77,7 @@ fun AlignmentLineOffset(
         layout(containerWidth, containerHeight) {
             val x = if (alignmentLine.horizontal) 0.ipx else paddingBefore
             val y = if (alignmentLine.horizontal) paddingBefore else 0.ipx
-            placeable.place(x, y)
+            placeable.placeAbsolute(x, y)
         }
     }
 }
@@ -101,8 +101,12 @@ fun AlignmentLineOffset(
  * @see Align
  */
 @Composable
-fun CenterAlignmentLine(alignmentLine: AlignmentLine, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
+fun CenterAlignmentLine(
+    alignmentLine: AlignmentLine,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
+    Layout(children, modifier) { measurables, constraints, _ ->
         require(measurables.isNotEmpty()) { "No child found in CenterAlignmentLine" }
         val placeable = measurables.first().measure(
             // Loose constraints perpendicular on the alignment line.
@@ -145,7 +149,7 @@ fun CenterAlignmentLine(alignmentLine: AlignmentLine, children: @Composable() ()
             } else {
                 centeredPosition.y
             }
-            placeable.place(childX, childY)
+            placeable.placeAbsolute(childX, childY)
         }
     }
 }

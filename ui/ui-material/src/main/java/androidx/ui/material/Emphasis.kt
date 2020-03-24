@@ -16,12 +16,15 @@
 
 package androidx.ui.material
 
+import androidx.annotation.FloatRange
+import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.compose.staticAmbientOf
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.luminance
 
 /**
  * Emphasis allows certain parts of a component to be accentuated, or shown with lower contrast
@@ -53,25 +56,36 @@ interface Emphasis {
 }
 
 /**
- * Class holding the different levels of [Emphasis] that will be applied to components in a
- * [MaterialTheme].
+ * EmphasisLevels represents the different levels of [Emphasis] that can be applied to a component.
  *
- * @see MaterialTheme.emphasisLevels
+ * By default, the [Emphasis] implementation for each level varies depending on the color being
+ * emphasized (typically [contentColor]). This ensures that the [Emphasis] has the correct
+ * contrast for the background they are on, as [ColorPalette.primary] surfaces typically require
+ * higher contrast for the content color than [ColorPalette.surface] surfaces to ensure they are
+ * accessible.
+ *
+ * This typically should not be customized as the default implementation is optimized for
+ * correct accessibility and contrast on different surfaces.
+ *
+ * See [MaterialTheme.emphasisLevels] to retrieve the current [EmphasisLevels]
  */
-data class EmphasisLevels(
+interface EmphasisLevels {
     /**
      * Emphasis used to express high emphasis, such as for selected text fields.
      */
-    val high: Emphasis = DefaultHighEmphasis,
+    @Composable
+    val high: Emphasis
     /**
      * Emphasis used to express medium emphasis, such as for placeholder text in a text field.
      */
-    val medium: Emphasis = DefaultMediumEmphasis,
+    @Composable
+    val medium: Emphasis
     /**
      * Emphasis used to express disabled state, such as for a disabled button.
      */
-    val disabled: Emphasis = DefaultDisabledEmphasis
-)
+    @Composable
+    val disabled: Emphasis
+}
 
 /**
  * Applies [emphasis] to [children], by modifying the value of [contentColor].
@@ -90,29 +104,84 @@ fun ProvideEmphasis(emphasis: Emphasis, children: @Composable() () -> Unit) {
 /**
  * Ambient containing the current [EmphasisLevels] in this hierarchy.
  */
-val EmphasisAmbient = staticAmbientOf { EmphasisLevels() }
+val EmphasisAmbient: Ambient<EmphasisLevels> = staticAmbientOf { DefaultEmphasisLevels }
 
-/**
- * Default implementation for expressing high emphasis.
- */
-private val DefaultHighEmphasis: Emphasis = object : Emphasis {
-    override fun emphasize(color: Color) = color.copy(alpha = HighEmphasisAlpha)
+private object DefaultEmphasisLevels : EmphasisLevels {
+
+    /**
+     * This default implementation uses separate alpha levels depending on the luminance of the
+     * incoming color, and whether the theme is light or dark. This is to ensure correct contrast
+     * and accessibility on all surfaces.
+     *
+     * See [HighContrastAlphaLevels] and [ReducedContrastAlphaLevels] for what the levels are
+     * used for, and under what circumstances.
+     */
+    private class AlphaEmphasis(
+        private val lightTheme: Boolean,
+        @FloatRange(from = 0.0, to = 1.0) private val highContrastAlpha: Float,
+        @FloatRange(from = 0.0, to = 1.0) private val reducedContrastAlpha: Float
+    ) : Emphasis {
+        override fun emphasize(color: Color): Color {
+            val alpha = if (lightTheme) {
+                if (color.luminance() > 0.5) highContrastAlpha else reducedContrastAlpha
+            } else {
+                if (color.luminance() < 0.5) highContrastAlpha else reducedContrastAlpha
+            }
+            return color.copy(alpha = alpha)
+        }
+    }
+
+    @Composable
+    override val high: Emphasis
+        get() = AlphaEmphasis(
+            lightTheme = MaterialTheme.colors.isLight,
+            highContrastAlpha = HighContrastAlphaLevels.high,
+            reducedContrastAlpha = ReducedContrastAlphaLevels.high
+        )
+
+    @Composable
+    override val medium: Emphasis
+        get() = AlphaEmphasis(
+            lightTheme = MaterialTheme.colors.isLight,
+            highContrastAlpha = HighContrastAlphaLevels.medium,
+            reducedContrastAlpha = ReducedContrastAlphaLevels.medium
+        )
+
+    @Composable
+    override val disabled: Emphasis
+        get() = AlphaEmphasis(
+            lightTheme = MaterialTheme.colors.isLight,
+            highContrastAlpha = HighContrastAlphaLevels.disabled,
+            reducedContrastAlpha = ReducedContrastAlphaLevels.disabled
+        )
 }
 
 /**
- * Default implementation for expressing medium emphasis.
+ * Alpha levels for high luminance content in light theme, or low luminance content in dark theme.
+ *
+ * This content will typically be placed on colored surfaces, so it is important that the
+ * contrast here is higher to meet accessibility standards, and increase legibility.
+ *
+ * These levels are typically used for text / iconography in primary colored tabs /
+ * bottom navigation / etc.
  */
-private val DefaultMediumEmphasis: Emphasis = object : Emphasis {
-    override fun emphasize(color: Color) = color.copy(alpha = MediumEmphasisAlpha)
+private object HighContrastAlphaLevels {
+    const val high: Float = 1.00f
+    const val medium: Float = 0.74f
+    const val disabled: Float = 0.38f
 }
 
 /**
- * Default implementation for expressing disabled emphasis.
+ * Alpha levels for low luminance content in light theme, or high luminance content in dark theme.
+ *
+ * This content will typically be placed on grayscale surfaces, so the contrast here can be lower
+ * without sacrificing accessibility and legibility.
+ *
+ * These levels are typically used for body text on the main surface (white in light theme, grey
+ * in dark theme) and text / iconography in surface colored tabs / bottom navigation / etc.
  */
-private val DefaultDisabledEmphasis: Emphasis = object : Emphasis {
-    override fun emphasize(color: Color) = color.copy(alpha = DisabledEmphasisAlpha)
+private object ReducedContrastAlphaLevels {
+    const val high: Float = 0.87f
+    const val medium: Float = 0.60f
+    const val disabled: Float = 0.38f
 }
-
-private const val HighEmphasisAlpha = 0.87f
-private const val MediumEmphasisAlpha = 0.60f
-private const val DisabledEmphasisAlpha = 0.38f

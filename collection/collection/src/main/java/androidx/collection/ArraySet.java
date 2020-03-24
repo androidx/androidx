@@ -713,27 +713,27 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
 
                 @Override
                 protected int colIndexOfKey(Object key) {
-                    return indexOf(key);
+                    throw new UnsupportedOperationException();
                 }
 
                 @Override
                 protected int colIndexOfValue(Object value) {
-                    return indexOf(value);
+                    throw new UnsupportedOperationException();
                 }
 
                 @Override
                 protected Map<E, E> colGetMap() {
-                    throw new UnsupportedOperationException("not a map");
+                    throw new UnsupportedOperationException();
                 }
 
                 @Override
                 protected void colPut(E key, E value) {
-                    add(key);
+                    throw new UnsupportedOperationException();
                 }
 
                 @Override
                 protected E colSetValue(int index, E value) {
-                    throw new UnsupportedOperationException("not a map");
+                    throw new UnsupportedOperationException();
                 }
 
                 @Override
@@ -743,7 +743,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
 
                 @Override
                 protected void colClear() {
-                    clear();
+                    throw new UnsupportedOperationException();
                 }
             };
         }
@@ -757,9 +757,10 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * requires generating a number of temporary objects and allocates additional state
      * information associated with the container that will remain for the life of the container.</p>
      */
+    @NonNull
     @Override
     public Iterator<E> iterator() {
-        return getCollection().getKeySet().iterator();
+        return getCollection().new ArrayIterator<>(0);
     }
 
     /**

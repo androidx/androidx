@@ -71,7 +71,6 @@
     <string name="action_bar_share_action_provider">AppCompat/Action Bar/ShareActionProvider</string>
     <string name="action_bar_settings_action_provider_no_handling">Handling in onOptionsItemSelected avoided</string>
     <string name="action_bar_with_navigation_drawer">AppCompat/Action Bar/Navigation Drawer Toggle</string>
-    <string name="action_bar_preferences">AppCompat/Action Bar/Preferences</string>
     <string name="action_bar_action_mode">AppCompat/Action Bar/Action Mode</string>
     <string name="action_bar_hide_scroll">AppCompat/Action Bar/Hide on Scroll</string>
     <string name="appcompat_widgets_buttons">AppCompat/Widgets/Buttons</string>

@@ -16,13 +16,13 @@
 
 package androidx.paging
 
+import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
 import androidx.paging.ActiveFlowTracker.FlowType.PAGED_DATA_FLOW
 import androidx.paging.ActiveFlowTracker.FlowType.PAGE_EVENT_FLOW
 import androidx.paging.multicast.Multicaster
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
@@ -30,14 +30,13 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 private class MulticastedPagingData<T : Any>(
     val scope: CoroutineScope,
     val parent: PagingData<T>,
     // used in tests
     val tracker: ActiveFlowTracker? = null
 ) {
-    @FlowPreview
     private val accumulated = CachedPageEventFlow(
         src = parent.flow.onStart {
             tracker?.onStart(PAGE_EVENT_FLOW)
@@ -47,15 +46,11 @@ private class MulticastedPagingData<T : Any>(
         scope = scope
     )
 
-    @FlowPreview
-    @ExperimentalCoroutinesApi
     fun asPagingData() = PagingData(
         flow = accumulated.downstreamFlow,
         receiver = parent.receiver
     )
 
-    @FlowPreview
-    @ExperimentalCoroutinesApi
     suspend fun close() = accumulated.close()
 }
 
@@ -74,32 +69,16 @@ private class MulticastedPagingData<T : Any>(
  * Note that this does not turn the `Flow<PagingData>` into a hot stream. It won't execute any
  * unnecessary code unless it is being collected.
  *
- * ```
- * class MyViewModel : ViewModel() {
- *     val pagingData : Flow<PagingData<Item>> = PagingDataFlowBuilder(
- *         pagingSourceFactory = <factory>,
- *         config = <config>)
- *     ).build()
- *     .cached(viewModelScope)
- * }
- *
- * class MyActivity : Activity() {
- *     override fun onCreate() {
- *         val pages = myViewModel.pagingData
- *     }
- * }
- * ```
+ * @sample androidx.paging.samples.cachedInSample
  *
  * @param scope The coroutine scope where this page cache will be kept alive.
  */
-@ExperimentalCoroutinesApi
-@FlowPreview
+@CheckResult
 fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope
 ) = cachedIn(scope, null)
 
-@FlowPreview
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
     scope: CoroutineScope,
     // used in tests

@@ -17,6 +17,9 @@
 //./gradlew :r:in:k:clean :r:in:k:cC --no-daemon
 // -Dorg.gradle.debug=true
 // -Dkotlin.compiler.execution.strategy="in-process"
+
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
@@ -30,10 +33,14 @@ android {
     defaultConfig {
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+                arguments = [
+                        "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                        "room.expandProjection": "true"
+                ]
             }
         }
     }
+
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
@@ -71,3 +78,9 @@ dependencies {
     testImplementation(MOCKITO_CORE)
 }
 
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
+}

@@ -16,12 +16,36 @@
 
 package androidx.paging
 
+import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 
+/**
+ * [RecyclerView.Adapter] base class for presenting paged data from [PagingData]s in
+ * a [RecyclerView].
+ *
+ * This class is a convenience wrapper around [AsyncPagingDataDiffer] that implements common default
+ * behavior for item counting, and listening to update events.
+ *
+ * To present a [Flow]<[PagingData]>, you would connect generally use
+ * [collectLatest][kotlinx.coroutines.flow.collectLatest], and
+ * call [presentData] on the latest generation of [PagingData].
+ *
+ * If you are using RxJava or LiveData as your reactive stream API, you would typically connect
+ * those to [submitData].
+ *
+ * PagingDataAdapter listens to internal PagingData loading events as
+ * [pages][PagingSource.LoadResult.Page] are loaded, and uses [DiffUtil] on a background thread to
+ * compute fine grained updates as updated content in the form of new PagingData objects are
+ * received.
+ *
+ * @sample androidx.paging.samples.pagingDataAdapterSample
+ */
 abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     diffCallback: DiffUtil.ItemCallback<T>,
     mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -34,8 +58,34 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         updateCallback = AdapterListUpdateCallback(this)
     )
 
-    suspend fun collectFrom(pagingData: PagingData<T>) {
-        differ.collectFrom(pagingData)
+    /**
+     * Present the new [PagingData], and suspend as long as it is not invalidated.
+     *
+     * This method should be called on the same [CoroutineDispatcher] where updates will be
+     * dispatched to UI, typically [Dispatchers.Main].
+     *
+     * This method is typically used when observing a [Flow]. For a RxJava or LiveData stream,
+     * see [submitData]
+     *
+     * @sample androidx.paging.samples.presentDataSample
+     * @see [submitData]
+     */
+    suspend fun presentData(pagingData: PagingData<T>) {
+        differ.presentData(pagingData)
+    }
+
+    /**
+     * Present the new PagingData until the next call to submitData.
+     *
+     * This method is typically used when observing a RxJava or LiveData stream. For [Flow], see
+     * [presentData]
+     *
+     * @sample androidx.paging.samples.submitDataLiveDataSample
+     * @sample androidx.paging.samples.submitDataRxSample
+     * @see [presentData]
+     */
+    fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
+        differ.submitData(lifecycle, pagingData)
     }
 
     fun retry() {
@@ -72,5 +122,66 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      */
     open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.removeLoadStateListener(listener)
+    }
+
+    /**
+     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.END] [LoadState] as a list item at the end of the presented list.
+     *
+     * @see LoadStateAdapter
+     * @see withLoadStateHeaderAndFooter
+     * @see withLoadStateFooter
+     */
+    fun withLoadStateHeader(
+        header: LoadStateAdapter<*>
+    ): MergeAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.START) {
+                header.loadState = loadState
+            }
+        }
+        return MergeAdapter(header, this)
+    }
+
+    /**
+     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.START] [LoadState] as a list item at the start of the presented list.
+     *
+     * @see LoadStateAdapter
+     * @see withLoadStateHeaderAndFooter
+     * @see withLoadStateHeader
+     */
+    fun withLoadStateFooter(
+        footer: LoadStateAdapter<*>
+    ): MergeAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.END) {
+                footer.loadState = loadState
+            }
+        }
+        return MergeAdapter(this, footer)
+    }
+
+    /**
+     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.START] and [LoadType.END] [LoadState]s as list items at the start and end
+     * respectively.
+     *
+     * @see LoadStateAdapter
+     * @see withLoadStateHeader
+     * @see withLoadStateFooter
+     */
+    fun withLoadStateHeaderAndFooter(
+        header: LoadStateAdapter<*>,
+        footer: LoadStateAdapter<*>
+    ): MergeAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.START) {
+                header.loadState = loadState
+            } else if (loadType == LoadType.END) {
+                footer.loadState = loadState
+            }
+        }
+        return MergeAdapter(header, this, footer)
     }
 }

@@ -20,7 +20,7 @@ import android.net.Uri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.test.FloatingTestNavigator
 import androidx.navigation.test.R
 import androidx.navigation.test.dialog
@@ -581,12 +581,7 @@ class NavBackStackEntryLifecycleTest {
     }
 
     private fun createNavController(
-        lifecycleOwner: LifecycleOwner = object : LifecycleOwner {
-            private val lifecycleRegistry = LifecycleRegistry(this).apply {
-                currentState = Lifecycle.State.RESUMED
-            }
-            override fun getLifecycle() = lifecycleRegistry
-        }
+        lifecycleOwner: LifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
     ): NavController {
         val navController = NavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(TestNavigator())

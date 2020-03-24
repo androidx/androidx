@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
@@ -225,6 +226,13 @@ public class FakeOtherUseCaseConfig
     @NonNull
     public UseCase.EventCallback getUseCaseEventCallback() {
         return retrieveOption(OPTION_USE_CASE_EVENT_CALLBACK);
+    }
+
+    // Implementations of ImageInputConfig default methods
+
+    @Override
+    public int getInputFormat() {
+        return ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
     }
 
     // End of the default implementation of Config

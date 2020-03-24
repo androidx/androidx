@@ -17,6 +17,7 @@
 package androidx.autofill;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.slice.Slice;
 import android.app.slice.SliceSpec;
@@ -51,13 +52,13 @@ public class InlinePresentationBuilder {
     static final String HINT_INLINE_SUBTITLE = "inline_subtitle";
     static final String HINT_INLINE_START_ICON = "inline_start_icon";
     static final String HINT_INLINE_END_ICON = "inline_end_icon";
-    static final String HINT_INLINE_ACTION = "inline_action";
+    static final String HINT_INLINE_ATTRIBUTION = "inline_attribution";
 
     @Nullable private Icon mStartIcon;
     @Nullable private Icon mEndIcon;
     @Nullable private String mTitle;
     @Nullable private String mSubtitle;
-    @Nullable private PendingIntent mAction;
+    @Nullable private PendingIntent mAttribution;
 
     private boolean mDestroyed;
 
@@ -114,14 +115,17 @@ public class InlinePresentationBuilder {
     }
 
     /**
-     * Sets the action of {@link Slice}.
+     * Sets a {@link PendingIntent} that will be launched on long clicking the {@link Slice} to show
+     * attribution information via a {@link Dialog}.
      *
-     * @param action invoked when the slice is tapped.
+     * <p>The attribution UI indicates to the user the source of the inline presentation data.</p>
+     *
+     * @param attribution invoked when the slice is long-pressed.
      */
-    public @NonNull InlinePresentationBuilder setAction(@NonNull PendingIntent action) {
+    public @NonNull InlinePresentationBuilder setAttribution(@NonNull PendingIntent attribution) {
         throwIfDestroyed();
-        Preconditions.checkNotNull(action, "Action should not be null");
-        mAction = action;
+        Preconditions.checkNotNull(attribution, "Attribution should not be null");
+        mAttribution = attribution;
         return this;
     }
 
@@ -142,9 +146,14 @@ public class InlinePresentationBuilder {
             throw new IllegalStateException("Title, subtitle, start icon, end icon are all null. "
                     + "Please set value for at least one of them");
         }
+
         if (mTitle == null && mSubtitle != null) {
             throw new IllegalStateException("Cannot set the subtitle without setting the title.");
         }
+
+        // TODO(b/150321630): Do not enforce the non-nullness of mAttribution for now to avoid
+        //  crashing the existing code at runtime. Add the check once the google3 clients have
+        //  migrated with the new API.
 
         Slice.Builder builder = new Slice.Builder(Uri.parse(INLINE_PRESENTATION_SLICE_URI),
                 new SliceSpec(INLINE_PRESENTATION_SPEC_TYPE, INLINE_PRESENTATION_SPEC_VERSION));
@@ -160,9 +169,9 @@ public class InlinePresentationBuilder {
         if (mEndIcon != null) {
             builder.addIcon(mEndIcon, null, Collections.singletonList(HINT_INLINE_END_ICON));
         }
-        if (mAction != null) {
-            builder.addAction(mAction, new Slice.Builder(builder).addHints(
-                    Collections.singletonList(HINT_INLINE_ACTION)).build(), null);
+        if (mAttribution != null) {
+            builder.addAction(mAttribution, new Slice.Builder(builder).addHints(
+                    Collections.singletonList(HINT_INLINE_ATTRIBUTION)).build(), null);
         }
         return builder.build();
     }

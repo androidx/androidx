@@ -79,8 +79,10 @@ object DokkaSourceDocs {
         if (tryGetRunnerProject(project) == null) {
             return
         }
-        if (extension.toolingProject) {
-            project.logger.info("Project ${project.name} is tooling project; ignoring API tasks.")
+        if (!extension.generateDocs) {
+            project.logger.info(
+                "Project ${project.name} has docs generation disabled, ignoring docs tasks."
+            )
             return
         }
         library.defaultPublishVariant { variant ->
@@ -98,8 +100,10 @@ object DokkaSourceDocs {
         if (tryGetRunnerProject(project) == null) {
             return
         }
-        if (extension.toolingProject) {
-            project.logger.info("Project ${project.name} is tooling project; ignoring API tasks.")
+        if (!extension.generateDocs) {
+            project.logger.info(
+                "Project ${project.name} has docs generation disabled, ignoring docs tasks."
+            )
             return
         }
         val javaPluginConvention = project.convention.getPlugin<JavaPluginConvention>()
@@ -119,9 +123,18 @@ object DokkaSourceDocs {
         dokkaTasks?.filter { it.state.isConfigurable }?.forEach {
             it.sourceDirs += inputs.sourcePaths
 
-            it.classpath = project.files(it.classpath).plus(project.files(inputs.bootClasspath))
-                .plus(inputs.dependencyClasspath)
+            // DokkaTask tries to resolve DokkaTask#classpath right away for jars that might not
+            // be there yet. Delay the setting of this property to before we run the task.
+            it.inputs.files(inputs.bootClasspath, inputs.dependencyClasspath)
+            it.doFirst { dokkaTask ->
+                dokkaTask as DokkaTask
+                dokkaTask.classpath = project.files(dokkaTask.classpath)
+                    .plus(project.files(inputs.bootClasspath))
+                    .plus(inputs.dependencyClasspath)
+            }
+
             it.dependsOn(inputs.dependencyClasspath)
+            it.dependsOn(inputs.sourcePaths)
         }
     }
 }

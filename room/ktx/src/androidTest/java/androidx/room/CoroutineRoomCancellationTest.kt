@@ -38,10 +38,11 @@ import java.util.concurrent.CountDownLatch
 
 @SmallTest
 @SdkSuppress(minSdkVersion = 16)
-@ExperimentalCoroutinesApi
 class CoroutineRoomCancellationTest {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val testDispatcher = TestCoroutineDispatcher()
+    @OptIn(ExperimentalCoroutinesApi::class)
     val testScope = TestCoroutineScope(testDispatcher)
 
     private val database = TestDatabase()
@@ -79,6 +80,7 @@ class CoroutineRoomCancellationTest {
         assertThat(cancellationSignal.isCanceled).isTrue()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testSuspend_cancellable_beforeQueryStarts() = runBlocking {
         database.backingFieldMap["QueryDispatcher"] = testDispatcher

@@ -16,14 +16,12 @@
 
 package androidx.appcompat.app;
 
-import static androidx.appcompat.testutils.TestUtils.executeShellCommandAndFind;
-
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 
 import android.app.Instrumentation;
 import android.view.KeyEvent;
+import android.view.inspector.WindowInspector;
 
-import androidx.appcompat.testutils.TestUtils.Predicate;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -53,9 +51,7 @@ public class EmptyOptionsPanelTest {
         mActivity = mActivityTestRule.getActivity();
     }
 
-    // executeShellCommandAndFind() is only available on API 21+ and for some reason the shell
-    // command doesn't execute correctly below API 26, so suppress everything below that.
-    @SdkSuppress(minSdkVersion = 26)
+    @SdkSuppress(minSdkVersion = 29)
     @Test
     @MediumTest
     public void testEmptyOptionsPanelNotShown() throws Exception {
@@ -64,23 +60,16 @@ public class EmptyOptionsPanelTest {
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
         mInstrumentation.waitForIdleSync();
 
-        assertFalse("Sub-panel was added after first KEYCODE_MENU",
-                executeShellCommandAndFind("wm dump", new Predicate<String>() {
-                    public boolean test(String t) {
-                        return t.contains(
-                                "SubPanel:" + mActivity.getComponentName().flattenToString());
-                    }
-                }));
+        // UiAutomator is flaky, so instead we'll just check how many windows are showing. This
+        // is... not a great way to test this behavior, but we don't have any other way to hook
+        // into an empty options panel.
+        assertEquals("Sub-panel should not be added after first KEYCODE_MENU",
+                1, WindowInspector.getGlobalWindowViews().size());
 
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
         mInstrumentation.waitForIdleSync();
 
-        assertFalse("Sub-panel was added after second KEYCODE_MENU",
-                executeShellCommandAndFind("wm dump", new Predicate<String>() {
-                    public boolean test(String t) {
-                        return t.contains(
-                                "SubPanel:" + mActivity.getComponentName().flattenToString());
-                    }
-                }));
+        assertEquals("Sub-panel should not be added after second KEYCODE_MENU",
+                1, WindowInspector.getGlobalWindowViews().size());
     }
 }

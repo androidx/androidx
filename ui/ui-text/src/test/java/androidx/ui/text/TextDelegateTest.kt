@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TextDelegateTest() {
+class TextDelegateTest {
     private val density = Density(density = 1f)
     private val resourceLoader = mock<Font.ResourceLoader>()
 
@@ -36,7 +36,7 @@ class TextDelegateTest() {
     fun `constructor with default values`() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -51,7 +51,7 @@ class TextDelegateTest() {
         val text = AnnotatedString("Hello")
         val textDelegate = TextDelegate(
             text = text,
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr
@@ -66,7 +66,7 @@ class TextDelegateTest() {
 
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             maxLines = maxLines,
             density = density,
             resourceLoader = resourceLoader,
@@ -82,7 +82,7 @@ class TextDelegateTest() {
 
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             overflow = overflow,
             density = density,
             resourceLoader = resourceLoader,
@@ -92,11 +92,11 @@ class TextDelegateTest() {
         assertThat(textDelegate.overflow).isEqualTo(overflow)
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalStateException::class)
     fun `minIntrinsicWidth without layout assertion should fail`() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr)
@@ -104,11 +104,11 @@ class TextDelegateTest() {
         textDelegate.minIntrinsicWidth
     }
 
-    @Test(expected = AssertionError::class)
+    @Test(expected = IllegalStateException::class)
     fun `maxIntrinsicWidth without layout assertion should fail`() {
         val textDelegate = TextDelegate(
             text = AnnotatedString(text = ""),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             density = density,
             resourceLoader = resourceLoader,
             layoutDirection = LayoutDirection.Ltr)

@@ -44,7 +44,7 @@ dependencies {
 androidx {
     name = "Experimental annotation lint checks"
     toolingProject = true
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    publish = Publish.NONE
     mavenVersion = LibraryVersions.ANNOTATION_EXPERIMENTAL
     mavenGroup = LibraryGroups.ANNOTATION
     inceptionYear = "2019"

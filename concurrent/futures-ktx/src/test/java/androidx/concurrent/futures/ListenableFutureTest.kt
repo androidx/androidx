@@ -18,7 +18,6 @@ package androidx.concurrent.futures
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -84,7 +83,6 @@ class ListenableFutureTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun testAwaitWithCancellation() = runBlockingTest {
         val future = ResolvableFuture.create<Int>()
@@ -99,7 +97,6 @@ class ListenableFutureTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
     @Test
     fun testCancellableAwait() = runBlocking {
         expect(1)

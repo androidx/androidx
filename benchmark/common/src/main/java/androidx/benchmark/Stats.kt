@@ -16,7 +16,7 @@
 
 package androidx.benchmark
 
-import java.util.ArrayList
+import android.os.Bundle
 import kotlin.Double.Companion.NaN
 import kotlin.math.pow
 import kotlin.math.roundToLong
@@ -25,7 +25,7 @@ import kotlin.math.roundToLong
  * Provides statistics such as mean, median, min, max, and percentiles, given a list of input
  * values.
  */
-internal class Stats(data: List<Long>) {
+internal class Stats(data: LongArray, val name: String) {
     val median: Long
     val min: Long
     val max: Long
@@ -35,7 +35,7 @@ internal class Stats(data: List<Long>) {
     val standardDeviation: Double
 
     init {
-        val values = ArrayList(data).sorted()
+        val values = data.sorted()
         val size = values.size
         if (size < 1) {
             throw IllegalArgumentException("At least one result is necessary.")
@@ -52,6 +52,27 @@ internal class Stats(data: List<Long>) {
             val sum = values.map { (it - mean).pow(2) }.sum()
             Math.sqrt(sum / (size - 1).toDouble())
         }
+    }
+
+    internal fun getSummary(): String {
+        return "Stats for $name: median $median, min $min, max $max, mean $mean, " +
+                "standardDeviation: $standardDeviation"
+    }
+
+    internal fun putInBundle(status: Bundle, PREFIX: String) {
+        status.putLong("${PREFIX}median", median)
+        status.putLong("${PREFIX}mean", mean.toLong())
+        status.putLong("${PREFIX}min", min)
+        status.putLong("${PREFIX}standardDeviation", standardDeviation.toLong())
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return (other is Stats && other.hashCode() == this.hashCode())
+    }
+
+    override fun hashCode(): Int {
+        return min.hashCode() + max.hashCode() + median.hashCode() + standardDeviation.hashCode() +
+                mean.hashCode() + percentile90.hashCode() + percentile95.hashCode()
     }
 
     companion object {

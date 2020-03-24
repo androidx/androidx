@@ -39,7 +39,8 @@ object ComposeFqNames {
     val StableMarker = ComposeUtils.composeFqName("StableMarker")
     val HiddenAttribute = ComposeUtils.composeFqName("HiddenAttribute")
     val Composer = ComposeUtils.composeFqName("Composer")
-    val ViewComposer = ComposeUtils.composeFqName("ViewComposer")
+    val Untracked = ComposeUtils.composeFqName("Untracked")
+    val UiComposer = FqName.fromSegments(listOf("androidx", "ui", "node", "UiComposer"))
     val Package = FqName.fromSegments(listOf("androidx", "compose"))
     val Function0 = FqName.fromSegments(listOf("kotlin", "jvm", "functions", "Function0"))
     val Function1 = FqName.fromSegments(listOf("kotlin", "jvm", "functions", "Function1"))
@@ -69,6 +70,8 @@ fun KotlinType.isMarkedStable(): Boolean =
                     (constructor.declarationDescriptor?.annotations?.hasStableMarker() ?: false))
 fun Annotated.hasComposableAnnotation(): Boolean =
     annotations.findAnnotation(ComposeFqNames.Composable) != null
+fun Annotated.hasUntrackedAnnotation(): Boolean =
+    annotations.findAnnotation(ComposeFqNames.Untracked) != null
 fun Annotated.hasPivotalAnnotation(): Boolean =
     annotations.findAnnotation(ComposeFqNames.Pivotal) != null
 fun Annotated.hasHiddenAttributeAnnotation(): Boolean =

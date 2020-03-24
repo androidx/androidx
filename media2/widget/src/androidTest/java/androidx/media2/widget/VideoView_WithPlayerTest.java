@@ -60,7 +60,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -334,16 +333,10 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testOnVideoSizeChanged() throws Throwable {
-        List<MediaItem> playlist = new ArrayList<>();
-        playlist.add(createTestMediaItem(getResourceUri(R.raw.test_file_scheme_video)));
-        playlist.add(createTestMediaItem(getResourceUri(R.raw.testvideo_with_2_subtitle_tracks)));
-
-        VideoSize videoSizeFor1stItem = new VideoSize(352, 288);
-        VideoSize videoSizeFor2ndItem = new VideoSize(160, 90);
-
-        CountDownLatch latchFor1stItem = new CountDownLatch(1);
-        CountDownLatch latchFor2ndItem = new CountDownLatch(1);
+    public void testAspectRatioOfSurfaceView() throws Throwable {
+        MediaItem testMediaItem = createTestMediaItem(getResourceUri(R.raw.test_file_scheme_video));
+        VideoSize testVideoSize = new VideoSize(352, 288);
+        CountDownLatch latch = new CountDownLatch(1);
 
         mActivityRule.runOnUiThread(() -> {
             int parentWidth = mVideoView.getWidth();
@@ -358,30 +351,23 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
                             // Ignore layout changes to the default size
                             return;
                         }
-                        if (latchFor1stItem.getCount() > 0) {
-                            latchFor1stItem.countDown();
-                        } else if (latchFor2ndItem.getCount() > 0) {
-                            latchFor2ndItem.countDown();
-                        }
+                        latch.countDown();
                     });
         });
 
         DefaultPlayerCallback playerCallback = new DefaultPlayerCallback();
-        PlayerWrapper playerWrapper = createPlayerWrapper(playerCallback, null, playlist);
+        PlayerWrapper playerWrapper = createPlayerWrapper(playerCallback, testMediaItem, null);
         setPlayerWrapper(playerWrapper);
         assertTrue(playerCallback.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         playerWrapper.play();
         assertTrue(playerCallback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        assertTrue(latchFor1stItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(instanceOf(VideoSurfaceView.class)).check(matches(
-                withAspectRatio(videoSizeFor1stItem.getWidth(), videoSizeFor1stItem.getHeight())));
+                withAspectRatio(testVideoSize.getWidth(), testVideoSize.getHeight())));
 
-        // seekTo instead of skipToNextItem (b/144876689)
-        playerWrapper.seekTo(playerWrapper.getDurationMs());
-        assertTrue(latchFor2ndItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        onView(instanceOf(VideoSurfaceView.class)).check(matches(
-                withAspectRatio(videoSizeFor2ndItem.getWidth(), videoSizeFor2ndItem.getHeight())));
+        // Unable to test the case for multiple media items with different aspect ratio due to the
+        // flakiness of onVideoSizeChanged of MediaPlayer (b/144876689, b/144972397)
     }
 
     private void setPlayerWrapper(final PlayerWrapper playerWrapper) throws Throwable {

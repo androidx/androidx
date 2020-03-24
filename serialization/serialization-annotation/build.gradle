@@ -25,6 +25,9 @@ plugins {
     id("kotlin")
 }
 
+targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_7
+
 dependencies {
     compileOnly(KOTLIN_STDLIB)
 }

@@ -18,13 +18,14 @@ package androidx.ui.tooling
 
 import androidx.compose.SlotTable
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Draw
 import androidx.ui.core.DrawNode
+import androidx.ui.core.draw
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.toRect
@@ -45,12 +46,10 @@ class InspectableTests : ToolingTest() {
         show {
             Inspectable {
                 Column {
-                    Container(width = 100.dp, height = 100.dp) {
-                        Draw { canvas, size ->
-                            val paint = Paint().also { it.color = Color(0xFF) }
-                            canvas.drawRect(size.toRect(), paint)
-                        }
-                    }
+                    Box(LayoutSize(100.dp) + draw { canvas, size ->
+                        val paint = Paint().also { it.color = Color(0xFF) }
+                        canvas.drawRect(size.toRect(), paint)
+                    })
                 }
             }
         }
@@ -64,14 +63,6 @@ class InspectableTests : ToolingTest() {
         assertEquals(0.ipx, group.box.left)
         assertNotEquals(0.ipx, group.box.right)
         assertNotEquals(0.ipx, group.box.bottom)
-
-        // Now find the group containing the DrawNode
-        val nodeGroup = findDrawNodeGroup(group)
-        assertNotNull(nodeGroup)
-        val node = nodeGroup!!.node as DrawNode
-        val repaintBoundary = node.repaintBoundary
-        assertNotNull(repaintBoundary)
-        assertNotNull(repaintBoundary?.ownerData)
     }
 
     private fun findDrawNodeGroup(group: Group): NodeGroup? {

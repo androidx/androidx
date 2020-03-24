@@ -319,7 +319,6 @@ class SubtitleController {
 
     /** must be called from anchor thread */
     public void reset() {
-        checkAnchorLooper();
         hide();
         selectTrack(null);
         mTracks.clear();
@@ -488,26 +487,17 @@ class SubtitleController {
         }
 
         if (mAnchor != null) {
-            checkAnchorLooper();
             mAnchor.setSubtitleWidget(null);
         }
         mAnchor = anchor;
         mHandler = null;
         if (mAnchor != null) {
             mHandler = new Handler(mAnchor.getSubtitleLooper(), mCallback);
-            checkAnchorLooper();
             mAnchor.setSubtitleWidget(getRenderingWidget());
         }
     }
 
-    private void checkAnchorLooper() {
-        assert mHandler != null : "Should have a looper already";
-        assert Looper.myLooper() == mHandler.getLooper()
-                : "Must be called from the anchor's looper";
-    }
-
     private void processOnAnchor(Message m) {
-        assert mHandler != null : "Should have a looper already";
         if (Looper.myLooper() == mHandler.getLooper()) {
             mHandler.dispatchMessage(m);
         } else {

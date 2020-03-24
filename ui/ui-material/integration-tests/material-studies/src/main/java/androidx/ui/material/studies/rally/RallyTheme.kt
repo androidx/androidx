@@ -96,7 +96,7 @@ fun RallyDialogThemeOverlay(children: @Composable() () -> Unit) {
         surface = Color(0xFF1E1E1E),
         onSurface = Color.White
     )
-    val currentTypography = MaterialTheme.typography()
+    val currentTypography = MaterialTheme.typography
     val dialogTypography = currentTypography.copy(
         body1 = currentTypography.body1.copy(
             fontFamily = FontFamily.Default,

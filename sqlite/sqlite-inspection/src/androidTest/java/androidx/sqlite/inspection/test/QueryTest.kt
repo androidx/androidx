@@ -27,8 +27,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.fail
+import org.junit.ComparisonFailure
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -36,7 +37,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@ExperimentalCoroutinesApi
 @SdkSuppress(minSdkVersion = 26)
 // TODO: add tests for invalid queries: union of unequal number of columns, syntax error, etc.
 class QueryTest {
@@ -111,6 +111,59 @@ class QueryTest {
     }
 
     @Test
+    fun test_error_wrong_database_id() = runBlocking {
+        val databaseId = 123456789
+        val command = "select * from sqlite_master"
+        val queryParams = null
+        testEnvironment.sendCommand(createQueryCommand(databaseId, command, queryParams))
+            .let { response ->
+                assertThat(response.hasErrorOccurred()).isEqualTo(true)
+                val error = response.errorOccurred.content
+                assertThat(error.message).isEqualTo("No database with id=$databaseId")
+                assertThat(error.stackTrace).isEqualTo("")
+                assertThat(error.isRecoverable).isEqualTo(true)
+            }
+    }
+
+    @Test
+    fun test_error_invalid_query() = runBlocking {
+        val databaseId = inspectDatabase(Database("db", table2).createInstance(temporaryFolder))
+        val mistypedSelect = "selecttt"
+        val command = "$mistypedSelect * from sqlite_master"
+        val queryParams = null
+        val response =
+            testEnvironment.sendCommand(createQueryCommand(databaseId, command, queryParams))
+        assertThat(response.hasErrorOccurred()).isEqualTo(true)
+        val error = response.errorOccurred.content
+        assertThat(error.message).contains("syntax error")
+        assertThat(error.message).contains("near \"$mistypedSelect\"")
+        assertThat(error.message).contains("while compiling: $command")
+        assertThat(error.stackTrace).contains("SqliteInspector.onReceiveCommand")
+        assertThat(error.stackTrace).contains("SQLiteConnection.nativePrepareStatement")
+        assertThat(error.stackTrace).contains("SQLiteDatabase.rawQueryWithFactory")
+        assertThat(error.isRecoverable).isEqualTo(true)
+    }
+
+    @Test
+    fun test_error_wrong_param_count() = runBlocking {
+        val databaseId = inspectDatabase(Database("db", table2).createInstance(temporaryFolder))
+        val command = "select * from sqlite_master where name=?"
+        val queryParams = listOf("'a'", "'b'") // one too many param
+        val response =
+            testEnvironment.sendCommand(createQueryCommand(databaseId, command, queryParams))
+        assertThat(response.hasErrorOccurred()).isEqualTo(true)
+        val error = response.errorOccurred.content
+        assertThat(error.message).contains("Cannot bind argument")
+        assertThat(error.message).contains("index is out of range")
+        assertThat(error.message).contains("The statement has 1 parameters")
+        assertThat(error.stackTrace).contains("SqliteInspector.onReceiveCommand")
+        assertThat(error.stackTrace).contains("SQLiteDatabase.rawQueryWithFactory")
+        assertThat(error.stackTrace).contains("SQLiteDirectCursorDriver.query")
+        assertThat(error.stackTrace).contains("SQLiteProgram.bind")
+        assertThat(error.isRecoverable).isEqualTo(true)
+    }
+
+    @Test
     fun test_valid_query_nested_query_with_a_comment() {
         test_valid_query(
             Database("db", table2),
@@ -124,6 +177,148 @@ class QueryTest {
             expectedTypes = listOf(listOf("integer")),
             expectedColumnNames = listOf("count(*)")
         )
+    }
+
+    @Test
+    fun test_valid_query_with_params_syntax1() {
+        test_valid_query_with_params(paramNameLeft = "?", paramNameRight = "?")
+    }
+
+    @Test
+    fun test_valid_query_with_params_syntax2a() {
+        test_valid_query_with_params(paramNameLeft = "?1", paramNameRight = "?2")
+    }
+
+    /**
+     * Same as [test_valid_query_with_params_syntax2a] but with reversed argument "names".
+     * Showcases that this syntax respects numerals after the "?" unlike all other cases (also
+     * tested here).
+     */
+    @Test
+    fun test_valid_query_with_params_syntax2b() {
+        try {
+            test_valid_query_with_params(paramNameLeft = "?2", paramNameRight = "?1")
+        } catch (comparisonFailure: ComparisonFailure) {
+            assertThat(comparisonFailure.actual).isEqualTo("0")
+            return
+        }
+        fail()
+    }
+
+    @Test
+    fun test_valid_query_with_params_syntax3() {
+        test_valid_query_with_params(paramNameLeft = ":aa", paramNameRight = ":bb")
+    }
+
+    @Test
+    fun test_valid_query_with_params_syntax4a() {
+        test_valid_query_with_params(paramNameLeft = "@bb", paramNameRight = "@aa")
+    }
+
+    @Test
+    fun test_valid_query_with_params_syntax4b() {
+        test_valid_query_with_params(paramNameLeft = "@2", paramNameRight = "@1")
+    }
+
+    @Test
+    fun test_valid_query_with_params_syntax5a() {
+        test_valid_query_with_params(paramNameLeft = "\$B200", paramNameRight = "\$A1")
+    }
+
+    @Test
+    fun test_valid_query_with_params_syntax5b() {
+        test_valid_query_with_params(paramNameLeft = "\$A2", paramNameRight = "\$A1")
+    }
+
+    @Test
+    fun test_valid_query_with_params_syntax5c() {
+        test_valid_query_with_params(paramNameLeft = "\$1", paramNameRight = "\$2")
+    }
+
+    @Test
+    fun test_valid_query_with_params_syntax5d() {
+        test_valid_query_with_params(paramNameLeft = "\$2", paramNameRight = "\$1")
+    }
+
+    private fun test_valid_query_with_params(paramNameLeft: String, paramNameRight: String) {
+        test_valid_query(
+            Database("db", table2),
+            values = listOf(
+                table2 to arrayOf("1", "'A'"),
+                table2 to arrayOf("2", "'B'"),
+                table2 to arrayOf("3", "'C'")
+            ),
+            query = "select * from " +
+                    "(select * from ${table2.name} where id > $paramNameLeft) " +
+                    "where id < $paramNameRight",
+            queryParams = listOf("1", "3"),
+            expectedValues = listOf(listOf(2, "B")),
+            expectedTypes = listOf(listOf("integer", "text")),
+            expectedColumnNames = table2.columns.map { it.name }
+        )
+    }
+
+    @Test
+    fun test_valid_query_with_params_column_name_limitation() {
+        test_valid_query(
+            Database("db", table2),
+            values = listOf(
+                table2 to arrayOf("1", "'A'"),
+                table2 to arrayOf("2", "'B'"),
+                table2 to arrayOf("3", "'C'")
+            ),
+            query = "select ? as col from ${table2.name}",
+            queryParams = listOf("id"),
+            // Note: instead of expected 1, 2, 3, we get "id", "id", "id". This is a result of
+            // binding ? as Strings.
+            expectedValues = listOf(listOf("id"), listOf("id"), listOf("id")),
+            expectedTypes = listOf(listOf("text"), listOf("text"), listOf("text")),
+            expectedColumnNames = listOf("col")
+        )
+    }
+
+    @Test
+    fun test_valid_query_with_params_null_params() = runBlocking {
+        // given
+        val insertCommand = "insert into ${table2.name} values (?, ?)"
+
+        val insertValues = listOf(
+            listOf(null, null),
+            listOf("0.5", null),
+            listOf("'2'", null),
+            listOf(null, "A")
+        )
+
+        val expectedValues = listOf(
+            listOf(null, null),
+            listOf(0.5f, null),
+            listOf("'2'", null),
+            listOf(null, "A")
+        )
+
+        val expectedTypes = listOf(
+            listOf("null", "null"),
+            listOf("float", "null"),
+            listOf("text", "null"),
+            listOf("null", "text")
+        )
+
+        // when
+        val databaseId = inspectDatabase(Database("db", table2).createInstance(temporaryFolder))
+        insertValues.forEach { params -> issueQuery(databaseId, insertCommand, params) }
+
+        // then
+        issueQuery(databaseId, "select * from ${table2.name}").let { response ->
+            assertThat(response.rowsCount).isEqualTo(4)
+            response.rowsList.let { actualRows: List<Row> ->
+                actualRows.forEachIndexed { rowIx, row ->
+                    row.valuesList.forEachIndexed { colIx, cell ->
+                        assertThat(cell.value).isEqualTo(expectedValues[rowIx][colIx])
+                        assertThat(cell.type).isEqualTo(expectedTypes[rowIx][colIx])
+                    }
+                }
+            }
+        }
     }
 
     @Test
@@ -212,7 +407,8 @@ class QueryTest {
         query: String,
         expectedValues: List<List<Any?>>,
         expectedTypes: List<List<String>>,
-        expectedColumnNames: List<String>
+        expectedColumnNames: List<String>,
+        queryParams: List<String>? = null
     ) = runBlocking {
         // given
         val databaseInstance = database.createInstance(temporaryFolder)
@@ -220,7 +416,7 @@ class QueryTest {
         val databaseId = inspectDatabase(databaseInstance)
 
         // when
-        issueQuery(databaseId, query).let { response ->
+        issueQuery(databaseId, query, queryParams).let { response ->
             // then
             assertThat(response.rowsCount).isEqualTo(expectedValues.size)
             assertThat(response.columnNamesList).isEqualTo(expectedColumnNames)
@@ -351,8 +547,12 @@ class QueryTest {
         return testEnvironment.awaitDatabaseOpenedEvent(databaseInstance.path).databaseId
     }
 
-    private suspend fun issueQuery(databaseId: Int, command: String): QueryResponse =
-        testEnvironment.sendCommand(createQueryCommand(databaseId, command)).query
+    private suspend fun issueQuery(
+        databaseId: Int,
+        command: String,
+        queryParams: List<String?>? = null
+    ): QueryResponse =
+        testEnvironment.sendCommand(createQueryCommand(databaseId, command, queryParams)).query
 
     private suspend fun querySchema(databaseId: Int): List<Table> =
         testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).getSchema.toTableList()

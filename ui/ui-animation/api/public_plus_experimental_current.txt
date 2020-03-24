@@ -30,6 +30,19 @@ package androidx.ui.animation {
     method public static <T> void Crossfade(T? current, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> children);
   }
 
+  public final class DisposableAnimationClock implements androidx.animation.AnimationClockObservable {
+    ctor public DisposableAnimationClock(androidx.animation.AnimationClockObservable clock);
+    method public void dispose();
+    method public boolean isDisposed();
+    method public void subscribe(androidx.animation.AnimationClockObserver observer);
+    method public void unsubscribe(androidx.animation.AnimationClockObserver observer);
+    property public final boolean isDisposed;
+  }
+
+  public final class DisposableAnimationClockKt {
+    method public static androidx.ui.animation.DisposableAnimationClock asDisposableClock(androidx.animation.AnimationClockObservable);
+  }
+
   public final class DpPropKey implements androidx.animation.PropKey<androidx.ui.unit.Dp,androidx.animation.AnimationVector1D> {
     ctor public DpPropKey();
     method public androidx.animation.TwoWayConverter<androidx.ui.unit.Dp,androidx.animation.AnimationVector1D> getTypeConverter();

@@ -19,9 +19,6 @@ package androidx.ui.material.studies.rally
 import androidx.compose.Composable
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.AttachMoney
-import androidx.ui.material.icons.filled.MoneyOff
-import androidx.ui.material.icons.filled.PieChart
 
 enum class RallyScreenState(
     val icon: VectorAsset,

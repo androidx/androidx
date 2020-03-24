@@ -16,10 +16,17 @@
 
 package androidx.paging
 
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.ListUpdateEvent.Changed
 import androidx.paging.ListUpdateEvent.Inserted
 import androidx.paging.ListUpdateEvent.Moved
 import androidx.paging.ListUpdateEvent.Removed
+import androidx.paging.LoadState.Done
+import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.Loading
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.START
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.test.filters.SmallTest
@@ -27,6 +34,7 @@ import androidx.testutils.MainDispatcherRule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -36,6 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.ContinuationInterceptor
+import kotlin.test.assertTrue
 
 private class ListUpdateCapture : ListUpdateCallback {
     val events = mutableListOf<ListUpdateEvent>()
@@ -67,9 +76,14 @@ private sealed class ListUpdateEvent {
     data class Removed(val position: Int, val count: Int) : ListUpdateEvent()
 }
 
+private data class LoadEvent(
+    val loadType: LoadType,
+    val loadState: LoadState
+)
+
+@OptIn(ExperimentalCoroutinesApi::class)
 @SmallTest
 @RunWith(JUnit4::class)
-@UseExperimental(ExperimentalCoroutinesApi::class)
 class AsyncPagingDataDifferTest {
     private val testScope = TestCoroutineScope()
 
@@ -78,26 +92,83 @@ class AsyncPagingDataDifferTest {
         testScope.coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
     )
 
+    private val listUpdateCapture = ListUpdateCapture()
+    private val differ = AsyncPagingDataDiffer(
+        diffCallback = object : DiffUtil.ItemCallback<Int>() {
+            override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                return oldItem == newItem
+            }
+
+            override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                return oldItem == newItem
+            }
+        },
+        updateCallback = listUpdateCapture,
+        workerDispatcher = Dispatchers.Main
+    )
+
+    @Test
+    fun performDiff_fastPathLoadStates() = testScope.runBlockingTest {
+        val loadEvents = mutableListOf<LoadEvent>()
+        differ.addLoadStateListener { loadType, loadState ->
+            loadEvents.add(LoadEvent(loadType, loadState))
+        }
+
+        val pagingDataFlow = PagingDataFlow(
+            config = PagingConfig(
+                pageSize = 2,
+                prefetchDistance = 1,
+                enablePlaceholders = true,
+                initialLoadSize = 2
+            ),
+            initialKey = 50
+        ) {
+            TestPagingSource()
+        }
+
+        val job = launch {
+            pagingDataFlow.collect {
+                differ.presentData(it)
+            }
+        }
+
+        advanceUntilIdle()
+
+        // Assert that all load state updates are sent, even when differ enters fast path for
+        // empty previous list.
+        assertEvents(
+            listOf(
+                LoadEvent(REFRESH, Idle),
+                LoadEvent(START, Idle),
+                LoadEvent(END, Idle),
+                LoadEvent(REFRESH, Loading),
+                LoadEvent(REFRESH, Idle)
+            ),
+            loadEvents
+        )
+        loadEvents.clear()
+
+        job.cancel()
+
+        differ.submitData(TestLifecycleOwner().lifecycle, PagingData.empty())
+        advanceUntilIdle()
+
+        // Assert that all load state updates are sent, even when differ enters fast path for
+        // empty next list.
+        assertEvents(
+            listOf(
+                LoadEvent(START, Done),
+                LoadEvent(END, Done)
+            ),
+            loadEvents
+        )
+    }
+
     @Test
     fun lastAccessedIndex() = testScope.runBlockingTest {
         // TODO: Consider making PagedData public, which would simplify this test by allowing it
         //  to directly construct a flow of PagedData.
         pauseDispatcher {
-            val listUpdateCapture = ListUpdateCapture()
-            val differ = AsyncPagingDataDiffer(
-                diffCallback = object : DiffUtil.ItemCallback<Int>() {
-                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
-                        return oldItem == newItem
-                    }
-
-                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
-                        return oldItem == newItem
-                    }
-                },
-                updateCallback = listUpdateCapture,
-                workerDispatcher = Dispatchers.Main
-            )
-
             var currentPagedSource: TestPagingSource? = null
             val pagedDataFlow = PagingDataFlow(
                 config = PagingConfig(
@@ -112,7 +183,7 @@ class AsyncPagingDataDifferTest {
                 currentPagedSource!!
             }
 
-            val job = launch { pagedDataFlow.collectLatest { differ.collectFrom(it) } }
+            val job = launch { pagedDataFlow.collectLatest { differ.presentData(it) } }
 
             // Load REFRESH [50, 51]
             advanceUntilIdle()
@@ -139,6 +210,85 @@ class AsyncPagingDataDifferTest {
             assertEvents(expected, listUpdateCapture.events)
 
             job.cancel()
+        }
+    }
+
+    @Test
+    fun presentData_cancelsLastSubmit() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pagedDataFlow = PagingDataFlow(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
+            val pagedDataFlow2 = PagingDataFlow(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
+
+            val lifecycle = TestLifecycleOwner()
+            var jobSubmitted = false
+            val job = launch {
+                pagedDataFlow.collectLatest {
+                    differ.submitData(lifecycle.lifecycle, it)
+                    jobSubmitted = true
+                }
+            }
+
+            advanceUntilIdle()
+
+            val job2 = launch {
+                pagedDataFlow2.collectLatest {
+                    differ.presentData(it)
+                }
+            }
+
+            advanceUntilIdle()
+
+            assertTrue(jobSubmitted)
+
+            job.cancel()
+            job2.cancel()
+        }
+    }
+
+    @Test
+    fun submitData_cancelsLast() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val pagedDataFlow = PagingDataFlow(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
+            val pagedDataFlow2 = PagingDataFlow(
+                config = PagingConfig(2),
+                initialKey = 50
+            ) { TestPagingSource() }
+
+            val lifecycle = TestLifecycleOwner()
+            var jobSubmitted = false
+            val job = launch {
+                pagedDataFlow.collectLatest {
+                    differ.submitData(lifecycle.lifecycle, it)
+                    jobSubmitted = true
+                }
+            }
+
+            advanceUntilIdle()
+
+            var job2Submitted = false
+            val job2 = launch {
+                pagedDataFlow2.collectLatest {
+                    differ.submitData(lifecycle.lifecycle, it)
+                    job2Submitted = true
+                }
+            }
+
+            advanceUntilIdle()
+
+            assertTrue(jobSubmitted)
+            assertTrue(job2Submitted)
+
+            job.cancel()
+            job2.cancel()
         }
     }
 }

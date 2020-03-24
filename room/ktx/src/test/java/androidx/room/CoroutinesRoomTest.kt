@@ -19,7 +19,6 @@ package androidx.room
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.single
@@ -31,7 +30,6 @@ import org.junit.runners.JUnit4
 import java.util.concurrent.Callable
 import kotlin.coroutines.ContinuationInterceptor
 
-@FlowPreview
 @RunWith(JUnit4::class)
 class CoroutinesRoomTest {
 

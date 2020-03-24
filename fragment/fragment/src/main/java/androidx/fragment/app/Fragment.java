@@ -47,6 +47,11 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.AdapterView;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -80,6 +85,8 @@ import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Static library support version of the framework's {@link android.app.Fragment}.
@@ -97,16 +104,19 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner,
-        ViewModelStoreOwner, HasDefaultViewModelProviderFactory, SavedStateRegistryOwner {
+        ViewModelStoreOwner, HasDefaultViewModelProviderFactory, SavedStateRegistryOwner,
+        ActivityResultCaller {
 
     static final Object USE_DEFAULT_TRANSITION = new Object();
 
-    static final int INITIALIZING = -1;    // Not yet attached.
-    static final int ATTACHED = 0;         // Attached to the host.
-    static final int CREATED = 1;          // Created.
-    static final int ACTIVITY_CREATED = 2; // Fully created, not started.
-    static final int STARTED = 3;          // Created and started, not resumed.
-    static final int RESUMED = 4;          // Created started and resumed.
+    static final int INITIALIZING = -1;          // Not yet attached.
+    static final int ATTACHED = 0;               // Attached to the host.
+    static final int CREATED = 1;                // Created.
+    static final int AWAITING_EXIT_EFFECTS = 2;  // Downward state, awaiting exit effects
+    static final int ACTIVITY_CREATED = 3;       // Fully created, not started.
+    static final int STARTED = 4;                // Created and started, not resumed.
+    static final int AWAITING_ENTER_EFFECTS = 5; // Upward state, awaiting enter effects
+    static final int RESUMED = 6;                // Created started and resumed.
 
     int mState = INITIALIZING;
 
@@ -274,6 +284,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     @LayoutRes
     private int mContentLayoutId;
+
+    private final AtomicInteger mNextLocalRequestCode = new AtomicInteger();
 
     /**
      * {@inheritDoc}
@@ -1693,7 +1705,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * still in the process of being created.  As such, you can not rely
      * on things like the activity's content view hierarchy being initialized
      * at this point.  If you want to do work once the activity itself is
-     * created, see {@link #onActivityCreated(Bundle)}.
+     * created, add a {@link androidx.lifecycle.LifecycleObserver} on the
+     * activity's Lifecycle, removing it when it receives the
+     * {@link Lifecycle.State#CREATED} callback.
      *
      * <p>Any restored child fragments will be created before the base
      * <code>Fragment.onCreate</code> method returns.</p>
@@ -1737,7 +1751,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Called to have the fragment instantiate its user interface view.
      * This is optional, and non-graphical fragments can return null. This will be called between
-     * {@link #onCreate(Bundle)} and {@link #onActivityCreated(Bundle)}.
+     * {@link #onCreate(Bundle)} and {@link #onViewCreated(View, Bundle)}.
      * <p>A default View can be returned by calling {@link #Fragment(int)} in your
      * constructor. Otherwise, this method returns null.
      *
@@ -1820,9 +1834,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
+     *
+     * @deprecated use {@link #onViewCreated(View, Bundle)} for code touching
+     * the Fragment's view and {@link #onCreate(Bundle)} for other initialization.
+     * To get a callback specifically when a Fragment activity's
+     * {@link Activity#onCreate(Bundle)} is called, register a
+     * {@link androidx.lifecycle.LifecycleObserver} on the Activity's
+     * {@link Lifecycle} in {@link #onAttach(Context)}, removing it when it receives the
+     * {@link Lifecycle.State#CREATED} callback.
      */
     @MainThread
     @CallSuper
+    @Deprecated
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         mCalled = true;
     }
@@ -1832,8 +1855,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * of the fragment.  This can be used to do initialization based on saved
      * state that you are letting the view hierarchy track itself, such as
      * whether check box widgets are currently checked.  This is called
-     * after {@link #onActivityCreated(Bundle)} and before
-     * {@link #onStart()}.
+     * after {@link #onViewCreated(View, Bundle)} and before {@link #onStart()}.
      *
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
@@ -1874,7 +1896,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * created, the data you place in the Bundle here will be available
      * in the Bundle given to {@link #onCreate(Bundle)},
      * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}, and
-     * {@link #onActivityCreated(Bundle)}.
+     * {@link #onViewCreated(View, Bundle)}.
      *
      * <p>This corresponds to {@link Activity#onSaveInstanceState(Bundle)
      * Activity.onSaveInstanceState(Bundle)} and most of the discussion there
@@ -2747,9 +2769,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("deprecation")
     void performActivityCreated(Bundle savedInstanceState) {
         mChildFragmentManager.noteStateNotSaved();
-        mState = ACTIVITY_CREATED;
+        mState = AWAITING_EXIT_EFFECTS;
         mCalled = false;
         onActivityCreated(savedInstanceState);
         if (!mCalled) {
@@ -2911,7 +2934,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
         }
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
-        mState = STARTED;
+        mState = AWAITING_ENTER_EFFECTS;
         mCalled = false;
         onPause();
         if (!mCalled) {
@@ -3092,6 +3115,65 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void setHideReplaced(boolean replaced) {
         ensureAnimationInfo().mIsHideReplaced = replaced;
+    }
+
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(
+            @NonNull final ActivityResultContract<I, O> contract,
+            @NonNull final ActivityResultCallback<O> callback) {
+        final String key = generateActivityResultKey();
+        final AtomicReference<ActivityResultLauncher<I>> ref =
+                new AtomicReference<ActivityResultLauncher<I>>();
+
+        getLifecycle().addObserver(new LifecycleEventObserver() {
+            @Override
+            public void onStateChanged(@NonNull LifecycleOwner lifecycleOwner,
+                    @NonNull Lifecycle.Event event) {
+
+                if (Lifecycle.Event.ON_CREATE.equals(event)) {
+                    ref.set(requireActivity()
+                            .getActivityResultRegistry()
+                            .register(
+                                    key, Fragment.this, contract, callback));
+                }
+            }
+        });
+
+        return new ActivityResultLauncher<I>() {
+            @Override
+            public void launch(I input) {
+                ActivityResultLauncher<I> delegate = ref.get();
+                if (delegate == null) {
+                    throw new IllegalStateException("Operation cannot be started before fragment "
+                            + "is in created state");
+                }
+                delegate.launch(input);
+            }
+
+            @Override
+            public void unregister() {
+                ActivityResultLauncher<I> delegate = ref.getAndSet(null);
+                if (delegate != null) {
+                    delegate.unregister();
+                }
+            }
+        };
+    }
+
+    @NonNull
+    private String generateActivityResultKey() {
+        return "fragment_" + mWho + "_rq#" + mNextLocalRequestCode.getAndIncrement();
+    }
+
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(
+            @NonNull final ActivityResultContract<I, O> contract,
+            @NonNull ActivityResultRegistry registry,
+            @NonNull final ActivityResultCallback<O> callback) {
+        return registry.register(
+                generateActivityResultKey(), this, contract, callback);
     }
 
     /**

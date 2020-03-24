@@ -225,6 +225,61 @@ public class MediaSessionTest extends MediaSessionTestBase {
         assertEquals(player, mSession.getPlayer());
     }
 
+    @Test
+    public void testGetCurrentMediaItem_withMetadata_returnsMediaItemWithDuration()
+            throws InterruptedException {
+        long testDuration = 1023;
+        MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
+
+        mPlayer.mDuration = testDuration;
+        mPlayer.mCurrentMediaItem = testMediaItem;
+        mPlayer.notifyCurrentMediaItemChanged(testMediaItem);
+        sHandler.postAndSync(() -> {
+            assertEquals(testDuration,
+                    mSession.getPlayer().getCurrentMediaItem().getMetadata().getLong(
+                            MediaMetadata.METADATA_KEY_DURATION));
+        });
+    }
+
+    @Test
+    public void testGetCurrentMediaItem_withoutMetadata_returnsMediaItemWithDuration()
+            throws InterruptedException {
+        long testDuration = 1055;
+        MediaItem testMediaItem = MediaTestUtils.createMediaItem("testCurrentMediaItemChanged");
+
+        mPlayer.mDuration = testDuration;
+        mPlayer.mCurrentMediaItem = testMediaItem;
+        mPlayer.notifyCurrentMediaItemChanged(testMediaItem);
+        sHandler.postAndSync(() -> {
+            assertEquals(testDuration,
+                    mSession.getPlayer().getCurrentMediaItem().getMetadata().getLong(
+                            MediaMetadata.METADATA_KEY_DURATION));
+        });
+    }
+
+    @Test
+    public void testGetCurrentMediaItem_withMetadataUpdated_returnsMediaItemWithDuration()
+            throws InterruptedException {
+        long testDuration = 1023;
+        MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
+        String testDisplayTitle = "testDisplayTitle";
+        MediaMetadata testMetadata = new MediaMetadata.Builder(testMediaItem.getMetadata())
+                .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, testDisplayTitle).build();
+
+        mPlayer.mDuration = testDuration;
+        mPlayer.mCurrentMediaItem = testMediaItem;
+        mPlayer.notifyCurrentMediaItemChanged(testMediaItem);
+        mPlayer.mCurrentMediaItem.setMetadata(testMetadata);
+        sHandler.postAndSync(() -> {
+            assertEquals(testDuration,
+                    mPlayer.mCurrentMediaItem.getMetadata().getLong(
+                            MediaMetadata.METADATA_KEY_DURATION));
+            assertEquals(testDisplayTitle,
+                    mPlayer.mCurrentMediaItem.getMetadata().getText(
+                            MediaMetadata.METADATA_KEY_DISPLAY_TITLE));
+        });
+    }
+
     /**
      * Test potential deadlock for calls between controller and session.
      */

@@ -20,15 +20,15 @@ import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
+import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.Row
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.integration.test.ToggleableTestCase
 
 /**
  * Test case that puts the given amount of checkboxes into a column of rows and makes changes by
@@ -48,7 +48,7 @@ class CheckboxesInRowsTestCase(
                     repeat(amountOfCheckboxes) {
                         Row {
                             Text(text = "Check Me!")
-                            CheckboxWithState(LayoutFlexible(1f) + LayoutAlign.CenterRight)
+                            CheckboxWithState(LayoutWeight(1f) + LayoutAlign.CenterEnd)
                         }
                     }
                 }

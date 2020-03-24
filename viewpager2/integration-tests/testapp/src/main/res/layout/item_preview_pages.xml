@@ -22,4 +22,5 @@
     android:background="#0C2962"
     android:padding="6dp"
     android:scaleType="fitCenter"
-    android:src="@drawable/jetpack_logo" />
+    android:src="@drawable/jetpack_logo"
+    android:contentDescription="@string/image_content_description"/>

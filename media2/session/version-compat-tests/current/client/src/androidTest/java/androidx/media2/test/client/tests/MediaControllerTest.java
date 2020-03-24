@@ -222,6 +222,69 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
+    public void testSetVolumeWithLocalVolume_afterStreamTypeChanged() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // The previous service didn't handle stream type changes.
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
+            // This test is not eligible for this device.
+            return;
+        }
+
+        int oldStream = AudioManager.STREAM_MUSIC;
+        int volumeForOldStream = mAudioManager.getStreamVolume(oldStream);
+
+        int stream = AudioManager.STREAM_ALARM;
+        int maxVolume = mAudioManager.getStreamMaxVolume(stream);
+        int minVolume =
+                Build.VERSION.SDK_INT >= 28 ? mAudioManager.getStreamMinVolume(stream) : 0;
+        Log.d(TAG, "maxVolume=" + maxVolume + ", minVolume=" + minVolume);
+        if (maxVolume <= minVolume) {
+            return;
+        }
+
+        CountDownLatch latch = new CountDownLatch(1);
+        MediaController controller = createController(mRemoteSession.getToken(),
+                true /* waitForConnect */, null /* connectionHints */, new ControllerCallback() {
+                    @Override
+                    public void onPlaybackInfoChanged(@NonNull MediaController controller,
+                            @NonNull PlaybackInfo info) {
+                        AudioAttributesCompat attrs = info.getAudioAttributes();
+                        if (attrs != null && attrs.getLegacyStreamType() == stream) {
+                            latch.countDown();
+                        }
+                    }
+                });
+
+        AudioAttributesCompat oldAttrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(oldStream).build();
+        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfig(
+                0 /* state */, 0 /* buffState */, 0 /* position */, 0 /* buffPosition */,
+                0f /* speed */, oldAttrs);
+        mRemoteSession.updatePlayer(playerConfig);
+
+        AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setLegacyStreamType(stream).build();
+        mRemoteSession.getMockPlayer().notifyAudioAttributesChanged(attrs);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+        int originalVolume = mAudioManager.getStreamVolume(stream);
+        int targetVolume = originalVolume == minVolume ? originalVolume + 1 : originalVolume - 1;
+        Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
+
+        controller.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
+        PollingCheck.waitFor(VOLUME_CHANGE_TIMEOUT_MS,
+                () -> targetVolume == mAudioManager.getStreamVolume(stream));
+
+        // Set back to original volume.
+        mAudioManager.setStreamVolume(stream, originalVolume, 0 /* flags */);
+
+        assertEquals(volumeForOldStream, mAudioManager.getStreamVolume(oldStream));
+    }
+
+    @Test
     public void testAdjustVolumeWithLocalVolume() throws Exception {
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.

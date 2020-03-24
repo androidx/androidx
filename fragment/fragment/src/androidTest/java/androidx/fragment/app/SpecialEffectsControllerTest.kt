@@ -127,17 +127,17 @@ class SpecialEffectsControllerTest {
                 .isNotNull()
             // setFragmentManagerState() doesn't call moveToExpectedState() itself
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
-            val controller = SpecialEffectsController.getOrCreateController(container)
-            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
-                .isTrue()
+            val controller = SpecialEffectsController.getOrCreateController(container, fm)
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
             onActivity {
                 // However, executePendingOperations(), since we're using our
                 // TestSpecialEffectsController, does immediately call complete()
                 // which in turn calls moveToExpectedState()
                 controller.executePendingOperations()
             }
-            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
-                .isFalse()
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isNull()
             // Assert that we actually moved to the STARTED state
             assertThat(fragment.lifecycle.currentState)
                 .isEqualTo(Lifecycle.State.STARTED)
@@ -164,7 +164,7 @@ class SpecialEffectsControllerTest {
             fragment.mAdded = true
             fragment.mContainerId = android.R.id.content
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
-            val controller = SpecialEffectsController.getOrCreateController(container)
+            val controller = SpecialEffectsController.getOrCreateController(container, fm)
             onActivity {
                 // moveToExpectedState() first to call enqueueAdd()
                 fragmentStateManager.moveToExpectedState()
@@ -215,7 +215,7 @@ class SpecialEffectsControllerTest {
             fragment.mContainerId = android.R.id.content
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
             val controller = SpecialEffectsController
-                .getOrCreateController(container) as TestSpecialEffectsController
+                .getOrCreateController(container, fm) as TestSpecialEffectsController
             onActivity {
                 // This moves the Fragment up to STARTED,
                 // calling enqueueAdd() under the hood
@@ -233,8 +233,8 @@ class SpecialEffectsControllerTest {
                 .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
             assertThat(firstOperation.fragment)
                 .isSameInstanceAs(fragment)
-            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
-                .isTrue()
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
             fragmentStateManager.setFragmentManagerState(Fragment.CREATED)
             onActivity {
                 // move the Fragment's state back down, which
@@ -248,15 +248,15 @@ class SpecialEffectsControllerTest {
                 .doesNotContain(firstOperation)
             assertThat(controller.operationsToExecute)
                 .hasSize(1)
-            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
-                .isTrue()
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.Type.REMOVE)
             onActivity {
                 controller.completeAllOperations()
             }
             assertThat(controller.operationsToExecute)
                 .isEmpty()
-            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
-                .isFalse()
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isNull()
             assertThat(fragment.lifecycle.currentState)
                 .isEqualTo(Lifecycle.State.CREATED)
         }
@@ -283,7 +283,7 @@ class SpecialEffectsControllerTest {
             fragment.mContainerId = android.R.id.content
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
             val controller = SpecialEffectsController
-                .getOrCreateController(container) as TestSpecialEffectsController
+                .getOrCreateController(container, fm) as TestSpecialEffectsController
             onActivity {
                 // This moves the Fragment up to STARTED,
                 // calling enqueueAdd() under the hood
@@ -291,16 +291,16 @@ class SpecialEffectsControllerTest {
             }
             assertThat(controller.operationsToExecute)
                 .isEmpty()
-            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
-                .isTrue()
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
 
             // Now cancel all the operations
             controller.cancelAllOperations()
 
             assertThat(controller.operationsToExecute)
                 .isEmpty()
-            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
-                .isFalse()
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isNull()
         }
     }
 
@@ -325,7 +325,7 @@ class SpecialEffectsControllerTest {
             fragment.mContainerId = android.R.id.content
             fragmentStateManager.setFragmentManagerState(Fragment.STARTED)
             val controller = SpecialEffectsController
-                .getOrCreateController(container) as TestSpecialEffectsController
+                .getOrCreateController(container, fm) as TestSpecialEffectsController
             onActivity {
                 // This moves the Fragment up to STARTED,
                 // calling enqueueAdd() under the hood
@@ -340,8 +340,8 @@ class SpecialEffectsControllerTest {
                 .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
             assertThat(firstOperation.fragment)
                 .isSameInstanceAs(fragment)
-            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
-                .isTrue()
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isEqualTo(SpecialEffectsController.Operation.Type.ADD)
 
             // Now cancel all the operations
             controller.cancelAllOperations()
@@ -350,8 +350,8 @@ class SpecialEffectsControllerTest {
                 .isTrue()
             assertThat(controller.operationsToExecute)
                 .isEmpty()
-            assertThat(controller.isAwaitingCompletion(fragmentStateManager))
-                .isFalse()
+            assertThat(controller.getAwaitingCompletionType(fragmentStateManager))
+                .isNull()
         }
     }
 }

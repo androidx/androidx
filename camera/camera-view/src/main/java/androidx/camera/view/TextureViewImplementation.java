@@ -16,15 +16,10 @@
 
 package androidx.camera.view;
 
-import static androidx.camera.view.ScaleTypeTransform.getFillScaleWithBufferAspectRatio;
-import static androidx.camera.view.ScaleTypeTransform.getOriginOfCenteredView;
-import static androidx.camera.view.ScaleTypeTransform.getRotationDegrees;
+import static androidx.camera.core.SurfaceRequest.Result;
 
-import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.util.Log;
-import android.util.Pair;
-import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -34,29 +29,31 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * The {@link TextureView} implementation for {@link PreviewView}
  */
-public class TextureViewImplementation implements PreviewView.Implementation {
+public class TextureViewImplementation extends PreviewViewImplementation {
 
     private static final String TAG = "TextureViewImpl";
 
-    private FrameLayout mParent;
     TextureView mTextureView;
     SurfaceTexture mSurfaceTexture;
-    private Size mResolution;
-    ListenableFuture<Void> mSurfaceReleaseFuture;
+    ListenableFuture<Result> mSurfaceReleaseFuture;
     SurfaceRequest mSurfaceRequest;
 
+    @Nullable
     @Override
-    public void init(@NonNull FrameLayout parent) {
-        mParent = parent;
+    View getPreview() {
+        return mTextureView;
     }
 
     @NonNull
@@ -64,7 +61,7 @@ public class TextureViewImplementation implements PreviewView.Implementation {
     public Preview.SurfaceProvider getSurfaceProvider() {
         return (surfaceRequest) -> {
             mResolution = surfaceRequest.getResolution();
-            initInternal();
+            initializePreview();
             if (mSurfaceRequest != null) {
                 mSurfaceRequest.willNotProvideSurface();
             }
@@ -83,15 +80,10 @@ public class TextureViewImplementation implements PreviewView.Implementation {
     }
 
     @Override
-    public void onDisplayChanged() {
-        if (mParent == null || mTextureView == null || mResolution == null) {
-            return;
-        }
+    public void initializePreview() {
+        Preconditions.checkNotNull(mParent);
+        Preconditions.checkNotNull(mResolution);
 
-        correctPreviewForCenterCrop(mParent, mTextureView, mResolution);
-    }
-
-    private void initInternal() {
         mTextureView = new TextureView(mParent.getContext());
         mTextureView.setLayoutParams(
                 new FrameLayout.LayoutParams(mResolution.getWidth(), mResolution.getHeight()));
@@ -125,22 +117,23 @@ public class TextureViewImplementation implements PreviewView.Implementation {
             public boolean onSurfaceTextureDestroyed(final SurfaceTexture surfaceTexture) {
                 mSurfaceTexture = null;
                 if (mSurfaceRequest == null && mSurfaceReleaseFuture != null) {
-                    Futures.addCallback(mSurfaceReleaseFuture, new FutureCallback<Void>() {
-                        @Override
-                        public void onSuccess(@Nullable Void result) {
-                            surfaceTexture.release();
-                        }
+                    Futures.addCallback(mSurfaceReleaseFuture,
+                            new FutureCallback<Result>() {
+                                @Override
+                                public void onSuccess(Result result) {
+                                    Preconditions.checkState(result.getResultCode()
+                                                    != Result.RESULT_SURFACE_ALREADY_PROVIDED,
+                                            "Unexpected result from SurfaceRequest. Surface was "
+                                                    + "provided twice.");
+                                    surfaceTexture.release();
+                                }
 
-                        @Override
-                        public void onFailure(Throwable t) {
-                            if (t instanceof SurfaceRequest.RequestCancelledException) {
-                                surfaceTexture.release();
-                            } else {
-                                throw new IllegalStateException("SurfaceReleaseFuture did not "
-                                        + "complete nicely.", t);
-                            }
-                        }
-                    }, ContextCompat.getMainExecutor(mTextureView.getContext()));
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    throw new IllegalStateException("SurfaceReleaseFuture did not "
+                                            + "complete nicely.", t);
+                                }
+                            }, ContextCompat.getMainExecutor(mTextureView.getContext()));
                     return false;
                 } else {
                     return true;
@@ -161,14 +154,6 @@ public class TextureViewImplementation implements PreviewView.Implementation {
 
     @SuppressWarnings("WeakerAccess")
     void tryToProvidePreviewSurface() {
-        /*
-          Should only continue if:
-          - The preview size has been specified.
-          - The textureView's surfaceTexture is available (after TextureView
-          .SurfaceTextureListener#onSurfaceTextureAvailable is invoked)
-          - The surfaceCompleter has been set (after CallbackToFutureAdapter
-          .Resolver#attachCompleter is invoked).
-         */
         if (mResolution == null || mSurfaceTexture == null || mSurfaceRequest == null) {
             return;
         }
@@ -176,7 +161,13 @@ public class TextureViewImplementation implements PreviewView.Implementation {
         mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
 
         final Surface surface = new Surface(mSurfaceTexture);
-        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceRequest.provideSurface(surface);
+        final ListenableFuture<Result> surfaceReleaseFuture =
+                CallbackToFutureAdapter.getFuture(completer -> {
+                    mSurfaceRequest.provideSurface(surface,
+                            CameraXExecutors.directExecutor(), completer::set);
+                    return "provideSurface[request=" + mSurfaceRequest + " surface=" + surface
+                            + "]";
+                });
         mSurfaceReleaseFuture = surfaceReleaseFuture;
         mSurfaceReleaseFuture.addListener(() -> {
             surface.release();
@@ -186,40 +177,6 @@ public class TextureViewImplementation implements PreviewView.Implementation {
         }, ContextCompat.getMainExecutor(mTextureView.getContext()));
 
         mSurfaceRequest = null;
-
-        correctPreviewForCenterCrop(mParent, mTextureView, mResolution);
-    }
-
-    /**
-     * Corrects the preview to match the UI orientation and completely fill the PreviewView.
-     *
-     * <p>
-     * The camera produces a preview that depends on its sensor orientation and that has a
-     * specific resolution. In order to display it correctly, this preview must be rotated to
-     * match the UI orientation, and must be scaled up/down to fit inside the view that's
-     * displaying it. This method takes care of doing so while keeping the preview centered.
-     * </p>
-     *
-     * @param container   The {@link PreviewView}'s root layout, which wraps the preview.
-     * @param textureView The {@link android.view.TextureView} that displays the preview, its size
-     *                    must match the camera sensor output size.
-     * @param bufferSize  The camera sensor output size.
-     */
-    private void correctPreviewForCenterCrop(@NonNull final View container,
-            @NonNull final TextureView textureView, @NonNull final Size bufferSize) {
-        // Scale TextureView to fill PreviewView while respecting sensor output size aspect ratio
-        final Pair<Float, Float> scale = getFillScaleWithBufferAspectRatio(container, textureView,
-                bufferSize);
-        textureView.setScaleX(scale.first);
-        textureView.setScaleY(scale.second);
-
-        // Center TextureView inside PreviewView
-        final Point newOrigin = getOriginOfCenteredView(container, textureView);
-        textureView.setX(newOrigin.x);
-        textureView.setY(newOrigin.y);
-
-        // Rotate TextureView to correct preview orientation
-        final int rotation = getRotationDegrees(textureView);
-        textureView.setRotation(-rotation);
+        onSurfaceProvided();
     }
 }

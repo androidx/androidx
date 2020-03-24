@@ -24,7 +24,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -33,7 +32,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@ExperimentalCoroutinesApi
 @SdkSuppress(minSdkVersion = 26)
 class GetSchemaTest {
     @get:Rule
@@ -125,6 +123,17 @@ class GetSchemaTest {
                 Database("db1", Table("t1", Column("c1", "TEXT")))
             )
         )
+    }
+
+    @Test
+    fun test_get_schema_wrong_database_id() = runBlocking {
+        val databaseId = 123456789
+        testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).let { response ->
+            assertThat(response.hasErrorOccurred()).isEqualTo(true)
+            val error = response.errorOccurred.content
+            assertThat(error.message).isEqualTo("No database with id=$databaseId")
+            assertThat(error.isRecoverable).isEqualTo(true)
+        }
     }
 
     private fun test_get_schema(

@@ -19,7 +19,7 @@ package androidx.ui.material.studies.rally
 import android.annotation.SuppressLint
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -30,12 +30,12 @@ import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.material.Card
 import androidx.ui.material.Divider
+import androidx.ui.material.IconButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TextButton
 import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.Sort
-import androidx.ui.material.surface.Card
 import androidx.ui.unit.dp
 import java.util.Locale
 
@@ -88,12 +88,12 @@ private fun AlertHeader(onClickSeeAll: () -> Unit) {
     ) {
         Text(
             text = "Alerts",
-            style = MaterialTheme.typography().subtitle2,
+            style = MaterialTheme.typography.subtitle2,
             modifier = LayoutGravity.Center
         )
         TextButton(
             onClick = onClickSeeAll,
-            paddings = EdgeInsets(0.dp),
+            innerPadding = EdgeInsets(0.dp),
             modifier = LayoutGravity.Center
         ) {
             Text("SEE ALL")
@@ -109,15 +109,16 @@ private fun AlertItem(message: String) {
         arrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            style = MaterialTheme.typography().h3,
-            modifier = LayoutFlexible(1f),
+            style = MaterialTheme.typography.h3,
+            modifier = LayoutWeight(1f),
             text = message
         )
         IconButton(
-            vectorImage = Icons.Filled.Sort,
             onClick = {},
             modifier = LayoutGravity.Top
-        )
+        ) {
+            Icon(Icons.Filled.Sort)
+        }
     }
 }
 
@@ -136,9 +137,9 @@ private fun <T> OverviewScreenCard(
     Card {
         Column {
             Column(modifier = LayoutPadding(RallyDefaultPadding)) {
-                Text(text = title, style = MaterialTheme.typography().subtitle2)
+                Text(text = title, style = MaterialTheme.typography.subtitle2)
                 val amountText = "$" + formatAmount(amount)
-                Text(text = amountText, style = MaterialTheme.typography().h2)
+                Text(text = amountText, style = MaterialTheme.typography.h2)
             }
             Divider(color = rallyGreen, height = 1.dp)
             Column(LayoutPadding(start = 16.dp, top = 4.dp, end = 8.dp)) {

@@ -16,60 +16,65 @@
 
 package androidx.camera.view.preview.transform;
 
-import android.graphics.Point;
 import android.util.Pair;
-import android.util.Size;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.camera.view.PreviewView;
+import androidx.camera.view.preview.transform.transformation.ScaleTransformation;
+import androidx.camera.view.preview.transform.transformation.Transformation;
+import androidx.camera.view.preview.transform.transformation.TranslationTransformation;
 
 final class ScaleTypeTransform {
 
     private ScaleTypeTransform() {
     }
 
-    /**
-     * Converts a {@link PreviewView.ScaleType} to a
-     * {@link androidx.camera.view.preview.transform.Transformation}.
-     */
+    /** Converts a {@link PreviewView.ScaleType} to a {@link Transformation} */
     static Transformation getTransformation(@NonNull final View container, @NonNull final View view,
-            @NonNull final Size bufferSize, @NonNull final PreviewView.ScaleType scaleType) {
-        final Pair<Float, Float> scaleXY = getScaleXY(container, view, bufferSize, scaleType);
-        final Point origin = getGravityOrigin(container, view, scaleType);
-        final float rotation = -RotationTransform.getRotationDegrees(view);
-        return new Transformation(scaleXY.first, scaleXY.second, origin.x, origin.y, rotation);
+            @NonNull final PreviewView.ScaleType scaleType) {
+        final Transformation scale = getScale(container, view, scaleType);
+
+        // Use the current preview scale AND the scale that's about to be applied to it to figure
+        // out how to position the preview in its container
+        final Pair<Float, Float> scaleXY = new Pair<>(view.getScaleX() * scale.getScaleX(),
+                view.getScaleY() * scale.getScaleY());
+        final Transformation translation = getScaledTranslation(container, view, scaleType,
+                scaleXY);
+
+        return scale.add(translation);
     }
 
-    private static Pair<Float, Float> getScaleXY(@NonNull final View container,
-            @NonNull final View view, @NonNull final Size bufferSize,
+    private static ScaleTransformation getScale(@NonNull final View container,
+            @NonNull final View view,
             final PreviewView.ScaleType scaleType) {
         switch (scaleType) {
             case FILL_START:
             case FILL_CENTER:
             case FILL_END:
-                return ScaleTransform.fill(container, view, bufferSize);
+                return ScaleTransform.fill(container, view);
             case FIT_START:
             case FIT_CENTER:
             case FIT_END:
-                return ScaleTransform.fit(container, view, bufferSize);
+                return ScaleTransform.fit(container, view);
             default:
                 throw new IllegalArgumentException("Unknown scale type " + scaleType);
         }
     }
 
-    private static Point getGravityOrigin(@NonNull final View container, @NonNull final View view,
-            @NonNull final PreviewView.ScaleType scaleType) {
+    private static TranslationTransformation getScaledTranslation(@NonNull final View container,
+            @NonNull final View view, @NonNull final PreviewView.ScaleType scaleType,
+            @NonNull final Pair<Float, Float> scaleXY) {
         switch (scaleType) {
             case FILL_START:
             case FIT_START:
-                return GravityTransform.start();
+                return TranslationTransform.start(view, scaleXY);
             case FILL_CENTER:
             case FIT_CENTER:
-                return GravityTransform.center(container, view);
+                return TranslationTransform.center(container, view);
             case FILL_END:
             case FIT_END:
-                return GravityTransform.end(container, view);
+                return TranslationTransform.end(container, view, scaleXY);
             default:
                 throw new IllegalArgumentException("Unknown scale type " + scaleType);
         }

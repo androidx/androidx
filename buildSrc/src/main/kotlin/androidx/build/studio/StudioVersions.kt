@@ -51,13 +51,13 @@ sealed class StudioVersions {
 }
 
 private object RootStudioVersions : StudioVersions() {
-    override val studioVersion = "3.6.0.20"
-    override val ideaMajorVersion = "192"
-    override val studioBuildNumber = "6186006"
+    override val studioVersion = "4.0.0.12"
+    override val ideaMajorVersion = "193"
+    override val studioBuildNumber = "6296804"
 }
 
 private object UiStudioVersions : StudioVersions() {
-    override val studioVersion = "4.0.0.0"
-    override val ideaMajorVersion = "192"
-    override val studioBuildNumber = "5959023"
+    override val studioVersion = "4.1.0.3"
+    override val ideaMajorVersion = "193"
+    override val studioBuildNumber = "6297379"
 }

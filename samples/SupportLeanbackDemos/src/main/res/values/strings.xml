@@ -22,6 +22,7 @@
     <string name="browse">Browse</string>
     <string name="browse_description">BrowseFragment test</string>
     <string name="browse_support">Browse(support version)</string>
+    <string name="browse_support_appcompat">Browse(appcompat version)</string>
     <string name="browse_support_description">BrowseSupportFragment test</string>
     <string name="search">Search</string>
     <string name="search_description">SearchFragment test</string>
@@ -46,6 +47,7 @@
     <string name="search_details_support_description">Search style DetailsSupportFragment test</string>
     <string name="video_playback">Video Playback</string>
     <string name="video_playback_support">Video Playback(support version)</string>
+    <string name="video_playback_support_appcompat">Video Playback(appcompat version)</string>
     <string name="playback">Playback</string>
     <string name="playback_description">PlaybackFragment test</string>
     <string name="playback_support">Playback(support version)</string>
@@ -59,6 +61,7 @@
     <string name="vgrid">Vertical Grid</string>
     <string name="vgrid_description">VerticalGridFragment test</string>
     <string name="vgrid_support">Vertical Grid(support version)</string>
+    <string name="vgrid_support_appcompat">Vertical Grid(appcompat version)</string>
     <string name="vgrid_support_description">VerticalGridSupportFragment test</string>
     <string name="guidedstep">Guided Step</string>
     <string name="guidedstephalfscreen">Guided Step Half Screen</string>
@@ -79,6 +82,7 @@
     <string name="onboarding">Onboarding</string>
     <string name="onboarding_description">Show onboarding activity.</string>
     <string name="onboarding_support">Onboarding(support version)</string>
+    <string name="onboarding_support_appcompat">Onboarding(appcompat version)</string>
     <string name="video_play_with_detail_card">A video play activity with detail card</string>
     <string name="video_play_with_detail_card_description">A video play activity with detail card</string>
 
@@ -103,6 +107,7 @@
     <string name="music_description">Music player using control glue</string>
 
     <string name="date_picker">Date picker</string>
+    <string name="date_picker_appcompat">Date picker(appcompat version)</string>
     <string name="date_picker_description">Show date picker</string>
     <string name="time_picker">Time picker</string>
     <string name="time_picker_description">Show time picker</string>

@@ -50,9 +50,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @LargeTest
@@ -314,7 +312,7 @@ public class UseCaseAttachStateTest {
         // Change the template to STILL_CAPTURE.
         SessionConfig.Builder builder = new SessionConfig.Builder();
         builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
-        fakeUseCase.attachToCamera(mCameraId, builder.build());
+        fakeUseCase.attachToCamera(builder.build());
 
         useCaseAttachState.updateUseCase(fakeUseCase);
 
@@ -370,15 +368,12 @@ public class UseCaseAttachStateTest {
             String selectedCameraId = CameraX.getCameraWithCameraSelector(selector);
             onBind(new FakeCamera(selectedCameraId, null,
                     new FakeCameraInfoInternal(selectedCameraId, 0, selector.getLensFacing())));
-            Map<String, Size> suggestedResolutionMap = new HashMap<>();
-            suggestedResolutionMap.put(cameraId, new Size(640, 480));
-            updateSuggestedResolution(suggestedResolutionMap);
+            updateSuggestedResolution(new Size(640, 480));
         }
 
         @Override
         @NonNull
-        protected Map<String, Size> onSuggestedResolutionUpdated(
-                @NonNull Map<String, Size> suggestedResolutionMap) {
+        protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
             SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             if (mDeferrableSurface != null) {
@@ -390,9 +385,9 @@ public class UseCaseAttachStateTest {
             builder.addSessionStateCallback(mSessionStateCallback);
             builder.addRepeatingCameraCaptureCallback(mCameraCaptureCallback);
 
-            attachToCamera(getBoundCameraId(), builder.build());
+            attachToCamera(builder.build());
 
-            return suggestedResolutionMap;
+            return suggestedResolution;
         }
 
         @Override
@@ -404,8 +399,8 @@ public class UseCaseAttachStateTest {
         }
 
         @Override
-        public void attachToCamera(@NonNull String cameraId, @NonNull SessionConfig sessionConfig) {
-            super.attachToCamera(cameraId, sessionConfig);
+        public void attachToCamera(@NonNull SessionConfig sessionConfig) {
+            super.attachToCamera(sessionConfig);
         }
 
     }

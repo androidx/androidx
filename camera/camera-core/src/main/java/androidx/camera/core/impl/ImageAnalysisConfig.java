@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl;
 
+import android.graphics.ImageFormat;
 import android.media.ImageReader;
 import android.util.Pair;
 import android.util.Rational;
@@ -209,6 +210,16 @@ public final class ImageAnalysisConfig
     @NonNull
     public String getTargetName() {
         return retrieveOption(OPTION_TARGET_NAME);
+    }
+
+    /**
+     * Retrieves the format of the image that is fed as input.
+     *
+     * <p>This should always be YUV_420_888 for ImageAnalysis.
+     */
+    @Override
+    public int getInputFormat() {
+        return ImageFormat.YUV_420_888;
     }
 
     // Implementations of ImageOutputConfig default methods

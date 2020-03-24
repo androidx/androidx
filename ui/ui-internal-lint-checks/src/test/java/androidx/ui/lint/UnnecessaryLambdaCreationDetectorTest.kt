@@ -219,8 +219,8 @@ src/test/test.kt:21: Error: Creating an unnecessary lambda to emit a captured la
             @Composable
             fun Test() {
                 val unscopedLambda: () -> Unit = {}
-                val scopedLambda: SomeScope.() -> Unit = {}
-                val differentlyScopedLambda: OtherScope.() -> Unit = {}
+                val scopedLambda: @Composable() SomeScope.() -> Unit = {}
+                val differentlyScopedLambda: @Composable() OtherScope.() -> Unit = {}
 
                 ScopedComposableFunction {
                     unscopedLambda()
@@ -240,6 +240,28 @@ src/test/SomeScope.kt:22: Error: Creating an unnecessary lambda to emit a captur
         ~~~~~~~~~~~~
 1 errors, 0 warnings
         """)
+    }
+
+    @Test
+    fun ignoresMismatchedComposability() {
+        check("""
+            package test
+
+            fun uncomposableLambdaFunction(child: () -> Unit) {}
+
+            val uncomposableLambda = {}
+
+            @Composable
+            fun Test() {
+                uncomposableLambdaFunction {
+                    lambda()
+                }
+
+                ComposableFunction {
+                    uncomposableLambda()
+                }
+            }
+        """).expectClean()
     }
 }
 /* ktlint-enable max-line-length */

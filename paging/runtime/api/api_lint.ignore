@@ -9,10 +9,10 @@ ListenerLast: androidx.paging.AsyncPagedListDiffer#AsyncPagedListDiffer(androidx
     Listeners should always be at end of argument list (method `AsyncPagedListDiffer`)
 
 
-MissingNullability: androidx.paging.AsyncPagingDataDiffer#collectFrom(androidx.paging.PagingData<T>, kotlin.coroutines.Continuation<? super kotlin.Unit>):
-    Missing nullability on method `collectFrom` return
-MissingNullability: androidx.paging.PagingDataAdapter#collectFrom(androidx.paging.PagingData<T>, kotlin.coroutines.Continuation<? super kotlin.Unit>):
-    Missing nullability on method `collectFrom` return
+MissingNullability: androidx.paging.AsyncPagingDataDiffer#presentData(androidx.paging.PagingData<T>, kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Missing nullability on method `presentData` return
+MissingNullability: androidx.paging.PagingDataAdapter#presentData(androidx.paging.PagingData<T>, kotlin.coroutines.Continuation<? super kotlin.Unit>):
+    Missing nullability on method `presentData` return
 
 
 TopLevelBuilder: androidx.paging.LivePagedListBuilder:

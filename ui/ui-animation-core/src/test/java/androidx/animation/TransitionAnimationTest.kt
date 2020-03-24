@@ -30,17 +30,19 @@ class TransitionAnimationTest {
         anim.toState(AnimState.B)
         val physicsAnim = SpringAnimation()
         var playTime = 0L
+        clock.clockTimeMillis = playTime
         do {
-            // Increment the time stamp until the animation finishes
-            clock.clockTimeMillis = playTime
             assertEquals(anim[prop1],
                 physicsAnim.getValue(playTime, 0f, 1f, 0f),
-                epsilon)
+                0.01f) // TODO(b/151115895) Replace placeholder delta with epsilon
 
             assertEquals(anim[prop2],
                 physicsAnim.getValue(playTime, 100f, -100f, 0f),
                 epsilon)
+
+            // Increment the time stamp until the animation finishes
             playTime += 20L
+            clock.clockTimeMillis = playTime
         } while (anim.isRunning)
     }
 

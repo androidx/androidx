@@ -27,6 +27,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable
 import androidx.ui.geometry.Offset
@@ -39,10 +40,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.dp
 
@@ -56,20 +56,23 @@ import androidx.ui.unit.dp
  * @param checked whether Checkbox is checked or unchecked
  * @param onCheckedChange callback to be invoked when checkbox is being clicked,
  * therefore the change of checked state in requested.
- * If `null`, Checkbox will appears in the [checked] state and remains disabled
+ * @param enabled enabled whether or not this [Checkbox] will handle input events and appear
+ * enabled for semantics purposes
  * @param modifier Modifier to be applied to the layout of the checkbox
  * @param color custom color for checkbox
  */
 @Composable
 fun Checkbox(
     checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors().secondary
+    color: Color = MaterialTheme.colors.secondary
 ) {
     TriStateCheckbox(
-        value = ToggleableState(checked),
-        onClick = onCheckedChange?.let { { it(!checked) } },
+        state = ToggleableState(checked),
+        onClick = { onCheckedChange(!checked) },
+        enabled = enabled,
         color = color,
         modifier = modifier
     )
@@ -86,42 +89,49 @@ fun Checkbox(
  *
  * @see [Checkbox] if you want a simple component that represents Boolean state
  *
- * @param value whether TriStateCheckbox is checked, unchecked or in indeterminate state
+ * @param state whether TriStateCheckbox is checked, unchecked or in indeterminate state
  * @param onClick callback to be invoked when checkbox is being clicked,
  * therefore the change of ToggleableState state is requested.
- * If `null`, TriStateCheckbox appears in the [value] state and remains disabled
+ * @param enabled enabled whether or not this [TriStateCheckbox] will handle input events and
+ * appear enabled for semantics purposes
  * @param modifier Modifier to be applied to the layout of the checkbox
  * @param color custom color for checkbox
  */
 @Composable
 fun TriStateCheckbox(
-    value: ToggleableState,
-    onClick: (() -> Unit)?,
+    state: ToggleableState,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors().secondary
+    color: Color = MaterialTheme.colors.secondary
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
-        Container(modifier) {
-            Ripple(bounded = false) {
-                TriStateToggleable(value = value, onToggle = onClick) {
-                    Box(LayoutPadding(CheckboxDefaultPadding)) {
-                        DrawCheckbox(value = value, activeColor = color)
-                    }
-                }
+        Box(modifier, gravity = ContentGravity.Center) {
+            TriStateToggleable(
+                state = state,
+                onClick = onClick,
+                enabled = enabled,
+                modifier = ripple(bounded = false, enabled = enabled)
+            ) {
+                DrawCheckbox(
+                    value = state,
+                    activeColor = color,
+                    modifier = LayoutPadding(CheckboxDefaultPadding)
+                )
             }
         }
     }
 }
 
 @Composable
-private fun DrawCheckbox(value: ToggleableState, activeColor: Color) {
-    val unselectedColor = MaterialTheme.colors().onSurface.copy(alpha = UncheckedBoxOpacity)
+private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: Modifier) {
+    val unselectedColor = MaterialTheme.colors.onSurface.copy(alpha = UncheckedBoxOpacity)
     val definition = remember(activeColor, unselectedColor) {
         generateTransitionDefinition(activeColor, unselectedColor)
     }
     val checkboxPaint = remember { Paint() }
     Transition(definition = definition, toState = value) { state ->
-        Canvas(modifier = LayoutSize(CheckboxSize)) {
+        Canvas(modifier = modifier + LayoutSize(CheckboxSize)) {
             drawBox(
                 color = state[BoxColorProp],
                 innerRadiusFraction = state[InnerRadiusFractionProp],
@@ -178,8 +188,10 @@ private fun CanvasScope.drawBox(
         val clipRect = outer.shrink(strokeWidth / 2 - offset).outerRect()
         save()
         clipRect(clipRect, ClipOp.difference)
-        drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, outerRadius,
-            outerRadius, paint)
+        drawRoundRect(
+            outer.left, outer.top, outer.right, outer.bottom, outerRadius,
+            outerRadius, paint
+        )
         restore()
 
         save()
@@ -189,8 +201,10 @@ private fun CanvasScope.drawBox(
         drawRect(outer.shrink(innerHalfStrokeWidth - offset).outerRect(), paint)
         restore()
     } else {
-        drawRoundRect(outer.left, outer.top, outer.right, outer.bottom, outerRadius,
-            outerRadius, paint)
+        drawRoundRect(
+            outer.left, outer.top, outer.right, outer.bottom, outerRadius,
+            outerRadius, paint
+        )
     }
 }
 

@@ -20,7 +20,7 @@ import android.net.Uri;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
-import androidx.webkit.JsReplyProxy;
+import androidx.webkit.JavaScriptReplyProxy;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebViewCompat;
 
@@ -45,11 +45,12 @@ public class WebMessageListenerAdapter implements WebMessageListenerBoundaryInte
     @Override
     public void onPostMessage(@NonNull WebView view,
             @NonNull /* WebMessage */ InvocationHandler message, @NonNull Uri sourceOrigin,
-            boolean isMainFrame, @NonNull /* JsReplyProxy */ InvocationHandler replyProxy) {
+            boolean isMainFrame, @NonNull /* JavaScriptReplyProxy */ InvocationHandler replyProxy) {
         WebMessageCompat webMessage = WebMessageAdapter.webMessageCompatFromBoundaryInterface(
                 BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                         WebMessageBoundaryInterface.class, message));
-        JsReplyProxy jsReplyProxy = JsReplyProxyImpl.forInvocationHandler(replyProxy);
+        JavaScriptReplyProxy jsReplyProxy =
+                JavaScriptReplyProxyImpl.forInvocationHandler(replyProxy);
         mWebMessageListener.onPostMessage(
                 view, webMessage, sourceOrigin, isMainFrame, jsReplyProxy);
     }

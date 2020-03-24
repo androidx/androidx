@@ -20,12 +20,12 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.test.util.obfuscateNodesInfo
@@ -333,9 +333,9 @@ class ErrorMessagesTest {
         // Since we're adding layouts in between the clickable layer and the content, we need to
         // merge all descendants, or we'll get multiple nodes
         Semantics(container = true, mergeAllDescendants = true) {
-            Surface() {
-                Clickable(onClick = onClick) {
-                    Container(children = children)
+            Surface {
+                Clickable(onClick = onClick ?: {}, enabled = onClick != null) {
+                    Box(children = children)
                 }
             }
         }

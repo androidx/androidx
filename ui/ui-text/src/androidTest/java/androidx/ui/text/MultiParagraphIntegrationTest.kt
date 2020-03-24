@@ -1274,7 +1274,7 @@ class MultiParagraphIntegrationTest {
             for (paragraph in paragraphs) {
                 pushStyle(ParagraphStyle())
                 append(paragraph)
-                popStyle()
+                pop()
             }
         }
     }

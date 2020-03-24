@@ -18,7 +18,6 @@ package androidx.ui.foundation
 
 import androidx.compose.state
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Text
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected

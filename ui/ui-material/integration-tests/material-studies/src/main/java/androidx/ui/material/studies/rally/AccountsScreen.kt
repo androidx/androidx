@@ -17,7 +17,7 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -27,8 +27,8 @@ import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
+import androidx.ui.material.Card
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Card
 import androidx.ui.unit.dp
 
 /**
@@ -50,12 +50,12 @@ fun AccountsBody() {
                 Column(modifier = LayoutGravity.Center) {
                     Text(
                         text = "Total",
-                        style = MaterialTheme.typography().body1,
+                        style = MaterialTheme.typography.body1,
                         modifier = LayoutGravity.Center
                     )
                     Text(
                         text = "$12,132.49",
-                        style = MaterialTheme.typography().h2,
+                        style = MaterialTheme.typography.h2,
                         modifier = LayoutGravity.Center
                     )
                 }

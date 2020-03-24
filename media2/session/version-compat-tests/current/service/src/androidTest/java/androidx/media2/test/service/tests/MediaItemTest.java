@@ -164,20 +164,24 @@ public class MediaItemTest {
 
     @Test
     public void testSubclass_acrossProcessWithMediaUtils() {
-        // Mocks the binder call across the processes by using writeParcelable/readParcelable
-        // which only happens between processes. Code snippets are copied from
-        // VersionedParcelIntegTest#parcelCopy.
         final Parcel p = Parcel.obtain();
-        p.writeParcelable(MediaParcelUtils.toParcelable(mTestItem), 0);
-        p.setDataPosition(0);
-        final MediaItem testRemoteItem = MediaParcelUtils.fromParcelable(
-                (ParcelImpl) p.readParcelable(MediaItem.class.getClassLoader()));
+        try {
+            // Mocks the binder call across the processes by using writeParcelable/readParcelable
+            // which only happens between processes. Code snippets are copied from
+            // VersionedParcelIntegTest#parcelCopy.
+            p.writeParcelable(MediaParcelUtils.toParcelable(mTestItem), 0);
+            p.setDataPosition(0);
+            final MediaItem testRemoteItem = MediaParcelUtils.fromParcelable(
+                    (ParcelImpl) p.readParcelable(MediaItem.class.getClassLoader()));
 
-        assertEquals(MediaItem.class, testRemoteItem.getClass());
-        assertEquals(mTestItem.getStartPosition(), testRemoteItem.getStartPosition());
-        assertEquals(mTestItem.getEndPosition(), testRemoteItem.getEndPosition());
-        MediaTestUtils.assertMediaMetadataEquals(
-                mTestItem.getMetadata(), testRemoteItem.getMetadata());
+            assertEquals(MediaItem.class, testRemoteItem.getClass());
+            assertEquals(mTestItem.getStartPosition(), testRemoteItem.getStartPosition());
+            assertEquals(mTestItem.getEndPosition(), testRemoteItem.getEndPosition());
+            MediaTestUtils.assertMediaMetadataEquals(
+                    mTestItem.getMetadata(), testRemoteItem.getMetadata());
+        } finally {
+            p.recycle();
+        }
     }
 
     @Test
@@ -185,15 +189,17 @@ public class MediaItemTest {
         if (mTestItem.getClass() == MediaItem.class) {
             return;
         }
+        final Parcel p = Parcel.obtain();
         try {
             // Mocks the binder call across the processes by using writeParcelable/readParcelable
             // which only happens between processes. Code snippets are copied from
             // VersionedParcelIntegTest#parcelCopy.
-            final Parcel p = Parcel.obtain();
             p.writeParcelable(ParcelUtils.toParcelable(mTestItem), 0);
             fail("Write to parcel should throw RuntimeException for subclass of MediaItem");
         } catch (RuntimeException e) {
             // Expected.
+        } finally {
+            p.recycle();
         }
     }
 

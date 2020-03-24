@@ -22,10 +22,12 @@ import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
-import androidx.ui.layout.Center
-import androidx.ui.layout.Container
-import androidx.ui.test.ComposeTestCase
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
+import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 import org.junit.Rule
@@ -57,8 +59,8 @@ private class DeepHierarchyOnPositionedTestCase :
     override fun emitContent() {
         val size = state { 200.dp }
         this.state = size
-        Center {
-            Container(width = size.value, height = size.value) {
+        Stack {
+            Box(LayoutSize(size.value), gravity = ContentGravity.Center) {
                 StaticChildren(100)
             }
         }
@@ -67,11 +69,14 @@ private class DeepHierarchyOnPositionedTestCase :
     @Composable
     private fun StaticChildren(count: Int) {
         if (count > 0) {
-            Container(width = 100.dp, height = 100.dp) {
+            val modifier = if (count == 1) {
+                onPositioned { it.size }
+            } else {
+                Modifier.None
+            }
+            Box(LayoutSize(100.dp) + modifier, gravity = ContentGravity.Center) {
                 StaticChildren(count - 1)
             }
-        } else {
-            OnPositioned { coordinates -> coordinates.size }
         }
     }
 

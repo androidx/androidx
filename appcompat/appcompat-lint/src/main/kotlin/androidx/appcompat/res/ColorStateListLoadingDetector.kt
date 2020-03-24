@@ -16,22 +16,36 @@
 
 package androidx.appcompat.res
 
+import androidx.appcompat.BaseMethodDeprecationDetector
+import com.android.tools.lint.client.api.TYPE_INT
 import com.android.tools.lint.detector.api.Category
-import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
-import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
-import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.intellij.psi.PsiMethod
-import org.jetbrains.uast.UCallExpression
 
+// Flags usage of Resources.getColorStateList and suggests converting it to either
+// ContextCompat.getColorStateList or AppCompatResources.getColorStateList based
+// on the API level
 @Suppress("UnstableApiUsage")
-class ColorStateListLoadingDetector : Detector(), SourceCodeScanner {
+class ColorStateListLoadingDetector : BaseMethodDeprecationDetector(
+    NOT_USING_COMPAT_LOADING,
+    // Suggest using ContextCompat.getColorStateList at API > 23
+    DeprecationCondition(
+        MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
+        "Use `ContextCompat.getColorStateList()`",
+        ApiAbove(23)
+    ),
+    // Suggest using AppCompatResources.getColorStateList at API <= 23
+    DeprecationCondition(
+        MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
+        "Use `AppCompatResources.getColorStateList()`",
+        ApiAtOrBelow(23)
+    )
+) {
     companion object {
         internal val NOT_USING_COMPAT_LOADING: Issue = Issue.create(
-            "UseCompatLoading",
+            "UseCompatLoadingForColorStateLists",
             "Should not call `Resources.getColorStateList` directly",
             "Use Compat loading of color state lists",
             Category.CORRECTNESS,
@@ -39,23 +53,5 @@ class ColorStateListLoadingDetector : Detector(), SourceCodeScanner {
             Severity.WARNING,
             Implementation(ColorStateListLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE)
         )
-    }
-
-    override fun getApplicableMethodNames(): List<String>? = listOf("getColorStateList")
-
-    override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        // Only flag Resources.getColorStateList calls with one argument (parameter)
-        if (context.evaluator.isMemberInClass(method, "android.content.res.Resources") &&
-            (node.valueArgumentCount == 1)
-        ) {
-            val message = if (context.mainProject.minSdkVersion.featureLevel > 23)
-                "Use `ContextCompat.getColorStateList()`" else
-                "Use `AppCompatResources.getColorStateList()`"
-            context.report(
-                NOT_USING_COMPAT_LOADING,
-                context.getLocation(node),
-                message
-            )
-        }
     }
 }

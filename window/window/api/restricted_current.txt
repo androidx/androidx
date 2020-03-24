@@ -1,0 +1,73 @@
+// Signature format: 3.0
+package androidx.window {
+
+  public final class DeviceState {
+    method public int getPosture();
+    field public static final int POSTURE_CLOSED = 1; // 0x1
+    field public static final int POSTURE_FLIPPED = 4; // 0x4
+    field public static final int POSTURE_HALF_OPENED = 2; // 0x2
+    field public static final int POSTURE_OPENED = 3; // 0x3
+    field public static final int POSTURE_UNKNOWN = 0; // 0x0
+  }
+
+  public static class DeviceState.Builder {
+    ctor public DeviceState.Builder();
+    method public androidx.window.DeviceState build();
+    method public androidx.window.DeviceState.Builder setPosture(int);
+  }
+
+  public final class DisplayFeature {
+    method public android.graphics.Rect getBounds();
+    method public int getType();
+    field public static final int TYPE_FOLD = 1; // 0x1
+    field public static final int TYPE_HINGE = 2; // 0x2
+  }
+
+  public static class DisplayFeature.Builder {
+    ctor public DisplayFeature.Builder();
+    method public androidx.window.DisplayFeature build();
+    method public androidx.window.DisplayFeature.Builder setBounds(android.graphics.Rect);
+    method public androidx.window.DisplayFeature.Builder setType(int);
+  }
+
+  public final class ExtensionWindowBackend implements androidx.window.WindowBackend {
+    method public androidx.window.DeviceState getDeviceState();
+    method public static androidx.window.ExtensionWindowBackend getInstance(android.content.Context);
+    method public androidx.window.WindowLayoutInfo getWindowLayoutInfo(android.content.Context);
+    method public void registerDeviceStateChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.DeviceState!>);
+    method public void registerLayoutChangeCallback(android.content.Context, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+    method public void unregisterDeviceStateChangeCallback(androidx.core.util.Consumer<androidx.window.DeviceState!>);
+    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+  }
+
+  public interface WindowBackend {
+    method public androidx.window.DeviceState getDeviceState();
+    method public androidx.window.WindowLayoutInfo getWindowLayoutInfo(android.content.Context);
+    method public void registerDeviceStateChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.DeviceState!>);
+    method public void registerLayoutChangeCallback(android.content.Context, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+    method public void unregisterDeviceStateChangeCallback(androidx.core.util.Consumer<androidx.window.DeviceState!>);
+    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+  }
+
+  public final class WindowLayoutInfo {
+    method public java.util.List<androidx.window.DisplayFeature!> getDisplayFeatures();
+  }
+
+  public static class WindowLayoutInfo.Builder {
+    ctor public WindowLayoutInfo.Builder();
+    method public androidx.window.WindowLayoutInfo build();
+    method public androidx.window.WindowLayoutInfo.Builder setDisplayFeatures(java.util.List<androidx.window.DisplayFeature!>);
+  }
+
+  public final class WindowManager {
+    ctor public WindowManager(android.content.Context, androidx.window.WindowBackend?);
+    method public androidx.window.DeviceState getDeviceState();
+    method public androidx.window.WindowLayoutInfo getWindowLayoutInfo();
+    method public void registerDeviceStateChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.DeviceState!>);
+    method public void registerLayoutChangeCallback(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+    method public void unregisterDeviceStateChangeCallback(androidx.core.util.Consumer<androidx.window.DeviceState!>);
+    method public void unregisterLayoutChangeCallback(androidx.core.util.Consumer<androidx.window.WindowLayoutInfo!>);
+  }
+
+}
+

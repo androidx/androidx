@@ -46,7 +46,7 @@ class FindParentFocusNodeTest {
         // Arrange.
         val focusNode = FocusNode()
         val parentFocusNode = FocusNode()
-        parentFocusNode.emitInsertAt(0, focusNode)
+        parentFocusNode.insertAt(0, focusNode)
 
         // Act.
         val parent = focusNode.findParentFocusNode()
@@ -61,8 +61,8 @@ class FindParentFocusNodeTest {
         val focusNode = FocusNode()
         val parentFocusNode = FocusNode()
         val grandparentFocusNode = FocusNode()
-        grandparentFocusNode.emitInsertAt(0, parentFocusNode)
-        parentFocusNode.emitInsertAt(0, focusNode)
+        grandparentFocusNode.insertAt(0, parentFocusNode)
+        parentFocusNode.insertAt(0, focusNode)
 
         // Act.
         val parent = focusNode.findParentFocusNode()
@@ -78,9 +78,9 @@ class FindParentFocusNodeTest {
         val intermediatePointerInputNode = PointerInputNode()
         val intermediateLayoutNode = LayoutNode()
         val parentFocusNode = FocusNode()
-        parentFocusNode.emitInsertAt(0, intermediatePointerInputNode)
-        intermediatePointerInputNode.emitInsertAt(0, intermediateLayoutNode)
-        intermediateLayoutNode.emitInsertAt(0, focusNode)
+        parentFocusNode.insertAt(0, intermediatePointerInputNode)
+        intermediatePointerInputNode.insertAt(0, intermediateLayoutNode)
+        intermediateLayoutNode.insertAt(0, focusNode)
 
         // Act.
         val parent = focusNode.findParentFocusNode()

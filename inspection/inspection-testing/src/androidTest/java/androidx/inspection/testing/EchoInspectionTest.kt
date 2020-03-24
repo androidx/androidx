@@ -31,10 +31,10 @@ import org.junit.runner.RunWith
 // This test actually tests our InspectorTester infrastructure
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@ExperimentalCoroutinesApi
 class EchoInspectionTest {
 
     @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun pingPongTest() = runBlocking {
         val inspectorTester = InspectorTester(ECHO_INSPECTION_ID)
         assertThat(inspectorTester.channel.isEmpty).isTrue()
@@ -51,6 +51,7 @@ class EchoInspectionTest {
     }
 
     @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun testCancellation() = runBlocking {
         val inspectorTester = InspectorTester(ECHO_INSPECTION_ID)
         assertThat(inspectorTester.channel.isEmpty).isTrue()

@@ -20,14 +20,13 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@ExperimentalCoroutinesApi
 class BasicTest {
     @get:Rule
     val testEnvironment = SqliteInspectorTestEnvironment()
@@ -47,5 +46,15 @@ class BasicTest {
     fun test_basic_inject() {
         // no crash means the inspector was successfully injected
         testEnvironment.assertNoQueuedEvents()
+    }
+
+    @Test
+    fun test_unset_command() = runBlocking {
+        testEnvironment.sendCommand(SqliteInspectorProtocol.Command.getDefaultInstance())
+            .let { response ->
+                assertThat(response.hasErrorOccurred()).isEqualTo(true)
+                assertThat(response.errorOccurred.content.message)
+                    .contains("Unrecognised command type: ONEOF_NOT_SET")
+            }
     }
 }

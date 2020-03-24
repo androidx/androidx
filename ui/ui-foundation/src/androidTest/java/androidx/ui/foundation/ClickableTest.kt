@@ -18,8 +18,7 @@ package androidx.ui.foundation
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
-import androidx.ui.layout.Center
+import androidx.ui.layout.Stack
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertSemanticsIsEqualTo
@@ -43,7 +42,7 @@ class ClickableTest {
     @Test
     fun clickableTest_defaultSemantics() {
         composeTestRule.setContent {
-            Center {
+            Stack {
                 TestTag(tag = "myClickable") {
                     Clickable(onClick = {}) {
                         Text("ClickableText")
@@ -64,9 +63,9 @@ class ClickableTest {
     @Test
     fun clickableTest_disabledSemantics() {
         composeTestRule.setContent {
-            Center {
+            Stack {
                 TestTag(tag = "myClickable") {
-                    Clickable {
+                    Clickable(onClick = {}, enabled = false) {
                         Text("ClickableText")
                     }
                 }
@@ -88,7 +87,7 @@ class ClickableTest {
         val onClick: () -> Unit = { ++counter }
 
         composeTestRule.setContent {
-            Center {
+            Stack {
                 TestTag(tag = "myClickable") {
                     Clickable(onClick = onClick) {
                         Text("ClickableText")

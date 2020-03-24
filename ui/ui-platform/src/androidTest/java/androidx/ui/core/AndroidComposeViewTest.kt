@@ -20,6 +20,7 @@ import android.app.Activity
 import android.graphics.Rect
 import android.util.SparseArray
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.autofill.AutofillValue
 import androidx.test.filters.SdkSuppress
@@ -38,29 +39,33 @@ class AndroidComposeViewTest {
     val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
 
     private val PACKAGE_NAME = "androidx.ui.platform.test"
-    private lateinit var composeView: AndroidComposeView
+    private lateinit var owner: Owner
+    private lateinit var composeView: ViewGroup
 
     @Before
     fun setup() {
-        composeView = AndroidComposeView(activityTestRule.activity)
+        owner = createOwner(activityTestRule.activity)
+        if (owner is ViewGroup) {
+            composeView = owner as ViewGroup
+        }
     }
 
     @SdkSuppress(maxSdkVersion = 25)
     @Test
     fun autofillAmbient_belowApi26_isNull() {
-        assertThat(composeView.autofill).isNull()
+        assertThat(owner.autofill).isNull()
     }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun autofillAmbient_isNotNull() {
-        assertThat(composeView.autofill).isNotNull()
+        assertThat(owner.autofill).isNotNull()
     }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun autofillAmbient_returnsAnInstanceOfAndroidAutofill() {
-        assertThat(composeView.autofill).isInstanceOf(AndroidAutofill::class.java)
+        assertThat(owner.autofill).isInstanceOf(AndroidAutofill::class.java)
     }
 
     @SdkSuppress(minSdkVersion = 26)
@@ -73,7 +78,7 @@ class AndroidComposeViewTest {
             autofillTypes = listOf(AutofillType.Name),
             boundingBox = Rect(0, 0, 0, 0)
         )
-        composeView.autofillTree += autofillNode
+        owner.autofillTree += autofillNode
 
         // Act.
         composeView.onProvideAutofillVirtualStructure(viewStructure, 0)
@@ -104,7 +109,7 @@ class AndroidComposeViewTest {
         val autofillValues = SparseArray<AutofillValue>().apply {
             append(autofillNode.id, AutofillValue.forText(expectedValue))
         }
-        composeView.autofillTree += autofillNode
+        owner.autofillTree += autofillNode
 
         // Act.
         composeView.autofill(autofillValues)

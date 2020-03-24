@@ -23,6 +23,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.ColorSpace;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
@@ -777,6 +778,9 @@ public final class PrintHelper {
             mDecodeOptions = new BitmapFactory.Options();
             mDecodeOptions.inMutable = true;
             mDecodeOptions.inSampleSize = sampleSize;
+            if (Build.VERSION.SDK_INT >= 26) {
+                mDecodeOptions.inPreferredColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);
+            }
             decodeOptions = mDecodeOptions;
         }
         try {

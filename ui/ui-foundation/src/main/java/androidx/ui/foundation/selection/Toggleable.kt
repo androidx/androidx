@@ -17,16 +17,21 @@
 package androidx.ui.foundation.selection
 
 import androidx.compose.Composable
-import androidx.ui.core.gesture.PressReleasedGestureDetector
+import androidx.ui.core.Modifier
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Strings
+import androidx.ui.foundation.selection.ToggleableState.Indeterminate
+import androidx.ui.foundation.selection.ToggleableState.Off
+import androidx.ui.foundation.selection.ToggleableState.On
 import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.accessibilityValue
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
-import androidx.ui.semantics.accessibilityValue
 
 /**
- * Combines [PressReleasedGestureDetector] and [Semantics] for the components that need to be
+ * Combines [TapGestureDetector] and [Semantics] for the components that need to be
  * toggleable, like Switch.
  *
  * @sample androidx.ui.foundation.samples.ToggleableSample
@@ -36,23 +41,31 @@ import androidx.ui.semantics.accessibilityValue
  * @param value whether Toggleable is on or off
  * @param onValueChange callback to be invoked when toggleable is being clicked,
  * therefore the change of the state in requested.
- * If null, Toggleable will appear in the [value] state and remains disabled
+ * @param enabled enabled whether or not this [Toggleable] will handle input events and appear
+ * enabled for semantics purposes
+ * @param modifier allows to provide a modifier to be added before the gesture detector, for
+ * example Ripple should be added at this point. this will be easier once we migrate this
+ * function to a Modifier
  */
 @Composable
 fun Toggleable(
     value: Boolean,
-    onValueChange: ((Boolean) -> Unit)? = null,
+    onValueChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
     TriStateToggleable(
-        value = ToggleableState(value),
-        onToggle = onValueChange?.let { { it(!value) } },
+        state = ToggleableState(value),
+        onClick = { onValueChange(!value) },
+        enabled = enabled,
+        modifier = modifier,
         children = children
     )
 }
 
 /**
- * Combines [PressReleasedGestureDetector] and [Semantics] for the components with three states
+ * Combines [TapGestureDetector] and [Semantics] for the components with three states
  * like TriStateCheckbox.
  *
  * It supports three states: On, Off and Indeterminate.
@@ -64,35 +77,41 @@ fun Toggleable(
  *
  * @see [Toggleable] if you want to support only two states: on and off
  *
- * @param value current value for the component
- * @param onToggle will be called when user toggles the toggleable. The children will not be
- *  toggleable when it is null.
+ * @param state current value for the component
+ * @param onClick will be called when user toggles the toggleable.
+ * @param enabled enabled whether or not this [TriStateToggleable] will handle input events and
+ * appear enabled for semantics purposes
+ * @param modifier allows to provide a modifier to be added before the gesture detector, for
+ * example Ripple should be added at this point. this will be easier once we migrate this
+ * function to a Modifier
  */
 @Composable
 fun TriStateToggleable(
-    value: ToggleableState = ToggleableState.On,
-    onToggle: (() -> Unit)? = null,
+    state: ToggleableState = On,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    PressReleasedGestureDetector(
-        onRelease = onToggle,
-        consumeDownOnStart = false
-    ) {
-        // TODO(pavlis): Handle multiple states for Semantics
-        Semantics(container = true, properties = {
-            this.accessibilityValue = when (value) {
-                // TODO(ryanmentley): These should be set by Checkbox, Switch, etc.
-                ToggleableState.On -> Strings.Checked
-                ToggleableState.Off -> Strings.Unchecked
-                ToggleableState.Indeterminate -> Strings.Indeterminate
-            }
-            this.toggleableState = value
-            this.enabled = onToggle != null
+    // TODO(pavlis): Handle multiple states for Semantics
+    Semantics(container = true, properties = {
+        this.accessibilityValue = when (state) {
+            // TODO(ryanmentley): These should be set by Checkbox, Switch, etc.
+            On -> Strings.Checked
+            Off -> Strings.Unchecked
+            Indeterminate -> Strings.Indeterminate
+        }
+        this.toggleableState = state
+        this.enabled = enabled
 
-            if (onToggle != null) {
-                onClick(action = onToggle, label = "Toggle")
-            }
-        }, children = children)
+        if (enabled) {
+            onClick(action = onClick, label = "Toggle")
+        }
+    }) {
+        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+        //  is implemented with modifiers.
+        @Suppress("DEPRECATION")
+        PassThroughLayout(modifier + TapGestureDetector(onClick), children)
     }
 }
 
@@ -113,5 +132,4 @@ enum class ToggleableState {
  *
  * @param value whether the ToggleableState is on or off
  */
-fun ToggleableState(value: Boolean) =
-    if (value) ToggleableState.On else ToggleableState.Off
+fun ToggleableState(value: Boolean) = if (value) On else Off

@@ -23,46 +23,44 @@ import androidx.annotation.NonNull;
 /**
  * Main Sidecar interface definition that will be used by the WindowManager library to get custom
  * OEM-provided information that isn't covered by platform APIs.
- *
- * <p>This interface should be implemented by OEM and deployed to the target devices.
- *
- * @see SidecarProvider
+ * @deprecated Use androidx.window.extensions instead of this package.
  */
+@Deprecated
 public interface SidecarInterface {
 
     /**
-     * Register the support library as the callback for the sidecar. This interface will be used to
+     * Registers the support library as the callback for the sidecar. This interface will be used to
      * report all sidecar changes to the support library.
      */
     void setSidecarCallback(@NonNull SidecarCallback callback);
 
     /**
-     * Get current information about the display features present within the application window.
+     * Gets current information about the display features present within the application window.
      */
     @NonNull
     SidecarWindowLayoutInfo getWindowLayoutInfo(@NonNull IBinder windowToken);
 
     /**
-     * Notify sidecar that a listener for display feature layout changes was registered for the
+     * Notifies sidecar that a listener for display feature layout changes was registered for the
      * given window token.
      */
     void onWindowLayoutChangeListenerAdded(@NonNull IBinder windowToken);
 
     /**
-     * Notify sidecar that a listener for display feature layout changes was removed for the
+     * Notifies sidecar that a listener for display feature layout changes was removed for the
      * given window token.
      */
     void onWindowLayoutChangeListenerRemoved(@NonNull IBinder windowToken);
 
     /**
-     * Get current device state.
+     * Gets current device state.
      * @see #onDeviceStateListenersChanged(boolean)
      */
     @NonNull
     SidecarDeviceState getDeviceState();
 
     /**
-     * Notify the sidecar that a device state change listener was updated.
+     * Notifies the sidecar that a device state change listener was updated.
      * @param isEmpty flag indicating if the list of device state change listeners is empty.
      */
     void onDeviceStateListenersChanged(boolean isEmpty);
@@ -70,7 +68,9 @@ public interface SidecarInterface {
     /**
      * Callback that will be registered with the WindowManager library, and that the sidecar should
      * use to report all state changes.
+     * @deprecated Use androidx.window.extensions instead of this package.
      */
+    @Deprecated
     interface SidecarCallback {
         /**
          * Called by sidecar when the device state changes.

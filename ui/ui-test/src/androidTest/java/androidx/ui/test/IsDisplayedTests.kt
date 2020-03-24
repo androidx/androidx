@@ -21,18 +21,19 @@ import androidx.compose.Model
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
+import androidx.ui.layout.Stack
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
@@ -100,7 +101,7 @@ class IsDisplayedTests {
 
         composeTestRule.setContent {
             val lastNode = @Composable {
-                Center {
+                Stack {
                     Semantics(container = true) {
                         Text("Foo")
                     }
@@ -110,7 +111,7 @@ class IsDisplayedTests {
             val thirdNode = @Composable {
                 Layout({
                     lastNode()
-                }) { measurables, constraints ->
+                }) { measurables, constraints, _ ->
                     val placeable = measurables[0].measure(constraints)
                     layout(0.ipx, 0.ipx) {
                         placeable.place(0.ipx, 0.ipx)
@@ -121,7 +122,7 @@ class IsDisplayedTests {
             val secondNode = @Composable {
                 Layout({
                     thirdNode()
-                }) { measurables, constraints ->
+                }) { measurables, constraints, _ ->
                     if (model.value) {
                         val placeable = measurables[0].measure(constraints)
                         layout(0.ipx, 0.ipx) {
@@ -136,7 +137,7 @@ class IsDisplayedTests {
             val topNode = @Composable {
                 Layout({
                     secondNode()
-                }) { measurables, constraints ->
+                }) { measurables, constraints, _ ->
                     if (model.value) {
                         val placeable = measurables[0].measure(constraints)
                         layout(0.ipx, 0.ipx) {
@@ -167,17 +168,19 @@ class IsDisplayedTests {
     fun rowTooSmall() {
         composeTestRule.setContent {
             val style = TextStyle(fontSize = 30.sp)
-            Center {
+            Stack {
                 // TODO(popam): remove this when a modifier can be used instead
-                Layout({
-                    Row {
-                        for (i in 1..100) {
-                            Semantics(container = true) {
-                                Text(text = i.toString(), style = style)
+                Layout(
+                    children = {
+                        Row {
+                            for (i in 1..100) {
+                                Semantics(container = true) {
+                                    Text(text = i.toString(), style = style)
+                                }
                             }
                         }
-                    }
-                }) { measurables, constraints ->
+                    },
+                    modifier = LayoutGravity.Center) { measurables, constraints, _ ->
                     val placeable =
                         measurables[0].measure(constraints.copy(maxWidth = IntPx.Infinity))
                     layout(placeable.width, placeable.height) {
@@ -202,10 +205,10 @@ class IsDisplayedTests {
                     wasScrollToCalled = true
                 })
             }) {
-                Container {
+                Box {
                     TestTag(tag) {
                         Semantics(container = true) {
-                            Container { }
+                            Box()
                         }
                     }
                 }

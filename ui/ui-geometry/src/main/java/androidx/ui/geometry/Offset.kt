@@ -92,7 +92,7 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
         }
 
         fun isValid(offset: Offset): Boolean {
-            assert(!offset.dx.isNaN() && !offset.dy.isNaN()) {
+            check(!offset.dx.isNaN() && !offset.dy.isNaN()) {
                 "Offset argument contained a NaN value."
             }
             return true

@@ -62,7 +62,7 @@ class TextFieldDelegateIntegrationTest {
     fun draw_selection_test() {
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,
@@ -103,7 +103,7 @@ class TextFieldDelegateIntegrationTest {
 
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,
@@ -138,7 +138,7 @@ class TextFieldDelegateIntegrationTest {
 
         val textDelegate = TextDelegate(
             text = AnnotatedString("Hello, World"),
-            style = TextStyle.Empty,
+            style = TextStyle.Default,
             maxLines = 2,
             density = density,
             resourceLoader = resourceLoader,
@@ -163,6 +163,48 @@ class TextFieldDelegateIntegrationTest {
         )
 
         assertThat(actualBitmap.sameAs(expectedBitmap)).isTrue()
+    }
+
+    @Test
+    fun layout_height_constraint_max_height() {
+        val textDelegate = TextDelegate(
+            text = AnnotatedString("Hello, World"),
+            style = TextStyle.Default,
+            maxLines = 2,
+            density = density,
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
+        )
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx))
+        val requestHeight = layoutResult.size.height / 2
+
+        val (_, height, _) = TextFieldDelegate.layout(
+            textDelegate,
+            Constraints.fixedHeight(requestHeight)
+        )
+
+        assertThat(height).isEqualTo(requestHeight)
+    }
+
+    @Test
+    fun layout_height_constraint_min_height() {
+        val textDelegate = TextDelegate(
+            text = AnnotatedString("Hello, World"),
+            style = TextStyle.Default,
+            maxLines = 2,
+            density = density,
+            resourceLoader = resourceLoader,
+            layoutDirection = LayoutDirection.Ltr
+        )
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx))
+        val requestHeight = layoutResult.size.height * 2
+
+        val (_, height, _) = TextFieldDelegate.layout(
+            textDelegate,
+            Constraints.fixedHeight(requestHeight)
+        )
+
+        assertThat(height).isEqualTo(requestHeight)
     }
 }
 

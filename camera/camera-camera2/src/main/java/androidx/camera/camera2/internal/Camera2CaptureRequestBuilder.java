@@ -129,6 +129,13 @@ class Camera2CaptureRequestBuilder {
                             CaptureConfig.OPTION_ROTATION));
         }
 
+        if (captureConfig.getImplementationOptions().containsOption(
+                CaptureConfig.OPTION_JPEG_QUALITY)) {
+            builder.set(CaptureRequest.JPEG_QUALITY,
+                    captureConfig.getImplementationOptions().retrieveOption(
+                            CaptureConfig.OPTION_JPEG_QUALITY).byteValue());
+        }
+
         for (Surface surface : surfaceList) {
             builder.addTarget(surface);
         }

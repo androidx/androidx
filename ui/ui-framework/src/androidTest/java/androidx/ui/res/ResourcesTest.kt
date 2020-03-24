@@ -22,7 +22,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
 import androidx.ui.framework.test.R
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
@@ -66,7 +66,7 @@ class ResourcesTest {
         val failedImage = imageFromResource(resource, R.drawable.failed_image)
 
         var uiThreadWork: (() -> Unit)? = null
-        var res: DeferredResource<Image>? = null
+        var res: DeferredResource<ImageAsset>? = null
 
         composeTestRule.setContent {
             Providers(ContextAmbient provides context) {
@@ -120,7 +120,7 @@ class ResourcesTest {
         val failedImage = imageFromResource(resource, R.drawable.failed_image)
 
         var uiThreadWork: (() -> Unit)? = null
-        var res: DeferredResource<Image>? = null
+        var res: DeferredResource<ImageAsset>? = null
 
         composeTestRule.setContent {
             Providers(ContextAmbient provides context) {

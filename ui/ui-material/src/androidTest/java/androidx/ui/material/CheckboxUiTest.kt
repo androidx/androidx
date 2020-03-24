@@ -120,7 +120,7 @@ class CheckboxUiTest {
         composeTestRule.setMaterialContent {
             val (checked, _) = state { false }
             TestTag(tag = defaultTag) {
-                Checkbox(checked, null)
+                Checkbox(checked, {}, enabled = false)
             }
         }
 
@@ -146,7 +146,7 @@ class CheckboxUiTest {
     private fun materialSizeTestForValue(checkboxValue: ToggleableState) {
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                TriStateCheckbox(value = checkboxValue, onClick = null)
+                TriStateCheckbox(state = checkboxValue, onClick = {}, enabled = false)
             }
             .assertIsSquareWithSize { 2.dp.toIntPx() * 2 + 20.dp.toIntPx() }
     }

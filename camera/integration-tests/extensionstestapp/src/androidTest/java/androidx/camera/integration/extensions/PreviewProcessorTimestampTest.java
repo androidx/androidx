@@ -27,19 +27,19 @@ import static org.junit.Assume.assumeTrue;
 
 import android.Manifest;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.experimental.UseExperimental;
-import androidx.camera.camera2.interop.Camera2Interop;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CaptureProcessor;
@@ -61,9 +61,12 @@ import androidx.camera.testing.GLUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.TimestampCaptureProcessor;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -77,6 +80,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -93,11 +97,9 @@ public class PreviewProcessorTimestampTest {
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mLifecycleOwner;
-    private CameraDevice.StateCallback mCameraStatusCallback;
     private ExtensionsManager.EffectMode mEffectMode;
     @CameraSelector.LensFacing
     private int mLensFacing;
-    private CountDownLatch mLatch;
     private CountDownLatch mInputTimestampsLatch;
     private CountDownLatch mOutputTimestampsLatch;
     private CountDownLatch mSurfaceTextureLatch;
@@ -109,7 +111,6 @@ public class PreviewProcessorTimestampTest {
 
     private ImageCapture.Builder mImageCaptureBuilder;
     private Preview.Builder mPreviewBuilder;
-    private ImageAnalysis.Builder mImageAnalysisBuilder;
 
     @Parameterized.Parameters
     public static Collection<Object[]> getParameters() {
@@ -135,7 +136,7 @@ public class PreviewProcessorTimestampTest {
 
     @Before
     @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
-    public void setUp() {
+    public void setUp() throws Exception {
         mProcessingHandlerThread =
                 new HandlerThread("Processing");
         mProcessingHandlerThread.start();
@@ -143,33 +144,20 @@ public class PreviewProcessorTimestampTest {
 
         assumeTrue(androidx.camera.testing.CameraUtil.deviceHasCamera());
 
-        mLifecycleOwner = new FakeLifecycleOwner();
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraXConfig config = Camera2Config.defaultConfig();
+        CameraX.initialize(context, config);
 
+        ListenableFuture<ExtensionsManager.ExtensionsAvailability> availability =
+                ExtensionsManager.init();
+        ExtensionsManager.ExtensionsAvailability extensionsAvailability = availability.get(1,
+                TimeUnit.SECONDS);
+        assumeTrue(extensionsAvailability
+                == ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE);
+
+        mLifecycleOwner = new FakeLifecycleOwner();
         mImageCaptureBuilder = new ImageCapture.Builder();
         mPreviewBuilder = new Preview.Builder();
-        mImageAnalysisBuilder = new ImageAnalysis.Builder();
-        mCameraStatusCallback = new CameraDevice.StateCallback() {
-            @Override
-            public void onOpened(@NonNull CameraDevice camera) {
-                mLatch = new CountDownLatch(1);
-            }
-
-            @Override
-            public void onDisconnected(@NonNull CameraDevice camera) {
-
-            }
-
-            @Override
-            public void onError(@NonNull CameraDevice camera, int error) {
-
-            }
-
-            @Override
-            public void onClosed(@NonNull CameraDevice camera) {
-                mLatch.countDown();
-            }
-        };
-
         mInputTimestampsLatch = new CountDownLatch(1);
 
         mTimestampListener = new TimestampCaptureProcessor.TimestampListener() {
@@ -199,7 +187,14 @@ public class PreviewProcessorTimestampTest {
                 if (mComplete) {
                     return;
                 }
-                surfaceTexture.updateTexImage();
+
+                synchronized (mIsSurfaceTextureReleasedLock) {
+                    if (!mIsSurfaceTextureReleased) {
+                        mInstrumentation.runOnMainSync(() -> {
+                            surfaceTexture.updateTexImage();
+                        });
+                    }
+                }
 
                 mOutputTimestamps.add(surfaceTexture.getTimestamp());
                 if (mOutputTimestamps.size() > 10) {
@@ -210,23 +205,22 @@ public class PreviewProcessorTimestampTest {
         };
 
         mSurfaceTextureLatch = new CountDownLatch(1);
-
-        new Camera2Interop.Extender<>(mImageCaptureBuilder).setDeviceStateCallback(
-                mCameraStatusCallback);
     }
 
     @After
-    public void cleanUp() throws InterruptedException {
-        if (mLatch != null) {
+    public void cleanUp() throws InterruptedException, ExecutionException {
+        if (CameraX.isInitialized()) {
             mInstrumentation.runOnMainSync(CameraX::unbindAll);
-
-            // Make sure camera was closed.
-            mLatch.await(3000, TimeUnit.MILLISECONDS);
         }
+
+        CameraX.shutdown().get();
     }
 
     private HandlerThread mProcessingHandlerThread;
     private Handler mProcessingHandler;
+
+    private boolean mIsSurfaceTextureReleased = false;
+    private Object mIsSurfaceTextureReleasedLock = new Object();
 
     @Test
     public void timestampIsCorrect() throws InterruptedException {
@@ -246,27 +240,30 @@ public class PreviewProcessorTimestampTest {
 
         Preview preview = mPreviewBuilder.build();
 
-        // To set the update listener and Preview will change to active state.
-        preview.setSurfaceProvider(createSurfaceTextureProvider(
-                new SurfaceTextureProvider.SurfaceTextureCallback() {
-                    @Override
-                    public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
-                            @NonNull Size resolution) {
-                        surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext());
-                        surfaceTexture.setOnFrameAvailableListener(
-                                mOnFrameAvailableListener, mProcessingHandler);
-                        mSurfaceTextureLatch.countDown();
-                    }
-
-                    @Override
-                    public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
-                        // No-op.
-                    }
-                }));
-
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         mInstrumentation.runOnMainSync(() -> {
+            // To set the update listener and Preview will change to active state.
+            preview.setSurfaceProvider(createSurfaceTextureProvider(
+                    new SurfaceTextureProvider.SurfaceTextureCallback() {
+                        @Override
+                        public void onSurfaceTextureReady(@NonNull SurfaceTexture surfaceTexture,
+                                @NonNull Size resolution) {
+                            surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext());
+                            surfaceTexture.setOnFrameAvailableListener(
+                                    mOnFrameAvailableListener, mProcessingHandler);
+                            mSurfaceTextureLatch.countDown();
+                        }
+
+                        @Override
+                        public void onSafeToRelease(@NonNull SurfaceTexture surfaceTexture) {
+                            synchronized (mIsSurfaceTextureReleasedLock) {
+                                mIsSurfaceTextureReleased = true;
+                                surfaceTexture.release();
+                            }
+                        }
+                    }));
+
             CameraX.bindToLifecycle(mLifecycleOwner, cameraSelector, preview, imageCapture);
 
             mLifecycleOwner.startAndResume();

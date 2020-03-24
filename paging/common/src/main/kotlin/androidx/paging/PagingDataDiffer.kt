@@ -19,9 +19,9 @@ package androidx.paging
 import androidx.annotation.RestrictTo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import java.util.concurrent.atomic.AtomicBoolean
 
 /** @suppress */
@@ -48,7 +48,8 @@ abstract class PagingDataDiffer<T : Any>(
         lastAccessedIndex: Int
     ): Int?
 
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    open fun postEvents(): Boolean = false
+
     suspend fun collectFrom(pagingData: PagingData<T>, callback: PresenterCallback) {
         check(collecting.compareAndSet(false, true)) {
             "Collecting from multiple PagingData concurrently is an illegal operation."
@@ -81,6 +82,9 @@ abstract class PagingDataDiffer<T : Any>(
                                 receiver?.addHint(presenter.loadAround(newIndex))
                             }
                         } else {
+                            if (postEvents()) {
+                                yield()
+                            }
                             presenter.processEvent(event, callback)
                         }
                     }

@@ -30,8 +30,9 @@ dependencies {
     api("androidx.arch.core:core-runtime:2.1.0")
     api(project(":lifecycle:lifecycle-livedata-core"))
 
-    testImplementation(project(":lifecycle:lifecycle-runtime"))
+    testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation(KOTLIN_COROUTINES_TEST)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
 }

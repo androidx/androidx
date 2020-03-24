@@ -20,7 +20,7 @@ import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_ACTION;
+import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_ATTRIBUTION;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_END_ICON;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_START_ICON;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_SUBTITLE;
@@ -45,6 +45,7 @@ import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,73 +57,86 @@ import java.util.List;
 public class InlinePresentationBuilderTest {
     private Instrumentation mInstrumentation;
     private Context mContext;
+    PendingIntent mAttribution;
 
     @Before
     public void setup() {
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
         mContext = mInstrumentation.getContext();
+        mAttribution = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
     }
 
     @Test
     public void buildSlice_title() {
-        Slice slice = new InlinePresentationBuilder("title").build();
+        Slice slice = new InlinePresentationBuilder("title")
+                .setAttribution(mAttribution)
+                .build();
         List<SliceItem> sliceItems = slice.getItems();
-        assertEquals(1, sliceItems.size());
+        assertEquals(2, sliceItems.size());
         verifyIsTitle(sliceItems.get(0));
+        verifyIsAttribution(sliceItems.get(1), mAttribution);
     }
 
     @Test
     public void buildSlice_titleAndSubtitle() {
-        Slice slice = new InlinePresentationBuilder("title").setSubtitle("subtitle").build();
+        Slice slice = new InlinePresentationBuilder("title")
+                .setSubtitle("subtitle")
+                .setAttribution(mAttribution)
+                .build();
         List<SliceItem> sliceItems = slice.getItems();
-        assertEquals(2, sliceItems.size());
+        assertEquals(3, sliceItems.size());
         verifyIsTitle(sliceItems.get(0));
         verifyIsSubtitle(sliceItems.get(1));
+        verifyIsAttribution(sliceItems.get(2), mAttribution);
     }
 
     @Test
     public void buildSlice_startIcon() {
         Icon icon = Icon.createWithResource(mContext, R.drawable.ic_settings);
-        Slice slice = new InlinePresentationBuilder().setStartIcon(icon).build();
+        Slice slice = new InlinePresentationBuilder()
+                .setStartIcon(icon)
+                .setAttribution(mAttribution)
+                .build();
         List<SliceItem> sliceItems = slice.getItems();
-        assertEquals(1, sliceItems.size());
+        assertEquals(2, sliceItems.size());
         verifyIsStartIcon(sliceItems.get(0), icon);
+        verifyIsAttribution(sliceItems.get(1), mAttribution);
     }
 
     @Test
     public void buildSlice_startIconAndTitle() {
         Icon icon = Icon.createWithResource(mContext, R.drawable.ic_settings);
-        Slice slice = new InlinePresentationBuilder("title").setStartIcon(icon).build();
+        Slice slice = new InlinePresentationBuilder("title")
+                .setStartIcon(icon)
+                .setAttribution(mAttribution)
+                .build();
         List<SliceItem> sliceItems = slice.getItems();
-        assertEquals(2, sliceItems.size());
+        assertEquals(3, sliceItems.size());
         verifyIsStartIcon(sliceItems.get(0), icon);
         verifyIsTitle(sliceItems.get(1));
+        verifyIsAttribution(sliceItems.get(2), mAttribution);
     }
 
     @Test
     public void buildSlice_titleAndEndIcon() {
         Icon icon = Icon.createWithResource(mContext, R.drawable.ic_settings);
-        Slice slice = new InlinePresentationBuilder("title").setEndIcon(icon).build();
+        Slice slice = new InlinePresentationBuilder("title")
+                .setEndIcon(icon)
+                .setAttribution(mAttribution)
+                .build();
         List<SliceItem> sliceItems = slice.getItems();
-        assertEquals(2, sliceItems.size());
+        assertEquals(3, sliceItems.size());
         verifyIsTitle(sliceItems.get(0));
         verifyIsEndIcon(sliceItems.get(1), icon);
-    }
-
-    @Test
-    public void buildSlice_titleAndAction() {
-        PendingIntent action = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
-        Slice slice = new InlinePresentationBuilder("title").setAction(action).build();
-        List<SliceItem> sliceItems = slice.getItems();
-        assertEquals(2, sliceItems.size());
-        verifyIsTitle(sliceItems.get(0));
-        verifyIsAction(sliceItems.get(1), action);
+        verifyIsAttribution(sliceItems.get(2), mAttribution);
     }
 
     @Test
     public void buildSlice_noFieldSet_exception() {
         try {
-            new InlinePresentationBuilder().build();
+            new InlinePresentationBuilder()
+                    .setAttribution(mAttribution)
+                    .build();
         } catch (IllegalStateException e) {
             return;
         }
@@ -132,7 +146,22 @@ public class InlinePresentationBuilderTest {
     @Test
     public void buildSlice_subtitleWithoutTitle_exception() {
         try {
-            new InlinePresentationBuilder().setSubtitle("subtitle").build();
+            new InlinePresentationBuilder()
+                    .setSubtitle("subtitle")
+                    .setAttribution(mAttribution)
+                    .build();
+        } catch (IllegalStateException e) {
+            return;
+        }
+        fail();
+    }
+
+    // Ignore the test until we add the check back to the {@link InlinePresentationBuilder}.
+    @Ignore
+    @Test
+    public void buildSlice_sliceWithoutAttribution_exception() {
+        try {
+            new InlinePresentationBuilder("title").build();
         } catch (IllegalStateException e) {
             return;
         }
@@ -167,10 +196,10 @@ public class InlinePresentationBuilderTest {
         assertTrue(item.getHints().contains(HINT_INLINE_END_ICON));
     }
 
-    private static void verifyIsAction(SliceItem item, PendingIntent action) {
+    private static void verifyIsAttribution(SliceItem item, PendingIntent action) {
         assertEquals(FORMAT_ACTION, item.getFormat());
         assertEquals(action, item.getAction());
         assertEquals(1, item.getHints().size());
-        assertTrue(item.getHints().contains(HINT_INLINE_ACTION));
+        assertTrue(item.getHints().contains(HINT_INLINE_ATTRIBUTION));
     }
 }

@@ -28,7 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
- * The {@link ContentProvider} which discovers {@link ComponentInitializer}s in an application and
+ * The {@link ContentProvider} which discovers {@link Initializer}s in an application and
  * initializes them before {@link Application#onCreate()}.
  *
  * @hide

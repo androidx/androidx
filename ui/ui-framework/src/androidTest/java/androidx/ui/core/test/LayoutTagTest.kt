@@ -21,11 +21,10 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
-import androidx.ui.core.LayoutTagParentData
-import androidx.ui.core.ParentData
 import androidx.ui.core.setContent
 import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.layout.Stack
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -57,20 +56,17 @@ class LayoutTagTest {
                 Layout(
                     {
                         AtLeastSize(0.ipx, LayoutTag("first"), children = emptyContent())
-                        ParentData(LayoutTag("second")) {
+                        Stack(LayoutTag("second")) {
                             AtLeastSize(
                                 0.ipx,
                                 children = emptyContent()
                             )
                         }
-                        ParentData(
-                            object : LayoutTagParentData {
-                                override val tag = "third"
-                            },
-                            children = { AtLeastSize(0.ipx, children = emptyContent()) }
-                        )
+                        Stack(LayoutTag("third")) {
+                            AtLeastSize(0.ipx, children = emptyContent())
+                        }
                     }
-                ) { measurables, _ ->
+                ) { measurables, _, _ ->
                     assertEquals(3, measurables.size)
                     assertEquals("first", measurables[0].tag)
                     assertEquals("second", measurables[1].tag)

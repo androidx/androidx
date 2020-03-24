@@ -24,15 +24,13 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingConfig
 import androidx.paging.PagingDataFlow
 import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
 import androidx.paging.integration.testapp.room.Customer
 import androidx.paging.integration.testapp.room.SampleDatabase
 import androidx.room.Room
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 
-@ExperimentalCoroutinesApi
 class V3RoomViewModel(application: Application) : AndroidViewModel(application) {
     val database = Room.databaseBuilder(
         getApplication(),
@@ -62,7 +60,6 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
     private val pagingSourceFactory = database.customerDao.loadPagedAgeOrder()
         .asPagingSourceFactory()
 
-    @FlowPreview
     val flow = PagingDataFlow(PagingConfig(10), pagingSourceFactory)
         .map { pagingData ->
             pagingData
@@ -87,13 +84,13 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
                         }
                     } else null
                 }
-                .addHeader(
+                .insertHeaderItem(
                     Customer().apply {
                         id = Int.MIN_VALUE
                         lastName = "HEADER"
                     }
                 )
-                .addFooter(
+                .insertFooterItem(
                     Customer().apply {
                         id = Int.MAX_VALUE
                         lastName = "FOOTER"
@@ -102,4 +99,3 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
         }
         .cachedIn(viewModelScope)
 }
-

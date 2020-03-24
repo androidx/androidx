@@ -32,11 +32,14 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.ULocalVariable
 import org.jetbrains.uast.UPostfixExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
+import org.jetbrains.uast.toUElement
+import org.jetbrains.uast.tryResolve
 import java.util.Locale
 
 /**
@@ -120,6 +123,14 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                 resolveEnclosingClass: () -> PsiClass?
             ) {
                 if (identifier in REQUIRABLE_REFERENCES) {
+                    // If this is a local variable do nothing
+                    // We are doing this to avoid false positives on local variables that shadow
+                    // Kotlin property accessors.  There is probably a better way to organize
+                    // this Lint rule.
+                    val element = node.tryResolve()
+                    if (element != null && element.toUElement() is ULocalVariable) {
+                        return
+                    }
                     val enclosingClass = resolveEnclosingClass() ?: return
                     if (context.evaluator.extendsClass(enclosingClass, FRAGMENT_FQCN, false)) {
                         checkForIssue(node, identifier)

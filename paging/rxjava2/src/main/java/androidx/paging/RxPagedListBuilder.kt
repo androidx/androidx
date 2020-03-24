@@ -52,9 +52,11 @@ import kotlinx.coroutines.withContext
 class RxPagedListBuilder<Key : Any, Value : Any> {
     private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
     private val dataSourceFactory: DataSource.Factory<Key, Value>?
+    @Suppress("DEPRECATION")
     private val config: PagedList.Config
 
     private var initialLoadKey: Key? = null
+    @Suppress("DEPRECATION")
     private var boundaryCallback: PagedList.BoundaryCallback<Value>? = null
     private var notifyDispatcher: SchedulerCoroutineDispatcher? = null
     private var notifyScheduler: Scheduler? = null
@@ -89,7 +91,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
     )
     constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
-        config: PagedList.Config
+        @Suppress("DEPRECATION") config: PagedList.Config
     ) {
         this.pagingSourceFactory = pagingSourceFactory
         this.dataSourceFactory = null
@@ -159,7 +161,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
     )
     constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
-        config: PagedList.Config
+        @Suppress("DEPRECATION") config: PagedList.Config
     ) {
         this.pagingSourceFactory = null
         this.dataSourceFactory = dataSourceFactory
@@ -237,9 +239,9 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @param boundaryCallback The boundary callback for listening to PagedList load state.
      * @return this
      */
-    fun setBoundaryCallback(boundaryCallback: PagedList.BoundaryCallback<Value>?) = apply {
-        this.boundaryCallback = boundaryCallback
-    }
+    fun setBoundaryCallback(
+        @Suppress("DEPRECATION") boundaryCallback: PagedList.BoundaryCallback<Value>?
+    ) = apply { this.boundaryCallback = boundaryCallback }
 
     /**
      * Sets scheduler which will be used for observing new PagedLists, as well as loading updates
@@ -284,6 +286,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      *
      * @return The [Observable] of PagedLists
      */
+    @Suppress("DEPRECATION")
     fun buildObservable(): Observable<PagedList<Value>> {
         @SuppressLint("RestrictedApi")
         val notifyScheduler = notifyScheduler
@@ -326,10 +329,12 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @param backpressureStrategy BackpressureStrategy for the [Flowable] to use.
      * @return The [Flowable] of PagedLists
      */
+    @Suppress("DEPRECATION")
     fun buildFlowable(backpressureStrategy: BackpressureStrategy): Flowable<PagedList<Value>> {
         return buildObservable().toFlowable(backpressureStrategy)
     }
 
+    @Suppress("DEPRECATION")
     internal class PagingObservableOnSubscribe<Key : Any, Value : Any>(
         initialLoadKey: Key?,
         private val config: PagedList.Config,

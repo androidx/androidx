@@ -447,18 +447,21 @@ public class MediaUtils {
         }
         List<T> result = new ArrayList<>();
         Parcel parcel = Parcel.obtain();
-        for (int i = 0; i < list.size(); i++) {
-            // Calculate the size.
-            T item = list.get(i);
-            parcel.writeParcelable(item, 0);
-            if (parcel.dataSize() < sizeLimitInBytes) {
-                result.add(item);
-            } else {
-                break;
+        try {
+            for (int i = 0; i < list.size(); i++) {
+                // Calculate the size.
+                T item = list.get(i);
+                parcel.writeParcelable(item, 0);
+                if (parcel.dataSize() < sizeLimitInBytes) {
+                    result.add(item);
+                } else {
+                    break;
+                }
             }
+            return result;
+        } finally {
+            parcel.recycle();
         }
-        parcel.recycle();
-        return result;
     }
 
     /**

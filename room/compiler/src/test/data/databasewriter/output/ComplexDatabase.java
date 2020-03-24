@@ -21,7 +21,7 @@ import java.lang.SuppressWarnings;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})

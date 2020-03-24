@@ -66,8 +66,9 @@ class DefaultSpecialEffectsControllerTest {
     @Test
     fun fragmentManagerGetOrCreateController() {
         with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
-            val controller = SpecialEffectsController.getOrCreateController(container)
+            val controller = SpecialEffectsController.getOrCreateController(container, fm)
             assertThat(controller)
                 .isInstanceOf(DefaultSpecialEffectsController::class.java)
         }

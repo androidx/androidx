@@ -20,6 +20,7 @@ import androidx.ui.core.FocusNode
 
 /**
  * Find the first ancestor that is a [FocusNode].
+ * TODO(b/151765386): Delete this function after converting focus to a Modifier.
  */
 internal fun FocusNode.findParentFocusNode(): FocusNode? {
     var focusableParent = parent
@@ -33,13 +34,30 @@ internal fun FocusNode.findParentFocusNode(): FocusNode? {
     return null
 }
 
+// TODO(b/151765386): Delete this function after converting focus to a Modifier.
 internal fun FocusNode.ownerHasFocus(): Boolean {
     // TODO(b/144895515): Read the focus state from the owner.
     return true
 }
 
+// TODO(b/151765386): Delete this function after converting focus to a Modifier.
 internal fun FocusNode.requestFocusForOwner() {
     // TODO(b/144893832): Ask the owner to request focus.
+}
+
+/**
+ * Find the first ancestor that is a [ModifiedFocusNode].
+ */
+internal fun ModifiedFocusNode.findParentFocusNode(): ModifiedFocusNode? {
+    TODO()
+}
+
+internal fun ModifiedFocusNode.ownerHasFocus(): Boolean {
+    TODO()
+}
+
+internal fun ModifiedFocusNode.requestFocusForOwner() {
+    TODO()
 }
 
 /**

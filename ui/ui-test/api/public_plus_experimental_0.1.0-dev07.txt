@@ -1,0 +1,325 @@
+// Signature format: 3.0
+package androidx.ui.test {
+
+  public final class ActionsKt {
+    method public static <T extends kotlin.Function<? extends kotlin.Unit>> void callSemanticsAction(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
+    method public static void callSemanticsAction(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> key);
+    method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction doGesture(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.test.GestureScope,kotlin.Unit> block);
+    method public static androidx.ui.test.SemanticsNodeInteraction doScrollTo(androidx.ui.test.SemanticsNodeInteraction);
+  }
+
+  public final class AnimationClockTestRule implements org.junit.rules.TestRule {
+    ctor public AnimationClockTestRule();
+    method public void advanceClock(long milliseconds);
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+    method public androidx.ui.test.TestAnimationClock getClock();
+    method public boolean isPaused();
+    method public void pauseClock();
+    method public void resumeClock();
+    property public final androidx.ui.test.TestAnimationClock clock;
+    property public final boolean isPaused;
+  }
+
+  public final class AssertionsKt {
+    method public static androidx.ui.test.SemanticsNodeInteraction assert(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsPredicate predicate);
+    method public static <T extends java.util.Collection<? extends androidx.ui.test.SemanticsNodeInteraction>> T assertCountEquals(T, int expectedSize);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertHasClickAction(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertHasNoClickAction(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsDisplayed(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsHidden(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsInMutuallyExclusiveGroup(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotDisplayed(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotHidden(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsOff(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsOn(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsSelectable(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsSelected(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsToggleable(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsUnselected(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertLabelEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertSemanticsIsEqualTo(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.core.semantics.SemanticsConfiguration expectedProperties);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
+  }
+
+  public final class BitmapHelpersKt {
+    method public static void assertPixelColor(android.graphics.Bitmap, androidx.ui.graphics.Color expected, int x, int y, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String> error = { color -> "Pixel(" + x + ", " + y + ") expected to be " + expected + ", but was " + color });
+    method public static void assertPixels(android.graphics.Bitmap, androidx.ui.unit.IntPxSize? expectedSize = null, kotlin.jvm.functions.Function1<? super androidx.ui.unit.IntPxPosition,androidx.ui.graphics.Color> expectedColorProvider);
+    method public static void assertShape(android.graphics.Bitmap, androidx.ui.unit.Density density, androidx.ui.graphics.Shape shape, androidx.ui.graphics.Color shapeColor, androidx.ui.graphics.Color backgroundColor, androidx.ui.graphics.Shape backgroundShape = RectangleShape, androidx.ui.unit.Px sizeX = width.toFloat().px, androidx.ui.unit.Px sizeY = height.toFloat().px, androidx.ui.unit.Px shapeSizeX = sizeX, androidx.ui.unit.Px shapeSizeY = sizeY, androidx.ui.unit.Px centerX = width.px / 2.0, androidx.ui.unit.Px centerY = height.px / 2.0, androidx.ui.unit.Px shapeOverlapPixelCount = 1.px);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(android.view.View);
+  }
+
+  public final class CollectedSizes {
+    ctor public CollectedSizes(androidx.ui.unit.PxSize size, androidx.ui.unit.Density density);
+    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(androidx.ui.unit.Dp expectedHeight);
+    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedHeightPx);
+    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(androidx.ui.unit.Dp expectedSize);
+    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedSquarePx);
+    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(androidx.ui.unit.Dp expectedWidth);
+    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.unit.Density,androidx.ui.unit.IntPx> expectedWidthPx);
+  }
+
+  public interface ComposeBenchmarkScope<T> extends androidx.ui.test.ComposeExecutionControl {
+    method public void createTestCase();
+    method public void disposeContent();
+    method public void draw();
+    method public void drawFinish();
+    method public void drawPrepare();
+    method public void emitContent();
+    method public T! getTestCase();
+    method public void invalidateViews();
+    method public void measureWithSpec(int widthSpec, int heightSpec);
+    method public void requestLayout();
+  }
+
+  public final class ComposeBenchmarkScopeKt {
+    method public static <T> void setupContent(androidx.ui.test.ComposeBenchmarkScope<T>);
+  }
+
+  public interface ComposeExecutionControl {
+    method public void capturePreviewPictureToActivity();
+    method public void doFrame();
+    method public void drawToBitmap();
+    method public boolean getDidLastRecomposeHaveChanges();
+    method public int getMeasuredHeight();
+    method public int getMeasuredWidth();
+    method public boolean hasPendingChanges();
+    method public void layout();
+    method public void measure();
+    method public void recompose();
+    property public abstract boolean didLastRecomposeHaveChanges;
+    property public abstract int measuredHeight;
+    property public abstract int measuredWidth;
+  }
+
+  public final class ComposeExecutionControlKt {
+    method public static void assertHasPendingChanges(androidx.ui.test.ComposeExecutionControl);
+    method public static void assertLastRecomposeHadChanges(androidx.ui.test.ComposeExecutionControl);
+    method public static void assertLastRecomposeHadNoChanges(androidx.ui.test.ComposeExecutionControl);
+    method public static void assertMeasureSizeIsPositive(androidx.ui.test.ComposeExecutionControl);
+    method public static void assertNoPendingChanges(androidx.ui.test.ComposeExecutionControl);
+    method public static void doFramesAssertAllHadChangesExceptLastOne(androidx.ui.test.ComposeExecutionControl, int numberOfFramesToBeStable);
+    method public static int doFramesUntilNoChangesPending(androidx.ui.test.ComposeExecutionControl, int maxAmountOfFrames = 10);
+    method public static void recomposeAssertHadChanges(androidx.ui.test.ComposeExecutionControl);
+  }
+
+  public interface ComposeTestCase {
+    method public void emitContent();
+  }
+
+  public interface ComposeTestCaseSetup {
+    method public void performTestWithEventsControl(kotlin.jvm.functions.Function1<? super androidx.ui.test.ComposeExecutionControl,kotlin.Unit> block);
+  }
+
+  public interface ComposeTestRule extends org.junit.rules.TestRule {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
+    method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
+    method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
+    method public androidx.ui.unit.Density getDensity();
+    method public android.util.DisplayMetrics getDisplayMetrics();
+    method public <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
+    method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    property public abstract androidx.ui.test.AnimationClockTestRule clockTestRule;
+    property public abstract androidx.ui.unit.Density density;
+    property public abstract android.util.DisplayMetrics displayMetrics;
+  }
+
+  public final class ComposeTestRuleKt {
+    method public static androidx.ui.test.ComposeTestRule createComposeRule(boolean disableTransitions = false);
+  }
+
+  public final class DisableTransitions implements org.junit.rules.TestRule {
+    ctor public DisableTransitions();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+  }
+
+  public final class DisableTransitions.DisableTransitionsStatement extends org.junit.runners.model.Statement {
+    ctor public DisableTransitions.DisableTransitionsStatement(org.junit.runners.model.Statement base);
+    method public void evaluate();
+  }
+
+  public final class ErrorMessagesKt {
+  }
+
+  public final class FiltersKt {
+    method public static androidx.ui.test.SemanticsPredicate hasAnyAncestorThat(androidx.ui.test.SemanticsPredicate predicate);
+    method public static androidx.ui.test.SemanticsPredicate hasAnyChildThat(androidx.ui.test.SemanticsPredicate predicate);
+    method public static androidx.ui.test.SemanticsPredicate hasAnyDescendantThat(androidx.ui.test.SemanticsPredicate predicate);
+    method public static androidx.ui.test.SemanticsPredicate hasAnySiblingThat(androidx.ui.test.SemanticsPredicate predicate);
+    method public static androidx.ui.test.SemanticsPredicate hasClickAction();
+    method public static androidx.ui.test.SemanticsPredicate hasNoClickAction();
+    method public static androidx.ui.test.SemanticsPredicate hasNoScrollAction();
+    method public static androidx.ui.test.SemanticsPredicate hasParentThat(androidx.ui.test.SemanticsPredicate predicate);
+    method public static androidx.ui.test.SemanticsPredicate hasScrollAction();
+    method public static androidx.ui.test.SemanticsPredicate hasSubstring(String substring, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsPredicate hasTestTag(String testTag);
+    method public static androidx.ui.test.SemanticsPredicate hasText(String text, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsPredicate hasValue(String value);
+    method public static androidx.ui.test.SemanticsPredicate isHidden();
+    method public static androidx.ui.test.SemanticsPredicate isInMutuallyExclusiveGroup();
+    method public static androidx.ui.test.SemanticsPredicate isNotHidden();
+    method public static androidx.ui.test.SemanticsPredicate isOff();
+    method public static androidx.ui.test.SemanticsPredicate isOn();
+    method public static androidx.ui.test.SemanticsPredicate isSelectable();
+    method public static androidx.ui.test.SemanticsPredicate isSelected();
+    method public static androidx.ui.test.SemanticsPredicate isToggleable();
+    method public static androidx.ui.test.SemanticsPredicate isUnselected();
+  }
+
+  public final class FindersKt {
+    method public static androidx.ui.test.SemanticsNodeInteraction find(androidx.ui.test.SemanticsPredicate selector);
+    method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAll(androidx.ui.test.SemanticsPredicate selector);
+    method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAllByTag(String testTag);
+    method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAllByText(String text, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsNodeInteraction findBySubstring(String text, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsNodeInteraction findByTag(String testTag);
+    method public static androidx.ui.test.SemanticsNodeInteraction findByText(String text, boolean ignoreCase = false);
+  }
+
+  public final class GestureScope {
+  }
+
+  public final class GestureScopeKt {
+    method public static androidx.ui.unit.PxPosition getCenter(androidx.ui.test.GestureScope);
+    method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.test.GestureScope);
+    method public static androidx.ui.unit.IntPxSize getSize(androidx.ui.test.GestureScope);
+    method public static androidx.ui.unit.PxPosition localToGlobal(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
+    method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
+    method public static void sendClick(androidx.ui.test.GestureScope);
+    method public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
+    method public static void sendDoubleClick(androidx.ui.test.GestureScope);
+    method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
+    method public static void sendLongClick(androidx.ui.test.GestureScope);
+    method public static void sendSwipe(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, androidx.ui.unit.Duration duration = 200.milliseconds);
+    method public static void sendSwipeDown(androidx.ui.test.GestureScope);
+    method public static void sendSwipeLeft(androidx.ui.test.GestureScope);
+    method public static void sendSwipeRight(androidx.ui.test.GestureScope);
+    method public static void sendSwipeUp(androidx.ui.test.GestureScope);
+    method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, @FloatRange(from=0.0) float endVelocity, androidx.ui.unit.Duration duration = 200.milliseconds);
+  }
+
+  public final class GoldenSemanticsKt {
+    method public static void assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration expected);
+    method public static androidx.ui.core.semantics.SemanticsConfiguration copyWith(androidx.ui.core.semantics.SemanticsConfiguration, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,kotlin.Unit> diff);
+    method public static androidx.ui.core.semantics.SemanticsConfiguration createFullSemantics(Boolean? isEnabled = null, String? value = null, androidx.ui.foundation.selection.ToggleableState? toggleableState = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? isSelected = null);
+  }
+
+  public final class LayoutCoordinatesHelperKt {
+    method public static androidx.ui.unit.PxPosition getPositionInParent(androidx.ui.core.LayoutCoordinates);
+  }
+
+  public final class OutputKt {
+    method public static String dumpToString(androidx.ui.test.SemanticsNodeInteraction);
+    method public static String dumpToString(java.util.Collection<androidx.ui.test.SemanticsNodeInteraction>);
+  }
+
+  public final class SemanticsNodeInteraction {
+    method public void assertDoesNotExist();
+    method public androidx.ui.test.SemanticsNodeInteraction assertExists(String? errorMessageOnFail = null);
+    method public androidx.ui.core.semantics.SemanticsNode fetchSemanticsNode(String? errorMessageOnFail = null);
+  }
+
+  public final class SemanticsNodeInteractionKt {
+  }
+
+  public final class SemanticsPredicate {
+    ctor public SemanticsPredicate(String description, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> condition);
+    method public infix androidx.ui.test.SemanticsPredicate and(androidx.ui.test.SemanticsPredicate other);
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> getCondition();
+    method public String getDescription();
+    method public operator androidx.ui.test.SemanticsPredicate not();
+    method public infix androidx.ui.test.SemanticsPredicate or(androidx.ui.test.SemanticsPredicate other);
+    field public static final androidx.ui.test.SemanticsPredicate.Companion! Companion;
+  }
+
+  public static final class SemanticsPredicate.Companion {
+    method public <T> androidx.ui.test.SemanticsPredicate expectValue(androidx.ui.semantics.SemanticsPropertyKey<T> key, T? expectedValue);
+    method public androidx.ui.test.SemanticsPredicate getAny();
+    method public <T> androidx.ui.test.SemanticsPredicate keyIsDefined(androidx.ui.semantics.SemanticsPropertyKey<T> key);
+    method public <T> androidx.ui.test.SemanticsPredicate keyNotDefined(androidx.ui.semantics.SemanticsPropertyKey<T> key);
+    property public final androidx.ui.test.SemanticsPredicate any;
+  }
+
+  public final class SemanticsTreeInteractionKt {
+  }
+
+  public final class SizesTestingKt {
+    method public static androidx.ui.layout.DpConstraints getBigTestConstraints();
+    method public static androidx.ui.test.CollectedSizes setContentAndCollectSizes(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.unit.PxSize setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public interface TestAnimationClock extends androidx.animation.AnimationClockObservable {
+    method public void advanceClock(long milliseconds);
+    method public boolean isIdle();
+    method public boolean isPaused();
+    method public void pauseClock();
+    method public void resumeClock();
+    property public abstract boolean isIdle;
+    property public abstract boolean isPaused;
+  }
+
+}
+
+package androidx.ui.test.android {
+
+  public final class AndroidComposeTestCaseRunnerKt {
+    method public static <T extends androidx.ui.test.ComposeTestCase> androidx.ui.test.ComposeBenchmarkScope<T> createAndroidComposeBenchmarkRunner(kotlin.jvm.functions.Function0<? extends T> testCaseFactory, android.app.Activity activity);
+  }
+
+  public final class AndroidComposeTestCaseSetup implements androidx.ui.test.ComposeTestCaseSetup {
+    ctor public AndroidComposeTestCaseSetup(androidx.ui.test.ComposeTestRule testRule, androidx.ui.test.ComposeTestCase testCase, android.app.Activity activity);
+    method public void performTestWithEventsControl(kotlin.jvm.functions.Function1<? super androidx.ui.test.ComposeExecutionControl,kotlin.Unit> block);
+  }
+
+  public final class AndroidComposeTestRule<T extends android.app.Activity> implements androidx.ui.test.ComposeTestRule {
+    ctor public AndroidComposeTestRule(Class<T> activityClass, boolean disableTransitions);
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
+    method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
+    method public androidx.test.rule.ActivityTestRule<T> getActivityTestRule();
+    method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
+    method public androidx.ui.unit.Density getDensity();
+    method public android.util.DisplayMetrics getDisplayMetrics();
+    method public <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
+    method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    property public final androidx.test.rule.ActivityTestRule<T> activityTestRule;
+    property public androidx.ui.test.AnimationClockTestRule clockTestRule;
+    property public androidx.ui.unit.Density density;
+    property public android.util.DisplayMetrics displayMetrics;
+  }
+
+  public final class AndroidComposeTestRule.AndroidComposeStatement extends org.junit.runners.model.Statement {
+    ctor public AndroidComposeTestRule.AndroidComposeStatement(org.junit.runners.model.Statement base);
+    method public void evaluate();
+  }
+
+  public final class AndroidComposeTestRuleKt {
+    method public static inline <reified T extends android.app.Activity> androidx.ui.test.android.AndroidComposeTestRule<T> AndroidComposeTestRule(boolean disableTransitions = false);
+  }
+
+  public final class ComposeIdlingResourceKt {
+    method public static void registerComposeWithEspresso();
+    method public static void unregisterComposeFromEspresso();
+  }
+
+  public final class InternalUtilsKt {
+  }
+
+  public final class WindowCaptureKt {
+  }
+
+}
+
+package androidx.ui.test.android.fake {
+
+  public final class FakeViewStructureKt {
+  }
+
+}
+

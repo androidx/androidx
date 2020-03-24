@@ -26,12 +26,19 @@ interface AnimationClockObservable {
     /**
      * Subscribes an observer to the animation clock source.
      *
+     * Observers may only be added to a clock once. Calls to add the same observer more than
+     * once will be ignored, and a single call to [unsubscribe] will unregister from further
+     * callbacks.
+     *
      * @param observer The observer that will be notified when animation clock time is updated.
      */
     fun subscribe(observer: AnimationClockObserver)
 
     /**
      * Unsubscribes an observer from the animation clock.
+     *
+     * Observers may only be added to a clock once. If [subscribe] has been called multiple times
+     * with the same observer, a single call to this method will unregister the observer completely.
      *
      * @param observer The observer to be removed from the subscription list.
      */

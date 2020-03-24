@@ -17,19 +17,17 @@
 package androidx.ui.layout.test
 
 import androidx.compose.Composable
-import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutDirectionAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.OnPositioned
-import androidx.ui.layout.Center
-import androidx.ui.layout.Container
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutAspectRatio
+import androidx.ui.layout.LayoutDirectionModifier
+import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.unit.Dp
@@ -40,10 +38,10 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
 import androidx.ui.unit.px
-import androidx.ui.unit.round
 import androidx.ui.unit.toPx
 import org.junit.Assert
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -53,6 +51,38 @@ import java.util.concurrent.TimeUnit
 @SmallTest
 @RunWith(JUnit4::class)
 class LayoutPaddingTest : LayoutTest() {
+
+    /**
+     * Tests that negative start padding is not allowed.
+     */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeStartPadding_throws() {
+        LayoutPadding(start = -1f.dp)
+    }
+
+    /**
+     * Tests that negative top padding is not allowed.
+     */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeTopPadding_throws() {
+        LayoutPadding(top = -1f.dp)
+    }
+
+    /**
+     * Tests that negative end padding is not allowed.
+     */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeEndPadding_throws() {
+        LayoutPadding(end = -1f.dp)
+    }
+
+    /**
+     * Tests that negative bottom padding is not allowed.
+     */
+    @Test(expected = IllegalArgumentException::class)
+    fun negativeBottomPadding_throws() {
+        LayoutPadding(bottom = -1f.dp)
+    }
 
     /**
      * Tests that the [LayoutPadding]-all and [LayoutPadding] factories return equivalent modifiers.
@@ -168,7 +198,7 @@ class LayoutPaddingTest : LayoutTest() {
             }
         }
 
-        latch.await(1, TimeUnit.SECONDS)
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
         error?.let { throw it }
 
         Unit
@@ -176,7 +206,7 @@ class LayoutPaddingTest : LayoutTest() {
 
     @Test
     fun testRtlSupport() = with(density) {
-        val sizeDp = 50.dp
+        val sizeDp = 150.ipx.toDp()
         val size = sizeDp.toIntPx()
         val padding1Dp = 5.dp
         val padding2Dp = 10.dp
@@ -190,60 +220,57 @@ class LayoutPaddingTest : LayoutTest() {
         val childPosition = Array(3) { PxPosition(0.px, 0.px) }
 
         // ltr: P1 S P2 | S P3 | P1 S
-        // rtl: P2 S P1 | P3 S | S P1
-        val children = @Composable {
-            Stack(
-                LayoutPadding(start = padding1Dp, end = padding2Dp) +
-                        LayoutSize(sizeDp, sizeDp)
-            ) {
-                OnPositioned(onPositioned = { coordinates ->
-                    childSize[0] = coordinates.size
-                    childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                    drawLatch.countDown()
-                })
-            }
-
-            Stack(LayoutPadding(end = padding3Dp) + LayoutSize(sizeDp, sizeDp)) {
-                OnPositioned(onPositioned = { coordinates ->
-                    childSize[1] = coordinates.size
-                    childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                    drawLatch.countDown()
-                })
-            }
-
-            Stack(
-                LayoutPadding(start = padding1Dp) +
-                        LayoutSize(sizeDp, sizeDp)
-            ) {
-                OnPositioned(onPositioned = { coordinates ->
-                    childSize[2] = coordinates.size
-                    childPosition[2] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                    drawLatch.countDown()
-                })
-            }
-        }
+        // rtl:    S P1 | P3 S | P2 S P1
         show {
-            Row {
-                Providers(
-                    LayoutDirectionAmbient provides LayoutDirection.Rtl,
-                    children = children
-                )
+            Row(LayoutWidth(sizeDp * 3) + LayoutDirectionModifier.Rtl) {
+                Stack(
+                    LayoutPadding(start = padding1Dp, end = padding2Dp) +
+                            LayoutSize(sizeDp, sizeDp) +
+                            onPositioned { coordinates ->
+                                childSize[0] = coordinates.size
+                                childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                drawLatch.countDown()
+                            }
+                ) {
+                }
+
+                Stack(LayoutPadding(end = padding3Dp) + LayoutSize(sizeDp, sizeDp) +
+                        onPositioned { coordinates ->
+                            childSize[1] = coordinates.size
+                            childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }) {
+                }
+
+                Stack(
+                    LayoutPadding(start = padding1Dp) +
+                            LayoutSize(sizeDp, sizeDp) +
+                            onPositioned { coordinates ->
+                                childSize[2] = coordinates.size
+                                childPosition[2] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                drawLatch.countDown()
+                            }
+                ) {
+                }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        val root = findOwnerView()
+        waitForDraw(root)
 
-        assertEquals(PxPosition(padding2.toPx(), 0.px), childPosition[0])
+        val rootWidth = root.width.ipx
+//        S P1 | P3 S | P2 S P1
+        assertEquals(PxPosition(rootWidth - padding1 - size, 0.ipx), childPosition[0])
         assertEquals(IntPxSize(size, size), childSize[0])
 
-        val paddings = padding1 + padding2 + padding3
         assertEquals(
-            PxPosition(size.toPx() + paddings.toPx(), 0.px),
+            PxPosition(rootWidth - padding1 - padding2 - size * 2, 0.ipx),
             childPosition[1]
         )
         assertEquals(IntPxSize(size, size), childSize[1])
 
         assertEquals(
-            PxPosition((size.toPx() * 2).round().toPx() + paddings, 0.px),
+            PxPosition(rootWidth - size * 3 - padding1 * 2 - padding2 - padding3, 0.ipx),
             childPosition[2]
         )
         assertEquals(IntPxSize(size, size), childSize[2])
@@ -261,25 +288,27 @@ class LayoutPaddingTest : LayoutTest() {
         var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
-            Center {
-                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
+            Stack {
+                ConstrainedBox(
+                    constraints = DpConstraints.fixed(sizeDp, sizeDp),
+                    modifier = LayoutGravity.Center
+                ) {
                     val children = @Composable {
-                        Container {
-                            OnPositioned(onPositioned = { coordinates ->
-                                childSize = coordinates.size
-                                childPosition =
-                                    coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                                drawLatch.countDown()
-                            })
+                        Container(onPositioned { coordinates ->
+                            childSize = coordinates.size
+                            childPosition =
+                                coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }) {
                         }
                     }
                     paddingContainer(children)
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         val innerSize = (size - paddingPx * 2)
@@ -306,25 +335,27 @@ class LayoutPaddingTest : LayoutTest() {
         var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
-            Center {
-                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
+            Stack {
+                ConstrainedBox(
+                    constraints = DpConstraints.fixed(sizeDp, sizeDp),
+                    modifier = LayoutGravity.Center
+                ) {
                     val children = @Composable {
-                        Container {
-                            OnPositioned(onPositioned = { coordinates ->
-                                childSize = coordinates.size
-                                childPosition =
-                                    coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                                drawLatch.countDown()
-                            })
+                        Container(onPositioned { coordinates ->
+                            childSize = coordinates.size
+                            childPosition =
+                                coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }) {
                         }
                     }
                     paddingContainer(children)
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         val paddingLeft = left.toIntPx()
@@ -358,23 +389,25 @@ class LayoutPaddingTest : LayoutTest() {
         var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
-            Center {
-                ConstrainedBox(constraints = DpConstraints.fixed(sizeDp, sizeDp)) {
+            Stack {
+                ConstrainedBox(
+                    constraints = DpConstraints.fixed(sizeDp, sizeDp),
+                    modifier = LayoutGravity.Center
+                ) {
                     paddingContainer {
-                        Container {
-                            OnPositioned(onPositioned = { coordinates ->
-                                childSize = coordinates.size
-                                childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                                drawLatch.countDown()
-                            })
+                        Container(onPositioned { coordinates ->
+                            childSize = coordinates.size
+                            childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }) {
                         }
                     }
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        val root = findAndroidComposeView()
+        val root = findOwnerView()
         waitForDraw(root)
 
         assertEquals(IntPxSize(0.ipx, 0.ipx), childSize)
@@ -389,7 +422,7 @@ class LayoutPaddingTest : LayoutTest() {
      */
     @Composable
     private fun TestBox(modifier: Modifier = Modifier.None, body: @Composable() () -> Unit) {
-        Layout(children = body, modifier = modifier) { measurables, constraints ->
+        Layout(children = body, modifier = modifier) { measurables, constraints, _ ->
             require(measurables.size == 1) {
                 "TestBox received ${measurables.size} children; must have exactly 1"
             }

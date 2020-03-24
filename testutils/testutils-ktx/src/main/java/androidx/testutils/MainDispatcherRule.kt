@@ -26,7 +26,7 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 class MainDispatcherRule(private val dispatcher: CoroutineDispatcher) : TestRule {
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun apply(base: Statement?, description: Description?) = object : Statement() {
         override fun evaluate() {
             Dispatchers.setMain(dispatcher)

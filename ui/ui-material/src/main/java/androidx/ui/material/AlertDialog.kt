@@ -17,10 +17,10 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Dialog
+import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -32,7 +32,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.material.AlertDialogButtonLayout.SideBySide
 import androidx.ui.material.AlertDialogButtonLayout.Stacked
-import androidx.ui.material.surface.Surface
 import androidx.ui.unit.dp
 
 /**
@@ -110,16 +109,22 @@ fun AlertDialog(
     buttons: @Composable() () -> Unit
 ) {
     // TODO: Find a cleaner way to pass the properties of the MaterialTheme
-    val currentColors = MaterialTheme.colors()
-    val currentTypography = MaterialTheme.typography()
+    val currentColors = MaterialTheme.colors
+    val currentTypography = MaterialTheme.typography
     Dialog(onCloseRequest = onCloseRequest) {
         MaterialTheme(colors = currentColors, typography = currentTypography) {
-            Surface(modifier = LayoutWidth(AlertDialogWidth), shape = AlertDialogShape) {
+            Surface(
+                modifier = LayoutWidth(AlertDialogWidth),
+                shape = AlertDialogShape
+            ) {
+                val emphasisLevels = MaterialTheme.emphasisLevels
                 Column {
                     if (title != null) {
                         Box(modifier = TitlePadding + LayoutGravity.Start) {
-                            val textStyle = MaterialTheme.typography().h6
-                            CurrentTextStyleProvider(textStyle, title)
+                            ProvideEmphasis(emphasisLevels.high) {
+                                val textStyle = MaterialTheme.typography.h6
+                                ProvideTextStyle(textStyle, title)
+                            }
                         }
                     } else {
                         // TODO(b/138924683): Temporary until padding for the Text's
@@ -128,8 +133,10 @@ fun AlertDialog(
                     }
 
                     Box(modifier = TextPadding + LayoutGravity.Start) {
-                        val textStyle = MaterialTheme.typography().body1
-                        CurrentTextStyleProvider(textStyle, text)
+                        ProvideEmphasis(emphasisLevels.medium) {
+                            val textStyle = MaterialTheme.typography.body1
+                            ProvideTextStyle(textStyle, text)
+                        }
                     }
                     Spacer(LayoutHeight(TextToButtonsHeight))
                     buttons()
@@ -143,7 +150,8 @@ fun AlertDialog(
 /**
  * An enum which specifies how the buttons are positioned inside the [AlertDialog]:
  *
- * [SideBySide] - positions the dismiss button on the left side of the confirm button.
+ * [SideBySide] - positions the dismiss button to the left side of the confirm button in LTR
+ * layout direction contexts, and to the right otherwise.
  * [Stacked] - positions the dismiss button below the confirm button.
  */
 enum class AlertDialogButtonLayout {

@@ -21,7 +21,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.layout.Column
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,8 +40,8 @@ class FindAllTest {
             MaterialTheme {
                 Surface {
                     Column {
-                        Checkbox(checked = true, onCheckedChange = null)
-                        Checkbox(checked = true, onCheckedChange = null)
+                        Checkbox(checked = true, onCheckedChange = {}, enabled = false)
+                        Checkbox(checked = true, onCheckedChange = {}, enabled = false)
                     }
                 }
             }
@@ -89,8 +89,8 @@ class FindAllTest {
             MaterialTheme {
                 Surface {
                     Column {
-                        Checkbox(checked = true, onCheckedChange = null)
-                        Checkbox(checked = true, onCheckedChange = null)
+                        Checkbox(checked = true, onCheckedChange = {}, enabled = false)
+                        Checkbox(checked = true, onCheckedChange = {}, enabled = false)
                     }
                 }
             }
@@ -147,13 +147,15 @@ class FindAllTest {
                         )
                         Checkbox(
                             checked = false,
-                            onCheckedChange = null
+                            onCheckedChange = {},
+                            enabled = false
                         )
 
                         if (checked) {
                             Checkbox(
                                 checked = false,
-                                onCheckedChange = null
+                                onCheckedChange = {},
+                                enabled = false
                             )
                         }
                     }
@@ -193,7 +195,8 @@ class FindAllTest {
                         if (!checked) {
                             Checkbox(
                                 checked = false,
-                                onCheckedChange = null
+                                onCheckedChange = {},
+                                enabled = false
                             )
                         }
                     }

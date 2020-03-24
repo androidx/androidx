@@ -25,8 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import java.util.Set;
-
 /**
  * A {@link MeteringPointFactory} that can create {@link MeteringPoint} by surface oriented x, y
  * on an area defined by (0, 0) - (width, height). {@link MeteringPoint} can then be used to
@@ -101,18 +99,13 @@ public class SurfaceOrientedMeteringPointFactory extends MeteringPointFactory {
             return null;
         }
 
-        Set<String> cameraIds = useCase.getAttachedCameraIds();
-        if (cameraIds.isEmpty()) {
+        Size resolution = useCase.getAttachedSurfaceResolution();
+        if (resolution == null) {
             throw new IllegalStateException("UseCase " + useCase + " is not bound.");
         }
 
-        for (String id : cameraIds) {
-            Size resolution = useCase.getAttachedSurfaceResolution(id);
-            // Returns an aspect ratio of first found attachedSurfaceResolution.
-            return new Rational(resolution.getWidth(), resolution.getHeight());
-        }
-
-        return null;
+        // Returns an aspect ratio of first found attachedSurfaceResolution.
+        return new Rational(resolution.getWidth(), resolution.getHeight());
     }
 
     /**

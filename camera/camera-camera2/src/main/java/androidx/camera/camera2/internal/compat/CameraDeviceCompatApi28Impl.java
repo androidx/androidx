@@ -28,14 +28,16 @@ import androidx.core.util.Preconditions;
 @RequiresApi(28)
 class CameraDeviceCompatApi28Impl extends CameraDeviceCompatApi24Impl {
 
-    @Override
-    public void createCaptureSession(@NonNull CameraDevice device,
-            @NonNull SessionConfigurationCompat config) throws CameraAccessException {
-        Preconditions.checkNotNull(device);
+    CameraDeviceCompatApi28Impl(@NonNull CameraDevice cameraDevice) {
+        super(Preconditions.checkNotNull(cameraDevice), /*implParams=*/null);
+    }
 
+    @Override
+    public void createCaptureSession(@NonNull SessionConfigurationCompat config)
+            throws CameraAccessException {
         SessionConfiguration sessionConfig = (SessionConfiguration) config.unwrap();
         Preconditions.checkNotNull(sessionConfig);
 
-        device.createCaptureSession(sessionConfig);
+        mCameraDevice.createCaptureSession(sessionConfig);
     }
 }

@@ -23,25 +23,35 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
-import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.core.OnPositioned
+import androidx.ui.core.Owner
+import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
 import androidx.ui.core.enforce
+import androidx.ui.core.hasFixedHeight
+import androidx.ui.core.hasFixedWidth
+import androidx.ui.core.offset
+import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Constraints
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.EdgeInsets
 import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import androidx.ui.unit.isFinite
+import androidx.ui.unit.max
 import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
@@ -88,24 +98,24 @@ open class LayoutTest {
         activityTestRule.runOnUiThread(runnable)
     }
 
-    internal fun findAndroidComposeView(): AndroidComposeView {
-        return findAndroidComposeView(activity)
+    internal fun findOwnerView(): View {
+        return findOwner(activity) as View
     }
 
-    internal fun findAndroidComposeView(activity: Activity): AndroidComposeView {
+    internal fun findOwner(activity: Activity): Owner {
         val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
-        return findAndroidComposeView(contentViewGroup)!!
+        return findOwner(contentViewGroup)!!
     }
 
-    internal fun findAndroidComposeView(parent: ViewGroup): AndroidComposeView? {
+    internal fun findOwner(parent: ViewGroup): Owner? {
         for (index in 0 until parent.childCount) {
             val child = parent.getChildAt(index)
-            if (child is AndroidComposeView) {
+            if (child is Owner) {
                 return child
             } else if (child is ViewGroup) {
-                val composeView = findAndroidComposeView(child)
-                if (composeView != null) {
-                    return composeView
+                val owner = findOwner(child)
+                if (owner != null) {
+                    return owner
                 }
             }
         }
@@ -128,17 +138,14 @@ open class LayoutTest {
         assertTrue(viewDrawLatch.await(1, TimeUnit.SECONDS))
     }
 
-    @Composable
-    internal fun SaveLayoutInfo(
+    internal fun saveLayoutInfo(
         size: Ref<IntPxSize>,
         position: Ref<PxPosition>,
         positionedLatch: CountDownLatch
-    ) {
-        OnPositioned(onPositioned = { coordinates ->
-            size.value = IntPxSize(coordinates.size.width, coordinates.size.height)
-            position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-            positionedLatch.countDown()
-        })
+    ): Modifier = onPositioned { coordinates ->
+        size.value = IntPxSize(coordinates.size.width, coordinates.size.height)
+        position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+        positionedLatch.countDown()
     }
 
     internal fun testIntrinsics(
@@ -150,11 +157,11 @@ open class LayoutTest {
             show {
                 Layout(
                     layout,
-                    minIntrinsicWidthMeasureBlock = { _, _ -> 0.ipx },
-                    minIntrinsicHeightMeasureBlock = { _, _ -> 0.ipx },
-                    maxIntrinsicWidthMeasureBlock = { _, _ -> 0.ipx },
-                    maxIntrinsicHeightMeasureBlock = { _, _ -> 0.ipx }
-                ) { measurables, _ ->
+                    minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
+                    minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
+                    maxIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
+                    maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx }
+                ) { measurables, _, _ ->
                     val measurable = measurables.first()
                     test(
                         { h -> measurable.minIntrinsicWidth(h) },
@@ -176,7 +183,7 @@ open class LayoutTest {
         height: IntPx,
         alignmentLines: Map<AlignmentLine, IntPx>
     ) {
-        Layout({}) { _, constraints ->
+        Layout({}) { _, constraints, _ ->
             layout(
                 width.coerceIn(constraints.minWidth, constraints.maxWidth),
                 height.coerceIn(constraints.minHeight, constraints.maxHeight),
@@ -187,7 +194,7 @@ open class LayoutTest {
 
     @Composable
     internal fun WithInfiniteConstraints(children: @Composable() () -> Unit) {
-        Layout(children) { measurables, _ ->
+        Layout(children) { measurables, _, _ ->
             val placeables = measurables.map { it.measure(Constraints()) }
             layout(0.ipx, 0.ipx) {
                 placeables.forEach { it.place(0.ipx, 0.ipx) }
@@ -204,23 +211,23 @@ open class LayoutTest {
         Layout(
             children,
             modifier = modifier,
-            minIntrinsicWidthMeasureBlock = { measurables, h ->
+            minIntrinsicWidthMeasureBlock = { measurables, h, _ ->
                 val width = measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
                 width.coerceIn(constraints.minWidth.toIntPx(), constraints.maxWidth.toIntPx())
             },
-            minIntrinsicHeightMeasureBlock = { measurables, w ->
+            minIntrinsicHeightMeasureBlock = { measurables, w, _ ->
                 val height = measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
                 height.coerceIn(constraints.minHeight.toIntPx(), constraints.maxHeight.toIntPx())
             },
-            maxIntrinsicWidthMeasureBlock = { measurables, h ->
+            maxIntrinsicWidthMeasureBlock = { measurables, h, _ ->
                 val width = measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
                 width.coerceIn(constraints.minWidth.toIntPx(), constraints.maxWidth.toIntPx())
             },
-            maxIntrinsicHeightMeasureBlock = { measurables, w ->
+            maxIntrinsicHeightMeasureBlock = { measurables, w, _ ->
                 val height = measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
                 height.coerceIn(constraints.minHeight.toIntPx(), constraints.maxHeight.toIntPx())
             }
-        ) { measurables, incomingConstraints ->
+        ) { measurables, incomingConstraints, _ ->
             val measurable = measurables.firstOrNull()
             val childConstraints = Constraints(constraints).enforce(incomingConstraints)
             val placeable = measurable?.measure(childConstraints)
@@ -344,6 +351,67 @@ open class LayoutTest {
                 }
             }
             return positions
+        }
+    }
+
+    @Composable
+    internal fun Container(
+        modifier: Modifier = Modifier.None,
+        padding: EdgeInsets = EdgeInsets(0.dp),
+        alignment: Alignment = Alignment.Center,
+        expanded: Boolean = false,
+        constraints: DpConstraints = DpConstraints(),
+        width: Dp? = null,
+        height: Dp? = null,
+        children: @Composable() () -> Unit
+    ) {
+        Layout(children, modifier) { measurables, incomingConstraints, _ ->
+            val containerConstraints = Constraints(constraints)
+                .copy(
+                    width?.toIntPx() ?: constraints.minWidth.toIntPx(),
+                    width?.toIntPx() ?: constraints.maxWidth.toIntPx(),
+                    height?.toIntPx() ?: constraints.minHeight.toIntPx(),
+                    height?.toIntPx() ?: constraints.maxHeight.toIntPx()
+                ).enforce(incomingConstraints)
+            val totalHorizontal = padding.left.toIntPx() + padding.right.toIntPx()
+            val totalVertical = padding.top.toIntPx() + padding.bottom.toIntPx()
+            val childConstraints = containerConstraints
+                .copy(minWidth = 0.ipx, minHeight = 0.ipx)
+                .offset(-totalHorizontal, -totalVertical)
+            var placeable: Placeable? = null
+            val containerWidth = if ((containerConstraints.hasFixedWidth || expanded) &&
+                containerConstraints.maxWidth.isFinite()
+            ) {
+                containerConstraints.maxWidth
+            } else {
+                placeable = measurables.firstOrNull()?.measure(childConstraints)
+                max((placeable?.width ?: 0.ipx) + totalHorizontal, containerConstraints.minWidth)
+            }
+            val containerHeight = if ((containerConstraints.hasFixedHeight || expanded) &&
+                containerConstraints.maxHeight.isFinite()
+            ) {
+                containerConstraints.maxHeight
+            } else {
+                if (placeable == null) {
+                    placeable = measurables.firstOrNull()?.measure(childConstraints)
+                }
+                max((placeable?.height ?: 0.ipx) + totalVertical, containerConstraints.minHeight)
+            }
+            layout(containerWidth, containerHeight) {
+                val p = placeable ?: measurables.firstOrNull()?.measure(childConstraints)
+                p?.let {
+                    val position = alignment.align(
+                        IntPxSize(
+                            containerWidth - it.width - totalHorizontal,
+                            containerHeight - it.height - totalVertical
+                        )
+                    )
+                    it.place(
+                        padding.left.toIntPx() + position.x,
+                        padding.top.toIntPx() + position.y
+                    )
+                }
+            }
         }
     }
 }

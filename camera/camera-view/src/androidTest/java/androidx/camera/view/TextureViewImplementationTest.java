@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -63,7 +64,7 @@ public class TextureViewImplementationTest {
         mSurfaceTexture = new SurfaceTexture(0);
         mImplementation = new TextureViewImplementation();
         mParent = new FrameLayout(mContext);
-        mImplementation.init(mParent);
+        mImplementation.init(mParent, new PreviewTransform());
     }
 
     @After

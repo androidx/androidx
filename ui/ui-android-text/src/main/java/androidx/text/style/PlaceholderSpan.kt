@@ -16,6 +16,7 @@
 
 package androidx.text.style
 
+import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.style.ReplacementSpan
@@ -109,6 +110,7 @@ class PlaceholderSpan(
     /* Primitives can't be "lateinit", use this boolean to work around. */
     private var isLaidOut: Boolean = false
 
+    @SuppressLint("DocumentExceptions")
     override fun getSize(
         paint: Paint,
         text: CharSequence?,

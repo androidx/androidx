@@ -98,9 +98,7 @@ abstract class AbstractProgressFragment : Fragment {
     protected fun navigate() {
         Log.i(TAG, "navigate: ")
         val installMonitor = DynamicInstallMonitor()
-        val extras = DynamicExtras.Builder()
-            .setInstallMonitor(installMonitor)
-            .build()
+        val extras = DynamicExtras(installMonitor)
         findNavController().navigate(destinationId, destinationArgs, null, extras)
         if (!installMonitor.isInstallRequired) {
             Log.i(TAG, "navigate: install not required")

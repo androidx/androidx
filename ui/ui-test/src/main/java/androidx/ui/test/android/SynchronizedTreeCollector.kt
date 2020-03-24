@@ -50,27 +50,19 @@ internal object SynchronizedTreeCollector {
      */
     internal fun collectSemanticsProviders(): CollectedProviders {
         ComposeIdlingResource.registerSelfIntoEspresso()
-        val rootForwarder = RootForwarder()
+        val rootSearcher = RootSearcher()
 
         // Use Espresso to iterate over all roots and find all SemanticsTreeProviders
         // We can't use onView(instanceOf(SemanticsTreeProvider::class.java)) as Espresso throws
         // on multiple instances in the tree.
         Espresso.onView(isRoot())
-            .inRoot(rootForwarder)
+            .inRoot(rootSearcher)
             .check(noChecks)
 
-        if (!rootForwarder.foundRoots) {
-            throw IllegalArgumentException("No root views found. Is your Activity resumed?")
+        require(rootSearcher.foundSemanticsTreeProviders) {
+            "No SemanticsTreeProviders found. Is your Activity resumed?"
         }
-
-        val semanticTreeProviders = rootForwarder.collectSemanticTreeProviders()
-        if (semanticTreeProviders.isEmpty()) {
-            throw IllegalArgumentException(
-                "Couldn't find a Compose root in the view hierarchy. Are you using Compose in " +
-                        "your Activity?"
-            )
-        }
-        return CollectedProviders(semanticTreeProviders)
+        return CollectedProviders(rootSearcher.semanticsTreeProviders)
     }
 
     /**
@@ -86,36 +78,17 @@ internal object SynchronizedTreeCollector {
         Espresso.onIdle()
     }
 
-    /** Scans the entire view hierarchy rooted at [view] for SemanticsTreeProviders */
-    private fun collectSemanticTreeProviders(view: View): Set<SemanticsTreeProvider> {
-        val collectedRoots = mutableSetOf<SemanticsTreeProvider>()
+    /**
+     * Root matcher that can be used in [inRoot][androidx.test.espresso.ViewInteraction.inRoot]
+     * to search all [SemanticsTreeProvider]s that are ultimately attached to the window.
+     */
+    private class RootSearcher : BaseMatcher<Root>() {
+        private var isFirstRoot = true
+        private var resumedActivity: Activity? = null
+        private val treeProviders = mutableSetOf<SemanticsTreeProvider>()
 
-        fun collectSemanticTreeProvidersInternal(view: View) {
-            when (view) {
-                is SemanticsTreeProvider -> collectedRoots.add(view)
-                is ViewGroup -> {
-                    for (i in 0 until view.childCount) {
-                        collectSemanticTreeProvidersInternal(view.getChildAt(i))
-                    }
-                }
-            }
-        }
-
-        collectSemanticTreeProvidersInternal(view)
-        return collectedRoots
-    }
-
-    /** A hacky way to retrieve root views from Espresso matchers. */
-    private class RootForwarder : BaseMatcher<Root>() {
-        var isFirstRoot = true
-        val rootViews = mutableListOf<View>()
-        val foundRoots get() = rootViews.isNotEmpty()
-
-        fun collectSemanticTreeProviders(): Set<SemanticsTreeProvider> {
-            return rootViews.fold(mutableSetOf(), { acc, view ->
-                acc.also { it.addAll(collectSemanticTreeProviders(view)) }
-            })
-        }
+        val semanticsTreeProviders: Set<SemanticsTreeProvider> get() = treeProviders
+        val foundSemanticsTreeProviders get() = treeProviders.isNotEmpty()
 
         override fun describeTo(description: Description?) {
             description?.appendText("Root iterator")
@@ -125,14 +98,58 @@ internal object SynchronizedTreeCollector {
             var useRoot = false
             if (item is Root) {
                 val view = item.decorView.findViewById<View>(android.R.id.content) ?: return false
-                rootViews.add(view)
-                if (isFirstRoot) {
-                    useRoot = true
-                    isFirstRoot = false
+                val hostActivity = view.context.getActivity()
+
+                // TODO(b/151835993): Instead of finding out if the activity that hosts the view
+                //  is resumed by making assumptions on the iteration order, collect all
+                //  SemanticsTreeProviders, from them take the Owner (add owner: Owner to
+                //  SemanticsTreeProvider), from them get the LifecycleOwner and find out if that
+                //  is resumed. Then only add the SemanticsTreeProvider if the corresponding
+                //  LifecycleOwner is resumed.
+
+                if (resumedActivity == null) {
+                    // While we don't enforce views have a LifecycleOwner yet,
+                    // assume that the resumed activity is listed first
+                    resumedActivity = hostActivity
+                }
+
+                if (hostActivity == resumedActivity) {
+                    treeProviders.addAll(getTreeProviders(view))
+                    if (isFirstRoot) {
+                        useRoot = true
+                        isFirstRoot = false
+                    }
                 }
             }
             return useRoot
         }
+
+        private fun getTreeProviders(view: View): Set<SemanticsTreeProvider> {
+            val treeProviders = mutableSetOf<SemanticsTreeProvider>()
+
+            fun getOwnersRecursive(view: View) {
+                when (view) {
+                    is SemanticsTreeProvider -> treeProviders.add(view)
+                    is ViewGroup -> {
+                        repeat(view.childCount) { i ->
+                            getOwnersRecursive(view.getChildAt(i))
+                        }
+                    }
+                }
+            }
+
+            getOwnersRecursive(view)
+            return treeProviders
+        }
+    }
+}
+
+// Recursively search for the Activity context through (possible) ContextWrappers
+private fun Context.getActivity(): Activity? {
+    return when (this) {
+        is Activity -> this
+        is ContextWrapper -> this.baseContext.getActivity()
+        else -> null
     }
 }
 
@@ -142,20 +159,10 @@ internal object SynchronizedTreeCollector {
  * be interacting with several Compose roots.
  */
 internal data class CollectedProviders(val treeProviders: Set<SemanticsTreeProvider>) {
-    // Recursively search for the Activity context through (possible) ContextWrappers
-    private val Context.activity: Activity?
-        get() {
-            return when (this) {
-                is Activity -> this
-                is ContextWrapper -> this.baseContext.activity
-                else -> null
-            }
-        }
-
     fun findActivity(): Activity {
         treeProviders.forEach {
             if (it is View) {
-                val activity = it.context.activity
+                val activity = it.context.getActivity()
                 if (activity != null) {
                     return activity
                 }

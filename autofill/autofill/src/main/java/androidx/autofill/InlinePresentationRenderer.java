@@ -20,7 +20,7 @@ import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_ACTION;
+import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_ATTRIBUTION;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_END_ICON;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_START_ICON;
 import static androidx.autofill.InlinePresentationBuilder.HINT_INLINE_SUBTITLE;
@@ -30,6 +30,7 @@ import android.app.PendingIntent;
 import android.app.slice.Slice;
 import android.app.slice.SliceItem;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.util.Log;
@@ -74,65 +75,65 @@ public final class InlinePresentationRenderer {
         final ImageView endIconView =
                 suggestionView.findViewById(R.id.autofill_inline_suggestion_end_icon);
 
-        boolean hasStartIcon = false;
-        boolean hasEndIcon = false;
-        boolean hasTitle = false;
-        boolean hasSubtitle = false;
-        PendingIntent action = null;
+        int numIcons = 0;
+        int numTextViews = 0;
         final List<SliceItem> sliceItems = slice.getItems();
         for (int i = 0; i < sliceItems.size(); i++) {
             final SliceItem sliceItem = sliceItems.get(i);
             final List<String> sliceHints = sliceItem.getHints();
-            if (sliceItem.getFormat().equals(FORMAT_IMAGE)) {
+            final String sliceFormat = sliceItem.getFormat();
+            if (sliceFormat.equals(FORMAT_IMAGE)) {
                 final Icon sliceIcon = sliceItem.getIcon();
                 if (sliceHints.contains(HINT_INLINE_START_ICON)) {
                     startIconView.setImageIcon(sliceIcon);
-                    hasStartIcon = true;
+                    startIconView.setVisibility(View.VISIBLE);
+                    numIcons++;
                 } else if (sliceHints.contains(HINT_INLINE_END_ICON)) {
                     endIconView.setImageIcon(sliceIcon);
-                    hasEndIcon = true;
+                    endIconView.setVisibility(View.VISIBLE);
+                    numIcons++;
                 } else {
                     throw new IllegalStateException("Unrecognized Image SliceItem in Inline "
                             + "Presentation");
                 }
-            } else if (sliceItem.getFormat().equals(FORMAT_TEXT)) {
+            } else if (sliceFormat.equals(FORMAT_TEXT)) {
                 final String sliceText = sliceItem.getText().toString();
                 if (sliceHints.contains(HINT_INLINE_TITLE)) {
                     titleView.setText(sliceText);
-                    hasTitle = true;
+                    titleView.setVisibility(View.VISIBLE);
+                    numTextViews++;
                 } else if (sliceHints.contains(HINT_INLINE_SUBTITLE)) {
                     subtitleView.setText(sliceText);
-                    hasSubtitle = true;
+                    subtitleView.setVisibility(View.VISIBLE);
+                    numTextViews++;
                 } else {
                     throw new IllegalStateException("Unrecognized Text SliceItem in Inline "
                             + "Presentation");
                 }
-            } else if (sliceItem.getFormat().equals(FORMAT_ACTION) && sliceHints.contains(
-                    HINT_INLINE_ACTION)) {
-                action = sliceItem.getAction();
+            } else if (sliceFormat.equals(FORMAT_ACTION)) {
+                if (sliceHints.contains(HINT_INLINE_ATTRIBUTION)) {
+                    final PendingIntent attribution = sliceItem.getAction();
+                    suggestionView.setOnLongClickListener(v -> {
+                        try {
+                            attribution.send();
+                            return true;
+                        } catch (PendingIntent.CanceledException e) {
+                            Log.w(TAG, "Attribution intent cancelled");
+                        }
+                        return false;
+                    });
+                } else {
+                    throw new IllegalStateException("Unrecognized Action SliceItem in Inline "
+                            + "Presentation");
+                }
             }
         }
-        if (hasStartIcon) {
-            startIconView.setVisibility(View.VISIBLE);
-        }
-        if (hasEndIcon) {
-            endIconView.setVisibility(View.VISIBLE);
-        }
-        if (hasTitle) {
-            titleView.setVisibility(View.VISIBLE);
-        }
-        if (hasSubtitle) {
-            subtitleView.setVisibility(View.VISIBLE);
-        }
-        if (action != null) {
-            PendingIntent actionCopy = action;
-            suggestionView.setOnClickListener(v -> {
-                try {
-                    actionCopy.send();
-                } catch (PendingIntent.CanceledException e) {
-                    Log.w(TAG, "Inline action canceled.");
-                }
-            });
+        if (numIcons == 1 && numTextViews == 0 && startIconView.getVisibility() == View.VISIBLE) {
+            // Unset the chip background if the chip is a single icon.
+            suggestionView.setBackgroundColor(Color.TRANSPARENT);
+            suggestionView.setPadding(0, 0, 0, 0);
+            startIconView.setMaxWidth(context.getResources().getDimensionPixelSize(
+                    R.dimen.autofill_inline_suggestion_single_icon_size));
         }
         return suggestionView;
     }

@@ -22,50 +22,45 @@ import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.util.Preconditions;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 
 @RequiresApi(28)
 class CameraCaptureSessionCompatApi28Impl extends CameraCaptureSessionCompatBaseImpl {
-    @Override
-    public int captureBurstRequests(@NonNull CameraCaptureSession captureSession,
-            @NonNull List<CaptureRequest> requests, @NonNull Executor executor,
-            @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        Preconditions.checkNotNull(captureSession);
 
-        // Call through directly to executor API
-        return captureSession.captureBurstRequests(requests, executor, listener);
+    CameraCaptureSessionCompatApi28Impl(@NonNull CameraCaptureSession captureSession) {
+        super(captureSession, /*implParams=*/ null);
     }
 
     @Override
-    public int captureSingleRequest(@NonNull CameraCaptureSession captureSession,
-            @NonNull CaptureRequest request, @NonNull Executor executor,
+    public int captureBurstRequests(@NonNull List<CaptureRequest> requests,
+            @NonNull Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        Preconditions.checkNotNull(captureSession);
-
         // Call through directly to executor API
-        return captureSession.captureSingleRequest(request, executor, listener);
+        return mCameraCaptureSession.captureBurstRequests(requests, executor, listener);
     }
 
     @Override
-    public int setRepeatingBurstRequests(@NonNull CameraCaptureSession captureSession,
-            @NonNull List<CaptureRequest> requests, @NonNull Executor executor,
+    public int captureSingleRequest(@NonNull CaptureRequest request, @NonNull Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        Preconditions.checkNotNull(captureSession);
-
         // Call through directly to executor API
-        return captureSession.setRepeatingBurstRequests(requests, executor, listener);
+        return mCameraCaptureSession.captureSingleRequest(request, executor, listener);
     }
 
     @Override
-    public int setSingleRepeatingRequest(@NonNull CameraCaptureSession captureSession,
-            @NonNull CaptureRequest request, @NonNull Executor executor,
+    public int setRepeatingBurstRequests(@NonNull List<CaptureRequest> requests,
+            @NonNull Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        Preconditions.checkNotNull(captureSession);
-
         // Call through directly to executor API
-        return captureSession.setSingleRepeatingRequest(request, executor, listener);
+        return mCameraCaptureSession.setRepeatingBurstRequests(requests, executor, listener);
+    }
+
+    @Override
+    public int setSingleRepeatingRequest(@NonNull CaptureRequest request,
+            @NonNull Executor executor,
+            @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
+        // Call through directly to executor API
+        return mCameraCaptureSession.setSingleRepeatingRequest(request, executor, listener);
     }
 }

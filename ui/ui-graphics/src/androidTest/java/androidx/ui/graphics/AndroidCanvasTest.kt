@@ -71,6 +71,9 @@ class AndroidCanvasTest {
         }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        // Not sure why this test is flaky, so this is just going to make sure that
+        // the drawn content can get onto the screen before we capture the bitmap.
+        activityTestRule.runOnUiThread { }
         val bitmap = groupView!!.captureToBitmap()
         assertEquals(Color.WHITE, bitmap.getPixel(0, 0))
         assertEquals(Color.WHITE, bitmap.getPixel(9, 9))

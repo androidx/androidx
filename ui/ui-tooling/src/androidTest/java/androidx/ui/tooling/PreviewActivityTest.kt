@@ -18,7 +18,6 @@ package androidx.ui.tooling
 
 import android.content.Intent
 import android.view.ViewGroup
-import androidx.compose.Compose
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.tooling.preview.PreviewActivity
 import com.google.common.truth.Truth.assertThat
@@ -41,7 +40,7 @@ class PreviewActivityTest {
     @After
     fun tearDown() {
         activityTestRule.runOnUiThread {
-            Compose.disposeComposition(activityTestRule.activity.findViewById(android.R.id.content))
+            (activityTestRule.activity as PreviewActivity).composition?.dispose()
         }
     }
 

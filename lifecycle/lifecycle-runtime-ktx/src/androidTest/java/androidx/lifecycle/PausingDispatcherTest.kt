@@ -71,7 +71,7 @@ class PausingDispatcherTest {
     private val expectations = Expectations()
     private lateinit var mainThread: Thread
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun updateMainHandlerAndDispatcher() {
         Dispatchers.setMain(mainExecutor.asCoroutineDispatcher())
@@ -81,7 +81,7 @@ class PausingDispatcherTest {
         }
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     @After
     fun clearHandlerAndDispatcher() {
         waitTestingScopeChildren()

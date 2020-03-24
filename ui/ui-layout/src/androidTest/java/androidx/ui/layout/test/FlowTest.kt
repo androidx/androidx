@@ -18,10 +18,9 @@ package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Ref
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.Align
-import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.FlowColumn
 import androidx.ui.layout.FlowCrossAxisAlignment
@@ -58,20 +57,22 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -112,20 +113,21 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisSize = SizeMode.Wrap) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(mainAxisSize = SizeMode.Wrap) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -166,20 +168,23 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisSize = SizeMode.Expand) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(mainAxisSize = SizeMode.Expand) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -220,23 +225,26 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.Center
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.Center
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -277,23 +285,25 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.Start
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.Start
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -334,23 +344,26 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.End
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.End
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -391,23 +404,26 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -451,23 +467,26 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -511,23 +530,26 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceAround
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceAround
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -571,24 +593,27 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
-                            lastLineMainAxisAlignment = FlowMainAxisAlignment.Center
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                        lastLineMainAxisAlignment = FlowMainAxisAlignment.Center
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -636,24 +661,27 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
-                            lastLineMainAxisAlignment = FlowMainAxisAlignment.Start
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                        lastLineMainAxisAlignment = FlowMainAxisAlignment.Start
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -701,24 +729,27 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
-                            lastLineMainAxisAlignment = FlowMainAxisAlignment.End
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                        lastLineMainAxisAlignment = FlowMainAxisAlignment.End
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -768,20 +799,23 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(mainAxisSpacing = spacingDp) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(mainAxisSpacing = spacingDp) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -822,23 +856,24 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(crossAxisAlignment = FlowCrossAxisAlignment.Center) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(
-                                    width = sizeDp,
-                                    height = if (i % 2 == 0) sizeDp else sizeDp * 2
-                                ) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(crossAxisAlignment = FlowCrossAxisAlignment.Center) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp,
+                                height = if (i % 2 == 0) sizeDp else sizeDp * 2,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -885,23 +920,24 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(crossAxisAlignment = FlowCrossAxisAlignment.Start) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(
-                                    width = sizeDp,
-                                    height = if (i % 2 == 0) sizeDp else sizeDp * 2
-                                ) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(crossAxisAlignment = FlowCrossAxisAlignment.Start) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp,
+                                height = if (i % 2 == 0) sizeDp else sizeDp * 2,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -945,23 +981,24 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(crossAxisAlignment = FlowCrossAxisAlignment.End) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(
-                                    width = sizeDp,
-                                    height = if (i % 2 == 0) sizeDp else sizeDp * 2
-                                ) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(crossAxisAlignment = FlowCrossAxisAlignment.End) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp,
+                                height = if (i % 2 == 0) sizeDp else sizeDp * 2,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1010,20 +1047,23 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp)) {
-                        FlowRow(crossAxisSpacing = spacingDp) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxWidth = flowWidthDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowRow(crossAxisSpacing = spacingDp) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1064,20 +1104,21 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1118,20 +1159,20 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisSize = SizeMode.Wrap) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }) {
+                    FlowColumn(mainAxisSize = SizeMode.Wrap) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1172,20 +1213,21 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisSize = SizeMode.Expand) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(mainAxisSize = SizeMode.Expand) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1226,23 +1268,24 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.Center
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.Center
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1283,23 +1326,24 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.Start
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.Start
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1340,23 +1384,26 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.End
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(
+                    constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.End
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1397,23 +1444,24 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceEvenly
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1457,23 +1505,24 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1517,23 +1566,24 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceAround
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceAround
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1577,24 +1627,25 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
-                            lastLineMainAxisAlignment = FlowMainAxisAlignment.Center
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                        lastLineMainAxisAlignment = FlowMainAxisAlignment.Center
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1642,24 +1693,25 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
-                            lastLineMainAxisAlignment = FlowMainAxisAlignment.Start
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                        lastLineMainAxisAlignment = FlowMainAxisAlignment.Start
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1707,24 +1759,25 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(
-                            mainAxisSize = SizeMode.Expand,
-                            mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
-                            lastLineMainAxisAlignment = FlowMainAxisAlignment.End
-                        ) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(
+                        mainAxisSize = SizeMode.Expand,
+                        mainAxisAlignment = FlowMainAxisAlignment.SpaceBetween,
+                        lastLineMainAxisAlignment = FlowMainAxisAlignment.End
+                    ) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1774,20 +1827,21 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(mainAxisSpacing = spacingDp) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(mainAxisSpacing = spacingDp) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1828,23 +1882,23 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(crossAxisAlignment = FlowCrossAxisAlignment.Center) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(
-                                    width = if (i % 2 == 0) sizeDp else sizeDp * 2,
-                                    height = sizeDp
-                                ) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(crossAxisAlignment = FlowCrossAxisAlignment.Center) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = if (i % 2 == 0) sizeDp else sizeDp * 2,
+                                height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1891,23 +1945,23 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(crossAxisAlignment = FlowCrossAxisAlignment.Start) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(
-                                    width = if (i % 2 == 0) sizeDp else sizeDp * 2,
-                                    height = sizeDp
-                                ) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(crossAxisAlignment = FlowCrossAxisAlignment.Start) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = if (i % 2 == 0) sizeDp else sizeDp * 2,
+                                height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -1948,23 +2002,23 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(crossAxisAlignment = FlowCrossAxisAlignment.End) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(
-                                    width = if (i % 2 == 0) sizeDp else sizeDp * 2,
-                                    height = sizeDp
-                                ) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(crossAxisAlignment = FlowCrossAxisAlignment.End) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(
+                                width = if (i % 2 == 0) sizeDp else sizeDp * 2,
+                                height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }
@@ -2013,20 +2067,21 @@ class FlowTest : LayoutTest() {
 
         show {
             Align(Alignment.TopStart) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    flowSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }) {
-                    ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp)) {
-                        FlowColumn(crossAxisSpacing = spacingDp) {
-                            for (i in 0 until numberOfSquares) {
-                                Container(width = sizeDp, height = sizeDp) {
-                                    SaveLayoutInfo(
-                                        size = childSize[i],
-                                        position = childPosition[i],
-                                        positionedLatch = positionedLatch
-                                    )
-                                }
+                ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
+                    modifier = onPositioned { coordinates ->
+                        flowSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FlowColumn(crossAxisSpacing = spacingDp) {
+                        for (i in 0 until numberOfSquares) {
+                            Container(width = sizeDp, height = sizeDp,
+                                modifier = saveLayoutInfo(
+                                    size = childSize[i],
+                                    position = childPosition[i],
+                                    positionedLatch = positionedLatch
+                                )
+                            ) {
                             }
                         }
                     }

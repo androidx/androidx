@@ -18,7 +18,6 @@ package androidx.paging.multicast
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -33,8 +32,6 @@ import kotlinx.coroutines.flow.transform
  * It has one store specific behavior where upstream flow is suspended until at least 1 downstream
  * flow emits the value to ensure we don't abuse the upstream flow of downstream cannot keep up.
  */
-@FlowPreview
-@ExperimentalCoroutinesApi
 internal class Multicaster<T>(
     /**
      * The [CoroutineScope] to use for upstream subscription
@@ -75,6 +72,7 @@ internal class Multicaster<T>(
         )
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val flow = flow<T> {
         val channel = Channel<ChannelManager.Message.Dispatch.Value<T>>(Channel.UNLIMITED)
         val subFlow = channel.consumeAsFlow()

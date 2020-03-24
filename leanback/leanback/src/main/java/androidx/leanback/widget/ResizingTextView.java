@@ -13,6 +13,7 @@
  */
 package androidx.leanback.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.Layout;
@@ -28,6 +29,7 @@ import androidx.leanback.R;
  * <p>A {@link android.widget.TextView} that adjusts text size automatically in response
  * to certain trigger conditions, such as text that wraps over multiple lines.</p>
  */
+@SuppressLint("AppCompatCustomView")
 class ResizingTextView extends TextView {
 
     /**

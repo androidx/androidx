@@ -25,9 +25,9 @@ import androidx.ui.text.TextRange
  *
  * This class accepts latest text edit state from developer and also receives edit operations from
  * IME.
- * @hide
+ * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class EditProcessor {
 
     // The previous editor state we passed back to the user of this class.

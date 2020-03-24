@@ -24,9 +24,9 @@ import android.view.View
 import android.view.View.MeasureSpec.AT_MOST
 import android.view.ViewGroup
 import androidx.recyclerview.widget.BaseRecyclerViewInstrumentationTest.Item
-import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.ALLOW
-import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.PREVENT
-import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.PREVENT_WHEN_EMPTY
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.ALLOW
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 import androidx.recyclerview.widget.StaggeredGridLayoutManager.GAP_HANDLING_NONE
 import androidx.recyclerview.widget.StaggeredGridLayoutManager.VERTICAL
 import androidx.test.annotation.UiThreadTest
@@ -126,7 +126,7 @@ class LazyStateRestorationTest(
         val coordinates = recyclerView.collectChildCoordinates()
         restore(setAdapter = false)
         val adapter = LazyStateAdapter(emptyList())
-        adapter.stateRestorationStrategy = PREVENT_WHEN_EMPTY
+        adapter.stateRestorationPolicy = PREVENT_WHEN_EMPTY
         recyclerView.adapter = adapter
         measureAndLayout()
         // test sanity
@@ -146,7 +146,7 @@ class LazyStateRestorationTest(
         val coordinates = recyclerView.collectChildCoordinates()
         restore(setAdapter = true)
         val adapter = recyclerView.adapter as LazyStateAdapter
-        adapter.stateRestorationStrategy = PREVENT
+        adapter.stateRestorationPolicy = PREVENT
         measureAndLayout()
         // test sanity, we should layout whatever is available
         assertThat(recyclerView.collectChildCoordinates()).isNotEmpty()
@@ -159,7 +159,7 @@ class LazyStateRestorationTest(
         measureAndLayout()
         // still not restored
         assertThat(recyclerView.collectChildCoordinates()).isNotEqualTo(coordinates)
-        adapter.stateRestorationStrategy = ALLOW
+        adapter.stateRestorationPolicy = ALLOW
         assertThat(recyclerView.isLayoutRequested).isTrue()
         measureAndLayout()
         // now we should restore
@@ -176,11 +176,11 @@ class LazyStateRestorationTest(
         val savedStateCoordinates = recyclerView.collectChildCoordinates()
         restore(setAdapter = true)
         val adapter = recyclerView.adapter as LazyStateAdapter
-        adapter.stateRestorationStrategy = PREVENT
+        adapter.stateRestorationPolicy = PREVENT
         measureAndLayout()
         // state is not restored yet, trigger a scroll but also restore in the same layout
         recyclerView.scrollToPosition(40)
-        adapter.stateRestorationStrategy = ALLOW
+        adapter.stateRestorationPolicy = ALLOW
         measureAndLayout()
         // relayout so that SGLM can settle
         recyclerView.requestLayout()

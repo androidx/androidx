@@ -25,6 +25,7 @@ import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
@@ -44,7 +45,6 @@ import androidx.room.Transaction;
 import androidx.room.paging.LimitOffsetDataSource;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -92,9 +92,6 @@ public class QueryTransactionTest {
 
     @Before
     public void initDb() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> mLifecycleOwner.handleEvent(Lifecycle.Event.ON_START));
-
         resetTransactionCount();
         mDb = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(),
                 TransactionDb.class).build();
@@ -104,8 +101,7 @@ public class QueryTransactionTest {
 
     @After
     public void closeDb() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(
-                () -> mLifecycleOwner.handleEvent(Lifecycle.Event.ON_DESTROY));
+        mLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         drain();
         mDb.close();
     }

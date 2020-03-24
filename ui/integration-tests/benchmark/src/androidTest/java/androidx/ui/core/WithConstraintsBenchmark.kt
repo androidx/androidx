@@ -25,7 +25,8 @@ import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasureLayout
 import androidx.ui.core.Placeable.PlacementScope.place
-import androidx.ui.layout.Container
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Spacer
 import androidx.ui.test.ComposeTestCase
@@ -70,7 +71,7 @@ private class NoWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
     override fun emitContent() {
         val size = state { 200.dp }
         this.state = size
-        Container(width = 300.dp, height = 300.dp) {
+        Box(LayoutSize(300.dp), gravity = ContentGravity.Center) {
             Spacer(LayoutSize(width = size.value, height = size.value))
         }
     }
@@ -88,8 +89,8 @@ private class WithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
     override fun emitContent() {
         val size = state { 200.dp }
         this.state = size
-        WithConstraints {
-            Container(width = 300.dp, height = 300.dp) {
+        WithConstraints { _, _ ->
+            Box(LayoutSize(300.dp), gravity = ContentGravity.Center) {
                 Spacer(LayoutSize(width = size.value, height = size.value))
             }
         }
@@ -109,8 +110,8 @@ private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase 
         val size = state { 100.ipx }
         this.state = size
         ChangingConstraintsLayout(state) {
-            WithConstraints {
-                Container(expanded = true) {}
+            WithConstraints { _, _ ->
+                Box(LayoutSize.Fill)
             }
         }
     }
@@ -122,7 +123,7 @@ private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase 
 
 @Composable
 private fun ChangingConstraintsLayout(size: State<IntPx>, children: @Composable() () -> Unit) {
-    Layout(children) { measurables, _ ->
+    Layout(children) { measurables, _, _ ->
         val constraints = Constraints.fixed(size.value, size.value)
         measurables.first().measure(constraints).place(0.ipx, 0.ipx)
         layout(100.ipx, 100.ipx) {}

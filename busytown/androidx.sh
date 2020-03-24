@@ -4,8 +4,8 @@ set -e
 cd "$(dirname $0)"
 
 # Run Gradle
-impl/build.sh --no-daemon buildOnServer -PverifyUpToDate --profile "$@"
 impl/build.sh --no-daemon listTaskOutputs "$@"
+impl/build.sh --no-daemon buildOnServer --profile "$@"
 
 # Merge some output files
 python3 impl/merge_outputs.py "mergeBuildInfo" "mergeLibraryMetrics"

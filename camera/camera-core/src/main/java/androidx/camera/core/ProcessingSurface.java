@@ -35,10 +35,13 @@ import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.SingleImageProxyBundle;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.Executor;
 
 /**
  * A {@link DeferrableSurface} that does processing and outputs a {@link SurfaceTexture}.
@@ -131,14 +134,15 @@ final class ProcessingSurface extends DeferrableSurface {
             mImageReaderHandler = new Handler(looper);
         }
 
+        Executor executor = CameraXExecutors.newHandlerExecutor(mImageReaderHandler);
+
         // input
         mInputImageReader = new MetadataImageReader(
                 width,
                 height,
                 format,
-                MAX_IMAGES,
-                mImageReaderHandler);
-        mInputImageReader.setOnImageAvailableListener(mTransformedListener, mImageReaderHandler);
+                MAX_IMAGES);
+        mInputImageReader.setOnImageAvailableListener(mTransformedListener, executor);
         mInputSurface = mInputImageReader.getSurface();
         mCameraCaptureCallback = mInputImageReader.getCameraCaptureCallback();
 

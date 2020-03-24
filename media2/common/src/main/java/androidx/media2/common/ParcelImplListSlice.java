@@ -92,25 +92,29 @@ public class ParcelImplListSlice implements Parcelable {
             }
             Parcel data = Parcel.obtain();
             Parcel reply = Parcel.obtain();
-            data.writeInt(i);
             try {
-                retriever.transact(IBinder.FIRST_CALL_TRANSACTION, data, reply, 0);
-            } catch (RemoteException e) {
-                Log.w(TAG, "Failure retrieving array; only received " + i + " of " + itemCount, e);
-                return;
-            }
-            while (i < itemCount && reply.readInt() != 0) {
-                final ParcelImpl parcelImpl = reply.readParcelable(
-                        ParcelImpl.class.getClassLoader());
-                mList.add(parcelImpl);
-
-                if (DEBUG) {
-                    Log.d(TAG, "Read extra #" + i + ": " + mList.get(mList.size() - 1));
+                data.writeInt(i);
+                try {
+                    retriever.transact(IBinder.FIRST_CALL_TRANSACTION, data, reply, 0);
+                } catch (RemoteException e) {
+                    Log.w(TAG, "Failure retrieving array; only received " + i + " of " + itemCount,
+                            e);
+                    return;
                 }
-                i++;
+                while (i < itemCount && reply.readInt() != 0) {
+                    final ParcelImpl parcelImpl = reply.readParcelable(
+                            ParcelImpl.class.getClassLoader());
+                    mList.add(parcelImpl);
+
+                    if (DEBUG) {
+                        Log.d(TAG, "Read extra #" + i + ": " + mList.get(mList.size() - 1));
+                    }
+                    i++;
+                }
+            } finally {
+                reply.recycle();
+                data.recycle();
             }
-            reply.recycle();
-            data.recycle();
         }
     }
 

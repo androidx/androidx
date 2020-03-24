@@ -18,26 +18,31 @@ package androidx.ui.material.icons.test
 
 import android.app.Activity
 import android.graphics.Bitmap
-import android.view.ViewGroup
+import android.os.Build
 import androidx.compose.Composable
-import androidx.compose.Compose
+import androidx.compose.Composition
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.ContextAmbient
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.TestTag
+import androidx.ui.core.asModifier
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.vector.DrawVector
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.layout.Center
+import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
 import androidx.ui.res.vectorResource
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.findByTag
-import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -53,6 +58,7 @@ const val XmlTestTag = "Xml"
  * Material [androidx.ui.material.icons.Icons] and their XML source.
  */
 @LargeTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(JUnit4::class)
 class IconComparisonTest {
 
@@ -70,9 +76,10 @@ class IconComparisonTest {
         AllIcons.forEach { (property, drawableName) ->
             var xmlVector: VectorAsset? = null
             val programmaticVector = property.get()
+            var composition: Composition? = null
 
             activityTestRule.runOnUiThread {
-                activityTestRule.activity.setContent {
+                composition = activityTestRule.activity.setContent {
                     xmlVector = drawableName.toVectorAsset()
                     DrawVectors(programmaticVector, xmlVector!!)
                 }
@@ -90,10 +97,7 @@ class IconComparisonTest {
 
             // Dispose between composing each pair of icons to ensure correctness
             activityTestRule.runOnUiThread {
-                val root =
-                    (activityTestRule.activity.findViewById(android.R.id.content) as ViewGroup)
-                val composeView = root.getChildAt(0) as AndroidComposeView
-                Compose.disposeComposition(composeView.root, activityTestRule.activity, null)
+                composition?.dispose()
             }
         }
     }
@@ -159,20 +163,31 @@ private fun assertBitmapsAreEqual(xmlBitmap: Bitmap, programmaticBitmap: Bitmap,
  */
 @Composable
 private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset) {
-    Center {
-        Column {
+    Stack {
+        // Ideally these icons would be 24 dp, but due to density changes across devices we test
+        // against in CI, on some devices using DP here causes there to be anti-aliasing issues.
+        // Using ipx directly ensures that we will always have a consistent layout / drawing
+        // story, so anti-aliasing should be identical.
+        val layoutSize = with(DensityAmbient.current) {
+            LayoutSize(72.ipx.toDp())
+        }
+        Column(LayoutGravity.Center) {
             TestTag(ProgrammaticTestTag) {
                 Semantics(container = true) {
-                    Container(width = 24.dp, height = 24.dp) {
-                        DrawVector(vectorImage = programmaticVector, tintColor = Color.Red)
-                    }
+                    Box(
+                        modifier = layoutSize +
+                                VectorPainter(programmaticVector)
+                                    .asModifier(colorFilter = ColorFilter.tint(Color.Red))
+                    )
                 }
             }
             TestTag(XmlTestTag) {
                 Semantics(container = true) {
-                    Container(width = 24.dp, height = 24.dp) {
-                        DrawVector(vectorImage = xmlVector, tintColor = Color.Red)
-                    }
+                    Box(
+                        modifier = layoutSize +
+                                VectorPainter(xmlVector)
+                                    .asModifier(colorFilter = ColorFilter.tint(Color.Red))
+                    )
                 }
             }
         }

@@ -303,6 +303,7 @@ public class SessionConfigTest {
         Option<FakeMultiValueSet> option = Option.create("multiValueSet", FakeMultiValueSet.class);
 
         SessionConfig.Builder builder0 = new SessionConfig.Builder();
+        builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         MutableOptionsBundle options0 = MutableOptionsBundle.create();
         FakeMultiValueSet multiValueSet0 = new FakeMultiValueSet();
         options0.insertOption(option, multiValueSet0);

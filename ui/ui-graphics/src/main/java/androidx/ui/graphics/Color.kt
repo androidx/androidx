@@ -25,7 +25,6 @@ import androidx.ui.graphics.colorspace.ColorSpace
 import androidx.ui.graphics.colorspace.ColorSpaces
 import androidx.ui.graphics.colorspace.Rgb
 import androidx.ui.graphics.colorspace.connect
-import androidx.ui.util.Float16
 import androidx.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.min
@@ -168,7 +167,8 @@ class Color @PublishedApi internal constructor(
             return if ((value and 0x3fL) == 0L) {
                 ((value shr 48) and 0xffL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 48) and 0xffffL).toShort()).toFloat()
+                Float16(((value shr 48) and 0xffffL).toShort())
+                    .toFloat()
             }
         }
 
@@ -189,7 +189,8 @@ class Color @PublishedApi internal constructor(
             return if ((value and 0x3fL) == 0L) {
                 ((value shr 40) and 0xffL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 32) and 0xffffL).toShort()).toFloat()
+                Float16(((value shr 32) and 0xffffL).toShort())
+                    .toFloat()
             }
         }
 
@@ -210,7 +211,8 @@ class Color @PublishedApi internal constructor(
             return if ((value and 0x3fL) == 0L) {
                 ((value shr 32) and 0xffL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 16) and 0xffffL).toShort()).toFloat()
+                Float16(((value shr 16) and 0xffffL).toShort())
+                    .toFloat()
             }
         }
 

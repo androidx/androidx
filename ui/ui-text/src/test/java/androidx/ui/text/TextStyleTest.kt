@@ -978,8 +978,8 @@ class TextStyleTest {
         )
     }
 
-    @Test(expected = AssertionError::class)
-    fun `negative lineHeight throws AssertionError`() {
+    @Test(expected = IllegalStateException::class)
+    fun `negative lineHeight throws IllegalStateException`() {
         TextStyle(lineHeight = (-1).sp)
     }
 }

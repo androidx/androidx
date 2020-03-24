@@ -31,8 +31,8 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ParagraphStyleTest {
 
-    @Test(expected = AssertionError::class)
-    fun `negative lineHeight throws AssertionError`() {
+    @Test(expected = IllegalStateException::class)
+    fun `negative lineHeight throws IllegalStateException`() {
         ParagraphStyle(lineHeight = (-1).sp)
     }
 

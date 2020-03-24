@@ -33,17 +33,14 @@ class DynamicExtrasTest {
     fun build_withMonitorAndExtras() {
         val monitor = DynamicInstallMonitor()
         val navExtras = TestNavigatorExtras()
-        val builder = DynamicExtras.Builder()
-            .setInstallMonitor(monitor)
-            .setDestinationExtras(navExtras)
-        val extras = builder.build()
+        val extras = DynamicExtras(monitor, navExtras)
         assertThat(extras.destinationExtras).isNotNull()
         assertThat(extras.installMonitor).isNotNull()
     }
 
     @Test
     fun build_withoutMonitorOrExtras() {
-        val extras = DynamicExtras.Builder().build()
+        val extras = DynamicExtras()
         assertThat(extras.destinationExtras).isNull()
         assertThat(extras.installMonitor).isNull()
     }

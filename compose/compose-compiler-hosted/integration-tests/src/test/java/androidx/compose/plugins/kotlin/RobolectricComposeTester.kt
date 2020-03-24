@@ -18,18 +18,16 @@ package androidx.compose.plugins.kotlin
 
 import android.app.Activity
 import android.os.Bundle
+import android.os.Looper.getMainLooper
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.compose.Compose
 import androidx.compose.Composer
 import androidx.compose.Composition
-import androidx.compose.Recomposer
+import androidx.compose.compositionFor
+import androidx.ui.node.UiComposer
 import org.robolectric.Robolectric
 import org.robolectric.RuntimeEnvironment
-import kotlin.reflect.full.findParameterByName
-import kotlin.reflect.full.functions
-import kotlin.reflect.full.isSubtypeOf
-import kotlin.reflect.full.starProjectedType
+import org.robolectric.Shadows.shadowOf
 
 const val ROOT_ID = 18284847
 
@@ -56,11 +54,16 @@ class RobolectricComposeTester internal constructor(
         val advance: () -> Unit
     ) {
         fun then(block: (activity: Activity) -> Unit): ActiveTest {
-            val scheduler = RuntimeEnvironment.getMasterScheduler()
-            scheduler.advanceToLastPostedRunnable()
-            advance()
-            scheduler.advanceToLastPostedRunnable()
-            block(activity)
+            try {
+                val scheduler = RuntimeEnvironment.getMasterScheduler()
+                scheduler.advanceToLastPostedRunnable()
+                advance()
+                scheduler.advanceToLastPostedRunnable()
+                block(activity)
+            } catch (e: Throwable) {
+                shadowOf(getMainLooper()).idle()
+                throw e
+            }
             return this
         }
     }
@@ -72,22 +75,17 @@ class RobolectricComposeTester internal constructor(
         val activity = controller.create().get()
         val root = activity.root
         scheduler.advanceToLastPostedRunnable()
-        val composeInto = Compose::class.java.methods.first {
-            if (it.name != "composeInto") false
-            else {
-                val param = it.parameters.getOrNull(2)
-                param?.type == Function1::class.java
-            }
+
+        val composition = compositionFor(root) { slotTable, recomposer ->
+            UiComposer(activity, root, slotTable, recomposer)
         }
-        val composition = composeInto.invoke(
-            Compose,
-            root,
-            null,
-            composable
-        ) as Composition
+        val setContentMethod = Composition::class.java.methods.first { it.name == "setContent" }
+        setContentMethod.isAccessible = true
+        fun setContent() { setContentMethod.invoke(composition, composable) }
+        setContent()
         scheduler.advanceToLastPostedRunnable()
         block(activity)
-        val advanceFn = advance ?: { composition.compose() }
+        val advanceFn = advance ?: { setContent() }
         return ActiveTest(activity, advanceFn)
     }
 }

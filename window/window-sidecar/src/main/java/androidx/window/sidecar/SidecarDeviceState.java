@@ -17,22 +17,22 @@
 package androidx.window.sidecar;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * Information about the current state of the device.
- * <p>Currently only includes the description of the state for foldable devices.
+ * @deprecated Use androidx.window.extensions instead of this package.
  */
+@Deprecated
 public final class SidecarDeviceState {
 
     /**
      * The current posture of the foldable device.
      */
     @Posture
-    private final int mPosture;
+    public int posture;
 
     public static final int POSTURE_UNKNOWN = 0;
     public static final int POSTURE_CLOSED = 1;
@@ -49,33 +49,4 @@ public final class SidecarDeviceState {
             POSTURE_FLIPPED
     })
     @interface Posture{}
-
-    public SidecarDeviceState(@Posture int posture) {
-        mPosture = posture;
-    }
-
-    /**
-     * Get the current posture of the foldable device.
-     */
-    @Posture
-    public int getPosture() {
-        return mPosture;
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof SidecarDeviceState)) {
-            return false;
-        }
-        final SidecarDeviceState other = (SidecarDeviceState) obj;
-        return other.mPosture == mPosture;
-    }
-
-    @Override
-    public int hashCode() {
-        return mPosture;
-    }
 }

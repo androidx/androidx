@@ -19,11 +19,11 @@ package androidx.ui.animation
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimatedValue
 import androidx.animation.AnimationClockObservable
-import androidx.animation.TwoWayConverter
-import androidx.compose.Model
 import androidx.animation.AnimationVector
 import androidx.animation.AnimationVector4D
+import androidx.animation.TwoWayConverter
 import androidx.compose.Composable
+import androidx.compose.Model
 import androidx.compose.remember
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.graphics.Color
@@ -42,7 +42,9 @@ fun <T, V : AnimationVector> animatedValue(
     initVal: T,
     converter: TwoWayConverter<T, V>,
     clock: AnimationClockObservable = AnimationClockAmbient.current
-): AnimatedValue<T, V> = remember { AnimatedValueModel(initVal, converter, clock) }
+): AnimatedValue<T, V> = clock.asDisposableClock().let { disposableClock ->
+    remember(disposableClock) { AnimatedValueModel(initVal, converter, disposableClock) }
+}
 
 /**
  * The animatedValue effect creates an [AnimatedFloat] and positionally memoizes it. When the
@@ -55,8 +57,9 @@ fun <T, V : AnimationVector> animatedValue(
 fun animatedFloat(
     initVal: Float,
     clock: AnimationClockObservable = AnimationClockAmbient.current
-): AnimatedFloat =
-    remember { AnimatedFloatModel(initVal, clock) }
+): AnimatedFloat = clock.asDisposableClock().let { disposableClock ->
+    remember(disposableClock) { AnimatedFloatModel(initVal, disposableClock) }
+}
 
 /**
  * The animatedValue effect creates an [AnimatedValue] of [Color] and positionally memoizes it. When
@@ -69,14 +72,15 @@ fun animatedFloat(
 fun animatedColor(
     initVal: Color,
     clock: AnimationClockObservable = AnimationClockAmbient.current
-): AnimatedValue<Color, AnimationVector4D> =
-    remember {
+): AnimatedValue<Color, AnimationVector4D> = clock.asDisposableClock().let { disposableClock ->
+    remember(disposableClock) {
         AnimatedValueModel(
             value = initVal,
             typeConverter = ColorToVectorConverter(initVal.colorSpace),
-            clock = clock
+            clock = disposableClock
         )
     }
+}
 
 /**
  * Model class for [AnimatedValue]. This class tracks the value field change, so that composables

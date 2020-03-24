@@ -24,15 +24,17 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.HapticFeedBackAmbient
 import androidx.ui.core.Layout
-import androidx.ui.core.OnPositioned
+import androidx.ui.core.Modifier
+import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Popup
 import androidx.ui.core.enforce
+import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.LongPressDragGestureDetector
-import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
+import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
+import androidx.ui.core.onPositioned
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
@@ -77,14 +79,14 @@ fun SelectionContainer(
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
 
+    val gestureModifiers = TapGestureDetector({ manager.onRelease() }) +
+            LongPressDragGestureDetector(manager.longPressDragObserver)
+
     Providers(SelectionRegistrarAmbient provides registrarImpl) {
-        Wrap {
-            // Get the layout coordinates of the selection container. This is for hit test of
-            // cross-composable selection.
-            OnPositioned(onPositioned = { manager.containerLayoutCoordinates = it })
-            PressReleasedGestureDetector(onRelease = { manager.onRelease() }) {
-                LongPressDragGestureDetector(manager.longPressDragObserver, children = children)
-            }
+        // Get the layout coordinates of the selection container. This is for hit test of
+        // cross-composable selection.
+        Wrap(gestureModifiers + onPositioned { manager.containerLayoutCoordinates = it }) {
+            children()
             addHandles(
                 manager = manager,
                 selection = selection,
@@ -131,10 +133,13 @@ private fun addHandles(
                 },
                 offset = IntPxPosition(startOffset.x.value.toIntPx(), startOffset.y.value.toIntPx())
             ) {
-                TouchSlopDragGestureDetector(
-                    dragObserver = manager.handleDragObserver(isStartHandle = true),
-                    children = startHandle
+                val drag = DragGestureDetector(
+                    dragObserver = manager.handleDragObserver(isStartHandle = true)
                 )
+                // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+                //  is implemented with modifiers.
+                @Suppress("DEPRECATION")
+                PassThroughLayout(drag, startHandle)
             }
         }
 
@@ -148,10 +153,13 @@ private fun addHandles(
                 },
                 offset = IntPxPosition(endOffset.x.value.toIntPx(), endOffset.y.value.toIntPx())
             ) {
-                TouchSlopDragGestureDetector(
-                    dragObserver = manager.handleDragObserver(isStartHandle = false),
-                    children = endHandle
+                val drag = DragGestureDetector(
+                    dragObserver = manager.handleDragObserver(isStartHandle = false)
                 )
+                // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+                //  is implemented with modifiers.
+                @Suppress("DEPRECATION")
+                PassThroughLayout(drag, endHandle)
             }
         }
     }
@@ -164,8 +172,8 @@ private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
  * the children.
  */
 @Composable
-private fun Wrap(children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
+private fun Wrap(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+    Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { measurable ->
             measurable.measure(constraints)
         }
@@ -180,7 +188,7 @@ private fun Wrap(children: @Composable() () -> Unit) {
 
         layout(width, height) {
             placeables.forEach { placeable ->
-                placeable.place(0.ipx, 0.ipx)
+                placeable.placeAbsolute(0.ipx, 0.ipx)
             }
         }
     }
@@ -191,11 +199,12 @@ private fun Wrap(children: @Composable() () -> Unit) {
  */
 @Composable
 internal fun SimpleContainer(
+    modifier: Modifier = Modifier.None,
     width: Dp? = null,
     height: Dp? = null,
     children: @Composable() () -> Unit
 ) {
-    Layout(children) { measurables, incomingConstraints ->
+    Layout(children, modifier) { measurables, incomingConstraints, _ ->
         val containerConstraints = Constraints()
             .copy(
                 width?.toIntPx() ?: 0.ipx,
@@ -235,7 +244,7 @@ internal fun SimpleContainer(
                         containerHeight - it.height
                     )
                 )
-                it.place(
+                it.placeAbsolute(
                     position.x,
                     position.y
                 )

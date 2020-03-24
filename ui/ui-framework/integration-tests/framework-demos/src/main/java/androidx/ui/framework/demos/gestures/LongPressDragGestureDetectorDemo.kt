@@ -16,55 +16,57 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.state
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.gesture.LongPressDragGestureDetector
 import androidx.ui.core.gesture.LongPressDragObserver
-import androidx.ui.core.setContent
+import androidx.ui.foundation.Box
+import androidx.ui.layout.LayoutAlign
+import androidx.ui.layout.LayoutOffset
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
-import androidx.ui.unit.px
+import androidx.compose.Composable
 
 /**
  * Simple demo that shows off TouchSlopDragGestureDetector.
  */
-class LongPressDragGestureDetectorDemo : Activity() {
+@Composable
+fun LongPressDragGestureDetectorDemo() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
+    val offset = state { PxPosition.Origin }
+    val color = state { Grey }
 
-            val xOffset = state { 0.px }
-            val yOffset = state { 0.px }
-            val color = state { Grey }
+    val longPressDragObserver =
+        object : LongPressDragObserver {
 
-            val longPressDragObserver =
-                object : LongPressDragObserver {
+            override fun onLongPress(pxPosition: PxPosition) {
+                color.value = Red
+            }
 
-                    override fun onLongPress(pxPosition: PxPosition) {
-                        color.value = Red
-                    }
+            override fun onDragStart() {
+                super.onDragStart()
+                color.value = Blue
+            }
 
-                    override fun onDragStart() {
-                        super.onDragStart()
-                        color.value = Blue
-                    }
+            override fun onDrag(dragDistance: PxPosition): PxPosition {
+                offset.value += dragDistance
+                return dragDistance
+            }
 
-                    override fun onDrag(dragDistance: PxPosition): PxPosition {
-                        xOffset.value += dragDistance.x
-                        yOffset.value += dragDistance.y
-                        return dragDistance
-                    }
-
-                    override fun onStop(velocity: PxPosition) {
-                        color.value = Grey
-                    }
-                }
-
-            LongPressDragGestureDetector(longPressDragObserver) {
-                DrawingBox(xOffset.value, yOffset.value, 96.dp, 96.dp, color.value)
+            override fun onStop(velocity: PxPosition) {
+                color.value = Grey
             }
         }
-    }
+
+    val (offsetX, offsetY) =
+        with(DensityAmbient.current) { offset.value.x.toDp() to offset.value.y.toDp() }
+
+    Box(
+        LayoutOffset(offsetX, offsetY) +
+                LayoutSize.Fill + LayoutAlign.Center +
+                LongPressDragGestureDetector(longPressDragObserver) +
+                LayoutSize(96.dp),
+        backgroundColor = color.value
+    )
 }

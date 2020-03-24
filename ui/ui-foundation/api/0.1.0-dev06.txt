@@ -99,7 +99,7 @@ package androidx.ui.foundation {
   }
 
   public final class ImageKt {
-    method public static void SimpleImage(androidx.ui.graphics.Image image, androidx.ui.graphics.Color? tint = null);
+    method public static void SimpleImage(androidx.ui.graphics.ImageAsset image, androidx.ui.graphics.Color? tint = null);
   }
 
   public final class ScrollerKt {

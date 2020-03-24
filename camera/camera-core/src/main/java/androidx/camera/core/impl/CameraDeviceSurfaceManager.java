@@ -22,7 +22,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.UseCase;
 
 import java.util.List;
 import java.util.Map;
@@ -75,13 +74,23 @@ public interface CameraDeviceSurfaceManager {
     /**
      * Retrieves a map of suggested resolutions for the given list of use cases.
      *
-     * @param cameraId         the camera id of the camera device used by the use cases
-     * @param originalUseCases list of use cases with existing surfaces
-     * @param newUseCases      list of new use cases
+     * @param cameraId          the camera id of the camera device used by the use cases
+     * @param existingSurfaces  list of surfaces already configured and used by the camera. The
+     *                          resolutions for these surface can not change.
+     * @param newUseCaseConfigs list of configurations of the use cases that will be given a
+     *                          suggested resolution
      * @return map of suggested resolutions for given use cases
+     *
+     * @throws IllegalStateException    if not initialized
+     * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
+     *      there isn't a supported combination of surfaces available, or if the {@code cameraId}
+     *      is not a valid id.
      */
-    Map<UseCase, Size> getSuggestedResolutions(
-            String cameraId, List<UseCase> originalUseCases, List<UseCase> newUseCases);
+    @NonNull
+    Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
+            @NonNull String cameraId,
+            @NonNull List<SurfaceConfig> existingSurfaces,
+            @NonNull List<UseCaseConfig<?>> newUseCaseConfigs);
 
     /**
      * Retrieves the preview size, choosing the smaller of the display size and 1080P.

@@ -175,7 +175,6 @@ package androidx.ui.core {
     method public void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.Density density);
     method public boolean getAffectsParentSize();
     method public androidx.ui.unit.IntPx? getAlignmentLine(androidx.ui.core.AlignmentLine line);
-    method public androidx.ui.core.LayoutDirection getAmbientLayoutDirection();
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.LayoutCoordinates getCoordinates();
     method public androidx.ui.unit.IntPx getHeight();
@@ -212,7 +211,6 @@ package androidx.ui.core {
     method public void setPositionedDuringMeasurePass(boolean p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
     property public final boolean affectsParentSize;
-    property public final androidx.ui.core.LayoutDirection ambientLayoutDirection;
     property public final androidx.ui.core.Constraints constraints;
     property protected androidx.ui.core.LayoutNode? containingLayoutNode;
     property public final androidx.ui.core.LayoutCoordinates coordinates;
@@ -242,19 +240,19 @@ package androidx.ui.core {
   }
 
   public static interface LayoutNode.MeasureBlocks {
-    method public androidx.ui.unit.IntPx maxIntrinsicHeight(androidx.ui.core.ModifierScope modifierScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
-    method public androidx.ui.unit.IntPx maxIntrinsicWidth(androidx.ui.core.ModifierScope modifierScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+    method public androidx.ui.unit.IntPx maxIntrinsicHeight(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public androidx.ui.unit.IntPx maxIntrinsicWidth(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
     method public androidx.ui.core.MeasureScope.LayoutResult measure(androidx.ui.core.MeasureScope measureScope, java.util.List<? extends androidx.ui.core.Measurable> measurables, androidx.ui.core.Constraints constraints);
-    method public androidx.ui.unit.IntPx minIntrinsicHeight(androidx.ui.core.ModifierScope modifierScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
-    method public androidx.ui.unit.IntPx minIntrinsicWidth(androidx.ui.core.ModifierScope modifierScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+    method public androidx.ui.unit.IntPx minIntrinsicHeight(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public androidx.ui.unit.IntPx minIntrinsicWidth(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
   }
 
   public abstract static class LayoutNode.NoIntrinsicsMeasureBlocks implements androidx.ui.core.LayoutNode.MeasureBlocks {
     ctor public LayoutNode.NoIntrinsicsMeasureBlocks(String error);
-    method public Void maxIntrinsicHeight(androidx.ui.core.ModifierScope modifierScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
-    method public Void maxIntrinsicWidth(androidx.ui.core.ModifierScope modifierScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
-    method public Void minIntrinsicHeight(androidx.ui.core.ModifierScope modifierScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
-    method public Void minIntrinsicWidth(androidx.ui.core.ModifierScope modifierScope, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+    method public Void maxIntrinsicHeight(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public Void maxIntrinsicWidth(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
+    method public Void minIntrinsicHeight(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w);
+    method public Void minIntrinsicWidth(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h);
   }
 
   public final class LayoutNodeWrapperKt {
@@ -336,14 +334,11 @@ package androidx.ui.core {
   }
 
   public final class SemanticsComponentNode extends androidx.ui.core.ComponentNode {
-    ctor public SemanticsComponentNode(int id, androidx.ui.core.semantics.SemanticsConfiguration localSemanticsConfiguration);
+    ctor public SemanticsComponentNode(int id, androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration);
     method public int getId();
-    method public androidx.ui.core.semantics.SemanticsConfiguration getLocalSemanticsConfiguration();
     method public androidx.ui.core.semantics.SemanticsNode getSemanticsNode();
     method public boolean hasSemanticsComponentNodeInTree$lintWithKotlin();
     method public void invalidateSemanticsComponentNode$lintWithKotlin();
-    method public void setLocalSemanticsConfiguration(androidx.ui.core.semantics.SemanticsConfiguration p);
-    property public final androidx.ui.core.semantics.SemanticsConfiguration localSemanticsConfiguration;
     property public final androidx.ui.core.semantics.SemanticsNode semanticsNode;
   }
 

@@ -18,12 +18,14 @@ package androidx.startup;
 
 import static android.content.pm.PackageManager.GET_META_DATA;
 
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.tracing.Trace;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +40,9 @@ import java.util.Set;
  */
 @SuppressWarnings("WeakerAccess")
 public final class AppInitializer {
+
+    // Tracing
+    private static final String SECTION_NAME = "Startup";
 
     /**
      * The {@link AppInitializer} instance.
@@ -81,74 +86,83 @@ public final class AppInitializer {
     }
 
     /**
-     * Initializes a {@link ComponentInitializer} class type.
+     * Initializes a {@link Initializer} class type.
      *
-     * @param component The {@link Class} of {@link ComponentInitializer} to initialize.
+     * @param component The {@link Class} of {@link Initializer} to initialize.
      * @param <T>       The instance type being initialized
      * @return The initialized instance
      */
     @NonNull
     @SuppressWarnings("unused")
-    public <T> T initializeComponent(@NonNull Class<? extends ComponentInitializer<T>> component) {
+    public <T> T initializeComponent(@NonNull Class<? extends Initializer<T>> component) {
         return doInitialize(component, new HashSet<>());
     }
 
     @NonNull
     @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
     <T> T doInitialize(
-            @NonNull Class<? extends ComponentInitializer<?>> component,
+            @NonNull Class<? extends Initializer<?>> component,
             @NonNull Set<Class<?>> initializing) {
         synchronized (sLock) {
-            if (initializing.contains(component)) {
-                String message = String.format(
-                        "Cannot initialize %s. Cycle detected.", component.getName()
-                );
-                throw new IllegalStateException(message);
-            }
-            Object result;
-            if (!mInitialized.containsKey(component)) {
-                initializing.add(component);
-                try {
-                    Object instance = component.getDeclaredConstructor().newInstance();
-                    ComponentInitializer<?> initializer = (ComponentInitializer<?>) instance;
-                    List<Class<? extends ComponentInitializer<?>>> dependencies =
-                            initializer.dependencies();
+            boolean isTracingEnabled = Trace.isEnabled();
+            try {
+                if (isTracingEnabled) {
+                    // Use the simpleName here because section names would get too big otherwise.
+                    Trace.beginSection(component.getSimpleName());
+                }
+                if (initializing.contains(component)) {
+                    String message = String.format(
+                            "Cannot initialize %s. Cycle detected.", component.getName()
+                    );
+                    throw new IllegalStateException(message);
+                }
+                Object result;
+                if (!mInitialized.containsKey(component)) {
+                    initializing.add(component);
+                    try {
+                        Object instance = component.getDeclaredConstructor().newInstance();
+                        Initializer<?> initializer = (Initializer<?>) instance;
+                        List<Class<? extends Initializer<?>>> dependencies =
+                                initializer.dependencies();
 
-                    if (!dependencies.isEmpty()) {
-                        for (Class<? extends ComponentInitializer<?>> clazz : dependencies) {
-                            if (!mInitialized.containsKey(clazz)) {
-                                doInitialize(clazz, initializing);
+                        if (!dependencies.isEmpty()) {
+                            for (Class<? extends Initializer<?>> clazz : dependencies) {
+                                if (!mInitialized.containsKey(clazz)) {
+                                    doInitialize(clazz, initializing);
+                                }
                             }
                         }
+                        if (StartupLogger.DEBUG) {
+                            StartupLogger.i(String.format("Initializing %s", component.getName()));
+                        }
+                        result = initializer.create(mContext);
+                        if (StartupLogger.DEBUG) {
+                            StartupLogger.i(String.format("Initialized %s", component.getName()));
+                        }
+                        initializing.remove(component);
+                        mInitialized.put(component, result);
+                    } catch (Throwable throwable) {
+                        throw new StartupException(throwable);
                     }
-
-                    if (StartupLogger.DEBUG) {
-                        StartupLogger.i(String.format("Initializing %s", component.getName()));
-                    }
-                    result = initializer.create(mContext);
-                    if (StartupLogger.DEBUG) {
-                        StartupLogger.i(String.format("Initialized %s", component.getName()));
-                    }
-                    initializing.remove(component);
-                    mInitialized.put(component, result);
-                } catch (Throwable throwable) {
-                    throw new StartupException(throwable);
+                } else {
+                    result = mInitialized.get(component);
                 }
-            } else {
-                result = mInitialized.get(component);
+                return (T) result;
+            } finally {
+                Trace.endSection();
             }
-            return (T) result;
         }
     }
 
     @SuppressWarnings("unchecked")
     void discoverAndInitialize() {
         try {
-            ApplicationInfo applicationInfo =
-                    mContext.getPackageManager()
-                            .getApplicationInfo(mContext.getPackageName(), GET_META_DATA);
-
-            Bundle metadata = applicationInfo.metaData;
+            Trace.beginSection(SECTION_NAME);
+            ComponentName provider = new ComponentName(mContext.getPackageName(),
+                    InitializationProvider.class.getName());
+            ProviderInfo providerInfo = mContext.getPackageManager()
+                    .getProviderInfo(provider, GET_META_DATA);
+            Bundle metadata = providerInfo.metaData;
             String startup = mContext.getString(R.string.androidx_startup);
             if (metadata != null) {
                 Set<Class<?>> initializing = new HashSet<>();
@@ -157,9 +171,9 @@ public final class AppInitializer {
                     String value = metadata.getString(key, null);
                     if (startup.equals(value)) {
                         Class<?> clazz = Class.forName(key);
-                        if (ComponentInitializer.class.isAssignableFrom(clazz)) {
-                            Class<? extends ComponentInitializer<?>> component =
-                                    (Class<? extends ComponentInitializer<?>>) clazz;
+                        if (Initializer.class.isAssignableFrom(clazz)) {
+                            Class<? extends Initializer<?>> component =
+                                    (Class<? extends Initializer<?>>) clazz;
                             if (StartupLogger.DEBUG) {
                                 StartupLogger.i(String.format("Discovered %s", key));
                             }
@@ -170,6 +184,8 @@ public final class AppInitializer {
             }
         } catch (PackageManager.NameNotFoundException | ClassNotFoundException exception) {
             throw new StartupException(exception);
+        } finally {
+            Trace.endSection();
         }
     }
 }

@@ -420,17 +420,20 @@ public final class SessionConfig {
             CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
 
             // Check template
-            if (!mTemplateSet) {
-                mCaptureConfigBuilder.setTemplateType(captureConfig.getTemplateType());
-                mTemplateSet = true;
-            } else if (mCaptureConfigBuilder.getTemplateType() != captureConfig.getTemplateType()) {
-                String errorMessage =
-                        "Invalid configuration due to template type: "
-                                + mCaptureConfigBuilder.getTemplateType()
-                                + " != "
-                                + captureConfig.getTemplateType();
-                Log.d(TAG, errorMessage);
-                mValid = false;
+            if (captureConfig.getTemplateType() != -1) {
+                if (!mTemplateSet) {
+                    mCaptureConfigBuilder.setTemplateType(captureConfig.getTemplateType());
+                    mTemplateSet = true;
+                } else if (mCaptureConfigBuilder.getTemplateType()
+                        != captureConfig.getTemplateType()) {
+                    String errorMessage =
+                            "Invalid configuration due to template type: "
+                                    + mCaptureConfigBuilder.getTemplateType()
+                                    + " != "
+                                    + captureConfig.getTemplateType();
+                    Log.d(TAG, errorMessage);
+                    mValid = false;
+                }
             }
 
             Object tag = sessionConfig.getRepeatingCaptureConfig().getTag();

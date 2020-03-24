@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.widget;
 
-import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy.PREVENT_WHEN_EMPTY;
+import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY;
 
 import android.view.ViewGroup;
 
@@ -81,8 +81,8 @@ class NestedAdapterWrapper {
                             positionStart,
                             itemCount);
                     if (mCachedItemCount > 0
-                            && adapter.getStateRestorationStrategy() == PREVENT_WHEN_EMPTY) {
-                        mCallback.onStateRestorationStrategyChanged(NestedAdapterWrapper.this);
+                            && adapter.getStateRestorationPolicy() == PREVENT_WHEN_EMPTY) {
+                        mCallback.onStateRestorationPolicyChanged(NestedAdapterWrapper.this);
                     }
                 }
 
@@ -95,8 +95,8 @@ class NestedAdapterWrapper {
                             itemCount
                     );
                     if (mCachedItemCount < 1
-                            && adapter.getStateRestorationStrategy() == PREVENT_WHEN_EMPTY) {
-                        mCallback.onStateRestorationStrategyChanged(NestedAdapterWrapper.this);
+                            && adapter.getStateRestorationPolicy() == PREVENT_WHEN_EMPTY) {
+                        mCallback.onStateRestorationPolicyChanged(NestedAdapterWrapper.this);
                     }
                 }
 
@@ -112,8 +112,8 @@ class NestedAdapterWrapper {
                 }
 
                 @Override
-                public void onStateRestorationStrategyChanged() {
-                    mCallback.onStateRestorationStrategyChanged(
+                public void onStateRestorationPolicyChanged() {
+                    mCallback.onStateRestorationPolicyChanged(
                             NestedAdapterWrapper.this
                     );
                 }
@@ -195,7 +195,7 @@ class NestedAdapterWrapper {
                 int toPosition
         );
 
-        void onStateRestorationStrategyChanged(NestedAdapterWrapper nestedAdapterWrapper);
+        void onStateRestorationPolicyChanged(NestedAdapterWrapper nestedAdapterWrapper);
     }
 
 }

@@ -67,6 +67,7 @@ import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -572,6 +573,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPlayFromSearch() throws InterruptedException {
         final String request = "random query";
         final Bundle bundle = new Bundle();
@@ -600,6 +602,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPlayFromUri() throws InterruptedException {
         final Uri request = Uri.parse("foo://boo");
         final Bundle bundle = new Bundle();
@@ -627,6 +630,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPlayFromMediaId() throws InterruptedException {
         final String request = "media_id";
         final Bundle bundle = new Bundle();
@@ -654,6 +658,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPrepareFromSearch() throws InterruptedException {
         final String request = "random query";
         final Bundle bundle = new Bundle();
@@ -681,6 +686,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPrepareFromUri() throws InterruptedException {
         final Uri request = Uri.parse("foo://boo");
         final Bundle bundle = new Bundle();
@@ -708,6 +714,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
     }
 
     @Test
+    @Ignore("This tests hidden API, which isn't public at this moment.")
     public void testPrepareFromMediaId() throws InterruptedException {
         final String request = "media_id";
         final Bundle bundle = new Bundle();

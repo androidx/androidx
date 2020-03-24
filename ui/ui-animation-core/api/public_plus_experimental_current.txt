@@ -36,6 +36,9 @@ package androidx.animation {
     field public static final int Infinite = 2147483647; // 0x7fffffff
   }
 
+  public final class AnimationClockKt {
+  }
+
   public interface AnimationClockObservable {
     method public void subscribe(androidx.animation.AnimationClockObserver observer);
     method public void unsubscribe(androidx.animation.AnimationClockObserver observer);
@@ -122,10 +125,7 @@ package androidx.animation {
   }
 
   public abstract sealed class BaseAnimatedValue<T, V extends androidx.animation.AnimationVector> {
-    method public final void animateTo(T? targetValue);
-    method public final void animateTo(T? targetValue, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit> onEnd);
-    method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim, kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit> onEnd);
-    method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim);
+    method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim = androidx.animation.PhysicsBuilder(), kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit>? onEnd = null);
     method protected void checkFinished(long playtime);
     method public final T! getTargetValue();
     method public abstract T! getValue();
@@ -141,6 +141,10 @@ package androidx.animation {
   public abstract sealed class BaseAnimationClock implements androidx.animation.AnimationClockObservable {
     method public void subscribe(androidx.animation.AnimationClockObserver observer);
     method public void unsubscribe(androidx.animation.AnimationClockObserver observer);
+    field @Deprecated public static final androidx.animation.BaseAnimationClock.Companion! Companion;
+  }
+
+  public final class ComplexDoubleKt {
   }
 
   public final class CubicBezierEasing implements kotlin.jvm.functions.Function1<java.lang.Float,java.lang.Float> {
@@ -150,10 +154,10 @@ package androidx.animation {
 
   public interface DecayAnimation {
     method public float getAbsVelocityThreshold();
+    method public long getDurationMillis(float start, float startVelocity);
     method public float getTarget(float start, float startVelocity);
     method public float getValue(long playTime, float start, float startVelocity);
     method public float getVelocity(long playTime, float start, float startVelocity);
-    method public boolean isFinished(long playTime, float start, float startVelocity);
     property public abstract float absVelocityThreshold;
   }
 
@@ -187,10 +191,10 @@ package androidx.animation {
     ctor public ExponentialDecay(@FloatRange(from=null, fromInclusive=null) float frictionMultiplier, @FloatRange(from=null, fromInclusive=null) float absVelocityThreshold);
     ctor public ExponentialDecay();
     method public float getAbsVelocityThreshold();
+    method public long getDurationMillis(float start, float startVelocity);
     method public float getTarget(float start, float startVelocity);
     method public float getValue(long playTime, float start, float startVelocity);
     method public float getVelocity(long playTime, float start, float startVelocity);
-    method public boolean isFinished(long playTime, float start, float startVelocity);
     property public float absVelocityThreshold;
   }
 
@@ -224,10 +228,12 @@ package androidx.animation {
   }
 
   public final class ManualAnimationClock extends androidx.animation.BaseAnimationClock {
-    ctor public ManualAnimationClock(long initTimeMillis);
+    ctor public ManualAnimationClock(long initTimeMillis, boolean dispatchOnSubscribe);
     method public long getClockTimeMillis();
+    method public boolean getHasObservers();
     method public void setClockTimeMillis(long value);
     property public final long clockTimeMillis;
+    property public final boolean hasObservers;
   }
 
   public interface MutableTransitionState {
@@ -235,12 +241,14 @@ package androidx.animation {
   }
 
   public final class PhysicsBuilder<T> extends androidx.animation.AnimationBuilder<T> {
-    ctor public PhysicsBuilder(float dampingRatio, float stiffness);
+    ctor public PhysicsBuilder(float dampingRatio, float stiffness, float displacementThreshold);
     ctor public PhysicsBuilder();
     method public <V extends androidx.animation.AnimationVector> androidx.animation.Animation<V> build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V> converter);
     method public float getDampingRatio();
+    method public float getDisplacementThreshold();
     method public float getStiffness();
     method public void setDampingRatio(float p);
+    method public void setDisplacementThreshold(float p);
     method public void setStiffness(float p);
   }
 
@@ -281,6 +289,9 @@ package androidx.animation {
     field public static final float StiffnessLow = 200.0f;
     field public static final float StiffnessMedium = 1500.0f;
     field public static final float StiffnessVeryLow = 50.0f;
+  }
+
+  public final class SpringEstimationKt {
   }
 
   public final class SpringSimulationKt {

@@ -20,6 +20,8 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -28,44 +30,46 @@ import androidx.annotation.UiThread;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Preconditions;
 
 /**
  * The SurfaceView implementation for {@link PreviewView}.
  */
-final class SurfaceViewImplementation implements PreviewView.Implementation {
+final class SurfaceViewImplementation extends PreviewViewImplementation {
 
     private static final String TAG = "SurfaceViewPreviewView";
 
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
-    TransformableSurfaceView mSurfaceView;
+    SurfaceView mSurfaceView;
 
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
-    final SurfaceRequestCallback mSurfaceRequestCallback =
-            new SurfaceRequestCallback();
+    final SurfaceRequestCallback mSurfaceRequestCallback = new SurfaceRequestCallback();
 
-    private Preview.SurfaceProvider mSurfaceProvider =
-            new Preview.SurfaceProvider() {
-                @Override
-                public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
-                    mSurfaceView.post(
-                            () -> mSurfaceRequestCallback.setSurfaceRequest(surfaceRequest));
-                }
-            };
+    private Preview.SurfaceProvider mSurfaceProvider = (surfaceRequest) -> {
+        mResolution = surfaceRequest.getResolution();
+        initializePreview();
+        mSurfaceView.post(() -> mSurfaceRequestCallback.setSurfaceRequest(surfaceRequest));
+    };
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void init(@NonNull FrameLayout parent) {
-        mSurfaceView = new TransformableSurfaceView(parent.getContext());
+    void initializePreview() {
+        Preconditions.checkNotNull(mParent);
+        Preconditions.checkNotNull(mResolution);
+
+        mSurfaceView = new SurfaceView(mParent.getContext());
         mSurfaceView.setLayoutParams(
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT));
-        parent.addView(mSurfaceView);
+                new FrameLayout.LayoutParams(mResolution.getWidth(), mResolution.getHeight()));
+        mParent.removeAllViews();
+        mParent.addView(mSurfaceView);
         mSurfaceView.getHolder().addCallback(mSurfaceRequestCallback);
+    }
+
+    @Nullable
+    @Override
+    View getPreview() {
+        return mSurfaceView;
     }
 
     /**
@@ -75,11 +79,6 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
     @Override
     public Preview.SurfaceProvider getSurfaceProvider() {
         return mSurfaceProvider;
-    }
-
-    @Override
-    public void onDisplayChanged() {
-
     }
 
     /**
@@ -135,11 +134,12 @@ final class SurfaceViewImplementation implements PreviewView.Implementation {
             if (mSurfaceRequest != null && mTargetSize != null && mTargetSize.equals(
                     mCurrentSurfaceSize)) {
                 Log.d(TAG, "Surface set on Preview.");
-                mSurfaceRequest.provideSurface(surface).addListener(() -> {
-                    Log.d(TAG, "Safe to release surface.");
-                }, ContextCompat.getMainExecutor(mSurfaceView.getContext()));
+                mSurfaceRequest.provideSurface(surface,
+                        ContextCompat.getMainExecutor(mSurfaceView.getContext()),
+                        (result) -> Log.d(TAG, "Safe to release surface."));
                 mSurfaceRequest = null;
                 mTargetSize = null;
+                onSurfaceProvided();
                 return true;
             }
             return false;

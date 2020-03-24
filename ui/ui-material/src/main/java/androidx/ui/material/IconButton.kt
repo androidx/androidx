@@ -23,7 +23,7 @@ import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.layout.LayoutSize
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.unit.dp
 
 /**
@@ -51,14 +51,12 @@ fun IconButton(
     modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    Ripple(bounded = false, radius = RippleRadius) {
-        Clickable(onClick) {
-            Box(
-                modifier = modifier + IconButtonSizeModifier,
-                gravity = ContentGravity.Center,
-                children = children
-            )
-        }
+    Clickable(onClick = onClick, modifier = ripple(bounded = false, radius = RippleRadius)) {
+        Box(
+            modifier = modifier + IconButtonSizeModifier,
+            gravity = ContentGravity.Center,
+            children = children
+        )
     }
 }
 
@@ -70,6 +68,8 @@ fun IconButton(
  *
  * @param checked whether this IconToggleButton is currently checked
  * @param onCheckedChange callback to be invoked when this icon is selected
+ * @param enabled enabled whether or not this [IconToggleButton] will handle input events and appear
+ * enabled for semantics purposes
  * @param modifier optional [Modifier] for this IconToggleButton
  * @param children the content (icon) to be drawn inside the IconToggleButton. This is typically an
  * [androidx.ui.foundation.Icon].
@@ -77,24 +77,27 @@ fun IconButton(
 @Composable
 fun IconToggleButton(
     checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    Ripple(bounded = false, radius = RippleRadius) {
-        Toggleable(value = checked, onValueChange = onCheckedChange) {
-            Box(
-                modifier = modifier + IconButtonSizeModifier,
-                gravity = ContentGravity.Center,
-                children = children
-            )
-        }
+    Toggleable(
+        value = checked,
+        onValueChange = onCheckedChange,
+        enabled = enabled,
+        modifier = ripple(bounded = false, radius = RippleRadius, enabled = enabled)
+    ) {
+        Box(
+            modifier = modifier + IconButtonSizeModifier,
+            gravity = ContentGravity.Center,
+            children = children
+        )
     }
 }
 
-// Default radius of an unbounded ripple in an IconButton, this comes from the default framework
-// value for actionBarItemBackground where it is used in ActionBar image buttons.
-private val RippleRadius = 20.dp
+// Default radius of an unbounded ripple in an IconButton
+private val RippleRadius = 24.dp
 
 // TODO: b/149691127 investigate our strategy around accessibility touch targets, and remove
 // per-component definitions of this size.

@@ -39,6 +39,10 @@
             android:theme="@style/Theme.Example.Leanback.Browse"
             android:exported="true" />
 
+        <activity android:name="BrowseSupportAppCompatActivity"
+            android:theme="@style/Theme.Example.AppCompat.Leanback.Browse"
+            android:exported="true" />
+
         <activity android:name="BrowseAnimationActivity"
             android:exported="true" >
         </activity>
@@ -123,6 +127,10 @@
             android:theme="@style/Theme.Example.Leanback.VerticalGrid"
             android:exported="true" />
 
+        <activity android:name="VerticalGridSupportAppCompatActivity"
+            android:theme="@style/Theme.Example.AppCompat.Leanback.VerticalGrid"
+            android:exported="true" />
+
         <activity android:name="SearchActivity"
             android:exported="true" />
 
@@ -176,10 +184,17 @@
                   android:theme="@style/Theme.Example.Leanback.Onboarding"
                   android:exported="true" />
 
+        <activity android:name=".OnboardingSupportAppCompatActivity"
+            android:theme="@style/Theme.Example.AppCompat.Leanback.Onboarding"
+            android:exported="true" />
+
         <activity android:name=".VideoActivity"
             android:exported="true" />
 
         <activity android:name=".VideoSupportActivity"
+            android:exported="true" />
+        <activity android:name=".VideoSupportAppCompatActivity"
+            android:theme="@style/Theme.Example.AppCompat.Leanback"
             android:exported="true" />
 
         <activity android:name=".VideoActivityWithDetailedCard"
@@ -192,6 +207,10 @@
 
         <activity
             android:name=".DatePickerActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".DatePickerAppCompatActivity"
+            android:theme="@style/Theme.Example.AppCompat.Leanback"
             android:exported="true"/>
         <activity
             android:name=".TimePickerActivity"

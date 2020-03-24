@@ -55,13 +55,14 @@ import java.util.concurrent.atomic.AtomicBoolean
  * of [Pager] and its corresponding [PagerState] should be launched within a scope that is
  * cancelled when [PagingSource.invalidate] is called.
  */
-@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
     internal val pagingSource: PagingSource<Key, Value>,
-    private val config: PagingConfig
+    private val config: PagingConfig,
+    private val retryFlow: Flow<Unit>
 ) {
-    private val retryChannel = Channel<Unit>(CONFLATED)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
     private var lastHint: ViewportHint? = null
 
@@ -71,26 +72,31 @@ internal class Pager<Key : Any, Value : Any>(
     private val state = PagerState<Key, Value>(config.pageSize, config.maxSize)
 
     private val pageEventChannelFlowJob = Job()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow(pageEventChannelFlowJob) {
         check(pageEventChCollected.compareAndSet(false, true)) {
             "cannot collect twice from pager"
         }
 
+        // Start collection on pageEventCh, which the rest of this class uses to send PageEvents
+        // to this flow.
         launch { pageEventCh.consumeAsFlow().collect { send(it) } }
-        doInitialLoad(state)
 
-        if (stateLock.withLock { state.failedHintsByLoadType[REFRESH] } == null) {
-            startConsumingHints()
-        }
+        // Wrap collection behind a RendezvousChannel to prevent the RetryChannel from buffering
+        // retry signals.
+        val retryChannel = Channel<Unit>(Channel.RENDEZVOUS)
+        launch { retryFlow.collect { retryChannel.offer(it) } }
 
+        // Start collection on retry signals.
         launch {
             retryChannel.consumeAsFlow()
                 .collect {
                     // Handle refresh failure. Re-attempt doInitialLoad if the last attempt failed,
-                    val refreshFailure =
-                        stateLock.withLock { state.failedHintsByLoadType[REFRESH] }
+                    val refreshFailure = stateLock.withLock {
+                        state.failedHintsByLoadType.remove(REFRESH)
+                    }
                     refreshFailure?.let {
-                        stateLock.withLock { state.failedHintsByLoadType.remove(REFRESH) }
                         doInitialLoad(state)
 
                         val newRefreshFailure = stateLock.withLock {
@@ -116,15 +122,20 @@ internal class Pager<Key : Any, Value : Any>(
                     }
                 }
         }
+
+        // Setup finished, we can now start the initial load.
+        doInitialLoad(state)
+
+        // Only start collection on ViewportHints if the initial load succeeded.
+        if (stateLock.withLock { state.failedHintsByLoadType[REFRESH] } == null) {
+            startConsumingHints()
+        }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun addHint(hint: ViewportHint) {
         lastHint = hint
         hintChannel.offer(hint)
-    }
-
-    fun retry() {
-        retryChannel.offer(Unit)
     }
 
     fun close() {
@@ -163,6 +174,7 @@ internal class Pager<Key : Any, Value : Any>(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun CoroutineScope.startConsumingHints() {
         launch {
             state.consumePrependGenerationIdAsFlow()
@@ -180,6 +192,7 @@ internal class Pager<Key : Any, Value : Any>(
                         }
                     }
 
+                    @OptIn(FlowPreview::class)
                     val generationalHints = hintChannel.asFlow()
                         // Prevent infinite loop when competing prepend / append cancel each other
                         .drop(if (generationId == 0) 0 else 1)
@@ -210,6 +223,7 @@ internal class Pager<Key : Any, Value : Any>(
                         }
                     }
 
+                    @OptIn(FlowPreview::class)
                     val generationalHints = hintChannel.asFlow()
                         // Prevent infinite loop when competing prepend / append cancel each other
                         .drop(if (generationId == 0) 0 else 1)
@@ -320,10 +334,11 @@ internal class Pager<Key : Any, Value : Any>(
                     else -> START
                 }
 
-                state.dropInfo(dropType)?.let { info ->
-                    state.drop(dropType, info.pageCount, info.placeholdersRemaining)
-                    pageEventCh.send(Drop(dropType, info.pageCount, info.placeholdersRemaining))
-                }
+                state.dropInfo(dropType, generationalHint.hint, config.prefetchDistance)
+                    ?.let { info ->
+                        state.drop(dropType, info.pageCount, info.placeholdersRemaining)
+                        pageEventCh.send(Drop(dropType, info.pageCount, info.placeholdersRemaining))
+                    }
 
                 with(state) {
                     loadKey = generationalHint.hint

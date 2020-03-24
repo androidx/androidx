@@ -26,7 +26,7 @@ plugins {
 
 dependencies {
     implementation(project(":slice-core"))
-    api(project(":remotecallback"))
+    api(project(":remotecallback:remotecallback"))
     api "androidx.annotation:annotation:1.1.0"
     implementation "androidx.core:core:1.1.0"
     implementation project(':collection:collection')

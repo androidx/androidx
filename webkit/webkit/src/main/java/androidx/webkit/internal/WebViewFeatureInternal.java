@@ -386,8 +386,6 @@ public enum WebViewFeatureInternal {
      */
     WebViewFeatureInternal(@NonNull @WebViewFeature.WebViewSupportFeature String publicFeatureValue,
             @NonNull String internalFeatureValue, int osVersion) {
-        assert !publicFeatureValue.endsWith(Features.DEV_SUFFIX);
-        assert !internalFeatureValue.endsWith(Features.DEV_SUFFIX);
         mPublicFeatureValue = publicFeatureValue;
         mInternalFeatureValue = internalFeatureValue;
         mOsVersion = osVersion;

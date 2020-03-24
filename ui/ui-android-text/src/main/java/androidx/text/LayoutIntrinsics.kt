@@ -26,9 +26,9 @@ import java.util.PriorityQueue
 /**
  * Computes and caches the text layout intrinsic values such as min/max width.
  *
- * @hide
+ * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class LayoutIntrinsics(
     charSequence: CharSequence,
     textPaint: TextPaint,
@@ -67,7 +67,7 @@ class LayoutIntrinsics(
  *  - it first finds a set of words with the longest length
  *  - finds the word with maximum width in that set
  *
- *  @hide
+ *  @suppress
  */
 fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
     val iterator = BreakIterator.getLineInstance(paint.textLocale)

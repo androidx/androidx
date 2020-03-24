@@ -185,7 +185,6 @@ public class WindowDecorActionBar extends ActionBar implements
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public WindowDecorActionBar(View layout) {
-        assert layout.isInEditMode();
         init(layout);
     }
 

@@ -25,10 +25,6 @@ MissingNullability: androidx.fragment.app.Fragment#startActivityForResult(androi
     Missing nullability on parameter `intent` in method `startActivityForResult`
 MissingNullability: androidx.fragment.app.Fragment#startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) parameter #0:
     Missing nullability on parameter `intent` in method `startIntentSenderForResult`
-MissingNullability: androidx.fragment.app.FragmentActivity#dispatchKeyEvent(android.view.KeyEvent) parameter #0:
-    Missing nullability on parameter `event` in method `dispatchKeyEvent`
-MissingNullability: androidx.fragment.app.FragmentActivity#dispatchKeyShortcutEvent(android.view.KeyEvent) parameter #0:
-    Missing nullability on parameter `event` in method `dispatchKeyShortcutEvent`
 MissingNullability: androidx.fragment.app.FragmentActivity#onNewIntent(android.content.Intent) parameter #0:
     Missing nullability on parameter `intent` in method `onNewIntent`
 MissingNullability: androidx.fragment.app.FragmentActivity#startActivityForResult(android.content.Intent, int) parameter #0:

@@ -17,6 +17,7 @@
 package androidx.ui.text.font
 
 import androidx.compose.Immutable
+import androidx.ui.text.Typeface
 
 /**
  * The base class of the font families.
@@ -25,7 +26,7 @@ import androidx.compose.Immutable
  * @see GenericFontFamily
  */
 @Immutable
-sealed class FontFamily {
+sealed class FontFamily(val canLoadSynchronously: Boolean) {
     companion object {
         /**
          * The platform default font.
@@ -76,12 +77,12 @@ sealed class FontFamily {
 /**
  * A base class of [FontFamily]s that is created from file sources.
  */
-sealed class FileBasedFontFamily : FontFamily()
+sealed class FileBasedFontFamily : FontFamily(false)
 
 /**
  * A base class of [FontFamily]s installed on the system.
  */
-sealed class SystemFontFamily : FontFamily()
+sealed class SystemFontFamily : FontFamily(true)
 
 /**
  * Defines a font family with list of [Font].
@@ -92,8 +93,8 @@ sealed class SystemFontFamily : FontFamily()
 @Immutable
 data class FontListFontFamily(val fonts: List<Font>) : FileBasedFontFamily(), List<Font> by fonts {
     init {
-        assert(fonts.isNotEmpty()) { "At least one font should be passed to FontFamily" }
-        assert(fonts.distinctBy { Pair(it.weight, it.style) }.size == fonts.size) {
+        check(fonts.isNotEmpty()) { "At least one font should be passed to FontFamily" }
+        check(fonts.distinctBy { Pair(it.weight, it.style) }.size == fonts.size) {
             "There cannot be two fonts with the same FontWeight and FontStyle in the same " +
                     "FontFamily"
         }
@@ -133,3 +134,17 @@ class GenericFontFamily internal constructor(val name: String) : SystemFontFamil
  */
 @Immutable
 internal class DefaultFontFamily : SystemFontFamily()
+
+/**
+ * Defines a font family that is already loaded Typeface.
+ *
+ * @param typeface A typeface instance.
+ */
+data class LoadedFontFamily(val typeface: Typeface) : FontFamily(true)
+
+/**
+ * Construct a font family that contains loaded font family: Typeface.
+ *
+ * @param typeface A typeface instance.
+ */
+fun fontFamily(typeface: Typeface) = LoadedFontFamily(typeface)

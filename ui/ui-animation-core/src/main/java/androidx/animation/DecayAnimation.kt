@@ -21,7 +21,6 @@ import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.max
-import kotlin.math.sign
 
 /**
  * This animation interface is intended to be stateless, just like Animation<T>. But unlike
@@ -37,19 +36,6 @@ interface DecayAnimation {
     val absVelocityThreshold: Float
 
     /**
-     * Returns whether the animation is finished at the given time.
-     *
-     * @param playTime The time elapsed in milliseconds since the start of the animation
-     * @param start The start value of the animation
-     * @param startVelocity The start velocity of the animation
-     */
-    fun isFinished(
-        playTime: Long,
-        start: Float,
-        startVelocity: Float
-    ): Boolean
-
-    /**
      * Returns the value of the animation at the given time.
      *
      * @param playTime The time elapsed in milliseconds since the start of the animation
@@ -61,6 +47,11 @@ interface DecayAnimation {
         start: Float,
         startVelocity: Float
     ): Float
+
+    fun getDurationMillis(
+        start: Float,
+        startVelocity: Float
+    ): Long
 
     /**
      * Returns the velocity of the animation at the given time.
@@ -105,14 +96,6 @@ class ExponentialDecay(
     override val absVelocityThreshold: Float = max(0.0000001f, abs(absVelocityThreshold))
     private val friction: Float = ExponentialDecayFriction * max(0.0001f, frictionMultiplier)
 
-    override fun isFinished(
-        playTime: Long,
-        start: Float,
-        startVelocity: Float
-    ): Boolean {
-        return abs(getVelocity(playTime, start, startVelocity)) <= absVelocityThreshold
-    }
-
     override fun getValue(
         playTime: Long,
         start: Float,
@@ -130,6 +113,11 @@ class ExponentialDecay(
         return (startVelocity * exp(((playTime / 1000f) * friction)))
     }
 
+    override fun getDurationMillis(start: Float, startVelocity: Float): Long {
+        // Inverse of getVelocity
+        return (1000f * ln(absVelocityThreshold / abs(startVelocity)) / friction).toLong()
+    }
+
     override fun getTarget(
         start: Float,
         startVelocity: Float
@@ -143,37 +131,6 @@ class ExponentialDecay(
         return start - startVelocity / friction +
                 startVelocity / friction * exp((friction * duration / 1000f)).toFloat()
     }
-}
-
-/**
- * Decay animation wrapper contains a decay animation as well as the animations values that remain
- * the same throughout the animation: start value/velocity.
- */
-internal class DecayAnimationWrapper(
-    private val startValue: Float,
-    private val startVelocity: Float = 0f,
-    private val anim: DecayAnimation
-) : AnimationWrapper<Float, AnimationVector1D> {
-    private val target: Float = anim.getTarget(startValue, startVelocity)
-    private val velocityVector: AnimationVector1D = AnimationVector1D(0f)
-
-    override fun getValue(playTime: Long): Float {
-        if (!isFinished(playTime)) {
-            return anim.getValue(playTime, startValue, startVelocity)
-        } else {
-            return target
-        }
-    }
-    override fun getVelocity(playTime: Long): AnimationVector1D {
-        if (!isFinished(playTime)) {
-            velocityVector.value = anim.getVelocity(playTime, startValue, startVelocity)
-        } else {
-            velocityVector.value = anim.absVelocityThreshold * sign(startVelocity)
-        }
-        return velocityVector
-    }
-    override fun isFinished(playTime: Long): Boolean =
-        anim.isFinished(playTime, startValue, startVelocity)
 }
 
 internal fun DecayAnimation.createWrapper(

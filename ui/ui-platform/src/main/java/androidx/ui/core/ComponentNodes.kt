@@ -15,13 +15,13 @@
  */
 package androidx.ui.core
 
-import androidx.compose.Emittable
 import androidx.ui.core.focus.findParentFocusNode
 import androidx.ui.core.focus.ownerHasFocus
 import androidx.ui.core.focus.requestFocusForOwner
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.focus.FocusDetailedState
 import androidx.ui.focus.FocusDetailedState.Active
 import androidx.ui.focus.FocusDetailedState.ActiveParent
@@ -29,15 +29,11 @@ import androidx.ui.focus.FocusDetailedState.Captured
 import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
-import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.round
 import kotlin.properties.ReadWriteProperty
@@ -49,123 +45,12 @@ import kotlin.reflect.KProperty
 private const val DebugChanges = false
 
 /**
- * Owner implements the connection to the underlying view system. On Android, this connects
- * to Android [android.view.View]s and all layout, draw, input, and accessibility is hooked
- * through them.
- */
-interface Owner {
-
-    val density: Density
-
-    val semanticsOwner: SemanticsOwner
-
-    /**
-     * `true` when layout should draw debug bounds.
-     */
-    val showLayoutBounds: Boolean
-
-    /**
-     * Called from a [DrawNode], this registers with the underlying view system that a
-     * redraw of the given [drawNode] is required. It may cause other nodes to redraw, if
-     * necessary.
-     */
-    fun onInvalidate(drawNode: DrawNode)
-
-    /**
-     * Called from a [LayoutNode], this registers with the underlying view system that a
-     * redraw of the given [layoutNode] is required. It may cause other nodes to redraw, if
-     * necessary. Note that [LayoutNode]s are able to draw due to draw modifiers applied to them.
-     */
-    fun onInvalidate(layoutNode: LayoutNode)
-
-    /**
-     * Called by [LayoutNode] to indicate the new size of [layoutNode].
-     * The owner may need to track updated layouts.
-     */
-    fun onSizeChange(layoutNode: LayoutNode)
-
-    /**
-     * Called by [LayoutNode] to indicate the new position of [layoutNode].
-     * The owner may need to track updated layouts.
-     */
-    fun onPositionChange(layoutNode: LayoutNode)
-
-    /**
-     * Called by [LayoutNode] to request the Owner a new measurement+layout.
-     */
-    fun onRequestMeasure(layoutNode: LayoutNode)
-
-    /**
-     * Called by [ComponentNode] when it is attached to the view system and now has an owner.
-     * This is used by [Owner] to update [ComponentNode.ownerData] and track which nodes are
-     * associated with it. It will only be called when [node] is not already attached to an
-     * owner.
-     */
-    fun onAttach(node: ComponentNode)
-
-    /**
-     * Called by [ComponentNode] when it is detached from the view system, such as during
-     * [ComponentNode.emitRemoveAt]. This will only be called for [node]s that are already
-     * [ComponentNode.attach]ed.
-     */
-    fun onDetach(node: ComponentNode)
-
-    /**
-     * Returns the most global position of the owner that Compose can access (such as the device
-     * screen).
-     */
-    fun calculatePosition(): IntPxPosition
-
-    /**
-     * Called when some params of [RepaintBoundaryNode] are updated.
-     * This is not causing re-recording of the RepaintBoundary, but updates params
-     * like outline, clipping, elevation or alpha.
-     */
-    fun onRepaintBoundaryParamsChange(repaintBoundaryNode: RepaintBoundaryNode)
-
-    /**
-     * Observing the model reads are temporary disabled during the [block] execution.
-     * For example if we are currently within the measure stage and we want some code block to
-     * be skipped from the observing we disable if before calling the block, execute block and
-     * then enable it again.
-     */
-    fun pauseModelReadObserveration(block: () -> Unit)
-
-    /**
-     * Observe model reads during layout of [node], executed in [block].
-     */
-    fun observeLayoutModelReads(node: LayoutNode, block: () -> Unit)
-
-    /**
-     * Observe model reads during measure of [node], executed in [block].
-     */
-    fun observeMeasureModelReads(node: LayoutNode, block: () -> Unit)
-
-    /**
-     * Observe model reads during draw of [node], executed in [block].
-     */
-    fun observeDrawModelReads(node: RepaintBoundaryNode, block: () -> Unit)
-
-    /**
-     * Causes the [node] to draw into [canvas].
-     */
-    fun callDraw(canvas: Canvas, node: ComponentNode, parentSize: PxSize)
-
-    /**
-     * Iterates through all LayoutNodes that have requested layout and measures and lays them out
-     */
-    fun measureAndLayout()
-
-    val measureIteration: Long
-}
-
-/**
  * The base type for all nodes from the tree generated from a component hierarchy.
  *
  * Specific components are backed by a tree of nodes: Draw, Layout, SemanticsComponentNode, GestureDetector.
  * All other components are not represented in the backing hierarchy.
  */
-sealed class ComponentNode : Emittable {
+sealed class ComponentNode {
 
     internal val children = mutableListOf<ComponentNode>()
 
@@ -207,17 +92,11 @@ sealed class ComponentNode : Emittable {
         get() = containingLayoutNode
 
     /**
-     * Protected method to find the parent's layout node. LayoutNode returns itself, but
+     * Method to find the layout node. LayoutNode returns itself, but
      * all other ComponentNodes return the parent's `containingLayoutNode`.
      */
-    protected open val containingLayoutNode: LayoutNode?
+    internal open val containingLayoutNode: LayoutNode?
         get() = parent?.containingLayoutNode
-
-    /**
-     * If this is a [RepaintBoundaryNode], `this` is returned, otherwise the nearest ancestor
-     * `RepaintBoundaryNode` or `null` if there are no ancestor `RepaintBoundaryNode`s.
-     */
-    open val repaintBoundary: RepaintBoundaryNode? get() = parent?.repaintBoundary
 
     /**
      * Execute [block] on all children of this ComponentNode.
@@ -241,10 +120,7 @@ sealed class ComponentNode : Emittable {
      * Inserts a child [ComponentNode] at a particular index. If this ComponentNode [isAttached]
      * then [instance] will become [attach]ed also. [instance] must have a `null` [parent].
      */
-    override fun emitInsertAt(index: Int, instance: Emittable) {
-        if (instance !is ComponentNode) {
-            ErrorMessages.OnlyComponents.state()
-        }
+    fun insertAt(index: Int, instance: ComponentNode) {
         ErrorMessages.ComponentNodeHasParent.validateState(instance.parent == null)
         ErrorMessages.OwnerAlreadyAttached.validateState(instance.owner == null)
 
@@ -275,7 +151,7 @@ sealed class ComponentNode : Emittable {
     /**
      * Removes one or more children, starting at [index].
      */
-    override fun emitRemoveAt(index: Int, count: Int) {
+    fun removeAt(index: Int, count: Int) {
         ErrorMessages.CountOutOfRange.validateArg(count >= 0, count)
         val attached = owner != null
         for (i in index + count - 1 downTo index) {
@@ -291,7 +167,7 @@ sealed class ComponentNode : Emittable {
         }
     }
 
-    override fun emitMove(from: Int, to: Int, count: Int) {
+    fun move(from: Int, to: Int, count: Int) {
         if (from == to) {
             return // nothing to do
         }
@@ -316,7 +192,10 @@ sealed class ComponentNode : Emittable {
         if (shouldInvalidateSemanticsComponentNode) {
             invalidateSemanticsComponentNode()
         }
-        containingLayoutNode?.layoutChildrenDirty = true
+        containingLayoutNode?.let {
+            it.layoutChildrenDirty = true
+            it.requestRemeasure()
+        }
     }
 
     /**
@@ -350,13 +229,13 @@ sealed class ComponentNode : Emittable {
      * children. After executing, the [owner] will be `null`.
      */
     open fun detach() {
-        visitChildren { child ->
-            child.detach()
-        }
         val owner = owner ?: ErrorMessages.OwnerAlreadyDetached.state()
         owner.onDetach(this)
         this.owner = null
         depth = 0
+        visitChildren { child ->
+            child.detach()
+        }
     }
 
     internal open fun invalidateSemanticsComponentNode() {
@@ -410,56 +289,6 @@ sealed class ComponentNode : Emittable {
  * this means that the ComponentNode is currently a part of a component tree.
  */
 fun ComponentNode.isAttached() = owner != null
-
-class RepaintBoundaryNode(val name: String?) : ComponentNode() {
-
-    /**
-     * The shape used to calculate an outline of the RepaintBoundary.
-     */
-    var shape: Shape? = null
-        set(value) {
-            if (field != value) {
-                field = value
-                owner?.onRepaintBoundaryParamsChange(this)
-            }
-        }
-
-    /**
-     * If true RepaintBoundary will be clipped by the outline of it's [shape]
-     */
-    var clipToShape: Boolean = false
-        set(value) {
-            if (field != value) {
-                field = value
-                owner?.onRepaintBoundaryParamsChange(this)
-            }
-        }
-
-    /**
-     * The z-coordinate at which to place this physical object.
-     */
-    var elevation: Dp = 0.dp
-        set(value) {
-            if (field != value) {
-                field = value
-                owner?.onRepaintBoundaryParamsChange(this)
-            }
-        }
-
-    /**
-     * The fraction of children's alpha value.
-     */
-    var opacity: Float = 1f
-        set(value) {
-            if (field != value) {
-                require(value in 0f..1f) { "Opacity should be within [0, 1] range" }
-                field = value
-                owner?.onRepaintBoundaryParamsChange(this)
-            }
-        }
-
-    override val repaintBoundary: RepaintBoundaryNode? get() = this
-}
 
 // TODO(b/143778512): Why are the properties vars?  Shouldn't they be vals defined in the
 //  constructor such that they both must be provided?
@@ -842,69 +671,78 @@ class LayoutNode : ComponentNode(), Measurable {
         fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
         ): MeasureScope.LayoutResult
 
         /**
          * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
          */
         fun minIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
+            h: IntPx,
+            layoutDirection: LayoutDirection
         ): IntPx
 
         /**
          * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
          */
         fun minIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
+            w: IntPx,
+            layoutDirection: LayoutDirection
         ): IntPx
 
         /**
          * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
          */
         fun maxIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
+            h: IntPx,
+            layoutDirection: LayoutDirection
         ): IntPx
 
         /**
          * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
          */
         fun maxIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
+            w: IntPx,
+            layoutDirection: LayoutDirection
         ): IntPx
     }
 
     abstract class NoIntrinsicsMeasureBlocks(private val error: String) : MeasureBlocks {
         override fun minIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
+            h: IntPx,
+            layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun minIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
+            w: IntPx,
+            layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun maxIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
+            h: IntPx,
+            layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun maxIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
+            w: IntPx,
+            layoutDirection: LayoutDirection
         ) = error(error)
     }
 
@@ -921,15 +759,6 @@ class LayoutNode : ComponentNode(), Measurable {
             if (field != value) {
                 field = value
                 requestRemeasure()
-            }
-        }
-
-    var ambientLayoutDirection = LayoutDirection.Ltr
-        internal set(value) {
-            if (value != field) {
-                field = value
-                measureScope.layoutDirection = value
-                measureScope.ambientLayoutDirection = value
             }
         }
 
@@ -950,6 +779,18 @@ class LayoutNode : ComponentNode(), Measurable {
      * The constraints used the last time [layout] was called.
      */
     var constraints: Constraints = Constraints.fixed(IntPx.Zero, IntPx.Zero)
+
+    /**
+     * The layout direction of the layout node.
+     */
+    var layoutDirection: LayoutDirection? = null
+        get() {
+            if (field == null) {
+                // root node doesn't have a parent but its LD value is set during root creation
+                field = parentLayoutNode?.layoutDirection
+            }
+            return field
+        }
 
     /**
      * Implementation oddity around composition; used to capture a reference to this
@@ -1140,6 +981,12 @@ class LayoutNode : ComponentNode(), Measurable {
     internal var layoutNodeWrapper = innerLayoutNodeWrapper
 
     /**
+     * The outermost DrawLayerModifier in the modifier chain or `null` if there are no
+     * DrawLayerModifiers in the modifier chain.
+     */
+    internal var outerLayer: LayerWrapper? = null
+
+    /**
      * The [Modifier] currently applied to this node.
      */
     var modifier: Modifier = Modifier.None
@@ -1149,10 +996,31 @@ class LayoutNode : ComponentNode(), Measurable {
 
             // Rebuild layoutNodeWrapper
             val oldPlaceable = layoutNodeWrapper
+            val addedCallback = hasNewPositioningCallback()
+            onPositionedCallbacks.clear()
+            onChildPositionedCallbacks.clear()
+            outerLayer = null
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 var wrapper = toWrap
+                // The order in which the following blocks occur matters.  For example, the
+                // DrawModifier block should be before the LayoutModifier block so that a Modifier
+                // that implements both DrawModifier and LayoutModifier will have it's draw bounds
+                // reflect the dimensions defined by the LayoutModifier.
+                if (mod is OnPositionedModifier) {
+                    onPositionedCallbacks += mod.onPositioned
+                }
+                if (mod is OnChildPositionedModifier) {
+                    onChildPositionedCallbacks += mod.onChildPositioned
+                }
                 if (mod is DrawModifier) {
                     wrapper = ModifiedDrawNode(wrapper, mod)
+                }
+                if (mod is DrawLayerModifier) {
+                    wrapper = LayerWrapper(wrapper, mod)
+                    outerLayer = wrapper
+                }
+                if (mod is PointerInputModifier) {
+                    wrapper = PointerInputDelegatingWrapper(wrapper, mod)
                 }
                 if (mod is LayoutModifier) {
                     wrapper = ModifiedLayoutNode(wrapper, mod)
@@ -1168,12 +1036,23 @@ class LayoutNode : ComponentNode(), Measurable {
             if (oldPlaceable != layoutNodeWrapper) {
                 oldPlaceable.detach()
                 requestRemeasure()
+            } else if (!needsRemeasure && !needsRelayout && addedCallback) {
+                // We need to notify the callbacks of a change in position since there's
+                // a new one.
+                requestRemeasure()
             }
             val containing = parentLayoutNode
             if (containing != null) {
                 layoutNodeWrapper.wrappedBy = containing.innerLayoutNodeWrapper
             }
+            owner?.onInvalidate(this)
         }
+
+    @Deprecated(
+        "Temporary API to support our transition from single child composables to modifiers."
+    )
+    // TODO(popam): remove this
+    var handlesParentData: Boolean = true
 
     /**
      * Coordinates of just the contents of the LayoutNode, after being affected by all modifiers.
@@ -1196,11 +1075,17 @@ class LayoutNode : ComponentNode(), Measurable {
     var onAttach: ((Owner) -> Unit)? = null
 
     override fun detach() {
-        parentLayoutNode?.layoutChildrenDirty = true
-        parentLayoutNode?.requestRemeasure()
+        val owner = owner!!
+        val parentLayoutNode = parentLayoutNode
+        if (parentLayoutNode != null) {
+            parentLayoutNode.onInvalidate()
+            parentLayoutNode.layoutChildrenDirty = true
+            parentLayoutNode.requestRemeasure()
+        }
         parentDataDirty = true
         alignmentLinesQueryOwner = null
-        onDetach?.invoke(owner!!)
+        onDetach?.invoke(owner)
+        layoutNodeWrapper.detach()
         super.detach()
     }
 
@@ -1208,6 +1093,16 @@ class LayoutNode : ComponentNode(), Measurable {
      * Callback to be executed whenever the [LayoutNode] is detached from an [Owner].
      */
     var onDetach: ((Owner) -> Unit)? = null
+
+    /**
+     * List of all OnPositioned callbacks in the modifier chain.
+     */
+    private val onPositionedCallbacks = mutableListOf<(LayoutCoordinates) -> Unit>()
+
+    /**
+     * List of all OnChildPositioned callbacks in the modifier chain.
+     */
+    private val onChildPositionedCallbacks = mutableListOf<(LayoutCoordinates) -> Unit>()
 
     override fun measure(constraints: Constraints): Placeable {
         val owner = requireOwner()
@@ -1256,6 +1151,29 @@ class LayoutNode : ComponentNode(), Measurable {
     fun draw(canvas: Canvas, density: Density) = layoutNodeWrapper.draw(canvas, density)
 
     /**
+     * Carries out a hit test on the [PointerInputModifier]s associated with this [LayoutNode] and
+     * all [PointerInputModifier]s on all descendant [LayoutNode]s.
+     *
+     * If [pointerPositionRelativeToScreen] is within the bounds of any tested
+     * [PointerInputModifier]s, the [PointerInputModifier] is added to [hitPointerInputFilters]
+     * and true is returned.
+     *
+     * @param pointerPositionRelativeToScreen The tested pointer position, which is relative to
+     * the device screen.
+     * @param hitPointerInputFilters The collection that the hit [PointerInputFilter]s will be
+     * added to if hit.
+     *
+     * @return True if any [PointerInputFilter]s were hit and thus added to
+     * [hitPointerInputFilters].
+     */
+    fun hitTest(
+        pointerPositionRelativeToScreen: PxPosition,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ): Boolean {
+        return layoutNodeWrapper.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
+    }
+
+    /**
      * Returns the alignment line value for a given alignment line without affecting whether
      * the flag for whether the alignment line was read.
      */
@@ -1269,6 +1187,25 @@ class LayoutNode : ComponentNode(), Measurable {
         }
         pos = wrapper.toParentPosition(pos)
         return if (line is HorizontalAlignmentLine) pos.y.round() else pos.x.round()
+    }
+
+    /**
+     * Return true if there is a new [OnPositionedModifier] or [OnChildPositionedModifier]
+     * assigned to this Layout.
+     */
+    private fun hasNewPositioningCallback(): Boolean {
+        return modifier.foldOut(false) { mod, hasNewCallback ->
+            var ret = hasNewCallback
+            if (!hasNewCallback) {
+                when (mod) {
+                    is OnPositionedModifier ->
+                        ret = !onPositionedCallbacks.contains(mod.onPositioned)
+                    is OnChildPositionedModifier ->
+                        ret = !onChildPositionedCallbacks.contains(mod.onChildPositioned)
+                }
+            }
+            ret
+        }
     }
 
     fun layout() {
@@ -1288,7 +1225,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
                         parentLayoutNode?.positionedDuringMeasurePass ?: false
-                lastLayoutResult.placeChildren(Placeable.PlacementScope)
+                lastLayoutResult.placeChildren(layoutDirection!!)
                 layoutChildren.forEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
@@ -1368,6 +1305,7 @@ class LayoutNode : ComponentNode(), Measurable {
         // There are two types of callbacks:
         // a) when the Layout is positioned - `onPositioned`
         // b) when the child of the Layout is positioned - `onChildPositioned`
+        walkPositionModifiers(this)
         walkOnPosition(this, this.coordinates)
         walkOnChildPositioned(this, this.coordinates)
     }
@@ -1381,15 +1319,29 @@ class LayoutNode : ComponentNode(), Measurable {
         private fun walkOnPosition(node: ComponentNode, coordinates: LayoutCoordinates) {
             node.visitChildren { child ->
                 if (child !is LayoutNode) {
-                    if (child is DataNode<*> && child.key === OnPositionedKey) {
-                        val method = child.value as (LayoutCoordinates) -> Unit
-                        method(coordinates)
-                    }
                     walkOnPosition(child, coordinates)
                 } else {
                     if (!child.needsRelayout) {
                         child.dispatchOnPositionedCallbacks()
                     }
+                }
+            }
+        }
+
+        private fun walkPositionModifiers(layoutNode: LayoutNode) {
+            if (layoutNode.needsRelayout) {
+                return // it hasn't been properly positioned, so don't make a call
+            }
+            val onPositioned = layoutNode.onPositionedCallbacks
+            for (i in 0..onPositioned.lastIndex) {
+                val callback = onPositioned[i]
+                callback(layoutNode.coordinates)
+            }
+            val onChildPositioned = layoutNode.parentLayoutNode?.onChildPositionedCallbacks
+            if (onChildPositioned != null) {
+                for (i in 0..onChildPositioned.lastIndex) {
+                    val callback = onChildPositioned[i]
+                    callback(layoutNode.coordinates)
                 }
             }
         }
@@ -1412,7 +1364,8 @@ class LayoutNode : ComponentNode(), Measurable {
             override fun measure(
                 measureScope: MeasureScope,
                 measurables: List<Measurable>,
-                constraints: Constraints
+                constraints: Constraints,
+                layoutDirection: LayoutDirection
             ) = error("Undefined measure and it is required")
         }
 
@@ -1630,7 +1583,7 @@ fun ComponentNode.requireOwner(): Owner = owner ?: ErrorMessages.NodeShouldBeAtt
  * then [child] will become [isAttached]ed also. [child] must have a `null` [ComponentNode.parent].
  */
 fun ComponentNode.add(child: ComponentNode) {
-    emitInsertAt(count, child)
+    insertAt(count, child)
 }
 
 class Ref<T> {
@@ -1769,12 +1722,17 @@ internal fun ComponentNode.requireFirstLayoutNodeInTree(): LayoutNode {
 val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
 
 /**
- * DataNodeKey for OnPositioned callback
- */
-val OnPositionedKey = DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnPositioned")
-
-/**
  * DataNodeKey for OnChildPositioned callback
  */
 val OnChildPositionedKey =
     DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnChildPositioned")
+
+/**
+ * True when there is a DrawLayerModifier in the modifier chain
+ */
+internal val LayoutNode.hasLayer: Boolean get() = outerLayer != null
+
+/**
+ * True if the outermost layer has elevation > 0
+ */
+internal val LayoutNode.hasElevation get() = outerLayer?.layer?.hasElevation ?: false

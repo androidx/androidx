@@ -26,6 +26,7 @@ import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
+import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 
 import java.util.concurrent.Executor;
 
@@ -44,11 +45,30 @@ public final class CameraManagerCompat {
     /** Get a {@link CameraManagerCompat} instance for a provided context. */
     @NonNull
     public static CameraManagerCompat from(@NonNull Context context) {
+        return CameraManagerCompat.from(context, MainThreadAsyncHandler.getInstance());
+    }
+
+    /**
+     * Get a {@link CameraManagerCompat} instance for a provided context, and using the provided
+     * compat handler for scheduling to {@link Executor} APIs.
+     *
+     * @param context       Context used to retrieve the {@link CameraManager}.
+     * @param compatHandler {@link Handler} used for all APIs taking an {@link Executor} argument
+     *                      on lower API levels. If the API level does not support directly
+     *                      executing on an Executor, it will first be posted to this handler and
+     *                      the executor will be called from there.
+     */
+    @NonNull
+    public static CameraManagerCompat from(@NonNull Context context,
+            @NonNull Handler compatHandler) {
+        // Can use Executor directly on API 28+
         if (Build.VERSION.SDK_INT >= 28) {
             return new CameraManagerCompat(new CameraManagerCompatApi28Impl(context));
         }
 
-        return new CameraManagerCompat(new CameraManagerCompatBaseImpl(context));
+        // Pass compat handler to implementation.
+        return new CameraManagerCompat(CameraManagerCompatBaseImpl.create(context,
+                compatHandler));
     }
 
     /**

@@ -16,9 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.PagedList.Config.Builder.Companion.DEFAULT_INITIAL_PAGE_MULTIPLIER
-import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
-
 /**
  * Constructs a [PagedList.Config], convenience for [PagedList.Config.Builder].
  *
@@ -29,13 +26,13 @@ import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
  * @param maxSize Maximum number of items to keep in memory, or
  * [PagedList.Config.MAX_SIZE_UNBOUNDED] to disable page dropping.
  */
-@Suppress("FunctionName")
+@Suppress("FunctionName", "DEPRECATION")
 fun Config(
     pageSize: Int,
     prefetchDistance: Int = pageSize,
     enablePlaceholders: Boolean = true,
-    initialLoadSizeHint: Int = pageSize * DEFAULT_INITIAL_PAGE_MULTIPLIER,
-    maxSize: Int = MAX_SIZE_UNBOUNDED
+    initialLoadSizeHint: Int = pageSize * PagedList.Config.Builder.DEFAULT_INITIAL_PAGE_MULTIPLIER,
+    maxSize: Int = PagedList.Config.MAX_SIZE_UNBOUNDED
 ): PagedList.Config {
     return PagedList.Config.Builder()
         .setPageSize(pageSize)

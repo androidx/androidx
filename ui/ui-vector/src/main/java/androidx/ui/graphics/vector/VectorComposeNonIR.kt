@@ -21,14 +21,12 @@ import androidx.compose.ApplyAdapter
 import androidx.compose.Composable
 import androidx.compose.Composer
 import androidx.compose.ComposerUpdater
-import androidx.compose.Composition
 import androidx.compose.CompositionReference
+import androidx.compose.Composition
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
+import androidx.compose.compositionFor
 import androidx.compose.currentComposer
-import java.util.WeakHashMap
-
-private val VectorCompositions = WeakHashMap<VectorComponent, VectorComposition>()
 
 class VectorScope(val composer: VectorComposer)
 
@@ -36,28 +34,15 @@ fun composeVector(
     container: VectorComponent,
     parent: CompositionReference? = null,
     composable: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
-): Composition {
-    val composition = VectorCompositions[container]
-        ?: VectorComposition(container, parent).also { VectorCompositions[container] = it }
-    composition.compose(composable)
-    return composition
-}
-
-class VectorComposition(
-    private val container: VectorComponent,
-    parent: CompositionReference? = null
-) : Composition(
-    { slots, recomposer -> VectorComposer(container.root, slots, recomposer) },
-    parent
-) {
-    fun compose(
-        content: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
-    ) {
-        super.compose {
-            val composer = currentComposer as VectorComposer
-            val scope = VectorScope(composer)
-            scope.content(container.viewportWidth, container.viewportHeight)
-        }
+): Composition = compositionFor(
+    container = container,
+    parent = parent,
+    composerFactory = { slots, recomposer -> VectorComposer(container.root, slots, recomposer) }
+).apply {
+    setContent {
+        val composer = currentComposer as VectorComposer
+        val scope = VectorScope(composer)
+        scope.composable(container.viewportWidth, container.viewportHeight)
     }
 }
 
@@ -109,11 +94,6 @@ class VectorComposer(
         children()
         endNode()
     }
-}
-
-fun disposeVector(container: VectorComponent, parent: CompositionReference? = null) {
-    composeVector(container, parent) { _, _ -> }
-    VectorCompositions.remove(container)
 }
 
 internal class VectorApplyAdapter : ApplyAdapter<VNode> {

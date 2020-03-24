@@ -39,6 +39,7 @@ android {
 dependencies {
     implementation("androidx.fragment:fragment:1.1.0")
     implementation(project(":lifecycle:lifecycle-process"))
+    implementation(project(":lifecycle:lifecycle-common"))
     annotationProcessor(project(":lifecycle:lifecycle-compiler"))
 
     androidTestAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))

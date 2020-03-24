@@ -18,7 +18,19 @@ package androidx.annotation
 
 /**
  * Denotes that the annotated function is considered a sample function, and is linked to from the
- * KDoc of a source module.
+ * KDoc of a source module that matches one of the two permitted directory structures:
+ *
+ * 1. The source module is an ancestor of the sample module, for example:
+ * ```
+ * library/src/.. // Source file here that links to a sample
+ * library/samples/src/.. // Sample file here that is linked to by the source file
+ * ```
+ *
+ * 2. The source module is a sibling to the sample module, for example:
+ * ```
+ * library/library-subfeature/src/.. // Source file here that links to a sample
+ * library/samples/src/.. // Sample file here that is linked to by the source file
+ * ```
  *
  * There are corresponding lint checks ensuring that functions referred to from KDoc with a @sample
  * tag are annotated with this annotation, and also to ensure that any functions annotated with this

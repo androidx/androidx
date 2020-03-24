@@ -19,8 +19,10 @@ package com.example.androidx.webkit;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.webkit.ValueCallback;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,8 +47,12 @@ public class SafeBrowsingActivity extends AppCompatActivity {
                             if (value) {
                                 setupLayout();
                             } else {
-                                WebkitHelpers.showMessageInActivity(SafeBrowsingActivity.this,
+                                TextView t = WebkitHelpers.showMessageInActivity(
+                                        SafeBrowsingActivity.this,
                                         R.string.cannot_start_safe_browsing);
+                                t.setOnClickListener(v -> {
+                                    showSafeBrowsingRequirementsInBrowser();
+                                });
                             }
                         }
                     });
@@ -54,6 +60,21 @@ public class SafeBrowsingActivity extends AppCompatActivity {
             WebkitHelpers.showMessageInActivity(SafeBrowsingActivity.this,
                     R.string.webkit_api_not_available);
         }
+    }
+
+    private void showSafeBrowsingRequirementsInBrowser() {
+        // Open documentation for WebView Safe Browsing to help the user
+        // debug what's wrong.
+        Uri safeBrowsingRequirementsUri = new Uri.Builder()
+                .scheme("https")
+                .authority("chromium.googlesource.com")
+                .path("/chromium/src/+/master/android_webview/browser/safe_browsing/README.md")
+                .encodedFragment("opt_in_consent_requirements")
+                .build();
+
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(safeBrowsingRequirementsUri);
+        startActivity(i);
     }
 
     private void setupLayout() {

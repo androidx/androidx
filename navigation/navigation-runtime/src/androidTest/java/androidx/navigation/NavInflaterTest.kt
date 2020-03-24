@@ -52,6 +52,17 @@ class NavInflaterTest {
             .isEqualTo(R.id.start_test)
     }
 
+    @Test
+    fun testEmptyLabel() {
+        val context = ApplicationProvider.getApplicationContext() as Context
+        val navInflater = NavInflater(context, TestNavigatorProvider())
+        val graph = navInflater.inflate(R.navigation.nav_simple)
+
+        assertThat(graph).isNotNull()
+        assertThat(graph.label)
+            .isEqualTo("")
+    }
+
     @Test(expected = RuntimeException::class)
     fun testInflateInvalidArgumentArgType() {
         val context = ApplicationProvider.getApplicationContext() as Context

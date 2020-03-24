@@ -32,7 +32,7 @@ plugins {
 dependencies {
     androidTestImplementation(project(':work:work-runtime-ktx'))
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation("androidx.room:room-runtime:2.2.3")
+    androidTestImplementation("androidx.room:room-runtime:2.2.5")
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

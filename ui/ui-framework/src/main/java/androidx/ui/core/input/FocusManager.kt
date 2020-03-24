@@ -17,32 +17,29 @@
 package androidx.ui.core.input
 
 /**
- * Manages focused composable and available.
+ * Interface of manager of focused composable.
  *
- * You can access the active focus manager via ambient.
+ * Focus manager keeps tracking the input focused node and provides focus transitions.
  */
-open class FocusManager internal constructor() {
-
+interface FocusManager {
     /**
-     * An interface for focusable object
+     * An interface for focusable object.
+     *
+     * Any component that will have input focus must implement this FocusNode and observe focus
+     * state.
      */
-    internal interface FocusNode {
+    interface FocusNode {
         /** Called when this component gained the focus */
         fun onFocus()
 
-        /** Called when this component is about to lose the focus */
-        fun onBlur()
+        /**
+         *  Called when this component is about to lose the focus
+         *
+         *  @param hasNextClient True if this node loses focus due to focusing in to another node
+         *  . False if this node loses focus due to calling [FocusManager#blur].
+         */
+        fun onBlur(hasNextClient: Boolean)
     }
-
-    /**
-     * The focused client. Maybe null if nothing is focused.
-     */
-    private var focusedClient: FocusNode? = null
-
-    /**
-     * The identifier to focusable node map.
-     */
-    private val focusMap = mutableMapOf<String, FocusNode>()
 
     /**
      * Request the focus assiciated with the identifier.
@@ -51,10 +48,7 @@ open class FocusManager internal constructor() {
      *
      * @param identifier The focusable node identifier.
      */
-    fun requestFocusById(identifier: String) {
-        // TODO: Good to defer the task for avoiding possible infinity loop.
-        focusMap[identifier]?.let { requestFocus(it) }
-    }
+    fun requestFocusById(identifier: String)
 
     /**
      * Register the focusable node with identifier.
@@ -62,40 +56,78 @@ open class FocusManager internal constructor() {
      * The caller must unregister when the focusable node is disposed.
      * This function overwrites if the focusable node is already registered.
      *
+     * @param identifier focusable client identifier
+     * @param node focusable client.
      */
-    internal fun registerFocusNode(identifier: String, node: FocusNode) {
-        focusMap[identifier] = node
-    }
+    fun registerFocusNode(identifier: String, node: FocusNode)
 
     /**
      * Unregister the focusable node associated with given identifier.
+     *
+     * @param identifier focusable client identifier
      */
-    internal fun unregisterFocusNode(identifier: String) {
-        focusMap.remove(identifier)
-    }
+    fun unregisterFocusNode(identifier: String)
 
     /**
      * Request the input focus
+     *
+     * @param client A focusable client.
      */
-    internal open fun requestFocus(client: FocusNode) {
+    fun requestFocus(client: FocusNode)
+
+    /**
+     * Release the focus if given focus node is focused
+     *
+     * @param client A focusable client.
+     */
+    fun blur(client: FocusNode)
+}
+
+/**
+ * Manages focused composable and available.
+ */
+internal class FocusManagerImpl : FocusManager {
+    /**
+     * The focused client. Maybe null if nothing is focused.
+     */
+    private var focusedClient: FocusManager.FocusNode? = null
+
+    /**
+     * The identifier to focusable node map.
+     */
+    private val focusMap = mutableMapOf<String, FocusManager.FocusNode>()
+
+    override fun requestFocusById(identifier: String) {
+        // TODO(nona): Good to defer the task for avoiding possible infinity loop.
+        focusMap[identifier]?.let { requestFocus(it) }
+    }
+
+    override fun registerFocusNode(identifier: String, node: FocusManager.FocusNode) {
+        focusMap[identifier] = node
+    }
+
+    override fun unregisterFocusNode(identifier: String) {
+        focusMap.remove(identifier)
+    }
+
+    override fun requestFocus(client: FocusManager.FocusNode) {
         val currentFocus = focusedClient
         if (currentFocus == client) {
             return // focus in to the same component. Do nothing.
         }
 
         if (currentFocus != null) {
-            focusOut(currentFocus)
+            currentFocus.onBlur(true)
         }
 
         focusedClient = client
-        focusIn(client)
-    }
-
-    private fun focusIn(client: FocusNode) {
         client.onFocus()
     }
 
-    private fun focusOut(client: FocusNode) {
-        client.onBlur()
+    override fun blur(client: FocusManager.FocusNode) {
+        if (focusedClient == client) {
+            focusedClient = null
+            client.onBlur(false)
+        }
     }
 }

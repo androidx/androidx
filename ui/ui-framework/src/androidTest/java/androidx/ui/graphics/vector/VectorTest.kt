@@ -23,15 +23,19 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Alignment
+import androidx.ui.core.DensityAmbient
+import androidx.ui.core.asModifier
 import androidx.ui.core.setContent
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.core.test.runOnUiThreadIR
 import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.toArgb
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.toPx
 import org.junit.Assert
@@ -103,7 +107,7 @@ class VectorTest {
             }
         }
 
-        latch1.await()
+        latch1.await(5, TimeUnit.SECONDS)
         val size = testCase.vectorSize
         takeScreenShot(size).apply {
             assertEquals(Color.Blue.toArgb(), getPixel(5, size - 5))
@@ -115,7 +119,7 @@ class VectorTest {
             testCase.toggle()
         }
 
-        latch2.await()
+        latch2.await(5, TimeUnit.SECONDS)
         takeScreenShot(size).apply {
             assertEquals(Color.White.toArgb(), getPixel(5, size - 5))
             assertEquals(Color.Red.toArgb(), getPixel(size - 5, 5))
@@ -129,24 +133,23 @@ class VectorTest {
         alignment: Alignment = Alignment.Center
     ) {
         val sizePx = size.toPx()
-        AtLeastSize(size = minimumSize) {
-            DrawVector(
-                defaultWidth = sizePx,
-                defaultHeight = sizePx,
-                tintColor = Color.Cyan,
-                alignment = alignment) { _, _ ->
-                Path(
-                    pathData = PathData {
-                        lineTo(sizePx.value, 0.0f)
-                        lineTo(sizePx.value, sizePx.value)
-                        lineTo(0.0f, sizePx.value)
-                        close()
-                    },
-                    fill = SolidColor(Color.Black)
-                )
+        val sizeDp = (size.value / DensityAmbient.current.density).dp
+        val background = VectorPainter(
+            defaultWidth = sizeDp,
+            defaultHeight = sizeDp) { _, _ ->
+            Path(
+                pathData = PathData {
+                    lineTo(sizePx.value, 0.0f)
+                    lineTo(sizePx.value, sizePx.value)
+                    lineTo(0.0f, sizePx.value)
+                    close()
+                },
+                fill = SolidColor(Color.Black)
+            )
 
-                drawLatch.countDown()
-            }
+            drawLatch.countDown()
+        }.asModifier(colorFilter = ColorFilter.tint(Color.Cyan), alignment = alignment)
+        AtLeastSize(size = minimumSize, modifier = background) {
         }
     }
 

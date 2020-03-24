@@ -129,7 +129,7 @@ class TypefaceAdapterTest {
 
         for (fontWeight in fontWeights) {
             for (fontStyle in FontStyle.values()) {
-                val typefaceStyle = TypefaceAdapter().getTypefaceStyle(
+                val typefaceStyle = TypefaceAdapter.getTypefaceStyle(
                     fontWeight = fontWeight,
                     fontStyle = fontStyle
                 )
@@ -154,7 +154,7 @@ class TypefaceAdapterTest {
 
         for (fontWeight in fontWeights) {
             for (fontStyle in FontStyle.values()) {
-                val typefaceStyle = TypefaceAdapter().getTypefaceStyle(
+                val typefaceStyle = TypefaceAdapter.getTypefaceStyle(
                     fontWeight = fontWeight,
                     fontStyle = fontStyle
                 )

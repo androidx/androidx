@@ -25,19 +25,21 @@ import androidx.compose.Providers
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.CoreText
 import androidx.ui.core.HapticFeedBackAmbient
-import androidx.ui.core.Text
 import androidx.ui.core.gesture.MotionEvent
 import androidx.ui.core.gesture.PointerCoords
 import androidx.ui.core.gesture.PointerProperties
+import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.ResourceFont
 import androidx.ui.text.font.asFontFamily
+import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
@@ -90,9 +92,13 @@ class SelectionContainerTest {
                         gestureCountDownLatch.countDown()
                     }
                 ) {
-                    Text(
-                        textContent,
-                        style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    CoreText(
+                        AnnotatedString(textContent),
+                        style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
+                        softWrap = true,
+                        overflow = TextOverflow.Clip,
+                        maxLines = Int.MAX_VALUE,
+                        onTextLayout = {}
                     )
                 }
             }

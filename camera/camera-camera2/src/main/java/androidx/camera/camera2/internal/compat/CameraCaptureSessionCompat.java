@@ -29,6 +29,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -39,18 +40,61 @@ import java.util.concurrent.Executor;
 @RequiresApi(21)
 public final class CameraCaptureSessionCompat {
 
-    private static final CameraCaptureSessionCompatImpl IMPL = chooseImplementation();
+    private final CameraCaptureSessionCompatImpl mImpl;
 
-    // Class is not a wrapper. Should not be instantiated.
-    private CameraCaptureSessionCompat() {
+    private CameraCaptureSessionCompat(@NonNull CameraCaptureSession captureSession,
+            @NonNull Handler compatHandler) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            mImpl = new CameraCaptureSessionCompatApi28Impl(captureSession);
+        } else {
+            mImpl = CameraCaptureSessionCompatBaseImpl.create(captureSession, compatHandler);
+        }
     }
 
-    private static CameraCaptureSessionCompatImpl chooseImplementation() {
-        if (Build.VERSION.SDK_INT >= 28) {
-            return new CameraCaptureSessionCompatApi28Impl();
-        }
+    /**
+     * Provides a backward-compatible wrapper for {@link CameraCaptureSession}.
+     *
+     * <p>All APIs taking {@link Executor} as an argument will use the main thread to dispatch to
+     * that executor. Callers wanting to avoid using the main thread for dispatching should use
+     * {@link #toCameraCaptureSessionCompat(CameraCaptureSession, Handler)}.
+     *
+     * @param captureSession {@link CameraCaptureSession} class to wrap
+     * @return wrapped class
+     * @see #toCameraCaptureSessionCompat(CameraCaptureSession, Handler)
+     */
+    @NonNull
+    public static CameraCaptureSessionCompat toCameraCaptureSessionCompat(
+            @NonNull CameraCaptureSession captureSession) {
+        return CameraCaptureSessionCompat.toCameraCaptureSessionCompat(captureSession,
+                MainThreadAsyncHandler.getInstance());
+    }
 
-        return new CameraCaptureSessionCompatBaseImpl();
+    /**
+     * Provides a backward-compatible wrapper for {@link CameraCaptureSession}.
+     *
+     * <p>All APIs taking {@link Executor} as an argument will use the provided {@link Handler}
+     * to dispatch callbacks on the executor.
+     *
+     * @param captureSession {@link CameraCaptureSession} class to wrap
+     * @param compatHandler {@link Handler} used for dispatching callbacks to executor APIs.
+     * @return wrapped class
+     */
+    @NonNull
+    public static CameraCaptureSessionCompat toCameraCaptureSessionCompat(
+            @NonNull CameraCaptureSession captureSession, @NonNull Handler compatHandler) {
+        return new CameraCaptureSessionCompat(captureSession, compatHandler);
+    }
+
+    /**
+     * Provides the platform class object represented by this object.
+     *
+     * @return platform class object
+     * @see #toCameraCaptureSessionCompat(CameraCaptureSession)
+     * @see #toCameraCaptureSessionCompat(CameraCaptureSession, Handler)
+     */
+    @NonNull
+    public CameraCaptureSession toCameraCaptureSession() {
+        return mImpl.unwrap();
     }
 
     /**
@@ -94,13 +138,12 @@ public final class CameraCaptureSessionCompat {
      * @see CameraCaptureSession#setRepeatingBurst
      * @see CameraCaptureSession#abortCaptures
      */
-    public static int captureBurstRequests(
-            @NonNull CameraCaptureSession captureSession,
+    public int captureBurstRequests(
             @NonNull List<CaptureRequest> requests,
             @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener)
             throws CameraAccessException {
-        return IMPL.captureBurstRequests(captureSession, requests, executor, listener);
+        return mImpl.captureBurstRequests(requests, executor, listener);
     }
 
     /**
@@ -111,7 +154,6 @@ public final class CameraCaptureSessionCompat {
      * CameraCaptureSession#capture(CaptureRequest, CameraCaptureSession.CaptureCallback, Handler)},
      * except that it uses {@link Executor} as an argument instead of {@link Handler}.
      *
-     * @param captureSession the {@link CameraCaptureSession} used to submit the request.
      * @param request        the settings for this capture
      * @param executor       the executor which will be used for invoking the listener.
      * @param listener       The callback object to notify once this request has been
@@ -140,13 +182,12 @@ public final class CameraCaptureSessionCompat {
      * @see CameraCaptureSession#abortCaptures
      * @see CameraDevice#createReprocessableCaptureSession
      */
-    public static int captureSingleRequest(
-            @NonNull CameraCaptureSession captureSession,
+    public int captureSingleRequest(
             @NonNull CaptureRequest request,
             @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener)
             throws CameraAccessException {
-        return IMPL.captureSingleRequest(captureSession, request, executor, listener);
+        return mImpl.captureSingleRequest(request, executor, listener);
     }
 
     /**
@@ -185,13 +226,12 @@ public final class CameraCaptureSessionCompat {
      * @see CameraCaptureSession#stopRepeating
      * @see CameraCaptureSession#abortCaptures
      */
-    public static int setRepeatingBurstRequests(
-            @NonNull CameraCaptureSession captureSession,
+    public int setRepeatingBurstRequests(
             @NonNull List<CaptureRequest> requests,
             @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener)
             throws CameraAccessException {
-        return IMPL.setRepeatingBurstRequests(captureSession, requests, executor, listener);
+        return mImpl.setRepeatingBurstRequests(requests, executor, listener);
     }
 
     /**
@@ -227,43 +267,41 @@ public final class CameraCaptureSessionCompat {
      * @see CameraCaptureSession#stopRepeating
      * @see CameraCaptureSession#abortCaptures
      */
-    public static int setSingleRepeatingRequest(
-            @NonNull CameraCaptureSession captureSession,
+    public int setSingleRepeatingRequest(
             @NonNull CaptureRequest request,
             @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener)
             throws CameraAccessException {
-        return IMPL.setSingleRepeatingRequest(captureSession, request, executor, listener);
+        return mImpl.setSingleRepeatingRequest(request, executor, listener);
     }
 
     interface CameraCaptureSessionCompatImpl {
         int captureBurstRequests(
-                @NonNull CameraCaptureSession captureSession,
                 @NonNull List<CaptureRequest> requests,
                 @NonNull /* @CallbackExecutor */ Executor executor,
                 @NonNull CameraCaptureSession.CaptureCallback listener)
                 throws CameraAccessException;
 
         int captureSingleRequest(
-                @NonNull CameraCaptureSession captureSession,
                 @NonNull CaptureRequest request,
                 @NonNull /* @CallbackExecutor */ Executor executor,
                 @NonNull CameraCaptureSession.CaptureCallback listener)
                 throws CameraAccessException;
 
         int setRepeatingBurstRequests(
-                @NonNull CameraCaptureSession captureSession,
                 @NonNull List<CaptureRequest> requests,
                 @NonNull /* @CallbackExecutor */ Executor executor,
                 @NonNull CameraCaptureSession.CaptureCallback listener)
                 throws CameraAccessException;
 
         int setSingleRepeatingRequest(
-                @NonNull CameraCaptureSession captureSession,
                 @NonNull CaptureRequest request,
                 @NonNull /* @CallbackExecutor */ Executor executor,
                 @NonNull CameraCaptureSession.CaptureCallback listener)
                 throws CameraAccessException;
+
+        @NonNull
+        CameraCaptureSession unwrap();
     }
 
     static final class CaptureCallbackExecutorWrapper extends CameraCaptureSession.CaptureCallback {

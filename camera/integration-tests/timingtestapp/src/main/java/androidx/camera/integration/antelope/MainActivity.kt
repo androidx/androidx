@@ -275,6 +275,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 return
             }
+            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 

@@ -26,8 +26,3 @@ plugins {
 dependencies {
     implementation(KOTLIN_STDLIB)
 }
-
-androidx {
-    publish = Publish.NONE
-    toolingProject = true
-}

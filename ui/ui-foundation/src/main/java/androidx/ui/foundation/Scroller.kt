@@ -21,20 +21,17 @@ import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
-import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.Clip
 import androidx.ui.core.Constraints
+import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.RepaintBoundary
+import androidx.ui.core.drawLayer
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Scrollable
 import androidx.ui.foundation.gestures.ScrollableState
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Constraints
-import androidx.ui.layout.Container
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.IntPx
@@ -118,7 +115,7 @@ class ScrollerPosition(
     /**
      * Smooth scroll to position in pixels
      *
-     * @param value target value to smooth scroll to
+     * @param value target value to smooth scroll to, value will be coerced to 0..maxPosition
      */
     // TODO (malkov/tianliu) : think about allowing to scroll with custom animation timings/curves
     fun smoothScrollTo(
@@ -131,7 +128,7 @@ class ScrollerPosition(
     /**
      * Smooth scroll by some amount of pixels
      *
-     * @param value delta to scroll by
+     * @param value delta to scroll by, total value will be coerced to 0..maxPosition
      */
     fun smoothScrollBy(
         value: Float,
@@ -143,16 +140,16 @@ class ScrollerPosition(
     /**
      * Instantly jump to position in pixels
      *
-     * @param value target value to jump to
+     * @param value target value to jump to, value will be coerced to 0..maxPosition
      */
     fun scrollTo(value: Float) {
-        this.value = value
+        this.value = value.coerceIn(0f, maxPosition)
     }
 
     /**
      * Instantly jump by some amount of pixels
      *
-     * @param value delta to jump by
+     * @param value delta to jump by, total value will be coerced to 0..maxPosition
      */
     fun scrollBy(value: Float) {
         scrollTo(this.value + value)
@@ -261,15 +258,14 @@ private fun ScrollerLayout(
     child: @Composable() () -> Unit
 ) {
     Layout(
-        modifier = modifier,
+        modifier = modifier + DrawClipToBounds,
         children = {
-            Clip(RectangleShape) {
-                Container(alignment = Alignment.TopStart) {
-                    RepaintBoundary(children = child)
-                }
-            }
+            Box(
+                modifier = drawLayer(),
+                children = child
+            )
         },
-        measureBlock = { measurables, constraints ->
+        measureBlock = { measurables, constraints, _ ->
             if (measurables.size > 1) {
                 throw IllegalStateException("Only one child is allowed in a VerticalScroller")
             }

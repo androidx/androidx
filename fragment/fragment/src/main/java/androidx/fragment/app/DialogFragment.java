@@ -17,7 +17,9 @@
 package androidx.fragment.app;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.fragment.app.FragmentManager.TAG;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -25,6 +27,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +35,14 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -92,14 +98,16 @@ public class DialogFragment extends Fragment
 
     private Handler mHandler;
     private Runnable mDismissRunnable = new Runnable() {
+        @SuppressLint("SyntheticAccessor")
         @Override
         public void run() {
             mOnDismissListener.onDismiss(mDialog);
         }
     };
 
-    DialogInterface.OnCancelListener mOnCancelListener =
+    private DialogInterface.OnCancelListener mOnCancelListener =
             new DialogInterface.OnCancelListener() {
+        @SuppressLint("SyntheticAccessor")
         @Override
         public void onCancel(@Nullable DialogInterface dialog) {
             if (mDialog != null) {
@@ -108,8 +116,9 @@ public class DialogFragment extends Fragment
         }
     };
 
-    DialogInterface.OnDismissListener mOnDismissListener =
+    private DialogInterface.OnDismissListener mOnDismissListener =
             new DialogInterface.OnDismissListener() {
+        @SuppressLint("SyntheticAccessor")
         @Override
         public void onDismiss(@Nullable DialogInterface dialog) {
             if (mDialog != null) {
@@ -118,18 +127,69 @@ public class DialogFragment extends Fragment
         }
     };
 
-    int mStyle = STYLE_NORMAL;
-    int mTheme = 0;
-    boolean mCancelable = true;
-    boolean mShowsDialog = true;
-    int mBackStackId = -1;
+    private int mStyle = STYLE_NORMAL;
+    private int mTheme = 0;
+    private boolean mCancelable = true;
+    private boolean mShowsDialog = true;
+    private int mBackStackId = -1;
+    private boolean mCreatingDialog;
+    private Observer<LifecycleOwner> mObserver = new Observer<LifecycleOwner>() {
+        @SuppressLint("SyntheticAccessor")
+        @Override
+        public void onChanged(LifecycleOwner lifecycleOwner) {
+            if (lifecycleOwner != null && mShowsDialog) {
+                View view = requireView();
+                if (view.getParent() != null) {
+                    throw new IllegalStateException(
+                            "DialogFragment can not be attached to a container view");
+                }
+                if (mDialog != null) {
+                    if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                        Log.d(TAG, "DialogFragment " + this + " setting the content view on "
+                                + mDialog);
+                    }
+                    mDialog.setContentView(view);
+                }
+            }
+        }
+    };
 
-    @Nullable Dialog mDialog;
-    boolean mViewDestroyed;
-    boolean mDismissed;
-    boolean mShownByMe;
+    @Nullable
+    private Dialog mDialog;
+    private boolean mViewDestroyed;
+    private boolean mDismissed;
+    private boolean mShownByMe;
+    private boolean mDialogCreated = false;
 
+
+    /**
+     * Constructor used by the default {@link FragmentFactory}. You must
+     * {@link FragmentManager#setFragmentFactory(FragmentFactory) set a custom FragmentFactory}
+     * if you want to use a non-default constructor to ensure that your constructor
+     * is called when the fragment is re-instantiated.
+     *
+     * <p>It is strongly recommended to supply arguments with {@link #setArguments}
+     * and later retrieved by the Fragment with {@link #getArguments}. These arguments
+     * are automatically saved and restored alongside the Fragment.
+     *
+     * <p>Applications should generally not implement a constructor. Prefer
+     * {@link #onAttach(Context)} instead. It is the first place application code can run where
+     * the fragment is ready to be used - the point where the fragment is actually associated with
+     * its context.
+     */
     public DialogFragment() {
+        super();
+    }
+
+    /**
+     * Alternate constructor that can be used to provide a default layout
+     * that will be inflated by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     *
+     * @see #DialogFragment()
+     * @see #onCreateView(LayoutInflater, ViewGroup, Bundle)
+     */
+    public DialogFragment(@LayoutRes int contentLayoutId) {
+        super(contentLayoutId);
     }
 
     /**
@@ -147,6 +207,10 @@ public class DialogFragment extends Fragment
      * on the style) will be selected for you.
      */
     public void setStyle(@DialogStyle int style, @StyleRes int theme) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.d(TAG, "Setting style and theme for DialogFragment " + this + " to " + style
+                    + ", " + theme);
+        }
         mStyle = style;
         if (mStyle == STYLE_NO_FRAME || mStyle == STYLE_NO_INPUT) {
             mTheme = android.R.style.Theme_Panel;
@@ -232,7 +296,7 @@ public class DialogFragment extends Fragment
         dismissInternal(true, false);
     }
 
-    void dismissInternal(boolean allowStateLoss, boolean fromOnDismiss) {
+    private void dismissInternal(boolean allowStateLoss, boolean fromOnDismiss) {
         if (mDismissed) {
             return;
         }
@@ -356,6 +420,7 @@ public class DialogFragment extends Fragment
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        getViewLifecycleOwnerLiveData().observeForever(mObserver);
         if (!mShownByMe) {
             // If not explicitly shown through our API, take this as an
             // indication that the dialog is no longer dismissed.
@@ -373,6 +438,7 @@ public class DialogFragment extends Fragment
             // art now dismissed.  Have fun.
             mDismissed = true;
         }
+        getViewLifecycleOwnerLiveData().removeObserver(mObserver);
     }
 
     @MainThread
@@ -394,22 +460,50 @@ public class DialogFragment extends Fragment
     }
 
     @Override
+    void performCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        super.performCreateView(inflater, container, savedInstanceState);
+        // If no view was set, we need to call onRestoreInstance on the dialog to ensure
+        // the state is restored.
+        if (mView == null) {
+            if (mDialog != null && savedInstanceState != null) {
+                Bundle dialogState = savedInstanceState.getBundle(SAVED_DIALOG_STATE_TAG);
+                if (dialogState != null) {
+                    mDialog.onRestoreInstanceState(dialogState);
+                }
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * If this is called from within {@link #onCreateDialog(Bundle)}, the layout inflater from
+     * {@link Fragment#onGetLayoutInflater(Bundle)}, without the dialog theme, will be returned.
+     */
+    @Override
     @NonNull
     public LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
-        if (!mShowsDialog) {
-            return super.onGetLayoutInflater(savedInstanceState);
+        LayoutInflater layoutInflater = super.onGetLayoutInflater(savedInstanceState);
+        if (!mShowsDialog || mCreatingDialog) {
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                String message = "getting layout inflater for DialogFragment " + this;
+                if (!mShowsDialog) {
+                    Log.d(TAG, "mShowsDialog = false: " + message);
+                } else {
+                    Log.d(TAG, "mCreatingDialog = true: " + message);
+                }
+            }
+            return layoutInflater;
         }
 
-        mDialog = onCreateDialog(savedInstanceState);
+        prepareDialog(savedInstanceState);
 
-        if (mDialog != null) {
-            setupDialog(mDialog, mStyle);
-
-            return (LayoutInflater) mDialog.getContext().getSystemService(
-                    Context.LAYOUT_INFLATER_SERVICE);
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.d(TAG, "get layout inflater for DialogFragment " + this + " from dialog context");
         }
-        return (LayoutInflater) mHost.getContext().getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
+        return layoutInflater.cloneInContext(requireDialog().getContext());
     }
 
     /** @hide */
@@ -417,9 +511,11 @@ public class DialogFragment extends Fragment
     public void setupDialog(@NonNull Dialog dialog, int style) {
         switch (style) {
             case STYLE_NO_INPUT:
-                dialog.getWindow().addFlags(
-                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                Window window = dialog.getWindow();
+                if (window != null) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                            | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                }
                 // fall through...
             case STYLE_NO_FRAME:
             case STYLE_NO_TITLE:
@@ -452,6 +548,9 @@ public class DialogFragment extends Fragment
     @MainThread
     @NonNull
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "onCreateDialog called for DialogFragment " + this);
+        }
         return new Dialog(requireContext(), getTheme());
     }
 
@@ -466,35 +565,43 @@ public class DialogFragment extends Fragment
             // dispatches this asynchronously so we can receive the call
             // after the activity is paused.  Worst case, when the user comes
             // back to the activity they see the dialog again.
+            if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                Log.d(TAG, "onDismiss called for DialogFragment " + this);
+            }
             dismissInternal(true, true);
         }
     }
 
-    @MainThread
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
+    private void prepareDialog(@Nullable Bundle savedInstanceState) {
         if (!mShowsDialog) {
             return;
         }
 
-        View view = getView();
-        if (view != null) {
-            if (view.getParent() != null) {
-                throw new IllegalStateException(
-                        "DialogFragment can not be attached to a container view");
+        if (!mDialogCreated) {
+            try {
+                mCreatingDialog = true;
+                mDialog = onCreateDialog(savedInstanceState);
+                setupDialog(mDialog, mStyle);
+                final Activity activity = getActivity();
+                if (activity != null) {
+                    mDialog.setOwnerActivity(activity);
+                }
+                mDialog.setCancelable(mCancelable);
+                mDialog.setOnCancelListener(mOnCancelListener);
+                mDialog.setOnDismissListener(mOnDismissListener);
+            } finally {
+                mCreatingDialog = false;
             }
-            mDialog.setContentView(view);
         }
-        final Activity activity = getActivity();
-        if (activity != null) {
-            mDialog.setOwnerActivity(activity);
-        }
-        mDialog.setCancelable(mCancelable);
-        mDialog.setOnCancelListener(mOnCancelListener);
-        mDialog.setOnDismissListener(mOnDismissListener);
-        if (savedInstanceState != null) {
+
+        mDialogCreated = true;
+    }
+
+    @MainThread
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (mDialog != null && savedInstanceState != null) {
             Bundle dialogState = savedInstanceState.getBundle(SAVED_DIALOG_STATE_TAG);
             if (dialogState != null) {
                 mDialog.onRestoreInstanceState(dialogState);
@@ -519,9 +626,7 @@ public class DialogFragment extends Fragment
         super.onSaveInstanceState(outState);
         if (mDialog != null) {
             Bundle dialogState = mDialog.onSaveInstanceState();
-            if (dialogState != null) {
-                outState.putBundle(SAVED_DIALOG_STATE_TAG, dialogState);
-            }
+            outState.putBundle(SAVED_DIALOG_STATE_TAG, dialogState);
         }
         if (mStyle != STYLE_NORMAL) {
             outState.putInt(SAVED_STYLE, mStyle);
@@ -572,6 +677,7 @@ public class DialogFragment extends Fragment
                 onDismiss(mDialog);
             }
             mDialog = null;
+            mDialogCreated = false;
         }
     }
 }

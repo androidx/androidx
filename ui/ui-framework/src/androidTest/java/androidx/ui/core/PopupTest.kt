@@ -18,17 +18,21 @@ package androidx.ui.core
 import android.view.View
 import androidx.compose.Composable
 import androidx.compose.emptyContent
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.ui.core.selection.SimpleContainer
+import androidx.ui.layout.LayoutSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.toPxPosition
@@ -47,10 +51,10 @@ import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(JUnit4::class)
+@FlakyTest(bugId = 150214184)
 class PopupTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
-    private val popupText = "popupText"
     private val testTag = "testedPopup"
 
     private val parentGlobalPosition = IntPxPosition(IntPx(50), IntPx(50))
@@ -71,7 +75,7 @@ class PopupTest {
 
             composeTestRule.setContent {
                 // Get the compose view position on screen
-                val composeView = AndroidComposeViewAmbient.current
+                val composeView = OwnerAmbient.current as View
                 val positionArray = IntArray(2)
                 composeView.getLocationOnScreen(positionArray)
                 composeViewAbsolutePosition = IntPxPosition(
@@ -87,12 +91,10 @@ class PopupTest {
                             Popup(alignment = alignment, offset = offset) {
                                 // This is called after the OnChildPosition method in Popup() which
                                 // updates the popup to its final position
-                                OnPositioned {
-                                    measureLatch.countDown()
-                                }
                                 SimpleContainer(
                                     width = popupWidthDp,
                                     height = popupHeightDp,
+                                    modifier = onPositioned { measureLatch.countDown() },
                                     children = emptyContent()
                                 )
                             }
@@ -105,7 +107,9 @@ class PopupTest {
 
     // TODO(b/139861182): Remove all of this and provide helpers on ComposeTestRule
     private fun popupMatches(viewMatcher: Matcher<in View>) {
-        Espresso.onView(instanceOf(AndroidComposeView::class.java))
+        // Make sure that current measurement/drawing is finished
+        composeTestRule.runOnIdleCompose { }
+        Espresso.onView(instanceOf(Owner::class.java))
             .inRoot(PopupLayoutMatcher())
             .check(matches(viewMatcher))
     }
@@ -127,7 +131,7 @@ class PopupTest {
             SimpleContainer {
                 PopupTestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
-                        Text(popupText)
+                        SimpleContainer(LayoutSize(50.dp), children = emptyContent())
                     }
                 }
             }
@@ -477,6 +481,27 @@ class PopupTest {
     }
 
     @Test
+    fun popup_hasViewTreeLifecycleOwner() {
+        composeTestRule.setContent {
+            PopupTestTag(testTag) {
+                Popup {}
+            }
+        }
+
+        Espresso.onView(instanceOf(Owner::class.java))
+            .inRoot(PopupLayoutMatcher())
+            .check(matches(object : TypeSafeMatcher<View>() {
+                override fun describeTo(description: Description?) {
+                    description?.appendText("ViewTreeLifecycleOwner.get(view) != null")
+                }
+
+                override fun matchesSafely(item: View): Boolean {
+                    return ViewTreeLifecycleOwner.get(item) != null
+                }
+            }))
+    }
+
+    @Test
     fun dropdownAlignment_calculateGlobalPositionLeft() {
         /* Expected Dropdown Start Position
            x = parentGlobalPosition.x + offset.x
@@ -519,7 +544,7 @@ class PopupTest {
     private fun matchesAndroidComposeView(): BoundedMatcher<View, View> {
         return object : BoundedMatcher<View, View>(View::class.java) {
             override fun matchesSafely(item: View?): Boolean {
-                return (item is AndroidComposeView)
+                return (item is Owner)
             }
 
             override fun describeTo(description: Description?) {
@@ -544,6 +569,7 @@ class PopupTest {
         return object : BoundedMatcher<View, View>(View::class.java) {
             // (-1, -1) no position found
             var positionFound = IntPxPosition(IntPx(-1), IntPx(-1))
+
             override fun matchesSafely(item: View?): Boolean {
                 val position = IntArray(2)
                 item?.getLocationOnScreen(position)
@@ -553,8 +579,9 @@ class PopupTest {
             }
 
             override fun describeTo(description: Description?) {
-                description?.appendText("with expected position: $expectedPosition" +
-                        " but position found: $positionFound")
+                description?.appendText(
+                    "with expected position: $expectedPosition but position found: $positionFound"
+                )
             }
         }
     }
@@ -562,7 +589,7 @@ class PopupTest {
 
 @Composable
 private fun TestAlign(children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
+    Layout(children) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
         val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))

@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 
 /**
@@ -40,7 +41,7 @@ import androidx.recyclerview.widget.RecyclerView
  * A complete usage pattern with Room would look like this:
  * ```
  * @Dao
- *     interface UserDao {
+ * interface UserDao {
  *     @Query("SELECT * FROM user ORDER BY lastName ASC")
  *     public abstract DataSource.Factory<Integer, User> usersByLastName();
  * }
@@ -114,8 +115,8 @@ import androidx.recyclerview.widget.RecyclerView
 abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH> {
     @Suppress("DEPRECATION")
     internal val differ: AsyncPagedListDiffer<T>
+    @Suppress("DEPRECATION")
     private val listener = { previousList: PagedList<T>?, currentList: PagedList<T>? ->
-        @Suppress("DEPRECATION")
         this@PagedListAdapter.onCurrentListChanged(currentList)
         this@PagedListAdapter.onCurrentListChanged(previousList, currentList)
     }
@@ -131,6 +132,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @see onCurrentListChanged
      */
+    @Suppress("DEPRECATION")
     open val currentList: PagedList<T>?
         get() = differ.currentList
 
@@ -163,7 +165,8 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @param pagedList The new list to be displayed.
      */
-    open fun submitList(pagedList: PagedList<T>?) = differ.submitList(pagedList)
+    open fun submitList(@Suppress("DEPRECATION") pagedList: PagedList<T>?) =
+        differ.submitList(pagedList)
 
     /**
      * Set the new list to be displayed.
@@ -179,8 +182,10 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
      * it is committed.
      */
-    open fun submitList(pagedList: PagedList<T>?, commitCallback: Runnable?) =
-        differ.submitList(pagedList, commitCallback)
+    open fun submitList(
+        @Suppress("DEPRECATION") pagedList: PagedList<T>?,
+        commitCallback: Runnable?
+    ) = differ.submitList(pagedList, commitCallback)
 
     protected open fun getItem(position: Int) = differ.getItem(position)
 
@@ -206,7 +211,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
         "Use the two argument variant instead.",
         ReplaceWith("onCurrentListChanged(previousList, currentList)")
     )
-    open fun onCurrentListChanged(currentList: PagedList<T>?) {
+    open fun onCurrentListChanged(@Suppress("DEPRECATION") currentList: PagedList<T>?) {
     }
 
     /**
@@ -226,7 +231,10 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * @see currentList
      */
-    open fun onCurrentListChanged(previousList: PagedList<T>?, currentList: PagedList<T>?) {
+    open fun onCurrentListChanged(
+        @Suppress("DEPRECATION") previousList: PagedList<T>?,
+        @Suppress("DEPRECATION") currentList: PagedList<T>?
+    ) {
     }
 
     /**
@@ -251,5 +259,54 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      */
     open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.removeLoadStateListener(listener)
+    }
+
+    /**
+     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.END] [LoadState] as a list item at the end of the presented list.
+     */
+    fun withLoadStateHeader(
+        header: LoadStateAdapter<*>
+    ): MergeAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.START) {
+                header.loadState = loadState
+            }
+        }
+        return MergeAdapter(header, this)
+    }
+
+    /**
+     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.START] [LoadState] as a list item at the start of the presented list.
+     */
+    fun withLoadStateFooter(
+        footer: LoadStateAdapter<*>
+    ): MergeAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.END) {
+                footer.loadState = loadState
+            }
+        }
+        return MergeAdapter(this, footer)
+    }
+
+    /**
+     * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
+     * [LoadType.START] and [LoadType.END] [LoadState]s as list items at the start and end
+     * respectively.
+     */
+    fun withLoadStateHeaderAndFooter(
+        header: LoadStateAdapter<*>,
+        footer: LoadStateAdapter<*>
+    ): MergeAdapter {
+        addLoadStateListener { loadType, loadState ->
+            if (loadType == LoadType.START) {
+                header.loadState = loadState
+            } else if (loadType == LoadType.END) {
+                footer.loadState = loadState
+            }
+        }
+        return MergeAdapter(header, this, footer)
     }
 }

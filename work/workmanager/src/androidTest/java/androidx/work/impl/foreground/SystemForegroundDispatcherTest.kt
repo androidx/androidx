@@ -30,6 +30,7 @@ import androidx.work.Constraints
 import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkInfo
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
@@ -39,6 +40,7 @@ import androidx.work.impl.constraints.WorkConstraintsTracker
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
+import androidx.work.impl.utils.StopWorkRunnable
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
@@ -50,6 +52,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
@@ -82,7 +85,7 @@ class SystemForegroundDispatcherTest {
         taskExecutor = InstantWorkTaskExecutor()
         val scheduler = mock(Scheduler::class.java)
         workDatabase = WorkDatabase.create(context, taskExecutor.backgroundExecutor, true)
-        processor = Processor(context, config, taskExecutor, workDatabase, listOf(scheduler))
+        processor = spy(Processor(context, config, taskExecutor, workDatabase, listOf(scheduler)))
         workManager = spy(
             WorkManagerImpl(
                 context,
@@ -359,6 +362,29 @@ class SystemForegroundDispatcherTest {
         verify(tracker, times(1)).replace(setOf(request.workSpec))
         val stopIntent = createCancelWorkIntent(context, request.stringId)
         dispatcher.onStartCommand(stopIntent)
+        verify(workManager, times(1)).cancelWorkById(eq(UUID.fromString(request.workSpec.id)))
+        assertThat(processor.hasWork(), `is`(false))
+    }
+
+    @Test
+    fun testStopForegroundWork() {
+        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setInitialState(WorkInfo.State.RUNNING)
+            .build()
+
+        `when`(processor.isEnqueuedInForeground(eq(request.stringId))).thenReturn(true)
+        workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
+        val notificationId = 1
+        val notification = mock(Notification::class.java)
+        val metadata = ForegroundInfo(notificationId, notification)
+        val intent = createStartForegroundIntent(context, request.stringId, metadata)
+        dispatcher.onStartCommand(intent)
+        val stopWorkRunnable = StopWorkRunnable(workManager, request.stringId, false)
+        stopWorkRunnable.run()
+        val state = workDatabase.workSpecDao().getState(request.stringId)
+        assertThat(state, `is`(WorkInfo.State.RUNNING))
+        val stopAndCancelIntent = createCancelWorkIntent(context, request.stringId)
+        dispatcher.onStartCommand(stopAndCancelIntent)
         verify(workManager, times(1)).cancelWorkById(eq(UUID.fromString(request.workSpec.id)))
         assertThat(processor.hasWork(), `is`(false))
     }

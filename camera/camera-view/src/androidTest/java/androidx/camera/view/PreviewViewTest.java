@@ -21,20 +21,15 @@ import static androidx.camera.view.PreviewView.ImplementationMode.TEXTURE_VIEW;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeTrue;
+import static org.mockito.Mockito.when;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CoreAppTestUtil;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.testing.fakes.FakeActivity;
-import androidx.camera.view.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -42,10 +37,10 @@ import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 /**
  * Instrumented tests for {@link PreviewView}.
@@ -55,94 +50,61 @@ import org.junit.runner.RunWith;
 public class PreviewViewTest {
 
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+    public final GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
     @Rule
-    public ActivityTestRule<FakeActivity> mActivityRule =
-            new ActivityTestRule<>(FakeActivity.class);
-
-    private Context mContext;
-
-    @Before
-    public void setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera());
-        CoreAppTestUtil.assumeCompatibleDevice();
-
-        mContext = ApplicationProvider.getApplicationContext();
-    }
+    public final ActivityTestRule<FakeActivity> mActivityRule = new ActivityTestRule<>(
+            FakeActivity.class);
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+    private final CameraInfo mCameraInfo = Mockito.mock(CameraInfo.class);
 
     @Test
     @UiThreadTest
-    public void implementationIsSurfaceView_whenAttributeSetImplementationModeIsSurfaceView()
+    public void implementationIsTextureView_whenImplModeSetToSurfaceView_andDeviceLegacy()
             throws Throwable {
-        final PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(
-                R.layout.preview_view_surface_view_mode, null, false);
-        setContentView(previewView);
+        when(mCameraInfo.getImplementationType()).thenReturn(
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
 
-        assertThat(getImplementationView()).isInstanceOf(TransformableSurfaceView.class);
-        assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
-    }
-
-    @Test
-    @UiThreadTest
-    public void implementationIsSurfaceView_whenImplementationModeIsSetToSurfaceView()
-            throws Throwable {
         final PreviewView previewView = new PreviewView(mContext);
-        previewView.setImplementationMode(SURFACE_VIEW);
+        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        previewView.createSurfaceProvider(mCameraInfo);
         setContentView(previewView);
 
-        assertThat(getImplementationView()).isInstanceOf(TransformableSurfaceView.class);
-        assertThat(previewView.getImplementationMode()).isEqualTo(SURFACE_VIEW);
+        assertThat(previewView.getImplementation()).isInstanceOf(TextureViewImplementation.class);
     }
 
     @Test
     @UiThreadTest
-    public void implementationIsTextureView_whenAttributeSetImplementationModeIsTextureView()
+    public void implementationIsSurfaceView_whenImplModeSetToSurfaceView_andDeviceNotLegacy()
             throws Throwable {
+        when(mCameraInfo.getImplementationType()).thenReturn(
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
-        final PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(
-                R.layout.preview_view_texture_view_mode, null, false);
-        setContentView(previewView);
-
-        assertThat(previewView.getImplementationMode()).isEqualTo(TEXTURE_VIEW);
-    }
-
-    @Test
-    @UiThreadTest
-    public void implementationIsTextureView_whenImplementationModeIsSetToTextureView()
-            throws Throwable {
         final PreviewView previewView = new PreviewView(mContext);
-        previewView.setImplementationMode(TEXTURE_VIEW);
+        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        previewView.createSurfaceProvider(mCameraInfo);
         setContentView(previewView);
 
-        assertThat(previewView.getImplementationMode()).isEqualTo(TEXTURE_VIEW);
+        assertThat(previewView.getImplementation()).isInstanceOf(SurfaceViewImplementation.class);
     }
 
     @Test
     @UiThreadTest
-    public void implementationIsTextureView_whenLastImplementationModeIsSetToTextureView()
+    public void implementationIsTextureView_whenImplModeSetToTextureView()
             throws Throwable {
+        when(mCameraInfo.getImplementationType()).thenReturn(
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
+
         final PreviewView previewView = new PreviewView(mContext);
+        previewView.setPreferredImplementationMode(TEXTURE_VIEW);
+        previewView.createSurfaceProvider(mCameraInfo);
         setContentView(previewView);
 
-        previewView.setImplementationMode(SURFACE_VIEW);
-        previewView.setImplementationMode(TEXTURE_VIEW);
-
-        assertThat(previewView.getImplementationMode()).isEqualTo(TEXTURE_VIEW);
+        assertThat(previewView.getImplementation()).isInstanceOf(TextureViewImplementation.class);
     }
 
     private void setContentView(View view) throws Throwable {
         final Activity activity = mActivityRule.getActivity();
         mActivityRule.runOnUiThread(() -> activity.setContentView(view));
-    }
-
-    /**
-     * Gets sub View inside of the PreviewView.
-     *
-     * @return the first grandchild of the root.
-     */
-    private View getImplementationView() {
-        return ((FrameLayout) ((ViewGroup) mActivityRule.getActivity().findViewById(
-                android.R.id.content)).getChildAt(0)).getChildAt(0);
     }
 }

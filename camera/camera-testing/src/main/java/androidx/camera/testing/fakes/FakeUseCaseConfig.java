@@ -26,6 +26,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -285,6 +286,13 @@ public class FakeUseCaseConfig
     @Override
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         return retrieveOption(OPTION_SUPPORTED_RESOLUTIONS);
+    }
+
+    // Implementations of ImageInputConfig default methods
+
+    @Override
+    public int getInputFormat() {
+        return ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
     }
 
     // End of the default implementation of Config

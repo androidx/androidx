@@ -46,16 +46,21 @@ import java.util.List;
 class ConnectionResult extends CustomVersionedParcelable {
     @ParcelField(0)
     int mVersion;
-    @ParcelField(1)
-    IBinder mSessionBinder;
+    // Parceled via mSessionBinder.
     @NonParcelField
     IMediaSession mSessionStub;
+    // For parceling mSessionStub. Should be only used by onPreParceling() and onPostParceling().
+    @ParcelField(1)
+    IBinder mSessionBinder;
     @ParcelField(2)
     PendingIntent mSessionActivity;
     @ParcelField(3)
     int mPlayerState;
+    // Parceled via mParcelableCurrentMediaItem.
     @NonParcelField
     MediaItem mCurrentMediaItem;
+    // For parceling mCurrentMediaItem. Should be only used by onPreParceling() and
+    // onPostParceling().
     @ParcelField(4)
     MediaItem mParcelableCurrentMediaItem;
     @ParcelField(5)
@@ -235,16 +240,20 @@ class ConnectionResult extends CustomVersionedParcelable {
     }
 
     @Override
+    @SuppressWarnings("SynchronizeOnNonFinalField") // mSessionStub is effectively final.
     public void onPreParceling(boolean isStream) {
-        mSessionBinder = (IBinder) mSessionStub;
-        mParcelableCurrentMediaItem = MediaUtils.upcastForPreparceling(mCurrentMediaItem);
+        synchronized (mSessionStub) {
+            if (mSessionBinder == null) {
+                mSessionBinder = (IBinder) mSessionStub;
+                mParcelableCurrentMediaItem =
+                        MediaUtils.upcastForPreparceling(mCurrentMediaItem);
+            }
+        }
     }
 
     @Override
     public void onPostParceling() {
         mSessionStub = IMediaSession.Stub.asInterface(mSessionBinder);
-        mSessionBinder = null;
         mCurrentMediaItem = mParcelableCurrentMediaItem;
-        mParcelableCurrentMediaItem = null;
     }
 }

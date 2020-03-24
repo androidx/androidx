@@ -35,6 +35,8 @@ const val APACHE_COMMONS_CODEC = "commons-codec:commons-codec:1.10"
 const val CHECKER_FRAMEWORK = "org.checkerframework:checker-qual:2.5.3"
 const val CONSTRAINT_LAYOUT = "androidx.constraintlayout:constraintlayout:1.1.0@aar"
 const val CONSTRAINT_LAYOUT_SOLVER = "androidx.constraintlayout:constraintlayout-solver:2.0.0-beta4"
+const val DAGGER = "com.google.dagger:dagger:2.27"
+const val DAGGER_COMPILER = "com.google.dagger:dagger-compiler:2.27"
 const val DEXMAKER_MOCKITO = "com.linkedin.dexmaker:dexmaker-mockito:2.25.0"
 const val ESPRESSO_CONTRIB = "androidx.test.espresso:espresso-contrib:3.1.0"
 const val ESPRESSO_CORE = "androidx.test.espresso:espresso-core:3.1.0"
@@ -52,6 +54,9 @@ const val GUAVA_ANDROID = "com.google.guava:guava:$GUAVA_ANDROID_VERSION"
 const val GUAVA_LISTENABLE_FUTURE = "com.google.guava:listenablefuture:1.0"
 const val GRADLE_INCAP_HELPER = "net.ltgt.gradle.incap:incap:0.2"
 const val GRADLE_INCAP_HELPER_PROCESSOR = "net.ltgt.gradle.incap:incap-processor:0.2"
+const val HILT_ANDROID = "com.google.dagger:hilt-android:DEV-SNAPSHOT"
+const val HILT_ANDROID_COMPILER = "com.google.dagger:hilt-android-compiler:DEV-SNAPSHOT"
+const val HILT_ANDROID_GRADLE_PLUGIN = "com.google.dagger:hilt-android-gradle-plugin:DEV-SNAPSHOT"
 const val INTELLIJ_ANNOTATIONS = "com.intellij:annotations:12.0"
 const val JAVAPOET = "com.squareup:javapoet:1.8.0"
 const val JSR250 = "javax.annotation:javax.annotation-api:1.2"
@@ -62,7 +67,7 @@ const val KOTLIN_GRADLE_PLUGIN = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.
 const val KOTLIN_METADATA = "me.eugeniomarletti.kotlin.metadata:kotlin-metadata:1.4.0"
 const val KOTLIN_METADATA_JVM = "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.1.0"
 
-private const val KOTLIN_COROUTINES_VERSION = "1.3.0"
+private const val KOTLIN_COROUTINES_VERSION = "1.3.4"
 const val KOTLIN_COROUTINES_ANDROID =
     "org.jetbrains.kotlinx:kotlinx-coroutines-android:$KOTLIN_COROUTINES_VERSION"
 const val KOTLIN_COROUTINES_CORE =
@@ -74,20 +79,23 @@ const val KOTLIN_COROUTINES_TEST =
 const val KOTLIN_COROUTINES_RX2 =
     "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:$KOTLIN_COROUTINES_VERSION"
 
+const val LEAKCANARY = "com.squareup.leakcanary:leakcanary-android:2.2"
 const val LEAKCANARY_INSTRUMENTATION =
-    "com.squareup.leakcanary:leakcanary-android-instrumentation:1.6.2"
+    "com.squareup.leakcanary:leakcanary-android-instrumentation:2.2"
 const val MATERIAL = "com.google.android.material:material:1.0.0"
 const val MOCKITO_CORE = "org.mockito:mockito-core:2.25.0"
 const val MOCKITO_KOTLIN = "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
 const val MULTIDEX = "androidx.multidex:multidex:2.0.0"
 const val NULLAWAY = "com.uber.nullaway:nullaway:0.3.7"
-const val OKHTTP_MOCKWEBSERVER = "com.squareup.okhttp3:mockwebserver:3.11.0"
 const val REACTIVE_STREAMS = "org.reactivestreams:reactive-streams:1.0.0"
 const val RX_JAVA = "io.reactivex.rxjava2:rxjava:2.2.9"
 const val TRUTH = "com.google.truth:truth:1.0.1"
 const val XERIAL = "org.xerial:sqlite-jdbc:3.25.2"
 const val XPP3 = "xpp3:xpp3:1.1.4c"
 const val XMLPULL = "xmlpull:xmlpull:1.1.3.1"
+
+const val RETROFIT = "com.squareup.retrofit2:retrofit:2.7.2"
+const val OKHTTP_MOCKWEBSERVER = "com.squareup.okhttp3:mockwebserver:3.14.7"
 
 const val ROBOLECTRIC = "org.robolectric:robolectric:4.3"
 

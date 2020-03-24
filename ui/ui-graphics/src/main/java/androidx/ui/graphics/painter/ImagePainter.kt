@@ -19,7 +19,7 @@ package androidx.ui.graphics.painter
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxSize
@@ -27,13 +27,13 @@ import androidx.ui.unit.PxSize
 private val EmptyPaint = Paint()
 
 /**
- * [Painter] implementation used to draw an [Image] into the provided canvas
+ * [Painter] implementation used to draw an [ImageAsset] into the provided canvas
  * This implementation can handle applying alpha and [ColorFilter] to it's drawn result
  */
-data class ImagePainter(private val image: Image) : Painter() {
+data class ImagePainter(private val image: ImageAsset) : Painter() {
 
     /**
-     * Lazily allocated paint used to draw the [Image] if an alpha value between 0.0f and 1.0f
+     * Lazily allocated paint used to draw the [ImageAsset] if an alpha value between 0.0f and 1.0f
      * is provided or a color filter is defined on the [Painter]
      */
     private var paint: Paint? = null
@@ -47,7 +47,7 @@ data class ImagePainter(private val image: Image) : Painter() {
     }
 
     /**
-     * Return the dimension of the underlying [Image] as it's intrinsic width and height
+     * Return the dimension of the underlying [ImageAsset] as it's intrinsic width and height
      */
     override val intrinsicSize: PxSize get() = size
 

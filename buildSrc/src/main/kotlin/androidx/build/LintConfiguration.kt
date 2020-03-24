@@ -54,6 +54,14 @@ fun Project.configureNonAndroidProjectForLint(extension: AndroidXExtension) {
     configureLint(lintOptions, extension)
 }
 
+fun Project.configureAndroidProjectForLint(lintOptions: LintOptions, extension: AndroidXExtension) {
+    configureLint(lintOptions, extension)
+    tasks.named("lint").configure({ task ->
+        // We already run lintDebug, we don't need to run lint which lints the release variant
+        task.enabled = false
+    })
+}
+
 fun Project.configureLint(lintOptions: LintOptions, extension: AndroidXExtension) {
     project.dependencies.add(
         "lintChecks",
@@ -96,6 +104,7 @@ fun Project.configureLint(lintOptions: LintOptions, extension: AndroidXExtension
                 if (checkUnknownNullness) {
                     fatal("UnknownNullness")
                 } else {
+                    fatal("Assert")
                     fatal("NewApi")
                     fatal("ObsoleteSdkInt")
                     fatal("NoHardKeywords")
@@ -113,7 +122,7 @@ fun Project.configureLint(lintOptions: LintOptions, extension: AndroidXExtension
 
                     // Only override if not set explicitly.
                     // Some Kotlin projects may wish to disable this.
-                    if (lintOptions.severityOverrides["SyntheticAccessor"] == null) {
+                    if (severityOverrides!!["SyntheticAccessor"] == null) {
                         fatal("SyntheticAccessor")
                     }
 

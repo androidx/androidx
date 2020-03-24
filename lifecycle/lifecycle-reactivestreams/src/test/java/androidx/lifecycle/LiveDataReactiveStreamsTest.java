@@ -23,6 +23,7 @@ import static org.junit.Assert.fail;
 
 import androidx.annotation.Nullable;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.testing.TestLifecycleOwner;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,11 +45,12 @@ import io.reactivex.processors.PublishProcessor;
 import io.reactivex.processors.ReplayProcessor;
 import io.reactivex.schedulers.TestScheduler;
 import io.reactivex.subjects.AsyncSubject;
+import kotlinx.coroutines.test.TestCoroutineDispatcher;
 
 public class LiveDataReactiveStreamsTest {
     @Rule public final TestRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-    private LifecycleOwner mLifecycleOwner;
+    private TestLifecycleOwner mLifecycleOwner;
 
     private final List<String> mLiveDataOutput = new ArrayList<>();
     private final Observer<String> mObserver = new Observer<String>() {
@@ -64,17 +66,8 @@ public class LiveDataReactiveStreamsTest {
 
     @Before
     public void init() {
-        mLifecycleOwner = new LifecycleOwner() {
-            LifecycleRegistry mRegistry = new LifecycleRegistry(this);
-            {
-                mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
-            }
-
-            @Override
-            public Lifecycle getLifecycle() {
-                return mRegistry;
-            }
-        };
+        mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.RESUMED,
+                new TestCoroutineDispatcher());
     }
 
     @Test

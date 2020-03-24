@@ -301,7 +301,8 @@ class SemanticsNode internal constructor(
      */
     private fun dropChild(child: SemanticsNode) {
         check(child.parent == this)
-        assert(child.attached == attached)
+        // TODO: b/150777826 - fix and re-enable assertion
+        // check(child.attached == attached)
         child.parent = null
         if (child.attached) {
             child.detach()
@@ -361,7 +362,8 @@ class SemanticsNode internal constructor(
 
     // TODO(ryanmentley): Document the proper usage of attach/detach once they're more solidified
     internal fun attach(owner: SemanticsOwner) {
-        assert(!attached)
+        // TODO: b/150777826 - fix and re-enable assertion
+        // check(!attached)
         this.owner = owner
         owner.onAttach(this)
         for (child in unmergedChildren) {

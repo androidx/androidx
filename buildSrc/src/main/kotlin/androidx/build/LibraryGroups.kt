@@ -22,7 +22,7 @@ package androidx.build
 object LibraryGroups {
     val ACTIVITY = LibraryGroup("androidx.activity", LibraryVersions.ACTIVITY)
     val ADS = LibraryGroup("androidx.ads", null)
-    val ANIMATION = LibraryGroup("androidx.animation", null)
+    val ANIMATOR = LibraryGroup("androidx.animator", null)
     val ANNOTATION = LibraryGroup("androidx.annotation", null)
     val APPCOMPAT = LibraryGroup("androidx.appcompat", null)
     val APPSEARCH = LibraryGroup("androidx.appsearch", LibraryVersions.APPSEARCH)
@@ -96,6 +96,7 @@ object LibraryGroups {
         LibraryVersions.SWIPEREFRESHLAYOUT)
     val TESTSCREENSHOT = LibraryGroup("androidx.test.screenshot", LibraryVersions.TESTSCREENSHOT)
     val TEXTCLASSIFIER = LibraryGroup("androidx.textclassifier", LibraryVersions.TEXTCLASSIFIER)
+    val TRACING = LibraryGroup("androidx.tracing", LibraryVersions.TRACING)
     val TRANSITION = LibraryGroup("androidx.transition", LibraryVersions.TRANSITION)
     val TVPROVIDER = LibraryGroup("androidx.tvprovider", LibraryVersions.TVPROVIDER)
     val UI = LibraryGroup("androidx.ui", null)
@@ -105,7 +106,7 @@ object LibraryGroups {
     val VIEWPAGER2 = LibraryGroup("androidx.viewpager2", LibraryVersions.VIEWPAGER2)
     val WEAR = LibraryGroup("androidx.wear", LibraryVersions.WEAR)
     val WEBKIT = LibraryGroup("androidx.webkit", LibraryVersions.WEBKIT)
-    val WINDOW = LibraryGroup("androidx.window", LibraryVersions.WINDOW)
+    val WINDOW = LibraryGroup("androidx.window", null)
     val WORK = LibraryGroup("androidx.work", LibraryVersions.WORK)
 }
 

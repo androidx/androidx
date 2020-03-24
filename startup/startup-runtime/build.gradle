@@ -39,6 +39,7 @@ android {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
+    implementation(project(':tracing:tracing-ktx'))
     lintPublish(project(':startup:startup-runtime-lint'))
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

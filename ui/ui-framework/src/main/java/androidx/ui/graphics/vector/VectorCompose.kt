@@ -22,10 +22,12 @@ import androidx.compose.onPreCommit
 import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Draw
+import androidx.ui.core.Modifier
+import androidx.ui.core.draw
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
@@ -45,9 +47,9 @@ private const val unset: Float = -1.0f
 private val DefaultAlignment = Alignment.Center
 
 /**
- * Draw a vector graphic with the provided width, height and viewport dimensions
+ * Modifier to draw a vector graphic with the provided width, height and viewport dimensions
  * @param[defaultWidth] Intrinsic width of the Vector in [Dp]
- * @param[defaultHeight] Intrinsic height of hte Vector in [Dp]
+ * @param[defaultHeight] Intrinsic height of the Vector in [Dp]
  * @param[viewportWidth] Width of the viewport space. The viewport is the virtual canvas where
  * paths are drawn on.
  *  This parameter is optional. Not providing it will use the [defaultWidth] converted to [Px]
@@ -59,8 +61,18 @@ private val DefaultAlignment = Alignment.Center
  * @param[alignment] Specifies the placement of the vector within the drawing bounds
  * @param[scaleFit] Specifies how the vector is to be scaled within the parent bounds
  */
+@Deprecated("Favor usage of VectorPainter instead",
+    ReplaceWith("VectorPainter(" +
+            "defaultWidth, " +
+            "defaultHeight, " +
+            "viewportWidth, " +
+            "viewportHeight, " +
+            "colorFilter, " +
+            "name"
+    )
+)
 @Composable
-fun DrawVector(
+fun drawVector(
     defaultWidth: Dp,
     defaultHeight: Dp,
     viewportWidth: Float = unset,
@@ -71,14 +83,14 @@ fun DrawVector(
     scaleFit: ScaleFit = ScaleFit.Fit,
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
-) {
+): Modifier {
     val density = DensityAmbient.current
     val widthPx = with(density) { defaultWidth.toPx() }
     val heightPx = with(density) { defaultHeight.toPx() }
 
     val vpWidth = if (viewportWidth == unset) widthPx.value else viewportWidth
     val vpHeight = if (viewportHeight == unset) heightPx.value else viewportHeight
-    DrawVector(
+    return drawVector(
         defaultWidth = widthPx,
         defaultHeight = heightPx,
         viewportWidth = vpWidth,
@@ -93,7 +105,7 @@ fun DrawVector(
 }
 
 /**
- * Draw a vector graphic with the provided width, height and viewport dimensions
+ * Modifier to draw a vector graphic with the provided width, height and viewport dimensions
  * @param[defaultWidth] Intrinsic width of the Vector in [Px]
  * @param[defaultHeight] Intrinsic height of hte Vector in [Px]
  * @param[viewportWidth] Width of the viewport space. The viewport is the virtual canvas
@@ -108,7 +120,7 @@ fun DrawVector(
  * @param[scaleFit] Specifies how the vector is to be scaled within the parent bounds
  */
 @Composable
-fun DrawVector(
+fun drawVector(
     defaultWidth: Px,
     defaultHeight: Px,
     viewportWidth: Float = defaultWidth.value,
@@ -119,23 +131,23 @@ fun DrawVector(
     scaleFit: ScaleFit = ScaleFit.Fit,
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
-) {
+): Modifier {
     val vector =
         remember(name, viewportWidth, viewportHeight) {
             VectorComponent(
-                name,
-                viewportWidth,
-                viewportHeight,
-                defaultWidth,
-                defaultHeight
+                name = name,
+                viewportWidth = viewportWidth,
+                viewportHeight = viewportHeight,
+                defaultWidth = defaultWidth,
+                defaultHeight = defaultHeight
             )
         }
 
     val ref = compositionReference()
-    composeVector(vector, ref, children)
+    val composition = composeVector(vector, ref, children)
     onPreCommit(vector) {
         onDispose {
-            disposeVector(vector, ref)
+            composition.dispose()
         }
     }
 
@@ -143,7 +155,7 @@ fun DrawVector(
     val vectorHeight = defaultHeight.value
     val vectorPxSize = PxSize(Px(vectorWidth), Px(vectorHeight))
 
-    Draw { canvas, parentSize ->
+    return draw { canvas, parentSize ->
         val parentWidth = parentSize.width.value
         val parentHeight = parentSize.height.value
         val scale = scaleFit.scale(vectorPxSize, parentSize)
@@ -164,7 +176,7 @@ fun DrawVector(
 
         canvas.withSave {
             canvas.translate(translateX, translateY)
-            vector.draw(canvas, tintColor, tintBlendMode)
+            vector.draw(canvas, DefaultAlpha, ColorFilter(tintColor, tintBlendMode))
         }
     }
 }

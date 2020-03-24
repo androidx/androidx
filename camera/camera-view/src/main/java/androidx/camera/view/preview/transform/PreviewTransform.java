@@ -16,65 +16,88 @@
 
 package androidx.camera.view.preview.transform;
 
-import android.graphics.Matrix;
+import static androidx.camera.view.preview.transform.transformation.Transformation.getTransformation;
+
 import android.util.Size;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.camera.view.PreviewView;
+import androidx.camera.view.preview.transform.transformation.Transformation;
 
 /**
- * Transforms the camera preview using a supported {@link PreviewView.ScaleType} or a custom
- * {@link Transformation}.
+ * Transforms the camera preview using a supported {@link PreviewView.ScaleType}.
+ * <p>
+ * Holds a reference to the {@link PreviewView.ScaleType} that's being applied to the preview.
+ * This attribute is used by both {@link PreviewView} (see {@link PreviewView#getScaleType()} and
+ * {@link PreviewView#setScaleType(PreviewView.ScaleType)}) and its implementation (when
+ * correcting the preview and updating the {@link PreviewView.ScaleType}).
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class PreviewTransform {
 
-    private PreviewTransform() {
+    private static final PreviewView.ScaleType DEFAULT_SCALE_TYPE =
+            PreviewView.ScaleType.FILL_CENTER;
+
+    @NonNull
+    private PreviewView.ScaleType mScaleType = DEFAULT_SCALE_TYPE;
+
+    /** Returns the {@link PreviewView.ScaleType} currently applied to the preview. */
+    @NonNull
+    public PreviewView.ScaleType getScaleType() {
+        return mScaleType;
+    }
+
+    /** Sets the {@link PreviewView.ScaleType} to be applied to the preview. */
+    public void setScaleType(@NonNull PreviewView.ScaleType scaleType) {
+        mScaleType = scaleType;
+    }
+
+    /** Applies the current {@link PreviewView.ScaleType} on the passed in preview. */
+    public void applyCurrentScaleType(@NonNull final View container, @NonNull final View view,
+            @NonNull final Size bufferSize) {
+        resetPreview(view);
+        correctPreview(container, view, bufferSize);
+        applyScaleTypeInternal(container, view, mScaleType);
+    }
+
+    private void resetPreview(@NonNull View view) {
+        final Transformation reset = new Transformation();
+        applyTransformation(view, reset);
+    }
+
+    /** Corrects the preview. */
+    private void correctPreview(@NonNull final View container, @NonNull final View view,
+            @NonNull final Size bufferSize) {
+        final Transformation correct = PreviewCorrector.getCorrectionTransformation(container, view,
+                bufferSize);
+        applyTransformation(view, correct);
+    }
+
+    /** Applies the specified {@link PreviewView.ScaleType} on top of the corrected preview. */
+    private void applyScaleTypeInternal(@NonNull final View container,
+            @NonNull final View view, @NonNull final PreviewView.ScaleType scaleType) {
+        final Transformation current = getTransformation(view);
+        final Transformation transformation = ScaleTypeTransform.getTransformation(container, view,
+                scaleType);
+        applyTransformation(view, current.add(transformation));
     }
 
     /**
-     * Transforms a preview using a supported {@link PreviewView.ScaleType}.
-     *
-     * @param container   A parent {@link View} that wraps {@code view}.
-     * @param view        A {@link View} that wraps the camera preview.
-     * @param aspectRatio A {@link Size} whose aspect ratio must be maintained when scaling the
-     *                    preview.
-     * @param scaleType   A supported {@link PreviewView.ScaleType} to apply on the camera preview.
+     * Applies a {@link Transformation} on the passed in preview while overriding any previous
+     * preview {@linkplain Transformation transformations}
      */
-    public static void transform(@NonNull final View container, @NonNull final View view,
-            @NonNull final Size aspectRatio, @NonNull final PreviewView.ScaleType scaleType) {
-        final Transformation transformation = ScaleTypeTransform.getTransformation(container,
-                view, aspectRatio, scaleType);
-        applyTransformationToPreview(transformation, view);
-    }
-
-    /**
-     * Transforms a preview using a user provided custom {@linkplain Matrix transformation}.
-     *
-     * @param view   A {@link View} that wraps the camera preview.
-     * @param matrix A user provided custom preview transformation
-     */
-    public static void transform(@NonNull final View view, @NonNull final Matrix matrix) {
-        final Transformation transformation = CustomTransform.getTransformation(view, matrix);
-        applyTransformationToPreview(transformation, view);
-    }
-
-    /**
-     * Applies a {@link Transformation} to a preview.
-     *
-     * @param transformation A transformation to apply on the preview.
-     * @param view           A {@link View} that wraps the camera preview.
-     */
-    private static void applyTransformationToPreview(@NonNull final Transformation transformation,
-            @NonNull final View view) {
+    private void applyTransformation(@NonNull final View view,
+            @NonNull final Transformation transformation) {
+        view.setX(0);
+        view.setY(0);
         view.setScaleX(transformation.getScaleX());
         view.setScaleY(transformation.getScaleY());
-        view.setX(transformation.getOriginX());
-        view.setY(transformation.getOriginY());
+        view.setTranslationX(transformation.getTransX());
+        view.setTranslationY(transformation.getTransY());
         view.setRotation(transformation.getRotation());
     }
 }

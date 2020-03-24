@@ -20,7 +20,7 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
 
 class LiveDataCoreIssueRegistry : IssueRegistry() {
-    override val api = 6
+    override val api = 7
     override val minApi = CURRENT_API
     override val issues get() = listOf(NonNullableMutableLiveDataDetector.ISSUE)
 }

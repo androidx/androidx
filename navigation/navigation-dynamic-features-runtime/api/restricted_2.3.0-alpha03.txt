@@ -2,7 +2,7 @@
 package androidx.navigation.dynamicfeatures {
 
   @androidx.navigation.Navigator.Name("activity") public final class DynamicActivityNavigator extends androidx.navigation.ActivityNavigator {
-    ctor public DynamicActivityNavigator(android.app.Activity activity, androidx.navigation.dynamicfeatures.DynamicInstallManager installManager);
+    ctor public DynamicActivityNavigator(android.content.Context context, androidx.navigation.dynamicfeatures.DynamicInstallManager installManager);
     method public androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination createDestination();
   }
 

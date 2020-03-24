@@ -22,11 +22,11 @@ import androidx.animation.FastOutSlowInEasing
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
-import androidx.ui.core.Text
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ScrollerPosition
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
@@ -39,7 +39,7 @@ import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.ColorPalette
-import androidx.ui.material.FloatingActionButton
+import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Scaffold
 import androidx.ui.material.TopAppBar
@@ -109,12 +109,11 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: ColorPalett
 
 @Composable
 private fun Fab(scrollFraction: ScrollFraction) {
-    val secondary = MaterialTheme.colors().secondary
+    val secondary = MaterialTheme.colors.secondary
     val fabText = emojiForScrollFraction(scrollFraction.fraction)
-    FloatingActionButton(
-        text = fabText,
-        textStyle = MaterialTheme.typography().h5,
-        color = secondary,
+    ExtendedFloatingActionButton(
+        text = { Text(fabText, style = MaterialTheme.typography.h5) },
+        backgroundColor = secondary,
         onClick = {}
     )
 }

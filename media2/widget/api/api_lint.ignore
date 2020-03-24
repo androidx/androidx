@@ -5,9 +5,5 @@ MissingNullability: androidx.media2.widget.MediaControlView#onTouchEvent(android
     Missing nullability on parameter `ev` in method `onTouchEvent`
 MissingNullability: androidx.media2.widget.MediaControlView#onTrackballEvent(android.view.MotionEvent) parameter #0:
     Missing nullability on parameter `ev` in method `onTrackballEvent`
-MissingNullability: androidx.media2.widget.VideoView#generateLayoutParams(android.util.AttributeSet):
-    Missing nullability on method `generateLayoutParams` return
-MissingNullability: androidx.media2.widget.VideoView#generateLayoutParams(android.util.AttributeSet) parameter #0:
-    Missing nullability on parameter `attrs` in method `generateLayoutParams`
 MissingNullability: androidx.media2.widget.VideoView#getAccessibilityClassName():
     Missing nullability on method `getAccessibilityClassName` return

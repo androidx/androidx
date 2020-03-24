@@ -22,12 +22,12 @@ import android.util.Log
 /**
  * Initializer with a dependency on [InitializerNoDependencies].
  */
-class InitializerWithDependency : ComponentInitializer<Unit> {
+class InitializerWithDependency : Initializer<Unit> {
     override fun create(context: Context) {
         Log.i(TAG, "Initialized")
     }
 
-    override fun dependencies(): List<Class<out ComponentInitializer<*>>> {
+    override fun dependencies(): List<Class<out Initializer<*>>> {
         return listOf(InitializerNoDependencies::class.java)
     }
 

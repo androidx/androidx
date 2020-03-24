@@ -91,7 +91,7 @@ import java.util.Iterator;
  * retained until the Activity is destroyed.</p>
  */
 public abstract class AppCompatDelegate {
-
+    static final boolean DEBUG = false;
     static final String TAG = "AppCompatDelegate";
 
     /**
@@ -559,6 +559,10 @@ public abstract class AppCompatDelegate {
      */
     @SuppressWarnings("deprecation")
     public static void setDefaultNightMode(@NightMode int mode) {
+        if (DEBUG) {
+            Log.d(TAG, String.format("setDefaultNightMode. New:%d, Current:%d",
+                    mode, sDefaultNightMode));
+        }
         switch (mode) {
             case MODE_NIGHT_NO:
             case MODE_NIGHT_YES:
@@ -669,6 +673,9 @@ public abstract class AppCompatDelegate {
             for (WeakReference<AppCompatDelegate> activeDelegate : sActiveDelegates) {
                 final AppCompatDelegate delegate = activeDelegate.get();
                 if (delegate != null) {
+                    if (DEBUG) {
+                        Log.d(TAG, "applyDayNightToActiveDelegates. Applying to " + delegate);
+                    }
                     delegate.applyDayNight();
                 }
             }

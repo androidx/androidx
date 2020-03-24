@@ -18,17 +18,20 @@ package androidx.ui.core.test
 
 import android.graphics.Bitmap
 import android.os.Build
-import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.Clip
-import androidx.ui.core.Draw
+import androidx.ui.core.DrawClipToBounds
+import androidx.ui.core.DrawLayerModifier
+import androidx.ui.core.Modifier
+import androidx.ui.core.draw
+import androidx.ui.core.drawClip
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Rect
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Paint
@@ -72,6 +75,17 @@ class ClipTest {
                 }
             )
     }
+    private val invertedTriangleShape = object : Shape {
+        override fun createOutline(size: PxSize, density: Density): Outline =
+            Outline.Generic(
+                Path().apply {
+                    lineTo(size.width.value, 0f)
+                    lineTo(size.width.value / 2f, size.height.value)
+                    lineTo(0f, 0f)
+                    close()
+                }
+            )
+    }
 
     @Before
     fun setup() {
@@ -85,12 +99,32 @@ class ClipTest {
     fun simpleRectClip() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                FillColor(Color.Green)
-                Padding(size = 10.ipx) {
-                    AtLeastSize(size = 10.ipx) {
-                        Clip(rectShape) {
-                            FillColor(Color.Cyan)
-                        }
+                Padding(size = 10.ipx, modifier = FillColor(Color.Green)) {
+                    AtLeastSize(
+                        size = 10.ipx,
+                        modifier = drawClip(rectShape) + FillColor(Color.Cyan)
+                    ) {
+                    }
+                }
+            }
+        }
+
+        takeScreenShot(30).apply {
+            assertRect(Color.Cyan, size = 10)
+            assertRect(Color.Green, holeSize = 10)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun simpleClipToBounds() {
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                Padding(size = 10.ipx, modifier = FillColor(Color.Green)) {
+                    AtLeastSize(
+                        size = 10.ipx,
+                        modifier = DrawClipToBounds + FillColor(Color.Cyan)
+                    ) {
                     }
                 }
             }
@@ -107,11 +141,11 @@ class ClipTest {
     fun simpleRectClipWithModifiers() {
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
-                FillColor(Color.Green)
-                AtLeastSize(size = 10.ipx, modifier = PaddingModifier(10.ipx)) {
-                    Clip(rectShape) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 10.ipx,
+                    modifier = FillColor(Color.Green) + PaddingModifier(10.ipx) +
+                            drawClip(rectShape) + FillColor(Color.Cyan)
+                ) {
                 }
             }
         }
@@ -131,11 +165,10 @@ class ClipTest {
         }
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(Color.Green)
-                    Clip(shape) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(shape) + FillColor(Color.Cyan)
+                ) {
                 }
             }
         }
@@ -171,11 +204,9 @@ class ClipTest {
         }
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(Color.Green)
-                    Clip(shape) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(shape) + FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -196,11 +227,10 @@ class ClipTest {
     fun triangleClip() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(Color.Green)
-                    Clip(triangleShape) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(triangleShape) +
+                            FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -228,11 +258,10 @@ class ClipTest {
         }
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(Color.Green)
-                    Clip(concaveShape) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(concaveShape) +
+                            FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -250,11 +279,10 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 30.ipx) {
-                    FillColor(Color.Green)
-                    Clip(model.value) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(model.value) +
+                            FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -286,11 +314,10 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                FillColor(Color.Green)
-                AtLeastSize(size = 30.ipx) {
-                    Clip(model.value) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(model.value) +
+                            FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -314,11 +341,10 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                FillColor(Color.Green)
-                AtLeastSize(size = 30.ipx) {
-                    Clip(model.value) {
-                        FillColor(Color.Cyan)
-                    }
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = FillColor(Color.Green) + drawClip(model.value) +
+                            FillColor(Color.Cyan)) {
                 }
             }
         }
@@ -337,19 +363,64 @@ class ClipTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun switchBetweenDifferentPaths() {
+        val model = ValueModel<Shape>(triangleShape)
+        // to be replaced with a DrawModifier wrapped into remember, so the recomposition
+        // is not causing invalidation as the DrawModifier didn't change
+        val drawCallback: Density.(canvas: Canvas, parentSize: PxSize) -> Unit = { canvas, size ->
+            canvas.drawRect(
+                Rect(
+                    -100f,
+                    -100f,
+                    size.width.value + 100f,
+                    size.height.value + 100f
+                ), Paint().apply {
+                    this.color = Color.Cyan
+                })
+            drawLatch.countDown()
+        }
+
+        val clip = object : DrawLayerModifier {
+            override val outlineShape: Shape?
+                get() = model.value
+        }
+
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(
+                    size = 30.ipx,
+                    modifier = background(Color.Green) + clip + draw(drawCallback)
+                ) {
+                }
+            }
+        }
+
+        takeScreenShot(30).apply {
+            assertTriangle(Color.Cyan, Color.Green)
+        }
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThreadIR { model.value = invertedTriangleShape }
+
+        takeScreenShot(30).apply {
+            assertInvertedTriangle(Color.Cyan, Color.Green)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun emitClipLater() {
         val model = ValueModel(false)
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                FillColor(Color.Green)
-                Padding(size = 10.ipx) {
-                    AtLeastSize(size = 10.ipx) {
-                        if (model.value) {
-                            Clip(rectShape) {
-                                FillColor(Color.Cyan)
-                            }
-                        }
+                Padding(size = 10.ipx, modifier = FillColor(Color.Green)) {
+                    val modifier = if (model.value) {
+                        drawClip(rectShape) + FillColor(Color.Cyan)
+                    } else {
+                        Modifier.None
+                    }
+                    AtLeastSize(size = 10.ipx, modifier = modifier) {
                     }
                 }
             }
@@ -367,9 +438,8 @@ class ClipTest {
         }
     }
 
-    @Composable
-    private fun FillColor(color: Color) {
-        Draw { canvas, parentSize ->
+    private fun FillColor(color: Color): Modifier {
+        return draw { canvas, parentSize ->
             canvas.drawRect(
                 Rect(
                     -100f,
@@ -410,6 +480,26 @@ fun Bitmap.assertTriangle(innerColor: Color, outerColor: Color) {
     assertColor(outerColor, center - 4, 0)
     assertColor(outerColor, center + 4, 0)
     assertColor(innerColor, center, 4)
+}
+
+fun Bitmap.assertInvertedTriangle(innerColor: Color, outerColor: Color) {
+    Assert.assertEquals(width, height)
+    val center = (width - 1) / 2
+    val last = width - 1
+    // check center
+    assertColor(innerColor, center, center)
+    // check top corners
+    assertColor(outerColor, 0, 4)
+    assertColor(innerColor, 4, 4)
+    assertColor(outerColor, last, 4)
+    assertColor(innerColor, last - 4, 0)
+    // check bottom corners
+    assertColor(outerColor, 4, last - 4)
+    assertColor(outerColor, last - 4, last - 4)
+    // check bottom center
+    assertColor(outerColor, center - 4, last)
+    assertColor(outerColor, center + 4, last)
+    assertColor(innerColor, center, last - 4)
 }
 
 fun Bitmap.assertColor(expectedColor: Color, x: Int, y: Int) {

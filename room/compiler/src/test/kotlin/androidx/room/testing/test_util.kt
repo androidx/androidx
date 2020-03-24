@@ -250,8 +250,8 @@ fun compileLibrarySources(vararg sources: JavaFileObject): Set<File> {
 }
 
 private fun getSystemClasspathFiles(): Set<File> {
-    val pathSeparator = System.getProperty("path.separator")
-    return System.getProperty("java.class.path").split(pathSeparator).map { File(it) }.toSet()
+    val pathSeparator = System.getProperty("path.separator")!!
+    return System.getProperty("java.class.path")!!.split(pathSeparator).map { File(it) }.toSet()
 }
 
 fun String.toJFO(qName: String): JavaFileObject = JavaFileObjects.forSourceLines(qName, this)

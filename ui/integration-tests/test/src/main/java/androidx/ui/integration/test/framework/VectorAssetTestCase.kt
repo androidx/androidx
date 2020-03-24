@@ -18,16 +18,18 @@ package androidx.ui.integration.test.framework
 
 import androidx.compose.Composable
 import androidx.ui.core.TestTag
+import androidx.ui.foundation.Box
+import androidx.ui.core.asModifier
 import androidx.ui.unit.dp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
-import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorAssetBuilder
-import androidx.ui.layout.Container
+import androidx.ui.graphics.vector.VectorPainter
+import androidx.ui.layout.LayoutSize
 import androidx.ui.res.vectorResource
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.ComposeTestCase
@@ -42,12 +44,11 @@ sealed class VectorAssetTestCase : ComposeTestCase {
 
     @Composable
     override fun emitContent() {
-        Container {
+        Box {
             TestTag(testTag) {
                 Semantics(container = true) {
-                    Container(width = 24.dp, height = 24.dp) {
-                        DrawVector(vectorImage = getVectorAsset())
-                    }
+                    val background = VectorPainter(getVectorAsset()).asModifier()
+                    Box(LayoutSize(24.dp) + background)
                 }
             }
         }
@@ -66,7 +67,8 @@ class XmlVectorTestCase : VectorAssetTestCase() {
     // TODO: should switch to async loading here, and force that to be run synchronously
     @Composable
     override fun getVectorAsset() = vectorResource(
-        androidx.ui.integration.test.R.drawable.ic_baseline_menu_24)
+        androidx.ui.integration.test.R.drawable.ic_baseline_menu_24
+    )
 
     override val testTag = "Xml"
 }

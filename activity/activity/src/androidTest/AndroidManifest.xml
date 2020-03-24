@@ -17,7 +17,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.activity.test">
 
-    <application>
+    <application android:name="androidx.activity.LeakCanaryApp">
+        <activity android:name="androidx.activity.LeakingActivity"
+                android:windowSoftInputMode="stateVisible"/>
         <activity android:name="androidx.activity.LifecycleComponentActivity"/>
         <activity android:name="androidx.activity.EagerOverrideLifecycleComponentActivity"/>
         <activity android:name="androidx.activity.LazyOverrideLifecycleComponentActivity"/>

@@ -24,21 +24,34 @@ import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Insert.Companion.End
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class HeaderFooterTest {
-    private val testScope = TestCoroutineScope()
+
+    private fun <T : Any> PageEvent<T>.toPagingData() = PagingData(
+        flowOf(this),
+        PagingData.NOOP_RECEIVER
+    )
+
+    private suspend fun <T : Any> PageEvent<T>.insertHeaderItem(item: T) = toPagingData()
+        .insertHeaderItem(item)
+        .flow
+        .single()
+
+    private suspend fun <T : Any> PageEvent<T>.insertFooterItem(item: T) = toPagingData()
+        .insertFooterItem(item)
+        .flow
+        .single()
 
     @Test
-    fun insertHeader_prepend() = testScope.runBlockingTest {
+    fun insertHeader_prepend() = runBlockingTest {
         val actual = Start(
             pages = listOf(
                 TransformablePage(
@@ -50,15 +63,21 @@ class HeaderFooterTest {
             ),
             placeholdersStart = 0,
             loadStates = loadStates
-        ).addHeader(-1)
+        ).insertHeaderItem(-1)
 
         val expected = Start(
             pages = listOf(
                 TransformablePage(
-                    data = listOf(-1, 0),
+                    data = listOf(-1),
                     originalPageOffset = -1,
                     originalPageSize = 1,
-                    originalIndices = listOf(0, 0)
+                    originalIndices = listOf(0)
+                ),
+                TransformablePage(
+                    data = listOf(0),
+                    originalPageOffset = -1,
+                    originalPageSize = 1,
+                    originalIndices = listOf(0)
                 )
             ),
             placeholdersStart = 0,
@@ -69,7 +88,7 @@ class HeaderFooterTest {
     }
 
     @Test
-    fun insertHeader_refresh() = testScope.runBlockingTest {
+    fun insertHeader_refresh() = runBlockingTest {
         val actual = Refresh(
             pages = listOf(
                 TransformablePage(
@@ -82,15 +101,27 @@ class HeaderFooterTest {
             placeholdersStart = 0,
             placeholdersEnd = 0,
             loadStates = loadStates
-        ).addHeader("HEADER")
+        ).insertHeaderItem("HEADER")
 
         val expected = Refresh(
             pages = listOf(
                 TransformablePage(
-                    data = listOf("HEADER", "a"),
+                    data = listOf("HEADER"),
                     originalPageOffset = 0,
                     originalPageSize = 1,
-                    originalIndices = listOf(0, 0)
+                    originalIndices = listOf(0)
+                ),
+                TransformablePage(
+                    data = listOf("a"),
+                    originalPageOffset = 0,
+                    originalPageSize = 1,
+                    originalIndices = listOf(0)
+                ),
+                TransformablePage(
+                    data = listOf(),
+                    originalPageOffset = 0,
+                    originalPageSize = 1,
+                    originalIndices = null
                 )
             ),
             placeholdersStart = 0,
@@ -102,7 +133,7 @@ class HeaderFooterTest {
     }
 
     @Test
-    fun insertHeader_empty() = testScope.runBlockingTest {
+    fun insertHeader_empty() = runBlockingTest {
         val actual = Refresh(
             pages = listOf(
                 TransformablePage(
@@ -115,7 +146,7 @@ class HeaderFooterTest {
             placeholdersStart = 0,
             placeholdersEnd = 0,
             loadStates = loadStates
-        ).addHeader("HEADER")
+        ).insertHeaderItem("HEADER")
 
         val expected = Refresh(
             pages = listOf(
@@ -135,7 +166,7 @@ class HeaderFooterTest {
     }
 
     @Test
-    fun insertFooter_append() = testScope.runBlockingTest {
+    fun insertFooter_append() = runBlockingTest {
         val actual = End(
             pages = listOf(
                 TransformablePage(
@@ -147,15 +178,21 @@ class HeaderFooterTest {
             ),
             placeholdersEnd = 0,
             loadStates = loadStates
-        ).addFooter("FOOTER")
+        ).insertFooterItem("FOOTER")
 
         val expected = End(
             pages = listOf(
                 TransformablePage(
-                    data = listOf("b", "FOOTER"),
+                    data = listOf("b"),
                     originalPageOffset = 0,
                     originalPageSize = 1,
-                    originalIndices = listOf(0, 0)
+                    originalIndices = listOf(0)
+                ),
+                TransformablePage(
+                    data = listOf("FOOTER"),
+                    originalPageOffset = 0,
+                    originalPageSize = 1,
+                    originalIndices = listOf(0)
                 )
             ),
             placeholdersEnd = 0,
@@ -166,7 +203,7 @@ class HeaderFooterTest {
     }
 
     @Test
-    fun insertFooter_refresh() = testScope.runBlockingTest {
+    fun insertFooter_refresh() = runBlockingTest {
         val actual = Refresh(
             pages = listOf(
                 TransformablePage(
@@ -179,15 +216,27 @@ class HeaderFooterTest {
             placeholdersStart = 0,
             placeholdersEnd = 0,
             loadStates = loadStates
-        ).addFooter("FOOTER")
+        ).insertFooterItem("FOOTER")
 
         val expected = Refresh(
             pages = listOf(
                 TransformablePage(
-                    data = listOf("a", "FOOTER"),
+                    data = listOf(),
                     originalPageOffset = 0,
                     originalPageSize = 1,
-                    originalIndices = listOf(0, 0)
+                    originalIndices = null
+                ),
+                TransformablePage(
+                    data = listOf("a"),
+                    originalPageOffset = 0,
+                    originalPageSize = 1,
+                    originalIndices = listOf(0)
+                ),
+                TransformablePage(
+                    data = listOf("FOOTER"),
+                    originalPageOffset = 0,
+                    originalPageSize = 1,
+                    originalIndices = listOf(0)
                 )
             ),
             placeholdersStart = 0,
@@ -199,7 +248,7 @@ class HeaderFooterTest {
     }
 
     @Test
-    fun insertFooter_empty() = testScope.runBlockingTest {
+    fun insertFooter_empty() = runBlockingTest {
         val actual = Refresh(
             pages = listOf(
                 TransformablePage(
@@ -212,7 +261,7 @@ class HeaderFooterTest {
             placeholdersStart = 0,
             placeholdersEnd = 0,
             loadStates = loadStates
-        ).addFooter("FOOTER")
+        ).insertFooterItem("FOOTER")
 
         val expected = Refresh(
             pages = listOf(

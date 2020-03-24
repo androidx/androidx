@@ -18,7 +18,6 @@ package androidx.autofill;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
 import android.app.PendingIntent;
@@ -45,16 +44,20 @@ import org.junit.runner.RunWith;
 public class InlinePresentationRendererTest {
     private Instrumentation mInstrumentation;
     private Context mContext;
+    PendingIntent mAttribution;
 
     @Before
     public void setup() {
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
         mContext = mInstrumentation.getContext();
+        mAttribution = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
     }
 
     @Test
     public void renderSlice_title() {
-        Slice slice = new InlinePresentationBuilder("title").build();
+        Slice slice = new InlinePresentationBuilder("title")
+                .setAttribution(mAttribution)
+                .build();
         View suggestionView = InlinePresentationRenderer.renderSlice(mContext, slice, null);
         verifyViewVisibility(suggestionView, /* titleVisible= */ true, /* subtitleVisible= */false,
                 /* startIconVisible= */ false, /* endIconVisible= */ false);
@@ -63,7 +66,10 @@ public class InlinePresentationRendererTest {
 
     @Test
     public void renderSlice_titleAndSubtitle() {
-        Slice slice = new InlinePresentationBuilder("title").setSubtitle("subtitle").build();
+        Slice slice = new InlinePresentationBuilder("title")
+                .setSubtitle("subtitle")
+                .setAttribution(mAttribution)
+                .build();
         View suggestionView = InlinePresentationRenderer.renderSlice(mContext, slice, null);
         verifyViewVisibility(suggestionView, /* titleVisible= */ true, /* subtitleVisible= */true,
                 /* startIconVisible= */ false, /* endIconVisible= */ false);
@@ -74,7 +80,10 @@ public class InlinePresentationRendererTest {
     public void renderSlice_startIconAndTitle() {
         Icon icon = Icon.createWithResource(mContext,
                 androidx.autofill.test.R.drawable.ic_settings);
-        Slice slice = new InlinePresentationBuilder("title").setStartIcon(icon).build();
+        Slice slice = new InlinePresentationBuilder("title")
+                .setStartIcon(icon)
+                .setAttribution(mAttribution)
+                .build();
         View suggestionView = InlinePresentationRenderer.renderSlice(mContext, slice, null);
         verifyViewVisibility(suggestionView, /* titleVisible= */ true, /* subtitleVisible= */false,
                 /* startIconVisible= */ true, /* endIconVisible= */ false);
@@ -85,21 +94,14 @@ public class InlinePresentationRendererTest {
     public void renderSlice_titleAndEndIcon() {
         Icon icon = Icon.createWithResource(mContext,
                 androidx.autofill.test.R.drawable.ic_settings);
-        Slice slice = new InlinePresentationBuilder("title").setEndIcon(icon).build();
+        Slice slice = new InlinePresentationBuilder("title")
+                .setEndIcon(icon)
+                .setAttribution(mAttribution)
+                .build();
         View suggestionView = InlinePresentationRenderer.renderSlice(mContext, slice, null);
         verifyViewVisibility(suggestionView, /* titleVisible= */ true, /* subtitleVisible= */false,
                 /* startIconVisible= */ false, /* endIconVisible= */ true);
         assertFalse(suggestionView.callOnClick());
-    }
-
-    @Test
-    public void renderSlice_titleAndAction() {
-        PendingIntent action = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
-        Slice slice = new InlinePresentationBuilder("title").setAction(action).build();
-        View suggestionView = InlinePresentationRenderer.renderSlice(mContext, slice, null);
-        verifyViewVisibility(suggestionView, /* titleVisible= */ true, /* subtitleVisible= */false,
-                /* startIconVisible= */ false, /* endIconVisible= */ false);
-        assertTrue(suggestionView.callOnClick());
     }
 
     private static void verifyViewVisibility(View suggestionView, boolean titleVisible,

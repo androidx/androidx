@@ -14,6 +14,7 @@
 package androidx.leanback.widget;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,6 +45,7 @@ import java.util.regex.Pattern;
 /**
  * Shows the recognized text as a continuous stream of words.
  */
+@SuppressLint("AppCompatCustomView")
 class StreamingTextView extends EditText {
 
     private static final boolean DEBUG = false;
