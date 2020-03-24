@@ -31,7 +31,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.webkit.JsReplyProxy;
+import androidx.webkit.JavaScriptReplyProxy;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewCompat;
@@ -90,7 +90,7 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
             implements WebViewCompat.WebMessageListener {
         @Override
         public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JsReplyProxy replyProxy) {
+                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
             replyProxy.postMessage("Hello");
         }
     }
@@ -107,7 +107,7 @@ public class WebMessageListenerMaliciousWebsiteActivity extends AppCompatActivit
 
         @Override
         public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JsReplyProxy replyProxy) {
+                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
             for (String badAuthority : mBadAuthorities) {
                 if (sourceOrigin.getAuthority().equals(badAuthority)) {
                     Toast.makeText(mContext, "Message from known bad website, no response.",
