@@ -488,7 +488,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultRegistry registry,
             @NonNull final ActivityResultCallback<O> callback) {
-        return registry.registerActivityResultCallback(
+        return registry.register(
                 "activity_rq#" + mNextLocalRequestCode.getAndIncrement(), this, contract, callback);
     }
 
