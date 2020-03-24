@@ -1327,7 +1327,7 @@ public class MediaController implements AutoCloseable {
      * The types of tracks supported may vary based on player implementation.
      *
      * @return list of tracks. The total number of tracks is the size of the list. If empty,
-     *         it would return a empty list instead of {@code null}.
+     *         an empty list would be returned.
      * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
      * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
      * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
