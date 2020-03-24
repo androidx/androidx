@@ -249,6 +249,10 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         ViewCompat.requestApplyInsets(this);
     }
 
+    /**
+     * @deprecated see {@link View#onWindowSystemUiVisibilityChanged(int)}
+     */
+    @Deprecated
     @Override
     @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public void onWindowSystemUiVisibilityChanged(int visible) {
