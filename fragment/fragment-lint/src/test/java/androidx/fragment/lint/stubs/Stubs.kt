@@ -45,6 +45,16 @@ private val FRAGMENT = java("""
     }
 """)
 
+private val DIALOG_FRAGMENT = java("""
+    package androidx.fragment.app;
+
+    import androidx.lifecycle.LifecycleOwner;
+
+    public class DialogFragment extends Fragment {
+        public LifecycleOwner getViewLifecycleOwner() {}
+    }
+""")
+
 private val LIFECYCLE_OWNER = java("""
     package androidx.lifecycle;
 
@@ -93,6 +103,7 @@ private val LIVEDATA_OBSERVE_EXTENSION = kotlin("androidx/lifecycle/LiveDataKt.k
 // stubs for testing calls to LiveData.observe calls
 internal val LIVEDATA_STUBS = arrayOf(
     FRAGMENT,
+    DIALOG_FRAGMENT,
     LIFECYCLE_OWNER,
     LIVEDATA,
     MUTABLE_LIVEDATA,
