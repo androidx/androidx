@@ -1226,6 +1226,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             sendRequest(SERVICE_MSG_ON_CONNECT_FAILED, null);
         }
 
+        @SuppressWarnings({"rawtypes", "unchecked"})
         @Override
         public void onLoadChildren(String mediaId, List<MediaBrowserCompat.MediaItem> list,
                 Bundle options, Bundle notifyChildrenChangedOptions) throws RemoteException {
@@ -1250,7 +1251,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     @RequiresApi(21)
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     static class ResultWrapper<T> {
         MediaBrowserService.Result mResultFwk;
 

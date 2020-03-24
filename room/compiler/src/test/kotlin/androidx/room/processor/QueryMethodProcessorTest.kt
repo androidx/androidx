@@ -778,8 +778,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             """, listOf("MAX(age)", "name")) { _, _, _ ->
         }?.failsToCompile()
                 ?.withErrorContaining("no such column: age")
-                ?.and()
-                ?.withErrorCount(1)
+                ?.and()?.withErrorContaining(cannotFindQueryResultAdapter("foo.bar.MyClass.Pojo"))
+                ?.and()?.withErrorCount(2)
                 ?.withWarningCount(0)
     }
 
