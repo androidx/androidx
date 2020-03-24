@@ -26,8 +26,11 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.customtabs.trusted.ITrustedWebActivityCallback;
 import android.support.customtabs.trusted.ITrustedWebActivityService;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.browser.customtabs.EnableComponentsTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -56,6 +59,15 @@ public class TrustedWebActivityServiceTest {
 
     private Context mContext;
     private ITrustedWebActivityService mService;
+    private int mCallbackResult;
+
+    private TrustedWebActivityCallback mTestCallback = new TrustedWebActivityCallback() {
+        @Override
+        public void onExtraCallback(@NonNull String callbackName, @Nullable Bundle args) {
+            assertEquals(TestTrustedWebActivityService.DOUBLE_NUMBER_COMMAND, callbackName);
+            mCallbackResult = args.getInt(TestTrustedWebActivityService.DOUBLE_NUMBER_RESULT, 0);
+        }
+    };
 
     public TrustedWebActivityServiceTest() {
         mServiceRule = new ServiceTestRule();
@@ -86,6 +98,7 @@ public class TrustedWebActivityServiceTest {
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) { }
+
         @Override
         public void onServiceDisconnected(ComponentName componentName) { }
     };
@@ -103,10 +116,30 @@ public class TrustedWebActivityServiceTest {
         args.putInt(TestTrustedWebActivityService.DOUBLE_NUMBER_ARG, 3);
 
         Bundle result =
-                mService.extraCommand(TestTrustedWebActivityService.DOUBLE_NUMBER_COMMAND, args);
+                mService.extraCommand(TestTrustedWebActivityService.DOUBLE_NUMBER_COMMAND, args,
+                        null);
 
         assertEquals(
                 result.getInt(TestTrustedWebActivityService.DOUBLE_NUMBER_RESULT, 0), 6);
+    }
+
+    @Test
+    public void testExtraCommandWithCallback() throws RemoteException {
+        Bundle args = new Bundle();
+        args.putInt(TestTrustedWebActivityService.DOUBLE_NUMBER_ARG, 3);
+
+        ITrustedWebActivityCallback.Stub callback = new ITrustedWebActivityCallback.Stub() {
+            @Override
+            public void onExtraCallback(String callbackName, Bundle args)
+                    throws RemoteException {
+                mTestCallback.onExtraCallback(callbackName, args);
+            }
+        };
+
+        mService.extraCommand(
+                TestTrustedWebActivityService.DOUBLE_NUMBER_COMMAND, args, callback.asBinder());
+
+        assertEquals(mCallbackResult, 6);
     }
 
     @Test(expected = SecurityException.class)
