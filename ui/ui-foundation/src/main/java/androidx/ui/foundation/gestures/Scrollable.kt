@@ -79,7 +79,7 @@ class ScrollableState(
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
         val to = animatedFloat.value - value
-        animatedFloat.animateTo(to, onEnd)
+        animatedFloat.animateTo(to, onEnd = onEnd)
     }
 
     private val isAnimationRunningState = mutableStateOf(false)

@@ -113,69 +113,19 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
     /**
      * Sets the target value, which effectively starts an animation to change the value from [value]
      * to the target value. If there is already an animation in flight, this method will interrupt
-     * the ongoing animation, and start a new animation from the current value to the new target
-     * value.
-     *
-     * @param targetValue The new value to animate to
-     */
-    fun animateTo(targetValue: T) {
-        toValueInternal(targetValue, null, PhysicsBuilder())
-    }
-
-    // TODO: merge the 4 animateTo() methods into one with default values when issue around
-    //  erroneous code gen on default value of generic type is fixed:
-    //  https://youtrack.jetbrains.com/issue/KT-28228
-
-    /**
-     * Sets the target value, which effectively starts an animation to change the value from [value]
-     * to the target value. If there is already an animation in flight, this method will interrupt
      * the ongoing animation, invoke [onEnd] that is associated with that animation, and start
      * a new animation from the current value to the new target value.
      *
-     * @param targetValue The new value to animate to
-     * @param onEnd A callback that will be invoked when the animation finished by any reason.
-     */
-    fun animateTo(targetValue: T, onEnd: (AnimationEndReason, T) -> Unit) {
-        toValueInternal(targetValue, onEnd, PhysicsBuilder())
-    }
-
-    /**
-     * Sets the target value, which effectively starts an animation to change the value from [value]
-     * to the target value. If there is already an animation in flight, this method will interrupt
-     * the ongoing animation, invoke [onEnd] that is associated with that animation, and start
-     * a new animation from the current value to the new target value.
-     *
-     * @param targetValue The new value to animate to
+     * @param targetValue The new value to animate to.
      * @param anim The animation that will be used to animate from the current value to the new
-     *             target value
-     * @param onEnd A callback that will be invoked when the animation finished by any reason.
+     *             target value. If unspecified, a spring animation will be used by default.
+     * @param onEnd An optional callback that will be invoked when the animation finished by any
+     *              reason.
      */
     fun animateTo(
         targetValue: T,
-        anim: AnimationBuilder<T>,
-        onEnd: (AnimationEndReason, T) -> Unit
-    ) {
-        toValueInternal(targetValue, onEnd, anim)
-    }
-
-    /**
-     * Sets the target value, which effectively starts an animation to change the value from [value]
-     * to the target value. If there is already an animation in flight, this method will interrupt
-     * the ongoing animation, invoke [onEnd] that is associated with that animation, and start
-     * a new animation from the current value to the new target value.
-     *
-     * @param targetValue The new value to animate to
-     * @param anim The animation that will be used to animate from the current value to the new
-     *             target value
-     */
-    fun animateTo(targetValue: T, anim: AnimationBuilder<T>) {
-        toValueInternal(targetValue, null, anim)
-    }
-
-    private fun toValueInternal(
-        targetValue: T,
-        onEnd: ((AnimationEndReason, T) -> Unit)?,
-        anim: AnimationBuilder<T>
+        anim: AnimationBuilder<T> = PhysicsBuilder(),
+        onEnd: ((AnimationEndReason, T) -> Unit)? = null
     ) {
         if (isRunning) {
             notifyEnded(Interrupted, value)
