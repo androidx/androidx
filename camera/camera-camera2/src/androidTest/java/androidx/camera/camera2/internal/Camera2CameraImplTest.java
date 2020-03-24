@@ -86,10 +86,8 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
@@ -768,7 +766,7 @@ public final class Camera2CameraImplTest {
                     cameraSelector.getLensFacing() == null ? CameraSelector.LENS_FACING_BACK :
                             cameraSelector.getLensFacing();
             mCameraId = getCameraIdForLensFacingUnchecked(lensFacing);
-            onBind(new FakeCamera(mCameraId, null,
+            onAttach(new FakeCamera(mCameraId, null,
                     new FakeCameraInfoInternal(mCameraId, 0, lensFacing)));
             updateSuggestedResolution(new Size(640, 480));
         }
@@ -820,7 +818,7 @@ public final class Camera2CameraImplTest {
             }, CameraXExecutors.directExecutor());
             builder.addSurface(mDeferrableSurface);
 
-            attachToCamera(builder.build());
+            updateSessionConfig(builder.build());
             return suggestedResolution;
         }
     }

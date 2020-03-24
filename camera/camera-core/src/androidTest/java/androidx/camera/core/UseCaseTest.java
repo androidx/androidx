@@ -54,7 +54,7 @@ public class UseCaseTest {
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
         SessionConfig sessionToAttach = new SessionConfig.Builder().build();
-        testUseCase.attachToCamera(sessionToAttach);
+        testUseCase.updateSessionConfig(sessionToAttach);
 
         SessionConfig attachedSession = testUseCase.getSessionConfig();
 
@@ -66,8 +66,8 @@ public class UseCaseTest {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.onBind(mMockCameraInternal);
-        testUseCase.onUnbind();
+        testUseCase.onAttach(mMockCameraInternal);
+        testUseCase.onDetach();
 
         testUseCase.activate();
 
@@ -79,7 +79,7 @@ public class UseCaseTest {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.onBind(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal);
 
         testUseCase.activate();
         verify(mMockCameraInternal, times(1)).onUseCaseActive(testUseCase);
@@ -90,7 +90,7 @@ public class UseCaseTest {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.onBind(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal);
 
         testUseCase.deactivate();
         verify(mMockCameraInternal, times(1)).onUseCaseInactive(testUseCase);
@@ -101,7 +101,7 @@ public class UseCaseTest {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.onBind(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal);
 
         testUseCase.update();
         verify(mMockCameraInternal, times(1)).onUseCaseUpdated(testUseCase);
@@ -112,7 +112,7 @@ public class UseCaseTest {
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
         TestUseCase testUseCase = new TestUseCase(config);
-        testUseCase.onBind(mMockCameraInternal);
+        testUseCase.onAttach(mMockCameraInternal);
 
         testUseCase.notifyReset();
         verify(mMockCameraInternal, times(1)).onUseCaseReset(testUseCase);

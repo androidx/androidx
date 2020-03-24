@@ -95,7 +95,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
                 CameraXExecutors.mainThreadExecutor());
         builder.addSurface(mDeferrableSurface);
 
-        attachToCamera(builder.build());
+        updateSessionConfig(builder.build());
         notifyActive();
 
         return new Size(640, 480);
