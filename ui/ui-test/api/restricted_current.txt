@@ -311,6 +311,9 @@ package androidx.ui.test.android {
   public final class InternalUtilsKt {
   }
 
+  public final class SynchronizedTreeCollectorKt {
+  }
+
   public final class WindowCaptureKt {
   }
 
