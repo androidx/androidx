@@ -61,8 +61,8 @@ package androidx.activity.result {
   }
 
   public interface ActivityResultLauncher<I> {
-    method public void dispose();
     method public void launch(I!);
+    method @MainThread public void unregister();
   }
 
   public abstract class ActivityResultRegistry {
@@ -72,9 +72,8 @@ package androidx.activity.result {
     method @MainThread public abstract <I, O> void invoke(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!);
     method public void onRestoreInstanceState(android.os.Bundle?);
     method public void onSaveInstanceState(android.os.Bundle);
-    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerActivityResultCallback(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
-    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerActivityResultCallback(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
-    method @MainThread public void unregisterActivityResultCallback(String);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
   }
 
 }

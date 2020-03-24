@@ -94,7 +94,7 @@ public abstract class ActivityResultRegistry {
      * @return a launcher that can be used to execute an ActivityResultContract.
      */
     @NonNull
-    public <I, O> ActivityResultLauncher<I> registerActivityResultCallback(
+    public <I, O> ActivityResultLauncher<I> register(
             @NonNull final String key,
             @NonNull final LifecycleOwner lifecycleOwner,
             @NonNull final ActivityResultContract<I, O> contract,
@@ -133,7 +133,7 @@ public abstract class ActivityResultRegistry {
             public void onStateChanged(@NonNull LifecycleOwner lifecycleOwner,
                     @NonNull Lifecycle.Event event) {
                 if (Lifecycle.Event.ON_DESTROY.equals(event)) {
-                    unregisterActivityResultCallback(key);
+                    unregister(key);
                 }
             }
         });
@@ -145,8 +145,8 @@ public abstract class ActivityResultRegistry {
             }
 
             @Override
-            public void dispose() {
-                unregisterActivityResultCallback(key);
+            public void unregister() {
+                ActivityResultRegistry.this.unregister(key);
             }
         };
     }
@@ -157,9 +157,9 @@ public abstract class ActivityResultRegistry {
      * This is normally called by a higher level convenience methods like
      * {@link ActivityResultCaller#prepareCall}.
      *
-     * When calling this, make sure to call {@link #unregisterActivityResultCallback} when the
-     * launcher is no longer needed to release any values that might be captured in the
-     * registered callback.
+     * When calling this, you must call {@link ActivityResultLauncher#unregister()} on the
+     * returned {@link ActivityResultLauncher} when the launcher is no longer needed to
+     * release any values that might be captured in the registered callback.
      *
      * @param key a unique string key identifying this call
      * @param contract the contract specifying input/output types of the call
@@ -168,7 +168,7 @@ public abstract class ActivityResultRegistry {
      * @return a launcher that can be used to execute an ActivityResultContract.
      */
     @NonNull
-    public <I, O> ActivityResultLauncher<I> registerActivityResultCallback(
+    public <I, O> ActivityResultLauncher<I> register(
             @NonNull final String key,
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultCallback<O> callback) {
@@ -190,19 +190,20 @@ public abstract class ActivityResultRegistry {
             }
 
             @Override
-            public void dispose() {
-                unregisterActivityResultCallback(key);
+            public void unregister() {
+                ActivityResultRegistry.this.unregister(key);
             }
         };
     }
 
     /**
-     * Unregister a callback previously registered with {@link #registerActivityResultCallback}
+     * Unregister a callback previously registered with {@link #register}. This shouldn't be
+     * called directly, but instead through {@link ActivityResultLauncher#unregister()}.
      *
      * @param key the unique key used when registering a callback.
      */
     @MainThread
-    public void unregisterActivityResultCallback(@NonNull String key) {
+    void unregister(@NonNull String key) {
         Integer rc = mKeyToRc.remove(key);
         if (rc != null) {
             mRcToKey.remove(rc);

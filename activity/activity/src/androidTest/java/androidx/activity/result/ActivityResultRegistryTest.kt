@@ -37,7 +37,7 @@ class ActivityResultRegistryTest {
 
     @Test
     fun testOnRestoreInstanceState() {
-        registry.registerActivityResultCallback("key", StartActivityForResult()) {}
+        registry.register("key", StartActivityForResult()) {}
 
         val savedState = Bundle()
         registry.onSaveInstanceState(savedState)
