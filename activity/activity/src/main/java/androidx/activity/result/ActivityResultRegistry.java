@@ -288,18 +288,22 @@ public abstract class ActivityResultRegistry {
             return false;
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        CallbackAndContract<?> callbackAndContract = mKeyToCallback.get(key);
+        if (callbackAndContract == null || callbackAndContract.mCallback == null) {
+            return false;
+        }
+        @SuppressWarnings("unchecked")
         ActivityResultCallback<O> callback =
-                (ActivityResultCallback) mKeyToCallback.get(key).mCallback;
+                (ActivityResultCallback<O>) callbackAndContract.mCallback;
         callback.onActivityResult(result);
         return true;
     }
 
     private <O> void doDispatch(String key, int resultCode, @Nullable Intent data,
-            CallbackAndContract<O> callbackAndContract) {
-        ActivityResultCallback<O> callback = callbackAndContract.mCallback;
-        ActivityResultContract<?, O> contract = callbackAndContract.mContract;
-        if (callback != null) {
+            @Nullable CallbackAndContract<O> callbackAndContract) {
+        if (callbackAndContract != null && callbackAndContract.mCallback != null) {
+            ActivityResultCallback<O> callback = callbackAndContract.mCallback;
+            ActivityResultContract<?, O> contract = callbackAndContract.mContract;
             callback.onActivityResult(contract.parseResult(resultCode, data));
         } else {
             mPendingResults.putParcelable(key, new ActivityResult(resultCode, data));
