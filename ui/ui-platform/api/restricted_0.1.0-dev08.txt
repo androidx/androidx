@@ -366,16 +366,15 @@ package androidx.ui.core.pointerinput {
     method public kotlin.jvm.functions.Function2<androidx.ui.core.CustomEvent,androidx.ui.core.PointerEventPass,kotlin.Unit>? getCustomEventHandler();
     method public kotlin.jvm.functions.Function1<androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? getInitHandler();
     method public abstract kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> getPointerInputHandler();
-    method public final void setLayoutCoordinates(androidx.ui.core.LayoutCoordinates layoutCoordinates);
     property public abstract kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler;
     property public kotlin.jvm.functions.Function2<androidx.ui.core.CustomEvent,androidx.ui.core.PointerEventPass,kotlin.Unit>? customEventHandler;
     property public kotlin.jvm.functions.Function1<androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? initHandler;
     property public abstract kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler;
   }
 
-  public final class PointerInputModifier implements androidx.ui.core.Modifier.Element {
-    ctor public PointerInputModifier(androidx.ui.core.pointerinput.PointerInputFilter pointerInputFilter);
+  public interface PointerInputModifier extends androidx.ui.core.Modifier.Element {
     method public androidx.ui.core.pointerinput.PointerInputFilter getPointerInputFilter();
+    property public abstract androidx.ui.core.pointerinput.PointerInputFilter pointerInputFilter;
   }
 
 }

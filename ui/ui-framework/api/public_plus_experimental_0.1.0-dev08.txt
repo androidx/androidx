@@ -171,6 +171,10 @@ package androidx.ui.core.gesture {
     method public default void onStop(androidx.ui.unit.PxPosition velocity);
   }
 
+  public final class GestureUtilsKt {
+    method public static boolean anyPointersInBounds(java.util.List<androidx.ui.core.PointerInputChange>, androidx.ui.unit.IntPxSize bounds);
+  }
+
   public final class LongPressDragGestureDetectorKt {
     method public static androidx.ui.core.Modifier LongPressDragGestureDetector(androidx.ui.core.gesture.LongPressDragObserver longPressDragObserver);
   }
@@ -243,10 +247,6 @@ package androidx.ui.core.gesture {
 }
 
 package androidx.ui.core.gesture.util {
-
-  public final class GestureUtilsKt {
-    method public static boolean anyPointersInBounds(java.util.List<androidx.ui.core.PointerInputChange>, androidx.ui.unit.IntPxSize bounds);
-  }
 
   public final class PolyFitLeastSquaresKt {
   }

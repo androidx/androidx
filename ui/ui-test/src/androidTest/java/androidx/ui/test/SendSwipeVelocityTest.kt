@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
@@ -152,7 +151,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
         Stack(LayoutSize.Fill + LayoutAlign.BottomEnd) {
             Semantics(container = true, properties = { testTag = tag }) {
                 with(DensityAmbient.current) {
-                    Canvas(PointerInputModifier(recorder) + LayoutSize(500.px.toDp())) {
+                    Canvas(recorder + LayoutSize(500.px.toDp())) {
                         bounds = Rect(0f, 0f, size.width.value, size.height.value)
                         drawRect(bounds, paint)
                     }

@@ -24,7 +24,6 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 
@@ -126,8 +125,8 @@ fun LongPressDragGestureDetector(
     glue.longPressDragObserver = longPressDragObserver
 
     return RawDragGestureDetector(glue.dragObserver, glue::dragEnabled) +
-            PointerInputModifier(glue) +
-            LongPressGestureDetector(glue.onLongPress)
+                PointerInputModifierImpl(glue) +
+                LongPressGestureDetector(glue.onLongPress)
 }
 
 /**

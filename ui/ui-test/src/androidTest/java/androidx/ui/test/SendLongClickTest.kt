@@ -22,7 +22,6 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.LongPressTimeout
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutAlign
@@ -57,7 +56,7 @@ private fun Ui(recorder: PointerInputRecorder, onLongPress: (PxPosition) -> Unit
                 with(DensityAmbient.current) {
                     Box(
                         LongPressGestureDetector(onLongPress) +
-                                PointerInputModifier(recorder) +
+                                recorder +
                                 LayoutSize(
                                     width.toDp(),
                                     height.toDp()

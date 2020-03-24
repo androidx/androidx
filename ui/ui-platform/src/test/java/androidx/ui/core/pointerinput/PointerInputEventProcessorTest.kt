@@ -98,7 +98,7 @@ class PointerInputEventProcessorTest {
             0,
             500,
             500,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = pointerInputHandler)
             )
         )
@@ -163,7 +163,7 @@ class PointerInputEventProcessorTest {
         val pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
         val layoutNode = LayoutNode(
             100, 200, 301, 401,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = pointerInputHandler)
             )
         )
@@ -224,7 +224,7 @@ class PointerInputEventProcessorTest {
         val pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
         val layoutNode = LayoutNode(
             100, 200, 301, 401,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = pointerInputHandler)
             )
         )
@@ -282,14 +282,14 @@ class PointerInputEventProcessorTest {
         val childLayoutNode =
             LayoutNode(
                 100, 100, 200, 200,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     TestPointerInputFilter(pointerInputHandler = childPointerInputHandler)
                 )
             )
         val middleLayoutNode: LayoutNode =
             LayoutNode(
                 100, 100, 400, 400,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     TestPointerInputFilter(pointerInputHandler = middlePointerInputHandler)
                 )
             ).apply {
@@ -298,7 +298,7 @@ class PointerInputEventProcessorTest {
         val parentLayoutNode: LayoutNode =
             LayoutNode(
                 0, 0, 500, 500,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     TestPointerInputFilter(pointerInputHandler = parentPointerInputHandler)
                 )
             ).apply {
@@ -415,7 +415,7 @@ class PointerInputEventProcessorTest {
             })
         val layoutNode = LayoutNode(
             0, 0, 500, 500,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = pointerInputHandler)
             )
         )
@@ -511,14 +511,14 @@ class PointerInputEventProcessorTest {
         val childOffset = PxPosition(cX1.px, cY1.px)
         val childLayoutNode = LayoutNode(
             cX1, cY1, cX2, cY2,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = childPointerInputHandler)
             )
         )
         val middleOffset = PxPosition(mX1.px, mY1.px)
         val middleLayoutNode: LayoutNode = LayoutNode(
             mX1, mY1, mX2, mY2,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = middlePointerInputHandler)
             )
         ).apply {
@@ -526,7 +526,7 @@ class PointerInputEventProcessorTest {
         }
         val parentLayoutNode: LayoutNode = LayoutNode(
             pX1, pY1, pX2, pY2,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = parentPointerInputHandler)
             )
         ).apply {
@@ -634,14 +634,14 @@ class PointerInputEventProcessorTest {
         val childLayoutNode1 =
             LayoutNode(
                 0, 0, 50, 50,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     TestPointerInputFilter(pointerInputHandler = childPointerInputHandler1)
                 )
             )
         val childLayoutNode2 =
             LayoutNode(
                 50, 50, 100, 100,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     TestPointerInputFilter(pointerInputHandler = childPointerInputHandler2)
                 )
             )
@@ -735,19 +735,19 @@ class PointerInputEventProcessorTest {
 
         val childLayoutNode1 = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = childPointerInputHandler1)
             )
         )
         val childLayoutNode2 = LayoutNode(
             50, 50, 150, 150,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = childPointerInputHandler2)
             )
         )
         val childLayoutNode3 = LayoutNode(
             100, 100, 200, 200,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = childPointerInputHandler3)
             )
         )
@@ -848,13 +848,13 @@ class PointerInputEventProcessorTest {
 
         val childLayoutNode1 = LayoutNode(
             0, 0, 100, 150,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = childPointerInputHandler1)
             )
         )
         val childLayoutNode2 = LayoutNode(
             25, 50, 75, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = childPointerInputHandler2)
             )
         )
@@ -950,13 +950,13 @@ class PointerInputEventProcessorTest {
 
         val childLayoutNode1 = LayoutNode(
             0, 0, 150, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = childPointerInputHandler1)
             )
         )
         val childLayoutNode2 = LayoutNode(
             50, 25, 100, 75,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = childPointerInputHandler2)
             )
         )
@@ -1059,25 +1059,25 @@ class PointerInputEventProcessorTest {
 
         val layoutNode1 = LayoutNode(
             -1, -1, 1, 1,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = singlePointerInputHandler)
             )
         )
         val layoutNode2 = LayoutNode(
             2, -1, 4, 1,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = singlePointerInputHandler)
             )
         )
         val layoutNode3 = LayoutNode(
             -1, 2, 1, 4,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = singlePointerInputHandler)
             )
         )
         val layoutNode4 = LayoutNode(
             2, 2, 4, 4,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = singlePointerInputHandler)
             )
         )
@@ -1181,7 +1181,7 @@ class PointerInputEventProcessorTest {
         val singlePointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
         val layoutNode = LayoutNode(
             0, 0, 2, 2,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = singlePointerInputHandler)
             )
         )
@@ -1249,13 +1249,13 @@ class PointerInputEventProcessorTest {
         val pointerInputHandler3: PointerInputHandler = spy(StubPointerInputHandler())
 
         val modifier =
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = pointerInputHandler1)
             ) +
-                    PointerInputModifier(
+                    PointerInputModifierImpl(
                         TestPointerInputFilter(pointerInputHandler = pointerInputHandler2)
                     ) +
-                    PointerInputModifier(
+                    PointerInputModifierImpl(
                         TestPointerInputFilter(pointerInputHandler = pointerInputHandler3)
                     )
 
@@ -1325,7 +1325,7 @@ class PointerInputEventProcessorTest {
         val layoutNode1 =
             LayoutNode(
                 1, 5, 500, 500,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     TestPointerInputFilter(pointerInputHandler = pointerInputHandler1)
                 )
             )
@@ -1389,9 +1389,9 @@ class PointerInputEventProcessorTest {
 
         val layoutNode1 = LayoutNode(
             1, 6, 500, 500,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = pointerInputHandler1)
-            ) + PointerInputModifier(
+            ) + PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = pointerInputHandler2)
             )
         )
@@ -1401,9 +1401,9 @@ class PointerInputEventProcessorTest {
         val layoutNode3 =
             LayoutNode(
                 3, 8, 500, 500,
-                PointerInputModifier(
+                PointerInputModifierImpl(
                     TestPointerInputFilter(pointerInputHandler = pointerInputHandler3)
-                ) + PointerInputModifier(
+                ) + PointerInputModifierImpl(
                     TestPointerInputFilter(pointerInputHandler = pointerInputHandler4)
                 )
             ).apply {
@@ -1502,13 +1502,13 @@ class PointerInputEventProcessorTest {
 
         val layoutNode1 = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = pointerInputHandler1)
             )
         )
         val layoutNode2 = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = pointerInputHandler2)
             )
         )
@@ -1538,7 +1538,7 @@ class PointerInputEventProcessorTest {
 
         val layoutNode1 = LayoutNode(
             0, 0, 0, 0,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(pointerInputHandler = pointerInputHandler1)
             )
         )
@@ -1575,7 +1575,7 @@ class PointerInputEventProcessorTest {
 
         val layoutNode = LayoutNode(
             0, 0, 500, 500,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = pointerInputHandler,
                     cancelHandler = cancelHandler
@@ -1638,7 +1638,7 @@ class PointerInputEventProcessorTest {
 
         val layoutNode = LayoutNode(
             0, 0, 500, 500,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = pointerInputHandler,
                     cancelHandler = cancelHandler
@@ -1757,7 +1757,7 @@ class PointerInputEventProcessorTest {
         val cancelHandler1: () -> Unit = spy()
         val layoutNode1 = LayoutNode(
             0, 0, 199, 199,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = pointerInputHandler1,
                     cancelHandler = cancelHandler1
@@ -1769,7 +1769,7 @@ class PointerInputEventProcessorTest {
         val cancelHandler2: () -> Unit = spy()
         val layoutNode2 = LayoutNode(
             200, 200, 399, 399,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = pointerInputHandler2,
                     cancelHandler = cancelHandler2
@@ -1869,7 +1869,7 @@ class PointerInputEventProcessorTest {
         val cancelHandler: () -> Unit = spy()
         val layoutNode = LayoutNode(
             0, 0, 500, 500,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = pointerInputHandler,
                     cancelHandler = cancelHandler
@@ -1963,7 +1963,7 @@ class PointerInputEventProcessorTest {
         val cancelHandler: () -> Unit = spy()
         val layoutNode = LayoutNode(
             0, 0, 500, 500,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = pointerInputHandler,
                     cancelHandler = cancelHandler
@@ -2025,7 +2025,7 @@ class PointerInputEventProcessorTest {
         val cancelHandler: () -> Unit = spy()
         val layoutNode = LayoutNode(
             0, 0, 500, 500,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = pointerInputHandler,
                     cancelHandler = cancelHandler
@@ -2114,7 +2114,7 @@ class PointerInputEventProcessorTest {
         val childPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
         val childLayoutNode = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = childPointerInputHandler
                 )
@@ -2124,7 +2124,7 @@ class PointerInputEventProcessorTest {
         val parentPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
         val parentLayoutNode: LayoutNode = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = parentPointerInputHandler
                 )
@@ -2175,14 +2175,14 @@ class PointerInputEventProcessorTest {
     }
 
     @Test
-    fun process_layoutNodeRemovedDuringInput_cancelDispatchedToCorrectPointerInputModifier() {
+    fun process_layoutNodeRemovedDuringInput_cancelDispatchedToCorrectPointerInputModifierImpl() {
 
         // Arrange
 
         val childCancelHandler: () -> Unit = spy()
         val childLayoutNode = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     cancelHandler = childCancelHandler
                 )
@@ -2192,7 +2192,7 @@ class PointerInputEventProcessorTest {
         val parentCancelHandler: () -> Unit = spy()
         val parentLayoutNode: LayoutNode = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     cancelHandler = parentCancelHandler
                 )
@@ -2227,7 +2227,7 @@ class PointerInputEventProcessorTest {
         val childPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
         val childLayoutNode = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = childPointerInputHandler
                 )
@@ -2237,7 +2237,7 @@ class PointerInputEventProcessorTest {
         val parentPointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler())
         val parentLayoutNode: LayoutNode = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     pointerInputHandler = parentPointerInputHandler
                 )
@@ -2295,7 +2295,7 @@ class PointerInputEventProcessorTest {
         val childCancelHandler: () -> Unit = spy()
         val childLayoutNode = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     cancelHandler = childCancelHandler
                 )
@@ -2305,7 +2305,7 @@ class PointerInputEventProcessorTest {
         val parentCancelHandler: () -> Unit = spy()
         val parentLayoutNode: LayoutNode = LayoutNode(
             0, 0, 100, 100,
-            PointerInputModifier(
+            PointerInputModifierImpl(
                 TestPointerInputFilter(
                     cancelHandler = parentCancelHandler
                 )
@@ -2342,3 +2342,6 @@ class TestPointerInputFilter(
     override val pointerInputHandler: PointerInputHandler = { changes, _, _ -> changes },
     override val cancelHandler: () -> Unit = {}
 ) : PointerInputFilter()
+
+private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
+    PointerInputModifier

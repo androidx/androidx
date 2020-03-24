@@ -25,9 +25,7 @@ import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
-import androidx.ui.core.gesture.util.anyPointersInBounds
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 
 /**
@@ -54,7 +52,7 @@ fun TapGestureDetector(
     val recognizer = remember { TapGestureRecognizer() }
     recognizer.onTap = onTap
     recognizer.consumeDownOnStart = false
-    return PointerInputModifier(recognizer)
+    return PointerInputModifierImpl(recognizer)
 }
 
 internal class TapGestureRecognizer : PointerInputFilter() {

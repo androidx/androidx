@@ -621,7 +621,7 @@ internal class PointerInputDelegatingWrapper(
 ) : DelegatingLayoutNodeWrapper(wrapped) {
 
     init {
-        pointerInputModifier.pointerInputFilter.setLayoutCoordinates(this)
+        pointerInputModifier.pointerInputFilter.layoutCoordinates = this
     }
 
     override fun hitTest(
