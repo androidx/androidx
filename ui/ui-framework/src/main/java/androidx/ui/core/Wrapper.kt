@@ -124,9 +124,7 @@ fun Activity.setContent(
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? Owner
         ?: createOwner(this).also {
-            if (it is ViewGroup) {
-                setContentView(it)
-            }
+            setContentView(it.view)
         }
 
     // TODO(lmr): setup lifecycle-based dispose since we have Activity here
@@ -161,7 +159,7 @@ fun ViewGroup.setContent(
         } else {
             removeAllViews(); null
         }
-            ?: createOwner(context).also { if (it is ViewGroup) addView(it) }
+            ?: createOwner(context).also { addView(it.view) }
     return doSetContent(composeView, context, content)
 }
 

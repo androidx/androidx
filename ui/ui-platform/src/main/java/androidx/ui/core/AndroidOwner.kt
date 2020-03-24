@@ -61,13 +61,15 @@ import androidx.ui.util.trace
 import java.lang.reflect.Method
 
 /***
- * This function creates an instance of Owner.
+ * This function creates an instance of [AndroidOwner]
  */
-fun createOwner(context: Context): Owner = AndroidComposeView(context)
+fun createOwner(context: Context): AndroidOwner = AndroidComposeView(context)
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 internal class AndroidComposeView constructor(context: Context) :
     ViewGroup(context), AndroidOwner, SemanticsTreeProvider {
+
+    override val view: View = this
 
     override var density = Density(context)
         private set
@@ -776,10 +778,15 @@ internal class AndroidComposeView constructor(context: Context) :
 }
 
 /**
- * Interface to be implemented by [Owner]s able to handle Android [View]s as part of
- * their hierarchy.
+ * Interface to be implemented by [Owner]s able to handle Android View specific functionality.
  */
 interface AndroidOwner : Owner {
+
+    /**
+     * The view backing this Owner.
+     */
+    val view: View
+
     /**
      * Called to inform the owner that a new Android [View] was [attached][Owner.onAttach]
      * to the hierarchy.
