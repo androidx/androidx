@@ -33,7 +33,7 @@ class ImageViewTintDetector : LayoutDetector() {
         internal val USING_ANDROID_TINT: Issue = Issue.create(
             "UseAppTint",
             "`app:tint` attribute should be used on `ImageView`",
-            "`ImageView` uses android:tint instead of `app:tint`",
+            "`ImageView` uses `android:tint` instead of `app:tint`",
             Category.CORRECTNESS,
             1,
             Severity.ERROR,

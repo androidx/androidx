@@ -20,6 +20,8 @@ import androidx.appcompat.res.ColorStateListAlphaDetector
 import androidx.appcompat.res.ColorStateListLoadingDetector
 import androidx.appcompat.res.DrawableLoadingDetector
 import androidx.appcompat.res.ImageViewTintDetector
+import androidx.appcompat.widget.TextViewCompoundDrawablesApiDetector
+import androidx.appcompat.widget.TextViewCompoundDrawablesXmlDetector
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
 
@@ -29,6 +31,8 @@ class AppCompatIssueRegistry : IssueRegistry() {
         ColorStateListAlphaDetector.NOT_USING_ANDROID_ALPHA,
         ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING,
         DrawableLoadingDetector.NOT_USING_COMPAT_LOADING,
-        ImageViewTintDetector.USING_ANDROID_TINT
+        ImageViewTintDetector.USING_ANDROID_TINT,
+        TextViewCompoundDrawablesApiDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS,
+        TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS
     )
 }
