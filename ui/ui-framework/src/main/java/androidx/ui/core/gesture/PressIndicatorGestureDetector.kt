@@ -133,8 +133,11 @@ internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
         }
     }
 
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
 
             var internalChanges = changes
 
@@ -185,10 +188,10 @@ internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
                 onCancel?.invoke()
             }
 
-            internalChanges
+            return internalChanges
         }
 
-    override val cancelHandler = {
+    override fun onCancel() {
         if (state == State.Started) {
             state = State.Idle
             onCancel?.invoke()

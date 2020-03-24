@@ -76,7 +76,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
     /**
      * Responds appropriately to Android ACTION_CANCEL events.
      *
-     * Specifically, [PointerInputFilter.cancelHandler] is invoked on tracked [PointerInputFilter]s and
+     * Specifically, [PointerInputFilter.onCancel] is invoked on tracked [PointerInputFilter]s and
      * and this [PointerInputEventProcessor] is reset such that it is no longer tracking any
      * [PointerInputFilter]s and expects the next [PointerInputEvent] it processes to represent only
      * new pointers.

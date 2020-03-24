@@ -134,8 +134,11 @@ internal class RawScaleGestureRecognizer : PointerInputFilter() {
     lateinit var scaleObserver: RawScaleObserver
     var canStartScaling: (() -> Boolean)? = null
 
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
 
             var changesToReturn = changes
 
@@ -222,10 +225,10 @@ internal class RawScaleGestureRecognizer : PointerInputFilter() {
                 changesToReturn = currentlyDownChanges + otherChanges
             }
 
-            changesToReturn
+            return changesToReturn
         }
 
-    override val cancelHandler = {
+    override fun onCancel() {
         if (active) {
             scaleObserver.onCancel()
             active = false

@@ -60,16 +60,16 @@ class PressIndicatorGestureDetectorTest {
     // Verification of scenarios where onStart should not be called.
 
     @Test
-    fun pointerInputHandler_downConsumed_onStartNotCalled() {
-        recognizer.pointerInputHandler
+    fun onPointerInput_downConsumed_onStartNotCalled() {
+        recognizer::onPointerInput
             .invokeOverAllPasses(down(0, 0.milliseconds).consumeDownChange())
         verify(recognizer.onStart!!, never()).invoke(any())
     }
 
     @Test
-    fun pointerInputHandler_disabledDown_onStartNotCalled() {
+    fun onPointerInput_disabledDown_onStartNotCalled() {
         recognizer.setEnabled(false)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(down(0, 0.milliseconds).consumeDownChange())
         verify(recognizer.onStart!!, never()).invoke(any())
     }
@@ -77,47 +77,47 @@ class PressIndicatorGestureDetectorTest {
     // Verification of scenarios where onStart should be called once.
 
     @Test
-    fun pointerInputHandler_down_onStartCalledOnce() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
+    fun onPointerInput_down_onStartCalledOnce() {
+        recognizer::onPointerInput.invokeOverAllPasses(down(0, 0.milliseconds))
         verify(recognizer.onStart!!).invoke(any())
     }
 
     @Test
-    fun pointerInputHandler_downDown_onStartCalledOnce() {
+    fun onPointerInput_downDown_onStartCalledOnce() {
         var pointer0 = down(0)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0)
         pointer0 = pointer0.moveTo(1.milliseconds)
         val pointer1 = down(1, 1.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
 
         verify(recognizer.onStart!!).invoke(any())
     }
 
     @Test
-    fun pointerInputHandler_2Down1Up1Down_onStartCalledOnce() {
+    fun onPointerInput_2Down1Up1Down_onStartCalledOnce() {
         var pointer0 = down(0)
         var pointer1 = down(1)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
         pointer0 = pointer0.up(100.milliseconds)
         pointer1 = pointer1.moveTo(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
         pointer0 = down(0, duration = 200.milliseconds)
         pointer1 = pointer1.moveTo(200.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
 
         verify(recognizer.onStart!!).invoke(any())
     }
 
     @Test
-    fun pointerInputHandler_1DownMoveOutside2ndDown_onStartOnlyCalledOnce() {
+    fun onPointerInput_1DownMoveOutside2ndDown_onStartOnlyCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, IntPxSize(5.ipx, 5.ipx))
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, IntPxSize(5.ipx, 5.ipx))
         pointer0 = pointer0.moveTo(100.milliseconds, 10f, 0f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, IntPxSize(5.ipx, 5.ipx))
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, IntPxSize(5.ipx, 5.ipx))
         pointer0 = pointer0.moveTo(200.milliseconds)
         val pointer1 = down(1, x = 0f, y = 0f)
 
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
 
         verify(recognizer.onStart!!).invoke(any())
     }
@@ -125,58 +125,58 @@ class PressIndicatorGestureDetectorTest {
     // Verification of scenarios where onStop should not be called.
 
     @Test
-    fun pointerInputHandler_downMoveConsumedUp_onStopNotCalled() {
+    fun onPointerInput_downMoveConsumedUp_onStopNotCalled() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(100.milliseconds, 5f).consume(1f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(200.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onStop!!, never()).invoke()
     }
 
     @Test
-    fun pointerInputHandler_downConsumedUp_onStopNotCalled() {
+    fun onPointerInput_downConsumedUp_onStopNotCalled() {
         var pointer = down(0, 0.milliseconds).consumeDownChange()
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onStop!!, never()).invoke()
     }
 
     @Test
-    fun pointerInputHandler_2DownUp_onStopNotCalled() {
+    fun onPointerInput_2DownUp_onStopNotCalled() {
         var pointer0 = down(0)
         var pointer1 = down(1)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
         pointer0 = pointer0.moveTo(100.milliseconds)
         pointer1 = pointer1.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
 
         verify(recognizer.onStop!!, never()).invoke()
     }
 
     @Test
-    fun pointerInputHandler_downDisabledUp_onStopNotCalled() {
+    fun onPointerInput_downDisabledUp_onStopNotCalled() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         recognizer.setEnabled(false)
         pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onStop!!, never()).invoke()
     }
 
     @Test
-    fun pointerInputHandler_downDisabledEnabledUp_onStopNotCalled() {
+    fun onPointerInput_downDisabledEnabledUp_onStopNotCalled() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         recognizer.setEnabled(false)
         recognizer.setEnabled(true)
         pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onStop!!, never()).invoke()
     }
@@ -184,45 +184,45 @@ class PressIndicatorGestureDetectorTest {
     // Verification of scenarios where onStop should be called once.
 
     @Test
-    fun pointerInputHandler_downUp_onStopCalledOnce() {
+    fun onPointerInput_downUp_onStopCalledOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onStop!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_downUpConsumed_onStopCalledOnce() {
+    fun onPointerInput_downUpConsumed_onStopCalledOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds).consumeDownChange()
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onStop!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_downMoveUp_onStopCalledOnce() {
+    fun onPointerInput_downMoveUp_onStopCalledOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(100.milliseconds, 5f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(200.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onStop!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_2Down2Up_onStopCalledOnce() {
+    fun onPointerInput_2Down2Up_onStopCalledOnce() {
         var pointer1 = down(0)
         var pointer2 = down(1)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         pointer1 = pointer1.up(100.milliseconds)
         pointer2 = pointer2.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         verify(recognizer.onStop!!).invoke()
     }
@@ -230,55 +230,55 @@ class PressIndicatorGestureDetectorTest {
     // Verification of scenarios where onCancel should not be called.
 
     @Test
-    fun pointerInputHandler_downConsumedMoveConsumed_onCancelNotCalled() {
+    fun onPointerInput_downConsumedMoveConsumed_onCancelNotCalled() {
         var pointer = down(0, 0.milliseconds).consumeDownChange()
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveBy(100.milliseconds, 5f).consume(1f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onCancel!!, never()).invoke()
     }
 
     @Test
-    fun pointerInputHandler_downUp_onCancelNotCalled() {
+    fun onPointerInput_downUp_onCancelNotCalled() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onCancel!!, never()).invoke()
     }
 
     @Test
-    fun pointerInputHandler_downMoveUp_onCancelNotCalled() {
+    fun onPointerInput_downMoveUp_onCancelNotCalled() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(100.milliseconds, 5f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onCancel!!, never()).invoke()
     }
 
     @Test
-    fun pointerInputHandler_2DownOneMoveOutsideOfBounds_onCancelNotCalled() {
+    fun onPointerInput_2DownOneMoveOutsideOfBounds_onCancelNotCalled() {
         var pointer0 = down(0, x = 0f, y = 0f)
         var pointer1 = down(0, x = 4f, y = 4f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, pointer1, size = IntPxSize(5.ipx, 5.ipx))
         pointer0 = pointer0.moveTo(100.milliseconds, 0f, 0f)
         pointer1 = pointer1.moveTo(100.milliseconds, 5f, 4f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, pointer1, size = IntPxSize(5.ipx, 5.ipx))
 
         verify(recognizer.onCancel!!, never()).invoke()
     }
 
     @Test
-    fun pointerInputHandler_notEnabledDownNotEnabled_onCancelNotCalled() {
+    fun onPointerInput_notEnabledDownNotEnabled_onCancelNotCalled() {
         recognizer.setEnabled(false)
-        recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
+        recognizer::onPointerInput.invokeOverAllPasses(down(0, 0.milliseconds))
         recognizer.setEnabled(false)
 
         verify(recognizer.onCancel!!, never()).invoke()
@@ -287,147 +287,147 @@ class PressIndicatorGestureDetectorTest {
     // Verification of scenarios where onCancel should be called once.
 
     @Test
-    fun pointerInputHandler_downMoveConsumed_onCancelCalledOnce() {
+    fun onPointerInput_downMoveConsumed_onCancelCalledOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveBy(100.milliseconds, 5f).consume(1f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onCancel!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_downMoveConsumedMoveConsumed_onCancelCalledOnce() {
+    fun onPointerInput_downMoveConsumedMoveConsumed_onCancelCalledOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveBy(100.milliseconds, 5f).consume(1f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveBy(100.milliseconds, 5f).consume(1f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         verify(recognizer.onCancel!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_2Down2MoveConsumed_onCancelCalledOnce() {
+    fun onPointerInput_2Down2MoveConsumed_onCancelCalledOnce() {
         var pointer0 = down(0)
         var pointer1 = down(1)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
         pointer0 = pointer0.moveBy(100.milliseconds, 5f).consume(1f)
         pointer1 = pointer1.moveBy(100.milliseconds, 5f).consume(1f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
 
         verify(recognizer.onCancel!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_2Down1MoveConsumedTheOtherMoveConsume_onCancelCalledOnce() {
+    fun onPointerInput_2Down1MoveConsumedTheOtherMoveConsume_onCancelCalledOnce() {
         var pointer0 = down(0)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0)
         pointer0 = pointer0.moveTo(100.milliseconds)
         var pointer1 = down(1, duration = 100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
         pointer0 = pointer0.moveBy(100L.milliseconds, 5f).consume(5f)
         pointer1 = pointer1.moveBy(100L.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
         pointer0 = pointer0.moveBy(100L.milliseconds)
         pointer1 = pointer1.moveBy(100L.milliseconds, 5f).consume(5f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer0, pointer1)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer0, pointer1)
 
         verify(recognizer.onCancel!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_1DownMoveOutsideOfBoundsLeft_onCancelCalledOnce() {
+    fun onPointerInput_1DownMoveOutsideOfBoundsLeft_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
         pointer0 = pointer0.moveTo(100.milliseconds, -1f, 0f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
 
         verify(recognizer.onCancel!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_1DownMoveOutsideOfBoundsRight_onCancelCalledOnce() {
+    fun onPointerInput_1DownMoveOutsideOfBoundsRight_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
         pointer0 = pointer0.moveTo(100.milliseconds, 1f, 0f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
 
         verify(recognizer.onCancel!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_1DownMoveOutsideOfBoundsUp_onCancelCalledOnce() {
+    fun onPointerInput_1DownMoveOutsideOfBoundsUp_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
         pointer0 = pointer0.moveTo(100.milliseconds, 0f, -1f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
 
         verify(recognizer.onCancel!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_1DownMoveOutsideOfBoundsDown_onCancelCalledOnce() {
+    fun onPointerInput_1DownMoveOutsideOfBoundsDown_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
         pointer0 = pointer0.moveTo(100.milliseconds, 0f, 1f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
 
         verify(recognizer.onCancel!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_2DownBothMoveOutsideOfBounds_onCancelCalledOnce() {
+    fun onPointerInput_2DownBothMoveOutsideOfBounds_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 4f)
         var pointer1 = down(1, x = 4f, y = 0f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, pointer1, size = IntPxSize(5.ipx, 5.ipx))
         pointer0 = pointer0.moveTo(100.milliseconds, 0f, 5f)
         pointer1 = pointer1.moveTo(100.milliseconds, 5f, 0f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, pointer1, size = IntPxSize(5.ipx, 5.ipx))
 
         verify(recognizer.onCancel!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_1DownMoveOutsideBoundsThenInsideThenOutside_onCancelCalledOnce() {
+    fun onPointerInput_1DownMoveOutsideBoundsThenInsideThenOutside_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
         pointer0 = pointer0.moveTo(100.milliseconds, 0f, 1f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
         pointer0 = pointer0.moveTo(200.milliseconds, 0f, 0f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
         pointer0 = pointer0.moveTo(300.milliseconds, 0f, 1f)
-        recognizer.pointerInputHandler
+        recognizer::onPointerInput
             .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
 
         verify(recognizer.onCancel!!).invoke()
     }
 
     @Test
-    fun pointerInputHandler_1DownMoveOutsideBoundsUpTwice_onCancelCalledTwice() {
+    fun onPointerInput_1DownMoveOutsideBoundsUpTwice_onCancelCalledTwice() {
         var time = 0L
 
         repeat(2) {
             var pointer = down(0, x = 0f, y = 0f)
-            recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
             pointer = pointer.moveTo(time.milliseconds, 0f, 1f)
-            recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
             pointer = pointer.up(time.milliseconds)
-            recognizer.pointerInputHandler.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
             time += 100L
         }
 
@@ -435,9 +435,9 @@ class PressIndicatorGestureDetectorTest {
     }
 
     @Test
-    fun pointerInputHandler_downDisabled_onCancelCalledOnce() {
+    fun onPointerInput_downDisabled_onCancelCalledOnce() {
         val pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         recognizer.setEnabled(false)
 
         verify(recognizer.onCancel!!).invoke()
@@ -446,8 +446,8 @@ class PressIndicatorGestureDetectorTest {
     // Verification of correct position returned by onStart.
 
     @Test
-    fun pointerInputHandler_down_downPositionIsCorrect() {
-        recognizer.pointerInputHandler
+    fun onPointerInput_down_downPositionIsCorrect() {
+        recognizer::onPointerInput
             .invokeOverAllPasses(down(0, 0.milliseconds, x = 13f, y = 17f))
         verify(recognizer.onStart!!).invoke(PxPosition(13.px, 17f.px))
     }
@@ -455,9 +455,9 @@ class PressIndicatorGestureDetectorTest {
     // Verification of correct consumption behavior.
 
     @Test
-    fun pointerInputHandler_down_downChangeConsumedDuringPostUp() {
+    fun onPointerInput_down_downChangeConsumedDuringPostUp() {
         var pointer = down(0, 0.milliseconds)
-        pointer = recognizer.pointerInputHandler.invokeOverPasses(
+        pointer = recognizer::onPointerInput.invokeOverPasses(
             pointer,
             PointerEventPass.InitialDown,
             PointerEventPass.PreUp,
@@ -465,7 +465,7 @@ class PressIndicatorGestureDetectorTest {
         )
         assertThat(pointer.consumed.downChange, `is`(false))
 
-        pointer = recognizer.pointerInputHandler.invoke(
+        pointer = recognizer::onPointerInput.invoke(
             listOf(pointer),
             PointerEventPass.PostUp,
             IntPxSize(0.ipx, 0.ipx)
@@ -474,35 +474,35 @@ class PressIndicatorGestureDetectorTest {
     }
 
     @Test
-    fun pointerInputHandler_disabledDown_noDownChangeConsumed() {
+    fun onPointerInput_disabledDown_noDownChangeConsumed() {
         recognizer.setEnabled(false)
         var pointer = down(0, 0.milliseconds)
-        pointer = recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        pointer = recognizer::onPointerInput.invokeOverAllPasses(pointer)
         assertThat(pointer.consumed.downChange, `is`(false))
     }
 
     // Verification of correct cancellation handling.
 
     @Test
-    fun cancelHandler_justCancel_noCallbacksCalled() {
-        recognizer.cancelHandler.invoke()
+    fun onCancel_justCancel_noCallbacksCalled() {
+        recognizer.onCancel()
 
         verifyNoMoreInteractions(recognizer.onStart, recognizer.onStop, recognizer.onCancel)
     }
 
     @Test
-    fun cancelHandler_downConsumedCancel_noCallbacksCalled() {
-        recognizer.pointerInputHandler
+    fun onCancel_downConsumedCancel_noCallbacksCalled() {
+        recognizer::onPointerInput
             .invokeOverAllPasses(down(0, 0.milliseconds).consumeDownChange())
-        recognizer.cancelHandler.invoke()
+        recognizer.onCancel()
 
         verifyNoMoreInteractions(recognizer.onStart, recognizer.onStop, recognizer.onCancel)
     }
 
     @Test
-    fun cancelHandler_downCancel_justStartAndCancelCalledInOrderOnce() {
-        recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
-        recognizer.cancelHandler.invoke()
+    fun onCancel_downCancel_justStartAndCancelCalledInOrderOnce() {
+        recognizer::onPointerInput.invokeOverAllPasses(down(0, 0.milliseconds))
+        recognizer.onCancel()
 
         inOrder(recognizer.onStart!!, recognizer.onCancel!!) {
             verify(recognizer.onStart!!).invoke(any())
@@ -512,12 +512,12 @@ class PressIndicatorGestureDetectorTest {
     }
 
     @Test
-    fun cancelHandler_downUpCancel_justStartAndStopCalledInOrderOnce() {
+    fun onCancel_downUpCancel_justStartAndStopCalledInOrderOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        recognizer.cancelHandler.invoke()
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        recognizer.onCancel()
 
         inOrder(recognizer.onStart!!, recognizer.onStop!!) {
             verify(recognizer.onStart!!).invoke(any())
@@ -527,12 +527,12 @@ class PressIndicatorGestureDetectorTest {
     }
 
     @Test
-    fun cancelHandler_downMoveCancel_justStartAndCancelCalledInOrderOnce() {
+    fun onCancel_downMoveCancel_justStartAndCancelCalledInOrderOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(50.milliseconds, 1f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        recognizer.cancelHandler.invoke()
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        recognizer.onCancel()
 
         inOrder(recognizer.onStart!!, recognizer.onCancel!!) {
             verify(recognizer.onStart!!).invoke(any())
@@ -542,12 +542,12 @@ class PressIndicatorGestureDetectorTest {
     }
 
     @Test
-    fun cancelHandler_downMoveConsumedCancel_justStartAndCancelCalledInOrderOnce() {
+    fun onCancel_downMoveConsumedCancel_justStartAndCancelCalledInOrderOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(50.milliseconds, 1f).consume(1f)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        recognizer.cancelHandler.invoke()
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        recognizer.onCancel()
 
         inOrder(recognizer.onStart!!, recognizer.onCancel!!) {
             verify(recognizer.onStart!!).invoke(any())
@@ -557,12 +557,12 @@ class PressIndicatorGestureDetectorTest {
     }
 
     @Test
-    fun cancelHandler_downThenCancelThenDown_justStartCancelStartCalledInOrderOnce() {
+    fun onCancel_downThenCancelThenDown_justStartCancelStartCalledInOrderOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        recognizer.cancelHandler.invoke()
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        recognizer.onCancel()
         pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        recognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         inOrder(recognizer.onStart!!, recognizer.onCancel!!) {
             verify(recognizer.onStart!!).invoke(any())
