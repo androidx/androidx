@@ -22,6 +22,45 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.ImageAsset imageFromResource(android.content.res.Resources res, int resId);
   }
 
+  public final class AndroidPath implements androidx.ui.graphics.Path {
+    ctor public AndroidPath(android.graphics.Path internalPath);
+    ctor public AndroidPath();
+    method public void addArc(androidx.ui.geometry.Rect oval, float startAngleDegrees, float sweepAngleDegrees);
+    method public void addArcRad(androidx.ui.geometry.Rect oval, float startAngleRadians, float sweepAngleRadians);
+    method public void addOval(androidx.ui.geometry.Rect oval);
+    method public void addPath(androidx.ui.graphics.Path path, androidx.ui.geometry.Offset offset);
+    method public void addRRect(androidx.ui.geometry.RRect rrect);
+    method public void addRect(androidx.ui.geometry.Rect rect);
+    method public void arcTo(androidx.ui.geometry.Rect rect, float startAngleDegrees, float sweepAngleDegrees, boolean forceMoveTo);
+    method public void close();
+    method public void cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
+    method public androidx.ui.geometry.Rect getBounds();
+    method public androidx.ui.graphics.PathFillType getFillType();
+    method public android.graphics.Path getInternalPath();
+    method public boolean isConvex();
+    method public boolean isEmpty();
+    method public void lineTo(float dx, float dy);
+    method public void moveTo(float dx, float dy);
+    method public boolean op(androidx.ui.graphics.Path path1, androidx.ui.graphics.Path path2, androidx.ui.graphics.PathOperation operation);
+    method public void quadraticBezierTo(float x1, float y1, float x2, float y2);
+    method public void relativeCubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
+    method public void relativeLineTo(float dx, float dy);
+    method public void relativeMoveTo(float dx, float dy);
+    method public void relativeQuadraticBezierTo(float x1, float y1, float x2, float y2);
+    method public void reset();
+    method public void setFillType(androidx.ui.graphics.PathFillType value);
+    method public void shift(androidx.ui.geometry.Offset offset);
+    property public androidx.ui.graphics.PathFillType fillType;
+    property public boolean isConvex;
+    property public boolean isEmpty;
+  }
+
+  public final class AndroidPathKt {
+    method public static androidx.ui.graphics.Path Path();
+    method public static inline android.graphics.Path asAndroidPath(androidx.ui.graphics.Path);
+    method public static androidx.ui.graphics.Path asComposePath(android.graphics.Path);
+  }
+
   public enum BlendMode {
     method public final android.graphics.PorterDuff.Mode toPorterDuffMode();
     enum_constant public static final androidx.ui.graphics.BlendMode clear;
@@ -336,25 +375,17 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.PaintingStyle stroke;
   }
 
-  public final class Path {
-    ctor public Path(android.graphics.Path internalPath);
-    ctor public Path();
-    method public void _addRect(float left, float top, float right, float bottom);
+  public interface Path {
     method public void addArc(androidx.ui.geometry.Rect oval, float startAngleDegrees, float sweepAngleDegrees);
     method public void addArcRad(androidx.ui.geometry.Rect oval, float startAngleRadians, float sweepAngleRadians);
     method public void addOval(androidx.ui.geometry.Rect oval);
-    method public void addPath(androidx.ui.graphics.Path path, androidx.ui.geometry.Offset offset = Offset.zero, androidx.ui.graphics.vectormath.Matrix4? matrix = null);
-    method public void addPolygon(java.util.List<androidx.ui.geometry.Offset> points, boolean close);
+    method public void addPath(androidx.ui.graphics.Path path, androidx.ui.geometry.Offset offset = Offset.zero);
     method public void addRRect(androidx.ui.geometry.RRect rrect);
     method public void addRect(androidx.ui.geometry.Rect rect);
     method public void arcTo(androidx.ui.geometry.Rect rect, float startAngleDegrees, float sweepAngleDegrees, boolean forceMoveTo);
-    method public void arcToPoint(androidx.ui.geometry.Offset arcEnd, androidx.ui.geometry.Radius radius = Radius.zero, float rotation = 0.0f, boolean largeArc = false, boolean clockwise = true);
-    method public void arcToRad(androidx.ui.geometry.Rect rect, float startAngleRadians, float sweepAngleRadians, boolean forceMoveTo);
+    method public default void arcToRad(androidx.ui.geometry.Rect rect, float startAngleRadians, float sweepAngleRadians, boolean forceMoveTo);
     method public void close();
-    method public void conicTo(float x1, float y1, float x2, float y2, float w);
-    method public boolean contains(androidx.ui.geometry.Offset offset);
     method public void cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
-    method public void extendWithPath(androidx.ui.graphics.Path path, androidx.ui.geometry.Offset offset, androidx.ui.graphics.vectormath.Matrix4 matrix);
     method public androidx.ui.geometry.Rect getBounds();
     method public androidx.ui.graphics.PathFillType getFillType();
     method public boolean isConvex();
@@ -363,19 +394,16 @@ package androidx.ui.graphics {
     method public void moveTo(float dx, float dy);
     method public boolean op(androidx.ui.graphics.Path path1, androidx.ui.graphics.Path path2, androidx.ui.graphics.PathOperation operation);
     method public void quadraticBezierTo(float x1, float y1, float x2, float y2);
-    method public void relativeArcToPoint(androidx.ui.geometry.Offset arcEndDelta, androidx.ui.geometry.Radius radius = Radius.zero, float rotation = 0.0f, boolean largeArc = false, boolean clockwise = true);
-    method public void relativeConicTo(float x1, float y1, float x2, float y2, float w);
     method public void relativeCubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
     method public void relativeLineTo(float dx, float dy);
     method public void relativeMoveTo(float dx, float dy);
     method public void relativeQuadraticBezierTo(float x1, float y1, float x2, float y2);
     method public void reset();
-    method public void setFillType(androidx.ui.graphics.PathFillType value);
+    method public void setFillType(androidx.ui.graphics.PathFillType p);
     method public void shift(androidx.ui.geometry.Offset offset);
-    method public android.graphics.Path toFrameworkPath();
-    method public androidx.ui.graphics.Path transform(androidx.ui.graphics.vectormath.Matrix4 matrix);
-    property public final boolean isConvex;
-    property public final boolean isEmpty;
+    property public abstract androidx.ui.graphics.PathFillType fillType;
+    property public abstract boolean isConvex;
+    property public abstract boolean isEmpty;
     field public static final androidx.ui.graphics.Path.Companion! Companion;
   }
 
@@ -1004,7 +1032,7 @@ package androidx.ui.graphics.vector {
     method public void clear();
     method public androidx.ui.graphics.vector.PathParser parsePathString(String pathData);
     method public java.util.List<androidx.ui.graphics.vector.PathNode> toNodes();
-    method public androidx.ui.graphics.Path toPath(androidx.ui.graphics.Path target = androidx.ui.graphics.Path());
+    method public androidx.ui.graphics.Path toPath(androidx.ui.graphics.Path target = Path());
   }
 
   public final class PathParserKt {

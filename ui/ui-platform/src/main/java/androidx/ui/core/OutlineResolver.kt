@@ -23,6 +23,7 @@ import androidx.ui.geometry.isSimple
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
+import androidx.ui.graphics.asAndroidPath
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.px
@@ -190,7 +191,7 @@ internal class OutlineResolver(private val density: Density) {
     private fun updateCacheWithPath(composePath: Path) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P || composePath.isConvex) {
             // TODO(mount): Use setPath() for R+ when available.
-            cachedOutline.setConvexPath(composePath.toFrameworkPath())
+            cachedOutline.setConvexPath(composePath.asAndroidPath())
             usePathForClip = !cachedOutline.canClip()
         } else {
             cachedOutline.setEmpty()
