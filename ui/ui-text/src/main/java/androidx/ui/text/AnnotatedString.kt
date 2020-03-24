@@ -42,7 +42,7 @@ data class AnnotatedString internal constructor(
     val text: String,
     val spanStyles: List<SpanStyleItem> = listOf(),
     val paragraphStyles: List<ParagraphStyleItem> = listOf(),
-    private val annotations: List<Item<String>> = listOf()
+    internal val annotations: List<Item<String>> = listOf()
 ) {
     constructor(
         text: String,
@@ -68,14 +68,6 @@ data class AnnotatedString internal constructor(
             toAnnotatedString()
         }
     }
-
-    private fun contains(baseStart: Int, baseEnd: Int, targetStart: Int, targetEnd: Int) =
-        (baseStart <= targetStart && targetEnd <= baseEnd) &&
-                (baseEnd != targetEnd || (targetStart == targetEnd) == (baseStart == baseEnd))
-
-    private fun intersect(lStart: Int, lEnd: Int, rStart: Int, rEnd: Int) =
-        max(lStart, rStart) < min(lEnd, rEnd) ||
-                contains(lStart, lEnd, rStart, rEnd) || contains(rStart, rEnd, lStart, lEnd)
 
     /**
      * Query the string annotations attached on this AnnotatedString.
@@ -395,7 +387,7 @@ private fun AnnotatedString.getLocalStyles(
     if (start == 0 && end >= this.text.length) {
         return spanStyles
     }
-    return spanStyles.filter { it.start < end && it.end > start }
+    return spanStyles.filter { intersect(start, end, it.start, it.end) }
         .map {
             Item(
                 it.item,
@@ -546,34 +538,23 @@ private fun AnnotatedString.transform(transform: (String, Int, Int) -> String): 
         offsetMap.put(end, resultStr.length)
     }
 
-    val newSpanStyles = mutableListOf<SpanStyleItem>()
-    val newParaStyles = mutableListOf<ParagraphStyleItem>()
-
-    for (spanStyle in spanStyles) {
+    val newSpanStyles = spanStyles.map {
         // The offset map must have mapping entry from all style start, end position.
-        newSpanStyles.add(
-            Item(
-                spanStyle.item,
-                offsetMap[spanStyle.start]!!,
-                offsetMap[spanStyle.end]!!
-            )
-        )
+        Item(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
     }
-
-    for (paraStyle in paragraphStyles) {
-        newParaStyles.add(
-            Item(
-                paraStyle.item,
-                offsetMap[paraStyle.start]!!,
-                offsetMap[paraStyle.end]!!
-            )
-        )
+    val newParaStyles = paragraphStyles.map {
+        Item(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
+    }
+    val newAnnotations = annotations.map {
+        Item(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
     }
 
     return AnnotatedString(
         text = resultStr,
         spanStyles = newSpanStyles,
-        paragraphStyles = newParaStyles)
+        paragraphStyles = newParaStyles,
+        annotations = newAnnotations
+    )
 }
 
 /**
@@ -658,18 +639,12 @@ inline fun <R : Any> Builder.withStyle(
  */
 private fun <T> filterItemsByRange(items: List<Item<T>>, start: Int, end: Int): List<Item<T>> {
     require(start <= end) { "start ($start) should be less than or equal to end ($end)" }
-    return items.filter {
-        // for collapsed items/ranges, if starts are same accept. Otherwise:
-        // item.end is exclusive, therefore if equals to start which is inclusive should be
-        // filtered
-        // likewise end is exclusive, if equals to item.start which is inclusive should be
-        // filtered
-        (it.start == start) || !(it.end <= start || it.start >= end)
-    }.map {
+    return items.filter { intersect(start, end, it.start, it.end) }.map {
         Item(
             item = it.item,
-            start = (if (it.start < start) start else it.start) - start,
-            end = (if (end < it.end) end else it.end) - start
+            start = max(start, it.start) - start,
+            end = min(end, it.end) - start,
+            scope = it.scope
         )
     }
 }
@@ -688,7 +663,8 @@ fun AnnotatedString.subSequence(start: Int, end: Int): AnnotatedString {
     return AnnotatedString(
         text = text,
         spanStyles = filterItemsByRange(spanStyles, start, end),
-        paragraphStyles = filterItemsByRange(paragraphStyles, start, end)
+        paragraphStyles = filterItemsByRange(paragraphStyles, start, end),
+        annotations = filterItemsByRange(annotations, start, end)
     )
 }
 
@@ -732,3 +708,24 @@ fun AnnotatedString(
  */
 inline fun AnnotatedString(builder: (Builder).() -> Unit): AnnotatedString =
     Builder().apply(builder).toAnnotatedString()
+
+/**
+ * Helper function that checks if the range [baseStart, baseEnd) contains the range
+ * [targetStart, targetEnd).
+ *
+ * @return true if [baseStart, baseEnd) contains [targetStart, targetEnd), vice versa.
+ * When [baseStart]==[baseEnd] it return true iff [targetStart]==[targetEnd]==[baseStart].
+ */
+internal fun contains(baseStart: Int, baseEnd: Int, targetStart: Int, targetEnd: Int) =
+    (baseStart <= targetStart && targetEnd <= baseEnd) &&
+            (baseEnd != targetEnd || (targetStart == targetEnd) == (baseStart == baseEnd))
+
+/**
+ * Helper function that checks if the range [lStart, lEnd) intersects with the range
+ * [rStart, rEnd).
+ *
+ * @return [lStart, lEnd) intersects with range [rStart, rEnd), vice versa.
+ */
+internal fun intersect(lStart: Int, lEnd: Int, rStart: Int, rEnd: Int) =
+    max(lStart, rStart) < min(lEnd, rEnd) ||
+            contains(lStart, lEnd, rStart, rEnd) || contains(rStart, rEnd, lStart, lEnd)
