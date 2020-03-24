@@ -33,31 +33,31 @@ import java.util.EnumSet
 /**
  * A [Detector] which ensures that every `ComponentInitializer` has a no argument constructor.
  */
-class ComponentInitializerConstructorDetector : Detector(), SourceCodeScanner {
+class InitializerConstructorDetector : Detector(), SourceCodeScanner {
     companion object {
-        private const val DESCRIPTION = "Missing ComponentInitializer no-arg constructor"
+        private const val DESCRIPTION = "Missing Initializer no-arg constructor"
         val ISSUE = Issue.create(
-            id = "EnsureComponentInitializerNoArgConstr",
+            id = "EnsureInitializerNoArgConstr",
             briefDescription = DESCRIPTION,
             explanation = """
-                Every `ComponentInitializer` must have a no argument constructor.
+                Every `Initializer` must have a no argument constructor.
             """,
             androidSpecific = true,
             category = Category.CORRECTNESS,
             severity = Severity.FATAL,
             implementation = Implementation(
-                ComponentInitializerConstructorDetector::class.java,
+                InitializerConstructorDetector::class.java,
                 EnumSet.of(Scope.JAVA_FILE)
             )
         )
     }
 
-    override fun applicableSuperClasses() = listOf("androidx.startup.ComponentInitializer")
+    override fun applicableSuperClasses() = listOf("androidx.startup.Initializer")
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
         val name = declaration.qualifiedName
 
-        if (name == "androidx.startup.ComponentInitializer") {
+        if (name == "androidx.startup.Initializer") {
             // This is the component initializer itself.
             return
         }

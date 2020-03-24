@@ -27,7 +27,7 @@
             tools:node="merge">
             <!-- This meta-data entry is useful for ComponentInitializer discovery. -->
             <meta-data
-                android:name="androidx.startup.first_library.WorkManagerComponentInitializer"
+                android:name="androidx.startup.first_library.WorkManagerInitializer"
                 android:value="@string/androidx_startup" />
         </provider>
 

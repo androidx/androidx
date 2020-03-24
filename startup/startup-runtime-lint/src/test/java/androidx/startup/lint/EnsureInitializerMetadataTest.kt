@@ -16,29 +16,29 @@
 
 package androidx.startup.lint
 
-import androidx.startup.lint.Stubs.TEST_COMPONENT
-import androidx.startup.lint.Stubs.COMPONENT_INITIALIZER
-import androidx.startup.lint.Stubs.TEST_COMPONENT_2
-import androidx.startup.lint.Stubs.TEST_COMPONENT_WITH_DEPENDENCIES
+import androidx.startup.lint.Stubs.TEST_INITIALIZER
+import androidx.startup.lint.Stubs.INITIALIZER
+import androidx.startup.lint.Stubs.TEST_INITIALIZER_2
+import androidx.startup.lint.Stubs.TEST_INITIALIZER_WITH_DEPENDENCIES
 import com.android.tools.lint.checks.infrastructure.TestFiles.manifest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
-class EnsureComponentInitializerMetadataTest {
+class EnsureInitializerMetadataTest {
     @Test
     fun testFailureWhenNoMetadataIsProvided() {
         lint()
             .files(
-                COMPONENT_INITIALIZER,
-                TEST_COMPONENT
+                INITIALIZER,
+                TEST_INITIALIZER
             )
-            .issues(EnsureComponentInitializerMetadataDetector.ISSUE)
+            .issues(EnsureInitializerMetadataDetector.ISSUE)
             .run()
             /* ktlint-disable max-line-length */
             .expect(
                 """
-                src/com/example/TestComponentInitializer.kt:5: Error: Every ComponentInitializer needs to be accompanied by a corresponding <meta-data> entry in the AndroidManifest.xml file. [EnsureComponentInitializerMetadata]
-                class TestComponentInitializer: ComponentInitializer<Unit> {
+                src/com/example/TestInitializer.kt:5: Error: Every Initializer needs to be accompanied by a corresponding <meta-data> entry in the AndroidManifest.xml file. [EnsureInitializerMetadata]
+                class TestInitializer: Initializer<Unit> {
                 ^
                 1 errors, 0 warnings
                 """.trimIndent()
@@ -60,7 +60,7 @@ class EnsureComponentInitializerMetadataTest {
                         android:exported="false"
                         tools:node="merge">
                         <meta-data
-                            android:name="com.example.TestComponentInitializer"
+                            android:name="com.example.TestInitializer"
                             android:value="androidx.startup" />
                     </provider>
                   </application>
@@ -70,11 +70,11 @@ class EnsureComponentInitializerMetadataTest {
 
         lint()
             .files(
-                COMPONENT_INITIALIZER,
-                TEST_COMPONENT,
+                INITIALIZER,
+                TEST_INITIALIZER,
                 manifest
             )
-            .issues(EnsureComponentInitializerMetadataDetector.ISSUE)
+            .issues(EnsureInitializerMetadataDetector.ISSUE)
             .run()
             .expectClean()
     }
@@ -93,7 +93,7 @@ class EnsureComponentInitializerMetadataTest {
                         android:exported="false"
                         tools:node="merge">
                         <meta-data
-                            android:name="com.example.TestComponentInitializer"
+                            android:name="com.example.TestInitializer"
                             android:value="androidx.startup" />
                     </provider>
                   </application>
@@ -103,12 +103,12 @@ class EnsureComponentInitializerMetadataTest {
 
         lint()
             .files(
-                COMPONENT_INITIALIZER,
-                TEST_COMPONENT_WITH_DEPENDENCIES,
-                TEST_COMPONENT_2,
+                INITIALIZER,
+                TEST_INITIALIZER_WITH_DEPENDENCIES,
+                TEST_INITIALIZER_2,
                 manifest
             )
-            .issues(EnsureComponentInitializerMetadataDetector.ISSUE)
+            .issues(EnsureInitializerMetadataDetector.ISSUE)
             .run()
             .expectClean()
     }
@@ -127,7 +127,7 @@ class EnsureComponentInitializerMetadataTest {
                         android:exported="false"
                         tools:node="merge">
                         <meta-data
-                            android:name="com.example.TestComponentInitializer"
+                            android:name="com.example.TestInitializer"
                             android:value="@string/androidx_startup" />
                     </provider>
                   </application>
@@ -137,11 +137,11 @@ class EnsureComponentInitializerMetadataTest {
 
         lint()
             .files(
-                COMPONENT_INITIALIZER,
-                TEST_COMPONENT,
+                INITIALIZER,
+                TEST_INITIALIZER,
                 manifest
             )
-            .issues(EnsureComponentInitializerMetadataDetector.ISSUE)
+            .issues(EnsureInitializerMetadataDetector.ISSUE)
             .run()
             .expectClean()
     }

@@ -44,7 +44,7 @@ import java.util.EnumSet
  * A [Detector] which ensures that every `ComponentInitializer` is accompanied by a corresponding
  * entry in the `AndroidManifest.xml`.
  */
-class EnsureComponentInitializerMetadataDetector : Detector(), SourceCodeScanner, XmlScanner {
+class EnsureInitializerMetadataDetector : Detector(), SourceCodeScanner, XmlScanner {
     // all declared components
     private val components = mutableMapOf<UClass, Location>()
     // all reachable components
@@ -52,34 +52,34 @@ class EnsureComponentInitializerMetadataDetector : Detector(), SourceCodeScanner
     val reachable = mutableSetOf<String>()
 
     companion object {
-        private const val DESCRIPTION = "Every ComponentInitializer needs to be accompanied by a " +
+        private const val DESCRIPTION = "Every Initializer needs to be accompanied by a " +
                 "corresponding <meta-data> entry in the AndroidManifest.xml file."
 
         val ISSUE = Issue.create(
-            id = "EnsureComponentInitializerMetadata",
+            id = "EnsureInitializerMetadata",
             briefDescription = DESCRIPTION,
             explanation = """
-                When a library defines a ComponentInitializer, it needs to be accompanied by a \
+                When a library defines a Initializer, it needs to be accompanied by a \
                 corresponding <meta-data> entry in the AndroidManifest.xml file.
             """,
             androidSpecific = true,
             category = Category.CORRECTNESS,
             severity = Severity.FATAL,
             implementation = Implementation(
-                EnsureComponentInitializerMetadataDetector::class.java,
+                EnsureInitializerMetadataDetector::class.java,
                 EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST)
             )
         )
     }
 
-    override fun applicableSuperClasses() = listOf("androidx.startup.ComponentInitializer")
+    override fun applicableSuperClasses() = listOf("androidx.startup.Initializer")
 
     override fun getApplicableElements() = listOf("meta-data")
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
         val name = declaration.qualifiedName
 
-        if (name == "androidx.startup.ComponentInitializer") {
+        if (name == "androidx.startup.Initializer") {
             // This is the component initializer itself.
             return
         }
@@ -89,7 +89,7 @@ class EnsureComponentInitializerMetadataDetector : Detector(), SourceCodeScanner
             components[declaration] = location
         }
 
-        // Check every dependencies() method for reachable ComponentInitializer's
+        // Check every dependencies() method for reachable Initializer's
         val method = declaration.methods.first {
             it.name == "dependencies" && it.parameterList.isEmpty
         }
