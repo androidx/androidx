@@ -37,7 +37,6 @@ import androidx.ui.layout.preferredWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.material.ripple.ripple
-import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import java.util.Locale
 
@@ -79,7 +78,7 @@ private fun RallyTab(
                     Icon(vectorImage = icon, tintColor = tabTintColor)
                     if (selected) {
                         Spacer(Modifier.preferredWidth(12.dp))
-                        Text(text, style = TextStyle(color = tabTintColor))
+                        Text(text, color = tabTintColor)
                     }
                 }
             }

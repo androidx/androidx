@@ -485,7 +485,6 @@ private fun EditLine(
         onValueChange = {
             state.value = it
             onValueChange(it.text)
-        },
-        textStyle = TextStyle()
+        }
     )
 }
