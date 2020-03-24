@@ -17,7 +17,7 @@
 package androidx.webkit.internal;
 
 import androidx.annotation.NonNull;
-import androidx.webkit.JsReplyProxy;
+import androidx.webkit.JavaScriptReplyProxy;
 import androidx.webkit.WebViewFeature;
 
 import org.chromium.support_lib_boundary.JsReplyProxyBoundaryInterface;
@@ -26,26 +26,26 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import java.lang.reflect.InvocationHandler;
 
 /**
- * Internal implementation of {@link androidx.webkit.JsReplyProxy}.
+ * Internal implementation of {@link androidx.webkit.JavaScriptReplyProxy}.
  */
-public class JsReplyProxyImpl extends JsReplyProxy {
+public class JavaScriptReplyProxyImpl extends JavaScriptReplyProxy {
     private JsReplyProxyBoundaryInterface mBoundaryInterface;
 
-    public JsReplyProxyImpl(@NonNull JsReplyProxyBoundaryInterface boundaryInterface) {
+    public JavaScriptReplyProxyImpl(@NonNull JsReplyProxyBoundaryInterface boundaryInterface) {
         mBoundaryInterface = boundaryInterface;
     }
 
     /**
-     * Get a support library JsReplyProxy object that is 1:1 with the AndroidX side object.
+     * Get a support library JavaScriptReplyProxy object that is 1:1 with the AndroidX side object.
      */
     @NonNull
-    public static JsReplyProxyImpl forInvocationHandler(
+    public static JavaScriptReplyProxyImpl forInvocationHandler(
             @NonNull /* JsReplyProxy */ InvocationHandler invocationHandler) {
         final JsReplyProxyBoundaryInterface boundaryInterface =
                 BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                         JsReplyProxyBoundaryInterface.class, invocationHandler);
-        return (JsReplyProxyImpl) boundaryInterface.getOrCreatePeer(
-                () -> new JsReplyProxyImpl(boundaryInterface));
+        return (JavaScriptReplyProxyImpl) boundaryInterface.getOrCreatePeer(
+                () -> new JavaScriptReplyProxyImpl(boundaryInterface));
     }
 
     @Override
