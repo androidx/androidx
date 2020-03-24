@@ -23,12 +23,12 @@ import androidx.annotation.NonNull;
 import java.util.List;
 
 /**
- * {@link ComponentInitializer}s can be used to initialize libraries during app startup, without
+ * {@link Initializer}s can be used to initialize libraries during app startup, without
  * the need to use additional {@link android.content.ContentProvider}s.
  *
  * @param <T> The instance type being initialized
  */
-public interface ComponentInitializer<T> {
+public interface Initializer<T> {
 
     /**
      * Initializes and a component given the application {@link Context}
@@ -39,12 +39,12 @@ public interface ComponentInitializer<T> {
     T create(@NonNull Context context);
 
     /**
-     * @return A list of dependencies that this {@link ComponentInitializer} depends on. This is
-     * used to determine initialization order of {@link ComponentInitializer}s.
+     * @return A list of dependencies that this {@link Initializer} depends on. This is
+     * used to determine initialization order of {@link Initializer}s.
      * <br/>
-     * For e.g. if a {@link ComponentInitializer} `B` defines another
-     * {@link ComponentInitializer} `A` as its dependency, then `A` gets initialized before `B`.
+     * For e.g. if a {@link Initializer} `B` defines another
+     * {@link Initializer} `A` as its dependency, then `A` gets initialized before `B`.
      */
     @NonNull
-    List<Class<? extends ComponentInitializer<?>>> dependencies();
+    List<Class<? extends Initializer<?>>> dependencies();
 }

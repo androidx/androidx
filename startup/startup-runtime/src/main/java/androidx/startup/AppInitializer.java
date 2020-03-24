@@ -86,22 +86,22 @@ public final class AppInitializer {
     }
 
     /**
-     * Initializes a {@link ComponentInitializer} class type.
+     * Initializes a {@link Initializer} class type.
      *
-     * @param component The {@link Class} of {@link ComponentInitializer} to initialize.
+     * @param component The {@link Class} of {@link Initializer} to initialize.
      * @param <T>       The instance type being initialized
      * @return The initialized instance
      */
     @NonNull
     @SuppressWarnings("unused")
-    public <T> T initializeComponent(@NonNull Class<? extends ComponentInitializer<T>> component) {
+    public <T> T initializeComponent(@NonNull Class<? extends Initializer<T>> component) {
         return doInitialize(component, new HashSet<>());
     }
 
     @NonNull
     @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
     <T> T doInitialize(
-            @NonNull Class<? extends ComponentInitializer<?>> component,
+            @NonNull Class<? extends Initializer<?>> component,
             @NonNull Set<Class<?>> initializing) {
         synchronized (sLock) {
             boolean isTracingEnabled = Trace.isEnabled();
@@ -121,12 +121,12 @@ public final class AppInitializer {
                     initializing.add(component);
                     try {
                         Object instance = component.getDeclaredConstructor().newInstance();
-                        ComponentInitializer<?> initializer = (ComponentInitializer<?>) instance;
-                        List<Class<? extends ComponentInitializer<?>>> dependencies =
+                        Initializer<?> initializer = (Initializer<?>) instance;
+                        List<Class<? extends Initializer<?>>> dependencies =
                                 initializer.dependencies();
 
                         if (!dependencies.isEmpty()) {
-                            for (Class<? extends ComponentInitializer<?>> clazz : dependencies) {
+                            for (Class<? extends Initializer<?>> clazz : dependencies) {
                                 if (!mInitialized.containsKey(clazz)) {
                                     doInitialize(clazz, initializing);
                                 }
@@ -171,9 +171,9 @@ public final class AppInitializer {
                     String value = metadata.getString(key, null);
                     if (startup.equals(value)) {
                         Class<?> clazz = Class.forName(key);
-                        if (ComponentInitializer.class.isAssignableFrom(clazz)) {
-                            Class<? extends ComponentInitializer<?>> component =
-                                    (Class<? extends ComponentInitializer<?>>) clazz;
+                        if (Initializer.class.isAssignableFrom(clazz)) {
+                            Class<? extends Initializer<?>> component =
+                                    (Class<? extends Initializer<?>>) clazz;
                             if (StartupLogger.DEBUG) {
                                 StartupLogger.i(String.format("Discovered %s", key));
                             }
