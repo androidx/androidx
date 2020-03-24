@@ -75,10 +75,10 @@ fun AnnotatedStringBuilderPushParagraphStyleSample() {
 }
 
 @Sampled
-fun AnnotatedStringBuilderPushAnnotationStringSample() {
+fun AnnotatedStringBuilderPushStringAnnotationSample() {
     with(AnnotatedString.Builder()) {
         // push a string annotation to be applied to any appended text after this point.
-        pushAnnotationString("ParagrapLabel", "paragraph1")
+        pushStringAnnotation("ParagrapLabel", "paragraph1")
         // append a paragraph, the annotation "paragraph1" is attached
         append("Paragraph One\n")
         // pop the annotation

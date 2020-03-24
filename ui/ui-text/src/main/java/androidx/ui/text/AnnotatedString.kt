@@ -83,7 +83,7 @@ data class AnnotatedString internal constructor(
      * with the range [start, end) will be returned. When [start] is bigger than [end], an empty
      * list will be returned.
      */
-    fun getAnnotationString(scope: String, start: Int, end: Int): List<Item<String>> =
+    fun getStringAnnotations(scope: String, start: Int, end: Int): List<Item<String>> =
         annotations.filter {
             scope == it.scope && intersect(start, end, it.start, it.end)
         }
@@ -228,7 +228,7 @@ data class AnnotatedString internal constructor(
          * @param annotation the string annotation that is attached
          * @param start the inclusive starting offset of the range
          * @param end the exclusive end offset of the range
-         * @see getAnnotationString
+         * @see getStringAnnotations
          */
         fun addAnnotationString(scope: String, annotation: String, start: Int, end: Int) {
             annotations.add(MutableItem(annotation, start, end, scope))
@@ -270,13 +270,13 @@ data class AnnotatedString internal constructor(
          * Attach the given [annotation] to any appended text until a corresponding [pop]
          * is called.
          *
-         * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushAnnotationStringSample
+         * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushStringAnnotationSample
          *
          * @param scope the scope used to distinguish this annotation
          * @param annotation the string annotation attached on this AnnotatedString
-         * @see getAnnotationString
+         * @see getStringAnnotations
          */
-        fun pushAnnotationString(scope: String, annotation: String): Int {
+        fun pushStringAnnotation(scope: String, annotation: String): Int {
             MutableItem(item = annotation, start = text.length, scope = scope).also {
                 styleStack.add(it)
                 annotations.add(it)
@@ -288,7 +288,7 @@ data class AnnotatedString internal constructor(
          * Ends the style or annotation that was added via a push operation before.
          *
          * @see pushStyle
-         * @see pushAnnotationString
+         * @see pushStringAnnotation
          */
         fun pop() {
             check(styleStack.isNotEmpty()) { "Nothing to pop." }
@@ -299,14 +299,14 @@ data class AnnotatedString internal constructor(
 
         /**
          * Ends the styles or annotation up to and `including` the [pushStyle] or
-         * [pushAnnotationString] that returned the given index.
+         * [pushStringAnnotation] that returned the given index.
          *
-         * @param index the result of the a previous [pushStyle] or [pushAnnotationString] in order
+         * @param index the result of the a previous [pushStyle] or [pushStringAnnotation] in order
          * to pop to
          *
          * @see pop
          * @see pushStyle
-         * @see pushAnnotationString
+         * @see pushStringAnnotation
          */
         fun pop(index: Int) {
             check(index < styleStack.size) { "$index should be less than ${styleStack.size}" }

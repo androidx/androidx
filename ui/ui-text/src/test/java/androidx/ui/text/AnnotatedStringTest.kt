@@ -326,7 +326,7 @@ class AnnotatedStringTest {
     fun subSequence_withAnnotations_noIntersection() {
         val annotatedString = AnnotatedString {
             append("ab")
-            pushAnnotationString("scope1", "annotation1")
+            pushStringAnnotation("scope1", "annotation1")
             append("cd")
             pop()
             append("ef")
@@ -340,7 +340,7 @@ class AnnotatedStringTest {
     fun subSequence_withAnnotations_collapsedRange() {
         val annotatedString = AnnotatedString {
             append("ab")
-            pushAnnotationString("scope1", "annotation1")
+            pushStringAnnotation("scope1", "annotation1")
             append("cd")
             pop()
             append("ef")
@@ -372,7 +372,7 @@ class AnnotatedStringTest {
     fun subSequence_withAnnotations_hasIntersection() {
         val annotatedString = AnnotatedString {
             append("ab")
-            pushAnnotationString("scope1", "annotation1")
+            pushStringAnnotation("scope1", "annotation1")
             append("cd")
             pop()
             append("ef")
@@ -400,7 +400,7 @@ class AnnotatedStringTest {
     fun subSequence_withAnnotations_containsRange() {
         val annotatedString = AnnotatedString {
             append("ab")
-            pushAnnotationString("scope1", "annotation1")
+            pushStringAnnotation("scope1", "annotation1")
             append("cd")
             pop()
             append("ef")
