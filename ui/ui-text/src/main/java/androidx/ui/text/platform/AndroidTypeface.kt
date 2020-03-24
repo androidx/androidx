@@ -16,15 +16,10 @@
 
 package androidx.ui.text.platform
 
-import android.content.Context
 import androidx.ui.text.Typeface
-import androidx.ui.text.font.DefaultFontFamily
-import androidx.ui.text.font.FontFamily
-import androidx.ui.text.font.FontListFontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.GenericFontFamily
 import android.graphics.Typeface as NativeTypeface
 
 /**
@@ -45,31 +40,4 @@ internal interface AndroidTypeface : Typeface {
         fontStyle: FontStyle,
         synthesis: FontSynthesis
     ): NativeTypeface
-}
-
-/**
- * Android specific Typeface builder function from FontFamily.
- *
- * You can pass necessaryStyles for loading only specific styles. The font style matching happens
- * only with the loaded Typeface.
- *
- * This function caches the internal native Typeface but always create the new Typeface object.
- * Caller should cache if necessary.
- *
- * @param context the context to be used for loading Typeface.
- * @param fontFamily the font family to be loaded
- * @param necessaryStyles optional style filter for loading subset of fontFamily. null means load
- *                        all fonts in fontFamily.
- * @return A loaded Typeface.
- */
-internal fun androidTypefaceFromFontFamily(
-    context: Context,
-    fontFamily: FontFamily,
-    necessaryStyles: List<Pair<FontWeight, FontStyle>>? = null
-): AndroidTypeface {
-    return when (fontFamily) {
-        is FontListFontFamily -> AndroidFontListTypeface(fontFamily, context, necessaryStyles)
-        is GenericFontFamily -> AndroidGenericFontFamilyTypeface(fontFamily)
-        is DefaultFontFamily -> AndroidDefaultTypeface()
-    }
 }

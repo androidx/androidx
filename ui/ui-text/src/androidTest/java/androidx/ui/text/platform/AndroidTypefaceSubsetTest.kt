@@ -16,14 +16,17 @@
 
 package androidx.ui.text.platform
 
+import android.content.Context
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.text.FontTestData
+import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.fontFamily
 import androidx.ui.text.matchers.assertThat
+import androidx.ui.text.typefaceFromFontFamily
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
@@ -54,6 +57,14 @@ class AndroidTypefaceSubsetTest {
         FontTestData.FONT_900_REGULAR,
         FontTestData.FONT_900_ITALIC
     )
+
+    private fun androidTypefaceFromFontFamily(
+        context: Context,
+        fontFamily: FontFamily,
+        necessaryStyles: List<Pair<FontWeight, FontStyle>>? = null
+    ): AndroidTypeface {
+        return typefaceFromFontFamily(context, fontFamily, necessaryStyles) as AndroidTypeface
+    }
 
     @Test
     fun subset_load_regular_bold_only_and_query_regular() {

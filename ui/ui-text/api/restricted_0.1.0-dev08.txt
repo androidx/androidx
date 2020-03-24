@@ -673,6 +673,10 @@ package androidx.ui.text {
     property public abstract androidx.ui.text.font.FontFamily fontFamily;
   }
 
+  public final class TypefaceKt {
+    method public static androidx.ui.text.Typeface typefaceFromFontFamily(android.content.Context context, androidx.ui.text.font.FontFamily fontFamily, java.util.List<? extends kotlin.Pair<androidx.ui.text.font.FontWeight,? extends androidx.ui.text.font.FontStyle>>? necessaryStyles = null);
+  }
+
 }
 
 package androidx.ui.text.font {
@@ -692,6 +696,7 @@ package androidx.ui.text.font {
   }
 
   public abstract sealed class FontFamily {
+    method public final boolean getCanLoadSynchronously();
     field public static final androidx.ui.text.font.FontFamily.Companion! Companion;
   }
 
@@ -711,6 +716,7 @@ package androidx.ui.text.font {
   public final class FontFamilyKt {
     method public static androidx.ui.text.font.FontListFontFamily fontFamily(java.util.List<? extends androidx.ui.text.font.Font> fonts);
     method public static androidx.ui.text.font.FontListFontFamily fontFamily(androidx.ui.text.font.Font... fonts);
+    method public static androidx.ui.text.font.LoadedFontFamily fontFamily(androidx.ui.text.Typeface typeface);
   }
 
   public final class FontKt {
@@ -787,6 +793,13 @@ package androidx.ui.text.font {
     method public String getName();
   }
 
+  public final class LoadedFontFamily extends androidx.ui.text.font.FontFamily {
+    ctor public LoadedFontFamily(androidx.ui.text.Typeface typeface);
+    method public androidx.ui.text.Typeface component1();
+    method public androidx.ui.text.font.LoadedFontFamily copy(androidx.ui.text.Typeface typeface);
+    method public androidx.ui.text.Typeface getTypeface();
+  }
+
   public final class ResourceFont implements androidx.ui.text.font.Font {
     ctor public ResourceFont(int resId, androidx.ui.text.font.FontWeight weight, androidx.ui.text.font.FontStyle style);
     method public int component1();
@@ -809,9 +822,6 @@ package androidx.ui.text.platform {
   }
 
   public final class AndroidParagraphKt {
-  }
-
-  public final class AndroidTypefaceKt {
   }
 
   public final class PlatformLocaleKt {
