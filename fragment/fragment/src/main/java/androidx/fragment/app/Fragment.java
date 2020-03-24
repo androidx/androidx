@@ -3132,7 +3132,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     @NonNull Lifecycle.Event event) {
 
                 if (Lifecycle.Event.ON_CREATE.equals(event)) {
-                    ref.set(getActivity()
+                    ref.set(requireActivity()
                             .getActivityResultRegistry()
                             .register(
                                     key, Fragment.this, contract, callback));

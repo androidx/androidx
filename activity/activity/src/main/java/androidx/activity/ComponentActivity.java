@@ -148,7 +148,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     return;
                 }
 
-                List<String> nonGrantedPermissions = new ArrayList<String>();
+                List<String> nonGrantedPermissions = new ArrayList<>();
                 for (String permission : permissions) {
                     if (checkPermission(permission,
                             android.os.Process.myPid(), android.os.Process.myUid())
@@ -158,8 +158,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
 
                 if (!nonGrantedPermissions.isEmpty()) {
-                    requestPermissions(nonGrantedPermissions.toArray(
-                            new String[nonGrantedPermissions.size()]), requestCode);
+                    requestPermissions(nonGrantedPermissions.toArray(new String[0]), requestCode);
                 }
             } else {
 
