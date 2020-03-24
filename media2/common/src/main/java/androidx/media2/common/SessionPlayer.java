@@ -331,7 +331,7 @@ public abstract class SessionPlayer implements AutoCloseable {
 
     /**
      * Prepares the media items for playback. During this time, the player may allocate resources
-     * required to play, such as audio and video decoders. Before calling this API, sets media
+     * required to play, such as audio and video decoders. Before calling this API, set media
      * item(s) through either {@link #setMediaItem} or {@link #setPlaylist}.
      * <p>
      * On success, this transfers the player state from {@link #PLAYER_STATE_IDLE} to
@@ -919,7 +919,7 @@ public abstract class SessionPlayer implements AutoCloseable {
      * The types of tracks supported may vary based on player implementation.
      *
      * @return list of tracks. The total number of tracks is the size of the list. If empty,
-     *         the implementation should return a empty list instead of {@code null}.
+     *         the implementation should return an empty list instead of {@code null}.
      * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
      * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
      * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
@@ -957,7 +957,7 @@ public abstract class SessionPlayer implements AutoCloseable {
     /**
      * Deselects the {@link TrackInfo} for the current media item.
      * <p>
-     * Generally, a track should already be selected in order to be deselected and audio and video
+     * Generally, a track should already be selected in order to be deselected, and audio and video
      * tracks should not be deselected.
      * <p>
      * The types of tracks supported may vary based on player implementation.
