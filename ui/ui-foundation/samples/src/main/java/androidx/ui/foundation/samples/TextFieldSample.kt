@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.framework.samples
+package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.PasswordTextField
-import androidx.ui.core.TextField
+import androidx.ui.foundation.PasswordTextField
+import androidx.ui.foundation.TextField
 import androidx.ui.text.TextFieldValue
 import androidx.ui.text.TextRange
 

@@ -24,7 +24,7 @@ import androidx.ui.core.DropdownPopup
 import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.core.PopupProperties
-import androidx.ui.core.TextField
+import androidx.ui.foundation.TextField
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity

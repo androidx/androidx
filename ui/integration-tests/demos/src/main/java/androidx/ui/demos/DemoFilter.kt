@@ -22,7 +22,7 @@ import androidx.compose.onCommit
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
-import androidx.ui.core.TextField
+import androidx.ui.foundation.TextField
 import androidx.ui.demos.common.Demo
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.VerticalScroller
