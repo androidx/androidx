@@ -58,11 +58,10 @@ public abstract class ActivityResultRegistry {
     private static final String LOG_TAG = "ActivityResultRegistry";
 
     private final AtomicInteger mNextRc = new AtomicInteger(0);
-    private final Map<Integer, String> mRcToKey = new HashMap<Integer, String>();
-    private final Map<String, Integer> mKeyToRc = new HashMap<String, Integer>();
+    private final Map<Integer, String> mRcToKey = new HashMap<>();
+    private final Map<String, Integer> mKeyToRc = new HashMap<>();
 
-    private final transient Map<String, CallbackAndContract<?>> mKeyToCallback =
-            new HashMap<String, CallbackAndContract<?>>();
+    private final transient Map<String, CallbackAndContract<?>> mKeyToCallback = new HashMap<>();
 
     private final Bundle/*<String, ActivityResult>*/ mPendingResults = new Bundle();
 
@@ -101,7 +100,7 @@ public abstract class ActivityResultRegistry {
             @NonNull final ActivityResultCallback<O> callback) {
 
         final int requestCode = registerKey(key);
-        mKeyToCallback.put(key, new CallbackAndContract<O>(callback, contract));
+        mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
 
         Lifecycle lifecycle = lifecycleOwner.getLifecycle();
 
@@ -173,7 +172,7 @@ public abstract class ActivityResultRegistry {
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultCallback<O> callback) {
         final int requestCode = registerKey(key);
-        mKeyToCallback.put(key, new CallbackAndContract<O>(callback, contract));
+        mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
 
         final ActivityResult pendingResult = mPendingResults.getParcelable(key);
         if (pendingResult != null) {
@@ -222,9 +221,9 @@ public abstract class ActivityResultRegistry {
      */
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putIntegerArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_RCS,
-                new ArrayList<Integer>(mRcToKey.keySet()));
+                new ArrayList<>(mRcToKey.keySet()));
         outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS,
-                new ArrayList<String>(mRcToKey.values()));
+                new ArrayList<>(mRcToKey.values()));
         outState.putBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS, mPendingResults);
     }
 
