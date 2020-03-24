@@ -198,6 +198,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
     private val onInvalidatedCallbacks = CopyOnWriteArrayList<() -> Unit>()
 
     private val _invalid = AtomicBoolean(false)
+
     /**
      * Whether this [PagingSource] has been invalidated, which should happen when the data this
      * [PagingSource] represents changes since it was first instantiated.

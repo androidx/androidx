@@ -29,7 +29,8 @@ import androidx.paging.LoadType
 import androidx.paging.PagingDataAdapter
 import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -48,11 +49,12 @@ class V3Activity : AppCompatActivity() {
         }
         // NOTE: lifecycleScope means we don't respect paused state here
         lifecycleScope.launch {
+            @OptIn(ExperimentalCoroutinesApi::class)
             viewModel.flow
                 .map { pagingData ->
                     pagingData.map { it.copy(text = "${it.text} - $orientationText") }
                 }
-                .collect { pagingAdapter.presentData(it) }
+                .collectLatest { pagingAdapter.presentData(it) }
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)

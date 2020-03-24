@@ -53,7 +53,7 @@ internal class PagerState<Key : Any, Value : Any>(
     private val prependLoadIdCh = Channel<Int>(Channel.CONFLATED)
     private val appendLoadIdCh = Channel<Int>(Channel.CONFLATED)
 
-    internal val failedHintsByLoadType = mutableMapOf<LoadType, ViewportHint>()
+    internal val failedHintsByLoadType = mutableMapOf<LoadType, LoadError<Key, Value>>()
     internal val loadStates = mutableMapOf<LoadType, LoadState>(
         REFRESH to Idle,
         START to Idle,
@@ -337,3 +337,20 @@ internal class PagerState<Key : Any, Value : Any>(
 }
 
 internal class DropInfo(val pageCount: Int, val placeholdersRemaining: Int)
+
+/**
+ * Sealed class wrapping both user-provided intents of mapping a recoverable error, or one that
+ * should be displayed as opposed to throwing an exception.
+ *  * [PagingSource.LoadResult.Error] returned from [PagingSource.load]
+ *  * [RemoteMediator.MediatorResult.Error] returned from [RemoteMediator.load]
+ */
+internal sealed class LoadError<Key : Any, Value : Any> {
+    internal class Hint<Key : Any, Value : Any>(
+        val viewportHint: ViewportHint
+    ) : LoadError<Key, Value>()
+
+    internal class Mediator<Key : Any, Value : Any>(
+        val loadType: LoadType,
+        val state: PagingState<Key, Value>?
+    ) : LoadError<Key, Value>()
+}
