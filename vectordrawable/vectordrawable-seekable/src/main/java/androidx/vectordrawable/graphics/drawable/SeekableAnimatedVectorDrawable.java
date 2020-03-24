@@ -31,11 +31,11 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 
-import androidx.animation.Animator;
-import androidx.animation.AnimatorInflater;
-import androidx.animation.AnimatorListenerAdapter;
-import androidx.animation.AnimatorSet;
-import androidx.animation.ObjectAnimator;
+import androidx.animator.Animator;
+import androidx.animator.AnimatorInflater;
+import androidx.animator.AnimatorListenerAdapter;
+import androidx.animator.AnimatorSet;
+import androidx.animator.ObjectAnimator;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntRange;
