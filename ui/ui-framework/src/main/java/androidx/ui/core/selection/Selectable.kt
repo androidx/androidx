@@ -17,6 +17,7 @@
 package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.text.AnnotatedString
 import androidx.ui.unit.PxPosition
 
 /**
@@ -36,8 +37,8 @@ interface Selectable {
      * @param previousSelection previous selection result
      * @param isStartHandle true if the start handle is being dragged
      *
-     *  @return null if no selection will be applied for this composable, or [Selection] instance
-     *    if selection is applied to this composable.
+     * @return null if no selection will be applied for this composable, or [Selection] instance
+     *  if selection is applied to this composable.
      */
     fun getSelection(
         startPosition: PxPosition,
@@ -65,4 +66,11 @@ interface Selectable {
      * composing.
      */
     fun getLayoutCoordinates(): LayoutCoordinates?
+
+    /**
+     * Return the [AnnotatedString] of the [Selectable].
+     *
+     * @return text content as [AnnotatedString] of the [Selectable].
+     */
+    fun getText(): AnnotatedString
 }

@@ -840,6 +840,56 @@ class TextSelectionDelegateTest {
     }
 
     @Test
+    fun getText_textLayoutResult_Null_Return_Empty_AnnotatedString() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val layoutResult = null
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                assertThat(selectable.getText()).isEqualTo(AnnotatedString(""))
+            }
+        }
+    }
+
+    @Test
+    fun getText_textLayoutResult_NotNull_Return_AnnotatedString() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val textLtr = "Hello"
+                val textRtl = "\u05D0\u05D1\u05D2"
+                val text = textLtr + textRtl
+                val fontSize = 20.sp
+                val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = {},
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                assertThat(selectable.getText()).isEqualTo(AnnotatedString(text, spanStyle))
+            }
+        }
+    }
+
+    @Test
     fun getTextSelectionInfo_long_press_select_word_ltr() {
         val text = "hello world\n"
         val fontSize = 20.sp
