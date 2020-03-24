@@ -27,7 +27,6 @@ import androidx.test.screenshot.utils.loadBitmap
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +47,6 @@ class ScreenshotTestRuleTest {
     }
 
     @Test
-    @Ignore
     fun performDiff_sameBitmaps() {
         val first = loadBitmap("round_rect_gray")
 
@@ -63,7 +61,6 @@ class ScreenshotTestRuleTest {
     }
 
     @Test
-    @Ignore
     fun performDiff_sameSizes_default_noMatch() {
         val first = loadBitmap("round_rect_gray")
 
@@ -83,7 +80,6 @@ class ScreenshotTestRuleTest {
     }
 
     @Test
-    @Ignore
     fun performDiff_sameSizes_pixelPerfect_noMatch() {
         val first = loadBitmap("round_rect_gray")
 
@@ -103,7 +99,6 @@ class ScreenshotTestRuleTest {
     }
 
     @Test
-    @Ignore
     fun performDiff_differentSizes() {
         val first =
             loadBitmap("fullscreen_rect_gray")
@@ -121,7 +116,6 @@ class ScreenshotTestRuleTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    @Ignore
     fun performDiff_incorrectGoldenName() {
         val first =
             loadBitmap("fullscreen_rect_gray")
@@ -131,7 +125,6 @@ class ScreenshotTestRuleTest {
     }
 
     @Test
-    @Ignore
     fun performDiff_missingGolden() {
         val first = loadBitmap("round_rect_gray")
 
