@@ -3134,7 +3134,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 if (Lifecycle.Event.ON_CREATE.equals(event)) {
                     ref.set(getActivity()
                             .getActivityResultRegistry()
-                            .registerActivityResultCallback(
+                            .register(
                                     key, Fragment.this, contract, callback));
                 }
             }
@@ -3152,10 +3152,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             }
 
             @Override
-            public void dispose() {
+            public void unregister() {
                 ActivityResultLauncher<I> delegate = ref.getAndSet(null);
                 if (delegate != null) {
-                    delegate.dispose();
+                    delegate.unregister();
                 }
             }
         };
@@ -3172,7 +3172,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull ActivityResultRegistry registry,
             @NonNull final ActivityResultCallback<O> callback) {
-        return registry.registerActivityResultCallback(
+        return registry.register(
                 generateActivityResultKey(), this, contract, callback);
     }
 

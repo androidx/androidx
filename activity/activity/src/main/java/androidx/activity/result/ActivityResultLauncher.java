@@ -20,6 +20,7 @@ package androidx.activity.result;
 import android.annotation.SuppressLint;
 
 import androidx.activity.result.contract.ActivityResultContract;
+import androidx.annotation.MainThread;
 
 /**
  * A launcher for a prevoiusly-{@link ActivityResultCaller#prepareCall prepared call} to start
@@ -37,11 +38,12 @@ public interface ActivityResultLauncher<I> {
     void launch(@SuppressLint("UnknownNullness") I input);
 
     /**
-     * Disposes of this launcher, releasing the underlying result callback, and any references
+     * Unregisters this launcher, releasing the underlying result callback, and any references
      * captured within it.
      *
      * You should call this if the registry may live longer than the callback registered for this
      * launcher.
      */
-    void dispose();
+    @MainThread
+    void unregister();
 }
