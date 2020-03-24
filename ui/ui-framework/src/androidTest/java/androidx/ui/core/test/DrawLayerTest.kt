@@ -19,6 +19,7 @@ package androidx.ui.core.test
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.TransformOrigin
 import androidx.ui.core.boundsInRoot
 import androidx.ui.core.drawLayer
 import androidx.ui.core.globalBounds
@@ -130,6 +131,29 @@ class DrawLayerTest {
         activity.runOnUiThread {
             val bounds = layoutCoordinates.boundsInRoot
             assertEquals(PxBounds(0.px, 10.px, 30.px, 20.px), bounds)
+            assertEquals(PxPosition(30.px, 10.px), layoutCoordinates.positionInRoot)
+        }
+    }
+
+    @Test
+    fun testRotationPivot() {
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                Padding(10.ipx) {
+                    FixedSize(10.ipx,
+                        drawLayer(
+                            rotationZ = 90f,
+                            transformOrigin = TransformOrigin(1.0f, 1.0f)
+                        ) + positioner
+                    )
+                }
+            }
+        }
+
+        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        activity.runOnUiThread {
+            val bounds = layoutCoordinates.boundsInRoot
+            assertEquals(PxBounds(20.px, 10.px, 30.px, 20.px), bounds)
             assertEquals(PxPosition(30.px, 10.px), layoutCoordinates.positionInRoot)
         }
     }
