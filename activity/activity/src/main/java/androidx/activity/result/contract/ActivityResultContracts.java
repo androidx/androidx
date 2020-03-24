@@ -171,24 +171,6 @@ public class ActivityResultContracts {
     }
 
     /**
-     * An {@link ActivityResultContract} to {@link Intent#ACTION_DIAL dial a number}
-     */
-    public static class Dial extends ActivityResultContract<String, Boolean> {
-
-        @NonNull
-        @Override
-        public Intent createIntent(@NonNull Context context, @NonNull String input) {
-            return new Intent(Intent.ACTION_DIAL).setData(Uri.parse("tel:" + input));
-        }
-
-        @NonNull
-        @Override
-        public Boolean parseResult(int resultCode, @Nullable Intent intent) {
-            return resultCode == Activity.RESULT_OK;
-        }
-    }
-
-    /**
      * An {@link ActivityResultContract} to {@link Activity#requestPermissions request a permission}
      */
     public static class RequestPermission extends ActivityResultContract<String, Boolean> {
@@ -312,86 +294,6 @@ public class ActivityResultContracts {
         public Uri parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return null;
             return intent.getData();
-        }
-    }
-
-    /**
-     * An {@link ActivityResultContract} to send an email.
-     *
-     * @see Request
-     */
-    public static class Email extends ActivityResultContract<Email.Request, Boolean> {
-
-        /**
-         * The request to send an email.
-         */
-        public static class Request {
-            String[] mTo;
-            String[] mCc;
-            String[] mBcc;
-            Uri[] mAttachments;
-            String mSubject;
-            String mText;
-
-            /** @see Intent#EXTRA_EMAIL */
-            public @NonNull Request to(@Nullable String... to) {
-                this.mTo = to;
-                return this;
-            }
-
-            /** @see Intent#EXTRA_CC */
-            public @NonNull Request cc(@Nullable String... cc) {
-                this.mCc = cc;
-                return this;
-            }
-
-            /** @see Intent#EXTRA_BCC */
-            public @NonNull Request bcc(@Nullable String... bcc) {
-                this.mBcc = bcc;
-                return this;
-            }
-
-            /** @see Intent#EXTRA_STREAM */
-            public @NonNull Request attachments(@Nullable Uri... attachments) {
-                this.mAttachments = attachments;
-                return this;
-            }
-
-            /** @see Intent#EXTRA_SUBJECT */
-            public @NonNull Request subject(@Nullable String subject) {
-                this.mSubject = subject;
-                return this;
-            }
-
-            /** @see Intent#EXTRA_TEXT */
-            public @NonNull Request text(@Nullable String text) {
-                this.mText = text;
-                return this;
-            }
-        }
-
-        @NonNull
-        @Override
-        public Intent createIntent(@NonNull Context context, @NonNull Request input) {
-            Intent intent = new Intent(
-                    input.mAttachments != null && input.mAttachments.length > 1
-                            ? Intent.ACTION_SEND_MULTIPLE : Intent.ACTION_SEND)
-                    .setType("*/*");
-            if (input.mTo != null) intent.putExtra(Intent.EXTRA_EMAIL, input.mTo);
-            if (input.mCc != null) intent.putExtra(Intent.EXTRA_CC, input.mCc);
-            if (input.mBcc != null) intent.putExtra(Intent.EXTRA_BCC, input.mBcc);
-            if (input.mAttachments != null) {
-                intent.putExtra(Intent.EXTRA_STREAM, input.mAttachments);
-            }
-            if (input.mSubject != null) intent.putExtra(Intent.EXTRA_SUBJECT, input.mSubject);
-            if (input.mText != null) intent.putExtra(Intent.EXTRA_TEXT, input.mText);
-            return intent;
-        }
-
-        @NonNull
-        @Override
-        public Boolean parseResult(int resultCode, @Nullable Intent intent) {
-            return resultCode == Activity.RESULT_OK;
         }
     }
 

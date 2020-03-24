@@ -101,28 +101,6 @@ package androidx.activity.result.contract {
     method public android.net.Uri? parseResult(int, android.content.Intent?);
   }
 
-  public static class ActivityResultContracts.Dial extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {
-    ctor public ActivityResultContracts.Dial();
-    method public android.content.Intent createIntent(android.content.Context, String);
-    method public Boolean parseResult(int, android.content.Intent?);
-  }
-
-  public static class ActivityResultContracts.Email extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.contract.ActivityResultContracts.Email.Request,java.lang.Boolean> {
-    ctor public ActivityResultContracts.Email();
-    method public android.content.Intent createIntent(android.content.Context, androidx.activity.result.contract.ActivityResultContracts.Email.Request);
-    method public Boolean parseResult(int, android.content.Intent?);
-  }
-
-  public static class ActivityResultContracts.Email.Request {
-    ctor public ActivityResultContracts.Email.Request();
-    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request attachments(android.net.Uri!...);
-    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request bcc(java.lang.String!...);
-    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request cc(java.lang.String!...);
-    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request subject(String?);
-    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request text(String?);
-    method public androidx.activity.result.contract.ActivityResultContracts.Email.Request to(java.lang.String!...);
-  }
-
   public static class ActivityResultContracts.OpenDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],android.net.Uri> {
     ctor public ActivityResultContracts.OpenDocument();
     method public android.content.Intent createIntent(android.content.Context, String![]);

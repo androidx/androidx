@@ -32,7 +32,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.invoke
 import androidx.activity.prepareCall
-import androidx.activity.result.contract.ActivityResultContracts.Dial
+import androidx.activity.result.contract.ActivityResultContracts.PickFile
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
 
@@ -46,8 +46,8 @@ class MainActivity : ComponentActivity() {
         toast("Got picture: $bitmap")
     }
 
-    val dial = prepareCall(Dial()) { success ->
-        toast("Dial success: $success")
+    val dial = prepareCall(PickFile()) { uri ->
+        toast("Got image: $uri")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,8 +63,8 @@ class MainActivity : ComponentActivity() {
                 button("Take pic") {
                     takePicture()
                 }
-                button("Dial 111111111") {
-                    dial("111111111")
+                button("Pick an image") {
+                    dial("image/*")
                 }
             }
         }
