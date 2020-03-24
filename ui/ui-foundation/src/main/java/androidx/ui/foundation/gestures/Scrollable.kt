@@ -22,10 +22,11 @@ import androidx.animation.AnimationClockObserver
 import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
 import androidx.compose.mutableStateOf
+import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.foundation.animation.FlingConfig
@@ -34,7 +35,7 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 
 /**
- * Create [ScrollableState] for [Scrollable] with default [FlingConfig] and
+ * Create [ScrollableState] for [scrollable] with default [FlingConfig] and
  * [AnimationClockObservable]
  *
  * @param onScrollDeltaConsumptionRequested callback to be invoked when scrollable
@@ -53,7 +54,7 @@ fun ScrollableState(
 }
 
 /**
- * State of the [Scrollable] composable. Contains necessary information about ongoing fling and
+ * State of the [scrollable] composable. Contains necessary information about ongoing fling and
  * provides smooth scrolling capabilities.
  *
  * @param onScrollDeltaConsumptionRequested callback to be invoked when scrollable
@@ -78,7 +79,7 @@ class ScrollableState(
         value: Float,
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
-        val to = animatedFloat.value - value
+        val to = animatedFloat.value + value
         animatedFloat.animateTo(to, onEnd = onEnd)
     }
 
@@ -133,10 +134,10 @@ class ScrollableState(
 }
 
 /**
- * Component that provides high-level scroll functionality
+ * High-level gesture modifier that provides scroll functionality.
  *
- * When you need something to be able to scroll with fling support and smooth scrolling
- * capabilities, consider using this composable.
+ * When you need to be able to scroll with fling support and smooth scrolling inside composable,
+ * consider using this modifier.
  *
  * Although [ScrollableState] is required for this composable to be able to work correctly, users
  * of this composable should own, update and reflect their own state. When constructing
@@ -158,15 +159,17 @@ class ScrollableState(
  * @param enabled whether of not scrolling in enabled
  */
 @Composable
-fun Scrollable(
+fun scrollable(
     dragDirection: DragDirection,
     scrollableState: ScrollableState,
     onScrollStarted: (startedPosition: PxPosition) -> Unit = {},
     onScrollStopped: (velocity: Float) -> Unit = {},
-    enabled: Boolean = true,
-    children: @Composable() () -> Unit
-) {
-    val drag = DragGestureDetector(
+    enabled: Boolean = true
+): Modifier {
+    onDispose {
+        scrollableState.stopAnimation()
+    }
+    return DragGestureDetector(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {
@@ -188,6 +191,11 @@ fun Scrollable(
                 )
             }
 
+            override fun onCancel() {
+                scrollableState.stopAnimation()
+                if (enabled) onScrollStopped(0f)
+            }
+
             override fun onStop(velocity: PxPosition) {
                 if (enabled) {
                     scrollableState.fling(dragDirection.project(velocity), onScrollStopped)
@@ -199,10 +207,6 @@ fun Scrollable(
         },
         startDragImmediately = scrollableState.isAnimating
     )
-    // TODO(b/150706555): This layout is temporary and should be removed once Semantics
-    //  is implemented with modifiers.
-    @Suppress("DEPRECATION")
-    PassThroughLayout(drag, children)
 }
 
 private class DeltaAnimatedFloat(

@@ -29,7 +29,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.drawLayer
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.Scrollable
+import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.layout.Constraints
 import androidx.ui.semantics.ScrollTo
@@ -134,7 +134,7 @@ class ScrollerPosition(
         value: Float,
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
-        scrollableState.smoothScrollBy(value, onEnd)
+        scrollableState.smoothScrollBy(-value, onEnd)
     }
 
     /**
@@ -233,19 +233,18 @@ private fun Scroller(
             })
         }
     }) {
-        Scrollable(
+        val scroll = scrollable(
             scrollableState = scrollerPosition.scrollableState,
             dragDirection = direction,
             enabled = isScrollable
-        ) {
-            ScrollerLayout(
-                scrollerPosition = scrollerPosition,
-                onMaxPositionChanged = { scrollerPosition.maxPosition = it },
-                modifier = modifier,
-                isVertical = isVertical,
-                child = child
-            )
-        }
+        )
+        ScrollerLayout(
+            scrollerPosition = scrollerPosition,
+            onMaxPositionChanged = { scrollerPosition.maxPosition = it },
+            modifier = modifier + scroll,
+            isVertical = isVertical,
+            child = child
+        )
     }
 }
 
