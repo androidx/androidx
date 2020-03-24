@@ -60,7 +60,7 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
     val errorMessageOnFail = "Failed to perform doScrollTo."
     val node = fetchSemanticsNode(errorMessageOnFail)
     val scrollableSemanticsNode = node.findClosestParentNode {
-        hasScrollAction().condition(it.config)
+        hasScrollAction().condition(it)
     }
         ?: throw AssertionError(
             "Semantic Node has no parent layout with a Scroll SemanticsAction"

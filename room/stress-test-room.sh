@@ -37,7 +37,7 @@ echo "output folder:${OUTPUT_FOLDER}. Will run ${REPEAT} times"
 for (( i=0; i<$REPEAT; i++ ))
 do
    echo "START RUN $i"
-   ./gradlew clean --no-build-cache  \
+   ./gradlew --no-build-cache --stacktrace  \
          :room:integration-tests:room-testapp-noappcompat:asAnTest \
          :room:integration-tests:room-testapp-autovalue:asAnTest \
          :room:integration-tests:room-testapp:asAnTest \

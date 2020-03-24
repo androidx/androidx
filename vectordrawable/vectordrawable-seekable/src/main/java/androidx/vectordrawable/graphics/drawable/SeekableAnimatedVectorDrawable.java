@@ -25,16 +25,17 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 
-import androidx.animation.Animator;
-import androidx.animation.AnimatorInflater;
-import androidx.animation.AnimatorListenerAdapter;
-import androidx.animation.AnimatorSet;
-import androidx.animation.ObjectAnimator;
+import androidx.animator.Animator;
+import androidx.animator.AnimatorInflater;
+import androidx.animator.AnimatorListenerAdapter;
+import androidx.animator.AnimatorSet;
+import androidx.animator.ObjectAnimator;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntRange;
@@ -137,7 +138,7 @@ import java.util.ArrayList;
  * Unlike {@code AnimatedVectorDrawableCompat}, this class does not delegate to the platform
  * {@link android.graphics.drawable.AnimatedVectorDrawable} on any API levels.
  */
-public class SeekableAnimatedVectorDrawable extends Drawable implements Animatable2 {
+public class SeekableAnimatedVectorDrawable extends Drawable implements Animatable {
 
     private static final String LOGTAG = "SeekableAVD";
 
@@ -149,11 +150,58 @@ public class SeekableAnimatedVectorDrawable extends Drawable implements Animatab
     private AnimatedVectorDrawableState mAnimatedVectorState;
 
     // An internal listener to bridge between Animator and SAVD's callbacks.
-    private Animator.AnimatorListener mAnimatorListener = null;
+    private InternalAnimatorListener mAnimatorListener = null;
 
     // An array to keep track of multiple callbacks associated with one drawable.
     @SuppressWarnings("WeakerAccess")
-    ArrayList<Animatable2.AnimationCallback> mAnimationCallbacks = null;
+    ArrayList<AnimationCallback> mAnimationCallbacks = null;
+
+    /**
+     * Abstract class for animation callback. Used to notify animation events.
+     */
+    public abstract static class AnimationCallback {
+
+        /**
+         * Called when the animation starts.
+         *
+         * @param drawable The drawable started the animation.
+         */
+        public void onAnimationStart(@NonNull SeekableAnimatedVectorDrawable drawable) {
+        }
+
+        /**
+         * Called when the animation ends.
+         *
+         * @param drawable The drawable finished the animation.
+         */
+        public void onAnimationEnd(@NonNull SeekableAnimatedVectorDrawable drawable) {
+        }
+
+        /**
+         * Called when the animation is paused.
+         *
+         * @param drawable The drawable.
+         */
+        public void onAnimationPause(@NonNull SeekableAnimatedVectorDrawable drawable) {
+        }
+
+        /**
+         * Called when the animation is resumed.
+         *
+         * @param drawable The drawable.
+         */
+        public void onAnimationResume(@NonNull SeekableAnimatedVectorDrawable drawable) {
+        }
+
+        /**
+         * Called on every frame while the animation is running. The implementation must not
+         * register or unregister any {@link AnimationCallback} here.
+         *
+         * @param drawable The drawable.
+         */
+        public void onAnimationUpdate(@NonNull SeekableAnimatedVectorDrawable drawable) {
+        }
+    }
 
     private final Callback mCallback = new Callback() {
 
@@ -335,8 +383,8 @@ public class SeekableAnimatedVectorDrawable extends Drawable implements Animatab
     }
 
     /**
-     * @deprecated This method is no longer used in graphics optimizations
      * @return The opacity class of the Drawable.
+     * @deprecated This method is no longer used in graphics optimizations
      */
     @Deprecated
     @Override
@@ -533,9 +581,23 @@ public class SeekableAnimatedVectorDrawable extends Drawable implements Animatab
         }
     }
 
+    /**
+     * Returns whether the animation is running (has started and not yet ended).
+     *
+     * @return {@code true} if the animation is running.
+     */
     @Override
     public boolean isRunning() {
         return mAnimatedVectorState.mAnimatorSet.isRunning();
+    }
+
+    /**
+     * Returns whether the animation is currently in a paused state.
+     *
+     * @return {@code true} if the animation is paused.
+     */
+    public boolean isPaused() {
+        return mAnimatedVectorState.mAnimatorSet.isPaused();
     }
 
     @Override
@@ -554,45 +616,147 @@ public class SeekableAnimatedVectorDrawable extends Drawable implements Animatab
         mAnimatedVectorState.mAnimatorSet.end();
     }
 
-    @Override
-    public void registerAnimationCallback(@NonNull Animatable2.AnimationCallback callback) {
+    /**
+     * Pauses a running animation. This method should only be called on the same thread on which
+     * the animation was started. If the animation has not yet been started or has since ended,
+     * then the call is ignored. Paused animations can be resumed by calling {@link #resume()}.
+     */
+    public void pause() {
+        mAnimatedVectorState.mAnimatorSet.pause();
+    }
+
+    /**
+     * Resumes a paused animation. The animation resumes from where it left off when it was
+     * paused. This method should only be called on the same thread on which the animation was
+     * started. Calls will be ignored if this {@link SeekableAnimatedVectorDrawable} is not
+     * currently paused.
+     */
+    public void resume() {
+        mAnimatedVectorState.mAnimatorSet.resume();
+    }
+
+    /**
+     * Sets the position of the animation to the specified point in time. This time should be
+     * between 0 and the total duration of the animation, including any repetition. If the
+     * animation has not yet been started, then it will not advance forward after it is set to this
+     * time; it will simply set the time to this value and perform any appropriate actions based on
+     * that time. If the animation is already running, then setCurrentPlayTime() will set the
+     * current playing time to this value and continue playing from that point.
+     *
+     * @param playTime The time, in milliseconds, to which the animation is advanced or rewound.
+     *                 Unless the animation is reversing, the playtime is considered the time since
+     *                 the end of the start delay of the AnimatorSet in a forward playing direction.
+     */
+    public void setCurrentPlayTime(@IntRange(from = 0) long playTime) {
+        mAnimatedVectorState.mAnimatorSet.setCurrentPlayTime(playTime);
+        invalidateSelf();
+    }
+
+    /**
+     * Returns the milliseconds elapsed since the start of the animation.
+     *
+     * <p>For ongoing animations, this method returns the current progress of the animation in
+     * terms of play time. For an animation that has not yet been started: if the animation has been
+     * seeked to a certain time via {@link #setCurrentPlayTime(long)}, the seeked play time will
+     * be returned; otherwise, this method will return 0.
+     *
+     * @return the current position in time of the animation in milliseconds
+     */
+    @IntRange(from = 0)
+    public long getCurrentPlayTime() {
+        return mAnimatedVectorState.mAnimatorSet.getCurrentPlayTime();
+    }
+
+    /**
+     * Gets the total duration of the animation, accounting for animation sequences, start delay,
+     * and repeating. Return {@link Animator#DURATION_INFINITE} if the duration is infinite.
+     *
+     * @return Total time the animation takes to finish, starting from the time {@link #start()}
+     * is called. {@link Animator#DURATION_INFINITE} if the animation or any of the child
+     * animations repeats infinite times.
+     */
+    public long getTotalDuration() {
+        return mAnimatedVectorState.mAnimatorSet.getTotalDuration();
+    }
+
+    class InternalAnimatorListener extends AnimatorListenerAdapter
+            implements Animator.AnimatorUpdateListener {
+
+        @Override
+        public void onAnimationStart(@NonNull Animator animation) {
+            final ArrayList<AnimationCallback> callbacks = mAnimationCallbacks;
+            if (callbacks != null) {
+                for (int i = 0, size = callbacks.size(); i < size; i++) {
+                    callbacks.get(i).onAnimationStart(SeekableAnimatedVectorDrawable.this);
+                }
+            }
+        }
+
+        @Override
+        public void onAnimationEnd(@NonNull Animator animation) {
+            final ArrayList<AnimationCallback> callbacks = mAnimationCallbacks;
+            if (callbacks != null) {
+                for (int i = 0, size = callbacks.size(); i < size; i++) {
+                    callbacks.get(i).onAnimationEnd(SeekableAnimatedVectorDrawable.this);
+                }
+            }
+        }
+
+        @Override
+        public void onAnimationPause(@NonNull Animator animation) {
+            final ArrayList<AnimationCallback> callbacks = mAnimationCallbacks;
+            if (callbacks != null) {
+                for (int i = 0, size = callbacks.size(); i < size; i++) {
+                    callbacks.get(i).onAnimationPause(SeekableAnimatedVectorDrawable.this);
+                }
+            }
+        }
+
+        @Override
+        public void onAnimationResume(@NonNull Animator animation) {
+            final ArrayList<AnimationCallback> callbacks = mAnimationCallbacks;
+            if (callbacks != null) {
+                for (int i = 0, size = callbacks.size(); i < size; i++) {
+                    callbacks.get(i).onAnimationResume(SeekableAnimatedVectorDrawable.this);
+                }
+            }
+        }
+
+        @Override
+        public void onAnimationUpdate(@NonNull Animator animation) {
+            final ArrayList<AnimationCallback> callbacks = mAnimationCallbacks;
+            if (callbacks != null) {
+                for (int i = 0, size = callbacks.size(); i < size; i++) {
+                    callbacks.get(i).onAnimationUpdate(SeekableAnimatedVectorDrawable.this);
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a callback to listen to the animation events.
+     *
+     * @param callback Callback to add.
+     */
+    public void registerAnimationCallback(@NonNull AnimationCallback callback) {
         // Add listener accordingly.
         if (mAnimationCallbacks == null) {
             mAnimationCallbacks = new ArrayList<>();
-        }
-
-        if (mAnimationCallbacks.contains(callback)) {
+        } else if (mAnimationCallbacks.contains(callback)) {
             // If this call back is already in, then don't need to append another copy.
             return;
+        } else {
+            mAnimationCallbacks = new ArrayList<>(mAnimationCallbacks);
         }
 
         mAnimationCallbacks.add(callback);
 
         if (mAnimatorListener == null) {
-            // Create a animator listener and trigger the callback events when listener is
-            // triggered.
-            mAnimatorListener = new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(@NonNull Animator animation) {
-                    ArrayList<Animatable2.AnimationCallback> tmpCallbacks =
-                            new ArrayList<>(mAnimationCallbacks);
-                    int size = tmpCallbacks.size();
-                    for (int i = 0; i < size; i++) {
-                        tmpCallbacks.get(i).onAnimationStart(SeekableAnimatedVectorDrawable.this);
-                    }
-                }
-
-                @Override
-                public void onAnimationEnd(@NonNull Animator animation) {
-                    ArrayList<Animatable2.AnimationCallback> tmpCallbacks =
-                            new ArrayList<>(mAnimationCallbacks);
-                    int size = tmpCallbacks.size();
-                    for (int i = 0; i < size; i++) {
-                        tmpCallbacks.get(i).onAnimationEnd(SeekableAnimatedVectorDrawable.this);
-                    }
-                }
-            };
+            // Create an internal listener in order to bridge events to our callbacks.
+            mAnimatorListener = new InternalAnimatorListener();
             mAnimatedVectorState.mAnimatorSet.addListener(mAnimatorListener);
+            mAnimatedVectorState.mAnimatorSet.addPauseListener(mAnimatorListener);
+            mAnimatedVectorState.mAnimatorSet.addUpdateListener(mAnimatorListener);
         }
     }
 
@@ -602,26 +766,42 @@ public class SeekableAnimatedVectorDrawable extends Drawable implements Animatab
     private void removeAnimatorSetListener() {
         if (mAnimatorListener != null) {
             mAnimatedVectorState.mAnimatorSet.removeListener(mAnimatorListener);
+            mAnimatedVectorState.mAnimatorSet.removePauseListener(mAnimatorListener);
+            mAnimatedVectorState.mAnimatorSet.removeUpdateListener(mAnimatorListener);
             mAnimatorListener = null;
         }
     }
 
-    @Override
-    public boolean unregisterAnimationCallback(@NonNull Animatable2.AnimationCallback callback) {
+    /**
+     * Removes the specified animation callback.
+     *
+     * @param callback Callback to remove.
+     * @return {@code false} if callback didn't exist in the call back list, or {@code true} if
+     * callback has been removed successfully.
+     */
+    public boolean unregisterAnimationCallback(@NonNull AnimationCallback callback) {
         if (mAnimationCallbacks == null) {
             // Nothing to be removed.
             return false;
         }
-        boolean removed = mAnimationCallbacks.remove(callback);
+
+        boolean removed = false;
+        if (mAnimationCallbacks.contains(callback)) {
+            mAnimationCallbacks = new ArrayList<>(mAnimationCallbacks);
+            mAnimationCallbacks.remove(callback);
+            removed = true;
+        }
 
         //  When the last call back unregistered, remove the listener accordingly.
-        if (mAnimationCallbacks.size() == 0) {
+        if (mAnimationCallbacks.isEmpty()) {
             removeAnimatorSetListener();
         }
         return removed;
     }
 
-    @Override
+    /**
+     * Removes all existing animation callbacks.
+     */
     public void clearAnimationCallbacks() {
         removeAnimatorSetListener();
         if (mAnimationCallbacks == null) {

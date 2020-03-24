@@ -19,10 +19,16 @@ ActionValue: androidx.tvprovider.media.tv.TvContractCompat#EXTRA_WATCH_NEXT_PROG
 
 ArrayReturn: androidx.tvprovider.media.tv.PreviewProgram#getContentRatings():
     Method should return Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+ArrayReturn: androidx.tvprovider.media.tv.PreviewProgram.Builder#setContentRatings(android.media.tv.TvContentRating[]) parameter #0:
+    Method parameter should be Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
 ArrayReturn: androidx.tvprovider.media.tv.Program#getContentRatings():
     Method should return Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+ArrayReturn: androidx.tvprovider.media.tv.Program.Builder#setContentRatings(android.media.tv.TvContentRating[]) parameter #0:
+    Method parameter should be Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
 ArrayReturn: androidx.tvprovider.media.tv.WatchNextProgram#getContentRatings():
     Method should return Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+ArrayReturn: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setContentRatings(android.media.tv.TvContentRating[]) parameter #0:
+    Method parameter should be Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
 
 
 AutoBoxing: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag1():
@@ -313,68 +319,6 @@ MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#fromCursor(andro
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#fromCursor(android.database.Cursor) parameter #0:
     Missing nullability on parameter `cursor` in method `fromCursor`
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getAudioLanguages():
-    Missing nullability on method `getAudioLanguages` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getAuthor():
-    Missing nullability on method `getAuthor` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getCanonicalGenres():
-    Missing nullability on method `getCanonicalGenres` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getContentId():
-    Missing nullability on method `getContentId` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getContentRatings():
-    Missing nullability on method `getContentRatings` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getDescription():
-    Missing nullability on method `getDescription` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getEpisodeNumber():
-    Missing nullability on method `getEpisodeNumber` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getEpisodeTitle():
-    Missing nullability on method `getEpisodeTitle` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getGenre():
-    Missing nullability on method `getGenre` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getIntent():
-    Missing nullability on method `getIntent` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getIntentUri():
-    Missing nullability on method `getIntentUri` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getInternalProviderDataByteArray():
-    Missing nullability on method `getInternalProviderDataByteArray` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getInternalProviderFlag1():
-    Missing nullability on method `getInternalProviderFlag1` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getInternalProviderFlag2():
-    Missing nullability on method `getInternalProviderFlag2` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getInternalProviderFlag3():
-    Missing nullability on method `getInternalProviderFlag3` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getInternalProviderFlag4():
-    Missing nullability on method `getInternalProviderFlag4` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getInternalProviderId():
-    Missing nullability on method `getInternalProviderId` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getLogoContentDescription():
-    Missing nullability on method `getLogoContentDescription` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getLogoUri():
-    Missing nullability on method `getLogoUri` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getLongDescription():
-    Missing nullability on method `getLongDescription` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getOfferPrice():
-    Missing nullability on method `getOfferPrice` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getPosterArtUri():
-    Missing nullability on method `getPosterArtUri` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getPreviewAudioUri():
-    Missing nullability on method `getPreviewAudioUri` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getPreviewVideoUri():
-    Missing nullability on method `getPreviewVideoUri` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getReleaseDate():
-    Missing nullability on method `getReleaseDate` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getReviewRating():
-    Missing nullability on method `getReviewRating` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getSeasonNumber():
-    Missing nullability on method `getSeasonNumber` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getSeasonTitle():
-    Missing nullability on method `getSeasonTitle` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getStartingPrice():
-    Missing nullability on method `getStartingPrice` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getThumbnailUri():
-    Missing nullability on method `getThumbnailUri` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#getTitle():
-    Missing nullability on method `getTitle` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#hasAnyUpdatedValues(androidx.tvprovider.media.tv.PreviewProgram) parameter #0:
     Missing nullability on parameter `update` in method `hasAnyUpdatedValues`
 MissingNullability: androidx.tvprovider.media.tv.PreviewProgram#toContentValues():
@@ -391,44 +335,8 @@ MissingNullability: androidx.tvprovider.media.tv.Program#fromCursor(android.data
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.Program#fromCursor(android.database.Cursor) parameter #0:
     Missing nullability on parameter `cursor` in method `fromCursor`
-MissingNullability: androidx.tvprovider.media.tv.Program#getAudioLanguages():
-    Missing nullability on method `getAudioLanguages` return
 MissingNullability: androidx.tvprovider.media.tv.Program#getBroadcastGenres():
     Missing nullability on method `getBroadcastGenres` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getCanonicalGenres():
-    Missing nullability on method `getCanonicalGenres` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getContentRatings():
-    Missing nullability on method `getContentRatings` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getDescription():
-    Missing nullability on method `getDescription` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getEpisodeNumber():
-    Missing nullability on method `getEpisodeNumber` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getEpisodeTitle():
-    Missing nullability on method `getEpisodeTitle` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getInternalProviderDataByteArray():
-    Missing nullability on method `getInternalProviderDataByteArray` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getInternalProviderFlag1():
-    Missing nullability on method `getInternalProviderFlag1` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getInternalProviderFlag2():
-    Missing nullability on method `getInternalProviderFlag2` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getInternalProviderFlag3():
-    Missing nullability on method `getInternalProviderFlag3` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getInternalProviderFlag4():
-    Missing nullability on method `getInternalProviderFlag4` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getLongDescription():
-    Missing nullability on method `getLongDescription` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getPosterArtUri():
-    Missing nullability on method `getPosterArtUri` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getReviewRating():
-    Missing nullability on method `getReviewRating` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getSeasonNumber():
-    Missing nullability on method `getSeasonNumber` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getSeasonTitle():
-    Missing nullability on method `getSeasonTitle` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getThumbnailUri():
-    Missing nullability on method `getThumbnailUri` return
-MissingNullability: androidx.tvprovider.media.tv.Program#getTitle():
-    Missing nullability on method `getTitle` return
 MissingNullability: androidx.tvprovider.media.tv.Program#toContentValues():
     Missing nullability on method `toContentValues` return
 MissingNullability: androidx.tvprovider.media.tv.Program.Builder#Builder(androidx.tvprovider.media.tv.Program) parameter #0:
@@ -525,68 +433,6 @@ MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#fromCursor(and
     Missing nullability on method `fromCursor` return
 MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#fromCursor(android.database.Cursor) parameter #0:
     Missing nullability on parameter `cursor` in method `fromCursor`
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getAudioLanguages():
-    Missing nullability on method `getAudioLanguages` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getAuthor():
-    Missing nullability on method `getAuthor` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getCanonicalGenres():
-    Missing nullability on method `getCanonicalGenres` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getContentId():
-    Missing nullability on method `getContentId` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getContentRatings():
-    Missing nullability on method `getContentRatings` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getDescription():
-    Missing nullability on method `getDescription` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getEpisodeNumber():
-    Missing nullability on method `getEpisodeNumber` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getEpisodeTitle():
-    Missing nullability on method `getEpisodeTitle` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getGenre():
-    Missing nullability on method `getGenre` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getIntent():
-    Missing nullability on method `getIntent` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getIntentUri():
-    Missing nullability on method `getIntentUri` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderDataByteArray():
-    Missing nullability on method `getInternalProviderDataByteArray` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderFlag1():
-    Missing nullability on method `getInternalProviderFlag1` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderFlag2():
-    Missing nullability on method `getInternalProviderFlag2` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderFlag3():
-    Missing nullability on method `getInternalProviderFlag3` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderFlag4():
-    Missing nullability on method `getInternalProviderFlag4` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderId():
-    Missing nullability on method `getInternalProviderId` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getLogoContentDescription():
-    Missing nullability on method `getLogoContentDescription` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getLogoUri():
-    Missing nullability on method `getLogoUri` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getLongDescription():
-    Missing nullability on method `getLongDescription` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getOfferPrice():
-    Missing nullability on method `getOfferPrice` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getPosterArtUri():
-    Missing nullability on method `getPosterArtUri` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getPreviewAudioUri():
-    Missing nullability on method `getPreviewAudioUri` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getPreviewVideoUri():
-    Missing nullability on method `getPreviewVideoUri` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getReleaseDate():
-    Missing nullability on method `getReleaseDate` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getReviewRating():
-    Missing nullability on method `getReviewRating` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getSeasonNumber():
-    Missing nullability on method `getSeasonNumber` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getSeasonTitle():
-    Missing nullability on method `getSeasonTitle` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getStartingPrice():
-    Missing nullability on method `getStartingPrice` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getThumbnailUri():
-    Missing nullability on method `getThumbnailUri` return
-MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#getTitle():
-    Missing nullability on method `getTitle` return
 MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#hasAnyUpdatedValues(androidx.tvprovider.media.tv.WatchNextProgram) parameter #0:
     Missing nullability on parameter `update` in method `hasAnyUpdatedValues`
 MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram#toContentValues():

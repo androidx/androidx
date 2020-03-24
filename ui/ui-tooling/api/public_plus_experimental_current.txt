@@ -58,7 +58,39 @@ package androidx.ui.tooling.preview {
     method public abstract int widthDp() default -1;
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public @interface PreviewParameter {
+    method public abstract int limit() default 2147483647;
+    method public abstract Class<? extends androidx.ui.tooling.preview.PreviewParameterProvider<?>> provider();
+  }
+
+  public interface PreviewParameterProvider<T> {
+    method public default int getCount();
+    method public kotlin.sequences.Sequence<T> getValues();
+    property public default int count;
+    property public abstract kotlin.sequences.Sequence<T> values;
+  }
+
   public final class PreviewUtilsKt {
+  }
+
+}
+
+package androidx.ui.tooling.preview.datasource {
+
+  public class CollectionPreviewParameterProvider<T> implements androidx.ui.tooling.preview.PreviewParameterProvider<T> {
+    ctor public CollectionPreviewParameterProvider(java.util.Collection<? extends T> collection);
+    method public kotlin.sequences.Sequence<T> getValues();
+    property public kotlin.sequences.Sequence<T> values;
+  }
+
+  public final class LoremIpsum implements androidx.ui.tooling.preview.PreviewParameterProvider<java.lang.String> {
+    ctor public LoremIpsum(int words);
+    ctor public LoremIpsum();
+    method public kotlin.sequences.Sequence<java.lang.String> getValues();
+    property public kotlin.sequences.Sequence<java.lang.String> values;
+  }
+
+  public final class LoremIpsumKt {
   }
 
 }

@@ -29,6 +29,7 @@ plugins {
 }
 
 dependencies {
+    kotlinPlugin project(path: ":compose:compose-compiler")
     implementation(KOTLIN_STDLIB)
 
     api "androidx.annotation:annotation:1.1.0"

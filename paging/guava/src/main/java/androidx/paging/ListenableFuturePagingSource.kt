@@ -21,6 +21,8 @@ import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * [ListenableFuture]-based compatibility wrapper around [PagingSource]'s suspending APIs.
+ *
+ * @sample androidx.paging.samples.listenableFuturePagingSourceSample
  */
 abstract class ListenableFuturePagingSource<Key : Any, Value : Any> : PagingSource<Key, Value>() {
     /**

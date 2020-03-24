@@ -37,7 +37,6 @@ import kotlinx.coroutines.launch
  * Cancellation of the collection might be triggered by both this producer (e.g. upstream completes)
  * or the [ChannelManager] (e.g. all active collectors complete).
  */
-@ExperimentalCoroutinesApi
 internal class SharedFlowProducer<T>(
     private val scope: CoroutineScope,
     private val src: Flow<T>,
@@ -48,6 +47,7 @@ internal class SharedFlowProducer<T>(
     /**
      * Starts the collection of the upstream flow.
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun start() {
         scope.launch {
             try {

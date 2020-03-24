@@ -38,7 +38,6 @@ import java.util.ArrayList;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-
 public class ControlBarTest {
 
     @Test

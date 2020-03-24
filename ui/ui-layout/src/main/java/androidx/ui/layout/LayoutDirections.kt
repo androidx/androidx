@@ -18,22 +18,19 @@ package androidx.ui.layout
 
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.ModifierScope
+import androidx.ui.unit.Density
 
 /**
  * A layout modifier that changes the layout direction of the corresponding layout node.
  */
-// TODO(soboleva) Make a public API
-internal object LayoutDirectionModifier {
+object LayoutDirectionModifier {
     val Ltr: LayoutModifier = LayoutDirectionModifierImpl(LayoutDirection.Ltr)
     val Rtl: LayoutModifier = LayoutDirectionModifierImpl(LayoutDirection.Rtl)
-    val Restore: LayoutModifier = LayoutDirectionModifierImpl(null)
 }
 
 private data class LayoutDirectionModifierImpl(
-    val newLayoutDirection: LayoutDirection?
+    val newLayoutDirection: LayoutDirection
 ) : LayoutModifier {
-    // if newLayoutDirection set by modifier is null, then we restore to ambient's layout direction
-    override fun ModifierScope.modifyLayoutDirection() =
-        newLayoutDirection ?: ambientLayoutDirection
+    override fun Density.modifyLayoutDirection(layoutDirection: LayoutDirection) =
+        newLayoutDirection
 }

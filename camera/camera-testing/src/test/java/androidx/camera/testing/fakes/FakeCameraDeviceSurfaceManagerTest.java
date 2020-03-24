@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 import android.os.Build;
 import android.util.Size;
 
-import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -54,35 +54,35 @@ public class FakeCameraDeviceSurfaceManagerTest {
 
     private FakeCameraDeviceSurfaceManager mFakeCameraDeviceSurfaceManager;
 
-    private FakeUseCase mFakeUseCase;
+    private FakeUseCaseConfig mFakeUseCaseConfig;
 
-    private List<UseCase> mUseCaseList;
+    private List<UseCaseConfig<?>> mUseCaseConfigList;
 
     @Before
     public void setUp() {
         mFakeCameraDeviceSurfaceManager = new FakeCameraDeviceSurfaceManager();
-        mFakeUseCase = mock(FakeUseCase.class);
+        mFakeUseCaseConfig = mock(FakeUseCaseConfig.class);
 
         mFakeCameraDeviceSurfaceManager.setSuggestedResolution(FAKE_CAMERA_ID0,
-                mFakeUseCase.getClass(), new Size(FAKE_WIDTH0, FAKE_HEIGHT0));
+                mFakeUseCaseConfig.getClass(), new Size(FAKE_WIDTH0, FAKE_HEIGHT0));
         mFakeCameraDeviceSurfaceManager.setSuggestedResolution(FAKE_CAMERA_ID1,
-                mFakeUseCase.getClass(), new Size(FAKE_WIDTH1, FAKE_HEIGHT1));
+                mFakeUseCaseConfig.getClass(), new Size(FAKE_WIDTH1, FAKE_HEIGHT1));
 
-        mUseCaseList = Collections.singletonList((UseCase) mFakeUseCase);
+        mUseCaseConfigList = Collections.singletonList((UseCaseConfig<?>) mFakeUseCaseConfig);
     }
 
     @Test
     public void canRetrieveInsertedSuggestedResolutions() {
-        Map<UseCase, Size> suggestedSizesCamera0 =
+        Map<UseCaseConfig<?>, Size> suggestedSizesCamera0 =
                 mFakeCameraDeviceSurfaceManager.getSuggestedResolutions(FAKE_CAMERA_ID0,
-                        Collections.<UseCase>emptyList(), mUseCaseList);
-        Map<UseCase, Size> suggestedSizesCamera1 =
+                        Collections.emptyList(), mUseCaseConfigList);
+        Map<UseCaseConfig<?>, Size> suggestedSizesCamera1 =
                 mFakeCameraDeviceSurfaceManager.getSuggestedResolutions(FAKE_CAMERA_ID1,
-                        Collections.<UseCase>emptyList(), mUseCaseList);
+                        Collections.emptyList(), mUseCaseConfigList);
 
-        assertThat(suggestedSizesCamera0.get(mFakeUseCase)).isEqualTo(
+        assertThat(suggestedSizesCamera0.get(mFakeUseCaseConfig)).isEqualTo(
                 new Size(FAKE_WIDTH0, FAKE_HEIGHT0));
-        assertThat(suggestedSizesCamera1.get(mFakeUseCase)).isEqualTo(
+        assertThat(suggestedSizesCamera1.get(mFakeUseCaseConfig)).isEqualTo(
                 new Size(FAKE_WIDTH1, FAKE_HEIGHT1));
 
     }

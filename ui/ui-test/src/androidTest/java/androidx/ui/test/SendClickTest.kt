@@ -21,14 +21,15 @@ import android.os.Bundle
 import android.view.Gravity
 import android.widget.FrameLayout
 import androidx.compose.Composable
-import androidx.compose.Compose
+import androidx.compose.Composition
 import androidx.test.filters.MediumTest
-import androidx.ui.core.AndroidComposeView
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInput
+import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.TestTag
 import androidx.ui.core.changedToUp
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
@@ -60,6 +61,7 @@ private data class ClickData(
 // The presence of an ActionBar follows from the theme set in AndroidManifest.xml
 class ActivityWithActionBar : Activity() {
     private lateinit var composeHolder: FrameLayout
+    private var composition: Composition? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,15 +78,12 @@ class ActivityWithActionBar : Activity() {
     }
 
     override fun onDestroy() {
-        val composeView = composeHolder.getChildAt(0) as? AndroidComposeView
-        if (composeView != null) {
-            Compose.disposeComposition(composeView.root, this, null)
-        }
+        composition?.dispose()
         super.onDestroy()
     }
 
     fun setContent(composable: @Composable() () -> Unit) {
-        composeHolder.setContent(composable)
+        composition = composeHolder.setContent(composable)
     }
 }
 
@@ -108,19 +107,27 @@ private fun Ui(recordedClicks: MutableList<ClickData>) {
             for (i in first..last) {
                 TestTag(tag = "$tag$i") {
                     Semantics(container = true) {
-                        PointerInput(
-                            pointerInputHandler = { changes, pass, _ ->
-                                if (pass == PointerEventPass.InitialDown) {
-                                    changes.filter { it.changedToUp() }.forEach {
-                                        recordedClicks.add(ClickData(i, it.current.position!!))
-                                    }
+                        val pointerInputModifier =
+                            object : PointerInputModifier {
+                                override val pointerInputFilter = object : PointerInputFilter() {
+                                    override val pointerInputHandler: PointerInputHandler =
+                                        { changes, pass, _ ->
+                                            if (pass == PointerEventPass.InitialDown) {
+                                                changes.filter { it.changedToUp() }.forEach {
+                                                    recordedClicks.add(
+                                                        ClickData(i, it.current.position!!)
+                                                    )
+                                                }
+                                            }
+                                            changes
+                                        }
+                                    override val cancelHandler: () -> Unit = {}
                                 }
-                                changes
-                            },
-                            cancelHandler = {}
-                        ) {
-                            Box(LayoutSize(squareSize.toDp()), backgroundColor = colors[i])
-                        }
+                            }
+                        Box(
+                            pointerInputModifier + LayoutSize(squareSize.toDp()),
+                            backgroundColor = colors[i]
+                        )
                     }
                 }
             }

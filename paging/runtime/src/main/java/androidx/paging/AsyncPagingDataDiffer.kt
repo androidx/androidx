@@ -16,15 +16,22 @@
 
 package androidx.paging
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.coroutineScope
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicReference
 
 open class AsyncPagingDataDiffer<T : Any>(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
@@ -73,6 +80,9 @@ open class AsyncPagingDataDiffer<T : Any>(
         }
     }
 
+    /** True if we're currently executing [getItem] */
+    internal var inGetItem: Boolean = false
+
     private val differBase = object : PagingDataDiffer<T>(mainDispatcher) {
         override suspend fun performDiff(
             previousList: NullPaddedList<T>,
@@ -85,11 +95,13 @@ open class AsyncPagingDataDiffer<T : Any>(
                     previousList.size == 0 -> {
                         // fast path for no items -> some items
                         callback.onInserted(0, newList.size)
+                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
                         return@withContext null
                     }
                     newList.size == 0 -> {
                         // fast path for some items -> no items
                         callback.onRemoved(0, previousList.size)
+                        newLoadStates.entries.forEach { callback.onStateUpdate(it.key, it.value) }
                         return@withContext null
                     }
                     else -> { // full diff
@@ -109,10 +121,34 @@ open class AsyncPagingDataDiffer<T : Any>(
                 }
             }
         }
+
+        /**
+         * Return if [getItem] is running to post any data modifications.
+         *
+         * This must be done because RecyclerView can't be modified during an onBind, when
+         * [getItem] is generally called.
+         */
+        override fun postEvents(): Boolean {
+            return inGetItem
+        }
     }
 
-    suspend fun collectFrom(pagingData: PagingData<T>) {
-        differBase.collectFrom(pagingData, callback)
+    private val job = AtomicReference<Job?>(null)
+
+    suspend fun presentData(pagingData: PagingData<T>) {
+        try {
+            job.get()?.cancelAndJoin()
+        } finally {
+            differBase.collectFrom(pagingData, callback)
+        }
+    }
+
+    fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
+        val newJob = lifecycle.coroutineScope.launch(start = CoroutineStart.LAZY) {
+            differBase.collectFrom(pagingData, callback)
+        }
+        job.getAndSet(newJob)?.cancel()
+        newJob.start()
     }
 
     fun retry() {
@@ -131,7 +167,14 @@ open class AsyncPagingDataDiffer<T : Any>(
      * @param index Index of item to get, must be >= 0, and < [itemCount]
      * @return The item, or null, if a null placeholder is at the specified position.
      */
-    open fun getItem(index: Int): T? = differBase[index]
+    open fun getItem(index: Int): T? {
+        try {
+            inGetItem = true
+            return differBase[index]
+        } finally {
+            inGetItem = false
+        }
+    }
 
     /**
      * Get the number of items currently presented by this Differ. This value can be directly

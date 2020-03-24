@@ -29,7 +29,7 @@ class StartupRuntimeIssueRegistry : IssueRegistry() {
     override val api = CURRENT_API
     override val issues: List<Issue>
         get() = listOf(
-            ComponentInitializerConstructorDetector.ISSUE,
-            EnsureComponentInitializerMetadataDetector.ISSUE
+            InitializerConstructorDetector.ISSUE,
+            EnsureInitializerMetadataDetector.ISSUE
         )
 }

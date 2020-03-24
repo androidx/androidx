@@ -15,105 +15,121 @@
  */
 package androidx.ui.core
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
+import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.animation.AnimationClockObservable
-import androidx.animation.DefaultAnimationClock
-import androidx.ui.core.input.FocusManager
-import androidx.ui.input.TextInputService
+import androidx.animation.rootAnimationClockFactory
+import androidx.annotation.MainThread
 import androidx.compose.Composable
-import androidx.compose.Compose
 import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
-import androidx.compose.Observe
+import androidx.compose.NeverEqual
 import androidx.compose.Providers
 import androidx.compose.StructurallyEqual
-import androidx.compose.ViewComposer
 import androidx.compose.ambientOf
-import androidx.compose.compositionReference
-import androidx.compose.currentComposer
-import androidx.compose.invalidate
 import androidx.compose.remember
-import androidx.compose.onPreCommit
+import androidx.compose.state
 import androidx.compose.staticAmbientOf
+import androidx.compose.compositionFor
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.input.FocusManager
+import androidx.ui.core.input.FocusManagerImpl
 import androidx.ui.core.selection.SelectionContainer
+import androidx.ui.input.TextInputService
+import androidx.ui.node.UiComposer
+import androidx.ui.platform.AndroidUriHandler
+import androidx.ui.platform.UriHandler
+import androidx.ui.savedinstancestate.UiSavedStateRegistryAmbient
 import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 
 /**
- * Composes a view containing ui composables into a view composition.
- * <p>
- * This is supposed to be used only in view compositions. If compose ui is supposed to be the root of composition use
- * [Activity.setContent] or [ViewGroup.setContent] extensions.
+ * Composes the children of the view with the passed in [composable].
+ *
+ * @see setViewContent
+ * @see Composition.dispose
  */
-@Composable
-fun ComposeView(children: @Composable() () -> Unit) {
-    val rootRef = remember { Ref<AndroidComposeView>() }
-
-    AndroidComposeView(ref = rootRef) {
-        var reference: CompositionReference? = null
-        var cc: Composition? = null
-
-        // This is a temporary solution until we get proper subcomposition APIs in place.
-        // Right now, we want to enforce a sort of "depth-first" ordering of recompositions,
-        // even when they happen across composition contexts. When we do "subcomposition",
-        // like we are doing here, that means for every invalidation of the child context, we
-        // need to invalidate the scope of the parent reference, and wait for it to recompose
-        // the child. The Observe is put in place here to ensure that the scope around the
-        // reference we are using is as small as possible, and, in particular, does not include
-        // the composition of `children()`. This means that we are using the nullability of `cc`
-        // to determine if the ComposeWrapper in general is getting recomposed, or if its just
-        // the invalidation scope of the Observe. If it's the latter, we just want to call
-        // `cc.recomposeSync()` which will only recompose the invalidations in the child context,
-        // which means it *will not* call `children()` again if it doesn't have to.
-        Observe {
-            reference = compositionReference()
-            cc?.recomposeSync()
-            onPreCommit(true) {
-                onDispose {
-                    rootRef.value?.let {
-                        val layoutRootNode = it.root
-                        val context = it.context
-                        Compose.disposeComposition(layoutRootNode, context)
-                    }
-                }
-            }
-        }
-        val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
-        val context = rootRef.value?.context ?: (currentComposer as ViewComposer).context
-
-        // If this value is inlined where it is used, an error that includes 'Precise Reference:
-        // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
-        val coroutineContext = Dispatchers.Main
-        cc =
-            Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
-                WrapWithAmbients(rootRef.value!!, context, coroutineContext, children)
-            }
+// TODO: Remove this API when View/ComponentNode mixed trees work
+fun ViewGroup.setViewContent(
+    parent: CompositionReference? = null,
+    composable: @Composable() () -> Unit
+): Composition = compositionFor(
+    container = this,
+    context = context,
+    parent = parent,
+    onBeforeFirstComposition = {
+        removeAllViews()
     }
+).apply {
+    setContent(composable)
+}
+
+/**
+ * Sets the contentView of an activity to a FrameLayout, and composes the contents of the layout
+ * with the passed in [composable].
+ *
+ * @see setContent
+ * @see Activity.setContentView
+ */
+// TODO: Remove this API when View/ComponentNode mixed trees work
+fun Activity.setViewContent(composable: @Composable() () -> Unit): Composition {
+    // TODO(lmr): add ambients here, or remove API entirely if we can
+    // If there is already a FrameLayout in the root, we assume we want to compose
+    // into it instead of create a new one. This allows for `setContent` to be
+    // called multiple times.
+    val root = window
+        .decorView
+        .findViewById<ViewGroup>(android.R.id.content)
+        .getChildAt(0) as? ViewGroup
+        ?: FrameLayout(this).also { setContentView(it) }
+    return root.setViewContent(null, composable)
+}
+
+// TODO(chuckj): This is a temporary work-around until subframes exist so that
+// nextFrame() inside recompose() doesn't really start a new frame, but a new subframe
+// instead.
+@MainThread
+fun subcomposeInto(
+    container: ComponentNode,
+    context: Context,
+    parent: CompositionReference? = null,
+    composable: @Composable() () -> Unit
+): Composition = compositionFor(container, context, parent).apply {
+    setContent(composable)
 }
 
 /**
  * Composes the given composable into the given activity. The composable will become the root view
  * of the given activity.
  *
+ * Note: the returned [Composition] object is not guaranteed to stay the same between the
+ * invocations so it is not safe to use it as a key.
  * @param content Composable that will be the content of the activity.
  */
 fun Activity.setContent(
     content: @Composable() () -> Unit
 ): Composition {
     FrameManager.ensureStarted()
-    val composeView = window.decorView
+    val composeView: Owner = window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
-        .getChildAt(0) as? AndroidComposeView
-        ?: AndroidComposeView(this).also { setContentView(it) }
+        .getChildAt(0) as? Owner
+        ?: createOwner(this).also {
+            if (it is ViewGroup) {
+                setContentView(it)
+            }
+        }
+
+    // TODO(lmr): setup lifecycle-based dispose since we have Activity here
 
     return doSetContent(composeView, this, content)
 }
@@ -130,47 +146,83 @@ private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
 /**
  * Composes the given composable into the given view.
  *
+ * Note 1: this [ViewGroup] should have an unique id for the saved instance state mechanism to
+ * be able to save and restore the values used within the composition. See [View.setId].
+ * Note 2: the returned [Composition] object is not guaranteed to stay the same between the
+ * invocations so it is not safe to use it as a key.
  * @param content Composable that will be the content of the view.
  */
 fun ViewGroup.setContent(
     content: @Composable() () -> Unit
 ): Composition {
     val composeView =
-        if (childCount > 0) { getChildAt(0) as? AndroidComposeView } else { removeAllViews(); null }
-        ?: AndroidComposeView(context).also { addView(it) }
+        if (childCount > 0) {
+            getChildAt(0) as? Owner
+        } else {
+            removeAllViews(); null
+        }
+            ?: createOwner(context).also { if (it is ViewGroup) addView(it) }
     return doSetContent(composeView, context, content)
 }
 
 private fun doSetContent(
-    composeView: AndroidComposeView,
+    owner: Owner,
     context: Context,
     content: @Composable() () -> Unit
-): Composition = Compose.composeInto(composeView.root, context) {
-    val currentComposer = currentComposer as ViewComposer
-    remember { currentComposer.adapters?.register(AndroidViewAdapter) }
-    WrapWithAmbients(composeView, context, Dispatchers.Main) {
-        WrapWithSelectionContainer(content)
+): Composition {
+    val originalComposition = compositionFor(owner.root, context)
+    val compositionWrapper = object : Composition {
+        private var disposed = false
+
+        override fun setContent(content: @Composable() () -> Unit) {
+            if (owner.savedStateRegistry != null) {
+                originalComposition.setContent {
+                    WrapWithAmbients(owner, context, Dispatchers.Main) {
+                        WrapWithSelectionContainer(content)
+                    }
+                }
+            } else {
+                // we will postpone the real composition until composeView restores the state.
+                owner.setOnSavedStateRegistryAvailable {
+                    if (!disposed) {
+                        setContent(content)
+                    }
+                }
+            }
+        }
+
+        override fun dispose() {
+            disposed = true
+            originalComposition.dispose()
+        }
     }
+    compositionWrapper.setContent(content)
+    return compositionWrapper
 }
 
+@SuppressLint("UnnecessaryLambdaCreation")
 @Composable
 private fun WrapWithAmbients(
-    composeView: AndroidComposeView,
+    owner: Owner,
     context: Context,
     coroutineContext: CoroutineContext,
     content: @Composable() () -> Unit
 ) {
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
     //             with nested AndroidComposeView case
-    val focusManager = remember { FocusManager() }
-    val configuration = context.applicationContext.resources.configuration
+    val focusManager = remember { FocusManagerImpl() }
+    var configuration by state(NeverEqual) {
+        context.applicationContext.resources.configuration
+    }
 
     // onConfigurationChange is the correct hook to update configuration, however it is
     // possible that the configuration object itself may come from a wrapped
     // context / themed activity, and may not actually reflect the system. So instead we
     // use this hook to grab the applicationContext's configuration, which accurately
     // reflects the state of the application / system.
-    composeView.configurationChangeObserver = invalidate
+    owner.configurationChangeObserver = {
+        configuration = context.applicationContext.resources.configuration
+    }
 
     // We don't use the attached View's layout direction here since that layout direction may not
     // be resolved since the composables may be composed without attaching to the RootViewImpl.
@@ -184,21 +236,26 @@ private fun WrapWithAmbients(
         else -> LayoutDirection.Ltr
     }
 
-    val defaultAnimationClock = remember { DefaultAnimationClock() }
+    val rootAnimationClock = remember { rootAnimationClockFactory() }
+    val savedStateRegistry = requireNotNull(owner.savedStateRegistry)
+
+    val uriHandler = remember { AndroidUriHandler(context) }
 
     Providers(
         ContextAmbient provides context,
         CoroutineContextAmbient provides coroutineContext,
         DensityAmbient provides Density(context),
         FocusManagerAmbient provides focusManager,
-        TextInputServiceAmbient provides composeView.textInputService,
-        FontLoaderAmbient provides composeView.fontLoader,
-        HapticFeedBackAmbient provides composeView.hapticFeedBack,
-        AutofillTreeAmbient provides composeView.autofillTree,
-        ConfigurationAmbient provides context.applicationContext.resources.configuration,
-        AndroidComposeViewAmbient provides composeView,
+        TextInputServiceAmbient provides owner.textInputService,
+        FontLoaderAmbient provides owner.fontLoader,
+        HapticFeedBackAmbient provides owner.hapticFeedBack,
+        AutofillTreeAmbient provides owner.autofillTree,
+        ConfigurationAmbient provides configuration,
+        OwnerAmbient provides owner,
         LayoutDirectionAmbient provides layoutDirection,
-        AnimationClockAmbient provides defaultAnimationClock,
+        AnimationClockAmbient provides rootAnimationClock,
+        UiSavedStateRegistryAmbient provides savedStateRegistry,
+        UriHandlerAmbient provides uriHandler,
         children = content
     )
 }
@@ -209,10 +266,10 @@ val DensityAmbient = ambientOf<Density>(StructurallyEqual)
 
 val CoroutineContextAmbient = ambientOf<CoroutineContext>()
 
-val ConfigurationAmbient = ambientOf<Configuration>(StructurallyEqual)
+val ConfigurationAmbient = ambientOf<Configuration>(NeverEqual)
 
-// TODO(b/139866476): The AndroidComposeView should not be exposed via ambient
-val AndroidComposeViewAmbient = staticAmbientOf<AndroidComposeView>()
+// TODO(b/139866476): The Owner should not be exposed via ambient
+val OwnerAmbient = staticAmbientOf<Owner>()
 
 val AutofillAmbient = ambientOf<Autofill?>()
 
@@ -229,7 +286,23 @@ val AnimationClockAmbient = staticAmbientOf<AnimationClockObservable>()
 
 val FontLoaderAmbient = staticAmbientOf<Font.ResourceLoader>()
 
+val UriHandlerAmbient = staticAmbientOf<UriHandler>()
+
 /**
  * The ambient to provide haptic feedback to the user.
  */
 val HapticFeedBackAmbient = staticAmbientOf<HapticFeedback>()
+
+private fun compositionFor(
+    container: Any,
+    context: Context,
+    parent: CompositionReference? = null,
+    onBeforeFirstComposition: (() -> Unit)? = null
+) = compositionFor(
+    container = container,
+    parent = parent,
+    composerFactory = { slotTable, recomposer ->
+        onBeforeFirstComposition?.invoke()
+        UiComposer(context, container, slotTable, recomposer)
+    }
+)

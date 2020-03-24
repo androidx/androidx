@@ -26,10 +26,12 @@ import androidx.annotation.RequiresApi
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
+import androidx.ui.graphics.asAndroidPath
 import androidx.ui.test.android.captureRegionToBitmap
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
@@ -137,6 +139,30 @@ fun Bitmap.assertPixelColor(
     assertEquals(errorString, expected.green, color.green, 0.01f)
     assertEquals(errorString, expected.blue, color.blue, 0.01f)
     assertEquals(errorString, expected.alpha, color.alpha, 0.01f)
+}
+
+/**
+ * Tests to see if the given point is within the path. (That is, whether the
+ * point would be in the visible portion of the path if the path was used
+ * with [Canvas.clipPath].)
+ *
+ * The `point` argument is interpreted as an offset from the origin.
+ *
+ * Returns true if the point is in the path, and false otherwise.
+ */
+fun Path.contains(offset: Offset): Boolean {
+    val path = android.graphics.Path()
+    path.addRect(
+        offset.dx - 0.01f,
+        offset.dy - 0.01f,
+        offset.dx + 0.01f,
+        offset.dy + 0.01f,
+        android.graphics.Path.Direction.CW
+    )
+    if (path.op(asAndroidPath(), android.graphics.Path.Op.INTERSECT)) {
+        return !path.isEmpty
+    }
+    return false
 }
 
 /**

@@ -37,6 +37,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 
 import android.content.ContentResolver;
@@ -46,8 +47,6 @@ import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.MediaStore;
@@ -60,6 +59,7 @@ import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -74,7 +74,6 @@ import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResult.EmptyCameraCaptureResult;
-import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureBundle;
@@ -93,6 +92,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -106,15 +106,17 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -205,6 +207,9 @@ public final class ImageCapture extends UseCase {
     private static final String TAG = "ImageCapture";
     private static final long CHECK_3A_TIMEOUT_IN_MS = 1000L;
     private static final int MAX_IMAGES = 2;
+    // TODO(b/149336664) Move the quality to a compatibility class when there is a per device case.
+    private static final byte JPEG_QUALITY_MAXIMIZE_QUALITY_MODE = 100;
+    private static final byte JPEG_QUALITY_MINIMIZE_LATENCY_MODE = 95;
 
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -290,19 +295,6 @@ public final class ImageCapture extends UseCase {
         Preconditions.checkArgument(mMaxCaptureStages >= 1,
                 "Maximum outstanding image count must be at least 1");
 
-        Integer bufferFormat = mConfig.getBufferFormat(null);
-        if (bufferFormat != null) {
-            Preconditions.checkArgument(mCaptureProcessor == null,
-                    "Cannot set buffer format with CaptureProcessor defined.");
-            setImageFormat(bufferFormat);
-        } else {
-            if (mCaptureProcessor != null) {
-                setImageFormat(ImageFormat.YUV_420_888);
-            } else {
-                setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageCaptureFormat());
-            }
-        }
-
         mCaptureBundle = mConfig.getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
 
         mIoExecutor =
@@ -325,12 +317,6 @@ public final class ImageCapture extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
 
-        HandlerThread processingImageResultThread = new HandlerThread(
-                "OnImageAvailableHandlerThread");
-        processingImageResultThread.start();
-        Handler processingImageResultHandler = new Handler(
-                processingImageResultThread.getLooper());
-
         // Setup the ImageReader to do processing
         if (mCaptureProcessor != null) {
             // TODO: To allow user to use an Executor for the image processing.
@@ -339,15 +325,14 @@ public final class ImageCapture extends UseCase {
                             resolution.getWidth(),
                             resolution.getHeight(),
                             getImageFormat(), mMaxCaptureStages,
-                            processingImageResultHandler,
+                            /* postProcessExecutor */mExecutor,
                             getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
                             mCaptureProcessor);
             mMetadataMatchingCaptureCallback = processingImageReader.getCameraCaptureCallback();
             mImageReader = processingImageReader;
         } else {
             MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
-                    resolution.getHeight(), getImageFormat(), MAX_IMAGES,
-                    processingImageResultHandler);
+                    resolution.getHeight(), getImageFormat(), MAX_IMAGES);
             mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
             mImageReader = metadataImageReader;
         }
@@ -366,7 +351,6 @@ public final class ImageCapture extends UseCase {
                     imageReaderProxy.close();
 
                     // Close the handlerThread after the ImageReader was closed.
-                    processingImageResultThread.quitSafely();
                 }, CameraXExecutors.mainThreadExecutor());
         sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
@@ -378,7 +362,7 @@ public final class ImageCapture extends UseCase {
             if (isCurrentlyBoundCamera(cameraId)) {
                 // Only reset the pipeline when the bound camera is the same.
                 mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
-                attachToCamera(cameraId, mSessionConfigBuilder.build());
+                attachToCamera(mSessionConfigBuilder.build());
                 notifyReset();
             }
         });
@@ -419,11 +403,6 @@ public final class ImageCapture extends UseCase {
         return null;
     }
 
-    private CameraControlInternal getCurrentCameraControl() {
-        String cameraId = getBoundCameraId();
-        return getCameraControl(cameraId);
-    }
-
     /**
      * Configures flash mode to CameraControlInternal once it is ready.
      *
@@ -431,8 +410,8 @@ public final class ImageCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    protected void onCameraControlReady(@NonNull String cameraId) {
-        getCameraControl(cameraId).setFlashMode(mFlashMode);
+    protected void onCameraControlReady() {
+        getCameraControl().setFlashMode(mFlashMode);
     }
 
     /**
@@ -470,7 +449,7 @@ public final class ImageCapture extends UseCase {
         // been not ready yet, just saving the flash mode and updating into camera control when
         // camera control ready callback is called.
         if (getBoundCamera() != null) {
-            getCurrentCameraControl().setFlashMode(flashMode);
+            getCameraControl().setFlashMode(flashMode);
         }
     }
 
@@ -716,8 +695,7 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @UiThread
     @Override
-    public void onStateOffline(@NonNull String cameraId) {
-        super.onStateOffline(cameraId);
+    public void onStateOffline() {
         abortImageCaptureRequests();
     }
 
@@ -754,12 +732,31 @@ public final class ImageCapture extends UseCase {
                 mConfig.getTargetRotation(Surface.ROTATION_0));
 
         Rational targetRatio = mConfig.getTargetAspectRatioCustom(null);
-        targetRatio = ImageUtil.rotate(targetRatio, relativeRotation);
 
         mPendingImageCaptureRequests.offer(
-                new ImageCaptureRequest(relativeRotation, targetRatio, listenerExecutor, callback));
+                new ImageCaptureRequest(relativeRotation, getJpegQuality(), targetRatio,
+                        listenerExecutor, callback));
 
         issueImageCaptureRequests();
+    }
+
+    /**
+     * Gets the JPEG quality based on {@link #mCaptureMode}.
+     *
+     * <p> Range is 1-100; larger is higher quality.
+     *
+     * @return Compression quality of the captured JPEG image.
+     */
+    @IntRange(from = 1, to = 100)
+    private int getJpegQuality() {
+        switch (mCaptureMode) {
+            case CAPTURE_MODE_MAXIMIZE_QUALITY:
+                return JPEG_QUALITY_MAXIMIZE_QUALITY_MODE;
+            case CAPTURE_MODE_MINIMIZE_LATENCY:
+                return JPEG_QUALITY_MINIMIZE_LATENCY_MODE;
+            default:
+                throw new IllegalStateException("CaptureMode " + mCaptureMode + " is invalid");
+        }
     }
 
     /** Issues saved ImageCaptureRequest. */
@@ -963,7 +960,6 @@ public final class ImageCapture extends UseCase {
     public void clear() {
         clearPipeline();
         mExecutor.shutdown();
-        super.clear();
     }
 
     /**
@@ -974,24 +970,16 @@ public final class ImageCapture extends UseCase {
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            @NonNull Map<String, Size> suggestedResolutionMap) {
-        String cameraId = getBoundCameraId();
-        Size resolution = suggestedResolutionMap.get(cameraId);
-        if (resolution == null) {
-            throw new IllegalArgumentException(
-                    "Suggested resolution map missing resolution for camera " + cameraId);
-        }
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        mSessionConfigBuilder = createPipeline(getBoundCameraId(), mConfig, suggestedResolution);
 
-        mSessionConfigBuilder = createPipeline(cameraId, mConfig, resolution);
-
-        attachToCamera(cameraId, mSessionConfigBuilder.build());
+        attachToCamera(mSessionConfigBuilder.build());
 
         // In order to speed up the take picture process, notifyActive at an early stage to
         // attach the session capture callback to repeating and get capture result all the time.
         notifyActive();
 
-        return suggestedResolutionMap;
+        return suggestedResolution;
     }
 
     final OnImageCloseListener mOnImageCloseListener = new OnImageCloseListener() {
@@ -1154,13 +1142,13 @@ public final class ImageCapture extends UseCase {
     /** Issues a request to start auto focus scan. */
     private void triggerAf(TakePictureState state) {
         state.mIsAfTriggered = true;
-        getCurrentCameraControl().triggerAf();
+        getCameraControl().triggerAf();
     }
 
     /** Issues a request to start auto exposure scan. */
     void triggerAePrecapture(TakePictureState state) {
         state.mIsAePrecaptureTriggered = true;
-        getCurrentCameraControl().triggerAePrecapture();
+        getCameraControl().triggerAePrecapture();
     }
 
     /** Issues a request to cancel auto focus and/or auto exposure scan. */
@@ -1168,7 +1156,7 @@ public final class ImageCapture extends UseCase {
         if (!state.mIsAfTriggered && !state.mIsAePrecaptureTriggered) {
             return;
         }
-        getCurrentCameraControl()
+        getCameraControl()
                 .cancelAfAeTrigger(state.mIsAfTriggered, state.mIsAePrecaptureTriggered);
         state.mIsAfTriggered = false;
         state.mIsAePrecaptureTriggered = false;
@@ -1226,6 +1214,8 @@ public final class ImageCapture extends UseCase {
             // Add the dynamic implementation options of ImageCapture
             builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
                     imageCaptureRequest.mRotationDegrees);
+            builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
+                    imageCaptureRequest.mJpegQuality);
 
             // Add the implementation options required by the CaptureStage
             builder.addImplementationOptions(
@@ -1266,7 +1256,7 @@ public final class ImageCapture extends UseCase {
 
         }
 
-        getCurrentCameraControl().submitCaptureRequests(captureConfigs);
+        getCameraControl().submitCaptureRequests(captureConfigs);
         return Futures.transform(Futures.allAsList(futureList),
                 input -> null, CameraXExecutors.directExecutor());
     }
@@ -1853,6 +1843,9 @@ public final class ImageCapture extends UseCase {
     private static final class ImageCaptureRequest {
         @RotationValue
         final int mRotationDegrees;
+        @IntRange(from = 1, to = 100)
+        final int mJpegQuality;
+
         private final Rational mTargetRatio;
         @NonNull
         private final Executor mListenerExecutor;
@@ -1861,12 +1854,26 @@ public final class ImageCapture extends UseCase {
 
         AtomicBoolean mDispatched = new AtomicBoolean(false);
 
+        /**
+         * @param rotationDegrees The degrees to rotate the image buffer from sensor
+         *                        coordinates into the final output coordinate space.
+         * @param targetRatio     The aspect ratio of the image in final output coordinate space.
+         *                        This must be a non-negative, non-zero value.
+         * @throws IllegalArgumentException If targetRatio is not a valid value.
+         */
         ImageCaptureRequest(
                 @RotationValue int rotationDegrees,
+                @IntRange(from = 1, to = 100) int jpegQuality,
                 Rational targetRatio,
                 @NonNull Executor executor,
                 @NonNull OnImageCapturedCallback callback) {
             mRotationDegrees = rotationDegrees;
+            mJpegQuality = jpegQuality;
+            if (targetRatio != null) {
+                Preconditions.checkArgument(!targetRatio.isZero(), "Target ratio cannot be zero");
+                Preconditions.checkArgument(targetRatio.floatValue() > 0, "Target ratio must be "
+                        + "positive");
+            }
             mTargetRatio = targetRatio;
             mListenerExecutor = executor;
             mCallback = callback;
@@ -1878,19 +1885,64 @@ public final class ImageCapture extends UseCase {
                 return;
             }
 
+            Size dispatchResolution = null;
+            int dispatchRotation = 0;
+
+            if (image.getFormat() == ImageFormat.JPEG) {
+                // JPEG needs to have rotation/crop based on the EXIF
+                try {
+                    ImageProxy.PlaneProxy[] planes = image.getPlanes();
+                    ByteBuffer buffer = planes[0].getBuffer();
+                    Exif exif;
+
+                    buffer.rewind();
+
+                    byte[] data = new byte[buffer.capacity()];
+                    buffer.get(data);
+                    exif = Exif.createFromInputStream(new ByteArrayInputStream(data));
+
+                    dispatchResolution = new Size(exif.getWidth(), exif.getHeight());
+                    dispatchRotation = exif.getRotation();
+                } catch (IOException e) {
+                    notifyCallbackError(ERROR_FILE_IO, "Unable to parse JPEG exif", e);
+                    image.close();
+                    return;
+                }
+            } else {
+                // All other formats take the rotation based simply on the target rotation
+                dispatchRotation = mRotationDegrees;
+            }
+
+            // Construct the ImageProxy with the updated rotation & crop for the output
+            ImageInfo imageInfo = ImmutableImageInfo.create(
+                    image.getImageInfo().getTag(),
+                    image.getImageInfo().getTimestamp(), dispatchRotation);
+
+            final ImageProxy dispatchedImageProxy = new SettableImageProxy(image,
+                    dispatchResolution,
+                    imageInfo);
+
+            // Update the crop rect aspect ratio after it has been rotated into the buffer
+            // orientation
+            if (mTargetRatio != null) {
+                Rational dispatchRatio = mTargetRatio;
+                if ((dispatchRotation % 180) != 0) {
+                    dispatchRatio = new Rational(
+                            /* invert the ratio numerator=*/ mTargetRatio.getDenominator(),
+                            /* invert the ratio denominator=*/ mTargetRatio.getNumerator());
+                }
+                Size sourceSize = new Size(dispatchedImageProxy.getWidth(),
+                        dispatchedImageProxy.getHeight());
+                if (ImageUtil.isAspectRatioValid(sourceSize, dispatchRatio)) {
+                    dispatchedImageProxy.setCropRect(
+                            ImageUtil.computeCropRectFromAspectRatio(sourceSize,
+                                    dispatchRatio));
+                }
+            }
+
             try {
                 mListenerExecutor.execute(() -> {
-                    Size sourceSize = new Size(image.getWidth(), image.getHeight());
-                    if (ImageUtil.isAspectRatioValid(sourceSize, mTargetRatio)) {
-                        image.setCropRect(
-                                ImageUtil.computeCropRectFromAspectRatio(sourceSize,
-                                        mTargetRatio));
-                    }
-
-                    ImageInfo imageInfo = ImmutableImageInfo.create(image.getImageInfo().getTag(),
-                            image.getImageInfo().getTimestamp(), mRotationDegrees);
-
-                    mCallback.onCaptureSuccess(new SettableImageProxy(image, imageInfo));
+                    mCallback.onCaptureSuccess(dispatchedImageProxy);
                 });
             } catch (RejectedExecutionException e) {
                 Log.e(TAG, "Unable to post to the supplied executor.");
@@ -2000,6 +2052,23 @@ public final class ImageCapture extends UseCase {
                         "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
                                 + "config.");
             }
+
+            // Update the input format base on the other options set (mainly whether processing
+            // is done)
+            Integer bufferFormat = getMutableConfig().retrieveOption(OPTION_BUFFER_FORMAT, null);
+            if (bufferFormat != null) {
+                Preconditions.checkArgument(
+                        getMutableConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, null) == null,
+                        "Cannot set buffer format with CaptureProcessor defined.");
+                getMutableConfig().insertOption(OPTION_INPUT_FORMAT, bufferFormat);
+            } else {
+                if (getMutableConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, null) != null) {
+                    getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.YUV_420_888);
+                } else {
+                    getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+                }
+            }
+
             return new ImageCapture(getUseCaseConfig());
         }
 

@@ -35,7 +35,8 @@ class SemanticsOwner(rootNode: ComponentNode) {
      * Should *only* be called by [SemanticsNode.attach]
      */
     internal fun onAttach(node: SemanticsNode) {
-        assert(node.id !in nodes)
+        // TODO: b/150777826 - fix and re-enable assertion
+        // check(node.id !in nodes)
         nodes[node.id] = node
         detachedNodes.remove(node)
     }
@@ -44,7 +45,8 @@ class SemanticsOwner(rootNode: ComponentNode) {
      * Should *only* be called by [SemanticsNode.markDirty]
      */
     internal fun onNodeMarkedDirty(node: SemanticsNode) {
-        assert(node !in detachedNodes)
+        // TODO: b/150777826 - fix and re-enable assertion
+        // check(node !in detachedNodes)
         dirtyNodes.add(node)
     }
 
@@ -53,7 +55,8 @@ class SemanticsOwner(rootNode: ComponentNode) {
      */
     internal fun onDetach(node: SemanticsNode) {
         check(nodes.containsKey(node.id))
-        assert(!detachedNodes.contains(node))
+        // TODO: b/150777826 - fix and re-enable assertion
+        // check(!detachedNodes.contains(node))
         nodes.remove(node.id)
         detachedNodes.add(node)
     }

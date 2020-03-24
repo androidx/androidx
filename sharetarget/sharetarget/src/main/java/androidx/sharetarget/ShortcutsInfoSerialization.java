@@ -120,11 +120,10 @@ class ShortcutsInfoSerialization {
     @WorkerThread
     static Map<String, ShortcutContainer> loadFromXml(File input, Context context) {
         Map<String, ShortcutContainer> shortcutsList = new ArrayMap<>();
-        try {
+        try (FileInputStream stream = new FileInputStream(input)) {
             if (!input.exists()) {
                 return shortcutsList;
             }
-            final FileInputStream stream = new FileInputStream(input);
             final XmlPullParser parser = Xml.newPullParser();
             parser.setInput(stream, "UTF_8");
             int type;

@@ -257,6 +257,16 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     }
 
     /**
+     * @param workSpecId The {@link androidx.work.impl.model.WorkSpec} id
+     * @return {@code true} if the id was enqueued as foreground work in the processor.
+     */
+    public boolean isEnqueuedInForeground(@NonNull String workSpecId) {
+        synchronized (mLock) {
+            return mForegroundWorkMap.containsKey(workSpecId);
+        }
+    }
+
+    /**
      * Adds an {@link ExecutionListener} to track when work finishes.
      *
      * @param executionListener The {@link ExecutionListener} to add

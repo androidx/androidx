@@ -20,7 +20,7 @@ import androidx.test.filters.SmallTest
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.toArgb
@@ -39,7 +39,7 @@ class PathTest {
     fun testAddArcPath() {
         val width = 100
         val height = 100
-        val image = Image(width, height)
+        val image = ImageAsset(width, height)
         val canvas = Canvas(image)
         val path1 = Path().apply {
             addArcRad(

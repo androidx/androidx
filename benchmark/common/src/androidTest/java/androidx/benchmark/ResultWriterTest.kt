@@ -33,11 +33,15 @@ class ResultWriterTest {
     @get:Rule
     val tempFolder = TemporaryFolder()
 
+    private val data = arrayOf(longArrayOf(100, 101, 102))
+    private val names = listOf("timeNs")
+
     private val reportA = BenchmarkState.Report(
         testName = "MethodA",
         className = "package.Class1",
         totalRunTimeNs = 900000000,
-        data = listOf(100, 101, 102),
+        data = data.map { it.toList() },
+        stats = data.mapIndexed { i, it -> Stats(it, names[i]) },
         repeatIterations = 100000,
         thermalThrottleSleepSeconds = 90000000,
         warmupIterations = 8000
@@ -46,7 +50,8 @@ class ResultWriterTest {
         testName = "MethodB",
         className = "package.Class2",
         totalRunTimeNs = 900000000,
-        data = listOf(100, 101, 102),
+        data = data.map { it.toList() },
+        stats = data.mapIndexed { i, it -> Stats(it, names[i]) },
         repeatIterations = 100000,
         thermalThrottleSleepSeconds = 90000000,
         warmupIterations = 8000
@@ -144,7 +149,8 @@ class ResultWriterTest {
             testName = "MethodWithParams[number=2,primeNumber=true]",
             className = "package.Class",
             totalRunTimeNs = 900000000,
-            data = listOf(100, 101, 102),
+            data = data.map { it.toList() },
+            stats = data.mapIndexed { i, it -> Stats(it, names[i]) },
             repeatIterations = 100000,
             thermalThrottleSleepSeconds = 90000000,
             warmupIterations = 8000
@@ -173,7 +179,8 @@ class ResultWriterTest {
             testName = "MethodWithParams[number=2,=true,]",
             className = "package.Class",
             totalRunTimeNs = 900000000,
-            data = listOf(100, 101, 102),
+            data = data.map { it.toList() },
+            stats = data.mapIndexed { i, it -> Stats(it, names[i]) },
             repeatIterations = 100000,
             thermalThrottleSleepSeconds = 90000000,
             warmupIterations = 8000

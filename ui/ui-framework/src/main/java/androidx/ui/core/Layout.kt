@@ -18,11 +18,10 @@ package androidx.ui.core
 
 import android.content.Context
 import androidx.compose.Composable
-import androidx.compose.Compose
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
+import androidx.compose.Untracked
 import androidx.compose.compositionReference
-import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -84,28 +83,33 @@ import androidx.ui.unit.min
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints
-        ) = measureScope.measureBlock(measurables, constraints)
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ) = measureScope.measureBlock(measurables, constraints, layoutDirection)
         override fun minIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
-        ) = modifierScope.minIntrinsicWidthMeasureBlock(measurables, h)
+            h: IntPx,
+            layoutDirection: LayoutDirection
+        ) = density.minIntrinsicWidthMeasureBlock(measurables, h, layoutDirection)
         override fun minIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
-        ) = modifierScope.minIntrinsicHeightMeasureBlock(measurables, w)
+            w: IntPx,
+            layoutDirection: LayoutDirection
+        ) = density.minIntrinsicHeightMeasureBlock(measurables, w, layoutDirection)
         override fun maxIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
-        ) = modifierScope.maxIntrinsicWidthMeasureBlock(measurables, h)
+            h: IntPx,
+            layoutDirection: LayoutDirection
+        ) = density.maxIntrinsicWidthMeasureBlock(measurables, h, layoutDirection)
         override fun maxIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
-        ) = modifierScope.maxIntrinsicHeightMeasureBlock(measurables, w)
+            w: IntPx,
+            layoutDirection: LayoutDirection
+        ) = density.maxIntrinsicHeightMeasureBlock(measurables, w, layoutDirection)
     }
     Layout(children, measureBlocks, modifier)
 }
@@ -151,12 +155,30 @@ import androidx.ui.unit.min
     measureBlocks: LayoutNode.MeasureBlocks,
     modifier: Modifier
 ) {
-    val layoutDirection = LayoutDirectionAmbient.current
-    LayoutNode(
-        modifier = modifier,
-        measureBlocks = measureBlocks,
-        ambientLayoutDirection = layoutDirection
-    ) {
+    LayoutNode(modifier = modifier, measureBlocks = measureBlocks) {
+        children()
+    }
+}
+
+@Composable
+@Deprecated("This composable supports our transition from single child composables to modifiers. " +
+        "It should not be used in app code directly.")
+fun PassThroughLayout(
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
+    val measureBlocks = remember {
+        val measureBlock: MeasureBlock = { measurables, constraints, _ ->
+            val placeables = measurables.map { it.measure(constraints) }
+            val width = placeables.maxBy { it.width }?.width ?: constraints.minWidth
+            val height = placeables.maxBy { it.height }?.height ?: constraints.minHeight
+            layout(width, height) {
+                placeables.forEach { it.place(IntPx.Zero, IntPx.Zero) }
+            }
+        }
+        MeasuringIntrinsicsMeasureBlocks(measureBlock)
+    }
+    LayoutNode(modifier = modifier, measureBlocks = measureBlocks, handlesParentData = false) {
         children()
     }
 }
@@ -254,28 +276,33 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints
-        ) = measureScope.measureBlock(measurables, constraints)
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ) = measureScope.measureBlock(measurables, constraints, layoutDirection)
         override fun minIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
-        ) = modifierScope.MeasuringMinIntrinsicWidth(measureBlock, measurables, h)
+            h: IntPx,
+            layoutDirection: LayoutDirection
+        ) = density.MeasuringMinIntrinsicWidth(measureBlock, measurables, h, layoutDirection)
         override fun minIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
-        ) = modifierScope.MeasuringMinIntrinsicHeight(measureBlock, measurables, w)
+            w: IntPx,
+            layoutDirection: LayoutDirection
+        ) = density.MeasuringMinIntrinsicHeight(measureBlock, measurables, w, layoutDirection)
         override fun maxIntrinsicWidth(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            h: IntPx
-        ) = modifierScope.MeasuringMaxIntrinsicWidth(measureBlock, measurables, h)
+            h: IntPx,
+            layoutDirection: LayoutDirection
+        ) = density.MeasuringMaxIntrinsicWidth(measureBlock, measurables, h, layoutDirection)
         override fun maxIntrinsicHeight(
-            modifierScope: ModifierScope,
+            density: Density,
             measurables: List<IntrinsicMeasurable>,
-            w: IntPx
-        ) = modifierScope.MeasuringMaxIntrinsicHeight(measureBlock, measurables, w)
+            w: IntPx,
+            layoutDirection: LayoutDirection
+        ) = density.MeasuringMaxIntrinsicHeight(measureBlock, measurables, w, layoutDirection)
 
         override fun toString(): String {
             // this calls simpleIdentityToString on measureBlock because it is typically a lambda,
@@ -294,14 +321,15 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
 private inline fun Density.MeasuringMinIntrinsicWidth(
     measureBlock: MeasureBlock,
     measurables: List<IntrinsicMeasurable>,
-    h: IntPx
+    h: IntPx,
+    layoutDirection: LayoutDirection
 ): IntPx {
     val mapped = measurables.map {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
     }
     val constraints = Constraints(maxHeight = h)
     val layoutReceiver = IntrinsicsMeasureScope(this)
-    val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
+    val layoutResult = layoutReceiver.measureBlock(mapped, constraints, layoutDirection)
     return layoutResult.width
 }
 
@@ -312,14 +340,15 @@ private inline fun Density.MeasuringMinIntrinsicWidth(
 private inline fun Density.MeasuringMinIntrinsicHeight(
     measureBlock: MeasureBlock,
     measurables: List<IntrinsicMeasurable>,
-    w: IntPx
+    w: IntPx,
+    layoutDirection: LayoutDirection
 ): IntPx {
     val mapped = measurables.map {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
     }
     val constraints = Constraints(maxWidth = w)
     val layoutReceiver = IntrinsicsMeasureScope(this)
-    val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
+    val layoutResult = layoutReceiver.measureBlock(mapped, constraints, layoutDirection)
     return layoutResult.height
 }
 
@@ -330,14 +359,15 @@ private inline fun Density.MeasuringMinIntrinsicHeight(
 private inline fun Density.MeasuringMaxIntrinsicWidth(
     measureBlock: MeasureBlock,
     measurables: List<IntrinsicMeasurable>,
-    h: IntPx
+    h: IntPx,
+    layoutDirection: LayoutDirection
 ): IntPx {
     val mapped = measurables.map {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
     }
     val constraints = Constraints(maxHeight = h)
     val layoutReceiver = IntrinsicsMeasureScope(this)
-    val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
+    val layoutResult = layoutReceiver.measureBlock(mapped, constraints, layoutDirection)
     return layoutResult.width
 }
 
@@ -348,84 +378,16 @@ private inline fun Density.MeasuringMaxIntrinsicWidth(
 private inline fun Density.MeasuringMaxIntrinsicHeight(
     measureBlock: MeasureBlock,
     measurables: List<IntrinsicMeasurable>,
-    w: IntPx
+    w: IntPx,
+    layoutDirection: LayoutDirection
 ): IntPx {
     val mapped = measurables.map {
         DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
     }
     val constraints = Constraints(maxWidth = w)
     val layoutReceiver = IntrinsicsMeasureScope(this)
-    val layoutResult = layoutReceiver.measureBlock(mapped, constraints)
+    val layoutResult = layoutReceiver.measureBlock(mapped, constraints, layoutDirection)
     return layoutResult.height
-}
-
-/**
- * DataNodeKey for grouped child composables. When multiple composables are
- * passed to a `Layout`, they are identified by a `ChildGroupKey` with
- * the value of the composable. The direct children of the LayoutNode must be
- * a DataNodeKey with ChildGroupKey if they are provided.
- */
-private val ChildGroupKey = DataNodeKey<@Composable() () -> Unit>("Compose: ChildGroup")
-
-/**
- * A [List] of [Measurable]s passed in as the argument to the [Layout] `measureBlock` when
- * using the `vararg` variant.
- */
-class MultiComposableMeasurables internal constructor(private val layoutNode: LayoutNode) :
-    List<Measurable> by layoutNode.layoutChildren {
-    /**
-     * When multiple [Composable] children are passed into `Layout`, the [Measurable]s
-     * for each [Composable] can be retrieved using this method.
-     */
-    operator fun get(children: @Composable() () -> Unit): List<Measurable> {
-        if (isEmpty()) return emptyList()
-        for (i in 0 until layoutNode.count) {
-            val child = layoutNode[i] as DataNode<*>
-            if (child.key !== ChildGroupKey) {
-                throw IllegalStateException("Malformed Layout. Must be a ChildGroupKey")
-            }
-            if (child.value === children) {
-                val group = mutableListOf<LayoutNode>()
-                child.visitLayoutChildren { node -> group += node }
-                return group
-            }
-        }
-        return emptyList()
-    }
-}
-
-typealias MultiMeasureBlock =
-        MeasureScope.(MultiComposableMeasurables, Constraints) -> MeasureScope.LayoutResult
-
-/**
- * Temporary component that allows composing and indexing measurables of multiple composables.
- * The logic here will be moved back to Layout, which will accept vararg children argument.
- */
-@Deprecated("Please use the LayoutTagParentData API instead.")
-@Composable
-fun Layout(
-    vararg childrenArray: @Composable() () -> Unit,
-    modifier: Modifier = Modifier.None,
-    measureBlock: MultiMeasureBlock
-) {
-    val children: @Composable() () -> Unit = if (childrenArray.isEmpty()) {
-        emptyContent()
-    } else {
-        @Composable {
-            childrenArray.forEach { childrenComposable ->
-                DataNode(key = ChildGroupKey, value = childrenComposable) {
-                    childrenComposable()
-                }
-            }
-        }
-    }
-
-    Layout(children, modifier) { _, constraints ->
-        measureBlock(
-            MultiComposableMeasurables((this as LayoutNode.InnerMeasureScope).layoutNode),
-            constraints
-        )
-    }
 }
 
 /**
@@ -444,7 +406,7 @@ fun Layout(
 @Composable
 fun WithConstraints(
     modifier: Modifier = Modifier.None,
-    children: @Composable() (Constraints) -> Unit
+    children: @Composable() (Constraints, LayoutDirection) -> Unit
 ) {
     val state = remember { WithConstrainsState() }
     state.children = children
@@ -471,7 +433,7 @@ private class WithConstrainsState {
     var context: Context? = null
     val nodeRef = Ref<LayoutNode>()
     var lastConstraints: Constraints? = null
-    var children: @Composable() (Constraints) -> Unit = {}
+    var children: @Composable() (Constraints, LayoutDirection) -> Unit = { _, _ -> }
     var forceRecompose = false
     val measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks(
         error = "Intrinsic measurements are not supported by WithConstraints"
@@ -479,7 +441,8 @@ private class WithConstrainsState {
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
         ): MeasureScope.LayoutResult {
             val root = nodeRef.value!!
             if (lastConstraints != constraints || forceRecompose) {
@@ -513,27 +476,12 @@ private class WithConstrainsState {
     fun subcompose() {
         val node = nodeRef.value!!
         val constraints = lastConstraints!!
-        Compose.subcomposeInto(node, context!!, compositionRef) {
-            children(constraints)
+        // TODO(b/150390669): Review use of @Untracked
+        subcomposeInto(node, context!!, compositionRef) @Untracked {
+            children(constraints, node.layoutDirection!!)
         }
         forceRecompose = false
     }
-}
-
-/**
- * [onPositioned] callback will be called with the final LayoutCoordinates of the parent
- * MeasureBox after measuring.
- * Note that it will be called after a composition when the coordinates are finalized.
- *
- * Usage example:
- * @sample androidx.ui.framework.samples.OnPositionedSample
- */
-@Composable
-@Suppress("NOTHING_TO_INLINE")
-inline fun OnPositioned(
-    noinline onPositioned: (coordinates: LayoutCoordinates) -> Unit
-) {
-    DataNode(key = OnPositionedKey, value = onPositioned)
 }
 
 /**

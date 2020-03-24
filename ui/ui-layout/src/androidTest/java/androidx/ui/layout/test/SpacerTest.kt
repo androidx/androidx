@@ -17,18 +17,18 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.layout.Center
-import androidx.ui.layout.Container
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.Stack
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -53,15 +53,15 @@ class SpacerTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         show {
             Container(constraints = bigConstraints) {
-                OnChildPositioned(onPositioned = { position ->
-                    size = position.size
-                    drawLatch.countDown()
-                }) {
-                    Spacer(LayoutSize(width = width, height = height))
-                }
+                Spacer(LayoutSize(width = width, height = height) +
+                        onPositioned { position ->
+                            size = position.size
+                            drawLatch.countDown()
+                        }
+                )
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
@@ -79,23 +79,23 @@ class SpacerTest : LayoutTest() {
         val containerWidth = 5.dp
         val containerHeight = 7.dp
         show {
-            Center {
+            Stack {
                 Container(
                     constraints = DpConstraints(
                         maxWidth = containerWidth,
                         maxHeight = containerHeight
                     )
                 ) {
-                    OnChildPositioned(onPositioned = { position ->
-                        size = position.size
-                        drawLatch.countDown()
-                    }) {
-                        Spacer(LayoutSize(width = width, height = height))
-                    }
+                    Spacer(LayoutSize(width = width, height = height) +
+                            onPositioned { position ->
+                                size = position.size
+                                drawLatch.countDown()
+                            }
+                    )
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())
@@ -111,15 +111,13 @@ class SpacerTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         show {
             Container(constraints = bigConstraints) {
-                OnChildPositioned(onPositioned = { position ->
+                Spacer(LayoutWidth(width) + onPositioned { position ->
                     size = position.size
                     drawLatch.countDown()
-                }) {
-                    Spacer(LayoutWidth(width))
-                }
+                })
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(0.ipx)
@@ -136,23 +134,21 @@ class SpacerTest : LayoutTest() {
         val containerWidth = 5.dp
         val containerHeight = 7.dp
         show {
-            Center {
+            Stack {
                 Container(
                     constraints = DpConstraints(
                         maxWidth = containerWidth,
                         maxHeight = containerHeight
                     )
                 ) {
-                    OnChildPositioned(onPositioned = { position ->
+                    Spacer(LayoutWidth(width) + onPositioned { position ->
                         size = position.size
                         drawLatch.countDown()
-                    }) {
-                        Spacer(LayoutWidth(width))
-                    }
+                    })
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(0.ipx)
@@ -168,15 +164,13 @@ class SpacerTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         show {
             Container(constraints = bigConstraints) {
-                OnChildPositioned(onPositioned = { position ->
+                Spacer(LayoutHeight(height) + onPositioned { position ->
                     size = position.size
                     drawLatch.countDown()
-                }) {
-                    Spacer(LayoutHeight(height))
-                }
+                })
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
@@ -193,23 +187,21 @@ class SpacerTest : LayoutTest() {
         val containerWidth = 5.dp
         val containerHeight = 7.dp
         show {
-            Center {
+            Stack {
                 Container(
                     constraints = DpConstraints(
                         maxWidth = containerWidth,
                         maxHeight = containerHeight
                     )
                 ) {
-                    OnChildPositioned(onPositioned = { position ->
+                    Spacer(LayoutHeight(height) + onPositioned { position ->
                         size = position.size
                         drawLatch.countDown()
-                    }) {
-                        Spacer(LayoutHeight(height))
-                    }
+                    })
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())

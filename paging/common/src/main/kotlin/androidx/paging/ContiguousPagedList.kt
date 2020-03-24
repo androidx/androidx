@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 /**
  * @suppress
  */
+@Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class ContiguousPagedList<K : Any, V : Any>(
     final override val pagingSource: PagingSource<K, V>,

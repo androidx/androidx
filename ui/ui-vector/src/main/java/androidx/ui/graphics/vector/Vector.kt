@@ -23,7 +23,7 @@ import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
@@ -91,11 +91,11 @@ sealed class VNode {
 }
 
 class VectorComponent(
-    val name: String = "",
     var viewportWidth: Float,
     var viewportHeight: Float,
     var defaultWidth: Px,
-    var defaultHeight: Px
+    var defaultHeight: Px,
+    val name: String = ""
 ) : VNode() {
 
     val root = GroupComponent(this@VectorComponent.name).apply {
@@ -110,26 +110,22 @@ class VectorComponent(
 
     private var isDirty: Boolean = true
 
-    private var tintPaint: Paint? = null
+    private var vectorPaint: Paint? = null
 
     /**
      * Cached Image of the Vector Graphic to be re-used across draw calls
      * if the Vector graphic is not dirty
      */
     // TODO (njawad) add invalidation logic to re-draw into the offscreen Image
-    private var cachedImage: Image? = null
+    private var cachedImage: ImageAsset? = null
 
     val size: Int
         get() = root.size
 
-    fun draw(
-        canvas: Canvas,
-        tintColor: Color = DefaultTintColor,
-        blendMode: BlendMode = DefaultTintBlendMode
-    ) {
+    fun draw(canvas: Canvas, alpha: Float, colorFilter: ColorFilter?) {
         var targetImage = cachedImage
         if (targetImage == null) {
-            targetImage = Image(
+            targetImage = ImageAsset(
                 ceil(defaultWidth.value).toInt(),
                 ceil(defaultHeight.value).toInt()
             )
@@ -139,11 +135,11 @@ class VectorComponent(
             root.draw(Canvas(targetImage))
             isDirty = false
         }
-        canvas.drawImage(targetImage, Offset.zero, obtainTintPaint(tintColor, blendMode))
+        canvas.drawImage(targetImage, Offset.zero, obtainVectorPaint(alpha, colorFilter))
     }
 
     override fun draw(canvas: Canvas) {
-        draw(canvas, DefaultTintColor, DefaultTintBlendMode)
+        draw(canvas, DefaultAlpha, null)
     }
 
     override fun toString(): String {
@@ -157,24 +153,24 @@ class VectorComponent(
         }
     }
 
-    private fun obtainTintPaint(
-        tintColor: Color,
-        blendMode: BlendMode = DefaultTintBlendMode
-    ): Paint {
-        return if (tintColor.alpha == 0.0f) {
+    private fun obtainVectorPaint(alpha: Float, colorFilter: ColorFilter?): Paint {
+        return if (colorFilter == null && alpha == DefaultAlpha) {
             EmptyPaint
         } else {
-            val targetPaint = tintPaint ?: Paint().also { tintPaint = it }
-            val colorFilter = targetPaint.colorFilter
-            if (colorFilter?.color != tintColor || colorFilter.blendMode != blendMode) {
-                targetPaint.colorFilter = ColorFilter(tintColor, blendMode)
+            val targetPaint = vectorPaint ?: Paint().also { vectorPaint = it }
+            val currentColorFilter = targetPaint.colorFilter
+            if (currentColorFilter != colorFilter) {
+                targetPaint.colorFilter = colorFilter
+            }
+            if (targetPaint.alpha != alpha) {
+                targetPaint.alpha = alpha
             }
             targetPaint
         }
     }
 }
 
-class PathComponent(val name: String) : VNode() {
+data class PathComponent(val name: String) : VNode() {
 
     var fill: Brush? = null
         set(value) {
@@ -354,7 +350,7 @@ class PathComponent(val name: String) : VNode() {
     }
 }
 
-class GroupComponent(val name: String = DefaultGroupName) : VNode() {
+data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
 
     private var groupMatrix: Matrix? = null
 

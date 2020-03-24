@@ -142,7 +142,7 @@ class DepthSortedSetTest {
         set.add(child2)
 
         // change depth of child2
-        child1.emitRemoveAt(0, 1)
+        child1.removeAt(0, 1)
         root.add(child2)
         // now it is on the same level as child1
 

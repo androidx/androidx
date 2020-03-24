@@ -20,9 +20,7 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
-
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -30,8 +28,6 @@ import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
-import androidx.ui.layout.Align
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
 import androidx.ui.semantics.Semantics
@@ -85,7 +81,7 @@ class BorderTest(val shape: Shape) {
             shapeSizeX = 20.px,
             shapeSizeY = 20.px,
             shapeColor = Color.Blue,
-            shapeOverlapPixelCount = 2.px
+            shapeOverlapPixelCount = 3.px
         )
     }
 
@@ -109,16 +105,84 @@ class BorderTest(val shape: Shape) {
             shapeSizeX = 20.px,
             shapeSizeY = 20.px,
             shapeColor = Color.Blue,
+            shapeOverlapPixelCount = 3.px
+        )
+    }
+
+    @Test
+    fun border_biggerThanLayout_fills() {
+        composeTestRule.setContent {
+            SemanticParent {
+                Stack(
+                    modifier = LayoutSize(40.px.toDp(), 40.px.toDp()) +
+                            DrawBackground(Color.Blue, shape) +
+                            DrawBorder(Border(1500.px.toDp(), Color.Red), shape)
+
+                ) {}
+            }
+        }
+        val bitmap = findByTag(testTag).captureToBitmap()
+        bitmap.assertShape(
+            density = composeTestRule.density,
+            backgroundColor = Color.White,
+            shapeColor = Color.Red,
+            shape = shape,
+            backgroundShape = shape,
             shapeOverlapPixelCount = 2.px
+        )
+    }
+
+    @Test
+    fun border_lessThanZero_doesNothing() {
+        composeTestRule.setContent {
+            SemanticParent {
+                Stack(
+                    modifier = LayoutSize(40.px.toDp(), 40.px.toDp()) +
+                            DrawBackground(Color.Blue, shape) +
+                            DrawBorder(Border(-5.px.toDp(), Color.Red), shape)
+
+                ) {}
+            }
+        }
+        val bitmap = findByTag(testTag).captureToBitmap()
+        bitmap.assertShape(
+            density = composeTestRule.density,
+            backgroundColor = Color.White,
+            shapeColor = Color.Blue,
+            shape = shape,
+            backgroundShape = shape,
+            shapeOverlapPixelCount = 2.px
+        )
+    }
+
+    @Test
+    fun border_zeroSizeLayout_drawsNothing() {
+        composeTestRule.setContent {
+            SemanticParent {
+                Box(LayoutSize(40.px.toDp(), 40.px.toDp()), backgroundColor = Color.White) {
+                    Stack(
+                        modifier = LayoutSize(0.px.toDp(), 40.px.toDp()) +
+                                DrawBorder(Border(4.px.toDp(), Color.Red), shape)
+                    ) {}
+                }
+            }
+        }
+        val bitmap = findByTag(testTag).captureToBitmap()
+        bitmap.assertShape(
+            density = composeTestRule.density,
+            backgroundColor = Color.White,
+            shapeColor = Color.White,
+            shape = RectangleShape,
+            shapeOverlapPixelCount = 1.px
         )
     }
 
     @Composable
     fun SemanticParent(children: @Composable Density.() -> Unit) {
-        Align(Alignment.TopStart) {
+        Stack {
             TestTag(tag = testTag) {
                 Semantics(container = true) {
-                    Container {
+                    Box {
                         DensityAmbient.current.children()
                     }
                 }

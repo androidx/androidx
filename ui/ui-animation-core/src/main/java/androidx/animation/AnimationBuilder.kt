@@ -190,7 +190,7 @@ class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
     ): DurationBasedAnimation<V> {
         val delay = this.delay.toLong()
         val duration = this.duration.toLong()
-        return DurationBasedWrapper(
+        return SimpleDurationBasedAnimation(
             duration, delay,
             Tween(duration, delay, easing).buildMultiDimensAnim()
         )
@@ -205,11 +205,13 @@ class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
  */
 class PhysicsBuilder<T>(
     var dampingRatio: Float = DampingRatioNoBouncy,
-    var stiffness: Float = StiffnessMedium
+    var stiffness: Float = StiffnessMedium,
+    var displacementThreshold: Float = 0.01f
 ) : AnimationBuilder<T>() {
 
     override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> {
-        return SpringAnimation(dampingRatio, stiffness).buildMultiDimensAnim()
+        return SpringAnimation(dampingRatio, stiffness, displacementThreshold)
+            .buildMultiDimensAnim()
     }
 }
 
@@ -226,20 +228,11 @@ class SnapBuilder<T> : AnimationBuilder<T>() {
  * animation on all dimensions.
  */
 internal fun <V : AnimationVector> FloatAnimation.buildMultiDimensAnim(): Animation<V> =
-    FloatAnimWrapper(this)
+    VectorizedAnimation(this)
 
-private class FloatAnimWrapper<V : AnimationVector>(val anim: FloatAnimation) : Animation<V> {
+private class VectorizedAnimation<V : AnimationVector>(val anim: FloatAnimation) : Animation<V> {
     private lateinit var valueVector: V
     private lateinit var velocityVector: V
-
-    override fun isFinished(playTime: Long, start: V, end: V, startVelocity: V): Boolean {
-        for (i in 0 until start.size) {
-            if (!anim.isFinished(playTime, start[i], end[i], startVelocity[i])) {
-                return false
-            }
-        }
-        return true
-    }
 
     override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
         if (!::valueVector.isInitialized) {
@@ -253,19 +246,30 @@ private class FloatAnimWrapper<V : AnimationVector>(val anim: FloatAnimation) : 
 
     override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
         if (!::velocityVector.isInitialized) {
-            velocityVector = start.newInstance()
+            velocityVector = startVelocity.newInstance()
         }
         for (i in 0 until velocityVector.size) {
             velocityVector[i] = anim.getVelocity(playTime, start[i], end[i], startVelocity[i])
         }
         return velocityVector
     }
+
+    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long {
+        var maxDuration = 0L
+        (0 until start.size).forEach {
+            maxDuration = maxOf(
+                maxDuration,
+                anim.getDurationMillis(start[it], end[it], startVelocity[it])
+            )
+        }
+        return maxDuration
+    }
 }
 
 /**
  * Convenient internal class to set a duration on a multi-dimensional animation.
  */
-private class DurationBasedWrapper<V : AnimationVector>(
+private class SimpleDurationBasedAnimation<V : AnimationVector>(
     override val duration: Long,
     override val delay: Long,
     private val anim: Animation<V>

@@ -17,61 +17,134 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.CurrentTextStyleProvider
+import androidx.ui.core.Constraints
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
+import androidx.ui.core.enforce
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.SimpleImage
+import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.Container
-import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
-import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
-import androidx.ui.text.TextStyle
+import androidx.ui.material.ripple.ripple
+import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
+import androidx.ui.unit.max
 
 /**
- * A floating action button (FAB) is a [Button] to represents the primary action of a screen.
+ * A floating action button (FAB) is a button that represents the primary action of a screen.
  *
- * By default it uses a circle shape and centers its content.
+ * This FAB is typically used with an [androidx.ui.foundation.Icon]:
  *
- * @sample androidx.ui.material.samples.FloatingActionButtonCustomContent
+ * @sample androidx.ui.material.samples.SimpleFab
  *
- * @see FloatingActionButton overload for the variants with an icon or an icon and a text.
+ * See [ExtendedFloatingActionButton] for an extended FAB that contains text and an optional icon.
  *
- * @param modifier Modifier to be applied to the button.
- * @param onClick will be called when user clicked on the button. The button will be disabled
+ * @param modifier [Modifier] to be applied to this FAB.
+ * @param onClick will be called when user clicked on this FAB. The FAB will be disabled
  *  when it is null.
- * @param minSize Minimum size of the FAB.
- * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
- *  the [Shapes.button] from [ShapeAmbient].
- * @param color The background color
- * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button.
+ * @param shape The [Shape] of this FAB
+ * @param backgroundColor The background color. Use [Color.Transparent] to have no color
+ * @param contentColor The preferred content color for content inside this FAB
+ * @param elevation The z-coordinate at which to place this FAB. This controls the size
+ * of the shadow below the button.
+ * @param children the content of this FAB
  */
 @Composable
 fun FloatingActionButton(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
-    onClick: (() -> Unit)? = null,
-    minSize: Dp = FabSize,
     shape: Shape = CircleShape,
-    color: Color = MaterialTheme.colors().primary,
+    backgroundColor: Color = MaterialTheme.colors.primary,
+    contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp,
     children: @Composable() () -> Unit
 ) {
-    Surface(modifier = modifier, shape = shape, color = color, elevation = elevation) {
-        Ripple(bounded = true, enabled = onClick != null) {
-            Clickable(onClick) {
-                Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {
-                    CurrentTextStyleProvider(MaterialTheme.typography().button, children)
+    Surface(
+        modifier = modifier,
+        shape = shape,
+        color = backgroundColor,
+        contentColor = contentColor,
+        elevation = elevation
+    ) {
+        Clickable(onClick, modifier = ripple()) {
+            ProvideTextStyle(MaterialTheme.typography.button) {
+                Box(
+                    modifier = MinimumFabSizeModifier,
+                    gravity = ContentGravity.Center,
+                    children = children
+                )
+            }
+        }
+    }
+}
+
+/**
+ * A floating action button (FAB) is a button that represents the primary action of a screen.
+ *
+ * This extended FAB contains text and an optional icon that will be placed at the start. See
+ * [FloatingActionButton] for a FAB that just contains some content, typically an icon.
+ *
+ * @sample androidx.ui.material.samples.SimpleExtendedFabWithIcon
+ *
+ * @param text Text label displayed inside this FAB
+ * @param icon Optional icon for this FAB, typically this will be a [androidx.ui.foundation.Icon]
+ * @param modifier [Modifier] to be applied to this FAB
+ * @param onClick will be called when user clicked on this FAB. The FAB will be disabled
+ * when it is null.
+ * @param shape The [Shape] of this FAB
+ * @param onClick will be called when user clicked on the button. The button will be disabled
+ * when it is null.
+ * @param backgroundColor The background color. Use [Color.Transparent] to have no color
+ * @param contentColor The preferred content color. Will be used by text and iconography
+ * @param elevation The z-coordinate at which to place this button. This controls the size
+ * of the shadow below the button.
+ */
+@Composable
+fun ExtendedFloatingActionButton(
+    text: @Composable() () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier.None,
+    icon: @Composable() (() -> Unit)? = null,
+    shape: Shape = CircleShape,
+    backgroundColor: Color = MaterialTheme.colors.primary,
+    contentColor: Color = contentColorFor(backgroundColor),
+    elevation: Dp = 6.dp
+) {
+    FloatingActionButton(
+        modifier = modifier + LayoutSize.Min(ExtendedFabSize),
+        onClick = onClick,
+        shape = shape,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        elevation = elevation
+    ) {
+        Box(
+            modifier = LayoutPadding(
+                start = ExtendedFabTextPadding,
+                end = ExtendedFabTextPadding
+            ),
+            gravity = ContentGravity.Center
+        ) {
+            if (icon == null) {
+                text()
+            } else {
+                Row {
+                    icon()
+                    Spacer(LayoutWidth(ExtendedFabIconPadding))
+                    text()
                 }
             }
         }
@@ -79,95 +152,57 @@ fun FloatingActionButton(
 }
 
 /**
- * A floating action button (FAB) is a [Button] to represents the primary action of a screen.
+ * [LayoutModifier] that will set minimum constraints in each dimension to be [FabSize] unless
+ * there is an incoming, non-zero minimum already. This allows us to define a default minimum in
+ * [FloatingActionButton], but let [ExtendedFloatingActionButton] override it with a smaller
+ * minimum just by settings a normal [LayoutHeight.Min] modifier.
  *
- * It draws the [icon] in the center of the FAB.
- *
- * @sample androidx.ui.material.samples.FloatingActionButtonSimple
- *
- * @see FloatingActionButton overload for the variants with a custom content or an icon and a text.
- *
- * @param icon Image to draw in the center.
- * @param modifier Modifier to be applied to the button.
- * @param onClick will be called when user clicked on the button. The button will be disabled
- *  when it is null.
- * @param color The background color
- * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button.
+ * TODO: b/150460257 remove after support for this is added as a SizeModifier / similar
  */
-@Composable
-fun FloatingActionButton(
-    icon: Image,
-    modifier: Modifier = Modifier.None,
-    onClick: (() -> Unit)? = null,
-    shape: Shape = CircleShape,
-    color: Color = MaterialTheme.colors().primary,
-    elevation: Dp = 6.dp
-) {
-    FloatingActionButton(
-        modifier = modifier,
-        onClick = onClick,
-        shape = shape,
-        color = color,
-        elevation = elevation
-    ) {
-        SimpleImage(image = icon)
-    }
-}
-
-/**
- * An extended [FloatingActionButton] with an [icon] and a [text].
- *
- * @sample androidx.ui.material.samples.FloatingActionButtonExtended
- *
- * @see FloatingActionButton overload for the variants with a custom content or an icon.
- *
- * @param text Text to display.
- * @param modifier Modifier to be applied to the button.
- * @param icon Image to draw to the left of the text. It is optional.
- * @param textStyle Optional [TextStyle] to apply for a [text]
- * @param onClick will be called when user clicked on the button. The button will be disabled
- *  when it is null.
- * @param color The background color
- * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button.
- */
-@Composable
-fun FloatingActionButton(
-    text: String,
-    modifier: Modifier = Modifier.None,
-    icon: Image? = null,
-    textStyle: TextStyle? = null,
-    onClick: (() -> Unit)? = null,
-    color: Color = MaterialTheme.colors().primary,
-    elevation: Dp = 6.dp
-) {
-    FloatingActionButton(
-        modifier = modifier,
-        onClick = onClick,
-        color = color,
-        elevation = elevation,
-        minSize = ExtendedFabHeight) {
-        if (icon == null) {
-            Text(
-                text = text,
-                style = textStyle,
-                modifier = LayoutPadding(
-                    start = ExtendedFabTextPadding,
-                    end = ExtendedFabTextPadding
-                )
-            )
-        } else {
-            Row(LayoutPadding(start = ExtendedFabIconPadding, end = ExtendedFabTextPadding)) {
-                SimpleImage(image = icon)
-                Spacer(LayoutWidth(ExtendedFabIconPadding))
-                Text(text = text, style = textStyle)
+private object MinimumFabSizeModifier : LayoutModifier {
+    override fun Density.modifyConstraints(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Constraints {
+        val minWidth = constraints.minWidth.takeIf { it != IntPx.Zero }
+        val minHeight = constraints.minHeight.takeIf { it != IntPx.Zero }
+        return when {
+            minWidth != null && minHeight != null -> constraints
+            else -> {
+                Constraints(
+                    minWidth = minWidth ?: FabSize.toIntPx(),
+                    minHeight = minHeight ?: FabSize.toIntPx()
+                ).enforce(constraints)
             }
         }
     }
+
+    override fun Density.minIntrinsicWidthOf(
+        measurable: Measurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) = max(measurable.minIntrinsicWidth(height), FabSize.toIntPx())
+
+    override fun Density.minIntrinsicHeightOf(
+        measurable: Measurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) = max(measurable.minIntrinsicHeight(width), FabSize.toIntPx())
+
+    override fun Density.maxIntrinsicWidthOf(
+        measurable: Measurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) = max(measurable.maxIntrinsicWidth(height), FabSize.toIntPx())
+
+    override fun Density.maxIntrinsicHeightOf(
+        measurable: Measurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) = max(measurable.maxIntrinsicHeight(width), FabSize.toIntPx())
 }
 
 private val FabSize = 56.dp
-private val ExtendedFabHeight = 48.dp
+private val ExtendedFabSize = 48.dp
 private val ExtendedFabIconPadding = 12.dp
 private val ExtendedFabTextPadding = 20.dp

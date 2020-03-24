@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4
 class StatsTest {
     @Test
     fun repeat() {
-        val stats = Stats(listOf(10, 10, 10, 10))
+        val stats = Stats(longArrayOf(10, 10, 10, 10), "test")
         assertEquals(10.0, stats.mean, 0.0)
         assertEquals(10, stats.median)
         assertEquals(10, stats.max)
@@ -40,7 +40,7 @@ class StatsTest {
 
     @Test
     fun one() {
-        val stats = Stats(listOf(10))
+        val stats = Stats(longArrayOf(10), "test")
         assertEquals(10.0, stats.mean, 0.0)
         assertEquals(10, stats.median)
         assertEquals(10, stats.max)
@@ -52,7 +52,7 @@ class StatsTest {
 
     @Test
     fun simple() {
-        val stats = Stats((1L..100L).toList())
+        val stats = Stats((1L..100L).toList().toLongArray(), "test")
         assertEquals(50.5, stats.mean, 0.0)
         assertTrue(stats.median == 50L || stats.median == 51L)
         assertEquals(100, stats.max)
@@ -79,7 +79,7 @@ class StatsTest {
 
     @Test
     fun fractionalPercentile() {
-        val stats = Stats(listOf(0L, 25L, 50L, 75L, 100L))
+        val stats = Stats(longArrayOf(0L, 25L, 50L, 75L, 100L), "test")
         assertEquals(90, stats.percentile90)
         assertEquals(95, stats.percentile95)
     }

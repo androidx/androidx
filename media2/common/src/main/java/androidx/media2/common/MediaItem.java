@@ -153,9 +153,12 @@ public class MediaItem extends CustomVersionedParcelable {
     public void setMetadata(@Nullable MediaMetadata metadata) {
         List<Pair<OnMetadataChangedListener, Executor>> listeners = new ArrayList<>();
         synchronized (mLock) {
+            if (mMetadata == metadata) {
+                return;
+            }
             if (mMetadata != null && metadata != null
                     && !TextUtils.equals(getMediaId(), metadata.getMediaId())) {
-                Log.d(TAG, "MediaItem's media ID shouldn't be changed");
+                Log.w(TAG, "MediaItem's media ID shouldn't be changed");
                 return;
             }
             mMetadata = metadata;
@@ -167,7 +170,7 @@ public class MediaItem extends CustomVersionedParcelable {
             pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onMetadataChanged(MediaItem.this);
+                    listener.onMetadataChanged(MediaItem.this, metadata);
                 }
             });
         }
@@ -330,7 +333,8 @@ public class MediaItem extends CustomVersionedParcelable {
         /**
          * Called when a media item's metadata is changed.
          */
-        void onMetadataChanged(MediaItem item);
+        void onMetadataChanged(@NonNull MediaItem item,
+                @Nullable MediaMetadata metadata);
     }
 
     /**

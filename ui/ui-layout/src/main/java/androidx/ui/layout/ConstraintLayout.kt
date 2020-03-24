@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.layout.constraintlayout
+package androidx.ui.layout
 
 import android.annotation.SuppressLint
 import androidx.compose.Composable
@@ -32,9 +32,9 @@ import androidx.ui.core.AlignmentLine
 import androidx.ui.core.Constraints
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
-import androidx.ui.core.ModifierScope
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Placeable.PlacementScope.place
@@ -54,7 +54,7 @@ import androidx.ui.unit.ipx
 @Composable
 fun ConstraintLayout(constraintSet: ConstraintSet, children: @Composable() () -> Unit) {
     val measurer = remember { Measurer() }
-    Layout(children) { measurables, constraints ->
+    Layout(children) { measurables, constraints, _ ->
         val layoutSize = measurer.performMeasure(
             constraints,
             constraintSet,
@@ -646,6 +646,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         for (child in root.children) {
             val measurable = child.companionWidget
             if (measurable !is Measurable) continue
+            // TODO(popam): check if measurer's rtl support should be used instead
             placeables[measurable]?.place(IntPx(child.x), IntPx(child.y))
         }
     }
@@ -659,17 +660,44 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
 }
 
 private data class TagModifier(val tag: Any) : LayoutModifier, ParentDataModifier {
-    override fun ModifierScope.modifyConstraints(constraints: Constraints) = constraints
-    override fun ModifierScope.modifySize(constraints: Constraints, childSize: IntPxSize) =
+    override fun Density.modifyConstraints(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ) = constraints
+    override fun Density.modifySize(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection,
+        childSize: IntPxSize
+    ) =
         childSize
-    override fun ModifierScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
+    override fun Density.minIntrinsicWidthOf(
+        measurable: Measurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) =
         measurable.minIntrinsicWidth(height)
-    override fun ModifierScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx) =
+    override fun Density.maxIntrinsicWidthOf(
+        measurable: Measurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) =
         measurable.maxIntrinsicWidth(height)
-    override fun ModifierScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
+    override fun Density.minIntrinsicHeightOf(
+        measurable: Measurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) =
         measurable.minIntrinsicHeight(width)
-    override fun ModifierScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx) =
+    override fun Density.maxIntrinsicHeightOf(
+        measurable: Measurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) =
         measurable.maxIntrinsicHeight(width)
-    override fun ModifierScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
+    override fun Density.modifyAlignmentLine(
+        line: AlignmentLine,
+        value: IntPx?,
+        layoutDirection: LayoutDirection
+    ) = value
     override fun Density.modifyParentData(parentData: Any?) = this@TagModifier
 }

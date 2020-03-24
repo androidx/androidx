@@ -28,7 +28,7 @@ package androidx.collection {
     method public void ensureCapacity(int);
     method public int indexOf(Object?);
     method public boolean isEmpty();
-    method public java.util.Iterator<E!>! iterator();
+    method public java.util.Iterator<E!> iterator();
     method public boolean remove(Object?);
     method public boolean removeAll(androidx.collection.ArraySet<? extends E>);
     method public boolean removeAll(java.util.Collection<?>);

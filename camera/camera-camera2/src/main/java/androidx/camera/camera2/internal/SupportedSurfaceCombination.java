@@ -36,7 +36,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -146,7 +145,7 @@ final class SupportedSurfaceCombination {
                     "Can not get supported output size for the format: " + imageFormat);
         }
 
-        /**
+        /*
          * PRIV refers to any target whose available sizes are found using
          * StreamConfigurationMap.getOutputSizes(Class) with no direct application-visible format,
          * YUV refers to a target Surface using the ImageFormat.YUV_420_888 format, JPEG refers to
@@ -184,17 +183,18 @@ final class SupportedSurfaceCombination {
         return SurfaceConfig.create(configType, configSize);
     }
 
-    Map<UseCase, Size> getSuggestedResolutions(
-            List<UseCase> originalUseCases, List<UseCase> newUseCases) {
-        Map<UseCase, Size> suggestedResolutionsMap = new HashMap<>();
+    Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
+            List<SurfaceConfig> existingSurfaces, List<UseCaseConfig<?>> newUseCaseConfigs) {
+        Map<UseCaseConfig<?>, Size> suggestedResolutionsMap = new HashMap<>();
 
         // Get the index order list by the use case priority for finding stream configuration
-        List<Integer> useCasesPriorityOrder = getUseCasesPriorityOrder(newUseCases);
+        List<Integer> useCasesPriorityOrder = getUseCasesPriorityOrder(newUseCaseConfigs);
         List<List<Size>> supportedOutputSizesList = new ArrayList<>();
 
         // Collect supported output sizes for all use cases
         for (Integer index : useCasesPriorityOrder) {
-            List<Size> supportedOutputSizes = getSupportedOutputSizes(newUseCases.get(index));
+            List<Size> supportedOutputSizes =
+                    getSupportedOutputSizes(newUseCaseConfigs.get(index));
             supportedOutputSizesList.add(supportedOutputSizes);
         }
 
@@ -204,35 +204,25 @@ final class SupportedSurfaceCombination {
 
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (List<Size> possibleSizeList : allPossibleSizeArrangements) {
-            List<SurfaceConfig> surfaceConfigList = new ArrayList<>();
-
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
-            if (originalUseCases != null) {
-                for (UseCase useCase : originalUseCases) {
-                    Size resolution =
-                            useCase.getAttachedSurfaceResolution(
-                                    useCase.getBoundCamera().getCameraInfoInternal().getCameraId());
-
-                    surfaceConfigList.add(
-                            transformSurfaceConfig(useCase.getImageFormat(), resolution));
-                }
-            }
+            List<SurfaceConfig> surfaceConfigList = new ArrayList<>(existingSurfaces);
 
             // Attach SurfaceConfig of new use cases
             for (int i = 0; i < possibleSizeList.size(); i++) {
                 Size size = possibleSizeList.get(i);
-                UseCase newUseCase =
-                        newUseCases.get(useCasesPriorityOrder.get(i));
-                surfaceConfigList.add(transformSurfaceConfig(newUseCase.getImageFormat(), size));
+                UseCaseConfig<?> newUseCase =
+                        newUseCaseConfigs.get(useCasesPriorityOrder.get(i));
+                surfaceConfigList.add(transformSurfaceConfig(newUseCase.getInputFormat(), size));
             }
 
             // Check whether the SurfaceConfig combination can be supported
             if (checkSupported(surfaceConfigList)) {
-                for (UseCase useCase : newUseCases) {
+                for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
                     suggestedResolutionsMap.put(
-                            useCase,
+                            useCaseConfig,
                             possibleSizeList.get(
-                                    useCasesPriorityOrder.indexOf(newUseCases.indexOf(useCase))));
+                                    useCasesPriorityOrder.indexOf(
+                                            newUseCaseConfigs.indexOf(useCaseConfig))));
                 }
                 break;
             }
@@ -251,7 +241,7 @@ final class SupportedSurfaceCombination {
     // Gets the corrected aspect ratio due to device constraints or null if no correction is needed.
     Rational getCorrectedAspectRatio(@ImageOutputConfig.RotationValue int targetRotation) {
         Rational outputRatio = null;
-        /**
+        /*
          * If the device is LEGACY + Android 5.0, then return the same aspect ratio as maximum JPEG
          * resolution. The Camera2 LEGACY mode API always sends the HAL a configure call with the
          * same aspect ratio as the maximum JPEG resolution, and do the cropping/scaling before
@@ -281,10 +271,10 @@ final class SupportedSurfaceCombination {
         return maxSize;
     }
 
-    private List<Integer> getUseCasesPriorityOrder(List<UseCase> newUseCases) {
+    private List<Integer> getUseCasesPriorityOrder(List<UseCaseConfig<?>> newUseCaseConfigs) {
         List<Integer> priorityOrder = new ArrayList<>();
 
-        /**
+        /*
          * Once the stream resource is occupied by one use case, it will impact the other use cases.
          * Therefore, we need to define the priority for stream resource usage. For the use cases
          * with the higher priority, we will try to find the best one for them in priority as
@@ -292,8 +282,7 @@ final class SupportedSurfaceCombination {
          */
         List<Integer> priorityValueList = new ArrayList<>();
 
-        for (UseCase useCase : newUseCases) {
-            UseCaseConfig<?> config = useCase.getUseCaseConfig();
+        for (UseCaseConfig<?> config : newUseCaseConfigs) {
             int priority = config.getSurfaceOccupancyPriority(0);
             if (!priorityValueList.contains(priority)) {
                 priorityValueList.add(priority);
@@ -306,10 +295,9 @@ final class SupportedSurfaceCombination {
         Collections.reverse(priorityValueList);
 
         for (int priorityValue : priorityValueList) {
-            for (UseCase useCase : newUseCases) {
-                UseCaseConfig<?> config = useCase.getUseCaseConfig();
+            for (UseCaseConfig<?> config : newUseCaseConfigs) {
                 if (priorityValue == config.getSurfaceOccupancyPriority(0)) {
-                    priorityOrder.add(newUseCases.indexOf(useCase));
+                    priorityOrder.add(newUseCaseConfigs.indexOf(config));
                 }
             }
         }
@@ -318,28 +306,34 @@ final class SupportedSurfaceCombination {
     }
 
     @VisibleForTesting
-    List<Size> getSupportedOutputSizes(UseCase useCase) {
-        int imageFormat = useCase.getImageFormat();
-        Size[] outputSizes = getAllOutputSizesByFormat(imageFormat, useCase);
+    List<Size> getSupportedOutputSizes(UseCaseConfig<?> config) {
+        int imageFormat = config.getInputFormat();
+        ImageOutputConfig imageOutputConfig = (ImageOutputConfig) config;
+        Size[] outputSizes = getAllOutputSizesByFormat(imageFormat, imageOutputConfig);
         List<Size> outputSizeCandidates = new ArrayList<>();
-        ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
-        Size maxSize = config.getMaxResolution(getMaxOutputSizeByFormat(imageFormat));
-        int targetRotation = config.getTargetRotation(Surface.ROTATION_0);
+        Size maxSize = imageOutputConfig.getMaxResolution(getMaxOutputSizeByFormat(imageFormat));
+        int targetRotation = imageOutputConfig.getTargetRotation(Surface.ROTATION_0);
 
         // Sort the output sizes. The Comparator result must be reversed to have a descending order
         // result.
         Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
         // Calibrate targetSize by the target rotation value.
-        Size targetSize = config.getTargetResolution(ZERO_SIZE);
+        Size targetSize = imageOutputConfig.getTargetResolution(ZERO_SIZE);
         if (isRotationNeeded(targetRotation)) {
             targetSize = new Size(/* width= */targetSize.getHeight(), /* height=
              */targetSize.getWidth());
         }
 
-        // Get the minimum size according to min(DEFAULT_SIZE, TARGET_RESOLUTION).
         Size minSize = DEFAULT_SIZE;
-        if (!targetSize.equals(ZERO_SIZE) && getArea(targetSize) < getArea(DEFAULT_SIZE)) {
+        int defaultSizeArea = getArea(DEFAULT_SIZE);
+        int maxSizeArea = getArea(maxSize);
+        // When maxSize is smaller than 640x480, set minSize as 0x0. It means the min size bound
+        // will be ignored. Otherwise, set the minimal size according to min(DEFAULT_SIZE,
+        // TARGET_RESOLUTION).
+        if (maxSizeArea < defaultSizeArea) {
+            minSize = new Size(0, 0);
+        } else if (!targetSize.equals(ZERO_SIZE) && getArea(targetSize) < defaultSizeArea) {
             minSize = targetSize;
         }
 
@@ -364,10 +358,10 @@ final class SupportedSurfaceCombination {
         List<Size> sizesMismatchAspectRatio = new ArrayList<>();
 
         Rational aspectRatio = null;
-        if (config.hasTargetAspectRatio()) {
+        if (imageOutputConfig.hasTargetAspectRatio()) {
             // Checks the sensor orientation.
             boolean isSensorLandscapeOrientation = isRotationNeeded(Surface.ROTATION_0);
-            @AspectRatio.Ratio int targetAspectRatio = config.getTargetAspectRatio();
+            @AspectRatio.Ratio int targetAspectRatio = imageOutputConfig.getTargetAspectRatio();
             switch (targetAspectRatio) {
                 case AspectRatio.RATIO_4_3:
                     aspectRatio =
@@ -381,7 +375,7 @@ final class SupportedSurfaceCombination {
                     // Unhandled event.
             }
         } else {
-            aspectRatio = config.getTargetAspectRatioCustom(null);
+            aspectRatio = imageOutputConfig.getTargetAspectRatioCustom(null);
             aspectRatio = rotateAspectRatioByRotation(aspectRatio, targetRotation);
         }
 
@@ -407,8 +401,8 @@ final class SupportedSurfaceCombination {
         }
 
         // Check the default resolution if the target resolution is not set
-        targetSize = targetSize.equals(ZERO_SIZE) ? config.getDefaultResolution(ZERO_SIZE)
-                : targetSize;
+        targetSize = targetSize.equals(ZERO_SIZE) ? imageOutputConfig.getDefaultResolution(
+                ZERO_SIZE) : targetSize;
 
         // If the target resolution is set, use it to find the minimum one from big enough items
         if (!targetSize.equals(ZERO_SIZE)) {
@@ -443,13 +437,17 @@ final class SupportedSurfaceCombination {
     }
 
     static boolean hasMatchingAspectRatio(Size resolution, Rational aspectRatio) {
-        boolean isMatch;
+        boolean isMatch = false;
         if (aspectRatio == null) {
             isMatch = false;
         } else if (aspectRatio.equals(
                 new Rational(resolution.getWidth(), resolution.getHeight()))) {
             isMatch = true;
-        } else {
+        } else if (getArea(resolution) >= getArea(DEFAULT_SIZE)) {
+            // Only do mod 16 calculation if the size is equal to or larger than 640x480. It is
+            // because the aspect ratio will be affected critically by mod 16 calculation if the
+            // size is small. It may result in unexpected outcome such like 256x144 will be
+            // considered as 18.5:9.
             isMatch = isPossibleMod16FromAspectRatio(resolution, aspectRatio);
         }
         return isMatch;
@@ -458,6 +456,7 @@ final class SupportedSurfaceCombination {
     private static boolean isPossibleMod16FromAspectRatio(Size resolution, Rational aspectRatio) {
         int width = resolution.getWidth();
         int height = resolution.getHeight();
+
         Rational invAspectRatio = new Rational(/* numerator= */aspectRatio.getDenominator(),
                 /* denominator= */aspectRatio.getNumerator());
         if (width % 16 == 0 && height % 16 == 0) {
@@ -472,7 +471,7 @@ final class SupportedSurfaceCombination {
         return false;
     }
 
-    private int getArea(Size size) {
+    private static int getArea(Size size) {
         return size.getWidth() * size.getHeight();
     }
 
@@ -591,7 +590,7 @@ final class SupportedSurfaceCombination {
             allPossibleSizeArrangements.add(sizeList);
         }
 
-        /**
+        /*
          * Try to list out all possible arrangements by attaching all possible size of each column
          * in sequence. We have generated supportedOutputSizesList by the priority order for
          * different use cases. And the supported outputs sizes for each use case are also arranged
@@ -627,16 +626,14 @@ final class SupportedSurfaceCombination {
     }
 
     @Nullable
-    private Size[] getAllOutputSizesByFormat(int imageFormat, @Nullable UseCase useCase) {
+    private Size[] getAllOutputSizesByFormat(int imageFormat, @Nullable ImageOutputConfig config) {
         Size[] outputSizes = null;
 
         // Try to retrieve customized supported resolutions from config.
         List<Pair<Integer, Size[]>> formatResolutionsPairList = null;
 
-        if (useCase != null) {
-            ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCase.getUseCaseConfig();
-
-            formatResolutionsPairList = imageOutputConfig.getSupportedResolutions(null);
+        if (config != null) {
+            formatResolutionsPairList = config.getSupportedResolutions(null);
         }
 
         if (formatResolutionsPairList != null) {

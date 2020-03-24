@@ -16,44 +16,52 @@
 
 package androidx.ui.foundation
 
-import androidx.ui.semantics.Semantics
-import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
 
 /**
- * Combines [PressReleasedGestureDetector] and [Semantics] for the clickable
+ * Combines [TapGestureDetector] and [Semantics] for the clickable
  * components like Button.
  *
  * @sample androidx.ui.foundation.samples.ClickableSample
  *
- * @param onClick will be called when user clicked on the button. The children will not be
- *  clickable when it is null.
- * @param consumeDownOnStart true means [PressReleasedGestureDetector] should consume
- *  down events. Provide false if you have some visual feedback like Ripples,
- *  as it will consume this events instead.
+ * @param onClick will be called when user clicked on the button
+ * @param modifier allows to provide a modifier to be added before the gesture detector, for
+ * example Ripple should be added at this point. this will be easier once we migrate this
+ * function to a Modifier
+ * @param enabled Controls the enabled state. When `false`, this component will not be
+ * clickable
  */
 @Composable
 fun Clickable(
-    onClick: (() -> Unit)? = null,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier.None,
+    enabled: Boolean = true,
     onClickLabel: String? = null,
-    consumeDownOnStart: Boolean = false,
     children: @Composable() () -> Unit
 ) {
     Semantics(
         container = true,
         properties = {
-            enabled = (onClick != null)
-            if (onClick != null) {
+            this.enabled = enabled
+            if (enabled) {
                 onClick(action = onClick, label = onClickLabel)
             }
         }
     ) {
-        PressReleasedGestureDetector(
-            onRelease = onClick,
-            consumeDownOnStart = consumeDownOnStart,
-            children = children
-        )
+        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+        //  is implemented with modifiers.
+        val tap = if (enabled) {
+            TapGestureDetector(onClick)
+        } else {
+            Modifier.None
+        }
+        @Suppress("DEPRECATION")
+        PassThroughLayout(modifier + tap, children)
     }
 }

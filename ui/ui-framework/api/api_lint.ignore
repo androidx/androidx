@@ -1,5 +1,5 @@
 // Baseline format: 1.0
-ArrayReturn: androidx.ui.core.LayoutKt#Layout(kotlin.jvm.functions.Function0<kotlin.Unit>[], androidx.ui.core.Modifier, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult>) parameter #0:
+ArrayReturn: androidx.ui.core.LayoutKt#Layout(kotlin.jvm.functions.Function0<kotlin.Unit>[], androidx.ui.core.Modifier, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult>) parameter #0:
     Method parameter should be Collection<Function0> (or subclass) instead of raw array; was `kotlin.jvm.functions.Function0<kotlin.Unit>[]`
 
 
@@ -11,6 +11,14 @@ CallbackName: androidx.ui.core.gesture.RawScaleObserver:
     Class should be named RawScaleCallback
 CallbackName: androidx.ui.core.gesture.ScaleObserver:
     Class should be named ScaleCallback
+
+
+ContextFirst: androidx.compose.Compose#composeInto(androidx.ui.core.ComponentNode, android.content.Context, androidx.compose.CompositionReference, kotlin.jvm.functions.Function0<kotlin.Unit>) parameter #1:
+    Context is distinct, so it must be the first argument (method `composeInto`)
+ContextFirst: androidx.compose.Compose#disposeComposition(androidx.ui.core.ComponentNode, android.content.Context, androidx.compose.CompositionReference) parameter #1:
+    Context is distinct, so it must be the first argument (method `disposeComposition`)
+ContextFirst: androidx.ui.core.WrapperKt#subcomposeInto(androidx.ui.core.ComponentNode, android.content.Context, androidx.compose.CompositionReference, kotlin.jvm.functions.Function0<kotlin.Unit>) parameter #1:
+    Context is distinct, so it must be the first argument (method `subcomposeInto`)
 
 
 DocumentExceptions: androidx.ui.core.MultiComposableMeasurables#get(kotlin.jvm.functions.Function0<kotlin.Unit>):

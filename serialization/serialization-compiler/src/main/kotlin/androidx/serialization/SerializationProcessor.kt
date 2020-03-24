@@ -16,7 +16,7 @@
 
 package androidx.serialization
 
-import androidx.serialization.compiler.codegen.CodeGenEnvironment
+import androidx.serialization.compiler.codegen.java.JavaGenerator
 import androidx.serialization.compiler.processing.steps.EnumProcessingStep
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.service.AutoService
@@ -32,9 +32,12 @@ import javax.lang.model.SourceVersion
 @IncrementalAnnotationProcessor(ISOLATING)
 class SerializationProcessor : BasicAnnotationProcessor() {
     override fun initSteps(): List<ProcessingStep> {
-        val codeGenEnv = CodeGenEnvironment(processingEnv, this::class.qualifiedName)
+        val javaGenerator = JavaGenerator(
+            processingEnv,
+            "androidx.serialization.SerializationProcessor")
+
         return listOf(
-            EnumProcessingStep(processingEnv, codeGenEnv)
+            EnumProcessingStep(processingEnv, javaGenerator)
         )
     }
 

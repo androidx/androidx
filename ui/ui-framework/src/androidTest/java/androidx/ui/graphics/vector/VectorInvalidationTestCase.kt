@@ -20,7 +20,8 @@ import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Draw
+import androidx.ui.core.asModifier
+import androidx.ui.core.draw
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.framework.test.R
 import androidx.ui.geometry.Rect
@@ -50,24 +51,25 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
             vectorAsset.resource.resource?.let {
                 val width = it.defaultWidth
                 vectorSize = width.toIntPx().value
-                AtLeastSize(size = width.toIntPx()) {
-                    Draw { canvas, parentSize ->
-                        canvas.drawRect(
-                            Rect.fromLTWH(
-                                0.0f,
-                                0.0f,
-                                parentSize.width.value,
-                                parentSize.height.value
-                            ),
-                            Paint().apply { this.color = Color.White }
-                        )
-                    }
-                    DrawVector(it)
-
+                AtLeastSize(
+                    size = width.toIntPx(),
+                    modifier = WhiteBackground + VectorPainter(it).asModifier()) {
                     latch.countDown()
                 }
             }
         }
+    }
+
+    val WhiteBackground = draw { canvas, size ->
+        canvas.drawRect(
+            Rect.fromLTWH(
+                0.0f,
+                0.0f,
+                size.width.value,
+                size.height.value
+            ),
+            Paint().apply { this.color = Color.White }
+        )
     }
 
     fun toggle() {

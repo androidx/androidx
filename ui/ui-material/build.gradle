@@ -41,6 +41,7 @@ dependencies {
     api project(":ui:ui-foundation")
     api project(":ui:ui-material-icons-core")
     api project(":ui:ui-text")
+    api project(":ui:ui-animation-core")
 
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
@@ -56,7 +57,7 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
 
-    androidTestImplementation project(":ui:ui-material:integration-tests:samples")
+    androidTestImplementation project(":ui:ui-material:samples")
     androidTestImplementation project(":ui:ui-platform")
     androidTestImplementation project(":ui:ui-test")
 

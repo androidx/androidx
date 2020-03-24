@@ -17,7 +17,6 @@
 package androidx.browser.trusted;
 
 import android.os.Bundle;
-import android.os.Looper;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,7 +47,6 @@ public class TestBrowser extends AppCompatActivity {
      * If already resumed, returns "true" immediately.
      */
     public boolean waitForResume(int timeoutMillis) {
-        assert Thread.currentThread() != Looper.getMainLooper().getThread() : "Deadlock!";
         try {
             return mResumeLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {

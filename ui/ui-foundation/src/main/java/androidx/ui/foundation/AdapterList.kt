@@ -18,24 +18,25 @@ package androidx.ui.foundation
 
 import android.content.Context
 import androidx.compose.Composable
-import androidx.compose.Compose
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
+import androidx.compose.Untracked
 import androidx.compose.compositionReference
 import androidx.compose.remember
-import androidx.ui.core.Clip
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.MeasuringIntrinsicsMeasureBlocks
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
+import androidx.ui.core.subcomposeInto
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.Scrollable
 import androidx.ui.foundation.gestures.ScrollableState
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -253,7 +254,8 @@ private class ListState<T>(
         override fun measure(
             measureScope: MeasureScope,
             measurables: List<Measurable>,
-            constraints: Constraints
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
         ): MeasureScope.LayoutResult {
             measuredThisPass.clear()
             if (forceRecompose) {
@@ -314,7 +316,7 @@ private class ListState<T>(
 
             // Remove no-longer-needed items from the start of the list
             if (itemIndexOffset > firstComposedItem) {
-                rootNode.emitRemoveAt(0, (itemIndexOffset - firstComposedItem).value)
+                rootNode.removeAt(0, (itemIndexOffset - firstComposedItem).value)
             }
             firstComposedItem = itemIndexOffset
 
@@ -327,7 +329,7 @@ private class ListState<T>(
             // Remove no-longer-needed items from the end of the list
             val layoutChildrenInNode = rootNode.layoutChildren.size
             if (layoutChildrenInNode > numDesiredChildren) {
-                rootNode.emitRemoveAt(
+                rootNode.removeAt(
                     // We've already removed the extras at the start, so the desired children
                     // start at index 0
                     index = numDesiredChildren,
@@ -403,7 +405,7 @@ private class ListState<T>(
         if (atEnd || atStart) {
             // This is a new node, either at the end or the start
             node = LayoutNode()
-            node.measureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints ->
+            node.measureBlocks = MeasuringIntrinsicsMeasureBlocks { measurables, constraints, _ ->
                 val placeables = measurables.map { measurable ->
                     measurable.measure(
                         Constraints(
@@ -421,7 +423,7 @@ private class ListState<T>(
                 layout(columnWidth, columnHeight) {
                     var top = 0.ipx
                     placeables.forEach { placeable ->
-                        placeable.place(0.ipx, top)
+                        placeable.placeAbsolute(0.ipx, top)
                         top += placeable.height
                     }
                 }
@@ -434,7 +436,7 @@ private class ListState<T>(
             // the others will be shifted forward.  This accounts for these different methods of
             // tracking.
             val newLayoutIndex = if (atStart) 0 else layoutIndex.value
-            rootNode.emitInsertAt(newLayoutIndex, node)
+            rootNode.insertAt(newLayoutIndex, node)
             if (atEnd) {
                 lastComposedItem++
             } else {
@@ -444,7 +446,8 @@ private class ListState<T>(
         } else {
             node = rootNode.layoutChildren[layoutIndex.value]
         }
-        Compose.subcomposeInto(node, context!!, compositionRef) {
+        // TODO(b/150390669): Review use of @Untracked
+        subcomposeInto(node, context!!, compositionRef) @Untracked {
             itemCallback(data[dataIndex.value])
         }
         return node
@@ -475,13 +478,11 @@ fun <T> AdapterList(
     Scrollable(dragDirection = DragDirection.Vertical, scrollableState = ScrollableState(
         onScrollDeltaConsumptionRequested = state.onScrollDeltaConsumptionRequestedListener
     )) {
-        Clip(shape = RectangleShape) {
-            androidx.ui.core.LayoutNode(
-                modifier = modifier,
-                ref = state.rootNodeRef,
-                measureBlocks = state.measureBlocks
-            )
-        }
+        androidx.ui.core.LayoutNode(
+            modifier = modifier + DrawClipToBounds,
+            ref = state.rootNodeRef,
+            measureBlocks = state.measureBlocks
+        )
     }
     state.recomposeIfAttached()
 }

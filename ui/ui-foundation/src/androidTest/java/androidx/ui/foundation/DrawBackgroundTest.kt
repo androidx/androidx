@@ -20,16 +20,14 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
-import androidx.ui.layout.Align
-import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.Stack
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -55,17 +53,12 @@ class DrawBackgroundTest {
     @Test
     fun background_colorRect() {
         composeTestRule.setContent {
-            OuterJunk {
-                Container(
-                    width = 40.px.toDp(),
-                    height = 40.px.toDp(),
-                    modifier = DrawBackground(Color.Magenta)
+            SemanticParent {
+                Box(
+                    LayoutSize(40.px.toDp()) + DrawBackground(Color.Magenta),
+                    gravity = ContentGravity.Center
                 ) {
-                    Container(
-                        width = 20.px.toDp(),
-                        height = 20.px.toDp(),
-                        modifier = LayoutPadding(10.px.toDp()) + DrawBackground(Color.White)
-                    ) {}
+                    Box(LayoutSize(20.px.toDp()) + DrawBackground(Color.White))
                 }
             }
         }
@@ -83,18 +76,12 @@ class DrawBackgroundTest {
     @Test
     fun background_brushRect() {
         composeTestRule.setContent {
-            OuterJunk {
-                Container(
-                    width = 40.px.toDp(),
-                    height = 40.px.toDp(),
-                    modifier = DrawBackground(Color.Magenta)
+            SemanticParent {
+                Box(
+                    LayoutSize(40.px.toDp()) + DrawBackground(Color.Magenta),
+                    gravity = ContentGravity.Center
                 ) {
-                    Container(
-                        width = 20.px.toDp(),
-                        height = 20.px.toDp(),
-                        modifier = LayoutPadding(10.px.toDp()) +
-                                DrawBackground(SolidColor(Color.White))
-                    ) {}
+                    Box(LayoutSize(20.px.toDp()) + DrawBackground(SolidColor(Color.White)))
                 }
             }
         }
@@ -112,13 +99,12 @@ class DrawBackgroundTest {
     @Test
     fun background_colorCircle() {
         composeTestRule.setContent {
-            OuterJunk {
-                Container(
-                    width = 40.px.toDp(),
-                    height = 40.px.toDp(),
-                    modifier = DrawBackground(Color.Magenta) +
+            SemanticParent {
+                Box(
+                    LayoutSize(40.px.toDp()) +
+                            DrawBackground(Color.Magenta) +
                             DrawBackground(shape = CircleShape, color = Color.White)
-                ) {}
+                )
             }
         }
         val bitmap = findByTag(contentTag).captureToBitmap()
@@ -127,21 +113,22 @@ class DrawBackgroundTest {
             backgroundColor = Color.Magenta,
             shape = CircleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.px)
+            shapeOverlapPixelCount = 2.px
+        )
     }
 
     @Test
     fun background_brushCircle() {
         composeTestRule.setContent {
-            OuterJunk {
-                Container(
-                    width = 40.px.toDp(),
-                    height = 40.px.toDp(),
-                    modifier = DrawBackground(Color.Magenta) + DrawBackground(
-                        shape = CircleShape,
-                        brush = SolidColor(Color.White)
-                    )
-                ) {}
+            SemanticParent {
+                Box(
+                    LayoutSize(40.px.toDp()) +
+                            DrawBackground(Color.Magenta) +
+                            DrawBackground(
+                                shape = CircleShape,
+                                brush = SolidColor(Color.White)
+                            )
+                )
             }
         }
         val bitmap = findByTag(contentTag).captureToBitmap()
@@ -150,12 +137,13 @@ class DrawBackgroundTest {
             backgroundColor = Color.Magenta,
             shape = CircleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.px)
+            shapeOverlapPixelCount = 2.px
+        )
     }
 
     @Composable
-    private fun OuterJunk(children: @Composable Density.() -> Unit) {
-        Align(Alignment.TopStart) {
+    private fun SemanticParent(children: @Composable Density.() -> Unit) {
+        Stack {
             TestTag(contentTag) {
                 Semantics(container = true) {
                     DensityAmbient.current.children()

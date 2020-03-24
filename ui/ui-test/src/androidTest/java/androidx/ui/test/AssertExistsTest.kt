@@ -19,11 +19,11 @@ package androidx.ui.test
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.util.expectAssertionError
 import org.junit.Rule

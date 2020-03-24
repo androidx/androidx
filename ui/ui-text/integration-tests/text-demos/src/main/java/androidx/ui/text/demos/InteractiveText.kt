@@ -18,12 +18,11 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.Text
-import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.foundation.ClickableText
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextStyle
+import androidx.ui.text.AnnotatedString
 
 @Composable
 fun InteractiveTextDemo() {
@@ -32,21 +31,14 @@ fun InteractiveTextDemo() {
 
 @Composable
 fun TextOnClick() {
-    val layoutResult = state<TextLayoutResult?> { null }
     val clickedOffset = state { -1 }
     VerticalScroller {
         Column {
             Text("Clicked Offset: ${clickedOffset.value}")
-            PressGestureDetector(
-                onPress = { pos ->
-                    layoutResult.value?.let { layout ->
-                        clickedOffset.value = layout.getOffsetForPosition(pos)
-                    }
-                }
-            ) {
-                Text("ClickeMe",
-                    style = TextStyle(fontSize = fontSize8),
-                    onTextLayout = { layoutResult.value = it })
+            ClickableText(
+                text = AnnotatedString("Click Me")
+            ) { offset ->
+                clickedOffset.value = offset
             }
         }
     }

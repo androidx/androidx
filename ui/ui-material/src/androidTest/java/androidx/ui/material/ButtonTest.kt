@@ -20,14 +20,13 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
-import androidx.ui.core.currentTextStyle
-import androidx.ui.layout.Center
+import androidx.ui.core.onChildPositioned
+import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.currentTextStyle
 import androidx.ui.layout.Column
-import androidx.ui.layout.Wrap
+import androidx.ui.layout.Stack
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertSemanticsIsEqualTo
@@ -63,7 +62,7 @@ class ButtonTest {
     @Test
     fun buttonTest_defaultSemantics() {
         composeTestRule.setMaterialContent {
-            Center {
+            Stack {
                 TestTag(tag = "myButton") {
                     Button(onClick = {}) {
                         Text("myButton")
@@ -79,9 +78,11 @@ class ButtonTest {
     @Test
     fun buttonTest_disabledSemantics() {
         composeTestRule.setMaterialContent {
-            Center {
+            Stack {
                 TestTag(tag = "myButton") {
-                    Button { Text("myButton") }
+                    Button(onClick = {}, enabled = false) {
+                        Text("myButton")
+                    }
                 }
             }
         }
@@ -101,7 +102,7 @@ class ButtonTest {
         val text = "myButton"
 
         composeTestRule.setMaterialContent {
-            Center {
+            Stack {
                 Button(onClick = onClick) {
                     Text(text)
                 }
@@ -123,15 +124,11 @@ class ButtonTest {
         val tag = "myButton"
 
         composeTestRule.setMaterialContent {
-            val enabled = state { true }
-            val onClick: (() -> Unit)? = if (enabled.value) {
-                { enabled.value = false }
-            } else {
-                null
-            }
-            Center {
+            var enabled by state { true }
+            val onClick = { enabled = false }
+            Stack {
                 TestTag(tag = tag) {
-                    Button(onClick = onClick) {
+                    Button(onClick = onClick, enabled = enabled) {
                         Text("Hello")
                     }
                 }
@@ -236,8 +233,8 @@ class ButtonTest {
     fun buttonTest_ContainedButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             Button(onClick = {}) {
-                val style = MaterialTheme.typography().button
-                    .copy(color = MaterialTheme.colors().onPrimary)
+                val style = MaterialTheme.typography.button
+                    .copy(color = MaterialTheme.colors.onPrimary)
                 assertThat(currentTextStyle()).isEqualTo(style)
             }
         }
@@ -247,8 +244,8 @@ class ButtonTest {
     fun buttonTest_OutlinedButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             OutlinedButton(onClick = {}) {
-                val style = MaterialTheme.typography().button
-                    .copy(color = MaterialTheme.colors().primary)
+                val style = MaterialTheme.typography.button
+                    .copy(color = MaterialTheme.colors.primary)
                 assertThat(currentTextStyle()).isEqualTo(style)
             }
         }
@@ -258,8 +255,8 @@ class ButtonTest {
     fun buttonTest_TextButtonPropagateDefaultTextStyle() {
         composeTestRule.setMaterialContent {
             TextButton(onClick = {}) {
-                val style = MaterialTheme.typography().button
-                    .copy(color = MaterialTheme.colors().primary)
+                val style = MaterialTheme.typography.button
+                    .copy(color = MaterialTheme.colors.primary)
                 assertThat(currentTextStyle()).isEqualTo(style)
             }
         }
@@ -293,16 +290,9 @@ class ButtonTest {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Wrap {
+            Stack(onChildPositioned { parentCoordinates = it }) {
                 button {
-                    OnPositioned {
-                        parentCoordinates = it
-                    }
-                    OnChildPositioned(onPositioned = {
-                        childCoordinates = it
-                    }) {
-                        Text("Test button")
-                    }
+                    Text("Test button", onPositioned { childCoordinates = it })
                 }
             }
         }

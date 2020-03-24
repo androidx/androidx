@@ -21,8 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import android.Manifest;
 import android.app.Instrumentation;
@@ -42,7 +40,6 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysis.Analyzer;
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.UseCase.StateChangeCallback;
 import androidx.camera.core.impl.ImageAnalysisConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -60,7 +57,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -74,8 +70,6 @@ public final class ImageAnalysisTest {
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final ImageAnalysisConfig mDefaultConfig = ImageAnalysis.DEFAULT_CONFIG.getConfig(null);
-    private final StateChangeCallback mMockCallback = Mockito.mock(StateChangeCallback.class);
-    private final Analyzer mMockAnalyzer = Mockito.mock(Analyzer.class);
     private final Object mAnalysisResultLock = new Object();
     @GuardedBy("mAnalysisResultLock")
     private Set<ImageProperties> mAnalysisResults;
@@ -130,33 +124,6 @@ public final class ImageAnalysisTest {
         if (mHandlerThread != null) {
             mHandlerThread.quitSafely();
         }
-    }
-
-    @Test
-    @UiThreadTest
-    public void becomesActive_whenHasAnalyzer() {
-        ImageAnalysis useCase = ImageAnalysis.Builder.fromConfig(mDefaultConfig).build();
-        CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
-        mLifecycleOwner.startAndResume();
-
-        useCase.addStateChangeCallback(mMockCallback);
-
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mMockAnalyzer);
-
-        verify(mMockCallback, times(1)).onUseCaseActive(useCase);
-    }
-
-    @Test
-    @UiThreadTest
-    public void becomesInactive_whenNoAnalyzer() {
-        ImageAnalysis useCase = ImageAnalysis.Builder.fromConfig(mDefaultConfig).build();
-        CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
-        mLifecycleOwner.startAndResume();
-        useCase.addStateChangeCallback(mMockCallback);
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mMockAnalyzer);
-        useCase.clearAnalyzer();
-
-        verify(mMockCallback, times(1)).onUseCaseInactive(useCase);
     }
 
     @Test

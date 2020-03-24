@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * @suppress
  */
+@Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.LoadParams<Key> =
     PagingSource.LoadParams(
@@ -45,7 +46,7 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * underlying data set is modified, a new [PagingSource] / [PagingData] pair must be created to
  * represent an updated snapshot of the data.
  *
- * <h4>Loading Pages</h4>
+ * ### Loading Pages
  *
  * [PagingData] queries data from its [PagingSource] in response to loading hints generated as
  * the user scrolls in a `RecyclerView`.
@@ -53,7 +54,7 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * To control how and when a [PagingData] queries data from its [PagingSource], see [PagingConfig],
  * which defines behavior such as [PagingConfig.pageSize] and [PagingConfig.prefetchDistance].
  *
- * <h4>Updating Data</h4>
+ * ### Updating Data
  *
  * A [PagingSource] / [PagingData] pair is a snapshot of the data set. A new [PagingData] /
  * [PagingData] must be created if an update occurs, such as a reorder, insert, delete, or content
@@ -66,7 +67,10 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  * represent an item's position in a [PagingSource] that is keyed by item position. Note that this
  * is distinct from e.g. Room's `<Value>` type loaded by the [PagingSource].
  * @param Value Type of data loaded in by this [PagingSource]. E.g., the type of data that will be
- * passed to a [androidx.paging.PagingDataAdapter] to be displayed in a `RecyclerView`.
+ * passed to a [PagingDataAdapter][androidx.paging.PagingDataAdapter] to be displayed in a
+ * `RecyclerView`.
+ *
+ * @sample androidx.paging.samples.pagingSourceSample
  */
 @Suppress("KDocUnresolvedReference")
 abstract class PagingSource<Key : Any, Value : Any> {

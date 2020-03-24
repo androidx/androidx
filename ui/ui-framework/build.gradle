@@ -35,14 +35,16 @@ dependencies {
 
     // TODO: Non-Kotlin dependency, move to Android-specific code
     implementation "androidx.core:core:1.0.2"
+    implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
 
-    api project(":compose:compose-runtime")
+    implementation project(":compose:compose-runtime")
     api project(":ui:ui-core")
     implementation project(":ui:ui-platform")
     api project(":ui:ui-text")
     implementation project(":ui:ui-util")
     implementation project(":ui:ui-vector")
-    implementation project(":ui:ui-animation-core")
+    implementation project(":ui:ui-saved-instance-state")
+    api project(":ui:ui-animation-core")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
@@ -65,6 +67,8 @@ dependencies {
     androidTestImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
+    androidTestImplementation "androidx.activity:activity:1.2.0-alpha01"
+    androidTestImplementation project(":ui:ui-layout")
 }
 
 androidx {
@@ -79,5 +83,13 @@ androidx {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         useIR = true
+    }
+}
+
+android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // Breaks Kotlin compiler.
+        }
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getOrNull
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.FoundationSemanticsProperties
@@ -115,7 +116,7 @@ fun hasText(text: String, ignoreCase: Boolean = false): SemanticsPredicate {
     return SemanticsPredicate(
         "${SemanticsProperties.AccessibilityLabel.name} = '$text' (ignoreCase: $ignoreCase)"
     ) {
-        getOrNull(SemanticsProperties.AccessibilityLabel).equals(text, ignoreCase)
+        config.getOrNull(SemanticsProperties.AccessibilityLabel).equals(text, ignoreCase)
     }
 }
 
@@ -133,7 +134,7 @@ fun hasSubstring(substring: String, ignoreCase: Boolean = false):
     return SemanticsPredicate(
         "${SemanticsProperties.AccessibilityLabel.name}.contains($substring, $ignoreCase)"
     ) {
-        getOrNull(SemanticsProperties.AccessibilityLabel)?.contains(substring, ignoreCase)
+        config.getOrNull(SemanticsProperties.AccessibilityLabel)?.contains(substring, ignoreCase)
             ?: false
     }
 }
@@ -186,3 +187,104 @@ fun isHidden(): SemanticsPredicate =
  */
 fun isNotHidden(): SemanticsPredicate =
     SemanticsPredicate.expectValue(SemanticsProperties.Hidden, false)
+
+/**
+ * Returns whether the component's parent satisfies the given predicate.
+ *
+ * Returns false if no parent exists.
+ */
+fun hasParentThat(predicate: SemanticsPredicate): SemanticsPredicate {
+    // TODO(b/150292800): If this is used in assert we should print the parent's node semantics
+    //  in the error message or say that no parent was found.
+    return SemanticsPredicate("hasAnyParentThat(${predicate.description})") {
+        parent?.run { predicate.condition(this) } ?: false
+    }
+}
+
+/**
+ * Returns whether the component has at least one child that satisfies the given predicate.
+ */
+fun hasAnyChildThat(predicate: SemanticsPredicate): SemanticsPredicate {
+    // TODO(b/150292800): If this is used in assert we should print the children nodes semantics
+    //  in the error message or say that no children were found.
+    return SemanticsPredicate("hasAnyChildThat(${predicate.description})") {
+        this.children.any { predicate.condition(it) }
+    }
+}
+
+/**
+ * Returns whether the component has at least one sibling that satisfies the given predicate.
+ *
+ * Sibling is defined as a any other node that shares the same parent.
+ */
+fun hasAnySiblingThat(predicate: SemanticsPredicate): SemanticsPredicate {
+    // TODO(b/150292800): If this is used in assert we should print the sibling nodes semantics
+    //  in the error message or say that no siblings were found.
+    return SemanticsPredicate("hasAnySiblingThat(${predicate.description})") {
+        val node = this
+        parent?.run { this.children.any { it.id != node.id && predicate.condition(it) } } ?: false
+    }
+}
+
+/**
+ * Returns whether the component has at least one ancestor that satisfies the given predicate.
+ *
+ * Example: For the following tree
+ * |-X
+ * |-A
+ *   |-B
+ *     |-C1
+ *     |-C2
+ * In case of C1, we would check the predicate against A and B
+ */
+fun hasAnyAncestorThat(predicate: SemanticsPredicate): SemanticsPredicate {
+    // TODO(b/150292800): If this is used in assert we should print the ancestor nodes semantics
+    //  in the error message or say that no ancestors were found.
+    return SemanticsPredicate("hasAnyAncestorThat(${predicate.description})") {
+        ancestors.any { predicate.condition(it) }
+    }
+}
+
+/**
+ * Returns whether the component has at least one descendant that satisfies the given predicate.
+ *
+ * Example: For the following tree
+ * |-X
+ * |-A
+ *   |-B
+ *     |-C1
+ *     |-C2
+ * In case of A, we would check the predicate against B,C1 and C2
+ */
+fun hasAnyDescendantThat(predicate: SemanticsPredicate): SemanticsPredicate {
+    // TODO(b/150292800): If this is used in assert we could consider printing the whole subtree but
+    //  it might be too much to show. But we could at least warn if there were no ancestors found.
+    fun checkIfSubtreeMatches(predicate: SemanticsPredicate, node: SemanticsNode): Boolean {
+        if (predicate.condition(node)) {
+            return true
+        }
+
+        return node.children.any {
+            checkIfSubtreeMatches(predicate, it)
+        }
+    }
+
+    return SemanticsPredicate("hasAnyDescendantThat(${predicate.description})") {
+        this.children.any { checkIfSubtreeMatches(predicate, it) }
+    }
+}
+
+private val SemanticsNode.ancestors: Iterable<SemanticsNode>
+    get() = object : Iterable<SemanticsNode> {
+        override fun iterator(): Iterator<SemanticsNode> {
+            return object : Iterator<SemanticsNode> {
+                var next = parent
+                override fun hasNext(): Boolean {
+                    return next != null
+                }
+                override fun next(): SemanticsNode {
+                    return next!!.also { next = it.parent }
+                }
+            }
+        }
+    }

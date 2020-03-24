@@ -22,10 +22,8 @@ import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTagParentData
 import androidx.ui.core.Modifier
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.ParentData
+import androidx.ui.core.onPositioned
 import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
@@ -35,7 +33,6 @@ import androidx.ui.layout.Stack
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.BottomAppBar.FabDockedPosition
 import androidx.ui.material.Scaffold.FabPosition
-import androidx.ui.material.surface.Surface
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -133,10 +130,10 @@ fun Scaffold(
     bodyContent: @Composable() (Modifier) -> Unit
 ) {
     val child = @Composable {
-        Surface(color = MaterialTheme.colors().background) {
+        Surface(color = MaterialTheme.colors.background) {
             Column(LayoutSize.Fill) {
                 if (topAppBar != null) ScaffoldSlot(children = topAppBar)
-                Stack(modifier = LayoutFlexible(1f, tight = true)) {
+                Stack(modifier = LayoutWeight(1f, fill = true)) {
                     ScaffoldContent(LayoutSize.Fill, scaffoldState, bodyContent)
                     ScaffoldBottom(
                         modifier = LayoutGravity.BottomCenter,
@@ -219,19 +216,9 @@ private fun DockedBottomBar(
     Layout(
         modifier = modifier,
         children = {
-            ParentData(
-                object : LayoutTagParentData {
-                    override val tag: Any = "bottomBar"
-                },
-                bottomBar
-            )
-            ParentData(
-                object : LayoutTagParentData {
-                    override val tag: Any = "fab"
-                },
-                fab
-            )
-        }) { measurables, constraints ->
+            bottomBar()
+            fab()
+        }) { measurables, constraints, _ ->
         val (appBarPlaceable, fabPlaceable) = measurables.map { it.measure(constraints) }
 
         val layoutWidth = appBarPlaceable.width
@@ -272,14 +259,12 @@ private fun BottomBarContainer(
     bottomBar: @Composable() ((FabConfiguration?) -> Unit)
 ) {
     onDispose(callback = { scaffoldState.bottomBarSize = null })
-    OnChildPositioned(
-        onPositioned = {
+    ScaffoldSlot(
+        modifier = onPositioned {
             if (scaffoldState.bottomBarSize != it.size) scaffoldState.bottomBarSize = it.size
         },
         children = {
-            ScaffoldSlot(children = {
-                bottomBar(scaffoldState.fabConfiguration)
-            })
+            bottomBar(scaffoldState.fabConfiguration)
         }
     )
 }
@@ -292,7 +277,7 @@ private fun FabContainer(
     fab: @Composable() () -> Unit
 ) {
     onDispose(callback = { scaffoldState.fabConfiguration = null })
-    OnChildPositioned(onPositioned = { coords ->
+    val onPositioned = onPositioned { coords ->
         // TODO(mount): This should probably use bounding box rather than position/size
         val position = coords.parentCoordinates?.childToLocal(coords, PxPosition.Origin)
             ?: PxPosition.Origin
@@ -309,9 +294,8 @@ private fun FabContainer(
                 }
             }
         if (scaffoldState.fabConfiguration != config) scaffoldState.fabConfiguration = config
-    }) {
-        ScaffoldSlot(modifier = modifier, children = fab)
     }
+    ScaffoldSlot(modifier = modifier + onPositioned, children = fab)
 }
 
 /**

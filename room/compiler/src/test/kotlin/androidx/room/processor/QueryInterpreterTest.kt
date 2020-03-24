@@ -469,6 +469,18 @@ class QueryInterpreterTest {
     }
 
     @Test
+    fun aliasWithInnerJoin() {
+        testInterpret(
+            name = "foo.bar.User",
+            input = null,
+            original = "SELECT * FROM user as u INNER JOIN Employee AS e ON(u.id = e.id)",
+            expected = "SELECT `u`.`id` AS `id`, `u`.`firstName` AS `firstName`, `u`" +
+                    ".`lastName` AS `lastName`, `u`.`teamId` AS `teamId` FROM user as u INNER " +
+                    "JOIN Employee AS e ON(u.id = e.id)"
+        )
+    }
+
+    @Test
     fun joinAndAbandon() {
         testInterpret(
             "foo.bar.UserCopy",
@@ -567,7 +579,7 @@ class QueryInterpreterTest {
 
     private fun testInterpret(
         name: String,
-        input: String,
+        input: String?,
         original: String,
         expected: String
     ) {
@@ -578,11 +590,14 @@ class QueryInterpreterTest {
 
     private fun queryWithPojo(
         name: String,
-        input: String,
+        input: String?,
         original: String,
         handler: (expanded: String, invocation: TestInvocation) -> Unit
     ): CompileTester {
-        val all = ENTITIES + JavaFileObjects.forSourceString(name, DATABASE_PREFIX + input)
+        val extraSource = input?.let {
+            listOf(JavaFileObjects.forSourceString(name, DATABASE_PREFIX + input))
+        } ?: emptyList()
+        val all = ENTITIES + extraSource
         return simpleRun(
             jfos = *all,
             options = listOf("-Aroom.expandProjection=true")

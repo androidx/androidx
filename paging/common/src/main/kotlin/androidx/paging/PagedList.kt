@@ -21,10 +21,6 @@ package androidx.paging
 import androidx.annotation.IntRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.paging.PagedList.Callback
-import androidx.paging.PagedList.Config
-import androidx.paging.PagedList.Config.Builder
-import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +40,7 @@ import java.util.concurrent.Executor
  * [PagedList], see [androidx.paging.PagedListAdapter], which enables the binding of a [PagedList]
  * to a [androidx.recyclerview.widget.RecyclerView].
  *
- * <h4>Loading Data</h4>
+ * ### Loading Data
  *
  * All data in a [PagedList] is loaded from its [PagingSource]. Creating a [PagedList] loads the
  * first chunk of data from the [PagingSource] immediately, and should for this reason be done on a
@@ -64,7 +60,7 @@ import java.util.concurrent.Executor
  * If you use [androidx.paging.LivePagedListBuilder] to get a [androidx.lifecycle.LiveData], it will
  * initialize [PagedList]s on a background thread for you.
  *
- * <h4>Placeholders</h4>
+ * ### Placeholders
  *
  * There are two ways that [PagedList] can represent its not-yet-loaded data - with or without
  * `null` placeholders.
@@ -98,7 +94,7 @@ import java.util.concurrent.Executor
  * [PagingSource] does not count its data set in its initial load, or if  `false` is passed to
  * [Config.Builder.setEnablePlaceholders] when building a [Config].
  *
- * <h4>Mutability and Snapshots</h4>
+ * ### Mutability and Snapshots
  *
  * A [PagedList] is *mutable* while loading, or ready to load from its [PagingSource].
  * As loads succeed, a mutable [PagedList] will be updated via Runnables on the main thread. You can
@@ -118,6 +114,7 @@ import java.util.concurrent.Executor
  *
  * @param T The type of the entries in the list.
  */
+@Deprecated("PagedList is deprecated and has been replaced by PagingData")
 abstract class PagedList<T : Any> internal constructor(
     /**
      * The [PagingSource] that provides data to this [PagedList].
@@ -160,6 +157,7 @@ abstract class PagedList<T : Any> internal constructor(
          *
          * @suppress
          */
+        @Suppress("DEPRECATION")
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun <K : Any, T : Any> create(
@@ -255,6 +253,11 @@ abstract class PagedList<T : Any> internal constructor(
      * @param Key Type of key used to load data from the [PagingSource].
      * @param Value Type of items held and loaded by the [PagedList].
      */
+    @Deprecated(
+        message = "PagedList is deprecated and has been replaced by PagingData, which no " +
+                "longer supports constructing snapshots of loaded data manually.",
+        replaceWith = ReplaceWith("PagingDataFlow", "androidx.paging.PagingDataFlow")
+    )
     class Builder<Key : Any, Value : Any> {
         private val pagingSource: PagingSource<Key, Value>?
         private var dataSource: DataSource<Key, Value>?
@@ -272,7 +275,6 @@ abstract class PagedList<T : Any> internal constructor(
          * @param dataSource [DataSource] the [PagedList] will load from.
          * @param config [Config] that defines how the [PagedList] loads data from its [DataSource].
          */
-        @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
         constructor(dataSource: DataSource<Key, Value>, config: Config) {
             this.pagingSource = null
             this.dataSource = dataSource
@@ -293,8 +295,6 @@ abstract class PagedList<T : Any> internal constructor(
          * @param pageSize [Config] that defines how the [PagedList] loads data from its
          * [DataSource].
          */
-        @Suppress("DEPRECATION")
-        @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
         constructor(dataSource: DataSource<Key, Value>, pageSize: Int) : this(
             dataSource = dataSource,
             config = Config(pageSize)
@@ -476,6 +476,7 @@ abstract class PagedList<T : Any> internal constructor(
          *
          * @return The newly constructed [PagedList]
          */
+        @Suppress("DEPRECATION")
         fun build(): PagedList<Value> {
             val fetchDispatcher = fetchDispatcher ?: Dispatchers.IO
             val pagingSource = pagingSource
@@ -789,7 +790,7 @@ abstract class PagedList<T : Any> internal constructor(
      * [Retrofit](https://square.github.io/retrofit/), while handling swipe-to-refresh,
      * network errors, and retry.
      *
-     * <h4>Requesting Network Data</h4>
+     * ### Requesting Network Data
      * [BoundaryCallback] only passes the item at front or end of the list when out of data. This
      * makes it an easy fit for item-keyed network requests, where you can use the item passed to
      * the [BoundaryCallback] to request more data from the network. In these cases, the source of
@@ -1234,11 +1235,11 @@ abstract class PagedList<T : Any> internal constructor(
  * @param boundaryCallback [PagedList.BoundaryCallback] for listening to out-of-data events.
  * @param initialKey [Key] the [DataSource] should load around as part of initialization.
  */
-@Suppress("FunctionName", "DeprecatedCallableAddReplaceWith")
+@Suppress("FunctionName", "DEPRECATION")
 @Deprecated("DataSource is deprecated and has been replaced by PagingSource")
 fun <Key : Any, Value : Any> PagedList(
     dataSource: DataSource<Key, Value>,
-    config: Config,
+    config: PagedList.Config,
     notifyExecutor: Executor,
     fetchExecutor: Executor,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,

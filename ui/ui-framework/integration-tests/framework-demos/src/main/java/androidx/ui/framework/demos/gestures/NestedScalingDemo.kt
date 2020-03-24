@@ -16,14 +16,11 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Layout
 import androidx.ui.core.gesture.RawScaleGestureDetector
 import androidx.ui.core.gesture.RawScaleObserver
-import androidx.ui.core.setContent
 import androidx.ui.foundation.DrawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutAlign
@@ -32,33 +29,27 @@ import androidx.ui.unit.IntPx
 /**
  * Demo app created to study some complex interactions of multiple DragGestureDetectors.
  */
-class NestedScalingDemo : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            Layout(
-                children = {
-                    Scalable(.66666666f, Color(0xFFffeb3b.toInt())) {
-                        Scalable(.5f, Color(0xFF4caf50.toInt())) {}
-                    }
-                },
-                measureBlock = { measurables, constraints ->
+@Composable
+fun NestedScalingDemo() {
+    Layout(
+        children = {
+            Scalable(.66666666f, Color(0xFFffeb3b.toInt())) {
+                Scalable(.5f, Color(0xFF4caf50.toInt())) {}
+            }
+        }) { measurables, constraints, _ ->
+        val placeable = measurables.first().measure(constraints)
 
-                    val placeable = measurables.first().measure(constraints)
-
-                    layout(constraints.maxWidth, constraints.maxHeight) {
-                        placeable.place(
-                            (constraints.maxWidth - placeable.width) / 2,
-                            (constraints.maxHeight - placeable.height) / 2
-                        )
-                    }
-                })
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeable.place(
+                (constraints.maxWidth - placeable.width) / 2,
+                (constraints.maxHeight - placeable.height) / 2
+            )
         }
     }
 }
 
 @Composable
-fun Scalable(
+private fun Scalable(
     minPercent: Float,
     color: Color,
     children: @Composable() () -> Unit
@@ -79,31 +70,31 @@ fun Scalable(
         }
     }
 
-    RawScaleGestureDetector(outerScaleObserver) {
-        Layout(
-            children = children,
-            modifier = LayoutAlign.Center + DrawBackground(color = color),
-            measureBlock = { measurables, constraints ->
-                val newConstraints =
-                    constraints.copy(
-                        maxWidth = constraints.maxWidth * currentPercent.value,
-                        maxHeight = constraints.maxHeight * currentPercent.value,
-                        minWidth = IntPx.Zero,
-                        minHeight = IntPx.Zero
-                    )
+    Layout(
+        children = children,
+        modifier = LayoutAlign.Center +
+                RawScaleGestureDetector(outerScaleObserver) +
+                DrawBackground(color = color),
+        measureBlock = { measurables, constraints, _ ->
+            val newConstraints =
+                constraints.copy(
+                    maxWidth = constraints.maxWidth * currentPercent.value,
+                    maxHeight = constraints.maxHeight * currentPercent.value,
+                    minWidth = IntPx.Zero,
+                    minHeight = IntPx.Zero
+                )
 
-                val placeable = if (measurables.isNotEmpty()) {
-                    measurables.first().measure(newConstraints)
-                } else {
-                    null
-                }
+            val placeable = if (measurables.isNotEmpty()) {
+                measurables.first().measure(newConstraints)
+            } else {
+                null
+            }
 
-                layout(newConstraints.maxWidth, newConstraints.maxHeight) {
-                    placeable?.place(
-                        (newConstraints.maxWidth - placeable.width) / 2,
-                        (newConstraints.maxHeight - placeable.height) / 2
-                    )
-                }
-            })
-    }
+            layout(newConstraints.maxWidth, newConstraints.maxHeight) {
+                placeable?.place(
+                    (newConstraints.maxWidth - placeable.width) / 2,
+                    (newConstraints.maxHeight - placeable.height) / 2
+                )
+            }
+        })
 }

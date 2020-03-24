@@ -49,6 +49,16 @@ public final class CaptureConfig {
     public static final Config.Option<Integer> OPTION_ROTATION =
             Config.Option.create("camerax.core.captureConfig.rotation", int.class);
 
+    /**
+     * Sets the compression quality of the captured JPEG image.
+     *
+     * See {@link CaptureRequest#JPEG_QUALITY}.
+     *
+     * Option: camerax.core.captureConfig.jpegQuality
+     */
+    public static final Config.Option<Integer> OPTION_JPEG_QUALITY =
+            Config.Option.create("camerax.core.captureConfig.jpegQuality", Integer.class);
+
     /** The set of {@link Surface} that data from the camera will be put into. */
     final List<DeferrableSurface> mSurfaces;
 

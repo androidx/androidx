@@ -38,7 +38,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.webkit.JsReplyProxy;
+import androidx.webkit.JavaScriptReplyProxy;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebViewAssetLoader;
@@ -85,7 +85,7 @@ public class WebMessageListenerActivity extends AppCompatActivity {
     }
 
     private static class ReplyMessageListener implements WebViewCompat.WebMessageListener {
-        private JsReplyProxy mReplyProxy;
+        private JavaScriptReplyProxy mReplyProxy;
 
         ReplyMessageListener(Button button) {
             button.setOnClickListener((View v) -> {
@@ -96,7 +96,7 @@ public class WebMessageListenerActivity extends AppCompatActivity {
 
         @Override
         public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JsReplyProxy replyProxy) {
+                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
             if (message.getData().equals("initialization")) {
                 mReplyProxy = replyProxy;
             }
@@ -115,7 +115,7 @@ public class WebMessageListenerActivity extends AppCompatActivity {
 
         @Override
         public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JsReplyProxy replyProxy) {
+                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
             if (message.getData().equals("send port")) {
                 mPort = message.getPorts()[0];
             }
@@ -131,7 +131,7 @@ public class WebMessageListenerActivity extends AppCompatActivity {
 
         @Override
         public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JsReplyProxy replyProxy) {
+                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
             Toast.makeText(mContext, "Toast: " + message.getData(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -146,7 +146,7 @@ public class WebMessageListenerActivity extends AppCompatActivity {
 
         @Override
         public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JsReplyProxy replyProxy) {
+                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
             replyProxy.postMessage(message.getData());
             mCounter++;
             if (mCounter % 100 == 0) {

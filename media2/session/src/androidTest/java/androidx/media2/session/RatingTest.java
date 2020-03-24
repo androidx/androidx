@@ -111,10 +111,13 @@ public class RatingTest extends MediaTestBase {
     private Rating writeToParcelAndCreateRating(Rating rating) {
         ParcelImpl parcelImpl = (ParcelImpl) ParcelUtils.toParcelable(rating);
         Parcel parcel = Parcel.obtain();
-        parcelImpl.writeToParcel(parcel, 0);
-        parcel.setDataPosition(0);
-        ParcelImpl newParcelImpl = ParcelImpl.CREATOR.createFromParcel(parcel);
-        parcel.recycle();
-        return ParcelUtils.fromParcelable(newParcelImpl);
+        try {
+            parcelImpl.writeToParcel(parcel, 0);
+            parcel.setDataPosition(0);
+            ParcelImpl newParcelImpl = ParcelImpl.CREATOR.createFromParcel(parcel);
+            return ParcelUtils.fromParcelable(newParcelImpl);
+        } finally {
+            parcel.recycle();
+        }
     }
 }

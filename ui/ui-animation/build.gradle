@@ -32,6 +32,7 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
     implementation(KOTLIN_STDLIB)
+    implementation "org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3"
 
     api "androidx.annotation:annotation:1.1.0"
 
@@ -50,6 +51,8 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
+    androidTestImplementation project(":ui:ui-foundation")
+    androidTestImplementation project(":ui:ui-test")
 }
 
 androidx {

@@ -84,6 +84,11 @@ public class WebViewCompat {
         /**
          * Receives a message sent by a {@code postMessage()} on the injected JavaScript object.
          *
+         * <p> Note that when the frame is {@code file:} or {@code content:} origin, the value of
+         * {@code sourceOrigin} is a string {@code "null"}. However we highly recommend to not use
+         * {@code file:} or {@code content:} URLs, see {@link WebViewAssetLoader} for serving local
+         * content under {@code http:} or {@code https:} domain.
+         *
          * @param view The {@link WebView} containing the frame which sent this message.
          * @param message The message from JavaScript.
          * @param sourceOrigin The origin of the frame that the message is from.
@@ -92,7 +97,8 @@ public class WebViewCompat {
          */
         @UiThread
         void onPostMessage(@NonNull WebView view, @NonNull WebMessageCompat message,
-                @NonNull Uri sourceOrigin, boolean isMainFrame, @NonNull JsReplyProxy replyProxy);
+                @NonNull Uri sourceOrigin, boolean isMainFrame,
+                @NonNull JavaScriptReplyProxy replyProxy);
     }
 
     /**
@@ -464,38 +470,66 @@ public class WebViewCompat {
      * available immediately when the page begins to load.
      *
      * <p>
-     * Each {@code allowedOriginRules} entry must follow the format below:
+     * Each {@code allowedOriginRules} entry must follow the format {@code SCHEME "://" [
+     * HOSTNAME_PATTERN [ ":" PORT ] ]}, each part is explained in the below table:
+     *
      * <table>
+     * <col width="25%">
      * <tr><th>Rule</th><th>Description</th><th>Example</th></tr>
-     * <tr><td>{@code [ URL_SCHEME "://" ] HOSTNAME_PATTERN [ ":" PORT ]}</td>
-     * <td>Matches a hostname using a wildcard pattern, and an optional scheme and port
-     * restriction.</td>
+     *
+     * <tr>
+     * <td>http/https with hostname</td>
+     * <td>{@code SCHEME} is http or https; {@code HOSTNAME_PATTERN} is a regular hostname; {@code
+     * PORT} is optional, when not present, the rule will match port {@code 80} for http and port
+     * {@code 443} for https.</td>
      * <td><ul>
-     * <li>{@code https://*.example.com} - Matches https://calendar.example.com and
-     * https://foo.bar.example.com but not https://example.com</li>
      * <li>{@code https://foobar.com:8080} - Matches https:// URL on port 8080, whose normalized
      * host is foobar.com.</li>
-     * <li>{@code *} - Matches URL of any scheme, port and domain.</li>
+     * <li>{@code https://www.example.com} - Matches https:// URL on port 443, whose normalized host
+     * is www.example.com.</li>
      * </ul></td>
      * </tr>
-     * <tr><td>{@code [ SCHEME "://" ] IP_LITERAL [ ":" PORT ]}</td>
-     * <td>Matches URLs that are IP address literals, and optional scheme and port restrictions.
-     * </td>
+     *
+     * <tr>
+     * <td>http/https with pattern matching</td>
+     * <td>{@code SCHEME} is http or https; {@code HOSTNAME_PATTERN} is a sub-domain matching
+     * pattern with a leading {@code *.}; {@code PORT} is optional, when not present, the rule will
+     * match port {@code 80} for http and port {@code 443} for https.</td>
+     *
      * <td><ul>
-     * <li>{@code https://127.0.0.1}</li>
+     * <li>{@code https://*.example.com} - Matches https://calendar.example.com and
+     * https://foo.bar.example.com but not https://example.com.</li>
+     * <li>{@code https://*.example.com:8080} - Matches https://calendar.example.com:8080</li>
+     * </ul></td>
+     * </tr>
+     *
+     * <tr>
+     * <td>http/https with IP literal</td>
+     * <td>{@code SCHEME} is https or https; {@code HOSTNAME_PATTERN} is IP literal; {@code PORT} is
+     * optional, when not present, the rule will match port {@code 80} for http and port {@code 443}
+     * for https.</td>
+     *
+     * <td><ul>
+     * <li>{@code https://127.0.0.1} - Matches https:// URL on port 443, whose IPv4 address is
+     * 127.0.0.1</li>
      * <li>{@code https://[::1]} or {@code https://[0:0::1]}- Matches any URL to the IPv6 loopback
-     * address.</li>
+     * address with port 443.</li>
      * <li>{@code https://[::1]:99} - Matches any https:// URL to the IPv6 loopback on port 99.</li>
      * </ul></td>
      * </tr>
-     * <tr><td>{@code IP_LITERAL "/" PREFIX_LENGTH_IN_BITS}</td><td>
-     * Matches any URL whose hostname is an IP literal, and falls between the given address
-     * range.</td>
+     *
+     * <tr>
+     * <td>Custom scheme</td>
+     * <td>{@code SCHEME} is a custom scheme; {@code HOSTNAME_PATTERN} and {@code PORT} must not be
+     * present.</td>
      * <td><ul>
-     * <li>{@code 192.168.0.0/16}</li>
-     * <li>{@code fefe:13::abc/33} - Note that there are no brackets on the IPv6 literal.</li>
+     * <li>{@code my-app-scheme://} - Matches any my-app-scheme:// URL.</li>
      * </ul></td>
      * </tr>
+     *
+     * <tr><td>{@code *}</td>
+     * <td>Wildcard rule, matches any origin.</td>
+     * <td><ul><li>{@code *}</li></ul></td>
      * </table>
      *
      * <p>
@@ -536,7 +570,7 @@ public class WebViewCompat {
      * <p>
      * We start the communication between JavaScript and the app from the JavaScript side. In order
      * to send message from the app to JavaScript, it needs to post a message from JavaScript first,
-     * so the app will have a {@link JsReplyProxy} object to respond. Example:
+     * so the app will have a {@link JavaScriptReplyProxy} object to respond. Example:
      * <pre class="prettyprint">
      * // Web page (in JavaScript)
      * myObject.onmessage = function(event) {
@@ -549,7 +583,7 @@ public class WebViewCompat {
      * WebMessageListener myListener = new WebMessageListener() {
      *   &#064;Override
      *   public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-     *            boolean isMainFrame, JsReplyProxy replyProxy) {
+     *            boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
      *     // do something about view, message, sourceOrigin and isMainFrame.
      *     replyProxy.postMessage("Got it!");
      *   }
@@ -569,7 +603,7 @@ public class WebViewCompat {
      *         calls on the JavaScript object.
      * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
      *
-     * @see JsReplyProxy
+     * @see JavaScriptReplyProxy
      * @see WebMessageListener
      *
      * //TODO(ctzsm): unhide
@@ -744,7 +778,7 @@ public class WebViewCompat {
      */
     // WebViewRenderProcessClient is a callback class, so it should be last. See
     // https://issuetracker.google.com/issues/139770271.
-    @SuppressLint("LambdaLast")
+    @SuppressLint({"LambdaLast", "NewApi"})
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebViewRenderProcessClient(
@@ -784,6 +818,7 @@ public class WebViewCompat {
      * @param webViewRenderProcessClient the {@link WebViewRenderProcessClient} to set for
      *                                   callbacks.
      */
+    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebViewRenderProcessClient(
@@ -814,6 +849,7 @@ public class WebViewCompat {
      * {@link #setWebViewRenderProcessClient(WebView,WebViewRenderProcessClient)} or {@code null}
      * otherwise.
      */
+    @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebViewRenderProcessClient getWebViewRenderProcessClient(

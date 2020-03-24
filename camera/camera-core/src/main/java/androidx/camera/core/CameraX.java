@@ -35,6 +35,7 @@ import androidx.camera.core.impl.CameraIdFilter;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
+import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseGroup;
@@ -43,6 +44,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.internal.UseCaseOccupancy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
@@ -280,23 +282,46 @@ public final class CameraX {
         }
 
         String newCameraId = CameraX.getCameraWithCameraSelector(selectorBuilder.build());
+        if (newCameraId == null) {
+            throw new IllegalArgumentException("Unable to find a camera with the given selector.");
+        }
 
-        // Try to get the camera before bind to the use case, and throw the IllegalArgumentException
+        // Try to get the camera before binding to the use case, and throw IllegalArgumentException
         // if the camera not found.
         CameraInternal camera = cameraX.getCameraRepository().getCamera(newCameraId);
 
-        for (UseCase useCase : useCases) {
-            // Sets bound camera to use case.
-            useCase.onBind(camera);
+        List<UseCase> originalUseCases = new ArrayList<>();
+
+        // Collect original use cases bound to the camera
+        for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
+            CameraInternal boundCamera = useCase.getBoundCamera();
+            if (boundCamera != null) {
+                if (newCameraId.equals(boundCamera.getCameraInfoInternal().getCameraId())) {
+                    originalUseCases.add(useCase);
+                }
+            }
         }
 
-        calculateSuggestedResolutions(lifecycleOwner, newCameraId, useCases);
+        if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(originalUseCases,
+                Arrays.asList(useCases))) {
+            throw new IllegalArgumentException("Attempting to bind too many ImageCapture or "
+                    + "VideoCapture instances");
+        }
 
+        Map<UseCase, Size> suggestedResolutionsMap = calculateSuggestedResolutions(
+                camera.getCameraInfoInternal(),
+                originalUseCases,
+                Arrays.asList(useCases));
+
+
+        // At this point the binding will succeed since all the calculations are done
+        // Do all binding related work
         for (UseCase useCase : useCases) {
+            useCase.onBind(camera);
+            useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
+
+            // Update the UseCaseGroup
             useCaseGroupToBind.addUseCase(useCase);
-            for (String cameraId : useCase.getAttachedCameraIds()) {
-                attach(cameraId, useCase);
-            }
         }
 
         useCaseGroupLifecycleController.notifyState();
@@ -353,31 +378,19 @@ public final class CameraX {
         Collection<UseCaseGroupLifecycleController> useCaseGroups =
                 cameraX.mUseCaseGroupRepository.getUseCaseGroups();
 
-        Map<String, List<UseCase>> detachingUseCaseMap = new HashMap<>();
-
         for (UseCase useCase : useCases) {
+            // Remove the UseCase from the group
+            boolean wasUnbound = false;
             for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
-                UseCaseGroup useCaseGroup = useCaseGroupLifecycleController.getUseCaseGroup();
-                if (useCaseGroup.removeUseCase(useCase)) {
-                    // Saves all detaching use cases and detach them at once.
-                    for (String cameraId : useCase.getAttachedCameraIds()) {
-                        List<UseCase> useCasesOnCameraId = detachingUseCaseMap.get(cameraId);
-                        if (useCasesOnCameraId == null) {
-                            useCasesOnCameraId = new ArrayList<>();
-                            detachingUseCaseMap.put(cameraId, useCasesOnCameraId);
-                        }
-                        useCasesOnCameraId.add(useCase);
-                    }
+                if (useCaseGroupLifecycleController.getUseCaseGroup().removeUseCase(useCase)) {
+                    wasUnbound = true;
                 }
             }
-        }
 
-        for (String cameraId : detachingUseCaseMap.keySet()) {
-            detach(cameraId, detachingUseCaseMap.get(cameraId));
-        }
-
-        for (UseCase useCase : useCases) {
-            useCase.clear();
+            // Unbind the UseCase from the currently bound camera if it is bound
+            if (wasUnbound) {
+                useCase.onUnbind();
+            }
         }
     }
 
@@ -869,89 +882,43 @@ public final class CameraX {
         }
     }
 
-    /**
-     * Registers the callbacks for the {@link CameraInternal} to the {@link UseCase}.
-     *
-     * @param cameraId the id for the {@link CameraInternal}
-     * @param useCase  the use case to register the callback for
-     */
-    private static void attach(String cameraId, UseCase useCase) {
-        CameraX cameraX = checkInitialized();
-
-        CameraInternal cameraInternal = cameraX.getCameraRepository().getCamera(cameraId);
-
-        useCase.addStateChangeCallback(cameraInternal);
-        useCase.attachCameraControl(cameraId, cameraInternal.getCameraControlInternal());
-    }
-
-    /**
-     * Removes the callbacks registered by the {@link CameraInternal} to the {@link UseCase}.
-     *
-     * @param cameraId the id for the {@link CameraInternal}
-     * @param useCases the list of use case to remove the callback from.
-     */
-    private static void detach(String cameraId, List<UseCase> useCases) {
-        CameraX cameraX = checkInitialized();
-
-        CameraInternal cameraInternal = cameraX.getCameraRepository().getCamera(cameraId);
-
-        for (UseCase useCase : useCases) {
-            useCase.removeStateChangeCallback(cameraInternal);
-            useCase.detachCameraControl(cameraId);
-        }
-        cameraInternal.removeOnlineUseCase(useCases);
-    }
-
-    private static void calculateSuggestedResolutions(@NonNull LifecycleOwner lifecycleOwner,
-            @NonNull String newCameraId, @NonNull UseCase... useCases) {
-        CameraX cameraX = checkInitialized();
-
-        // There will only one lifecycleOwner active. Therefore, only collect use cases belong to
-        // same lifecycleOwner and calculate the suggested resolutions.
-        UseCaseGroupLifecycleController useCaseGroupLifecycleController =
-                cameraX.getOrCreateUseCaseGroup(lifecycleOwner);
-        UseCaseGroup useCaseGroupToBind = useCaseGroupLifecycleController.getUseCaseGroup();
-        Map<String, List<UseCase>> originalCameraIdUseCaseMap = new HashMap<>();
-        Map<String, List<UseCase>> newCameraIdUseCaseMap = new HashMap<>();
+    private static Map<UseCase, Size> calculateSuggestedResolutions(
+            @NonNull CameraInfoInternal cameraInfo,
+            @NonNull List<UseCase> originalUseCases, @NonNull List<UseCase> newUseCases) {
+        List<SurfaceConfig> existingSurfaces = new ArrayList<>();
+        String cameraId = cameraInfo.getCameraId();
 
         // Collect original use cases for different camera devices
-        for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
-            for (String cameraId : useCase.getAttachedCameraIds()) {
-                List<UseCase> useCaseList = originalCameraIdUseCaseMap.get(cameraId);
-                if (useCaseList == null) {
-                    useCaseList = new ArrayList<>();
-                    originalCameraIdUseCaseMap.put(cameraId, useCaseList);
-                }
-                useCaseList.add(useCase);
-            }
+        for (UseCase useCase : originalUseCases) {
+            SurfaceConfig surfaceConfig =
+                    getSurfaceManager().transformSurfaceConfig(cameraId,
+                            useCase.getImageFormat(),
+                            useCase.getAttachedSurfaceResolution());
+            existingSurfaces.add(surfaceConfig);
         }
 
-        // Collect new use cases for different camera devices
-        for (UseCase useCase : useCases) {
-            List<UseCase> useCaseList = newCameraIdUseCaseMap.get(newCameraId);
-            if (useCaseList == null) {
-                useCaseList = new ArrayList<>();
-                newCameraIdUseCaseMap.put(newCameraId, useCaseList);
-            }
-            useCaseList.add(useCase);
+        Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
+        for (UseCase useCase : newUseCases) {
+            UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder(cameraInfo);
+
+            // Combine with default configuration.
+            UseCaseConfig<?> combinedUseCaseConfig =
+                    useCase.applyDefaults(useCase.getUseCaseConfig(),
+                            defaultBuilder);
+            configToUseCaseMap.put(combinedUseCaseConfig, useCase);
         }
 
         // Get suggested resolutions and update the use case session configuration
-        for (String cameraId : newCameraIdUseCaseMap.keySet()) {
-            Map<UseCase, Size> suggestResolutionsMap =
-                    getSurfaceManager()
-                            .getSuggestedResolutions(
-                                    cameraId,
-                                    originalCameraIdUseCaseMap.get(cameraId),
-                                    newCameraIdUseCaseMap.get(cameraId));
+        Map<UseCaseConfig<?>, Size> useCaseConfigSizeMap = getSurfaceManager()
+                .getSuggestedResolutions(cameraId, existingSurfaces,
+                        new ArrayList<>(configToUseCaseMap.keySet()));
 
-            for (UseCase useCase : newCameraIdUseCaseMap.get(cameraId)) {
-                Size resolution = suggestResolutionsMap.get(useCase);
-                Map<String, Size> suggestedCameraSurfaceResolutionMap = new HashMap<>();
-                suggestedCameraSurfaceResolutionMap.put(cameraId, resolution);
-                useCase.updateSuggestedResolution(suggestedCameraSurfaceResolutionMap);
-            }
+        Map<UseCase, Size> suggestedResolutions = new HashMap<>();
+        for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
+            suggestedResolutions.put(entry.getValue(), useCaseConfigSizeMap.get(entry.getKey()));
         }
+
+        return suggestedResolutions;
     }
 
     /**
@@ -1009,8 +976,7 @@ public final class CameraX {
                                 mSurfaceManager = surfaceManagerProvider.newInstance(context);
 
                                 UseCaseConfigFactory.Provider configFactoryProvider =
-                                        cameraXConfig.getUseCaseConfigFactoryProvider(
-                                        null);
+                                        cameraXConfig.getUseCaseConfigFactoryProvider(null);
                                 if (configFactoryProvider == null) {
                                     e = new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "

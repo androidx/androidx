@@ -388,7 +388,7 @@ private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: Semanti
  */
 @Composable
 private fun SimpleTestLayout(children: @Composable() () -> Unit) {
-    Layout(children = children) { measurables, constraints ->
+    Layout(children = children) { measurables, constraints, _ ->
         if (measurables.isEmpty()) {
             layout(constraints.minWidth, constraints.minHeight) {}
         } else {

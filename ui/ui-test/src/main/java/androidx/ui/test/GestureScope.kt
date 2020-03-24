@@ -78,7 +78,9 @@ val GestureScope.size: IntPxSize
  * coordinate system, where (0.px, 0.px) is the top left corner of the component.
  */
 val GestureScope.center: PxPosition
-    get() = PxPosition(size.width / 2, size.height / 2)
+    get() {
+        return PxPosition(size.width / 2, size.height / 2)
+    }
 
 /**
  * Returns the global bounds of the component we're interacting with

@@ -18,10 +18,10 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.Text
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -92,7 +92,7 @@ fun TextSelectionSample() {
 }
 
 @Composable
-fun Basics() {
+private fun Basics() {
     Text(
         text = "Jetpack Compose Basics",
         style = commonStyle.merge(header)
@@ -103,20 +103,20 @@ fun Basics() {
             text = "Jetpack Compose is a modern toolkit for building native Android UI." +
                     " Jetpack Compose simplifies and accelerates UI development on Android " +
                     "with less code, powerful tools, and intuitive Kotlin APIs.",
-            modifier = LayoutFlexible(1f),
+            modifier = LayoutWeight(1f),
             style = commonStyle
         )
     }
 }
 
 @Composable
-fun AddTextElement() {
+private fun AddTextElement() {
     Text(
         text = "Add a text element",
         style = commonStyle.merge(header2)
     )
     Row {
-        Column(modifier = LayoutFlexible(1f)) {
+        Column(modifier = LayoutWeight(1f)) {
             Text(
                 text = AnnotatedString {
                     append("To begin, follow the")
@@ -161,7 +161,7 @@ fun AddTextElement() {
 }
 
 @Composable
-fun MultiParagraph() {
+private fun MultiParagraph() {
     Text(
         text = "Define a composable function (Multi Paragraph)",
         style = commonStyle.merge(header2)
@@ -195,7 +195,7 @@ fun MultiParagraph() {
 }
 
 @Composable
-fun MultiLanguage(title: String, content: String) {
+private fun MultiLanguage(title: String, content: String) {
     Text(
         text = title,
         style = commonStyle.merge(header)
@@ -207,7 +207,7 @@ fun MultiLanguage(title: String, content: String) {
         )
         Text(
             text = content,
-            modifier = LayoutFlexible(1f),
+            modifier = LayoutWeight(1f),
             style = commonStyle
         )
     }

@@ -24,6 +24,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.content.Loader;
 
@@ -128,6 +129,12 @@ public abstract class LoaderManager {
     public static <T extends LifecycleOwner & ViewModelStoreOwner> LoaderManager getInstance(
             @NonNull T owner) {
         return new LoaderManagerImpl(owner, owner.getViewModelStore());
+    }
+
+    @NonNull
+    static LoaderManager getInstance(@NonNull LifecycleOwner owner,
+            @NonNull ViewModelStore viewModelStore) {
+        return new LoaderManagerImpl(owner, viewModelStore);
     }
 
     /**

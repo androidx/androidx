@@ -18,12 +18,11 @@ package androidx.ui.material
 import androidx.test.filters.LargeTest
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
-import androidx.ui.core.Text
 import androidx.ui.core.globalPosition
+import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.BottomNavigationSample
@@ -59,10 +58,11 @@ class BottomNavigationTest {
         lateinit var parentCoords: LayoutCoordinates
         val height = 56.dp
         composeTestRule
-            .setMaterialContentAndCollectSizes {
-                OnPositioned { coords ->
+            .setMaterialContentAndCollectSizes(modifier =
+                onPositioned { coords ->
                     parentCoords = coords
                 }
+            ) {
                 BottomNavigationSample()
             }
             .assertWidthEqualsTo { parentCoords.size.width }
@@ -73,21 +73,19 @@ class BottomNavigationTest {
     fun bottomNavigationItem_sizeAndPositions() {
         lateinit var parentCoords: LayoutCoordinates
         val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
-        composeTestRule.setMaterialContent {
-            OnPositioned { coords ->
-                parentCoords = coords
-            }
+        composeTestRule.setMaterialContent(modifier = onPositioned { coords ->
+            parentCoords = coords
+        }) {
             Box {
                 BottomNavigation {
                     repeat(4) { index ->
-                        OnChildPositioned(onPositioned = { coords -> itemCoords[index] = coords }) {
-                            BottomNavigationItem(
-                                icon = { Icon(Icons.Filled.Favorite) },
-                                text = { Text("Item $index") },
-                                selected = index == 0,
-                                onSelected = {}
-                            )
-                        }
+                        BottomNavigationItem(
+                            icon = { Icon(Icons.Filled.Favorite) },
+                            text = { Text("Item $index") },
+                            selected = index == 0,
+                            onSelected = {},
+                            modifier = onPositioned { coords -> itemCoords[index] = coords }
+                        )
                     }
                 }
             }
@@ -118,26 +116,17 @@ class BottomNavigationTest {
         composeTestRule.setMaterialContent {
             Box {
                 BottomNavigation {
-                    OnChildPositioned(onPositioned = { coords -> itemCoords = coords }) {
-                        BottomNavigationItem(
-                            icon = {
-                                OnChildPositioned(onPositioned = { coords ->
-                                    iconCoords = coords
-                                }) {
-                                    Icon(Icons.Filled.Favorite)
-                                }
-                            },
-                            text = {
-                                OnChildPositioned(onPositioned = { coords ->
-                                    textCoords = coords
-                                }) {
-                                    Text("Item")
-                                }
-                            },
-                            selected = true,
-                            onSelected = {}
-                        )
-                    }
+                    BottomNavigationItem(
+                        modifier = onPositioned { coords -> itemCoords = coords },
+                        icon = {
+                            Icon(Icons.Filled.Favorite, onPositioned { iconCoords = it })
+                        },
+                        text = {
+                            Text("Item", onPositioned { textCoords = it })
+                        },
+                        selected = true,
+                        onSelected = {}
+                    )
                 }
             }
         }
@@ -174,29 +163,24 @@ class BottomNavigationTest {
         composeTestRule.setMaterialContent {
             Box {
                 BottomNavigation {
-                    OnChildPositioned(onPositioned = { coords -> itemCoords = coords }) {
-                        BottomNavigationItem(
-                            icon = {
-                                OnChildPositioned(onPositioned = { coords ->
-                                    iconCoords = coords
-                                }) {
-                                    Icon(Icons.Filled.Favorite)
-                                }
-                            },
-                            text = {
-                                // TODO: b/149477576 we need a boundary here so that we don't
-                                // merge the text in order for assertIsNotDisplayed to work. If
-                                // we merge upwards the text is merged into the main component
-                                // which is displayed, so the test fails.
-                                Semantics(container = true) {
-                                    Text("Item")
-                                }
-                            },
-                            selected = false,
-                            onSelected = {},
-                            alwaysShowLabels = false
-                        )
-                    }
+                    BottomNavigationItem(
+                        modifier = onPositioned { coords -> itemCoords = coords },
+                        icon = {
+                            Icon(Icons.Filled.Favorite, onPositioned { iconCoords = it })
+                        },
+                        text = {
+                            // TODO: b/149477576 we need a boundary here so that we don't
+                            // merge the text in order for assertIsNotDisplayed to work. If
+                            // we merge upwards the text is merged into the main component
+                            // which is displayed, so the test fails.
+                            Semantics(container = true) {
+                                Text("Item")
+                            }
+                        },
+                        selected = false,
+                        onSelected = {},
+                        alwaysShowLabels = false
+                    )
                 }
             }
         }
@@ -222,20 +206,15 @@ class BottomNavigationTest {
         composeTestRule.setMaterialContent {
             Box {
                 BottomNavigation {
-                    OnChildPositioned(onPositioned = { coords -> itemCoords = coords }) {
-                        BottomNavigationItem(
-                            icon = {
-                                OnChildPositioned(onPositioned = { coords ->
-                                    iconCoords = coords
-                                }) {
-                                    Icon(Icons.Filled.Favorite)
-                                }
-                            },
-                            text = {},
-                            selected = false,
-                            onSelected = {}
-                        )
-                    }
+                    BottomNavigationItem(
+                        modifier = onPositioned { coords -> itemCoords = coords },
+                        icon = {
+                            Icon(Icons.Filled.Favorite, onPositioned { iconCoords = it })
+                        },
+                        text = {},
+                        selected = false,
+                        onSelected = {}
+                    )
                 }
             }
         }

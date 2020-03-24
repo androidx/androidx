@@ -17,16 +17,19 @@
 package androidx.ui.core
 
 import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.framework.test.R
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
-import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
+import androidx.ui.text.font.font
+import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -52,11 +55,6 @@ import java.util.concurrent.TimeUnit
 class TextLayoutTest {
     @get:Rule
     internal val activityTestRule = ActivityTestRule(TestActivity::class.java)
-    private val fontFamily = font(
-        resId = R.font.sample_font,
-        weight = FontWeight.Normal,
-        style = FontStyle.Normal
-    ).asFontFamily()
     private lateinit var activity: TestActivity
     private lateinit var density: Density
 
@@ -72,18 +70,19 @@ class TextLayoutTest {
         val textSize = Ref<IntPxSize>()
         val doubleTextSize = Ref<IntPxSize>()
         show {
-            OnChildPositioned({ coordinates ->
-                textSize.value = coordinates.size
-                layoutLatch.countDown()
-            }) {
-                Text("aa", style = TextStyle(fontFamily = fontFamily))
-            }
-            OnChildPositioned({ coordinates ->
-                doubleTextSize.value = coordinates.size
-                layoutLatch.countDown()
-            }) {
-                Text("aaaa", style = TextStyle(fontFamily = fontFamily))
-            }
+            TestingText(
+                "aa",
+                modifier = onPositioned { coordinates ->
+                    textSize.value = coordinates.size
+                    layoutLatch.countDown()
+                }
+            )
+            TestingText("aaaa",
+                modifier = onPositioned { coordinates ->
+                    doubleTextSize.value = coordinates.size
+                    layoutLatch.countDown()
+                }
+            )
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         assertNotNull(textSize.value)
@@ -100,18 +99,18 @@ class TextLayoutTest {
         val textSize = Ref<IntPxSize>()
         val doubleTextSize = Ref<IntPxSize>()
         show {
-            OnChildPositioned({ coordinates ->
-                textSize.value = coordinates.size
-                layoutLatch.countDown()
-            }) {
-                Text("aa ", style = TextStyle(fontFamily = fontFamily))
-            }
-            OnChildPositioned({ coordinates ->
-                doubleTextSize.value = coordinates.size
-                layoutLatch.countDown()
-            }) {
-                Text("aa aa ", style = TextStyle(fontFamily = fontFamily))
-            }
+            TestingText("aa ",
+                modifier = onPositioned { coordinates ->
+                    textSize.value = coordinates.size
+                    layoutLatch.countDown()
+                }
+            )
+            TestingText("aa aa ",
+                modifier = onPositioned { coordinates ->
+                    doubleTextSize.value = coordinates.size
+                    layoutLatch.countDown()
+                }
+            )
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         val textWidth = textSize.value!!.width
@@ -121,15 +120,15 @@ class TextLayoutTest {
         val intrinsicsLatch = CountDownLatch(1)
         show {
             val text = @Composable {
-                Text("aa aa ", style = TextStyle(fontFamily = fontFamily))
+                TestingText("aa aa ")
             }
             Layout(
                 text,
-                minIntrinsicWidthMeasureBlock = { _, _ -> 0.ipx },
-                minIntrinsicHeightMeasureBlock = { _, _ -> 0.ipx },
-                maxIntrinsicWidthMeasureBlock = { _, _ -> 0.ipx },
-                maxIntrinsicHeightMeasureBlock = { _, _ -> 0.ipx }
-            ) { measurables, _ ->
+                minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
+                minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
+                maxIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
+                maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx }
+            ) { measurables, _, _ ->
                 val textMeasurable = measurables.first()
                 // Min width.
                 assertEquals(textWidth, textMeasurable.minIntrinsicWidth(0.ipx))
@@ -157,9 +156,9 @@ class TextLayoutTest {
         val layoutLatch = CountDownLatch(2)
         show {
             val text = @Composable {
-                Text("aa", style = TextStyle(fontFamily = fontFamily))
+                TestingText("aa")
             }
-            Layout(text) { measurables, _ ->
+            Layout(text) { measurables, _, _ ->
                 val placeable = measurables.first().measure(Constraints())
                 assertNotNull(placeable[FirstBaseline])
                 assertNotNull(placeable[LastBaseline])
@@ -167,7 +166,7 @@ class TextLayoutTest {
                 layoutLatch.countDown()
                 layout(0.ipx, 0.ipx) {}
             }
-            Layout(text) { measurables, _ ->
+            Layout(text) { measurables, _, _ ->
                 val placeable = measurables.first().measure(Constraints(maxWidth = 0.ipx))
                 assertNotNull(placeable[FirstBaseline])
                 assertNotNull(placeable[LastBaseline])
@@ -185,9 +184,9 @@ class TextLayoutTest {
         val callback = mock<(TextLayoutResult) -> Unit>()
         show {
             val text = @Composable {
-                Text("aa", onTextLayout = callback)
+                TestingText("aa", onTextLayout = callback)
             }
-            Layout(text) { measurables, _ ->
+            Layout(text) { measurables, _, _ ->
                 measurables.first().measure(Constraints())
                 layoutLatch.countDown()
                 layout(0.ipx, 0.ipx) {}
@@ -201,7 +200,7 @@ class TextLayoutTest {
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 activity.setContent {
-                    Layout(composable) { measurables, constraints ->
+                    Layout(composable) { measurables, constraints, _ ->
                         val placeables = measurables.map {
                             it.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
                         }
@@ -218,4 +217,30 @@ class TextLayoutTest {
         }
         activityTestRule.runOnUiThread(runnable)
     }
+}
+
+@Composable
+private fun TestingText(
+    text: String,
+    modifier: Modifier = Modifier.None,
+    onTextLayout: (TextLayoutResult) -> Unit = {}
+) {
+    val textStyle = remember {
+        TextStyle(
+            fontFamily = font(
+                resId = R.font.sample_font,
+                weight = FontWeight.Normal,
+                style = FontStyle.Normal
+            ).asFontFamily()
+        )
+    }
+    CoreText(
+        AnnotatedString(text),
+        style = textStyle,
+        modifier = modifier,
+        softWrap = true,
+        maxLines = Int.MAX_VALUE,
+        overflow = TextOverflow.Clip,
+        onTextLayout = onTextLayout
+    )
 }

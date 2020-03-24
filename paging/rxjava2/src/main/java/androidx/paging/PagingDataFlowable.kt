@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-@file:JvmName("PagingDataFlowable")
+@file:JvmMultifileClass
+@file:JvmName("RxPaging")
 
 package androidx.paging
 
-import io.reactivex.BackpressureStrategy
-import io.reactivex.BackpressureStrategy.LATEST
 import io.reactivex.Flowable
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.rx2.asObservable
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.rx2.asFlowable
 
 /**
  * Construct the primary RxJava Paging reactive stream: `Flowable<PagingData<T>>`.
@@ -34,13 +34,13 @@ import kotlinx.coroutines.rx2.asObservable
  * @see PagingDataFlow
  */
 @Suppress("FunctionName", "unused")
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@JvmName("flowable")
 @JvmOverloads
-@JvmName("create")
+@OptIn(ExperimentalCoroutinesApi::class)
 fun <Key : Any, Value : Any> PagingDataFlowable(
     config: PagingConfig,
     initialKey: Key? = null,
-    strategy: BackpressureStrategy = LATEST,
     pagingSourceFactory: () -> PagingSource<Key, Value>
-): Flowable<PagingData<Value>> =
-    PagingDataFlow(config, initialKey, pagingSourceFactory).asObservable().toFlowable(strategy)
+): Flowable<PagingData<Value>> = PagingDataFlow(config, initialKey, pagingSourceFactory)
+    .conflate()
+    .asFlowable()

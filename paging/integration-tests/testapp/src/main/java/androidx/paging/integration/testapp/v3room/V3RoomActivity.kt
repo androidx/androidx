@@ -28,8 +28,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-@ExperimentalCoroutinesApi
-@FlowPreview
 class V3RoomActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +41,7 @@ class V3RoomActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             viewModel.flow.collect {
-                adapter.collectFrom(it)
+                adapter.presentData(it)
             }
         }
 

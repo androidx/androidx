@@ -20,30 +20,33 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Layout
-import androidx.ui.core.ParentData
-import androidx.ui.core.Text
+import androidx.ui.core.LayoutTag
+import androidx.ui.core.tag
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
-import androidx.ui.foundation.SimpleImage
+import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.Image
+import androidx.ui.foundation.ProvideTextStyle
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBorders
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.LayoutGravity
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
-import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.ripple.ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.unit.Dp
@@ -202,7 +205,7 @@ class DataTableChildren internal constructor() {
      */
     fun dataRow(
         text: (index: Int) -> String,
-        icon: (index: Int) -> Image? = { null },
+        icon: (index: Int) -> ImageAsset? = { null },
         selected: Boolean = false,
         onSelectedChange: ((Boolean) -> Unit)? = null
     ) {
@@ -212,7 +215,7 @@ class DataTableChildren internal constructor() {
                 Text(text = text(j))
             } else {
                 Row {
-                    SimpleImage(image = image)
+                    Image(asset = image)
                     Spacer(LayoutWidth(2.dp))
                     Text(text = text(j))
                 }
@@ -248,7 +251,7 @@ class DataTableChildren internal constructor() {
      */
     fun headerRow(
         text: (index: Int) -> String,
-        icon: (index: Int) -> Image? = { null },
+        icon: (index: Int) -> ImageAsset? = { null },
         onSelectAll: ((Boolean) -> Unit)? = null
     ) {
         val children: @Composable() (Int) -> Unit = { j ->
@@ -257,7 +260,7 @@ class DataTableChildren internal constructor() {
                 Text(text = text(j))
             } else {
                 Row {
-                    SimpleImage(image = image)
+                    Image(asset = image)
                     Spacer(LayoutWidth(2.dp))
                     Text(text = text(j))
                 }
@@ -318,7 +321,7 @@ fun DataTable(
     headerRowHeight: Dp = HeaderRowHeight,
     cellSpacing: EdgeInsets = CellSpacing,
     border: Border = Border(color = BorderColor, size = BorderWidth),
-    selectedColor: Color = MaterialTheme.colors().primary.copy(alpha = 0.08f),
+    selectedColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.08f),
     pagination: DataTablePagination? = null,
     sorting: DataTableSorting? = null,
     block: DataTableChildren.() -> Unit
@@ -364,13 +367,20 @@ fun DataTable(
             if (header != null) {
                 tableRow {
                     if (showCheckboxes) {
-                        Container(height = headerRowHeight, padding = cellSpacing) {
+                        Box(
+                            LayoutHeight(headerRowHeight),
+                            paddingStart = cellSpacing.left,
+                            paddingTop = cellSpacing.top,
+                            paddingEnd = cellSpacing.right,
+                            paddingBottom = cellSpacing.bottom,
+                            gravity = ContentGravity.Center
+                        ) {
                             val parentState = when (selectableRows.count { it.selected }) {
                                 selectableRows.size -> ToggleableState.On
                                 0 -> ToggleableState.Off
                                 else -> ToggleableState.Indeterminate
                             }
-                            TriStateCheckbox(value = parentState, onClick = {
+                            TriStateCheckbox(state = parentState, onClick = {
                                 val newValue = parentState != ToggleableState.On
                                 if (header.onSelectAll != null) {
                                     header.onSelectAll.invoke(newValue)
@@ -381,9 +391,17 @@ fun DataTable(
                         }
                     }
                     for (j in 0 until columns) {
-                        Container(height = headerRowHeight, padding = cellSpacing) {
+                        Box(
+                            LayoutHeight(headerRowHeight),
+                            paddingStart = cellSpacing.left,
+                            paddingTop = cellSpacing.top,
+                            paddingEnd = cellSpacing.right,
+                            paddingBottom = cellSpacing.bottom,
+                            gravity = ContentGravity.Center
+                        ) {
                             var fontWeight = FontWeight.W500
-                            var onSort = null as (() -> Unit)?
+                            var onSort = {}
+                            var enabled = false
                             var headerDecoration: @Composable() (() -> Unit)? = null
 
                             if (sorting != null && sorting.sortableColumns.contains(j)) {
@@ -392,6 +410,7 @@ fun DataTable(
                                     onSort = {
                                         sorting.onSortChange(j, !sorting.ascending)
                                     }
+                                    enabled = true
                                     headerDecoration = {
                                         // TODO(calintat): Replace with animated arrow icons.
                                         Text(text = if (sorting.ascending) "↑" else "↓")
@@ -404,13 +423,15 @@ fun DataTable(
                                 }
                             }
 
-                            CurrentTextStyleProvider(TextStyle(fontWeight = fontWeight)) {
-                                Ripple(bounded = true) {
-                                    Clickable(onClick = onSort) {
-                                        Row {
-                                            headerDecoration?.invoke()
-                                            header.children(index = j)
-                                        }
+                            ProvideTextStyle(TextStyle(fontWeight = fontWeight)) {
+                                Clickable(
+                                    onClick = onSort,
+                                    enabled = enabled,
+                                    modifier = ripple()
+                                ) {
+                                    Row {
+                                        headerDecoration?.invoke()
+                                        header.children(index = j)
                                     }
                                 }
                             }
@@ -423,12 +444,26 @@ fun DataTable(
             visibleRows.forEach { row ->
                 tableRow {
                     if (showCheckboxes) {
-                        Container(height = dataRowHeight, padding = cellSpacing) {
-                            Checkbox(row.selected, row.onSelectedChange)
+                        Box(
+                            LayoutHeight(dataRowHeight),
+                            paddingStart = cellSpacing.left,
+                            paddingTop = cellSpacing.top,
+                            paddingEnd = cellSpacing.right,
+                            paddingBottom = cellSpacing.bottom,
+                            gravity = ContentGravity.Center
+                        ) {
+                            Checkbox(row.selected, row.onSelectedChange ?: {})
                         }
                     }
                     for (j in 0 until columns) {
-                        Container(height = dataRowHeight, padding = cellSpacing) {
+                        Box(
+                            LayoutHeight(dataRowHeight),
+                            paddingStart = cellSpacing.left,
+                            paddingTop = cellSpacing.top,
+                            paddingEnd = cellSpacing.right,
+                            paddingBottom = cellSpacing.bottom,
+                            gravity = ContentGravity.Center
+                        ) {
                             row.children(index = j)
                         }
                     }
@@ -440,34 +475,31 @@ fun DataTable(
                 val children = @Composable {
                     visibleRows.forEachIndexed { index, row ->
                         if (row.onSelectedChange == null) return@forEachIndexed
-                        ParentData(data = index) {
-                            Ripple(bounded = true) {
-                                Clickable(
-                                    onClick = { row.onSelectedChange.invoke(!row.selected) }
-                                ) {
-                                    ColoredRect(
-                                        color = if (row.selected) {
-                                            selectedColor
-                                        } else {
-                                            Color.Transparent
-                                        }
-                                    )
+                        Clickable(
+                            onClick = { row.onSelectedChange.invoke(!row.selected) },
+                            modifier = LayoutTag(index) + ripple()
+                        ) {
+                            ColoredRect(
+                                color = if (row.selected) {
+                                    selectedColor
+                                } else {
+                                    Color.Transparent
                                 }
-                            }
+                            )
                         }
                     }
                 }
-                Layout(children) { measurables, constraints ->
+                Layout(children) { measurables, constraints, _ ->
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         measurables.forEach { measurable ->
-                            val i = measurable.parentData as Int
+                            val i = measurable.tag as Int
                             val placeable = measurable.measure(
                                 Constraints.fixed(
                                     width = constraints.maxWidth,
                                     height = verticalOffsets[i + 2] - verticalOffsets[i + 1]
                                 )
                             )
-                            placeable.place(
+                            placeable.placeAbsolute(
                                 x = IntPx.Zero,
                                 y = verticalOffsets[i + 1]
                             )
@@ -483,7 +515,14 @@ fun DataTable(
     } else {
         Column {
             table()
-            Container(height = dataRowHeight, padding = cellSpacing) {
+            Box(
+                LayoutHeight(dataRowHeight),
+                paddingStart = cellSpacing.left,
+                paddingTop = cellSpacing.top,
+                paddingEnd = cellSpacing.right,
+                paddingBottom = cellSpacing.bottom,
+                gravity = ContentGravity.Center
+            ) {
                 Row(LayoutSize.Fill, arrangement = Arrangement.End) {
                     val pages = (rows.size - 1) / pagination.rowsPerPage + 1
                     val startRow = pagination.rowsPerPage * pagination.page
@@ -503,30 +542,32 @@ fun DataTable(
                     Spacer(LayoutWidth(32.dp))
 
                     // TODO(calintat): Replace this with an image button with chevron_left icon.
-                    Container(modifier = modifier) {
-                        Ripple(bounded = false) {
-                            Clickable(onClick = {
+                    Box(modifier = modifier) {
+                        Clickable(
+                            onClick = {
                                 val newPage = pagination.page - 1
                                 if (newPage >= 0)
                                     pagination.onPageChange.invoke(newPage)
-                            }) {
-                                Text(text = "Prev")
-                            }
+                            },
+                            modifier = ripple()
+                        ) {
+                            Text(text = "Prev")
                         }
                     }
 
                     Spacer(LayoutWidth(24.dp))
 
                     // TODO(calintat): Replace this with an image button with chevron_right icon.
-                    Container(modifier = modifier) {
-                        Ripple(bounded = false) {
-                            Clickable(onClick = {
+                    Box(modifier = modifier) {
+                        Clickable(
+                            onClick = {
                                 val newPage = pagination.page + 1
                                 if (newPage < pages)
                                     pagination.onPageChange.invoke(newPage)
-                            }) {
-                                Text(text = "Next")
-                            }
+                            },
+                            modifier = ripple()
+                        ) {
+                            Text(text = "Next")
                         }
                     }
                 }

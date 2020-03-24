@@ -44,7 +44,7 @@ private class CanvasScopeImpl(
 /**
  * Component that allow you to specify an area on the screen and perform canvas drawing on this
  * area. You MUST specify size with modifier, whether with exact sizes via [LayoutSize] modifier,
- * or relative to parent, via [LayoutSize.Fill], [ColumnScope.LayoutFlexible], etc. If parent
+ * or relative to parent, via [LayoutSize.Fill], [ColumnScope.LayoutWeight], etc. If parent
  * wraps this child, only exact sizes must be specified.
  *
  * @sample androidx.ui.foundation.samples.CanvasSample

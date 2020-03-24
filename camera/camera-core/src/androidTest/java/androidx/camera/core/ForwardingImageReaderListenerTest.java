@@ -26,8 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.graphics.ImageFormat;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -42,6 +40,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 @LargeTest
@@ -54,10 +54,9 @@ public final class ForwardingImageReaderListenerTest {
 
     private final ImageReaderProxy mImageReader = mock(ImageReaderProxy.class);
     private final Surface mSurface = mock(Surface.class);
-    private HandlerThread mHandlerThread;
-    private Handler mHandler;
     private List<QueuedImageReaderProxy> mImageReaderProxies;
     private ForwardingImageReaderListener mForwardingListener;
+    private ExecutorService mExecutor;
 
     private static ImageProxy createMockImage() {
         ImageProxy image = mock(ImageProxy.class);
@@ -88,9 +87,7 @@ public final class ForwardingImageReaderListenerTest {
 
     @Before
     public void setUp() {
-        mHandlerThread = new HandlerThread("listener");
-        mHandlerThread.start();
-        mHandler = new Handler(mHandlerThread.getLooper());
+        mExecutor = Executors.newSingleThreadExecutor();
         mImageReaderProxies = new ArrayList<>(3);
         for (int i = 0; i < 3; ++i) {
             mImageReaderProxies.add(
@@ -102,7 +99,7 @@ public final class ForwardingImageReaderListenerTest {
 
     @After
     public void tearDown() {
-        mHandlerThread.quitSafely();
+        mExecutor.shutdown();
     }
 
     @Test
@@ -112,7 +109,7 @@ public final class ForwardingImageReaderListenerTest {
         List<ImageReaderProxy.OnImageAvailableListener> listeners = new ArrayList<>();
         for (ImageReaderProxy imageReaderProxy : mImageReaderProxies) {
             ImageReaderProxy.OnImageAvailableListener listener = createMockListener();
-            imageReaderProxy.setOnImageAvailableListener(listener, mHandler);
+            imageReaderProxy.setOnImageAvailableListener(listener, mExecutor);
             listeners.add(listener);
         }
 
@@ -137,7 +134,7 @@ public final class ForwardingImageReaderListenerTest {
         for (ImageReaderProxy imageReaderProxy : mImageReaderProxies) {
             // Close the image for every listener.
             imageReaderProxy.setOnImageAvailableListener(
-                    createSemaphoreReleasingClosingListener(onCloseSemaphore), mHandler);
+                    createSemaphoreReleasingClosingListener(onCloseSemaphore), mExecutor);
         }
 
         final int availableImages = 5;
@@ -161,16 +158,16 @@ public final class ForwardingImageReaderListenerTest {
         ImageProxy baseImage = createMockImage();
         when(mImageReader.acquireNextImage()).thenReturn(baseImage);
         // Don't close the image for the first listener.
-        mImageReaderProxies.get(0).setOnImageAvailableListener(createMockListener(), mHandler);
+        mImageReaderProxies.get(0).setOnImageAvailableListener(createMockListener(), mExecutor);
         // Close the image for the other listeners.
         mImageReaderProxies
                 .get(1)
                 .setOnImageAvailableListener(
-                        createSemaphoreReleasingClosingListener(onCloseSemaphore), mHandler);
+                        createSemaphoreReleasingClosingListener(onCloseSemaphore), mExecutor);
         mImageReaderProxies
                 .get(2)
                 .setOnImageAvailableListener(
-                        createSemaphoreReleasingClosingListener(onCloseSemaphore), mHandler);
+                        createSemaphoreReleasingClosingListener(onCloseSemaphore), mExecutor);
 
         final int availableImages = 5;
         for (int i = 0; i < availableImages; ++i) {

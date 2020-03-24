@@ -138,7 +138,7 @@ public final class ViewPager2 extends ViewGroup {
                 }
             };
 
-    private LinearLayoutManager mLayoutManager;
+    LinearLayoutManager mLayoutManager;  // to avoid creation of a synthetic accessor
     private int mPendingCurrentItem = NO_POSITION;
     private Parcelable mPendingAdapterState;
     RecyclerView mRecyclerView;
@@ -1016,6 +1016,14 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
+        public void onInitializeAccessibilityNodeInfoForItem(
+                @NonNull RecyclerView.Recycler recycler,
+                @NonNull RecyclerView.State state, @NonNull View host,
+                @NonNull AccessibilityNodeInfoCompat info) {
+            mAccessibilityProvider.onLmInitializeAccessibilityNodeInfoForItem(host, info);
+        }
+
+        @Override
         protected void calculateExtraLayoutSpace(@NonNull RecyclerView.State state,
                 @NonNull int[] extraLayoutSpace) {
             int pageLimit = getOffscreenPageLimit();
@@ -1273,6 +1281,10 @@ public final class ViewPager2 extends ViewGroup {
         void onLmInitializeAccessibilityNodeInfo(@NonNull AccessibilityNodeInfoCompat info) {
         }
 
+        void onLmInitializeAccessibilityNodeInfoForItem(@NonNull View host,
+                @NonNull AccessibilityNodeInfoCompat info) {
+        }
+
         boolean handlesRvGetAccessibilityClassName() {
             return false;
         }
@@ -1433,6 +1445,12 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
+        void onLmInitializeAccessibilityNodeInfoForItem(@NonNull View host,
+                @NonNull AccessibilityNodeInfoCompat info) {
+            addCollectionItemInfo(host, info);
+        }
+
+        @Override
         public boolean handlesPerformAccessibilityAction(int action, Bundle arguments) {
             return action == AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
                     || action == AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD;
@@ -1548,6 +1566,19 @@ public final class ViewPager2 extends ViewGroup {
                             /* hierarchical= */false,
                             AccessibilityNodeInfoCompat.CollectionInfoCompat.SELECTION_MODE_NONE);
             infoCompat.setCollectionInfo(collectionInfo);
+        }
+
+        private void addCollectionItemInfo(View host, AccessibilityNodeInfoCompat infoCompat) {
+            int rowIndex = (getOrientation() == ORIENTATION_VERTICAL)
+                    ? mLayoutManager.getPosition(host)
+                    : 0;
+            int colIndex = (getOrientation() == ORIENTATION_HORIZONTAL)
+                    ? mLayoutManager.getPosition(host)
+                    : 0;
+            AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfoCompat =
+                    AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(rowIndex, 1,
+                            colIndex, 1, false, false);
+            infoCompat.setCollectionItemInfo(collectionItemInfoCompat);
         }
 
         private void addScrollActions(AccessibilityNodeInfoCompat infoCompat) {

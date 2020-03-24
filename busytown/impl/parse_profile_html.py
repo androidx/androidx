@@ -31,7 +31,7 @@ def main():
 
 def summarize(inputProfilePath, outputSummaryPath):
   # mapping from the key in the Gradle report to the key in the summary that we generate
-  mapping = {"Total Build Time": "task_execution_duration", "Task Execution": "total_cpu", "Settings and buildSrc": "configuration_duration"}
+  mapping = {"Total Build Time": "task_execution_duration", "Task Execution": "total_cpu", "Configuring Projects": "configuration_duration"}
   parsedValues = parse(inputProfilePath, mapping.keys())
   outputValues = dict()
   for k in mapping:
@@ -53,12 +53,34 @@ def parse(inputProfilePath, interestingKeys):
       line = line.strip()
       lineText = line.replace("<td>", "").replace('<td class="numeric">', "").replace("</td>", "")
       if currentKey is not None:
-        values[currentKey] = lineText
+        values[currentKey] = parseDurationSeconds(lineText) * 1000
       if lineText in interestingKeys:
         currentKey = lineText
       else:
         currentKey = None
     return values
+
+# Given a duration such as 1h20m02.5s, returns a number of seconds like ((1*60)+20)*60+2=4802.5
+def parseDurationSeconds(durationText):
+  originalDurationText = durationText
+  secondsText = "0"
+  minutesText = "0"
+  hoursText = "0"
+  daysText = "0"
+  if "d" in durationText:
+   daysText, durationText = durationText.split("d")
+  if "h" in durationText:
+    hoursText, durationText = durationText.split("h")
+  if "m" in durationText:
+    minutesText, durationText = durationText.split("m")
+  if "s" in durationText:
+    secondsText, durationText = durationText.split("s")
+  if durationText != "":
+    raise Exception("Failed to parse '" + durationText + "'")
+  try:
+    return (((float(daysText) * 24 + float(hoursText)) * 60) + float(minutesText)) * 60 + float(secondsText)
+  except ValueError as e:
+    raise ValueError("Failed to parse '" + durationText + "'")
 
 if __name__ == "__main__":
   main()

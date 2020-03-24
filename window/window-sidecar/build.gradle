@@ -38,10 +38,10 @@ dependencies {
 
 androidx {
     name = "Jetpack WindowManager library Sidecar"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    publish = Publish.NONE
     mavenGroup = LibraryGroups.WINDOW
+    mavenVersion = LibraryVersions.WINDOW_SIDECAR
     inceptionYear = "2020"
-    description = "OEM extension interface definition for the Jetpack WindowManager. This module " +
-            "declares the interface the the 'Core' component of this library will use when " +
-            "communicating with the device-specific OEM extension/sidecar."
+    description = "This version of the OEM extension is deprecated. Please use window-extensions " +
+            "module instead."
 }

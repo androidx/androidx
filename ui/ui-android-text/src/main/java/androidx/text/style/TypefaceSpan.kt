@@ -29,7 +29,7 @@ import androidx.annotation.RestrictTo
  * style of the TextPaint is overridden and the style of the typeface is used.
  * @param typeface Typeface to render the text with.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TypefaceSpan(val typeface: Typeface) : MetricAffectingSpan() {

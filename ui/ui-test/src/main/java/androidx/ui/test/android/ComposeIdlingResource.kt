@@ -19,8 +19,10 @@ package androidx.ui.test.android
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.Recomposer
+import androidx.compose.frames.currentFrame
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
+import androidx.ui.test.TestAnimationClock
 
 /**
  * Register compose's idling check to Espresso.
@@ -57,14 +59,50 @@ internal object ComposeIdlingResource : IdlingResource {
 
     private var isRegistered = false
 
+    private var isIdleCheckScheduled = false
+
+    private val clocks = mutableSetOf<TestAnimationClock>()
+
     private val handler = Handler(Looper.getMainLooper())
 
+    /**
+     * Returns whether or not Compose is idle, without starting to poll if it is not.
+     */
+    fun isIdle(): Boolean {
+        return handler.runAndAwait {
+            !currentFrame().hasPendingChanges() &&
+                    !Recomposer.hasPendingChanges() &&
+                    areAllClocksIdle()
+        }
+    }
+
+    /**
+     * Returns whether or not Compose is idle, and starts polling if it is not. Will always be
+     * called from the main thread by Espresso, and should _only_ be called from Espresso. Use
+     * [isIdle] if you need to query the idleness of Compose manually.
+     */
     override fun isIdleNow(): Boolean {
-        val isIdle = !Recomposer.hasPendingChanges()
+        val isIdle = isIdle()
         if (!isIdle) {
             scheduleIdleCheck()
         }
         return isIdle
+    }
+
+    private fun scheduleIdleCheck() {
+        if (!isIdleCheckScheduled) {
+            isIdleCheckScheduled = true
+            handler.post {
+                isIdleCheckScheduled = false
+                if (isIdle()) {
+                    if (callback != null) {
+                        callback!!.onTransitionToIdle()
+                    }
+                } else {
+                    scheduleIdleCheck()
+                }
+            }
+        }
     }
 
     override fun registerIdleTransitionCallback(callback: IdlingResource.ResourceCallback?) {
@@ -97,17 +135,21 @@ internal object ComposeIdlingResource : IdlingResource {
         isRegistered = false
     }
 
-    private fun scheduleIdleCheck() {
-        handler.post(object : Runnable {
-            override fun run() {
-                if (Recomposer.hasPendingChanges()) {
-                    scheduleIdleCheck()
-                    return
-                }
-                if (callback != null) {
-                    callback!!.onTransitionToIdle()
-                }
-            }
-        })
+    fun registerTestClock(clock: TestAnimationClock) {
+        synchronized(clocks) {
+            clocks.add(clock)
+        }
+    }
+
+    fun unregisterTestClock(clock: TestAnimationClock) {
+        synchronized(clocks) {
+            clocks.remove(clock)
+        }
+    }
+
+    private fun areAllClocksIdle(): Boolean {
+        return synchronized(clocks) {
+            clocks.all { it.isIdle }
+        }
     }
 }

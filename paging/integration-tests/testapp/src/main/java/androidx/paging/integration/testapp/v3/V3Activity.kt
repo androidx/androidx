@@ -23,18 +23,16 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
+import androidx.paging.LoadState.Error
+import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType
 import androidx.paging.PagingDataAdapter
 import androidx.paging.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-@ExperimentalCoroutinesApi
-@FlowPreview
 class V3Activity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +40,7 @@ class V3Activity : AppCompatActivity() {
         setContentView(R.layout.activity_recycler_view)
         val viewModel by viewModels<V3ViewModel>()
 
-        val adapter = V3Adapter()
+        val pagingAdapter = V3Adapter()
         val orientationText = when (resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> "land"
             Configuration.ORIENTATION_PORTRAIT -> "port"
@@ -54,13 +52,16 @@ class V3Activity : AppCompatActivity() {
                 .map { pagingData ->
                     pagingData.map { it.copy(text = "${it.text} - $orientationText") }
                 }
-                .collect { adapter.collectFrom(it) }
+                .collect { pagingAdapter.presentData(it) }
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
-        recyclerView.adapter = adapter
+        recyclerView.adapter = pagingAdapter.withLoadStateHeaderAndFooter(
+            header = StateItemAdapter { pagingAdapter.retry() },
+            footer = StateItemAdapter { pagingAdapter.retry() }
+        )
 
-        setupLoadStateButtons(adapter)
+        setupLoadStateButtons(pagingAdapter)
 
         findViewById<Button>(R.id.button_error).setOnClickListener {
             dataSourceError.set(true)
@@ -68,33 +69,19 @@ class V3Activity : AppCompatActivity() {
     }
 
     private fun setupLoadStateButtons(adapter: PagingDataAdapter<Item, RecyclerView.ViewHolder>) {
-        val buttonStart = findViewById<Button>(R.id.button_start)
-        val buttonRefresh = findViewById<Button>(R.id.button_refresh)
-        val buttonEnd = findViewById<Button>(R.id.button_end)
-
-        buttonRefresh.setOnClickListener {
-            adapter.refresh()
-        }
-        buttonStart.setOnClickListener {
-            adapter.retry()
-        }
-        buttonEnd.setOnClickListener {
-            adapter.retry()
-        }
-
+        val button = findViewById<Button>(R.id.button_refresh)
         adapter.addLoadStateListener { type: LoadType, state: LoadState ->
-            val button = when (type) {
-                LoadType.REFRESH -> buttonRefresh
-                LoadType.START -> buttonStart
-                LoadType.END -> buttonEnd
-            }
+            if (type != LoadType.REFRESH) return@addLoadStateListener
 
             when (state) {
                 is LoadState.Idle -> {
-                    button.text = "Idle"
-                    button.isEnabled = type == LoadType.REFRESH
+                    button.text = "Refresh"
+                    button.isEnabled = true
+                    button.setOnClickListener {
+                        adapter.refresh()
+                    }
                 }
-                is LoadState.Loading -> {
+                is Loading -> {
                     button.text = "Loading"
                     button.isEnabled = false
                 }
@@ -102,9 +89,12 @@ class V3Activity : AppCompatActivity() {
                     button.text = "Done"
                     button.isEnabled = false
                 }
-                is LoadState.Error -> {
+                is Error -> {
                     button.text = "Error"
                     button.isEnabled = true
+                    button.setOnClickListener {
+                        adapter.retry()
+                    }
                 }
             }
         }

@@ -52,8 +52,6 @@ dependencies {
 androidx {
     name = "UI Integration Tests"
     publish = Publish.NONE
-    // b/142788501: Set toolingProject to true so Dokka does not generate reference docs for this project
-    toolingProject = true
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "UI Integration Tests"

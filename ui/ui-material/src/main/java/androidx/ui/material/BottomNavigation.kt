@@ -23,21 +23,20 @@ import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.ui.animation.animate
 import androidx.ui.core.Constraints
-import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.DrawModifier
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
+import androidx.ui.core.drawOpacity
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideContentColor
+import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Arrangement
@@ -45,14 +44,10 @@ import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
-import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
-import androidx.ui.material.surface.primarySurface
+import androidx.ui.material.ripple.ripple
 import androidx.ui.text.style.TextAlign
-import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.max
 
@@ -86,7 +81,7 @@ import androidx.ui.unit.max
 @Composable
 fun BottomNavigation(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors().primarySurface,
+    color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = BottomNavigationElevation,
     children: @Composable() RowScope.() -> Unit
@@ -105,7 +100,6 @@ fun BottomNavigation(
     }
 }
 
-// TODO: remove RowScope receiver here when we can access LayoutFlexible from a global scope
 /**
  * A BottomNavigationItem represents a singular primary destination in your application.
  *
@@ -132,7 +126,7 @@ fun BottomNavigation(
  * @param inactiveColor the color of the text and icon when this item is not selected
  */
 @Composable
-fun RowScope.BottomNavigationItem(
+fun BottomNavigationItem(
     icon: @Composable() () -> Unit,
     text: @Composable() () -> Unit = emptyContent(),
     selected: Boolean,
@@ -140,32 +134,22 @@ fun RowScope.BottomNavigationItem(
     modifier: Modifier = Modifier.None,
     alwaysShowLabels: Boolean = true,
     activeColor: Color = contentColor(),
-    inactiveColor: Color = MaterialTheme.emphasisLevels().medium.emphasize(activeColor)
+    inactiveColor: Color = MaterialTheme.emphasisLevels.medium.emphasize(activeColor)
 ) {
     val styledText = @Composable {
-        val style = MaterialTheme.typography().caption.copy(textAlign = TextAlign.Center)
-        CurrentTextStyleProvider(style, children = text)
+        val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
+        ProvideTextStyle(style, children = text)
     }
-    Ripple(bounded = false) {
-        MutuallyExclusiveSetItem(selected = selected, onClick = onSelected) {
-            Box(modifier + LayoutFlexible(1f), gravity = ContentGravity.Center) {
-                BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
-                    val textSlot = if (alwaysShowLabels) {
-                        styledText
-                    } else {
-                        @Composable {
-                            Box(DrawScale(progress), children = styledText)
-                        }
-                    }
+    MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
+        Box(modifier + RowScope.LayoutWeight(1f), gravity = ContentGravity.Center) {
+            BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
+                val animationProgress = if (alwaysShowLabels) 1f else progress
 
-                    val animationProgress = if (alwaysShowLabels) 1f else progress
-
-                    BottomNavigationItemBaselineLayout(
-                        icon = icon,
-                        text = textSlot,
-                        iconPositionAnimationProgress = animationProgress
-                    )
-                }
+                BottomNavigationItemBaselineLayout(
+                    icon = icon,
+                    text = styledText,
+                    iconPositionAnimationProgress = animationProgress
+                )
             }
         }
     }
@@ -202,34 +186,6 @@ private fun BottomNavigationTransition(
     }
 }
 
-// TODO: b/147497445 generify this and extract to public API, this shouldn't be in this file
-/**
- * [DrawModifier] that scales the drawing of its content by [scalePercent] in both axes, from the
- * center of its size.
- */
-private class DrawScale(private val scalePercent: Float) : DrawModifier {
-    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
-        canvas.apply {
-            if (scalePercent == 1f) {
-                drawContent()
-            } else {
-                val centerWidth = size.width.value / 2
-                val centerHeight = size.height.value / 2
-                val adjustedX = centerWidth - (centerWidth * scalePercent)
-                val adjustedY = centerHeight - (centerHeight * scalePercent)
-
-                save()
-                translate(adjustedX, adjustedY)
-                // TODO: b/147497445 use scale overload that accepts a pivot point if / when we
-                // expose it
-                scale(scalePercent)
-                drawContent()
-                restore()
-            }
-        }
-    }
-}
-
 /**
  * Base layout for a [BottomNavigationItem]
  *
@@ -250,13 +206,13 @@ private fun BottomNavigationItemBaselineLayout(
         {
             Box(LayoutTag("icon"), children = icon)
             Box(
-                LayoutTag("text"),
-                paddingLeft = BottomNavigationItemHorizontalPadding,
-                paddingRight = BottomNavigationItemHorizontalPadding,
+                LayoutTag("text") + drawOpacity(iconPositionAnimationProgress),
+                paddingStart = BottomNavigationItemHorizontalPadding,
+                paddingEnd = BottomNavigationItemHorizontalPadding,
                 children = text
             )
         }
-    ) { measurables, constraints ->
+    ) { measurables, constraints, _ ->
         val iconPlaceable = measurables.first { it.tag == "icon" }.measure(constraints)
 
         val textPlaceable = measurables.first { it.tag == "text" }.measure(
@@ -351,7 +307,7 @@ private fun MeasureScope.placeTextAndIcon(
 
     return layout(containerWidth, height) {
         if (iconPositionAnimationProgress != 0f) {
-            textPlaceable.place(textX, textY)
+            textPlaceable.place(textX, textY + offset)
         }
         iconPlaceable.place(iconX, selectedIconY + offset)
     }
@@ -362,7 +318,7 @@ private fun MeasureScope.placeTextAndIcon(
  * [BottomNavigationItem]s.
  */
 private val BottomNavigationAnimationBuilder = TweenBuilder<Float>().apply {
-    duration = 115
+    duration = 300
     easing = FastOutSlowInEasing
 }
 

@@ -24,17 +24,17 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
+import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
+import androidx.ui.core.onChildPositioned
+import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
 import androidx.ui.layout.Align
-import androidx.ui.layout.Center
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
+import androidx.ui.layout.Stack
 import androidx.ui.test.positionInParent
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
@@ -65,16 +65,16 @@ class OnPositionedTest : LayoutTest() {
         val positionedLatch = CountDownLatch(1)
         show {
             Container(LayoutSize.Fill +
-                    LayoutPadding(start = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
+                    LayoutPadding(start = paddingLeftPx.toDp(), top = paddingTopPx.toDp()) +
+                    onPositioned {
+                        realLeft = it.positionInParent.x
+                        realTop = it.positionInParent.y
+                        positionedLatch.countDown()
+                    }
             ) {
-                OnPositioned(onPositioned = {
-                    realLeft = it.positionInParent.x
-                    realTop = it.positionInParent.y
-                    positionedLatch.countDown()
-                })
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertThat(paddingLeftPx).isEqualTo(realLeft)
         assertThat(paddingTopPx).isEqualTo(realTop)
@@ -89,22 +89,20 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         show {
-            Container {
-                OnChildPositioned(onPositioned = {
-                    realLeft = it.positionInParent.x
-                    realTop = it.positionInParent.y
-                    positionedLatch.countDown()
-                }) {
-                    Container(
-                        LayoutSize.Fill + LayoutPadding(
-                            start = paddingLeftPx.toDp(),
-                            top = paddingTopPx.toDp()
-                        ), children = emptyContent()
-                    )
-                }
+            Container(onChildPositioned {
+                realLeft = it.positionInParent.x
+                realTop = it.positionInParent.y
+                positionedLatch.countDown()
+            }) {
+                Container(
+                    LayoutSize.Fill + LayoutPadding(
+                        start = paddingLeftPx.toDp(),
+                        top = paddingTopPx.toDp()
+                    ), children = emptyContent()
+                )
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertThat(realLeft).isEqualTo(paddingLeftPx)
         assertThat(realTop).isEqualTo(paddingTopPx)
@@ -120,22 +118,22 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         show {
-            Container(LayoutPadding(start = firstPaddingPx.toDp())) {
-                OnPositioned(onPositioned = {
-                    gpCoordinates = it
-                    positionedLatch.countDown()
-                })
+            Container(LayoutPadding(start = firstPaddingPx.toDp()) +
+                    onPositioned {
+                        gpCoordinates = it
+                        positionedLatch.countDown()
+                    }) {
                 Container(LayoutPadding(start = secondPaddingPx.toDp())) {
-                    Container(LayoutSize.Fill + LayoutPadding(start = thirdPaddingPx.toDp())) {
-                        OnPositioned(onPositioned = {
-                            childCoordinates = it
-                            positionedLatch.countDown()
-                        })
+                    Container(LayoutSize.Fill + LayoutPadding(start = thirdPaddingPx.toDp()) +
+                            onPositioned {
+                                childCoordinates = it
+                                positionedLatch.countDown()
+                            }) {
                     }
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         // global position
         val gPos = childCoordinates!!.localToGlobal(PxPosition.Origin).x
@@ -156,22 +154,19 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         show {
-            Row {
-                OnChildPositioned(onPositioned = {
+            Row(onChildPositioned {
+                if (firstCoordinates == null) {
                     firstCoordinates = it
-                    positionedLatch.countDown()
-                }) {
-                    Container(width = sizeDp, height = sizeDp, children = emptyContent())
-                }
-                OnChildPositioned(onPositioned = {
+                } else {
                     secondCoordinates = it
-                    positionedLatch.countDown()
-                }) {
-                    Container(width = sizeDp, height = sizeDp, children = emptyContent())
                 }
+                positionedLatch.countDown()
+            }) {
+                Container(width = sizeDp, height = sizeDp, children = emptyContent())
+                Container(width = sizeDp, height = sizeDp, children = emptyContent())
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertThat(0.px).isEqualTo(firstCoordinates!!.positionInParent.x)
         assertThat(size).isEqualTo(secondCoordinates!!.positionInParent.x)
@@ -193,17 +188,19 @@ class OnPositionedTest : LayoutTest() {
                 activity.setContentView(frameLayout)
 
                 frameLayout.setContent {
-                    OnChildPositioned(onPositioned = {
-                        realGlobalPosition = it.localToGlobal(localPosition)
-                        realLocalPosition = it.globalToLocal(globalPosition)
-                        positionedLatch.countDown()
-                    }) {
-                        Container(expanded = true, children = emptyContent())
-                    }
+                    Container(
+                        onPositioned {
+                            realGlobalPosition = it.localToGlobal(localPosition)
+                            realLocalPosition = it.globalToLocal(globalPosition)
+                            positionedLatch.countDown()
+                        },
+                        expanded = true,
+                        children = emptyContent()
+                    )
                 }
             }
         })
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         assertThat(realGlobalPosition).isEqualTo(globalPosition)
         assertThat(realLocalPosition).isEqualTo(localPosition)
@@ -215,18 +212,17 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         show {
-            Container(expanded = true) {
-                if (needCallback.value) {
-                    OnPositioned(onPositioned = {
-                        positionedLatch.countDown()
-                    })
-                }
+            val modifier = if (needCallback.value) {
+                onPositioned { positionedLatch.countDown() }
+            } else {
+                Modifier.None
             }
+            Container(modifier, expanded = true) { }
         }
 
         activityTestRule.runOnUiThread { needCallback.value = true }
 
-        assertThat(positionedLatch.await(1, TimeUnit.SECONDS)).isEqualTo(true)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
     }
 
     @Test
@@ -236,24 +232,22 @@ class OnPositionedTest : LayoutTest() {
 
         var positionedLatch = CountDownLatch(1)
         show {
-            Center {
-                OnChildPositioned(onPositioned = {
-                    realLeft = it.positionInParent.x
-                    positionedLatch.countDown()
-                }) {
-                    Container(
-                        LayoutSize.Fill + LayoutPadding(start = modelLeft.size),
-                        children = emptyContent()
-                    )
-                }
+            Stack {
+                Container(
+                    onPositioned {
+                        realLeft = it.positionInParent.x
+                        positionedLatch.countDown()
+                    } + LayoutSize.Fill + LayoutPadding(start = modelLeft.size),
+                    children = emptyContent()
+                )
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         positionedLatch = CountDownLatch(1)
         activityTestRule.runOnUiThread { modelLeft.size = 40.dp }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         with(density) {
             assertThat(realLeft).isEqualTo(40.dp.toPx())
         }
@@ -272,23 +266,26 @@ class OnPositionedTest : LayoutTest() {
                 Offset(modelLeft) {
                     Container(width = 10.dp, height = 10.dp) {
                         Container(width = 10.dp, height = 10.dp) {
-                            Container(width = 10.dp, height = 10.dp) {
-                                OnPositioned(onPositioned = {
+                            Container(
+                                onPositioned {
                                     realLeft = it.positionInRoot.x
                                     positionedLatch.countDown()
-                                })
+                                },
+                                width = 10.dp,
+                                height = 10.dp
+                            ) {
                             }
                         }
                     }
                 }
             }
         }
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         positionedLatch = CountDownLatch(1)
         activityTestRule.runOnUiThread { modelLeft.size = 40.dp }
 
-        positionedLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         with(density) {
             assertThat(realLeft).isEqualTo(40.dp.toPx())
         }
@@ -300,14 +297,12 @@ class OnPositionedTest : LayoutTest() {
         val line = VerticalAlignmentLine(::min)
         val lineValue = 10.ipx
         show {
-            val onPositioned = @Composable {
-                OnPositioned { coordinates ->
-                    Assert.assertEquals(1, coordinates.providedAlignmentLines.size)
-                    Assert.assertEquals(lineValue, coordinates[line])
-                    latch.countDown()
-                }
+            val onPositioned = onPositioned { coordinates ->
+                Assert.assertEquals(1, coordinates.providedAlignmentLines.size)
+                Assert.assertEquals(lineValue, coordinates[line])
+                latch.countDown()
             }
-            Layout(onPositioned) { _, _ ->
+            Layout(modifier = onPositioned, children = { }) { _, _, _ ->
                 layout(0.ipx, 0.ipx, mapOf(line to lineValue)) { }
             }
         }
@@ -317,7 +312,7 @@ class OnPositionedTest : LayoutTest() {
     @Composable
     private fun Offset(sizeModel: SizeModel, children: @Composable() () -> Unit) {
         // simple copy of Padding which doesn't recompose when the size changes
-        Layout(children) { measurables, constraints ->
+        Layout(children) { measurables, constraints, _ ->
             layout(constraints.maxWidth, constraints.maxHeight) {
                 measurables.first().measure(constraints).place(sizeModel.size.toPx(), 0.px)
             }

@@ -16,56 +16,38 @@
 
 package androidx.ui.framework.demos.gestures
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DoubleTapGestureDetector
 import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.setContent
+import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentGravity
-import androidx.ui.unit.Dp
+import androidx.ui.graphics.compositeOver
+import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
 /**
  * Demonstration of how various press/tap gesture interact together in a nested fashion.
  */
-class NestedPressDemo : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            PressableContainer(
-                paddingLeft = 48.dp,
-                paddingRight = 48.dp,
-                paddingTop = 96.dp,
-                paddingBottom = 96.dp
-            ) {
-                PressableContainer(
-                    paddingLeft = 48.dp,
-                    paddingRight = 48.dp,
-                    paddingTop = 96.dp,
-                    paddingBottom = 96.dp
-                ) {
-                    PressableContainer {}
-                }
-            }
+@Composable
+fun NestedPressDemo() {
+    PressableContainer(LayoutSize.Fill) {
+        PressableContainer(LayoutPadding(48.dp) + LayoutSize.Fill) {
+            PressableContainer(LayoutPadding(48.dp) + LayoutSize.Fill)
         }
     }
 }
 
 @Composable
-fun PressableContainer(
-    paddingLeft: Dp = 0.dp,
-    paddingTop: Dp = 0.dp,
-    paddingRight: Dp = 0.dp,
-    paddingBottom: Dp = 0.dp,
-    children: @Composable() () -> Unit
+private fun PressableContainer(
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit = {}
 ) {
     val defaultColor = DefaultBackgroundColor
     val pressedColor = PressedColor
@@ -95,32 +77,20 @@ fun PressableContainer(
     }
 
     val color = if (pressed.value) {
-        pressedColor.over(currentColor.value)
+        pressedColor.compositeOver(currentColor.value)
     } else {
         currentColor.value
     }
 
-    PressIndicatorGestureDetector(
-        onStart = onStart,
-        onStop = onStop,
-        onCancel = onStop
-    ) {
-        PressReleasedGestureDetector(onTap, false) {
-            DoubleTapGestureDetector(onDoubleTap) {
-                LongPressGestureDetector(onLongPress) {
-                    Box(
-                        backgroundColor = color, border = Border(2.dp, BorderColor),
-                        paddingLeft = paddingLeft,
-                        paddingTop = paddingTop,
-                        paddingRight = paddingRight,
-                        paddingBottom = paddingBottom,
-                        gravity = ContentGravity.Center,
-                        children = children
-                    )
-                }
-            }
-        }
-    }
+    val gestureDetectors = PressIndicatorGestureDetector(onStart, onStop, onStop) +
+            TapGestureDetector(onTap) +
+            DoubleTapGestureDetector(onDoubleTap) +
+            LongPressGestureDetector(onLongPress)
+    Box(
+        modifier + gestureDetectors,
+        backgroundColor = color, border = Border(2.dp, BorderColor),
+        children = children
+    )
 }
 
-data class Single<T>(var value: T)
+private data class Single<T>(var value: T)

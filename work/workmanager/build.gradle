@@ -62,9 +62,9 @@ android {
 }
 
 dependencies {
-    annotationProcessor("androidx.room:room-compiler:2.2.3")
-    implementation("androidx.room:room-runtime:2.2.3")
-    androidTestImplementation("androidx.room:room-testing:2.2.3")
+    annotationProcessor("androidx.room:room-compiler:2.2.5")
+    implementation("androidx.room:room-runtime:2.2.5")
+    androidTestImplementation("androidx.room:room-testing:2.2.5")
     implementation("androidx.sqlite:sqlite:2.1.0")
     implementation("androidx.sqlite:sqlite-framework:2.1.0")
     api(GUAVA_LISTENABLE_FUTURE)
@@ -75,6 +75,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker

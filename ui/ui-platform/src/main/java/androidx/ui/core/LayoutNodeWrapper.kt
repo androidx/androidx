@@ -18,6 +18,9 @@
 
 package androidx.ui.core
 
+import android.graphics.RectF
+import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -27,11 +30,14 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
 import androidx.ui.unit.toPxPosition
 import androidx.ui.unit.toPxSize
+import androidx.ui.util.fastForEach
 
 private val Unmeasured = IntPxSize(IntPx.Zero, IntPx.Zero)
 
@@ -43,7 +49,7 @@ internal sealed class LayoutNodeWrapper(
 ) : Placeable(), Measurable, LayoutCoordinates {
     protected open val wrapped: LayoutNodeWrapper? = null
     internal var wrappedBy: LayoutNodeWrapper? = null
-    var position = IntPxPosition.Origin
+    open var position = IntPxPosition.Origin
 
     private var dirtySize: Boolean = false
     fun hasDirtySize(): Boolean = dirtySize || (wrapped?.hasDirtySize() ?: false)
@@ -58,6 +64,23 @@ internal sealed class LayoutNodeWrapper(
             check(isAttached) { ExpectAttachedLayoutCoordinates }
             return layoutNode.layoutNodeWrapper.wrappedBy
         }
+
+    // TODO(mount): This is not thread safe.
+    private var rectCache: RectF? = null
+
+    /**
+     * Whether a pointer that is relative to the device screen is in the bounds of this
+     * LayoutNodeWrapper.
+     */
+    fun isGlobalPointerInBounds(globalPointerPosition: PxPosition): Boolean {
+        // TODO(shepshapard): Right now globalToLocal has to traverse the tree all the way back up
+        //  so calling this is expensive.  Would be nice to cache data such that this is cheap.
+        val localPointerPosition = globalToLocal(globalPointerPosition)
+        return localPointerPosition.x.value >= 0 &&
+                localPointerPosition.x < size.width &&
+                localPointerPosition.y.value >= 0 &&
+                localPointerPosition.y < size.height
+    }
 
     /**
      * Assigns a layout size to this [LayoutNodeWrapper] given the assigned innermost size
@@ -83,6 +106,25 @@ internal sealed class LayoutNodeWrapper(
      * Draws the content of the LayoutNode
      */
     abstract fun draw(canvas: Canvas, density: Density)
+
+    /**
+     * Executes a hit test on any appropriate type associated with this [LayoutNodeWrapper].
+     *
+     * Override appropriately to either add a [PointerInputFilter] to [hitPointerInputFilters] or
+     * to pass the execution on.
+     *
+     * @param pointerPositionRelativeToScreen The tested pointer position, which is relative to
+     * the device screen.
+     * @param hitPointerInputFilters The collection that the hit [PointerInputFilter]s will be
+     * added to if hit.
+     *
+     * @return True if any [PointerInputFilter]s were hit and thus added to
+     * [hitPointerInputFilters].
+     */
+    abstract fun hitTest(
+        pointerPositionRelativeToScreen: PxPosition,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ): Boolean
 
     override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
@@ -161,6 +203,53 @@ internal sealed class LayoutNodeWrapper(
      */
     abstract fun detach()
 
+    /**
+     * Modifies bounds to be in the parent LayoutNodeWrapper's coordinates, including clipping,
+     * scaling, etc.
+     */
+    protected open fun rectInParent(bounds: RectF) {
+        val x = position.x.value
+        bounds.left += x
+        bounds.right += x
+
+        val y = position.y.value
+        bounds.top += y
+        bounds.bottom += y
+    }
+
+    override fun childBoundingBox(child: LayoutCoordinates): PxBounds {
+        check(isAttached) { ExpectAttachedLayoutCoordinates }
+        check(child.isAttached) { "Child $child is not attached!" }
+        val bounds = rectCache ?: RectF().also { rectCache = it }
+        bounds.set(
+            0f,
+            0f,
+            child.size.width.value.toFloat(),
+            child.size.height.value.toFloat()
+        )
+        var wrapper = child as LayoutNodeWrapper
+        while (wrapper !== this) {
+            wrapper.rectInParent(bounds)
+
+            val parent = wrapper.wrappedBy
+            check(parent != null) {
+                "childToLocal: child parameter is not a child of the LayoutCoordinates"
+            }
+            wrapper = parent
+        }
+        return PxBounds(
+            left = bounds.left.px,
+            top = bounds.top.px,
+            right = bounds.right.px,
+            bottom = bounds.bottom.px
+        )
+    }
+
+    /**
+     * Returns the layer that this wrapper will draw into.
+     */
+    abstract fun findLayer(): OwnedLayer?
+
     internal companion object {
         const val ExpectAttachedLayoutCoordinates = "LayoutCoordinate operations are only valid " +
                 "when isAttached is true"
@@ -188,24 +277,44 @@ internal sealed class DelegatingLayoutNodeWrapper(
         size = wrapped.layoutSize(innermostSize)
         return size
     }
+
     override fun draw(canvas: Canvas, density: Density) {
         withPositionTranslation(canvas) {
             wrapped.draw(canvas, density)
         }
     }
+
+    override fun hitTest(
+        pointerPositionRelativeToScreen: PxPosition,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ): Boolean {
+        if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
+            return wrapped.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
+        } else {
+            // Anything out of bounds of ourselves can't be hit.
+            return false
+        }
+    }
+
     override fun get(line: AlignmentLine): IntPx? {
         val value = wrapped[line] ?: return null
         val px = value.toPx()
         val pos = wrapped.toParentPosition(PxPosition(px, px))
         return if (line is HorizontalAlignmentLine) pos.y.round() else pos.y.round()
     }
+
     override fun place(position: IntPxPosition) {
         this.position = position
         wrapped.place(IntPxPosition.Origin)
     }
+
     override fun measure(constraints: Constraints): Placeable {
         wrapped.measure(constraints)
         return this
+    }
+
+    override fun findLayer(): OwnedLayer? {
+        return wrappedBy?.findLayer()
     }
 
     override fun minIntrinsicWidth(height: IntPx) = wrapped.minIntrinsicWidth(height)
@@ -223,6 +332,9 @@ internal sealed class DelegatingLayoutNodeWrapper(
 internal class InnerPlaceable(
     layoutNode: LayoutNode
 ) : LayoutNodeWrapper(layoutNode), Density by layoutNode.measureScope {
+    private var introducedLayer: OwnedLayer? = null
+    private var layoutNodeInvalidate: (() -> Unit)? = null
+
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = layoutNode.providedAlignmentLines.keys
     override val isAttached: Boolean
@@ -232,42 +344,62 @@ internal class InnerPlaceable(
         val layoutResult = layoutNode.measureBlocks.measure(
                 layoutNode.measureScope,
                 layoutNode.layoutChildren,
-                constraints
+                constraints,
+                layoutNode.layoutDirection!!
             )
         layoutNode.handleLayoutResult(layoutResult)
         return this
     }
 
     override val parentData: Any?
-        get() = layoutNode.parentDataNode?.value
+        @Suppress("DEPRECATION")
+        get() = if (layoutNode.handlesParentData) {
+            layoutNode.parentDataNode?.value
+        } else {
+            layoutNode.parentDataNode?.value
+                ?: layoutNode.layoutChildren
+                    .firstOrNull { it.layoutNodeWrapper.parentData != null }?.parentData
+        }
 
-    override fun minIntrinsicWidth(height: IntPx): IntPx =
-        layoutNode.measureBlocks.minIntrinsicWidth(
+    override fun findLayer(): OwnedLayer? {
+        return introducedLayer ?: wrappedBy?.findLayer()
+    }
+
+    override fun minIntrinsicWidth(height: IntPx): IntPx {
+        return layoutNode.measureBlocks.minIntrinsicWidth(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
-            height
+            height,
+            layoutNode.layoutDirection!!
         )
+    }
 
-    override fun minIntrinsicHeight(width: IntPx): IntPx =
-        layoutNode.measureBlocks.minIntrinsicHeight(
+    override fun minIntrinsicHeight(width: IntPx): IntPx {
+        return layoutNode.measureBlocks.minIntrinsicHeight(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
-            width
+            width,
+            layoutNode.layoutDirection!!
         )
+    }
 
-    override fun maxIntrinsicWidth(height: IntPx): IntPx =
-        layoutNode.measureBlocks.maxIntrinsicWidth(
+    override fun maxIntrinsicWidth(height: IntPx): IntPx {
+        return layoutNode.measureBlocks.maxIntrinsicWidth(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
-            height
+            height,
+            layoutNode.layoutDirection!!
         )
+    }
 
-    override fun maxIntrinsicHeight(width: IntPx): IntPx =
-        layoutNode.measureBlocks.maxIntrinsicHeight(
+    override fun maxIntrinsicHeight(width: IntPx): IntPx {
+        return layoutNode.measureBlocks.maxIntrinsicHeight(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
-            width
+            width,
+            layoutNode.layoutDirection!!
         )
+    }
 
     override fun place(position: IntPxPosition) {
         layoutNode.isPlaced = true
@@ -289,6 +421,41 @@ internal class InnerPlaceable(
     }
 
     override fun draw(canvas: Canvas, density: Density) {
+        if (introducedLayer != null ||
+            (!layoutNode.hasLayer && layoutNode.layoutChildren.any { it.hasElevation })
+        ) {
+            layoutNodeInvalidate = null
+            // we need to introduce a layer
+            val layer = introducedLayer ?: layoutNode.owner!!.createLayer(
+                introducedDrawLayerModifier,
+                ::executeDraw
+            ).also {
+                layoutNode.layoutChildren.fastForEach {
+                    it.outerLayer?.layer?.setElevationRiseListener(null)
+                }
+                introducedLayer = it
+            }
+            layer.drawLayer(canvas)
+        } else {
+            if (!layoutNode.hasLayer && layoutNode.layoutChildren.isNotEmpty()) {
+                // We don't want to use layoutNode::onInvalidate because that will allocate
+                // a new lambda every time. This will reuse the lambda after the first allocation
+                // so we save allocations and won't allocate on each draw.
+                val invalidate = layoutNodeInvalidate ?: {
+                    if (introducedLayer == null) {
+                        layoutNode.onInvalidate()
+                    }
+                }.also { layoutNodeInvalidate = it }
+                layoutNode.layoutChildren.fastForEach {
+                    it.outerLayer?.layer?.setElevationRiseListener(invalidate)
+                }
+            }
+            executeDraw(canvas, density)
+        }
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun executeDraw(canvas: Canvas, density: Density) {
         withPositionTranslation(canvas) {
             val owner = layoutNode.requireOwner()
             val sizePx = size.toPxSize()
@@ -296,6 +463,22 @@ internal class InnerPlaceable(
             if (owner.showLayoutBounds) {
                 drawBorder(canvas, innerBoundsPaint)
             }
+        }
+    }
+
+    override fun hitTest(
+        pointerPositionRelativeToScreen: PxPosition,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ): Boolean {
+        if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
+            // Any because as soon as true is returned, we know we have found a hit path and we must
+            //  not add PointerInputFilters on different paths so we should not even go looking.
+            return layoutNode.children.reversed().any { child ->
+                callHitTest(child, pointerPositionRelativeToScreen, hitPointerInputFilters)
+            }
+        } else {
+            // Anything out of bounds of ourselves can't be hit.
+            return false
         }
     }
 
@@ -308,6 +491,26 @@ internal class InnerPlaceable(
             paint.color = Color.Red
             paint.strokeWidth = 1f
             paint.style = PaintingStyle.stroke
+        }
+        val introducedDrawLayerModifier = drawLayer(
+            clipToBounds = false,
+            clipToOutline = false
+        ) as DrawLayerModifier
+    }
+}
+
+private fun callHitTest(
+    node: ComponentNode,
+    globalPoint: PxPosition,
+    hitPointerInputFilters: MutableList<PointerInputFilter>
+): Boolean {
+    if (node is LayoutNode) {
+        return node.hitTest(globalPoint, hitPointerInputFilters)
+    } else {
+        // Any because as soon as true is returned, we know we have found a hit path and we must
+        // not add PointerInputFilters on different paths so we should not even go looking.
+        return node.children.reversed().any { child ->
+            callHitTest(child, globalPoint, hitPointerInputFilters)
         }
     }
 }
@@ -360,7 +563,9 @@ internal class ModifiedLayoutNode(
     override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
         updateLayoutDirection()
         val measureResult = withMeasuredConstraints(constraints) {
-            wrapped.measure(layoutNode.measureScope.modifyConstraints(constraints))
+            wrapped.measure(
+                layoutNode.measureScope.modifyConstraints(constraints, layoutNode.layoutDirection!!)
+            )
         }
         measuredPlaceable = measureResult
         this@ModifiedLayoutNode
@@ -368,40 +573,52 @@ internal class ModifiedLayoutNode(
 
     override fun minIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
         updateLayoutDirection()
-        layoutNode.measureScope.minIntrinsicWidthOf(wrapped, height)
+        layoutNode.measureScope.minIntrinsicWidthOf(wrapped, height, layoutNode.layoutDirection!!)
     }
 
     override fun maxIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
         updateLayoutDirection()
-        layoutNode.measureScope.maxIntrinsicWidthOf(wrapped, height)
+        layoutNode.measureScope.maxIntrinsicWidthOf(wrapped, height, layoutNode.layoutDirection!!)
     }
 
     override fun minIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
         updateLayoutDirection()
-        layoutNode.measureScope.minIntrinsicHeightOf(wrapped, width)
+        layoutNode.measureScope.minIntrinsicHeightOf(wrapped, width, layoutNode.layoutDirection!!)
     }
 
     override fun maxIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
         updateLayoutDirection()
-        layoutNode.measureScope.maxIntrinsicHeightOf(wrapped, width)
+        layoutNode.measureScope.maxIntrinsicHeightOf(wrapped, width, layoutNode.layoutDirection!!)
     }
 
     override fun place(position: IntPxPosition) {
         this.position = position
         val placeable = measuredPlaceable ?: error("Placeable not measured")
         val relativePosition = with(layoutModifier) {
-            layoutNode.measureScope.modifyPosition(placeable.size, size)
+            layoutNode.measureScope.modifyPosition(
+                placeable.size,
+                size,
+                layoutNode.layoutDirection!!
+            )
         }
-        placeable.place(relativePosition)
+        placeable.placeAbsolute(relativePosition)
     }
 
     override operator fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
-        return layoutNode.measureScope.modifyAlignmentLine(line, super.get(line))
+        return layoutNode.measureScope.modifyAlignmentLine(
+            line,
+            super.get(line),
+            layoutNode.layoutDirection!!
+        )
     }
 
     override fun layoutSize(innermostSize: IntPxSize): IntPxSize = with(layoutModifier) {
         val constraints = measuredConstraints ?: error("must be called during measurement")
-        layoutNode.measureScope.modifySize(constraints, wrapped.layoutSize(innermostSize)).also {
+        layoutNode.measureScope.modifySize(
+            constraints,
+            layoutNode.layoutDirection!!,
+            wrapped.layoutSize(innermostSize)
+        ).also {
             size = it
         }
     }
@@ -424,7 +641,9 @@ internal class ModifiedLayoutNode(
     }
 
     private fun updateLayoutDirection() = with(layoutModifier) {
-        layoutNode.measureScope.layoutDirection = layoutNode.measureScope.modifyLayoutDirection()
+        val modifiedLayoutDirection =
+            layoutNode.measureScope.modifyLayoutDirection(layoutNode.layoutDirection!!)
+        layoutNode.layoutDirection = modifiedLayoutDirection
     }
 }
 
@@ -449,5 +668,101 @@ internal class ModifiedDrawNode(
     // This is the implementation of drawContent()
     override fun invoke() {
         wrapped.draw(canvas!!, density!!)
+    }
+}
+
+internal class PointerInputDelegatingWrapper(
+    wrapped: LayoutNodeWrapper,
+    private val pointerInputModifier: PointerInputModifier
+) : DelegatingLayoutNodeWrapper(wrapped) {
+
+    init {
+        pointerInputModifier.pointerInputFilter.layoutCoordinates = this
+    }
+
+    override fun hitTest(
+        pointerPositionRelativeToScreen: PxPosition,
+        hitPointerInputFilters: MutableList<PointerInputFilter>
+    ): Boolean {
+        if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
+            // If we were hit, add the pointerInputFilter and keep looking to see if anything
+            // further down the tree is also hit and return true.
+            hitPointerInputFilters.add(pointerInputModifier.pointerInputFilter)
+            super.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
+            return true
+        } else {
+            // Anything out of bounds of ourselves can't be hit.
+            return false
+        }
+    }
+}
+
+internal class LayerWrapper(
+    wrapped: LayoutNodeWrapper,
+    val drawLayerModifier: DrawLayerModifier
+) : DelegatingLayoutNodeWrapper(wrapped) {
+    private var _layer: OwnedLayer? = null
+    val layer: OwnedLayer
+        get() {
+            return _layer ?: layoutNode.requireOwner().createLayer(
+                drawLayerModifier,
+                wrapped::draw
+            ).also {
+                _layer = it
+                wrappedBy?.findLayer()?.invalidate()
+            }
+        }
+
+    // TODO(mount): This cache isn't thread safe at all.
+    private var positionCache: FloatArray? = null
+
+    override fun place(position: IntPxPosition) {
+        super.place(position)
+        layer.move(position)
+    }
+
+    override fun layoutSize(innermostSize: IntPxSize): IntPxSize {
+        val size = super.layoutSize(innermostSize)
+        layer.resize(size)
+        return size
+    }
+
+    override fun draw(canvas: Canvas, density: Density) {
+        layer.drawLayer(canvas)
+    }
+
+    override fun detach() {
+        super.detach()
+        _layer?.destroy()
+    }
+
+    override fun findLayer(): OwnedLayer? {
+        return layer
+    }
+
+    override fun toParentPosition(position: PxPosition): PxPosition {
+        val matrix = layer.getMatrix()
+        val x = position.x.value
+        val y = position.y.value
+        val cache = positionCache
+        val point = if (cache != null) {
+            cache[0] = x
+            cache[1] = y
+            cache
+        } else {
+            floatArrayOf(x, y).also { positionCache = it }
+        }
+        matrix.mapPoints(point)
+        return super.toParentPosition(PxPosition(point[0].px, point[1].px))
+    }
+
+    override fun rectInParent(bounds: RectF) {
+        if (drawLayerModifier.clipToBounds ||
+            (drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null)) {
+            bounds.intersect(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
+        }
+        val matrix = layer.getMatrix()
+        matrix.mapRect(bounds)
+        return super.rectInParent(bounds)
     }
 }

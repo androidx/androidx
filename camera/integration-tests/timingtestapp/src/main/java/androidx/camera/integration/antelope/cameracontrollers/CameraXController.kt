@@ -40,6 +40,7 @@ import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.concurrent.futures.await
+import androidx.core.util.Consumer
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -118,13 +119,10 @@ internal fun cameraXOpenCamera(
 
                 // Surface provided to camera for producing buffers into and
                 // Release the SurfaceTexture and Surface once camera is done with it
-                surfaceRequest.provideSurface(surface).addListener(
-                    Runnable {
+                surfaceRequest.provideSurface(surface, CameraXExecutors.directExecutor(), Consumer {
                         surface.release()
                         surfaceTexture.release()
-                    },
-                    CameraXExecutors.directExecutor()
-                )
+                })
             }
         }
 

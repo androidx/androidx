@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+MutableBareField: androidx.window.sidecar.SidecarDeviceState#posture:
+    Bare field posture must be marked final, or moved behind accessors if mutable
+MutableBareField: androidx.window.sidecar.SidecarWindowLayoutInfo#displayFeatures:
+    Bare field displayFeatures must be marked final, or moved behind accessors if mutable

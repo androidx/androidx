@@ -45,7 +45,3 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
 }
-
-androidx {
-    toolingProject = true
-}

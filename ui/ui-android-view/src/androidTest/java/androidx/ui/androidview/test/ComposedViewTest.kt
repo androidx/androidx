@@ -25,7 +25,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.filters.SmallTest
 import androidx.ui.androidview.AndroidView
-import androidx.ui.core.AndroidComposeView
+import androidx.ui.core.Owner
 import androidx.ui.test.createComposeRule
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Rule
@@ -56,15 +56,15 @@ class ComposedViewTest {
             AndroidView(R.layout.test_layout)
         }
         Espresso
-            .onView(withParent(withParent(instanceOf(AndroidComposeView::class.java))))
+            .onView(withParent(withParent(instanceOf(Owner::class.java))))
             .check(matches(isDisplayed()))
             .check { view, exception ->
                 if (view.layoutParams.width !=
-                        TypedValue.applyDimension(
-                            TypedValue.COMPLEX_UNIT_DIP,
-                            300f,
-                            view.context.resources.displayMetrics
-                        ).roundToInt()
+                    TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        300f,
+                        view.context.resources.displayMetrics
+                    ).roundToInt()
                 ) {
                     throw exception
                 }

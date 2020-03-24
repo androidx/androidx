@@ -62,6 +62,23 @@ object Stubs {
         """
     ).indented().within("src")
 
+    val RX_WORKER: TestFile = kotlin(
+        "androidx/work/RxWorker.kt",
+        """
+            package androidx.work
+
+            open class RxWorker: ListenableWorker() {
+                fun setProgress() {
+
+                }
+
+                fun setCompletableProgress() {
+
+                }
+            }
+        """
+    ).indented().within("src")
+
     val WORK_REQUEST: TestFile = kotlin(
         "androidx/work/WorkRequest.kt",
         """
@@ -114,6 +131,21 @@ object Stubs {
             }
         """
     ).indented().within("src")
+
+    val CONSTRAINTS: TestFile = java("androidx/work/Constraints.java", """
+        package androidx.work;
+
+        class Constraints {
+            public static class Builder {
+                public Builder setRequiresDeviceIdle(boolean requiresDeviceIdle) {
+                    return this;
+                }
+                public Builder setRequiresCharging(boolean requiresDeviceIdle) {
+                    return this;
+                }
+            }
+        }
+    """).indented().within("src")
 
     val NOTIFICATION: TestFile = kotlin(
         "android/app/Notification.kt",

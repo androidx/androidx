@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * it loads more data, but the data loaded cannot be updated. If the underlying data set is
  * modified, a new PagedList / DataSource pair must be created to represent the new data.
  *
- * <h4>Loading Pages</h4>
+ * ### Loading Pages
  *
  * PagedList queries data from its DataSource in response to loading hints. PagedListAdapter
  * calls [PagedList.loadAround] to load content as the user scrolls in a RecyclerView.
@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * To control how and when a PagedList queries data from its DataSource, see
  * [PagedList.Config]. The Config object defines things like load sizes and prefetch distance.
  *
- * <h4>Updating Paged Data</h4>
+ * ### Updating Paged Data
  *
  * A PagedList / DataSource pair are a snapshot of the data set. A new pair of
  * PagedList / DataSource must be created if an update occurs, such as a reorder, insert, delete, or
@@ -68,7 +68,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * copy changes, invalidate the previous DataSource, and a new one wrapping the new state of the
  * snapshot can be created.
  *
- * <h4>Implementing a DataSource</h4>
+ * ### Implementing a DataSource
  *
  * To implement, extend one of the subclasses: [PageKeyedDataSource], [ItemKeyedDataSource], or
  * [PositionalDataSource].

@@ -25,17 +25,18 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.AnimatedFloatModel
+import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.Draggable
+import androidx.ui.foundation.gestures.draggable
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
@@ -50,8 +51,7 @@ import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
-import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.unit.dp
@@ -77,7 +77,7 @@ fun SliderPosition(
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     @IntRange(from = 0) steps: Int = 0
 ): SliderPosition {
-    val clock = AnimationClockAmbient.current
+    val clock = AnimationClockAmbient.current.asDisposableClock()
     return remember(initial, valueRange, steps, clock) {
         SliderPosition(initial, valueRange, steps, clock)
     }
@@ -180,11 +180,11 @@ fun Slider(
     onValueChange: (Float) -> Unit = { position.value = it },
     modifier: Modifier = Modifier.None,
     onValueChangeEnd: () -> Unit = {},
-    color: Color = MaterialTheme.colors().primary
+    color: Color = MaterialTheme.colors.primary
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
         Box(modifier = modifier) {
-            WithConstraints { constraints ->
+            WithConstraints { constraints, _ ->
                 val maxPx = constraints.maxWidth.value.toFloat()
                 val minPx = 0f
                 position.setBounds(minPx, maxPx)
@@ -209,52 +209,61 @@ fun Slider(
                     }
                 }
                 val pressed = state { false }
-                PressGestureDetector(
-                    onPress = { pos ->
+                val press = PressIndicatorGestureDetector(
+                    onStart = { pos ->
                         onValueChange(pos.x.value.toSliderPosition())
                         pressed.value = true
                     },
-                    onRelease = {
+                    onStop = {
                         pressed.value = false
                         gestureEndAction(0f)
-                    }) {
-                    Draggable(
-                        dragDirection = DragDirection.Horizontal,
-                        dragValue = position.holder,
-                        onDragStarted = { pressed.value = true },
-                        onDragValueChangeRequested = { onValueChange(it.toSliderPosition()) },
-                        onDragStopped = { velocity ->
-                            pressed.value = false
-                            gestureEndAction(velocity)
-                        },
-                        children = { SliderImpl(position, color, maxPx, pressed.value) }
-                    )
-                }
+                    })
+
+                val drag = draggable(
+                    dragDirection = DragDirection.Horizontal,
+                    onDragDeltaConsumptionRequested = { delta ->
+                        val old = position.holder.value
+                        onValueChange((position.holder.value + delta).toSliderPosition())
+                        position.holder.value - old
+                    },
+                    onDragStarted = { pressed.value = true },
+                    onDragStopped = { velocity ->
+                        pressed.value = false
+                        gestureEndAction(velocity)
+                    },
+                    startDragImmediately = position.holder.isRunning
+                )
+                SliderImpl(position, color, maxPx, pressed.value, modifier = press + drag)
             }
         }
     }
 }
 
 @Composable
-private fun SliderImpl(position: SliderPosition, color: Color, width: Float, pressed: Boolean) {
+private fun SliderImpl(
+    position: SliderPosition,
+    color: Color,
+    width: Float,
+    pressed: Boolean,
+    modifier: Modifier
+) {
     val widthDp = with(DensityAmbient.current) {
         width.px.toDp()
     }
     Semantics(container = true, properties = { accessibilityValue = "${position.value}" }) {
-        Stack(DefaultSliderConstraints) {
+        Stack(modifier + DefaultSliderConstraints) {
             val thumbSize = ThumbRadius * 2
             val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
             val offset = (widthDp - thumbSize) * fraction
             Track(LayoutGravity.CenterStart + LayoutSize.Fill, color, position)
             Box(LayoutGravity.CenterStart + LayoutPadding(start = offset)) {
-                Ripple(bounded = false) {
-                    Surface(
-                        shape = CircleShape,
-                        color = color,
-                        elevation = if (pressed) 6.dp else 1.dp
-                    ) {
-                        Spacer(LayoutSize(thumbSize, thumbSize))
-                    }
+                Surface(
+                    shape = CircleShape,
+                    color = color,
+                    elevation = if (pressed) 6.dp else 1.dp,
+                    modifier = ripple(bounded = false)
+                ) {
+                    Spacer(LayoutSize(thumbSize, thumbSize))
                 }
             }
         }
@@ -267,7 +276,7 @@ private fun Track(
     color: Color,
     position: SliderPosition
 ) {
-    val activeTickColor = MaterialTheme.colors().onPrimary.copy(alpha = TickColorAlpha)
+    val activeTickColor = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha)
     val inactiveTickColor = color.copy(alpha = TickColorAlpha)
     val paint = remember {
         Paint().apply {

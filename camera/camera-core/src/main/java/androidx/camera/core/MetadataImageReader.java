@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.media.ImageReader;
-import android.os.Handler;
 import android.util.Log;
 import android.util.LongSparseArray;
 import android.view.Surface;
@@ -28,7 +27,6 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.ImageReaderProxy;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.core.util.Preconditions;
 
@@ -97,7 +95,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
 
     /** ImageProxies with matched Image and ImageInfo and are ready to be acquired. */
     @GuardedBy("mLock")
-    private List<ImageProxy> mMatchedImageProxies;
+    private final List<ImageProxy> mMatchedImageProxies;
 
     /** ImageProxies which are already acquired. */
     @GuardedBy("mLock")
@@ -110,14 +108,20 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
      * @param height    Height of the ImageReader
      * @param format    Image format
      * @param maxImages Maximum Image number the ImageReader can hold.
-     * @param handler   Handler for executing {@link ImageReaderProxy.OnImageAvailableListener}
      */
-    MetadataImageReader(int width, int height, int format, int maxImages,
-            @Nullable Handler handler) {
-        mImageReaderProxy = new AndroidImageReaderProxy(
-                ImageReader.newInstance(width, height, format, maxImages));
+    MetadataImageReader(int width, int height, int format, int maxImages) {
+        this(createImageReaderProxy(width, height, format, maxImages));
+    }
 
-        init(CameraXExecutors.newHandlerExecutor(handler));
+    /**
+     * To workaround the robolectric issue b/151870335. The line breaks is not allowed in the
+     * 'this (...)' keyword in the constructor. This workaround is extracted the operation out of
+     * 'this (...)' to avoid the issue happen.
+     */
+    private static ImageReaderProxy createImageReaderProxy(int width, int height, int format,
+            int maxImages) {
+        return new AndroidImageReaderProxy(
+                ImageReader.newInstance(width, height, format, maxImages));
     }
 
     /**
@@ -125,19 +129,9 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
      *
      * @param imageReaderProxy The existed ImageReaderProxy to be set underlying this
      *                         MetadataImageReader.
-     * @param handler          Handler for executing
-     *                         {@link ImageReaderProxy.OnImageAvailableListener}
      */
-    MetadataImageReader(ImageReaderProxy imageReaderProxy, @Nullable Handler handler) {
+    MetadataImageReader(@NonNull ImageReaderProxy imageReaderProxy) {
         mImageReaderProxy = imageReaderProxy;
-
-        init(CameraXExecutors.newHandlerExecutor(handler));
-    }
-
-    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
-    private void init(Executor executor) {
-        mExecutor = executor;
-        mImageReaderProxy.setOnImageAvailableListener(mTransformedListener, executor);
         mImageProxiesIndex = 0;
         mMatchedImageProxies = new ArrayList<>(getMaxImages());
     }
@@ -245,13 +239,6 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
         synchronized (mLock) {
             return mImageReaderProxy.getSurface();
         }
-    }
-
-    @Override
-    public void setOnImageAvailableListener(
-            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
-            @Nullable Handler handler) {
-        setOnImageAvailableListener(listener, CameraXExecutors.newHandlerExecutor(handler));
     }
 
     @Override

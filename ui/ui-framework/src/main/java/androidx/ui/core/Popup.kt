@@ -16,30 +16,30 @@
 
 package androidx.ui.core
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.compose.Composable
-import androidx.compose.Compose
+import androidx.compose.Composition
 import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
-import androidx.compose.disposeComposition
 import androidx.compose.escapeCompose
 import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.ipx
+import androidx.ui.unit.max
 import androidx.ui.unit.round
 import androidx.ui.unit.toPxSize
 import org.jetbrains.annotations.TestOnly
@@ -137,23 +137,30 @@ private fun Popup(
 ) {
     val context = ContextAmbient.current
     // TODO(b/139866476): Decide if we want to expose the AndroidComposeView
-    val composeView = AndroidComposeViewAmbient.current
+    val owner = OwnerAmbient.current
     val providedTestTag = PopupTestTagAmbient.current
 
     val popupLayout = remember(popupProperties) {
-        escapeCompose { PopupLayout(
-            context = context,
-            composeView = composeView,
-            popupProperties = popupProperties,
-            popupPositionProperties = popupPositionProperties,
-            calculatePopupPosition = calculatePopupPosition,
-            testTag = providedTestTag
-        ) }
+        escapeCompose {
+            PopupLayout(
+                context = context,
+                composeView = owner as View,
+                popupProperties = popupProperties,
+                popupPositionProperties = popupPositionProperties,
+                calculatePopupPosition = calculatePopupPosition,
+                testTag = providedTestTag
+            )
+        }
     }
     popupLayout.calculatePopupPosition = calculatePopupPosition
 
+    var composition: Composition? = null
+
+    // TODO(soboleva): Look at module arrangement so that Box can be
+    // used instead of this custom Layout
     // Get the parent's global position and size
-    OnPositioned { coordinates ->
+    Layout(children = {}, modifier = onPositioned { childCoordinates ->
+        val coordinates = childCoordinates.parentCoordinates!!
         // Get the global position of the parent
         val layoutPosition = coordinates.localToGlobal(PxPosition.Origin)
         val layoutSize = coordinates.size
@@ -163,24 +170,58 @@ private fun Popup(
 
         // Update the popup's position
         popupLayout.updatePosition()
-    }
+    }) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
 
     onCommit {
-        popupLayout.setContent {
-            OnChildPositioned({
+        composition = popupLayout.setContent {
+            SimpleStack(onPositioned {
                 // Get the size of the content
                 popupLayout.popupPositionProperties.childrenSize = it.size.toPxSize()
 
                 // Update the popup's position
                 popupLayout.updatePosition()
-            }, children)
+            }, children = children)
         }
     }
 
     onDispose {
-        popupLayout.disposeComposition()
+        composition?.dispose()
         // Remove the window
         popupLayout.dismiss()
+    }
+}
+
+// TODO(soboleva): Look at module dependencies so that we can get code reuse between
+// Popup's SimpleStack and Stack.
+@Suppress("NOTHING_TO_INLINE")
+@Composable
+private inline fun SimpleStack(modifier: Modifier, noinline children: @Composable() () -> Unit) {
+    Layout(children = children, modifier = modifier) { measurables, constraints, _ ->
+        when (measurables.size) {
+            0 -> layout(0.ipx, 0.ipx) {}
+            1 -> {
+                val p = measurables[0].measure(constraints)
+                layout(p.width, p.height) {
+                    p.place(0.ipx, 0.ipx)
+                }
+            }
+            else -> {
+                val placeables = measurables.map { it.measure(constraints) }
+                var width = 0.ipx
+                var height = 0.ipx
+                for (i in 0..placeables.lastIndex) {
+                    val p = placeables[i]
+                    width = max(width, p.width)
+                    height = max(height, p.height)
+                }
+                layout(width, height) {
+                    for (i in 0..placeables.lastIndex) {
+                        val p = placeables[i]
+                        p.place(0.ipx, 0.ipx)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -221,6 +262,7 @@ private class PopupLayout(
 
         if (!viewAdded) {
             windowManager.addView(this, params)
+            ViewTreeLifecycleOwner.set(this, ViewTreeLifecycleOwner.get(composeView))
             viewAdded = true
         } else {
             windowManager.updateViewLayout(this, params)
@@ -241,6 +283,7 @@ private class PopupLayout(
      * Remove the view from the [WindowManager].
      */
     fun dismiss() {
+        ViewTreeLifecycleOwner.set(this, null)
         windowManager.removeViewImmediate(this)
     }
 
@@ -250,7 +293,8 @@ private class PopupLayout(
      */
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if ((event?.action == MotionEvent.ACTION_DOWN) &&
-            ((event.x < 0) || (event.x >= width) || (event.y < 0) || (event.y >= height))) {
+            ((event.x < 0) || (event.x >= width) || (event.y < 0) || (event.y >= height))
+        ) {
             popupProperties.onDismissRequest?.invoke()
 
             return true
@@ -398,19 +442,6 @@ internal fun calculateDropdownPopupPosition(
     popupGlobalPosition += popupPositionProperties.offset
 
     return popupGlobalPosition
-}
-
-// TODO(b/140396932): Remove once Activity.disposeComposition() is working properly
-/**
- * Disposes the root view of the Activity.
- */
-fun disposeActivityComposition(activity: Activity) {
-    val composeView = activity.window.decorView
-        .findViewById<ViewGroup>(android.R.id.content)
-        .getChildAt(0) as? AndroidComposeView
-        ?: error("No root view found")
-
-    Compose.disposeComposition(composeView.root, activity, null)
 }
 
 /**

@@ -21,8 +21,7 @@ import androidx.ui.framework.test.TestActivity
 import androidx.compose.Recompose
 import androidx.compose.onActive
 import androidx.compose.onCommit
-import androidx.compose.setViewContent
-import androidx.ui.core.ComposeView
+import androidx.ui.core.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -50,27 +49,22 @@ class WrapperTest {
     @Test
     fun ensureComposeWrapperDoesntPropagateInvalidations() {
         val commitLatch = CountDownLatch(2)
-        var rootCount = 0
         var composeWrapperCount = 0
         var innerCount = 0
 
         runOnUiThread {
-            activity.setViewContent {
-                onCommit { rootCount++ }
-                ComposeView {
-                    onCommit { composeWrapperCount++ }
-                    Recompose { recompose ->
-                        onCommit {
-                            innerCount++
-                            commitLatch.countDown()
-                        }
-                        onActive { recompose() }
+            activity.setContent {
+                onCommit { composeWrapperCount++ }
+                Recompose { recompose ->
+                    onCommit {
+                        innerCount++
+                        commitLatch.countDown()
                     }
+                    onActive { recompose() }
                 }
             }
         }
         assertTrue(commitLatch.await(1, TimeUnit.SECONDS))
-        assertEquals(1, rootCount)
         assertEquals(1, composeWrapperCount)
         assertEquals(2, innerCount)
     }

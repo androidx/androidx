@@ -23,11 +23,10 @@ import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Insert.Companion.End
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
-import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
+import androidx.paging.PagingConfig.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -37,7 +36,6 @@ import kotlin.math.absoluteValue
 /**
  * Internal state of [Pager] whose updates can be consumed as a [Flow]<[PageEvent]<[Value]>>.
  */
-@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class PagerState<Key : Any, Value : Any>(
     private val pageSize: Int,
     private val maxSize: Int
@@ -62,11 +60,13 @@ internal class PagerState<Key : Any, Value : Any>(
         END to Idle
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun consumePrependGenerationIdAsFlow(): Flow<Int> {
         return prependLoadIdCh.consumeAsFlow()
             .onStart { prependLoadIdCh.offer(prependLoadId) }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun consumeAppendGenerationIdAsFlow(): Flow<Int> {
         return appendLoadIdCh.consumeAsFlow()
             .onStart { appendLoadIdCh.offer(appendLoadId) }
@@ -189,7 +189,11 @@ internal class PagerState<Key : Any, Value : Any>(
         }
     }
 
-    fun dropInfo(loadType: LoadType): DropInfo? {
+    suspend fun dropInfo(
+        loadType: LoadType,
+        loadHint: ViewportHint,
+        prefetchDistance: Int
+    ): DropInfo? {
         // Never drop below 2 pages as this can cause UI flickering with certain configs and it's
         // much more important to protect against this behaviour over respecting a config where
         // maxSize is set unusually (probably incorrectly) strict.
@@ -200,30 +204,74 @@ internal class PagerState<Key : Any, Value : Any>(
                 "Drop LoadType must be START or END, but got $loadType"
             )
             START -> {
+                // Compute the first pageIndex of the first loaded page fulfilling
+                // prefetchDistance.
+                val prefetchWindowStartPageIndex =
+                    loadHint.withCoercedHint { indexInPage, pageIndex, _ ->
+                        var prefetchWindowStartPageIndex = pageIndex
+                        var prefetchWindowItems = prefetchDistance - (indexInPage + 1)
+                        while (prefetchWindowStartPageIndex > 0 && prefetchWindowItems > 0) {
+                            prefetchWindowItems -= pages[prefetchWindowStartPageIndex].data.size
+                            prefetchWindowStartPageIndex--
+                        }
+
+                        prefetchWindowStartPageIndex
+                    }
+
                 // TODO: Incrementally compute this.
                 val currentSize = pages.sumBy { it.data.size }
-                if (maxSize != MAX_SIZE_UNBOUNDED && currentSize > maxSize) {
+                if (
+                    maxSize != MAX_SIZE_UNBOUNDED && currentSize > maxSize &&
+                    prefetchWindowStartPageIndex > 0
+                ) {
                     var pageCount = 0
                     var itemCount = 0
                     pages.takeWhile {
                         pageCount++
                         itemCount += it.data.size
-                        currentSize - itemCount > maxSize
+
+                        currentSize - itemCount > maxSize &&
+                                // Do not drop pages that would fulfill prefetchDistance.
+                                pageCount < prefetchWindowStartPageIndex
                     }
 
                     return DropInfo(pageCount, placeholdersStart + itemCount)
                 }
             }
             END -> {
+                // Compute the last pageIndex of the loaded page fulfilling
+                // prefetchDistance.
+                val prefetchWindowEndPageIndex =
+                    loadHint.withCoercedHint { indexInPage, pageIndex, _ ->
+                        var prefetchWindowEndPageIndex = pageIndex
+                        var prefetchWindowItems =
+                            prefetchDistance - pages[pageIndex].data.size + indexInPage
+                        while (
+                            prefetchWindowEndPageIndex < pages.lastIndex &&
+                            prefetchWindowItems > 0
+                        ) {
+                            prefetchWindowItems -= pages[prefetchWindowEndPageIndex].data.size
+                            prefetchWindowEndPageIndex++
+                        }
+
+                        prefetchWindowEndPageIndex
+                    }
+
                 // TODO: Incrementally compute this.
                 val currentSize = pages.sumBy { it.data.size }
-                if (maxSize != MAX_SIZE_UNBOUNDED && currentSize > maxSize) {
+                if (
+                    maxSize != MAX_SIZE_UNBOUNDED && currentSize > maxSize &&
+                    prefetchWindowEndPageIndex < pages.lastIndex
+                ) {
                     var pageCount = 0
                     var itemCount = 0
                     pages.takeLastWhile {
                         pageCount++
                         itemCount += it.data.size
-                        currentSize - itemCount > maxSize
+
+                        currentSize - itemCount > maxSize &&
+                                // Do not drop pages that would fulfill prefetchDistance.
+                                pages.lastIndex - pageCount > prefetchWindowEndPageIndex
                     }
                     return DropInfo(pageCount, placeholdersEnd + itemCount)
                 }
@@ -244,6 +292,8 @@ internal class PagerState<Key : Any, Value : Any>(
      * be decremented.
      * * pageIndex - See the description for indexInPage, index in [pages] coerced from
      * [ViewportHint.sourcePageIndex]
+     * * hintOffset - The numbers of items the hint was snapped by when coercing within the
+     * bounds of loaded pages.
      *
      * Note: If an invalid / out-of-date sourcePageIndex is passed, it will be coerced to the
      * closest pageIndex within the range of [pages]

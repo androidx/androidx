@@ -31,7 +31,7 @@ fun View.setKey(key: Any) {}
 internal fun @receiver:DimenRes Int.assertDimensionRes(): Int {
     // TODO(jdemeulenaere): This only checks that `this` is a resource ID. Check if there is a
     // reliable way to assert it is a dimension resource.
-    assert((this ushr 28) == 0x7f)
+    check((this ushr 28) == 0x7f)
     return this
 }
 

@@ -2,6 +2,16 @@
 <issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
 
     <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 28): `android.media.MediaCodecInfo#isHardwareAccelerated`"
+        errorLine1="                if (info.isHardwareAccelerated()) {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifEncoder.java"
+            line="401"
+            column="26"/>
+    </issue>
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static FloatBuffer createFloatBuffer(float[] coords) {"

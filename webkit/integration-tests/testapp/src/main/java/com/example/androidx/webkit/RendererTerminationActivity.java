@@ -212,7 +212,6 @@ public class RendererTerminationActivity extends AppCompatActivity {
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
-                assert view == mWebView;
                 mWebView.destroy();
                 mBlocker.unblock();
 

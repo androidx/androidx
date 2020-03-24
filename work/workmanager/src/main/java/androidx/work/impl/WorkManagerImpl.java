@@ -42,10 +42,12 @@ import androidx.work.R;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
+import androidx.work.impl.model.RawWorkInfoDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
@@ -53,6 +55,7 @@ import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.LiveDataUtils;
 import androidx.work.impl.utils.PreferenceUtils;
 import androidx.work.impl.utils.PruneWorkRunnable;
+import androidx.work.impl.utils.RawQueries;
 import androidx.work.impl.utils.StartWorkRunnable;
 import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
@@ -114,6 +117,7 @@ public class WorkManagerImpl extends WorkManager {
      */
     @Deprecated
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressWarnings("NullableProblems")
     public static @Nullable WorkManagerImpl getInstance() {
         synchronized (sLock) {
             if (sDelegatedInstance != null) {
@@ -555,6 +559,30 @@ public class WorkManagerImpl extends WorkManager {
     public ListenableFuture<List<WorkInfo>> getWorkInfosForUniqueWork(@NonNull String name) {
         StatusRunnable<List<WorkInfo>> runnable =
                 StatusRunnable.forUniqueWork(this, name);
+        mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
+        return runnable.getFuture();
+    }
+
+    @NonNull
+    @Override
+    public LiveData<List<WorkInfo>> getWorkInfosLiveData(
+            @NonNull WorkQuery workQuery) {
+        RawWorkInfoDao rawWorkInfoDao = mWorkDatabase.rawWorkInfoDao();
+        LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
+                rawWorkInfoDao.getWorkInfoPojosLiveData(
+                        RawQueries.workQueryToRawQuery(workQuery));
+        return LiveDataUtils.dedupedMappedLiveDataFor(
+                inputLiveData,
+                WorkSpec.WORK_INFO_MAPPER,
+                mWorkTaskExecutor);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<List<WorkInfo>> getWorkInfos(
+            @NonNull WorkQuery workQuery) {
+        StatusRunnable<List<WorkInfo>> runnable =
+                StatusRunnable.forWorkQuerySpec(this, workQuery);
         mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
         return runnable.getFuture();
     }

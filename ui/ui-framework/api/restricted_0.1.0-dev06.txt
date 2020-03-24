@@ -9,8 +9,8 @@ package androidx.ui.core {
   }
 
   public final class DrawKt {
-    method public static inline void Draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
-    method public static inline void Draw(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
+    method @Deprecated public static inline void Draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
+    method @Deprecated public static inline void Draw(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
   }
 
   public final class DrawShadowKt {
@@ -23,10 +23,10 @@ package androidx.ui.core {
   }
 
   public final class LayoutKt {
-    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function3<? super androidx.ui.core.ModifierScope,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> maxIntrinsicHeightMeasureBlock, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
-    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
-    method @Deprecated public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit>![] childrenArray, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
-    method public static androidx.ui.core.LayoutNode.MeasureBlocks MeasuringIntrinsicsMeasureBlocks(kotlin.jvm.functions.Function3<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
+    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function4<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,? super androidx.ui.core.LayoutDirection,androidx.ui.unit.IntPx> minIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,? super androidx.ui.core.LayoutDirection,androidx.ui.unit.IntPx> minIntrinsicHeightMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,? super androidx.ui.core.LayoutDirection,androidx.ui.unit.IntPx> maxIntrinsicWidthMeasureBlock, kotlin.jvm.functions.Function4<? super androidx.ui.unit.Density,? super java.util.List<? extends androidx.ui.core.IntrinsicMeasurable>,? super androidx.ui.unit.IntPx,? super androidx.ui.core.LayoutDirection,androidx.ui.unit.IntPx> maxIntrinsicHeightMeasureBlock, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
+    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
+    method @Deprecated public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit>![] childrenArray, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super androidx.ui.core.MultiComposableMeasurables,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
+    method public static androidx.ui.core.LayoutNode.MeasureBlocks MeasuringIntrinsicsMeasureBlocks(kotlin.jvm.functions.Function4<? super androidx.ui.core.MeasureScope,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,? super androidx.ui.core.LayoutDirection,? extends androidx.ui.core.MeasureScope.LayoutResult> measureBlock);
     method public static inline void OnChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static inline void OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
     method public static void WithConstraints(androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function1<? super androidx.ui.core.Constraints,kotlin.Unit> children);
@@ -69,7 +69,7 @@ package androidx.ui.core {
   }
 
   public final class PainterModifierKt {
-    method public static androidx.ui.core.DrawModifier toModifier(androidx.ui.graphics.painter.Painter, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+    method public static androidx.ui.core.DrawModifier asModifier(androidx.ui.graphics.painter.Painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
   }
 
   public final class ParentDataKt {
@@ -141,6 +141,7 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<androidx.ui.text.font.Font.ResourceLoader> getFontLoaderAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.hapticfeedback.HapticFeedback> getHapticFeedBackAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.platform.PlatformHandler> getPlatformHandlerAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
     method public static androidx.compose.Composition setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
@@ -483,8 +484,8 @@ package androidx.ui.res {
   }
 
   public final class ImageResourcesKt {
-    method public static androidx.ui.graphics.Image imageResource(@DrawableRes int id);
-    method public static androidx.ui.res.DeferredResource<androidx.ui.graphics.Image> loadImageResource(int id, androidx.ui.graphics.Image? pendingImage = null, androidx.ui.graphics.Image? failedImage = null);
+    method public static androidx.ui.graphics.ImageAsset imageResource(@DrawableRes int id);
+    method public static androidx.ui.res.DeferredResource<androidx.ui.graphics.ImageAsset> loadImageResource(int id, androidx.ui.graphics.ImageAsset? pendingImage = null, androidx.ui.graphics.ImageAsset? failedImage = null);
   }
 
   public final class LoadedResource<T> extends androidx.ui.res.Resource<T> {

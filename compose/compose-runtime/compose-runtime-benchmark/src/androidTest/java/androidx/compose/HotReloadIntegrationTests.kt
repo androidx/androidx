@@ -21,9 +21,9 @@ import androidx.compose.benchmark.ComposeActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.Text
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.setContent
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
 import androidx.ui.material.DrawerState
 import androidx.ui.material.ModalDrawerLayout
@@ -55,7 +55,7 @@ class HotReloadIntegrationTests {
         activity.uiThread {
             activity.setContent {
                 Column {
-                    WithConstraints {
+                    WithConstraints { _, _ ->
                         val state = state { DrawerState.Closed }
                         ModalDrawerLayout(
                             drawerState = state.value,
@@ -69,7 +69,7 @@ class HotReloadIntegrationTests {
         }
 
         activity.onNextFrame {
-            Compose.simulateHotReload(activity)
+            simulateHotReload(activity)
         }
     }
 }

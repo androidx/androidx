@@ -72,7 +72,28 @@ import java.lang.annotation.Target;
  * UPDATE or DELETE queries can return {@code void} or {@code int}. If it is an {@code int},
  * the value is the number of rows affected by this query.
  * <p>
- * <b>RxJava2</b> If you are using RxJava2, you can also return {@code Flowable<T>} or
+ * <b>Flow</b>
+ * <p>
+ * If you are using Kotlin, you can also return {@code Flow<T>} from query methods. This creates a
+ * {@code Flow<T>} object that emits the results of the query and re-dispatches the query every
+ * time the data in the queried table changes.
+ * <p>
+ * Note that querying a table with a return type of {@code Flow<T>} always returns the first row
+ * in the result set, rather than emitting all of the rows in sequence. To observe changes over
+ * multiple rows in a table, use a return type of {@code Flow<List<T>>} instead.
+ * <p>
+ * Keep nullability in mind when choosing a return type, as it affects how the query method handles
+ * empty tables:
+ * <ul>
+ * <li> <p>When the return type is {@code Flow<T>}, querying an empty table throws a null pointer
+ * exception.
+ * <li> <p>When the return type is {@code Flow<T?>}, querying an empty table emits a null value.
+ * <li> <p>When the return type is {@code Flow<List<T>>}, querying an empty table emits an empty
+ * list. </ul>
+ * <p>
+ * <b>RxJava2</b>
+ * <p>
+ * If you are using RxJava2, you can also return {@code Flowable<T>} or
  * {@code Publisher<T>} from query methods. Since Reactive Streams does not allow {@code null}, if
  * the query returns a nullable type, it will not dispatch anything if the value is {@code null}
  * (like fetching an {@link Entity} row that does not exist).

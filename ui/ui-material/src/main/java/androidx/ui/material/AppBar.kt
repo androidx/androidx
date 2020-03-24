@@ -17,11 +17,12 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.Immutable
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LastBaseline
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
@@ -42,8 +43,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.layout.Spacer
 import androidx.ui.material.BottomAppBar.FabConfiguration
-import androidx.ui.material.surface.Surface
-import androidx.ui.material.surface.primarySurface
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -78,32 +77,35 @@ import kotlin.math.sqrt
 @Composable
 fun TopAppBar(
     title: @Composable() () -> Unit,
+    modifier: Modifier = Modifier.None,
     navigationIcon: @Composable() (() -> Unit)? = null,
     actions: @Composable() RowScope.() -> Unit = {},
-    color: Color = MaterialTheme.colors().primarySurface,
+    color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = TopAppBarElevation
 ) {
-    AppBar(color, contentColor, elevation, RectangleShape) {
+    AppBar(color, contentColor, elevation, RectangleShape, modifier) {
+        val emphasisLevels = MaterialTheme.emphasisLevels
         if (navigationIcon == null) {
             Spacer(LayoutWidth(TitleInsetWithoutIcon))
         } else {
             // TODO: make this a row after b/148014745 is fixed
             Box(
                 LayoutHeight.Fill + LayoutWidth(TitleInsetWithIcon),
-                gravity = ContentGravity.CenterStart,
-                children = navigationIcon
-            )
+                gravity = ContentGravity.CenterStart
+            ) {
+                ProvideEmphasis(emphasisLevels.high, navigationIcon)
+            }
         }
 
         // TODO(soboleva): rework this once AlignmentLineOffset is a modifier
-        Box(LayoutHeight.Fill + LayoutFlexible(1f), gravity = ContentGravity.BottomStart) {
+        Box(LayoutHeight.Fill + LayoutWeight(1f), gravity = ContentGravity.BottomStart) {
             val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
             AlignmentLineOffset(alignmentLine = LastBaseline, after = baselineOffset) {
                 Semantics(container = true) {
-                    CurrentTextStyleProvider(value = MaterialTheme.typography().h6) {
+                    ProvideTextStyle(value = MaterialTheme.typography.h6) {
                         Row {
-                            title()
+                            ProvideEmphasis(emphasisLevels.high, title)
                         }
                     }
                 }
@@ -112,7 +114,11 @@ fun TopAppBar(
 
         // TODO: remove box and center align row's children after b/148014745 is fixed
         Box(modifier = LayoutHeight.Fill, gravity = ContentGravity.CenterEnd) {
-            Row(arrangement = Arrangement.End, children = actions)
+            Row(arrangement = Arrangement.End) {
+                ProvideEmphasis(emphasisLevels.medium) {
+                    actions()
+                }
+            }
         }
     }
 }
@@ -134,12 +140,13 @@ fun TopAppBar(
  */
 @Composable
 fun TopAppBar(
-    color: Color = MaterialTheme.colors().primarySurface,
+    modifier: Modifier = Modifier.None,
+    color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = TopAppBarElevation,
     children: @Composable() RowScope.() -> Unit
 ) {
-    AppBar(color, contentColor, elevation, RectangleShape, children)
+    AppBar(color, contentColor, elevation, RectangleShape, modifier = modifier, children = children)
 }
 
 object BottomAppBar {
@@ -218,7 +225,8 @@ object BottomAppBar {
  */
 @Composable
 fun BottomAppBar(
-    color: Color = MaterialTheme.colors().primarySurface,
+    modifier: Modifier = Modifier.None,
+    color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     fabConfiguration: FabConfiguration? = null,
     cutoutShape: Shape? = null,
@@ -233,9 +241,10 @@ fun BottomAppBar(
             fabConfiguration.fabSize.toPxSize()
         )
     }
-    AppBar(color, contentColor, BottomAppBarElevation, shape) {
+    AppBar(color, contentColor, BottomAppBarElevation, shape, modifier) {
         // TODO: remove box and inline row's children after b/148014745 is fixed
         Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
+            // TODO: b/150609566 clarify emphasis for children
             Row(LayoutWidth.Fill, children = children)
         }
     }
@@ -481,9 +490,16 @@ private fun AppBar(
     contentColor: Color,
     elevation: Dp,
     shape: Shape,
+    modifier: Modifier = Modifier.None,
     children: @Composable() RowScope.() -> Unit
 ) {
-    Surface(color = color, contentColor = contentColor, elevation = elevation, shape = shape) {
+    Surface(
+        color = color,
+        contentColor = contentColor,
+        elevation = elevation,
+        shape = shape,
+        modifier = modifier
+    ) {
         Row(
             LayoutWidth.Fill + LayoutPadding(
                 start = AppBarHorizontalPadding,

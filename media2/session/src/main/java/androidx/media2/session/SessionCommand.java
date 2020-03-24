@@ -568,12 +568,6 @@ public final class SessionCommand implements VersionedParcelable {
                         COMMAND_CODE_SESSION_REWIND,
                         COMMAND_CODE_SESSION_SKIP_FORWARD,
                         COMMAND_CODE_SESSION_SKIP_BACKWARD,
-                        COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
-                        COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
-                        COMMAND_CODE_SESSION_PLAY_FROM_URI,
-                        COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
-                        COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
-                        COMMAND_CODE_SESSION_PREPARE_FROM_URI,
                         COMMAND_CODE_SESSION_SET_RATING));
     }
 

@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo
 /**
  * Span that change font feature settings for font.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class FontFeatureSpan(val fontFeatureSettings: String) : MetricAffectingSpan() {

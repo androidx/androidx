@@ -109,7 +109,7 @@ class SplitLayout : FrameLayout {
     }
 
     /**
-     * Get the position of the split for this view.
+     * Gets the position of the split for this view.
      * @return A rect that defines of split, or {@code null} if there is no split.
      */
     private fun splitViewPositions(startView: View?, endView: View?): Array<Rect>? {
@@ -165,7 +165,7 @@ class SplitLayout : FrameLayout {
     }
 
     /**
-     * Measure a child view and see it if will fit in the provided rect.
+     * Measures a child view and sees if it will fit in the provided rect.
      * <p>Note: This method calls [View.measure] on the child view, which updates
      * its stored values for measured with and height. If the view will end up with different
      * values, it should be measured again.

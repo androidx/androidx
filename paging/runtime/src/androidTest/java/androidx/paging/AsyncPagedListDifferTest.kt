@@ -60,12 +60,12 @@ class AsyncPagedListDifferTest {
         return differ
     }
 
+    @Suppress("DEPRECATION")
     private fun <V : Any> createPagedListFromListAndPos(
         config: PagedList.Config,
         data: List<V>,
         initialKey: Int
     ): PagedList<V> {
-        @Suppress("DEPRECATION")
         return PagedList.Builder(ListDataSource(data), config)
             .setInitialKey(initialKey)
             .setNotifyExecutor(mainThread)
@@ -165,6 +165,7 @@ class AsyncPagedListDifferTest {
 
     @Test
     fun pagingInContent() {
+        @Suppress("DEPRECATION")
         val config = PagedList.Config.Builder()
             .setInitialLoadSizeHint(4)
             .setPageSize(2)
@@ -214,6 +215,7 @@ class AsyncPagedListDifferTest {
     @Test
     fun simpleSwap() {
         // Page size large enough to load
+        @Suppress("DEPRECATION")
         val config = PagedList.Config.Builder()
             .setPageSize(50)
             .build()
@@ -247,6 +249,7 @@ class AsyncPagedListDifferTest {
 
     @Test
     fun oldListUpdateIgnoredWhileDiffing() {
+        @Suppress("DEPRECATION")
         val config = PagedList.Config.Builder()
             .setInitialLoadSizeHint(4)
             .setPageSize(2)
@@ -358,6 +361,7 @@ class AsyncPagedListDifferTest {
         val differ = createDiffer(callback)
         differAccessor[0] = differ
 
+        @Suppress("DEPRECATION")
         val config = PagedList.Config.Builder()
             .setPageSize(20)
             .build()
@@ -386,6 +390,7 @@ class AsyncPagedListDifferTest {
     fun loadAroundHandlePrepend() {
         val differ = createDiffer()
 
+        @Suppress("DEPRECATION")
         val config = PagedList.Config.Builder()
             .setPageSize(5)
             .setEnablePlaceholders(false)
@@ -406,6 +411,7 @@ class AsyncPagedListDifferTest {
     @Test
     fun submitSubset() {
         // Page size large enough to load
+        @Suppress("DEPRECATION")
         val config = PagedList.Config.Builder()
             .setInitialLoadSizeHint(4)
             .setPageSize(2)
@@ -522,9 +528,11 @@ class AsyncPagedListDifferTest {
     @Test
     fun addRemovePagedListCallback() {
         val differ = createDiffer()
+        @Suppress("DEPRECATION")
         val noopCallback = { _: PagedList<String>?, _: PagedList<String>? -> }
         differ.addPagedListListener(noopCallback)
         assert(differ.listeners.size == 1)
+        @Suppress("DEPRECATION")
         differ.removePagedListListener { _: PagedList<String>?, _: PagedList<String>? -> }
         assert(differ.listeners.size == 1)
         differ.removePagedListListener(noopCallback)

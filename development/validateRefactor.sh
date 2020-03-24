@@ -106,13 +106,19 @@ function checkout() {
   done
 }
 function doBuild() {
-  echoAndDo ./gradlew createArchive generateDocs
+  echoAndDo ./gradlew createArchive generateDocs --no-daemon --rerun-tasks --offline
   archiveName="top-of-tree-m2repository-all-0.zip"
   echoAndDo unzip -q "${tempOutPath}/dist/${archiveName}" -d "${tempOutPath}/dist/${archiveName}.unzipped"
 }
 
 oldCommits="$(expandCommitArgs $@)"
 projectPaths="$(getParticipatingProjectPaths $oldCommits)"
+if echo $projectPaths | grep external/dokka >/dev/null; then
+  if [ "$BUILD_DOKKA" == "" ]; then
+    echo "It doesn't make sense to include the external/dokka project without also setting BUILD_DOKKA=true. Did you mean to set BUILD_DOKKA=true?"
+    exit 1
+  fi
+fi
 echo old commits: $oldCommits
 if [ "$oldCommits" == "" ]; then
   usage

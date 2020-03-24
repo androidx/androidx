@@ -21,30 +21,39 @@
 
     <style name="Widget.Autofill.InlineSuggestionChip">
         <item name="android:background">@drawable/autofill_inline_suggestion_chip_background</item>
-        <item name="android:paddingLeft">6dp</item>
-        <item name="android:paddingRight">6dp</item>
-        <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingBottom">5dp</item>
+        <item name="android:paddingLeft">11dp</item>
+        <item name="android:paddingRight">11dp</item>
     </style>
 
     <style name="Widget.Autofill.InlineSuggestionStartIconStyle">
         <item name="android:scaleType">fitCenter</item>
+        <item name="android:maxWidth">@dimen/autofill_inline_suggestion_icon_size</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginRight">2dp</item>
     </style>
 
     <style name="Widget.Autofill.InlineSuggestionTitle" parent="@android:style/TextAppearance">
-        <item name="android:textColor">#FF424242</item>
-        <item name="android:textSize">21dp</item>
+        <item name="android:textColor">#FF202124</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:typeface">sans</item>
+        <item name="android:layout_marginLeft">6dp</item>
+        <item name="android:layout_marginRight">6dp</item>
     </style>
 
     <style name="Widget.Autofill.InlineSuggestionSubtitle" parent="@android:style/TextAppearance">
-        <item name="android:textColor">#66FFFFFF</item>
-        <item name="android:textSize">10dp</item>
+        <item name="android:textColor">#FF5F6368</item>
+        <item name="android:textSize">12dp</item>
         <item name="android:typeface">sans</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginRight">6dp</item>
     </style>
 
     <style name="Widget.Autofill.InlineSuggestionEndIconStyle">
         <item name="android:scaleType">fitCenter</item>
+        <item name="android:maxWidth">@dimen/autofill_inline_suggestion_icon_size</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginRight">2dp</item>
     </style>
 </resources>

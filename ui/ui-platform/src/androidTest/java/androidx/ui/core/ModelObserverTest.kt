@@ -17,15 +17,10 @@
 package androidx.ui.core
 
 import androidx.compose.FrameManager
-import androidx.compose.annotations.Hide
-import androidx.compose.frames.AbstractRecord
-import androidx.compose.frames.Framed
-import androidx.compose.frames.Record
-import androidx.compose.frames._created
+import androidx.compose.MutableState
 import androidx.compose.frames.commit
 import androidx.compose.frames.open
-import androidx.compose.frames.readable
-import androidx.compose.frames.writable
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -44,7 +39,7 @@ class ModelObserverTest {
         val node = DrawNode()
         val countDownLatch = CountDownLatch(1)
 
-        val model = State(0)
+        val model = mutableStateOf(0)
         val modelObserver = ModelObserver { it() }
         modelObserver.enableModelUpdatesObserving(true)
 
@@ -76,9 +71,9 @@ class ModelObserverTest {
         val drawLatch = CountDownLatch(1)
         val measureLatch = CountDownLatch(1)
         val layoutLatch = CountDownLatch(1)
-        val drawModel = State(0)
-        val measureModel = State(0)
-        val layoutModel = State(0)
+        val drawModel = mutableStateOf(0)
+        val measureModel = mutableStateOf(0)
+        val layoutModel = mutableStateOf(0)
 
         val onCommitDrawListener: (DrawNode) -> Unit = { affectedNode ->
             assertEquals(drawNode, affectedNode)
@@ -132,9 +127,9 @@ class ModelObserverTest {
         val layoutLatch1 = CountDownLatch(1)
         val layoutLatch2 = CountDownLatch(1)
         val measureLatch = CountDownLatch(1)
-        val layoutModel1 = State(0)
-        val layoutModel2 = State(0)
-        val measureModel = State(0)
+        val layoutModel1 = mutableStateOf(0)
+        val layoutModel2 = mutableStateOf(0)
+        val measureModel = mutableStateOf(0)
 
         val onCommitMeasureListener: (LayoutNode) -> Unit = { affectedNode ->
             assertEquals(affectedNode, measureNode)
@@ -188,7 +183,7 @@ class ModelObserverTest {
         val node = DrawNode()
         val countDownLatch = CountDownLatch(1)
 
-        val model = State(0)
+        val model = mutableStateOf(0)
         val onCommitListener: (DrawNode) -> Unit = { _ ->
             assertEquals(1, countDownLatch.count)
             countDownLatch.countDown()
@@ -282,9 +277,11 @@ class ModelObserverTest {
         assertEquals(1, commits2)
     }
 
-    private fun runSimpleTest(block: (modelObserver: ModelObserver, model: State<Int>) -> Unit) {
+    private fun runSimpleTest(
+        block: (modelObserver: ModelObserver, model: MutableState<Int>) -> Unit
+    ) {
         val modelObserver = ModelObserver { it() }
-        val model = State(0)
+        val model = mutableStateOf(0)
 
         modelObserver.enableModelUpdatesObserving(true)
         try {
@@ -295,49 +292,5 @@ class ModelObserverTest {
         } finally {
             modelObserver.enableModelUpdatesObserving(false)
         }
-    }
-}
-
-// @Model generation is not enabled for this module and androidx.compose.State is internal
-// TODO make State's constructor public and remove the copied code. b/142883125
-private class State<T> constructor(value: T) : Framed {
-
-    @Suppress("UNCHECKED_CAST")
-    var value: T
-        get() = next.readable(this).value
-        set(value) {
-            next.writable(this).value = value
-        }
-
-    private var next: StateRecord<T> =
-        StateRecord(value)
-
-    init {
-        _created(this)
-    }
-
-    // NOTE(lmr): ideally we can compile `State` with our own compiler so that this is not visible
-    @Hide
-    override val firstFrameRecord: Record
-        get() = next
-
-    // NOTE(lmr): ideally we can compile `State` with our own compiler so that this is not visible
-    @Hide
-    override fun prependFrameRecord(value: Record) {
-        value.next = next
-        @Suppress("UNCHECKED_CAST")
-        next = value as StateRecord<T>
-    }
-
-    private class StateRecord<T>(myValue: T) : AbstractRecord() {
-        override fun assign(value: Record) {
-            @Suppress("UNCHECKED_CAST")
-            this.value = (value as StateRecord<T>).value
-        }
-
-        override fun create(): Record =
-            StateRecord(value)
-
-        var value: T = myValue
     }
 }

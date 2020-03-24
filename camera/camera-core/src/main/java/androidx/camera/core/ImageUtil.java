@@ -256,6 +256,7 @@ final class ImageUtil {
         ImageProxy.PlaneProxy[] planes = image.getPlanes();
         ByteBuffer buffer = planes[0].getBuffer();
         byte[] data = new byte[buffer.capacity()];
+        buffer.rewind();
         buffer.get(data);
         if (shouldCropImage(image)) {
             data = cropByteArray(data, image.getCropRect());

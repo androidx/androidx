@@ -107,10 +107,15 @@ class AnnotatedStringTest {
             Item(ParagraphStyle(lineHeight = 20.sp), 0, 1),
             Item(ParagraphStyle(lineHeight = 30.sp), 1, 5)
         )
+        val annotations1 = listOf(
+            Item("annotation1", 0, 2, "scope1"),
+            Item("annotation1", 3, 5, "scope1")
+        )
         val annotatedString1 = AnnotatedString(
             text = text1,
             spanStyles = spanStyles1,
-            paragraphStyles = paragraphStyles1
+            paragraphStyles = paragraphStyles1,
+            annotations = annotations1
         )
 
         val text2 = "World"
@@ -119,7 +124,8 @@ class AnnotatedStringTest {
         val annotatedString2 = AnnotatedString(
             text = text2,
             spanStyles = listOf(Item(spanStyle, 0, text2.length)),
-            paragraphStyles = listOf(Item(paragraphStyle, 0, text2.length))
+            paragraphStyles = listOf(Item(paragraphStyle, 0, text2.length)),
+            annotations = listOf(Item("annotation2", 0, text2.length, "scope2"))
         )
 
         assertThat(annotatedString1 + annotatedString2).isEqualTo(
@@ -130,6 +136,9 @@ class AnnotatedStringTest {
                 ),
                 paragraphStyles1 + listOf(
                     Item(paragraphStyle, text1.length, text1.length + text2.length)
+                ),
+                annotations1 + listOf(
+                    Item("annotation2", text1.length, text1.length + text2.length, "scope2")
                 )
             )
         )
@@ -160,6 +169,24 @@ class AnnotatedStringTest {
         assertThat(annotatedString).isEqualTo(
             AnnotatedString("", listOf(Item(SpanStyle(fontSize = 12.sp), 0, 0)))
         )
+    }
+
+    @Test
+    fun subSequence_returns_original_text_for_text_range_is_full_range() {
+        val annotatedString = with(AnnotatedString.Builder()) {
+            withStyle(SpanStyle(fontSize = 12.sp)) {
+                append("a")
+            }
+            withStyle(SpanStyle(fontSize = 12.sp)) {
+                append("b")
+            }
+            withStyle(ParagraphStyle(lineHeight = 14.sp)) {
+                append("c")
+            }
+            toAnnotatedString()
+        }
+
+        assertThat(annotatedString.subSequence(0, 3)).isSameInstanceAs(annotatedString)
     }
 
     @Test
@@ -293,6 +320,109 @@ class AnnotatedStringTest {
         val subSequence = annotatedString.subSequence("a".length, "abcd".length)
 
         assertThat(subSequence).isEqualTo(expectedString)
+    }
+
+    @Test
+    fun subSequence_withAnnotations_noIntersection() {
+        val annotatedString = AnnotatedString {
+            append("ab")
+            pushAnnotationString("scope1", "annotation1")
+            append("cd")
+            pop()
+            append("ef")
+        }
+
+        assertThat(annotatedString.subSequence(0, 2)).isEqualTo(AnnotatedString("ab"))
+        assertThat(annotatedString.subSequence(4, 6)).isEqualTo(AnnotatedString("ef"))
+    }
+
+    @Test
+    fun subSequence_withAnnotations_collapsedRange() {
+        val annotatedString = AnnotatedString {
+            append("ab")
+            pushAnnotationString("scope1", "annotation1")
+            append("cd")
+            pop()
+            append("ef")
+        }
+        // Collapsed range equals to end, no annotation
+        assertThat(annotatedString.subSequence(4, 4))
+            .isEqualTo(AnnotatedString(""))
+
+        // Collapsed range equals to start, has annotation
+        assertThat(annotatedString.subSequence(2, 2))
+            .isEqualTo(
+                AnnotatedString(
+                    "",
+                    annotations = listOf(Item("annotation1", 0, 0, "scope1"))
+                )
+            )
+
+        // Collapsed range covered by annotation, has annotation
+        assertThat(annotatedString.subSequence(3, 3))
+            .isEqualTo(
+                AnnotatedString(
+                    "",
+                    annotations = listOf(Item("annotation1", 0, 0, "scope1"))
+                )
+            )
+    }
+
+    @Test
+    fun subSequence_withAnnotations_hasIntersection() {
+        val annotatedString = AnnotatedString {
+            append("ab")
+            pushAnnotationString("scope1", "annotation1")
+            append("cd")
+            pop()
+            append("ef")
+        }
+        // Overlapping range, has annotation
+        assertThat(annotatedString.subSequence(0, 3))
+            .isEqualTo(
+                AnnotatedString(
+                    "abc",
+                    annotations = listOf(Item("annotation1", 2, 3, "scope1"))
+                )
+            )
+
+        // Overlapping, has annotation
+        assertThat(annotatedString.subSequence(3, 5))
+            .isEqualTo(
+                AnnotatedString(
+                    "de",
+                    annotations = listOf(Item("annotation1", 0, 1, "scope1"))
+                )
+            )
+    }
+
+    @Test
+    fun subSequence_withAnnotations_containsRange() {
+        val annotatedString = AnnotatedString {
+            append("ab")
+            pushAnnotationString("scope1", "annotation1")
+            append("cd")
+            pop()
+            append("ef")
+        }
+
+        // Contains range, has annotation
+        assertThat(annotatedString.subSequence(0, 5))
+            .isEqualTo(
+                AnnotatedString(
+                    "abcde",
+                    annotations = listOf(Item("annotation1", 2, 4, "scope1"))
+                )
+            )
+
+        // Full range, has annotation
+        assertThat(annotatedString.subSequence(2, 4))
+            .isEqualTo(
+                AnnotatedString(
+                    "cd",
+                    annotations = listOf(Item("annotation1", 0, 2, "scope1"))
+                )
+            )
     }
 
     @Test(expected = IllegalArgumentException::class)

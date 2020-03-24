@@ -22,13 +22,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingConfig
 import androidx.paging.PagingDataFlow
 import androidx.paging.cachedIn
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import androidx.paging.insertSeparators
 import kotlinx.coroutines.flow.map
 
-@ExperimentalCoroutinesApi
 class V3ViewModel : ViewModel() {
-    @FlowPreview
     val flow = PagingDataFlow(PagingConfig(10), ItemPagingSource.Factory)
         .map { pagingData ->
             pagingData
@@ -53,8 +50,8 @@ class V3ViewModel : ViewModel() {
                         )
                     } else null
                 }
-                .addHeader(Item(Int.MIN_VALUE, "HEADER", Color.MAGENTA))
-                .addFooter(Item(Int.MAX_VALUE, "FOOTER", Color.MAGENTA))
+                .insertHeaderItem(Item(Int.MIN_VALUE, "HEADER", Color.MAGENTA))
+                .insertFooterItem(Item(Int.MAX_VALUE, "FOOTER", Color.MAGENTA))
         }
         .cachedIn(viewModelScope)
 }

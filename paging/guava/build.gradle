@@ -31,7 +31,7 @@ dependencies {
     api(KOTLIN_STDLIB)
     api(project(":concurrent:concurrent-futures-ktx"))
 
-    testImplementation project(':internal-testutils-common')
+    testImplementation(project(":internal-testutils-common"))
     testImplementation(JUNIT)
     testImplementation(KOTLIN_TEST)
 }

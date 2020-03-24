@@ -547,7 +547,7 @@ public class ObjectAdapterTest {
         mAdapter.setItems(mItems, mCallbackWithoutPayload);
 
         // verify method dispatching
-        Mockito.verify(mObserver).onItemRangeMoved(1, 0, 1);
+        Mockito.verify(mObserver).onItemRangeMoved(0, 1, 1);
     }
 
     /**
@@ -651,7 +651,7 @@ public class ObjectAdapterTest {
 
         // verify method dispatching
         Mockito.verify(mObserver).onItemRangeChanged(0, 1, null);
-        Mockito.verify(mObserver).onItemRangeMoved(2, 1, 1);
+        Mockito.verify(mObserver).onItemRangeMoved(1, 2, 1);
     }
 
     /**

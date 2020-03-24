@@ -1,5 +1,3 @@
 // Baseline format: 1.0
-DocumentExceptions: androidx.ui.layout.FlexChildren#expanded(float, kotlin.jvm.functions.Function0<kotlin.Unit>):
-    Method FlexChildren.expanded appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.layout.FlexChildren#flexible(float, kotlin.jvm.functions.Function0<kotlin.Unit>):
-    Method FlexChildren.flexible appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+HiddenTypeParameter: androidx.ui.layout.Arrangement#Companion:
+    Field Arrangement.Companion references hidden type androidx.ui.layout.Arrangement.Companion.

@@ -27,7 +27,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -224,8 +223,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
             return null;
         }
 
-        LayoutInflater inflater = LayoutInflater.from(context);
-        return inflater.inflate(resId, null);
+        return getLayoutInflater().inflate(resId, null);
     }
 
     /**

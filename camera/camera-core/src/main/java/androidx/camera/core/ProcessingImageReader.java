@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.media.ImageReader;
-import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -30,7 +29,6 @@ import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageReaderProxy;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -121,8 +119,12 @@ class ProcessingImageReader implements ImageReaderProxy {
     @Nullable
     Executor mExecutor;
 
+    /** The Executor to execute the image post processing task. */
     @NonNull
-    CaptureProcessor mCaptureProcessor;
+    final Executor mPostProcessExecutor;
+
+    @NonNull
+    final CaptureProcessor mCaptureProcessor;
 
     @GuardedBy("mLock")
     SettableImageProxyBundle mSettableImageProxyBundle = null;
@@ -132,33 +134,26 @@ class ProcessingImageReader implements ImageReaderProxy {
     /**
      * Create a {@link ProcessingImageReader} with specific configurations.
      *
-     * @param width            Width of the ImageReader
-     * @param height           Height of the ImageReader
-     * @param format           Image format
-     * @param maxImages        Maximum Image number the ImageReader can hold. The capacity should
-     *                         be greater than the captureBundle size in order to hold all the
-     *                         Images needed with this processing.
-     * @param handler          Handler for executing
-     *                         {@link ImageReaderProxy.OnImageAvailableListener}
-     * @param captureBundle    The {@link CaptureBundle} includes the processing information
-     * @param captureProcessor The {@link CaptureProcessor} to be invoked when the Images are ready
+     * @param width               Width of the ImageReader
+     * @param height              Height of the ImageReader
+     * @param format              Image format
+     * @param maxImages           Maximum Image number the ImageReader can hold. The capacity should
+     *                            be greater than the captureBundle size in order to hold all the
+     *                            Images needed with this processing.
+     * @param postProcessExecutor The Executor to execute the post-process of the image result.
+     * @param captureBundle       The {@link CaptureBundle} includes the processing information
+     * @param captureProcessor    The {@link CaptureProcessor} to be invoked when the Images are
+     *                            ready
      */
     ProcessingImageReader(int width, int height, int format, int maxImages,
-            @Nullable Handler handler,
+            @NonNull Executor postProcessExecutor,
             @NonNull CaptureBundle captureBundle, @NonNull CaptureProcessor captureProcessor) {
-        mInputImageReader = new MetadataImageReader(
-                width,
-                height,
-                format,
-                maxImages,
-                handler);
-        mOutputImageReader = new AndroidImageReaderProxy(
-                ImageReader.newInstance(width, height, format, maxImages));
-
-        init(CameraXExecutors.newHandlerExecutor(handler), captureBundle, captureProcessor);
+        this(new MetadataImageReader(width, height, format, maxImages), postProcessExecutor,
+                captureBundle, captureProcessor);
     }
 
-    ProcessingImageReader(ImageReaderProxy imageReader, @Nullable Handler handler,
+    ProcessingImageReader(@NonNull ImageReaderProxy imageReader,
+            @NonNull Executor postProcessExecutor,
             @NonNull CaptureBundle captureBundle,
             @NonNull CaptureProcessor captureProcessor) {
         if (imageReader.getMaxImages() < captureBundle.getCaptureStages().size()) {
@@ -171,15 +166,7 @@ class ProcessingImageReader implements ImageReaderProxy {
                         imageReader.getHeight(), imageReader.getImageFormat(),
                         imageReader.getMaxImages()));
 
-        init(CameraXExecutors.newHandlerExecutor(handler), captureBundle, captureProcessor);
-    }
-
-    @SuppressWarnings("GuardedBy") // TODO(b/141958189): Suppressed during upgrade to AGP 3.6.
-    private void init(@NonNull Executor executor, @NonNull CaptureBundle captureBundle,
-            @NonNull CaptureProcessor captureProcessor) {
-        mExecutor = executor;
-        mInputImageReader.setOnImageAvailableListener(mTransformedListener, executor);
-        mOutputImageReader.setOnImageAvailableListener(mImageProcessedListener, executor);
+        mPostProcessExecutor = postProcessExecutor;
         mCaptureProcessor = captureProcessor;
         mCaptureProcessor.onOutputSurface(mOutputImageReader.getSurface(), getImageFormat());
         mCaptureProcessor.onResolutionUpdate(
@@ -255,13 +242,6 @@ class ProcessingImageReader implements ImageReaderProxy {
     }
 
     @Override
-    public void setOnImageAvailableListener(
-            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
-            @Nullable Handler handler) {
-        setOnImageAvailableListener(listener, CameraXExecutors.newHandlerExecutor(handler));
-    }
-
-    @Override
     public void setOnImageAvailableListener(@NonNull OnImageAvailableListener listener,
             @NonNull Executor executor) {
         // TODO(b/115747543) support callback on executor
@@ -314,7 +294,7 @@ class ProcessingImageReader implements ImageReaderProxy {
             futureList.add(mSettableImageProxyBundle.getImageProxy(id));
         }
         Futures.addCallback(Futures.allAsList(futureList), mCaptureStageReadyCallback,
-                CameraXExecutors.directExecutor());
+                mPostProcessExecutor);
     }
 
     // Incoming Image from InputImageReader. Acquires it and add to SettableImageProxyBundle.

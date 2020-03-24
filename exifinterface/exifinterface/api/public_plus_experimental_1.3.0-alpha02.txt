@@ -97,6 +97,7 @@ package androidx.exifinterface.media {
     field public static final String GPS_SPEED_KILOMETERS_PER_HOUR = "K";
     field public static final String GPS_SPEED_KNOTS = "N";
     field public static final String GPS_SPEED_MILES_PER_HOUR = "M";
+    field public static final long INVALID_DATE_TIME = -9223372036854775808L; // 0x8000000000000000L
     field public static final String LATITUDE_NORTH = "N";
     field public static final String LATITUDE_SOUTH = "S";
     field public static final short LIGHT_SOURCE_CLOUDY_WEATHER = 10; // 0xa

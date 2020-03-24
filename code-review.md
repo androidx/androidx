@@ -28,6 +28,7 @@
      comments or reassigning to a better reviewer
 *   Within 16 working hours, review changes if you are not assignee on. It is appropriate to
  remove yourself from the review if you are not expecting to review the given change.
+*   If already CR+2'ed by someone else, it is not required to give CR+2 again
 *   Prioritize reviews from other timezones (_e.g. MTV reviewers should review LON changes before 11am if possible to expedite the change_)
 *   Pay attention to the phrasing of your review comments
     *   Avoid using subjective statements such as “I don’t like it” or “This is bad”, use actionable ones like “Added APIs could cause performance issues, consider using Foo instead” or “Use more meaningful variable names”

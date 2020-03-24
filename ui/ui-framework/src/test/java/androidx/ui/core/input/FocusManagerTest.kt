@@ -16,6 +16,8 @@
 
 package androidx.ui.core.input
 
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -31,11 +33,11 @@ class FocusManagerTest {
     fun requestFocusTest() {
         val FocusNode1: FocusManager.FocusNode = mock()
 
-        val fm = FocusManager()
+        val fm = FocusManagerImpl()
         fm.requestFocus(FocusNode1)
 
         verify(FocusNode1, times(1)).onFocus()
-        verify(FocusNode1, never()).onBlur()
+        verify(FocusNode1, never()).onBlur(eq(true /* hasNextClient */))
     }
 
     @Test
@@ -43,14 +45,14 @@ class FocusManagerTest {
         val FocusNode1: FocusManager.FocusNode = mock()
         val FocusNode2: FocusManager.FocusNode = mock()
 
-        val fm = FocusManager()
+        val fm = FocusManagerImpl()
         fm.requestFocus(FocusNode1)
         fm.requestFocus(FocusNode2)
 
         // onBlur must be called to currently focused object, then onFocus is called to the next
         // object.
         inOrder(FocusNode1, FocusNode2) {
-            verify(FocusNode1, times(1)).onBlur()
+            verify(FocusNode1, times(1)).onBlur(eq(true /* hasNextClient */))
             verify(FocusNode2, times(1)).onFocus()
         }
     }
@@ -59,15 +61,15 @@ class FocusManagerTest {
     fun requestFocus_doNothingIfAlreadyFocused() {
         val FocusNode1: FocusManager.FocusNode = mock()
 
-        val fm = FocusManager()
+        val fm = FocusManagerImpl()
         fm.requestFocus(FocusNode1)
         verify(FocusNode1, times(1)).onFocus()
-        verify(FocusNode1, never()).onBlur()
+        verify(FocusNode1, never()).onBlur(any())
 
         // Either onFocus or onBlur must not be called for the already focused object.
         fm.requestFocus(FocusNode1)
         verify(FocusNode1, times(1)).onFocus()
-        verify(FocusNode1, never()).onBlur()
+        verify(FocusNode1, never()).onBlur(any())
     }
 
     @Test
@@ -75,12 +77,12 @@ class FocusManagerTest {
         val id = "Focus Node ID"
         val node = mock<FocusManager.FocusNode>()
 
-        val fm = FocusManager()
+        val fm = FocusManagerImpl()
 
         fm.registerFocusNode(id, node)
         fm.requestFocusById(id)
         verify(node, times(1)).onFocus()
-        verify(node, never()).onBlur()
+        verify(node, never()).onBlur(any())
     }
 
     @Test
@@ -88,13 +90,26 @@ class FocusManagerTest {
         val id = "Focus Node ID"
         val node = mock<FocusManager.FocusNode>()
 
-        val fm = FocusManager()
+        val fm = FocusManagerImpl()
 
         fm.registerFocusNode(id, node)
 
         fm.unregisterFocusNode(id)
         fm.requestFocusById(id)
         verify(node, never()).onFocus()
-        verify(node, never()).onBlur()
+        verify(node, never()).onBlur(any())
+    }
+
+    @Test
+    fun blur() {
+        val focusNode: FocusManager.FocusNode = mock()
+
+        val fm = FocusManagerImpl()
+        fm.requestFocus(focusNode)
+
+        // onBlur must be called to currently focused object, then onFocus is called to the next
+        // object.
+        fm.blur(focusNode)
+        verify(focusNode, times(1)).onBlur(eq(false /* hasNextClient */))
     }
 }

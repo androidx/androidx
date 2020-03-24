@@ -19,6 +19,8 @@ package androidx.camera.core.impl;
 import android.hardware.camera2.CameraCaptureSession.StateCallback;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
+
 import com.google.auto.value.AutoValue;
 
 import java.util.List;
@@ -40,14 +42,17 @@ public abstract class SurfaceConfig {
     /**
      * Creates a new instance of SurfaceConfig with the given parameters.
      */
-    public static SurfaceConfig create(ConfigType type, ConfigSize size) {
+    @NonNull
+    public static SurfaceConfig create(@NonNull ConfigType type, @NonNull ConfigSize size) {
         return new AutoValue_SurfaceConfig(type, size);
     }
 
     /** Returns the configuration type. */
+    @NonNull
     public abstract ConfigType getConfigType();
 
     /** Returns the configuration size. */
+    @NonNull
     public abstract ConfigSize getConfigSize();
 
     /**
@@ -57,7 +62,7 @@ public abstract class SurfaceConfig {
      * @param surfaceConfig the surface configuration to be compared
      * @return the check result that whether it could be supported
      */
-    public final boolean isSupported(SurfaceConfig surfaceConfig) {
+    public final boolean isSupported(@NonNull SurfaceConfig surfaceConfig) {
         boolean isSupported = false;
         ConfigType configType = surfaceConfig.getConfigType();
         ConfigSize configSize = surfaceConfig.getConfigSize();

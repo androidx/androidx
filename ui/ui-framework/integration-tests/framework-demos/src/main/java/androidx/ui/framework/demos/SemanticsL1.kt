@@ -16,22 +16,24 @@
 
 package androidx.ui.framework.demos
 
-import androidx.ui.layout.Row
-import androidx.ui.unit.PxPosition
-import androidx.ui.core.Text
-import androidx.ui.unit.dp
-import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.unit.px
-import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.material.Button
-import androidx.ui.material.MaterialTheme
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.Text
 import androidx.ui.layout.Arrangement
+import androidx.ui.layout.Column
 import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Row
+import androidx.ui.material.Button
+import androidx.ui.material.MaterialTheme
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
+import androidx.ui.unit.px
 
 /** A [SemanticProperty] is used to store semantic information about a component.
  *
@@ -141,15 +143,12 @@ enum class NavigationAction : ActionType { Back, Forward, Up, Down, Left, Right 
 fun PressGestureDetectorWithActions(
     onPress: SemanticAction<PxPosition> = SemanticAction(defaultParam = PxPosition.Origin) { },
     onRelease: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { },
-    onCancel: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { },
-    children: @Composable() () -> Unit
-) {
-    PressGestureDetector(
-        onPress = { onPress.action(ActionParam(ActionCaller.PointerInput, it)) },
-        onRelease = { onRelease.action(ActionParam(ActionCaller.PointerInput, Unit)) },
-        onCancel = { onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) },
-        children = children)
-}
+    onCancel: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { }
+) = PressIndicatorGestureDetector(
+        onStart = { onPress.action(ActionParam(ActionCaller.PointerInput, it)) },
+        onStop = { onRelease.action(ActionParam(ActionCaller.PointerInput, Unit)) },
+        onCancel = { onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) }
+    )
 
 /**
  * This is our lowest level API for Semantics.
@@ -174,10 +173,9 @@ fun Semantics(
             }
         }
         Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
-            Container(
-                height = 300.dp,
-                width = 500.dp,
-                modifier = LayoutGravity.Center,
+            Box(
+                LayoutGravity.Center + LayoutSize(500.dp, 300.dp),
+                gravity = ContentGravity.Center,
                 children = children
             )
         }
@@ -192,7 +190,7 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
     val primary = actions.firstOrNull { it.types.contains(AccessibilityAction.Primary) }
     val secondary =
         actions.firstOrNull { it.types.contains(AccessibilityAction.Secondary) }
-    Text(text = "Accessibility Actions By Type", style = MaterialTheme.typography().h6)
+    Text(text = "Accessibility Actions By Type", style = MaterialTheme.typography.h6)
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = { primary?.invoke(ActionCaller.Accessibility) }) {
             Text("Primary")
@@ -210,7 +208,8 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
 private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf()) {
     Text(
         text = "Accessibility Actions By Phrase",
-        style = MaterialTheme.typography().h6)
+        style = MaterialTheme.typography.h6
+    )
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         actions.forEach {
             Button(onClick = { it.invoke(ActionCaller.Accessibility) }) {
@@ -227,7 +226,7 @@ private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf
 private fun InvokeActionsByAssistantAction(actions: Set<SemanticAction<out Any?>> = setOf()) {
     val positive = actions.firstOrNull { it.types.contains(PolarityAction.Positive) }
     val negative = actions.firstOrNull { it.types.contains(PolarityAction.Negative) }
-    Text(text = "Assistant Actions", style = MaterialTheme.typography().h6)
+    Text(text = "Assistant Actions", style = MaterialTheme.typography.h6)
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = { negative?.invoke(ActionCaller.Assistant) }) {
             Text("Negative")
@@ -251,7 +250,7 @@ private fun InvokeActionsByParameters(actions: Set<SemanticAction<out Any?>> = s
     @Suppress("UNCHECKED_CAST")
     val unitAction =
         actions.firstOrNull { it.defaultParam is Unit } as SemanticAction<Unit>?
-    Text(text = "Actions using Parameters", style = MaterialTheme.typography().h6)
+    Text(text = "Actions using Parameters", style = MaterialTheme.typography.h6)
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = { pxPositionAction?.invoke(param = PxPosition(1.px, 1.px)) }) {
             Text("IntAction")

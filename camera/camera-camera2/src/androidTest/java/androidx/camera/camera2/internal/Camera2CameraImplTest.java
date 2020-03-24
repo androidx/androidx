@@ -22,7 +22,6 @@ import static junit.framework.TestCase.assertTrue;
 
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -41,12 +40,12 @@ import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
+import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
@@ -55,6 +54,7 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.CameraStateRegistry;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
@@ -62,7 +62,6 @@ import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeCamera;
@@ -91,10 +90,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -115,7 +112,8 @@ public final class Camera2CameraImplTest {
             CameraInternal.State.CLOSED,
             CameraInternal.State.OPEN,
             CameraInternal.State.RELEASED));
-    static CameraFactory sCameraFactory;
+
+    private static CameraFactory sCameraFactory;
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
@@ -125,7 +123,7 @@ public final class Camera2CameraImplTest {
     private Camera2CameraImpl mCamera2CameraImpl;
     private HandlerThread mCameraHandlerThread;
     private Handler mCameraHandler;
-    private SettableObservable<Integer> mAvailableCameras;
+    private CameraStateRegistry mCameraStateRegistry;
     Semaphore mSemaphore;
     OnImageAvailableListener mMockOnImageAvailableListener;
     String mCameraId;
@@ -157,10 +155,10 @@ public final class Camera2CameraImplTest {
         mCameraHandlerThread.start();
         mCameraHandler = new Handler(mCameraHandlerThread.getLooper());
         mSemaphore = new Semaphore(0);
-        mAvailableCameras = new SettableObservable<>(DEFAULT_AVAILABLE_CAMERA_COUNT);
+        mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
         mCamera2CameraImpl = new Camera2CameraImpl(
                 CameraManagerCompat.from(ApplicationProvider.getApplicationContext()), mCameraId,
-                mAvailableCameras, mCameraHandler);
+                mCameraStateRegistry, mCameraHandler, mCameraHandler);
     }
 
     @After
@@ -365,14 +363,14 @@ public final class Camera2CameraImplTest {
 
         UseCase useCase1 = createUseCase();
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+        DeferrableSurface surface1 = useCase1.getSessionConfig().getSurfaces().get(0);
 
         unblockHandler();
         HandlerUtil.waitForLooperToIdle(mCameraHandler);
 
         changeUseCaseSurface(useCase1);
         mCamera2CameraImpl.onUseCaseReset(useCase1);
-        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+        DeferrableSurface surface2 = useCase1.getSessionConfig().getSurfaces().get(0);
 
         // Wait for camera to be released to ensure it has finished closing
         ListenableFuture<Void> releaseFuture = mCamera2CameraImpl.release();
@@ -402,7 +400,7 @@ public final class Camera2CameraImplTest {
         CameraCaptureCallback captureCallback = mock(CameraCaptureCallback.class);
         CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
         captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        captureConfigBuilder.addSurface(useCase1.getSessionConfig(mCameraId).getSurfaces().get(0));
+        captureConfigBuilder.addSurface(useCase1.getSessionConfig().getSurfaces().get(0));
         captureConfigBuilder.addCameraCaptureCallback(captureCallback);
 
         mCamera2CameraImpl.getCameraControlInternal().submitCaptureRequests(
@@ -439,7 +437,7 @@ public final class Camera2CameraImplTest {
         CameraCaptureCallback captureCallback = mock(CameraCaptureCallback.class);
         CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
         captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        captureConfigBuilder.addSurface(useCase1.getSessionConfig(mCameraId).getSurfaces().get(0));
+        captureConfigBuilder.addSurface(useCase1.getSessionConfig().getSurfaces().get(0));
         captureConfigBuilder.addCameraCaptureCallback(captureCallback);
 
         mCamera2CameraImpl.getCameraControlInternal().submitCaptureRequests(
@@ -527,8 +525,13 @@ public final class Camera2CameraImplTest {
                 Observable.Observer<CameraInternal.State> mockObserver =
                 mock(Observable.Observer.class);
 
-        // Set the available cameras to zero
-        mAvailableCameras.setValue(0);
+        // Ensure real camera can't open due to max cameras being open
+        Camera mockCamera = mock(Camera.class);
+        mCameraStateRegistry.registerCamera(mockCamera, CameraXExecutors.directExecutor(),
+                () -> {
+                });
+        mCameraStateRegistry.tryOpenCamera(mockCamera);
+
 
         mCamera2CameraImpl.getCameraState().addObserver(CameraXExecutors.directExecutor(),
                 mockObserver);
@@ -536,10 +539,11 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.open();
 
         // Ensure that the camera gets to a PENDING_OPEN state
-        verify(mockObserver, timeout(3000)).onNewData(CameraInternal.State.PENDING_OPEN);
+        verify(mockObserver, timeout(3000).atLeastOnce()).onNewData(
+                CameraInternal.State.PENDING_OPEN);
 
         // Allow camera to be opened
-        mAvailableCameras.setValue(1);
+        mCameraStateRegistry.markCameraState(mockCamera, CameraInternal.State.CLOSED);
 
         verify(mockObserver, timeout(3000)).onNewData(CameraInternal.State.OPEN);
 
@@ -556,22 +560,6 @@ public final class Camera2CameraImplTest {
         CameraInternal.State currentState = state.fetchData().get();
 
         assertThat(currentState).isEqualTo(CameraInternal.State.RELEASED);
-    }
-
-    @Test
-    public void cameraStopsObservingAvailableCameras_afterRelease()
-            throws ExecutionException, InterruptedException {
-        // Camera should already be observing state after initialization
-        int observerCountBefore = mAvailableCameras.getObserverCount();
-
-        // Wait for camera to release
-        mCamera2CameraImpl.release().get();
-
-        // Observer count should now be zero
-        int observerCountAfter = mAvailableCameras.getObserverCount();
-
-        assertThat(observerCountBefore).isEqualTo(1);
-        assertThat(observerCountAfter).isEqualTo(0);
     }
 
     @Test
@@ -634,9 +622,7 @@ public final class Camera2CameraImplTest {
                         CameraSelector.LENS_FACING_BACK).build();
         TestUseCase testUseCase = new TestUseCase(configBuilder.getUseCaseConfig(), selector,
                 mMockOnImageAvailableListener);
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, new Size(640, 480));
-        testUseCase.updateSuggestedResolution(suggestedResolutionMap);
+        testUseCase.updateSuggestedResolution(new Size(640, 480));
         mFakeUseCases.add(testUseCase);
         return testUseCase;
     }
@@ -654,8 +640,8 @@ public final class Camera2CameraImplTest {
         Handler uiThreadHandler = new Handler(Looper.getMainLooper());
         HandlerUtil.waitForLooperToIdle(uiThreadHandler);
 
-        verify(useCase1, times(1)).onStateOnline(eq(mCameraId));
-        verify(useCase2, times(1)).onStateOnline(eq(mCameraId));
+        verify(useCase1, times(1)).onStateOnline();
+        verify(useCase2, times(1)).onStateOnline();
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1, useCase2));
     }
@@ -675,9 +661,9 @@ public final class Camera2CameraImplTest {
         Handler uiThreadHandler = new Handler(Looper.getMainLooper());
         HandlerUtil.waitForLooperToIdle(uiThreadHandler);
 
-        verify(useCase1, times(1)).onStateOffline(eq(mCameraId));
-        verify(useCase2, times(1)).onStateOffline(eq(mCameraId));
-        verify(useCase3, times(0)).onStateOffline(eq(mCameraId));
+        verify(useCase1, times(1)).onStateOffline();
+        verify(useCase2, times(1)).onStateOffline();
+        verify(useCase3, times(0)).onStateOffline();
     }
 
     private boolean isCameraControlActive(Camera2CameraControl camera2CameraControl) {
@@ -728,13 +714,11 @@ public final class Camera2CameraImplTest {
     }
 
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {
-        return useCase.getSessionConfig(mCameraId).getSurfaces().get(0);
+        return useCase.getSessionConfig().getSurfaces().get(0);
     }
 
     private void changeUseCaseSurface(UseCase useCase) {
-        Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(mCameraId, new Size(640, 480));
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        useCase.updateSuggestedResolution(new Size(640, 480));
     }
 
     private void waitForCameraClose(Camera2CameraImpl camera2CameraImpl)
@@ -780,15 +764,13 @@ public final class Camera2CameraImplTest {
             mImageAvailableListener = listener;
             mHandlerThread.start();
             mHandler = new Handler(mHandlerThread.getLooper());
-            Map<String, Size> suggestedResolutionMap = new HashMap<>();
             Integer lensFacing =
                     cameraSelector.getLensFacing() == null ? CameraSelector.LENS_FACING_BACK :
                             cameraSelector.getLensFacing();
             mCameraId = getCameraIdForLensFacingUnchecked(lensFacing);
             onBind(new FakeCamera(mCameraId, null,
                     new FakeCameraInfoInternal(mCameraId, 0, lensFacing)));
-            suggestedResolutionMap.put(mCameraId, new Size(640, 480));
-            updateSuggestedResolution(suggestedResolutionMap);
+            updateSuggestedResolution(new Size(640, 480));
         }
 
         public void close() {
@@ -815,9 +797,8 @@ public final class Camera2CameraImplTest {
 
         @Override
         @NonNull
-        protected Map<String, Size> onSuggestedResolutionUpdated(
-                @NonNull Map<String, Size> suggestedResolutionMap) {
-            Size resolution = suggestedResolutionMap.get(mCameraId);
+        protected Size onSuggestedResolutionUpdated(
+                @NonNull Size suggestedResolution) {
             SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig);
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -826,8 +807,8 @@ public final class Camera2CameraImplTest {
             }
             ImageReader imageReader =
                     ImageReader.newInstance(
-                            resolution.getWidth(),
-                            resolution.getHeight(),
+                            suggestedResolution.getWidth(),
+                            suggestedResolution.getHeight(),
                             ImageFormat.YUV_420_888, /*maxImages*/
                             2);
             imageReader.setOnImageAvailableListener(mImageAvailableListener, mHandler);
@@ -839,78 +820,8 @@ public final class Camera2CameraImplTest {
             }, CameraXExecutors.directExecutor());
             builder.addSurface(mDeferrableSurface);
 
-            attachToCamera(mCameraId, builder.build());
-            return suggestedResolutionMap;
-        }
-    }
-
-    private static final class SettableObservable<T> implements Observable<T> {
-
-        private final Object mLock = new Object();
-        @GuardedBy("mLock")
-        private T mValue;
-
-        @GuardedBy("mLock")
-        private Map<Observer<T>, Executor> mObservers = new HashMap<>();
-
-        SettableObservable(@Nullable T initialValue) {
-            synchronized (mLock) {
-                mValue = initialValue;
-            }
-        }
-
-        void setValue(@Nullable final T value) {
-            Map<Observer<T>, Executor> notifyMap = null;
-            synchronized (mLock) {
-                if (!Objects.equals(mValue, value)) {
-                    mValue = value;
-
-                    if (!mObservers.isEmpty()) {
-                        notifyMap = new HashMap<>(mObservers);
-                    }
-                }
-            }
-
-            if (notifyMap != null) {
-                for (Map.Entry<Observer<T>, Executor> observer : notifyMap.entrySet()) {
-                    observer.getValue().execute(() -> observer.getKey().onNewData(value));
-                }
-            }
-        }
-
-        @NonNull
-        @Override
-        public ListenableFuture<T> fetchData() {
-            synchronized (mLock) {
-                return Futures.immediateFuture(mValue);
-            }
-        }
-
-        @Override
-        public void addObserver(@NonNull Executor executor, @NonNull Observer<T> observer) {
-            boolean needsUpdate = false;
-            T value;
-            synchronized (mLock) {
-                needsUpdate = !Objects.equals(mObservers.put(observer, executor), executor);
-                value = mValue;
-            }
-
-            if (needsUpdate) {
-                executor.execute(() -> observer.onNewData(value));
-            }
-        }
-
-        @Override
-        public void removeObserver(@NonNull Observer<T> observer) {
-            synchronized (mLock) {
-                mObservers.remove(observer);
-            }
-        }
-
-        int getObserverCount() {
-            synchronized (mLock) {
-                return mObservers.size();
-            }
+            attachToCamera(builder.build());
+            return suggestedResolution;
         }
     }
 }

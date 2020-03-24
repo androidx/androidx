@@ -20,7 +20,9 @@ import androidx.compose.plugins.kotlin.compiler.lower.ComposableCallTransformer
 import androidx.compose.plugins.kotlin.compiler.lower.ComposeObservePatcher
 import androidx.compose.plugins.kotlin.compiler.lower.ComposeResolutionMetadataTransformer
 import androidx.compose.plugins.kotlin.compiler.lower.ComposerIntrinsicTransformer
+import androidx.compose.plugins.kotlin.compiler.lower.ComposerLambdaMemoization
 import androidx.compose.plugins.kotlin.compiler.lower.ComposerParamTransformer
+import androidx.compose.plugins.kotlin.compiler.lower.ControlFlowTransformer
 import androidx.compose.plugins.kotlin.frames.FrameIrTransformer
 import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
@@ -30,17 +32,45 @@ import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DelegatingBindingTrace
 
+object ComposeTransforms {
+    const val DEFAULT = 0b00111111
+    const val NONE = 0b00000000
+    const val FRAMED_CLASSES = 0b00000001
+    const val LAMBDA_MEMOIZATION = 0b00000010
+    const val COMPOSER_PARAM = 0b00000100
+    const val INTRINSICS = 0b00001000
+    const val CALLS_AND_EMITS = 0b00010000
+    const val RESTART_GROUPS = 0b00100000
+    const val CONTROL_FLOW_GROUPS = 0b01000000
+    const val FUNCTION_BODY_SKIPPING = 0b10000000
+}
+
 class ComposeIrGenerationExtension : IrGenerationExtension {
     override fun generate(
         file: IrFile,
         backendContext: BackendContext,
         bindingContext: BindingContext
+    ) = generate(
+        file,
+        backendContext,
+        bindingContext,
+        transforms = ComposeTransforms.DEFAULT
+    )
+
+    fun generate(
+        file: IrFile,
+        backendContext: BackendContext,
+        bindingContext: BindingContext,
+        transforms: Int
     ) {
         // TODO: refactor transformers to work with just BackendContext
         val jvmContext = backendContext as JvmBackendContext
         val module = jvmContext.ir.irModule
-        val bindingTrace = DelegatingBindingTrace(bindingContext,
-            "trace in ComposeIrGenerationExtension")
+        val bindingTrace = DelegatingBindingTrace(
+            bindingContext,
+            "trace in ComposeIrGenerationExtension"
+        )
+
         // We transform the entire module all at once since we end up remapping symbols, we need to
         // ensure that everything in the module points to the right symbol. There is no extension
         // point that allows you to transform at the module level but we should communicate this
@@ -56,24 +86,52 @@ class ComposeIrGenerationExtension : IrGenerationExtension {
             ComposeResolutionMetadataTransformer(jvmContext).lower(module)
 
             // transform @Model classes
-            FrameIrTransformer(jvmContext).lower(module)
+            if (transforms and ComposeTransforms.FRAMED_CLASSES != 0) {
+                FrameIrTransformer(jvmContext).lower(module)
+            }
+
+            // Memoize normal lambdas and wrap composable lambdas
+            if (transforms and ComposeTransforms.LAMBDA_MEMOIZATION != 0) {
+                ComposerLambdaMemoization(jvmContext, symbolRemapper, bindingTrace).lower(module)
+            }
+
+            val functionBodySkipping = transforms and ComposeTransforms.FUNCTION_BODY_SKIPPING != 0
 
             // transform all composable functions to have an extra synthetic composer
             // parameter. this will also transform all types and calls to include the extra
             // parameter.
-            ComposerParamTransformer(jvmContext, symbolRemapper, bindingTrace).lower(module)
+            if (transforms and ComposeTransforms.COMPOSER_PARAM != 0) {
+                ComposerParamTransformer(
+                    jvmContext,
+                    symbolRemapper,
+                    bindingTrace,
+                    functionBodySkipping
+                ).lower(module)
+            } else if (functionBodySkipping) {
+                error("Cannot have FUNCTION_BODY_SKIPPING on without COMPOSER_PARAM")
+            }
 
             // transform calls to the currentComposer to just use the local parameter from the
             // previous transform
-            ComposerIntrinsicTransformer(jvmContext).lower(module)
+            if (transforms and ComposeTransforms.INTRINSICS != 0) {
+                ComposerIntrinsicTransformer(jvmContext).lower(module)
+            }
+
+            if (transforms and ComposeTransforms.CONTROL_FLOW_GROUPS != 0) {
+                ControlFlowTransformer(jvmContext, symbolRemapper, bindingTrace).lower(module)
+            }
 
             // transform composable calls and emits into their corresponding calls appealing
             // to the composer
-            ComposableCallTransformer(jvmContext, symbolRemapper, bindingTrace).lower(module)
+            if (transforms and ComposeTransforms.CALLS_AND_EMITS != 0) {
+                ComposableCallTransformer(jvmContext, symbolRemapper, bindingTrace).lower(module)
+            }
 
             // transform composable functions to have restart groups so that they can be
             // recomposed
-            ComposeObservePatcher(jvmContext, symbolRemapper, bindingTrace).lower(module)
+            if (transforms and ComposeTransforms.RESTART_GROUPS != 0) {
+                ComposeObservePatcher(jvmContext, symbolRemapper, bindingTrace).lower(module)
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +22,12 @@ import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputNode
-import androidx.ui.core.hasNoLayoutDescendants
-import androidx.ui.core.isAttached
-import androidx.ui.core.positionInRoot
-import androidx.ui.core.visitLayoutChildren
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.roundToInt
 
 /**
- * Organizes pointers and the [PointerInputNode]s that they hit into a hierarchy such that
- * [PointerInputChange]s can be dispatched to the [PointerInputNode]s in a hierarchical fashion.
+ * Organizes pointers and the [PointerInputFilter]s that they hit into a hierarchy such that
+ * [PointerInputChange]s can be dispatched to the [PointerInputFilter]s in a hierarchical fashion.
  */
 internal class HitPathTracker {
 
@@ -44,21 +35,21 @@ internal class HitPathTracker {
     internal val root: NodeParent = NodeParent()
 
     /**
-     * Associates a [pointerId] to a list of hit [pointerInputNodes] and keeps track of them.
+     * Associates a [pointerId] to a list of hit [pointerInputFilters] and keeps track of them.
      *
      * This enables future calls to [dispatchChanges] to dispatch the correct [PointerInputChange]s
-     * to the right [PointerInputNode]s at the right time.
+     * to the right [PointerInputFilter]s at the right time.
      *
-     * @param pointerId The id of the pointer that was hit tested against [PointerInputNode]s
-     * @param pointerInputNodes The [PointerInputNode]s that were hit by [pointerId].  Must be
+     * @param pointerId The id of the pointer that was hit tested against [PointerInputFilter]s
+     * @param pointerInputFilters The [PointerInputFilter]s that were hit by [pointerId].  Must be
      * ordered from ancestor to descendant.
      */
-    fun addHitPath(pointerId: PointerId, pointerInputNodes: List<PointerInputNode>) {
+    fun addHitPath(pointerId: PointerId, pointerInputFilters: List<PointerInputFilter>) {
         var parent: NodeParent = root
         var merging = true
-        eachPin@ for (pointerInputNode in pointerInputNodes) {
+        eachPin@ for (pointerInputFilter in pointerInputFilters) {
             if (merging) {
-                val node = parent.children.find { it.pointerInputNode == pointerInputNode }
+                val node = parent.children.find { it.pointerInputFilter == pointerInputFilter }
                 if (node != null) {
                     node.pointerIds.add(pointerId)
                     parent = node
@@ -67,123 +58,43 @@ internal class HitPathTracker {
                     merging = false
                 }
             }
-            val node = Node(pointerInputNode).apply {
+            val node = Node(pointerInputFilter).apply {
                 pointerIds.add(pointerId)
             }
             parent.children.add(node)
             parent = node
 
-            pointerInputNode.initHandler?.invoke(CustomEventDispatcherImpl(node, this))
+            // TODO(shepshapard): Is CustomEventDispatcherImpl instantiated even if initHandler is
+            //  null?
+            pointerInputFilter.initHandler?.invoke(
+                CustomEventDispatcherImpl(
+                    node,
+                    this
+                )
+            )
         }
     }
 
     /**
-     * Stops tracking the [pointerId] and stops tracking any [PointerInputNode]s that are therefore
-     * no longer associated with any pointer ids.
+     * Stops tracking the [pointerId] and stops tracking any [PointerInputFilter]s that are
+     * therefore no longer associated with any pointer ids.
      */
     fun removeHitPath(pointerId: PointerId) {
         root.removePointerId(pointerId)
     }
 
     /**
-     * Dispatches [pointerInputChanges] through the hierarchy in all 5 passes of [PointerEventPass].
-     *
-     * @param pointerInputChanges The [PointerInputChange]s to dispatch.
-     *
-     * @return The resulting [PointerInputChange]s.
+     * Dispatches [pointerInputChanges] through the hierarchy; first down the hierarchy, passing
+     * [downPass] to each [PointerInputFilter], and then up the hierarchy with [upPass] if [upPass]
+     * is not null.
      */
     fun dispatchChanges(
-        pointerInputChanges: List<PointerInputChange>
-    ): List<PointerInputChange> {
-
-        // TODO(b/124523868): It may be more efficient for PointerInputNodes to be able to opt in
-        //  or out of passes.
-        val idToChangesMap = pointerInputChanges.associateByTo(mutableMapOf()) { it.id }
-        root.dispatchChanges(idToChangesMap, PointerEventPass.InitialDown, PointerEventPass.PreUp)
-        root.dispatchChanges(idToChangesMap, PointerEventPass.PreDown, PointerEventPass.PostUp)
-        root.dispatchChanges(idToChangesMap, PointerEventPass.PostDown, null)
-        return idToChangesMap.values.toList()
-    }
-
-    /**
-     * Dispatches cancel events to all tracked [PointerInputNode]s to notify them that
-     * [PointerInputNode.pointerInputHandler] will not be called again until all pointers have been
-     * removed from the application and then at least one is added again, and removes all tracked
-     * data.
-     */
-    fun processCancel() {
-        root.dispatchCancel()
-        root.clear()
-    }
-
-    // TODO(b/148167480): This method is expensive and currently must be called before each
-    //  call to dispatchChanges because PointerInputNodes do not have any ability to determine their
-    //  virtual size or position.
-    /**
-     * Convenience method that removes PointerInputNodes that are no longer valid and refreshes the
-     * offset information for those that are.
-     *
-     * Must be called before each call to [dispatchChanges].
-     *
-     * @param additionalPointerOffset The additional offset that will be added to all
-     * [PointerInputChange]s when [dispatchChanges] is called.
-     */
-    fun refreshPathInformation(additionalPointerOffset: IntPxPosition) {
-        removeDetachedPointerInputNodes()
-        removePointerInputNodesWithNoLayoutNodeDescendants()
-        refreshOffsets(additionalPointerOffset)
-    }
-
-    /**
-     * Removes [PointerInputNode]s that have been removed from the component tree.
-     */
-    @VisibleForTesting
-    internal fun removeDetachedPointerInputNodes() {
-        root.removeDetachedPointerInputNodes()
-    }
-
-    /**
-     * Removes [PointerInputNode]s that do not have any descendant LayoutNodes.
-     */
-    @VisibleForTesting
-    internal fun removePointerInputNodesWithNoLayoutNodeDescendants() {
-        root.removePointerInputNodesWithNoLayoutNodeDescendants()
-    }
-
-    /**
-     * Updates this [HitPathTracker]'s cached knowledge of the bounds of the [PointerInputNode]s
-     * it is tracking.  This is is necessary to call before calls to [dispatchChanges] so that
-     * the positions of [PointerInputChange]s are offset to be relative to the [PointerInputNode]s
-     * that are going to receive them.
-     *
-     * Must only be called after guaranteeing that each Node has a PointerInputNode that has at
-     * least one descendant LayoutNode.
-     *
-     * @param additionalPointerOffset The additional offset that will be added to all
-     * [PointerInputChange]s when [dispatchChanges] is called.
-     */
-    @VisibleForTesting
-    internal fun refreshOffsets(additionalPointerOffset: IntPxPosition) {
-        root.refreshPositionInformation(additionalPointerOffset)
-    }
-
-    /**
-     * Dispatches [pointerInputChanges] through the hierarchy; first down the hierarchy, passing
-     * [downPass] to each [PointerInputNode], and then up the hierarchy with [upPass] if [upPass]
-     * is not null.
-     *
-     * @param pointerInputChanges The [PointerInputChange]s to dispatch.
-     *
-     * @return The resulting [PointerInputChange]s.
-     */
-    @VisibleForTesting
-    internal fun dispatchChanges(
         pointerInputChanges: List<PointerInputChange>,
         downPass: PointerEventPass,
         upPass: PointerEventPass? = null
     ): List<PointerInputChange> {
 
-        // TODO(b/124523868): It may be more efficient for PointerInputNodes to be able to opt in
+        // TODO(b/124523868): It may be more efficient for PointerInputFilters to be able to opt in
         //  or out of passes.
         val idToChangesMap = pointerInputChanges.associateByTo(mutableMapOf()) { it.id }
         root.dispatchChanges(idToChangesMap, downPass, upPass)
@@ -238,8 +149,34 @@ internal class HitPathTracker {
             hitPathTracker.dispatchCustomEvent(event, dispatchingNode)
         }
     }
+
+    /**
+     * Dispatches cancel events to all tracked [PointerInputFilter]s to notify them that
+     * [PointerInputFilter.pointerInputHandler] will not be called again until all pointers have been
+     * removed from the application and then at least one is added again, and removes all tracked
+     * data.
+     */
+    fun processCancel() {
+        root.dispatchCancel()
+        root.clear()
+    }
+
+    /**
+     * Removes [PointerInputFilter]s that have been removed from the component tree.
+     */
+    // TODO(shepshapard): Ideally, we can process the detaching of PointerInputFilters at the time
+    //  that either their associated LayoutNode is removed from the three, or their
+    //  associated PointerInputModifier is removed from a LayoutNode.
+    fun removeDetachedPointerInputFilters() {
+        root.removeDetachedPointerInputFilters()
+    }
 }
 
+/**
+ * Represents a parent node in the [HitPathTracker]'s tree.  This primarily exists because the tree
+ * necessarily has a root that is very similar to all other nodes, except that it does not track any
+ * pointer or [PointerInputFilter] information.
+ */
 @VisibleForTesting
 internal open class NodeParent {
     val children: MutableSet<Node> = mutableSetOf()
@@ -295,38 +232,22 @@ internal open class NodeParent {
     /**
      * Removes all child [Node]s that are no longer attached to the compose tree.
      */
-    fun removeDetachedPointerInputNodes() {
+    fun removeDetachedPointerInputFilters() {
         children.removeAndProcess(
             removeIf = {
-                !it.pointerInputNode.isAttached()
+                !it.pointerInputFilter.isAttached
             },
             ifRemoved = {
                 it.dispatchCancel()
             },
             ifKept = {
-                it.removeDetachedPointerInputNodes()
+                it.removeDetachedPointerInputFilters()
             })
     }
 
     /**
-     * Removes all child [Node]s that have pointer input nodes that do not have any layout node
-     * descendants.
-     */
-    fun removePointerInputNodesWithNoLayoutNodeDescendants() {
-        children.removeAndProcess(
-            removeIf = {
-                it.pointerInputNode.hasNoLayoutDescendants()
-            },
-            ifRemoved = {
-                it.dispatchCancel()
-            },
-            ifKept = {
-                it.removePointerInputNodesWithNoLayoutNodeDescendants()
-            })
-    }
-
-    /**
-     * Removes the tracking of [pointerId] and removes all child [Node]s that are no longer tracking
+     * Removes the tracking of [pointerId] and removes all child [Node]s that are no longer
+     * tracking
      * any [PointerId]s.
      */
     fun removePointerId(pointerId: PointerId) {
@@ -338,36 +259,6 @@ internal open class NodeParent {
         }
         children.forEach {
             it.removePointerId(pointerId)
-        }
-    }
-
-    // TODO(b/124960509): Make this much more efficient.  Right now, even though the data structure
-    //  is a tree, each LayoutNode requests it's position relative to the root, even though it's
-    //  parent would already have it's position relative to root.
-    /**
-     * Updates all position and size information for all nodes.
-     *
-     * @param additionalPointerOffset The additional offset that will be added to all
-     * [PointerInputChange]s when [dispatchChanges] is called.
-     */
-    fun refreshPositionInformation(additionalPointerOffset: IntPxPosition) {
-        children.forEach { child ->
-            var minX = Int.MAX_VALUE
-            var minY = Int.MAX_VALUE
-            var maxX = Int.MIN_VALUE
-            var maxY = Int.MIN_VALUE
-            child.pointerInputNode.visitLayoutChildren { layoutChild ->
-                val globalPosition = layoutChild.coordinates.positionInRoot
-                val x = (globalPosition.x.value + additionalPointerOffset.x.value).roundToInt()
-                val y = (globalPosition.y.value + additionalPointerOffset.y.value).roundToInt()
-                minX = min(minX, x)
-                minY = min(minY, y)
-                maxX = max(maxX, x + layoutChild.width.value)
-                maxY = max(maxY, y + layoutChild.height.value)
-            }
-            child.offset = IntPxPosition(minX.ipx, minY.ipx)
-            child.size = IntPxSize((maxX - minX).ipx, (maxY - minY).ipx)
-            child.refreshPositionInformation(additionalPointerOffset)
         }
     }
 
@@ -394,18 +285,14 @@ internal open class NodeParent {
     }
 }
 
+/**
+ * Represents a single Node in the tree that also tracks a [PointerInputFilter] and which pointers
+ * hit it (tracked as [PointerId]s).
+ */
 @VisibleForTesting
-internal class Node(
-    val pointerInputNode: PointerInputNode
-) : NodeParent() {
+internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
+
     val pointerIds: MutableSet<PointerId> = mutableSetOf()
-
-    // Stores the associated PointerInputNode's virtual position relative to it's parent
-    // PointerInputNode, or relative to the compose root if it has no parent PointerInputNode.
-    var offset: IntPxPosition = IntPxPosition.Origin
-
-    // Stores the associated PointerInputNode's virtual size.
-    var size = IntPxSize(0.ipx, 0.ipx)
 
     override fun dispatchChanges(
         pointerInputChanges: MutableMap<PointerId, PointerInputChange>,
@@ -421,10 +308,10 @@ internal class Node(
         if (relevantChanges.isEmpty()) {
             throw IllegalStateException(
                 "Currently, HitPathTracker is operating under the assumption that there should " +
-                        "never be a circumstance in which it is tracking a PointerInputNode " +
+                        "never be a circumstance in which it is tracking a PointerInputFilter " +
                         "where when it receives pointerInputChanges, none are relevant to that " +
-                        "PointerInputNode.  This assumption may not hold true in the future, but " +
-                        "currently it assumes it can abide by this contract."
+                        "PointerInputFilter.  This assumption may not hold true in the future, " +
+                        "but currently it assumes it can abide by this contract."
             )
         }
 
@@ -436,9 +323,9 @@ internal class Node(
             // TODO(shepshapard): would be nice if we didn't have to subtract and then add
             //  offsets.  This is currently done because the calculated offsets are currently
             //  global, not relative to eachother.
-            it.subtractOffset(offset)
-            it.dispatchToPointerInputNode(pointerInputNode, downPass, size)
-            it.addOffset(offset)
+            it.subtractOffset(pointerInputFilter.position)
+            it.dispatchToPointerInputFilter(pointerInputFilter, downPass, pointerInputFilter.size)
+            it.addOffset(pointerInputFilter.position)
         }
 
         // Call children recursively with the relevant changes.
@@ -450,9 +337,9 @@ internal class Node(
         //  3. update it in  relevant changes.
         if (upPass != null) {
             relevantChanges.let {
-                it.subtractOffset(offset)
-                it.dispatchToPointerInputNode(pointerInputNode, upPass, size)
-                it.addOffset(offset)
+                it.subtractOffset(pointerInputFilter.position)
+                it.dispatchToPointerInputFilter(pointerInputFilter, upPass, pointerInputFilter.size)
+                it.addOffset(pointerInputFilter.position)
             }
         }
 
@@ -486,7 +373,7 @@ internal class Node(
         }
 
         if (this != dispatchingNode) {
-            pointerInputNode.customEventHandler?.invoke(event, downPass)
+            pointerInputFilter.customEventHandler?.invoke(event, downPass)
         }
 
         // Call children recursively with the relevant changes.
@@ -495,7 +382,7 @@ internal class Node(
         }
 
         if (upPass != null && this != dispatchingNode) {
-            pointerInputNode.customEventHandler?.invoke(event, upPass)
+            pointerInputFilter.customEventHandler?.invoke(event, upPass)
         }
     }
 
@@ -503,25 +390,25 @@ internal class Node(
     //  essentially "no", but given that an order can be consistent... maybe we might as well
     //  set an arbitrary standard and stick to it so user expectations are maintained.
     /**
-     * Does a depth first traversal and invokes [PointerInputNode.cancelHandler] during
+     * Does a depth first traversal and invokes [PointerInputFilter.cancelHandler] during
      * backtracking.
      */
     override fun dispatchCancel() {
         children.forEach { it.dispatchCancel() }
-        pointerInputNode.cancelHandler.invoke()
+        pointerInputFilter.cancelHandler.invoke()
     }
 
     override fun toString(): String {
-        return "Node(pointerInputNode=$pointerInputNode, children=$children, " +
+        return "Node(pointerInputFilter=$pointerInputFilter, children=$children, " +
                 "pointerIds=$pointerIds)"
     }
 
-    private fun MutableMap<PointerId, PointerInputChange>.dispatchToPointerInputNode(
-        node: PointerInputNode,
+    private fun MutableMap<PointerId, PointerInputChange>.dispatchToPointerInputFilter(
+        filter: PointerInputFilter,
         pass: PointerEventPass,
         size: IntPxSize
     ) {
-        node.pointerInputHandler(values.toList(), pass, size).forEach {
+        filter.pointerInputHandler(values.toList(), pass, size).forEach {
             this[it.id] = it
         }
     }

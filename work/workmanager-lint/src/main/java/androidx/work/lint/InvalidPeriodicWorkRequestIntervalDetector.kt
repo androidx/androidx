@@ -67,10 +67,10 @@ class InvalidPeriodicWorkRequestIntervalDetector : Detector(), SourceCodeScanner
         if (node.valueArgumentCount >= 2) {
             val type = node.valueArguments[1].getExpressionType()?.canonicalText
             if ("long" == type) {
-                val value = node.valueArguments[1].evaluate() as Long
+                val value = node.valueArguments[1].evaluate() as? Long
                 // TimeUnit
                 val units = node.valueArguments[2].evaluate() as? Pair<ClassId, Name>
-                if (units != null) {
+                if (value != null && units != null) {
                     val (_, timeUnitType) = units
                     val interval: Long? = when (timeUnitType.identifier) {
                         "NANOSECONDS" -> TimeUnit.MINUTES.convert(value, TimeUnit.NANOSECONDS)

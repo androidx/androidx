@@ -827,7 +827,7 @@ class AffectedModuleDetectorImplTest {
         )
         MatcherAssert.assertThat(detector.affectedProjects, CoreMatchers.`is`(
             setOf(p14) // a change to a project in the normal build doesn't affect the ui build
-        ))             // and compose is in changed and so excluded from dependent
+        )) // and compose is in changed and so excluded from dependent
     }
 
     @Test
@@ -881,7 +881,7 @@ class AffectedModuleDetectorImplTest {
         )
         MatcherAssert.assertThat(detector.affectedProjects, CoreMatchers.`is`(
             setOf(p11) // a change in compose is known not to matter to the normal build
-        ))             // and p7 is in changed and so not in dependent
+        )) // and p7 is in changed and so not in dependent
     }
 
     @Test
@@ -915,7 +915,7 @@ class AffectedModuleDetectorImplTest {
         )
         MatcherAssert.assertThat(detector.affectedProjects, CoreMatchers.`is`(
             setOf(p14) // a change in androidx root normally doesn't affect the ui build
-        ))             // unless otherwise specified (e.g. gradlew)
+        )) // unless otherwise specified (e.g. gradlew)
     }
 
     @Test

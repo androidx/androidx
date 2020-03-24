@@ -21,23 +21,23 @@ import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.Layout
-import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Stack
 import androidx.ui.material.internal.StateDraggable
-import androidx.ui.material.surface.Surface
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
 import androidx.ui.unit.dp
@@ -78,7 +78,7 @@ enum class DrawerState {
 fun StaticDrawer(
     drawerContent: @Composable() () -> Unit
 ) {
-    Container(width = StaticDrawerWidth, expanded = true, children = drawerContent)
+    Box(LayoutWidth(StaticDrawerWidth) + LayoutHeight.Fill, children = drawerContent)
 }
 
 /**
@@ -110,8 +110,8 @@ fun ModalDrawerLayout(
     drawerContent: @Composable() () -> Unit,
     bodyContent: @Composable() () -> Unit
 ) {
-    Container(expanded = true) {
-        WithConstraints { pxConstraints ->
+    Box(LayoutSize.Fill) {
+        WithConstraints { pxConstraints, _ ->
             // TODO : think about Infinite max bounds case
             if (!pxConstraints.hasBoundedWidth) {
                 throw IllegalStateException("Drawer shouldn't have infinite width")
@@ -177,8 +177,8 @@ fun BottomDrawerLayout(
     drawerContent: @Composable() () -> Unit,
     bodyContent: @Composable() () -> Unit
 ) {
-    Container(expanded = true) {
-        WithConstraints { pxConstraints ->
+    Box(LayoutSize.Fill) {
+        WithConstraints { pxConstraints, _ ->
             // TODO : think about Infinite max bounds case
             if (!pxConstraints.hasBoundedHeight) {
                 throw IllegalStateException("Drawer shouldn't have infinite height")
@@ -191,16 +191,21 @@ fun BottomDrawerLayout(
 
             // TODO: add proper landscape support
             val isLandscape = constraints.maxWidth > constraints.maxHeight
-            val openedValue = if (isLandscape) maxValue else lerp(
+            val openedValue = if (isLandscape) minValue else lerp(
                 minValue,
                 maxValue,
                 BottomDrawerOpenFraction
             )
-            val anchors = listOf(
-                maxValue to DrawerState.Closed,
-                openedValue to DrawerState.Opened,
-                minValue to DrawerState.Opened
-            )
+            val anchors =
+                if (isLandscape) {
+                    listOf(maxValue to DrawerState.Closed, minValue to DrawerState.Opened)
+                } else {
+                    listOf(
+                        maxValue to DrawerState.Closed,
+                        openedValue to DrawerState.Opened,
+                        minValue to DrawerState.Opened
+                    )
+                }
             StateDraggable(
                 state = drawerState,
                 onStateChange = onStateChange,
@@ -231,12 +236,19 @@ private fun DrawerContent(
     children: @Composable() () -> Unit
 ) {
     WithOffset(xOffset = xOffset) {
-        Container(
-            constraints = constraints,
-            padding = EdgeInsets(right = VerticalDrawerPadding)
+        Box(
+            LayoutSize.Constrain(
+                constraints.minWidth,
+                constraints.minHeight,
+                constraints.maxWidth,
+                constraints.maxHeight
+            ),
+            paddingEnd = VerticalDrawerPadding
         ) {
             // remove Container when we will support multiply children
-            Surface { Container(expanded = true, children = children) }
+            Surface {
+                Box(LayoutSize.Fill, children = children)
+            }
         }
     }
 }
@@ -248,9 +260,18 @@ private fun BottomDrawerContent(
     children: @Composable() () -> Unit
 ) {
     WithOffset(yOffset = yOffset) {
-        Container(constraints = constraints) {
+        Box(
+            LayoutSize.Constrain(
+                constraints.minWidth,
+                constraints.minHeight,
+                constraints.maxWidth,
+                constraints.maxHeight
+            )
+        ) {
             // remove Container when we will support multiply children
-            Surface { Container(expanded = true, children = children) }
+            Surface {
+                Box(LayoutSize.Fill, children = children)
+            }
         }
     }
 }
@@ -267,7 +288,7 @@ private fun Scrim(
     // TODO: use enabled = false here when it will be available
     val scrimContent = @Composable {
         val paint = remember { Paint().apply { style = PaintingStyle.fill } }
-        val color = MaterialTheme.colors().onSurface
+        val color = MaterialTheme.colors.onSurface
         Canvas(LayoutSize.Fill) {
             val scrimAlpha = fraction() * ScrimDefaultOpacity
             paint.color = color.copy(alpha = scrimAlpha)
@@ -289,8 +310,8 @@ private fun WithOffset(
     child: @Composable() () -> Unit
 ) {
     Layout(children = {
-        RepaintBoundary(children = child)
-    }) { measurables, constraints ->
+        Box(modifier = DrawClipToBounds, children = child)
+    }) { measurables, constraints, _ ->
         if (measurables.size > 1) {
             throw IllegalStateException("Only one child is allowed")
         }

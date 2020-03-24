@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
@@ -64,6 +65,7 @@ import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageInfoProcessor;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
@@ -74,13 +76,17 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
-import androidx.core.util.Preconditions;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Consumer;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
@@ -136,6 +142,9 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "Preview";
+    private static final Executor DEFAULT_SURFACE_PROVIDER_EXECUTOR =
+            CameraXExecutors.mainThreadExecutor();
+
     @Nullable
     private HandlerThread mProcessingPreviewThread;
     @Nullable
@@ -145,9 +154,11 @@ public final class Preview extends UseCase {
     @Nullable
     SurfaceProvider mSurfaceProvider;
     @SuppressWarnings("WeakerAccess") /* Synthetic Accessor */
+    @NonNull
+    Executor mSurfaceProviderExecutor = DEFAULT_SURFACE_PROVIDER_EXECUTOR;
     @Nullable
-    Executor mPreviewSurfaceProviderExecutor;
-    // Cached latest resolution for creating the pipeline as soon as it's ready.
+    private CallbackToFutureAdapter.Completer<Pair<SurfaceProvider, Executor>>
+            mSurfaceProviderCompleter;
     @Nullable
     private Size mLatestResolution;
 
@@ -168,32 +179,31 @@ public final class Preview extends UseCase {
     SessionConfig.Builder createPipeline(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull Size resolution) {
         Threads.checkMainThread();
-        Preconditions.checkState(isPreviewSurfaceProviderSet());
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
-
         final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
-        SurfaceRequest surfaceRequest = new SurfaceRequest(resolution);
-        mPreviewSurfaceProviderExecutor.execute(
-                () -> mSurfaceProvider.onSurfaceRequested(surfaceRequest));
+
+        final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution);
+        setUpSurfaceProviderWrap(surfaceRequest);
+
         if (captureProcessor != null) {
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
             // TODO: To allow user to use an Executor for the processing.
 
-            if (mProcessingPreviewHandler == null) {
-                mProcessingPreviewThread = new HandlerThread("ProcessingSurfaceTexture");
+            if (mProcessingPreviewThread == null) {
+                mProcessingPreviewThread = new HandlerThread(
+                        CameraXThreads.TAG + "preview_processing");
                 mProcessingPreviewThread.start();
                 mProcessingPreviewHandler = new Handler(mProcessingPreviewThread.getLooper());
             }
 
-            ProcessingSurface processingSurface =
-                    new ProcessingSurface(
-                            resolution.getWidth(),
-                            resolution.getHeight(),
-                            ImageFormat.YUV_420_888,
-                            mProcessingPreviewHandler,
-                            captureStage,
-                            captureProcessor,
-                            surfaceRequest.getDeferrableSurface());
+            ProcessingSurface processingSurface = new ProcessingSurface(
+                    resolution.getWidth(),
+                    resolution.getHeight(),
+                    config.getInputFormat(),
+                    mProcessingPreviewHandler,
+                    captureStage,
+                    captureProcessor,
+                    surfaceRequest.getDeferrableSurface());
 
             sessionConfigBuilder.addCameraCaptureCallback(
                     processingSurface.getCameraCaptureCallback());
@@ -232,13 +242,50 @@ public final class Preview extends UseCase {
                     SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
                             resolution);
 
-                    attachToCamera(cameraId, sessionConfigBuilder.build());
+                    attachToCamera(sessionConfigBuilder.build());
                     notifyReset();
                 }
             }
         });
 
         return sessionConfigBuilder;
+    }
+
+    private void setUpSurfaceProviderWrap(
+            @NonNull final SurfaceRequest surfaceRequest) {
+        final ListenableFuture<Pair<SurfaceProvider, Executor>> future =
+                CallbackToFutureAdapter.getFuture(completer -> {
+                    if (mSurfaceProviderCompleter != null) {
+                        mSurfaceProviderCompleter.setCancelled();
+                    }
+
+                    mSurfaceProviderCompleter = completer;
+                    if (mSurfaceProvider != null) {
+                        mSurfaceProviderCompleter.set(
+                                new Pair<>(mSurfaceProvider, mSurfaceProviderExecutor));
+                        mSurfaceProviderCompleter = null;
+                    }
+                    return "surface provider and executor future";
+                });
+        Futures.addCallback(future, new FutureCallback<Pair<SurfaceProvider, Executor>>() {
+            @Override
+            public void onSuccess(@Nullable final Pair<SurfaceProvider, Executor> result) {
+                if (result == null) {
+                    return;
+                }
+
+                final SurfaceProvider surfaceProvider = result.first;
+                final Executor executor = result.second;
+                if (surfaceProvider != null && executor != null) {
+                    executor.execute(() -> surfaceProvider.onSurfaceRequested(surfaceRequest));
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                surfaceRequest.getDeferrableSurface().close();
+            }
+        }, CameraXExecutors.directExecutor());
     }
 
     /**
@@ -259,12 +306,29 @@ public final class Preview extends UseCase {
             notifyInactive();
         } else {
             mSurfaceProvider = surfaceProvider;
-            mPreviewSurfaceProviderExecutor = executor;
+            mSurfaceProviderExecutor = executor;
             notifyActive();
-            if (mLatestResolution != null) {
-                updateConfigAndOutput(getBoundCameraId(), (PreviewConfig) getUseCaseConfig(),
-                        mLatestResolution);
+            onSurfaceProviderAvailable();
+
+            // This method may be updating the current SurfaceProvider, in which case a
+            // DeferrableSurface will have already been provided to the camera. If that's the
+            // case, it is invalidated.
+            if (mSessionDeferrableSurface != null) {
+                mSessionDeferrableSurface.close();
             }
+
+            // Notify that the use case needs to be reset since the preview surface will change.
+            notifyReset();
+        }
+    }
+
+    private void onSurfaceProviderAvailable() {
+        if (mSurfaceProviderCompleter != null) {
+            mSurfaceProviderCompleter.set(new Pair<>(mSurfaceProvider, mSurfaceProviderExecutor));
+            mSurfaceProviderCompleter = null;
+        } else if (mLatestResolution != null) {
+            updateConfigAndOutput(getBoundCameraId(), (PreviewConfig) getUseCaseConfig(),
+                    mLatestResolution);
         }
     }
 
@@ -278,22 +342,12 @@ public final class Preview extends UseCase {
      */
     @UiThread
     public void setSurfaceProvider(@Nullable SurfaceProvider surfaceProvider) {
-        setSurfaceProvider(CameraXExecutors.mainThreadExecutor(), surfaceProvider);
+        setSurfaceProvider(DEFAULT_SURFACE_PROVIDER_EXECUTOR, surfaceProvider);
     }
-
-    /**
-     * Checks if {@link SurfaceProvider} is set by the user.
-     */
-    @SuppressWarnings("WeakerAccess")
-    boolean isPreviewSurfaceProviderSet() {
-        return mSurfaceProvider != null && mPreviewSurfaceProviderExecutor != null;
-    }
-
 
     private void updateConfigAndOutput(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull Size resolution) {
-        Preconditions.checkState(isPreviewSurfaceProviderSet());
-        attachToCamera(cameraId, createPipeline(cameraId, config, resolution).build());
+        attachToCamera(createPipeline(cameraId, config, resolution).build());
     }
 
     /**
@@ -380,8 +434,17 @@ public final class Preview extends UseCase {
         notifyInactive();
         if (mSessionDeferrableSurface != null) {
             mSessionDeferrableSurface.close();
+            mSessionDeferrableSurface.getTerminationFuture().addListener(() -> {
+                if (mProcessingPreviewThread != null) {
+                    mProcessingPreviewThread.quitSafely();
+                    mProcessingPreviewThread = null;
+                }
+            }, CameraXExecutors.directExecutor());
         }
-        super.clear();
+        if (mSurfaceProviderCompleter != null) {
+            mSurfaceProviderCompleter.setCancelled();
+            mSurfaceProviderCompleter = null;
+        }
     }
 
     /**
@@ -392,22 +455,14 @@ public final class Preview extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-            @NonNull Map<String, Size> suggestedResolutionMap) {
-        String cameraId = getBoundCameraId();
-        Size resolution = suggestedResolutionMap.get(cameraId);
-        if (resolution == null) {
-            throw new IllegalArgumentException(
-                    "Suggested resolution map missing resolution for camera " + cameraId);
-        }
-        mLatestResolution = resolution;
+    protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        mLatestResolution = suggestedResolution;
 
-        if (isPreviewSurfaceProviderSet()) {
-            updateConfigAndOutput(cameraId, (PreviewConfig) getUseCaseConfig(), resolution);
-        }
-        return suggestedResolutionMap;
+        updateConfigAndOutput(getBoundCameraId(), (PreviewConfig) getUseCaseConfig(),
+                mLatestResolution);
+
+        return mLatestResolution;
     }
-
 
     /**
      * A interface implemented by the application to provide a {@link Surface} for {@link Preview}.
@@ -427,15 +482,18 @@ public final class Preview extends UseCase {
          * only a single request will be active at a time.
          *
          * <p>A request is considered active until it is
-         * {@linkplain SurfaceRequest#provideSurface(Surface) set},
-         * {@linkplain SurfaceRequest#willNotProvideSurface()} marked as 'will not complete'}, or
-         * {@linkplain SurfaceRequest#addRequestCancellationListener(Executor, Runnable) cancelled
-         * by the camera}. After one of these conditions occurs, a request is considered
-         * completed.
          *
-         * <p>Once a request is successfully completed, if a new request is made it will only
-         * occur after the listenable future returned by
-         * {@link SurfaceRequest#provideSurface(Surface)} has completed.
+         * {@linkplain SurfaceRequest#provideSurface(Surface, Executor, androidx.core.util.Consumer)
+         * fulfilled}, {@linkplain SurfaceRequest#willNotProvideSurface()} marked as 'will not
+         * complete'}, or
+         * {@linkplain SurfaceRequest#addRequestCancellationListener(Executor, Runnable) cancelled
+         * by the camera}. After one of these conditions occurs, a request is considered completed.
+         *
+         * <p>Once a request is successfully completed, it is guaranteed that if a new request is
+         * made, the {@link Surface} used to fulfill the previous request will be detached from the
+         * camera and {@link SurfaceRequest#provideSurface(Surface, Executor, Consumer)} will be
+         * invoked with a {@link androidx.camera.core.SurfaceRequest.Result} containing
+         * {@link androidx.camera.core.SurfaceRequest.Result#RESULT_SURFACE_USED_SUCCESSFULLY}.
          *
          * Example:
          *
@@ -457,22 +515,19 @@ public final class Preview extends UseCase {
          *         // Create the surface and attempt to provide it to the camera.
          *         Surface surface = resetGlInputSurface(request.getResolution());
          *
-         *         // Provide the surface.
-         *         ListenableFuture<Void> sessionFuture = request.provideSurface(surface);
-         *         // Attach a listener that will be called to clean up the surface.
-         *         sessionFuture.addListener(() -> {
+         *         // Provide the surface and wait for the result to clean up the surface.
+         *         request.provideSurface(surface, mGlExecutor, (result) -> {
          *             // In all cases (even errors), we can clean up the state. As an
-         *             // optimization, we could also optionally check for errors on the
-         *             // ListenableFuture since we may be able to reuse the surface on
-         *             // subsequent surface requests.
+         *             // optimization, we could also optionally check for REQUEST_CANCELLED
+         *             // since we may be able to reuse the surface on subsequent surface requests.
          *             closeGlInputSurface(surface);
-         *         }, mGlExecutor);
+         *         });
          *     }
          * }
          * </pre>
          *
-         * @param request  the request for a surface which contains the requirements of the
-         *                 surface and methods for completing the request.
+         * @param request the request for a surface which contains the requirements of the
+         *                surface and methods for completing the request.
          */
         void onSurfaceRequested(@NonNull SurfaceRequest request);
     }
@@ -588,6 +643,14 @@ public final class Preview extends UseCase {
                         "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
                                 + "config.");
             }
+
+            if (getMutableConfig().retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, null) != null) {
+                getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.YUV_420_888);
+            } else {
+                getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
+                        ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+            }
+
             return new Preview(getUseCaseConfig());
         }
 

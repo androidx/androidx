@@ -14,6 +14,6 @@
 
 # NavArgsLazy creates NavArgs instances using reflection
 -if public class ** implements androidx.navigation.NavArgs
--keepclassmembers public class ** implements androidx.navigation.NavArgs {
+-keepclassmembers public class <1> {
     ** fromBundle(android.os.Bundle);
 }

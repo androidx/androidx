@@ -18,8 +18,8 @@ package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.Text
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -31,7 +31,6 @@ import androidx.ui.layout.Spacer
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.ArrowForwardIos
 import androidx.ui.unit.dp
 import java.text.DecimalFormat
 
@@ -72,14 +71,14 @@ private fun BaseRow(
     negative: Boolean
 ) {
     Row(LayoutHeight(68.dp)) {
-        val typography = MaterialTheme.typography()
+        val typography = MaterialTheme.typography
         AccountIndicator(color = color, modifier = LayoutGravity.Center)
         Spacer(LayoutWidth(8.dp))
         Column(LayoutGravity.Center) {
             Text(text = title, style = typography.body1)
             Text(text = subtitle, style = typography.subtitle1)
         }
-        Spacer(LayoutFlexible(1f))
+        Spacer(LayoutWeight(1f))
         Row(
             modifier = LayoutGravity.Center + LayoutWidth(113.dp),
             arrangement = Arrangement.SpaceBetween
@@ -116,7 +115,7 @@ private fun AccountIndicator(color: Color, modifier: Modifier = Modifier.None) {
 
 @Composable
 fun RallyDivider(modifier: Modifier = Modifier.None) {
-    Divider(color = MaterialTheme.colors().background, height = 1.dp, modifier = modifier)
+    Divider(color = MaterialTheme.colors.background, height = 1.dp, modifier = modifier)
 }
 
 fun formatAmount(amount: Float): String {

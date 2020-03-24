@@ -42,6 +42,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -66,6 +67,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
@@ -76,7 +78,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -131,7 +132,7 @@ public class CameraXActivity extends AppCompatActivity
     @SuppressWarnings("WeakerAccess")
     private Size mResolution;
     @SuppressWarnings("WeakerAccess")
-    ListenableFuture<Void> mSurfaceReleaseFuture;
+    ListenableFuture<SurfaceRequest.Result> mSurfaceReleaseFuture;
     @SuppressWarnings("WeakerAccess")
     SurfaceRequest mSurfaceRequest;
 
@@ -810,33 +811,39 @@ public class CameraXActivity extends AppCompatActivity
             }
         }
 
-        ListenableFuture<Void> cameraProviderFuture =
-                Futures.transform(ProcessCameraProvider.getInstance(this),
-                        provider -> {
-                            mCameraProvider = provider;
-                            return null;
-                        },
-                        ContextCompat.getMainExecutor(this));
+        CameraXViewModel viewModel = new ViewModelProvider(this).get(CameraXViewModel.class);
+        viewModel.getCameraProvider().observe(this, provider -> {
+            mCameraProvider = provider;
+            if (mPermissionsGranted) {
+                setupCamera();
+            }
+        });
 
-        ListenableFuture<Void> permissionFuture = Futures.transform(setupPermissions(),
-                permissionGranted -> {
-                    mPermissionsGranted = Preconditions.checkNotNull(permissionGranted);
-                    return null;
-                }, ContextCompat.getMainExecutor(this));
 
-        Futures.addCallback(
-                Futures.allAsList(cameraProviderFuture, permissionFuture),
-                new FutureCallback<List<Void>>() {
-                    @Override
-                    public void onSuccess(@Nullable List<Void> ignored) {
-                        CameraXActivity.this.setupCamera();
+        Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
+                @Override
+                public void onSuccess(@Nullable Boolean permissionsGranted) {
+                    mPermissionsGranted = Preconditions.checkNotNull(permissionsGranted);
+                    if (mPermissionsGranted) {
+                        if (mCameraProvider != null) {
+                            setupCamera();
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Camera permission denied.",
+                                Toast.LENGTH_SHORT)
+                                .show();
+                        finish();
                     }
+                }
 
-                    @Override
-                    public void onFailure(@NonNull Throwable t) {
-                        throw new RuntimeException("Initialization failed.", t);
-                    }
-                }, ContextCompat.getMainExecutor(this));
+                @Override
+                public void onFailure(@NonNull Throwable throwable) {
+                    Toast.makeText(getApplicationContext(), "Unable to request camera "
+                            + "permission.", Toast.LENGTH_SHORT)
+                            .show();
+                    finish();
+                }
+            }, ContextCompat.getMainExecutor(this));
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -856,7 +863,13 @@ public class CameraXActivity extends AppCompatActivity
         mSurfaceTexture.setDefaultBufferSize(mResolution.getWidth(), mResolution.getHeight());
 
         final Surface surface = new Surface(mSurfaceTexture);
-        final ListenableFuture<Void> surfaceReleaseFuture = mSurfaceRequest.provideSurface(surface);
+        final ListenableFuture<SurfaceRequest.Result> surfaceReleaseFuture =
+                CallbackToFutureAdapter.getFuture(completer -> {
+                    mSurfaceRequest.provideSurface(surface,
+                            CameraXExecutors.directExecutor(), completer::set);
+                    return "provideSurface[request=" + mSurfaceRequest + " surface=" + surface
+                            + "]";
+                });
         mSurfaceReleaseFuture = surfaceReleaseFuture;
         mSurfaceReleaseFuture.addListener(() -> {
             surface.release();
@@ -870,11 +883,8 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void setupCamera() {
-        // Check for permissions before proceeding.
-        if (!mPermissionsGranted) {
-            Log.d(TAG, "Permissions denied.");
-            return;
-        }
+        // Only call setupCamera if permissions are granted
+        Preconditions.checkState(mPermissionsGranted);
 
         Log.d(TAG, "Camera direction: " + mCurrentCameraDirection);
         if (mCurrentCameraDirection.equalsIgnoreCase("BACKWARD")) {
@@ -984,6 +994,7 @@ public class CameraXActivity extends AppCompatActivity
         }
     }
 
+    @CallSuper
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -1003,6 +1014,7 @@ public class CameraXActivity extends AppCompatActivity
             default:
                 // No-op
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Nullable

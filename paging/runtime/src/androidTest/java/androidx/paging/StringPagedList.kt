@@ -44,7 +44,7 @@ private class FakeSource<Value : Any>(
     }
 }
 
-@Suppress("TestFunctionName")
+@Suppress("TestFunctionName", "DEPRECATION")
 fun StringPagedList(
     leadingNulls: Int,
     trailingNulls: Int,

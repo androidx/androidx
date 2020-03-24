@@ -28,7 +28,7 @@ import androidx.ui.geometry.Offset
 /* expect */ typealias NativeShader = android.graphics.Shader
 
 /**
- * Inline class used to represent primitives used to render gradients or to tile an [Image]
+ * Inline class used to represent primitives used to render gradients or to tile an [ImageAsset]
  */
 /* inline */ class Shader(val nativeShader: NativeShader)
 
@@ -100,7 +100,7 @@ import androidx.ui.geometry.Offset
 }
 
 /* expect */ fun ImageShader(
-    image: Image,
+    image: ImageAsset,
     tileModeX: TileMode = TileMode.Clamp,
     tileModeY: TileMode = TileMode.Clamp
 ): Shader {

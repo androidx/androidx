@@ -56,7 +56,9 @@ class EpicenterTest : BaseTest() {
 
     private fun testViewEpicenter(viewSetup: View.() -> Unit) {
         val view = setupTestView()
-        view.viewSetup()
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            view.viewSetup()
+        }
         val transitionSupport = FragmentTransitionSupport()
 
         val transition = AutoTransition()

@@ -54,6 +54,7 @@ import androidx.text.LayoutCompat.TextDirection
 import androidx.text.LayoutCompat.TextLayoutAlignment
 import androidx.text.style.BaselineShiftSpan
 import kotlin.math.ceil
+import kotlin.math.min
 
 /**
  * Wrapper for Static Text Layout classes.
@@ -83,9 +84,9 @@ import kotlin.math.ceil
  * @param layoutIntrinsics previously calculated [LayoutIntrinsics] for this text
  * @see StaticLayoutFactory
  *
- * @hide
+ * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TextLayout constructor(
     charSequence: CharSequence,
     width: Float = 0.0f,
@@ -121,6 +122,8 @@ class TextLayout constructor(
      */
     @VisibleForTesting
     val layout: Layout
+
+    val lineCount: Int
 
     init {
         val end = charSequence.length
@@ -188,16 +191,18 @@ class TextLayout constructor(
         } else {
             layout.lineCount > maxLines
         }
+        lineCount = min(layout.lineCount, maxLines)
     }
-
-    val lineCount: Int
-        get() = layout.lineCount
 
     val text: CharSequence
         get() = layout.text
 
     val height: Int
-        get() = layout.height
+        get() = if (didExceedMaxLines) {
+            layout.getLineBottom(lineCount - 1)
+        } else {
+            layout.height
+        }
 
     fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex)
 

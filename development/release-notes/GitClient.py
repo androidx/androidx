@@ -69,6 +69,11 @@ class GitClient:
 		authorEmailDelimiter = "_Author:"
 		dateDelimiter = "_Date:"
 		bodyDelimiter = "_Body:"
+		if subProjectDir[0] == '/':
+			raise RuntimeError("Fatal error: the subproject directory (subProjectDir) passed to " +
+				"GitClient.getGitLog was an absolute filepath.  The subproject directory should " +
+				"be a relative filepath to the GitClient.gitRoot")
+
 		fullProjectDir = os.path.join(self.gitRoot, subProjectDir)
 
 		gitLogOptions = "--pretty=format:" + \
@@ -132,8 +137,9 @@ class Commit:
 		self.summary = ""
 		self.changeType = CommitType.BUG_FIX
 		self.releaseNote = ""
-		self.releaseNoteDelimiter = "Relnote:"
-		listedCommit = gitCommit.split('\n')
+		self.releaseNoteDelimiter = "relnote:"
+		self.formatGitCommitRelnoteTag()
+		listedCommit = self.gitCommit.split('\n')
 		for line in listedCommit:
 			if line.strip() == "": continue
 			if self.commitSHADelimiter in line:
@@ -147,9 +153,22 @@ class Commit:
 			if ("Bug:" in line) or ("b/" in line) or ("bug:" in line) or ("Fixes:" in line) or ("fixes b/" in line):
 				self.getBugsFromGitLine(line)
 			if self.releaseNoteDelimiter in line:
-				self.getReleaseNotesFromGitLine(line, gitCommit)
+				self.getReleaseNotesFromGitLine(line, self.gitCommit)
 			if self.projectDir.strip('/') in line:
 				self.getFileFromGitLine(line)
+
+	def formatGitCommitRelnoteTag(self):
+		""" This method accounts for the fact that the releaseNoteDelimiter is case insensitive
+			To do this, we just replace it with the tag we expect and can easily parse
+		"""
+		relnoteIndex = self.gitCommit.lower().find(self.releaseNoteDelimiter)
+		if relnoteIndex > -1:
+			self.gitCommit = self.gitCommit[:relnoteIndex] + \
+						self.releaseNoteDelimiter + \
+						self.gitCommit[relnoteIndex + len(self.releaseNoteDelimiter):]
+		# Provide support for other types of quotes around the Relnote message
+		self.gitCommit = self.gitCommit.replace('“','"')
+		self.gitCommit = self.gitCommit.replace('”','"')
 
 	def isExternalAuthorEmail(self, authorEmail):
 		return "@google.com" not in self.authorEmail

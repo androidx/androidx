@@ -82,7 +82,8 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
      */
     var isSemanticBoundary: Boolean = false
         set(value) {
-            assert(!isMergingSemanticsOfDescendants || value)
+            // TODO: b/150777826 - fix and re-enable assertion
+            // check(!isMergingSemanticsOfDescendants || value)
             field = value
         }
 

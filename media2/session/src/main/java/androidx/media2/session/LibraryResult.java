@@ -71,15 +71,18 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
     int mResultCode;
     @ParcelField(2)
     long mCompletionTime;
+    // Parceled via mParcelableItem.
     @NonParcelField
     MediaItem mItem;
+    // For parceling mItem. Should be only used by onPreParceling() and onPostParceling().
     @ParcelField(3)
     MediaItem mParcelableItem;
     @ParcelField(4)
     MediaLibraryService.LibraryParams mParams;
-    // Mark list of media items NonParcelField to send the list through the ParcelImpListSlice.
+    // Parceled via mItemListSlice
     @NonParcelField
     List<MediaItem> mItemList;
+    // For parceling mItemList. Should be only used by onPreParceling() and onPostParceling().
     @ParcelField(5)
     ParcelImplListSlice mItemListSlice;
 
@@ -221,9 +224,23 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
      */
     @RestrictTo(LIBRARY)
     @Override
+    @SuppressWarnings("SynchronizeOnNonFinalField") // mItem and mItemList are effectively final.
     public void onPreParceling(boolean isStream) {
-        mParcelableItem = MediaUtils.upcastForPreparceling(mItem);
-        mItemListSlice = MediaUtils.convertMediaItemListToParcelImplListSlice(mItemList);
+        if (mItem != null) {
+            synchronized (mItem) {
+                if (mParcelableItem == null) {
+                    mParcelableItem = MediaUtils.upcastForPreparceling(mItem);
+                }
+            }
+        }
+        if (mItemList != null) {
+            synchronized (mItemList) {
+                if (mItemListSlice == null) {
+                    mItemListSlice = MediaUtils.convertMediaItemListToParcelImplListSlice(
+                            mItemList);
+                }
+            }
+        }
     }
 
     /**
@@ -233,8 +250,6 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
     @Override
     public void onPostParceling() {
         mItem = mParcelableItem;
-        mParcelableItem = null;
         mItemList = MediaUtils.convertParcelImplListSliceToMediaItemList(mItemListSlice);
-        mItemListSlice = null;
     }
 }

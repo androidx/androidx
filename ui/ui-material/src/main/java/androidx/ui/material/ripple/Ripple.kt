@@ -18,27 +18,35 @@ package androidx.ui.material.ripple
 
 import androidx.animation.AnimationClockObservable
 import androidx.compose.Composable
-import androidx.compose.Recompose
-import androidx.compose.onDispose
+import androidx.compose.CompositionLifecycleObserver
+import androidx.compose.StructurallyEqual
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
+import androidx.ui.animation.asDisposableClock
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.AnimationClockAmbient
+import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Draw
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.DrawModifier
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
+import androidx.ui.unit.ipx
 import androidx.ui.unit.toPxSize
 
 /**
- * Ripple is a visual indicator for a pressed state.
+ * Ripple is a [Modifier] which draws the visual indicator for a pressed state.
  *
- * A [Ripple] component responds to a tap by starting a new [RippleEffect] animation.
+ * Ripple responds to a tap by starting a new [RippleEffect] animation.
  * For creating an effect it uses the [RippleTheme.factory].
  *
  * @sample androidx.ui.material.samples.RippleSample
@@ -54,58 +62,51 @@ import androidx.ui.unit.toPxSize
  * @param enabled The ripple effect will not start if false is provided.
  */
 @Composable
-fun Ripple(
-    bounded: Boolean,
+fun ripple(
+    bounded: Boolean = true,
     radius: Dp? = null,
     color: Color? = null,
     enabled: Boolean = true,
-    clock: AnimationClockObservable = AnimationClockAmbient.current,
-    children: @Composable() () -> Unit
-) {
+    clock: AnimationClockObservable = AnimationClockAmbient.current
+): Modifier {
+    @Suppress("NAME_SHADOWING") // don't allow usage of the parameter clock, only the disposable
+    val clock = clock.asDisposableClock()
     val density = DensityAmbient.current
-    val state = remember { RippleState() }
+    val rippleModifier = remember { RippleModifier() }
     val theme = RippleThemeAmbient.current
+    rippleModifier.color = (color ?: theme.defaultColor()).copy(alpha = theme.opacity())
 
-    OnChildPositioned(onPositioned = { state.coordinates = it }) {
-        PressIndicatorGestureDetector(
-            onStart = { position ->
-                if (enabled && transitionsEnabled) {
-                    state.handleStart(position, theme.factory, density, bounded, radius, clock)
-                }
-            },
-            onStop = { state.handleFinish(false) },
-            onCancel = { state.handleFinish(true) },
-            children = children
-        )
-    }
-
-    Recompose { recompose ->
-        state.recompose = recompose
-        val finalColor = (color ?: theme.defaultColor()).copy(alpha = theme.opacity())
-        Draw { canvas, _ ->
-            if (state.effects.isNotEmpty()) {
-                val position = state.coordinates!!.parentCoordinates
-                    ?.childToLocal(state.coordinates!!, PxPosition.Origin) ?: PxPosition.Origin
-                canvas.translate(position.x.value, position.y.value)
-                state.effects.forEach { it.draw(canvas, finalColor) }
-                canvas.translate(-position.x.value, -position.y.value)
+    val pressIndicator = PressIndicatorGestureDetector(
+        onStart = { position ->
+            if (enabled && transitionsEnabled) {
+                rippleModifier.handleStart(position, theme.factory, density, bounded, radius, clock)
             }
-        }
-    }
-
-    onDispose {
-        state.effects.forEach { it.dispose() }
-        state.effects.clear()
-        state.currentEffect = null
-    }
+        },
+        onStop = { rippleModifier.handleFinish(false) },
+        onCancel = { rippleModifier.handleFinish(true) }
+    )
+    return pressIndicator + rippleModifier
 }
 
-private class RippleState {
+private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycleObserver {
 
-    var coordinates: LayoutCoordinates? = null
-    var effects = mutableListOf<RippleEffect>()
-    var currentEffect: RippleEffect? = null
-    var recompose: () -> Unit = {}
+    var color: Color by mutableStateOf(Color.Transparent, StructurallyEqual)
+
+    private var size: IntPxSize = IntPxSize(0.ipx, 0.ipx)
+    private var effects = mutableListOf<RippleEffect>()
+    private var currentEffect: RippleEffect? = null
+
+    private var animationPulse by mutableStateOf(0L)
+    private val redraw: () -> Unit = { animationPulse++ }
+
+    override fun Density.modifySize(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection,
+        childSize: IntPxSize
+    ): IntPxSize {
+        size = childSize
+        return childSize
+    }
 
     fun handleStart(
         touchPosition: PxPosition,
@@ -115,10 +116,7 @@ private class RippleState {
         radius: Dp?,
         clock: AnimationClockObservable
     ) {
-        val coordinates = checkNotNull(coordinates) {
-            "handleStart() called before the layout coordinates were provided!"
-        }
-        val position = if (bounded) touchPosition else coordinates.size.toPxSize().center()
+        val position = if (bounded) touchPosition else size.toPxSize().center()
         val onAnimationFinished = { effect: RippleEffect ->
             effects.remove(effect)
             if (currentEffect == effect) {
@@ -126,23 +124,39 @@ private class RippleState {
             }
         }
         val effect = factory.create(
-            coordinates,
+            size,
             position,
             density,
             radius,
             bounded,
             clock,
-            recompose,
+            redraw,
             onAnimationFinished
         )
 
         effects.add(effect)
         currentEffect = effect
-        recompose()
+        redraw()
     }
 
     fun handleFinish(canceled: Boolean) {
         currentEffect?.finish(canceled)
+        currentEffect = null
+    }
+
+    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
+        drawContent()
+        animationPulse // model read
+        effects.forEach { it.draw(canvas, this.size, color) }
+    }
+
+    override fun onEnter() {
+        // do nothing
+    }
+
+    override fun onLeave() {
+        effects.forEach { it.dispose() }
+        effects.clear()
         currentEffect = null
     }
 }

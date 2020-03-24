@@ -2591,6 +2591,26 @@ public class ViewCompat {
     }
 
     /**
+     * Compute insets that should be consumed by this view and the ones that should propagate
+     * to those under it.
+     *
+     * @param insets Insets currently being processed by this View, likely received as a parameter
+     *           to {@link View#onApplyWindowInsets(WindowInsets)}.
+     * @param outLocalInsets A Rect that will receive the insets that should be consumed
+     *                       by this view
+     * @return Insets that should be passed along to views under this one
+     */
+    @NonNull
+    public static WindowInsetsCompat computeSystemWindowInsets(@NonNull View view,
+            @NonNull WindowInsetsCompat insets, @NonNull Rect outLocalInsets) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            return WindowInsetsCompat.toWindowInsetsCompat(
+                    view.computeSystemWindowInsets(insets.toWindowInsets(), outLocalInsets));
+        }
+        return insets;
+    }
+
+    /**
      * Controls whether the entire hierarchy under this view will save its
      * state when a state saving traversal occurs from its parent.
      *

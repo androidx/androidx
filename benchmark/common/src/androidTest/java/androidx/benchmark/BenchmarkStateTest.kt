@@ -17,6 +17,7 @@
 package androidx.benchmark
 
 import android.Manifest
+import androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
@@ -50,7 +51,7 @@ class BenchmarkStateTest {
             Thread.sleep(5)
             state.resumeTiming()
         }
-        val median = state.stats.median
+        val median = state.getReport().getStats("timeNs").median
         assertTrue(
             "median $median should be between 2ms and 4ms",
             ms2ns(2) < median && median < ms2ns(4)
@@ -110,15 +111,15 @@ class BenchmarkStateTest {
             total++
         }
 
-        val report = state.getReport("test", "class")
+        val report = state.getReport()
         val expectedCount =
-            report.warmupIterations + report.repeatIterations * BenchmarkState.REPEAT_COUNT
+            report.warmupIterations + report.repeatIterations * BenchmarkState.REPEAT_COUNT[1]!!
         assertEquals(expectedCount, total)
 
         // verify we're not in warmup mode
         assertTrue(report.warmupIterations > 0)
         assertTrue(report.repeatIterations > 1)
-        assertEquals(50, BenchmarkState.REPEAT_COUNT)
+        assertEquals(50, BenchmarkState.REPEAT_COUNT[1])
     }
 
     @Test
@@ -155,7 +156,7 @@ class BenchmarkStateTest {
     fun notStarted() {
         val initialPriority = ThreadPriority.get()
         try {
-            BenchmarkState().stats
+            BenchmarkState().getReport().getStats("timeNs").median
             fail("expected exception")
         } catch (e: IllegalStateException) {
             assertEquals(initialPriority, ThreadPriority.get())
@@ -170,7 +171,7 @@ class BenchmarkStateTest {
         try {
             BenchmarkState().run {
                 keepRunning()
-                stats
+                getReport().getStats("timeNs").median
             }
             fail("expected exception")
         } catch (e: IllegalStateException) {
@@ -180,15 +181,25 @@ class BenchmarkStateTest {
         }
     }
 
-    @UseExperimental(BenchmarkState.Companion.ExperimentalExternalReport::class)
+    @Suppress("DEPRECATION")
+    @UseExperimental(ExperimentalExternalReport::class)
     @Test
     fun reportResult() {
-        BenchmarkState.reportData("className", "testName", 900000000, listOf(100), 1, 0, 1)
+        BenchmarkState.reportData(
+            className = "className",
+            testName = "testName",
+            totalRunTimeNs = 900000000,
+            dataNs = listOf(100L, 200L, 300L),
+            warmupIterations = 1,
+            thermalThrottleSleepSeconds = 0,
+            repeatIterations = 1
+        )
         val expectedReport = BenchmarkState.Report(
             className = "className",
             testName = "testName",
             totalRunTimeNs = 900000000,
-            data = listOf(100),
+            data = listOf(listOf(100L, 200L, 300L)),
+            stats = listOf(Stats(longArrayOf(100, 200, 300), "timeNs")),
             repeatIterations = 1,
             thermalThrottleSleepSeconds = 0,
             warmupIterations = 1

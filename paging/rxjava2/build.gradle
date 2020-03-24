@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
+
 import androidx.build.AndroidXExtension
+import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -35,7 +35,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_RX2)
 
-    testImplementation project(':internal-testutils-common')
+    testImplementation(project(":internal-testutils-common"))
     testImplementation(JUNIT)
     testImplementation(KOTLIN_TEST)
 
@@ -46,17 +46,17 @@ dependencies {
 }
 
 androidx {
-    name = "Android Paging RXJava2"
+    name = "Android Paging-RXJava2"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.PAGING
     inceptionYear = "2018"
-    description = "Android Paging RXJava2"
+    description = "Android Paging-RXJava2"
     url = AndroidXExtension.ARCHITECTURE_URL
 }
 
-// Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
+// Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental"]
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     }
 }

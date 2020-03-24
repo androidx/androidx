@@ -24,6 +24,9 @@ plugins {
     id("java-library")
 }
 
+targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_7
+
 dependencies {
    //api(project(":serialization:serialization-runtime"))
 }

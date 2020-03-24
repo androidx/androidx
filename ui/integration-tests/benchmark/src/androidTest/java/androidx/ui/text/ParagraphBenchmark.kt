@@ -22,7 +22,7 @@ import androidx.test.filters.LargeTest
 import androidx.ui.unit.Density
 import androidx.ui.unit.sp
 import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.integration.test.Alphabet
 import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.integration.test.TextBenchmarkTestRule
@@ -177,7 +177,7 @@ class ParagraphBenchmark(
                     // some line breaking in the result
                     val paragraph = paragraph(text, style, ParagraphConstraints(width))
                     val canvas = Canvas(
-                        Image(paragraph.width.roundToInt(), paragraph.height.roundToInt())
+                        ImageAsset(paragraph.width.roundToInt(), paragraph.height.roundToInt())
                     )
                     Pair(paragraph, canvas)
                 }
@@ -198,7 +198,7 @@ class ParagraphBenchmark(
             // some line breaking in the result
             val paragraph = paragraph(text, style, ParagraphConstraints(width))
             val canvas = Canvas(
-                Image(paragraph.width.roundToInt(), paragraph.height.roundToInt())
+                ImageAsset(paragraph.width.roundToInt(), paragraph.height.roundToInt())
             )
             // Paint for the first time, so that we only benchmark repaint.
             paragraph.paint(canvas)

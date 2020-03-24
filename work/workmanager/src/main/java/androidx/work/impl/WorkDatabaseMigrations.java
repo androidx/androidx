@@ -58,6 +58,7 @@ public class WorkDatabaseMigrations {
     public static final int VERSION_8 = 8;
     public static final int VERSION_9 = 9;
     public static final int VERSION_10 = 10;
+    public static final int VERSION_11 = 11;
 
     private static final String CREATE_SYSTEM_ID_INFO =
             "CREATE TABLE IF NOT EXISTS `SystemIdInfo` (`work_spec_id` TEXT NOT NULL, `system_id`"

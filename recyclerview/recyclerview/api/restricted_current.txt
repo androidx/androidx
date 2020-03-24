@@ -330,7 +330,7 @@ package androidx.recyclerview.widget {
     ctor public MergeAdapter(androidx.recyclerview.widget.MergeAdapter.Config, java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!>);
     method public boolean addAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
     method public boolean addAdapter(int, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
-    method public java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!> getCopyOfAdapters();
+    method public java.util.List<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!> getAdapters();
     method public int getItemCount();
     method public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
     method public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
@@ -510,7 +510,7 @@ package androidx.recyclerview.widget {
     method public abstract int getItemCount();
     method public long getItemId(int);
     method public int getItemViewType(int);
-    method public final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy getStateRestorationStrategy();
+    method public final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy getStateRestorationPolicy();
     method public final boolean hasObservers();
     method public final boolean hasStableIds();
     method public final void notifyDataSetChanged();
@@ -534,14 +534,14 @@ package androidx.recyclerview.widget {
     method public void onViewRecycled(VH);
     method public void registerAdapterDataObserver(androidx.recyclerview.widget.RecyclerView.AdapterDataObserver);
     method public void setHasStableIds(boolean);
-    method public void setStateRestorationStrategy(androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy);
+    method public void setStateRestorationPolicy(androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy);
     method public void unregisterAdapterDataObserver(androidx.recyclerview.widget.RecyclerView.AdapterDataObserver);
   }
 
-  public enum RecyclerView.Adapter.StateRestorationStrategy {
-    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy ALLOW;
-    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy PREVENT;
-    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationStrategy PREVENT_WHEN_EMPTY;
+  public enum RecyclerView.Adapter.StateRestorationPolicy {
+    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy ALLOW;
+    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy PREVENT;
+    enum_constant public static final androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy PREVENT_WHEN_EMPTY;
   }
 
   public abstract static class RecyclerView.AdapterDataObserver {
@@ -552,7 +552,7 @@ package androidx.recyclerview.widget {
     method public void onItemRangeInserted(int, int);
     method public void onItemRangeMoved(int, int, int);
     method public void onItemRangeRemoved(int, int);
-    method public void onStateRestorationStrategyChanged();
+    method public void onStateRestorationPolicyChanged();
   }
 
   public static interface RecyclerView.ChildDrawingOrderCallback {

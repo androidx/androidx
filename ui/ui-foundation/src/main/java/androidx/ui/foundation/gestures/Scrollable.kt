@@ -18,12 +18,16 @@ package androidx.ui.foundation.gestures
 
 import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationClockObservable
+import androidx.animation.AnimationClockObserver
 import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
+import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.unit.PxPosition
@@ -41,7 +45,7 @@ import androidx.ui.unit.px
 fun ScrollableState(
     onScrollDeltaConsumptionRequested: (Float) -> Float
 ): ScrollableState {
-    val clocks = AnimationClockAmbient.current
+    val clocks = AnimationClockAmbient.current.asDisposableClock()
     val flingConfig = FlingConfig()
     return remember(clocks, flingConfig) {
         ScrollableState(onScrollDeltaConsumptionRequested, flingConfig, clocks)
@@ -75,14 +79,28 @@ class ScrollableState(
         onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
     ) {
         val to = animatedFloat.value - value
-        animatedFloat.animateTo(to, onEnd)
+        animatedFloat.animateTo(to, onEnd = onEnd)
+    }
+
+    private val isAnimationRunningState = mutableStateOf(false)
+
+    private val clocksProxy = object : AnimationClockObservable {
+        override fun subscribe(observer: AnimationClockObserver) {
+            isAnimationRunningState.value = true
+            animationClock.subscribe(observer)
+        }
+
+        override fun unsubscribe(observer: AnimationClockObserver) {
+            isAnimationRunningState.value = false
+            animationClock.unsubscribe(observer)
+        }
     }
 
     /**
      * whether this [ScrollableState] is currently animating/flinging
      */
     val isAnimating
-        get() = animatedFloat.isRunning
+        get() = isAnimationRunningState.value
 
     /**
      * Stop any animation, smooth scrolling or fling ongoing for this scrollable
@@ -94,7 +112,7 @@ class ScrollableState(
     }
 
     private val animatedFloat =
-        DeltaAnimatedFloat(0f, animationClock, onScrollDeltaConsumptionRequested)
+        DeltaAnimatedFloat(0f, clocksProxy, onScrollDeltaConsumptionRequested)
 
     /**
      * current position for scrollable
@@ -148,7 +166,7 @@ fun Scrollable(
     enabled: Boolean = true,
     children: @Composable() () -> Unit
 ) {
-    TouchSlopDragGestureDetector(
+    val drag = DragGestureDetector(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {
@@ -179,9 +197,12 @@ fun Scrollable(
         canDrag = { direction ->
             enabled && dragDirection.isDraggableInDirection(direction, -scrollableState.value)
         },
-        startDragImmediately = scrollableState.isAnimating,
-        children = children
+        startDragImmediately = scrollableState.isAnimating
     )
+    // TODO(b/150706555): This layout is temporary and should be removed once Semantics
+    //  is implemented with modifiers.
+    @Suppress("DEPRECATION")
+    PassThroughLayout(drag, children)
 }
 
 private class DeltaAnimatedFloat(

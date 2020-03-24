@@ -111,6 +111,8 @@ private abstract class AbstractTestElement(
     override fun getEnclosingElement(): Element? = enclosingElement
     override fun getEnclosedElements(): List<Element> = enclosedElements
 
+    override fun getAnnotationMirrors() = emptyList<AnnotationMirror>()
+
     override fun asType(): TypeMirror {
         throw UnsupportedOperationException("Test Element implementation")
     }
@@ -123,13 +125,9 @@ private abstract class AbstractTestElement(
         notImplemented()
     }
 
-    override fun getAnnotationMirrors(): List<AnnotationMirror> {
-        notImplemented()
-    }
-
     protected fun notImplemented(): Nothing {
         throw UnsupportedOperationException(
-            "Test implementation of ${this::class.simpleName} does not implement this method"
+            "Test implementation of ${this::class.java.simpleName} does not implement this method"
         )
     }
 }

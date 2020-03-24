@@ -26,7 +26,7 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.unit.ipx
 import androidx.ui.unit.sp
 import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.Image
+import androidx.ui.graphics.ImageAsset
 import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.cartesian
@@ -165,7 +165,11 @@ class TextDelegateBenchmark(
                     textDelegate(textGenerator).let {
                         val layoutResult = it.layout(Constraints(maxWidth = maxWidth))
                         val canvas = Canvas(
-                            Image(layoutResult.size.width.value, layoutResult.size.height.value))
+                            ImageAsset(
+                                layoutResult.size.width.value,
+                                layoutResult.size.height.value
+                            )
+                        )
                         Triple(it, canvas, layoutResult)
                     }
                 }
@@ -187,7 +191,7 @@ class TextDelegateBenchmark(
             val textDelegate = textDelegate(textGenerator)
             val layoutResult = textDelegate.layout(Constraints(maxWidth = maxWidth))
             val canvas = Canvas(
-                Image(layoutResult.size.width.value, layoutResult.size.height.value)
+                ImageAsset(layoutResult.size.width.value, layoutResult.size.height.value)
             )
 
             benchmarkRule.measureRepeated {

@@ -197,7 +197,19 @@ class FragmentStateManager {
         if (!mFragment.mAdded) {
             maxState = Math.min(maxState, Fragment.CREATED);
         }
-        if (mFragment.mRemoving) {
+        SpecialEffectsController.Operation.Type awaitingEffect = null;
+        if (FragmentManager.USE_STATE_MANAGER && mFragment.mContainer != null) {
+            SpecialEffectsController controller = SpecialEffectsController.getOrCreateController(
+                    mFragment.mContainer, mFragment.getParentFragmentManager());
+            awaitingEffect = controller.getAwaitingCompletionType(this);
+        }
+        if (awaitingEffect == SpecialEffectsController.Operation.Type.ADD) {
+            // Fragments awaiting their enter effects cannot proceed beyond that state
+            maxState = Math.min(maxState, Fragment.AWAITING_ENTER_EFFECTS);
+        } else if (awaitingEffect == SpecialEffectsController.Operation.Type.REMOVE) {
+            // Fragments that are in the process of being removed shouldn't go below that state
+            maxState = Math.max(maxState, Fragment.AWAITING_EXIT_EFFECTS);
+        } else if (mFragment.mRemoving) {
             if (mFragment.isInBackStack()) {
                 // Fragments on the back stack shouldn't go higher than CREATED
                 maxState = Math.min(maxState, Fragment.CREATED);
@@ -255,21 +267,28 @@ class FragmentStateManager {
                         case Fragment.CREATED:
                             create();
                             break;
-                        case Fragment.ACTIVITY_CREATED:
+                        case Fragment.AWAITING_EXIT_EFFECTS:
                             ensureInflatedView();
                             createView();
                             activityCreated();
                             restoreViewState();
-                            if (mFragment.mContainer != null) {
+                            break;
+                        case Fragment.ACTIVITY_CREATED:
+                            if (mFragment.mView != null && mFragment.mContainer != null) {
                                 SpecialEffectsController controller = SpecialEffectsController
-                                        .getOrCreateController(mFragment.mContainer);
+                                        .getOrCreateController(mFragment.mContainer,
+                                                mFragment.getParentFragmentManager());
                                 mEnterAnimationCancellationSignal = new CancellationSignal();
                                 controller.enqueueAdd(this,
                                         mEnterAnimationCancellationSignal);
                             }
+                            mFragment.mState = Fragment.ACTIVITY_CREATED;
                             break;
                         case Fragment.STARTED:
                             start();
+                            break;
+                        case Fragment.AWAITING_ENTER_EFFECTS:
+                            mFragment.mState = Fragment.AWAITING_ENTER_EFFECTS;
                             break;
                         case Fragment.RESUMED:
                             resume();
@@ -283,47 +302,34 @@ class FragmentStateManager {
                         mEnterAnimationCancellationSignal.cancel();
                     }
                     switch (nextStep) {
-                        case Fragment.STARTED:
+                        case Fragment.AWAITING_ENTER_EFFECTS:
                             pause();
+                            break;
+                        case Fragment.STARTED:
+                            mFragment.mState = Fragment.STARTED;
                             break;
                         case Fragment.ACTIVITY_CREATED:
                             stop();
                             break;
-                        case Fragment.CREATED:
+                        case Fragment.AWAITING_EXIT_EFFECTS:
                             if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                                 Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
                             }
                             // TODO call saveViewState()
-                            if (mFragment.mContainer != null) {
+                            if (mFragment.mView != null && mFragment.mContainer != null) {
                                 SpecialEffectsController controller = SpecialEffectsController
-                                        .getOrCreateController(mFragment.mContainer);
+                                        .getOrCreateController(mFragment.mContainer,
+                                                mFragment.getParentFragmentManager());
                                 mExitAnimationCancellationSignal = new CancellationSignal();
                                 controller.enqueueRemove(this,
                                         mExitAnimationCancellationSignal);
                             }
-                            // TODO wait for the special effects to finish
+                            mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
+                            break;
+                        case Fragment.CREATED:
                             destroyFragmentView();
                             break;
                         case Fragment.ATTACHED:
-                            // TODO move this into destroy()
-                            boolean beingRemoved = mFragment.mRemoving
-                                    && !mFragment.isInBackStack();
-                            if (beingRemoved
-                                    || mFragmentStore.getNonConfig().shouldDestroy(mFragment)) {
-                                mFragmentStore.makeInactive(this);
-                            } else {
-                                if (mFragment.mTargetWho != null) {
-                                    Fragment target = mFragmentStore.findActiveFragment(
-                                            mFragment.mTargetWho);
-                                    if (target != null && target.mRetainInstance) {
-                                        // Only keep references to other retained Fragments
-                                        // to avoid developers accessing Fragments that
-                                        // are never coming back
-                                        mFragment.mTarget = target;
-                                    }
-                                }
-                            }
-                            // TODO wait for animations to complete
                             destroy();
                             break;
                         case Fragment.INITIALIZING:
@@ -409,7 +415,10 @@ class FragmentStateManager {
             targetFragmentStateManager = null;
         }
         if (targetFragmentStateManager != null) {
-            targetFragmentStateManager.moveToExpectedState();
+            if (FragmentManager.USE_STATE_MANAGER
+                    || targetFragmentStateManager.getFragment().mState < Fragment.CREATED) {
+                targetFragmentStateManager.moveToExpectedState();
+            }
         }
         mFragment.mHost = mFragment.mFragmentManager.getHost();
         mFragment.mParentFragment = mFragment.mFragmentManager.getParent();
@@ -473,6 +482,9 @@ class FragmentStateManager {
             mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
             if (container != null) {
                 container.addView(mFragment.mView);
+                if (FragmentManager.USE_STATE_MANAGER) {
+                    mFragment.mView.setVisibility(View.INVISIBLE);
+                }
             }
             if (mFragment.mHidden) {
                 mFragment.mView.setVisibility(View.GONE);
@@ -653,7 +665,34 @@ class FragmentStateManager {
             }
             mFragment.performDestroy();
             mDispatcher.dispatchOnFragmentDestroyed(mFragment, false);
+            // Ensure that any Fragment that had this Fragment as its
+            // target Fragment retains a reference to the Fragment
+            for (FragmentStateManager fragmentStateManager :
+                    mFragmentStore.getActiveFragmentStateManagers()) {
+                if (fragmentStateManager != null) {
+                    Fragment fragment = fragmentStateManager.getFragment();
+                    if (mFragment.mWho.equals(fragment.mTargetWho)) {
+                        fragment.mTarget = mFragment;
+                        fragment.mTargetWho = null;
+                    }
+                }
+            }
+            if (mFragment.mTargetWho != null) {
+                // Restore the target Fragment so that it can be accessed
+                // even after the Fragment is removed.
+                mFragment.mTarget = mFragmentStore.findActiveFragment(mFragment.mTargetWho);
+            }
+            mFragmentStore.makeInactive(this);
         } else {
+            if (mFragment.mTargetWho != null) {
+                Fragment target = mFragmentStore.findActiveFragment(mFragment.mTargetWho);
+                if (target != null && target.mRetainInstance) {
+                    // Only keep references to other retained Fragments
+                    // to avoid developers accessing Fragments that
+                    // are never coming back
+                    mFragment.mTarget = target;
+                }
+            }
             mFragment.mState = Fragment.ATTACHED;
         }
     }

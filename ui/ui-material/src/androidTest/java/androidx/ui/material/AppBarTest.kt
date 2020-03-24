@@ -20,14 +20,16 @@ import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.Text
-import androidx.ui.core.currentTextStyle
+import androidx.ui.core.Modifier
 import androidx.ui.core.globalPosition
+import androidx.ui.core.onChildPositioned
+import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.currentTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.ColorPainter
-import androidx.ui.layout.Container
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByText
@@ -83,36 +85,22 @@ class AppBarTest {
         var titleLastBaselineRelativePosition: Px? = null
         var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Container {
-                OnChildPositioned(onPositioned = { coords ->
-                    appBarCoords = coords
-                }) {
-                    TopAppBar(
-                        navigationIcon = {
-                            OnChildPositioned(onPositioned = { coords ->
-                                navigationIconCoords = coords
-                            }) {
-                                FakeIcon()
-                            }
-                        },
-                        title = {
-                            OnChildPositioned(onPositioned = { coords ->
-                                titleCoords = coords
-                                titleLastBaselineRelativePosition =
-                                    coords[LastBaseline]!!.toPx()
-                            }) {
-                                Text("title")
-                            }
-                        },
-                        actions = {
-                            OnChildPositioned(onPositioned = { coords ->
-                                actionCoords = coords
-                            }) {
-                                FakeIcon()
-                            }
-                        }
-                    )
-                }
+            Box(onChildPositioned { appBarCoords = it }) {
+                TopAppBar(
+                    navigationIcon = {
+                        FakeIcon(onPositioned { navigationIconCoords = it })
+                    },
+                    title = {
+                        Text("title", onPositioned { coords ->
+                            titleCoords = coords
+                            titleLastBaselineRelativePosition =
+                                coords[LastBaseline]!!.toPx()
+                        })
+                    },
+                    actions = {
+                        FakeIcon(onPositioned { actionCoords = it })
+                    }
+                )
             }
         }
 
@@ -164,27 +152,15 @@ class AppBarTest {
         var titleCoords: LayoutCoordinates? = null
         var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Container {
-                OnChildPositioned(onPositioned = { coords ->
-                    appBarCoords = coords
-                }) {
-                    TopAppBar(
-                        title = {
-                            OnChildPositioned(onPositioned = { coords ->
-                                titleCoords = coords
-                            }) {
-                                Text("title")
-                            }
-                        },
-                        actions = {
-                            OnChildPositioned(onPositioned = { coords ->
-                                actionCoords = coords
-                            }) {
-                                FakeIcon()
-                            }
-                        }
-                    )
-                }
+            Box(onChildPositioned { appBarCoords = it }) {
+                TopAppBar(
+                    title = {
+                        Text("title", onPositioned { titleCoords = it })
+                    },
+                    actions = {
+                        FakeIcon(onPositioned { actionCoords = it })
+                    }
+                )
             }
         }
 
@@ -207,12 +183,12 @@ class AppBarTest {
         var textStyle: TextStyle? = null
         var h6Style: TextStyle? = null
         composeTestRule.setMaterialContent {
-            Container {
+            Box {
                 TopAppBar(
                     title = {
                         Text("App Bar Title")
                         textStyle = currentTextStyle()
-                        h6Style = MaterialTheme.typography().h6
+                        h6Style = MaterialTheme.typography.h6
                     }
                 )
             }
@@ -237,17 +213,9 @@ class AppBarTest {
         var appBarCoords: LayoutCoordinates? = null
         var childCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Container {
-                OnChildPositioned(onPositioned = { coords ->
-                    appBarCoords = coords
-                }) {
-                    BottomAppBar {
-                        OnChildPositioned(onPositioned = { coords ->
-                            childCoords = coords
-                        }) {
-                            FakeIcon()
-                        }
-                    }
+            Box(onChildPositioned { appBarCoords = it }) {
+                BottomAppBar {
+                    FakeIcon(onPositioned { childCoords = it })
                 }
             }
         }
@@ -272,8 +240,8 @@ class AppBarTest {
     /**
      * [IconButton] that just draws a red box, to simulate a real icon for testing positions.
      */
-    private val FakeIcon = @Composable {
-        IconButton(onClick = {}) {
+    private val FakeIcon = @Composable { modifier: Modifier ->
+        IconButton(onClick = {}, modifier = modifier) {
             Icon(ColorPainter(Color.Red))
         }
     }

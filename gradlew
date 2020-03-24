@@ -104,7 +104,9 @@ DEFAULT_JVM_OPTS="-DLINT_API_DATABASE=$APP_HOME/../../prebuilts/fullsdk-$plat/pl
 # setup from each lint module.
 export ANDROID_HOME="$APP_HOME/../../prebuilts/fullsdk-$plat"
 # override JAVA_HOME, because CI machines have it and it points to very old JDK
-export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86"
+export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk11/$plat-x86"
+export JAVA_TOOLS_JAR="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86/lib/tools.jar"
+export STUDIO_GRADLE_JDK=$JAVA_HOME
 
 # ----------------------------------------------------------------------------
 
@@ -218,9 +220,6 @@ function tryToDiagnosePossibleDaemonFailure() {
     if [ -n "$DIST_DIR" ]; then
       cp -r "$GRADLE_USER_HOME/daemon" "$DIST_DIR/gradle-daemon"
       cp ./hs_err* $DIST_DIR/ 2>/dev/null || true
-      # TODO (146217083): consider removing these after the Gradle daemons stop occasionally dying
-      dmesg | tail -n 40 || true
-      echo "Current java processes: '$(ps -eF | grep java)'"
     fi
   fi
 }
@@ -242,6 +241,6 @@ function runGradle() {
 runGradle "$@"
 # Check whether we were given the "-PverifyUpToDate" argument
 if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
-  # Re-run Gradle, and verify that the tasks are up-to-date
-  runGradle "$@" -PdisallowExecution
+  # Re-run Gradle, and find all tasks that are unexpectly out of date
+  runGradle "$@" -PdisallowExecution --continue
 fi

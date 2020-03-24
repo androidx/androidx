@@ -51,6 +51,9 @@ class TableChildren internal constructor() {
     fun tableRow(children: @Composable() () -> Unit) {
         val rowIndex = tableChildren.size
         tableChildren += {
+            // TODO(b/150139220) ParentData composable will be removed as soon as Table's API is
+            //  migrated
+            @Suppress("DEPRECATION")
             ParentData(data = TableChildData(rowIndex), children = children)
         }
     }
@@ -524,7 +527,7 @@ fun Table(
         minIntrinsicHeightMeasureBlock = MinIntrinsicHeightMeasureBlock(columns, columnWidth),
         maxIntrinsicWidthMeasureBlock = MaxIntrinsicWidthMeasureBlock(columns, columnWidth),
         maxIntrinsicHeightMeasureBlock = MaxIntrinsicHeightMeasureBlock(columns, columnWidth)
-    ) { measurables, constraints ->
+    ) { measurables, constraints, _ ->
         val rowMeasurables = measurables.filter { it.rowIndex != null }.groupBy { it.rowIndex }
         val rows = rowMeasurables.size
         fun measurableAt(row: Int, column: Int) = rowMeasurables[row]?.getOrNull(column)
@@ -611,7 +614,7 @@ fun Table(
                                 height = rowHeights[row] - it.height
                             )
                         )
-                        it.place(
+                        it.placeAbsolute(
                             x = columnOffsets[column] + position.x,
                             y = rowOffsets[row] + position.y
                         )
@@ -621,7 +624,7 @@ fun Table(
             val decorationConstraints =
                 Constraints.fixed(tableSize.width, tableSize.height)
             measurables.filter { it.rowIndex == null }.forEach {
-                it.measure(decorationConstraints).place(IntPx.Zero, IntPx.Zero)
+                it.measure(decorationConstraints).placeAbsolute(IntPx.Zero, IntPx.Zero)
             }
         }
     }
@@ -630,7 +633,7 @@ fun Table(
 private val MinIntrinsicWidthMeasureBlock:
             (Int, (Int) -> TableColumnWidth) -> IntrinsicMeasureBlock =
     { columns, columnWidth ->
-        { measurables, availableHeight ->
+        { measurables, availableHeight, _ ->
             intrinsicWidth(
                 columns = columns,
                 columnWidth = columnWidth,
@@ -644,7 +647,7 @@ private val MinIntrinsicWidthMeasureBlock:
 private val MinIntrinsicHeightMeasureBlock:
             (Int, (Int) -> TableColumnWidth) -> IntrinsicMeasureBlock =
     { columns, columnWidth ->
-        { measurables, availableWidth ->
+        { measurables, availableWidth, _ ->
             intrinsicHeight(
                 columns = columns,
                 columnWidth = columnWidth,
@@ -658,7 +661,7 @@ private val MinIntrinsicHeightMeasureBlock:
 private val MaxIntrinsicWidthMeasureBlock:
             (Int, (Int) -> TableColumnWidth) -> IntrinsicMeasureBlock =
     { columns, columnWidth ->
-        { measurables, availableHeight ->
+        { measurables, availableHeight, _ ->
             intrinsicWidth(
                 columns = columns,
                 columnWidth = columnWidth,
@@ -672,7 +675,7 @@ private val MaxIntrinsicWidthMeasureBlock:
 private val MaxIntrinsicHeightMeasureBlock:
             (Int, (Int) -> TableColumnWidth) -> IntrinsicMeasureBlock =
     { columns, columnWidth ->
-        { measurables, availableWidth ->
+        { measurables, availableWidth, _ ->
             intrinsicHeight(
                 columns = columns,
                 columnWidth = columnWidth,

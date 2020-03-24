@@ -143,6 +143,7 @@ public abstract class SliceProvider extends ContentProvider implements
     private final String[] mAutoGrantPermissions;
 
     private Context mContext = null;
+    private final Object mCompatLock = new Object();
     private SliceProviderCompat mCompat;
 
     private final Object mPinnedSliceUrisLock = new Object();
@@ -207,11 +208,19 @@ public abstract class SliceProvider extends ContentProvider implements
     @Override
     public final boolean onCreate() {
         if (Build.VERSION.SDK_INT < 19) return false;
-        if (Build.VERSION.SDK_INT < 28) {
-            mCompat = new SliceProviderCompat(this,
-                    onCreatePermissionManager(mAutoGrantPermissions), getContext());
-        }
         return onCreateSliceProvider();
+    }
+
+    @NonNull
+    @RequiresApi(19)
+    private SliceProviderCompat getSliceProviderCompat() {
+        synchronized (mCompatLock) {
+            if (mCompat == null) {
+                mCompat = new SliceProviderCompat(this,
+                        onCreatePermissionManager(mAutoGrantPermissions), getContext());
+            }
+        }
+        return mCompat;
     }
 
     /**
@@ -251,12 +260,18 @@ public abstract class SliceProvider extends ContentProvider implements
         }
     }
 
+    /**
+     * Handles the call to SliceProvider.
+     *
+     * <p>This function is unsupported for sdk < 19. For sdk 28 and above the call is handled by
+     * {@link android.app.slice.SliceProvider}
+     */
     @Nullable
     @Override
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-        if (Build.VERSION.SDK_INT < 19) return null;
+        if (Build.VERSION.SDK_INT < 19 || Build.VERSION.SDK_INT >= 28) return null;
         if (extras == null) return null;
-        return mCompat != null ? mCompat.call(method, arg, extras) : null;
+        return getSliceProviderCompat().call(method, arg, extras);
     }
 
     /**

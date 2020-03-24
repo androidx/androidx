@@ -443,6 +443,14 @@ public class MediaSessionProviderService extends Service {
         }
 
         @Override
+        public void setCurrentMediaItemMetadata(String sessionId, ParcelImpl metadata)
+                throws RemoteException {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            player.mCurrentMediaItem.setMetadata(MediaParcelUtils.fromParcelable(metadata));
+        }
+
+        @Override
         public void createAndSetDummyPlaylist(String sessionId, int size) throws RemoteException {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();

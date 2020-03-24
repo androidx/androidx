@@ -37,6 +37,8 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(RX_JAVA)
+    testImplementation(KOTLIN_COROUTINES_TEST)
+    testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
 }
 

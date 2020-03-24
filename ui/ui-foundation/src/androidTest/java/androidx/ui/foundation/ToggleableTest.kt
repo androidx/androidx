@@ -18,12 +18,11 @@ package androidx.ui.foundation
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
-import androidx.ui.core.Text
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable
-import androidx.ui.layout.Center
 import androidx.ui.layout.Column
+import androidx.ui.layout.Stack
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertSemanticsIsEqualTo
@@ -49,17 +48,17 @@ class ToggleableTest {
         composeTestRule.setContent {
             Column {
                 TestTag(tag = "checkedToggleable") {
-                    TriStateToggleable(ToggleableState.On, onToggle = {}) {
+                    TriStateToggleable(ToggleableState.On, onClick = {}) {
                         Text("ToggleableText")
                     }
                 }
                 TestTag(tag = "unCheckedToggleable") {
-                    TriStateToggleable(ToggleableState.Off, onToggle = {}) {
+                    TriStateToggleable(ToggleableState.Off, onClick = {}) {
                         Text("ToggleableText")
                     }
                 }
                 TestTag(tag = "indeterminateToggleable") {
-                    TriStateToggleable(ToggleableState.Indeterminate, onToggle = {}) {
+                    TriStateToggleable(ToggleableState.Indeterminate, onClick = {}) {
                         Text("ToggleableText")
                     }
                 }
@@ -130,9 +129,9 @@ class ToggleableTest {
     @Test
     fun toggleableTest_disabledSemantics() {
         composeTestRule.setContent {
-            Center {
+            Stack {
                 TestTag(tag = "myToggleable") {
-                    TriStateToggleable(value = ToggleableState.On) {
+                    TriStateToggleable(state = ToggleableState.On, enabled = false, onClick = {}) {
                         Text("ToggleableText")
                     }
                 }
@@ -154,7 +153,7 @@ class ToggleableTest {
         val onCheckedChange: (Boolean) -> Unit = { checked = it }
 
         composeTestRule.setContent {
-            Center {
+            Stack {
                 TestTag(tag = "myToggleable") {
                     Toggleable(value = checked, onValueChange = onCheckedChange) {
                         Text("ToggleableText")

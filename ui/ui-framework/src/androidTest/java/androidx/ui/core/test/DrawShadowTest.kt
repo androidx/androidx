@@ -24,10 +24,10 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.Draw
-import androidx.ui.core.DrawShadow
-import androidx.ui.core.Opacity
-import androidx.ui.core.RepaintBoundary
+import androidx.ui.core.Modifier
+import androidx.ui.core.draw
+import androidx.ui.core.drawLayer
+import androidx.ui.core.drawShadow
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
@@ -94,9 +94,7 @@ class DrawShadowTest {
     fun shadowDrawnInsideRenderNode() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                RepaintBoundary {
-                    ShadowContainer()
-                }
+                ShadowContainer(modifier = drawLayer(clipToBounds = false))
             }
         }
 
@@ -134,9 +132,7 @@ class DrawShadowTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                RepaintBoundary {
-                    ShadowContainer(elevation)
-                }
+                ShadowContainer(elevation, modifier = drawLayer())
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -155,12 +151,11 @@ class DrawShadowTest {
     fun opacityAppliedForTheShadow() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 12.ipx) {
-                    FillColor(Color.White)
-                    Opacity(0.1f) {
-                        AtLeastSize(size = 10.ipx) {
-                            DrawShadow(rectShape, 4.dp)
-                        }
+                AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
+                    AtLeastSize(
+                        size = 10.ipx,
+                        modifier = drawShadow(rectShape, 4.dp, opacity = 0.5f)
+                    ) {
                     }
                 }
             }
@@ -172,8 +167,8 @@ class DrawShadowTest {
             // assert the shadow is still visible
             assertNotEquals(shadowColor, Color.White)
             // but the shadow is not as dark as it would be without opacity.
-            // with full opacity it is around 0.85, with 10% opacity it is 0.98
-            assertTrue(shadowColor.luminance() > 0.95f)
+            // with full opacity it is around 0.85, with 50% opacity it is 0.96
+            assertTrue(shadowColor.luminance() > 0.94f)
         }
     }
 
@@ -184,12 +179,13 @@ class DrawShadowTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 12.ipx) {
-                    FillColor(Color.White)
-                    AtLeastSize(size = 10.ipx) {
-                        if (model.value) {
-                            DrawShadow(rectShape, 8.dp)
-                        }
+                AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
+                    val shadow = if (model.value) {
+                        drawShadow(rectShape, 8.dp)
+                    } else {
+                        Modifier.None
+                    }
+                    AtLeastSize(size = 10.ipx, modifier = shadow) {
                     }
                 }
             }
@@ -207,11 +203,15 @@ class DrawShadowTest {
     }
 
     @Composable
-    private fun ShadowContainer(elevation: State<Dp> = mutableStateOf(8.dp)) {
-        AtLeastSize(size = 12.ipx) {
-            FillColor(Color.White)
-            AtLeastSize(size = 10.ipx) {
-                DrawShadow(rectShape, elevation.value)
+    private fun ShadowContainer(
+        elevation: State<Dp> = mutableStateOf(8.dp),
+        modifier: Modifier = Modifier.None
+    ) {
+        AtLeastSize(size = 12.ipx, modifier = modifier + background(Color.White)) {
+            AtLeastSize(
+                size = 10.ipx,
+                modifier = drawShadow(shape = rectShape, elevation = elevation.value)
+            ) {
             }
         }
     }
@@ -220,14 +220,11 @@ class DrawShadowTest {
         assertNotEquals(color(width / 2, height - 1), Color.White)
     }
 
-    @Composable
-    private fun FillColor(color: Color) {
-        Draw { canvas, parentSize ->
-            canvas.drawRect(parentSize.toRect(), Paint().apply {
-                this.color = color
-            })
-            drawLatch.countDown()
-        }
+    private fun background(color: Color) = draw { canvas, size ->
+        canvas.drawRect(size.toRect(), Paint().apply {
+            this.color = color
+        })
+        drawLatch.countDown()
     }
 
     private fun takeScreenShot(width: Int, height: Int = width): Bitmap {

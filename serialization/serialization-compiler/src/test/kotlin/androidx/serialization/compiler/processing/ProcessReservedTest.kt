@@ -16,29 +16,24 @@
 
 package androidx.serialization.compiler.processing
 
-import androidx.serialization.compiler.processing.steps.AbstractProcessingStep
+import androidx.serialization.compiler.testTypeElement
 import androidx.serialization.schema.Reserved
 import com.google.auto.common.BasicAnnotationProcessor
+import com.google.auto.common.BasicAnnotationProcessor.ProcessingStep
+import com.google.common.collect.SetMultimap
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.CompilationSubject.assertThat
 import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
-import javax.lang.model.element.TypeElement
-import kotlin.reflect.KClass
 
 /** Unit tests for [processReserved]. */
 class ProcessReservedTest {
     @Test
     fun testEmpty() {
-        val typeElement = mock<TypeElement> {
-            on { annotationMirrors } doReturn emptyList()
-        }
-
+        val typeElement = testTypeElement("com.example", "Test")
         assertThat(processReserved(typeElement)).isSameInstanceAs(Reserved.empty())
     }
 
@@ -78,11 +73,19 @@ class ProcessReservedTest {
 
     private class ReservedProcessingStep(
         private val onReserved: (Reserved) -> Unit
-    ) : AbstractProcessingStep(androidx.serialization.Reserved::class) {
-        override fun process(elementsByAnnotation: Map<KClass<out Annotation>, Set<Element>>) {
-            elementsByAnnotation[androidx.serialization.Reserved::class]?.forEach {
+    ) : ProcessingStep {
+        override fun annotations(): Set<Class<out Annotation>> {
+            return setOf(androidx.serialization.Reserved::class.java)
+        }
+
+        override fun process(
+            elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
+        ): Set<Element> {
+            elementsByAnnotation[androidx.serialization.Reserved::class.java].forEach {
                 onReserved(processReserved(it.asTypeElement()))
             }
+
+            return emptySet()
         }
     }
 

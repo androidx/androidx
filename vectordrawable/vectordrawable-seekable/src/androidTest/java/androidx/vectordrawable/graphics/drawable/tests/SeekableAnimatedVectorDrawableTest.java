@@ -30,14 +30,13 @@ import android.util.AttributeSet;
 import android.util.Xml;
 import android.view.InflateException;
 
-import androidx.animation.AnimationTestRule;
+import androidx.animator.AnimationTestRule;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.vectordrawable.graphics.drawable.Animatable2;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.vectordrawable.seekable.test.R;
 
@@ -108,28 +107,54 @@ public class SeekableAnimatedVectorDrawableTest {
 
         final AtomicBoolean started = new AtomicBoolean(false);
         final AtomicBoolean ended = new AtomicBoolean(false);
-        avd.registerAnimationCallback(new Animatable2.AnimationCallback() {
+        final AtomicBoolean paused = new AtomicBoolean(false);
+        final AtomicBoolean resumed = new AtomicBoolean(false);
+        final AtomicBoolean updated = new AtomicBoolean(false);
+        avd.registerAnimationCallback(new SeekableAnimatedVectorDrawable.AnimationCallback() {
             @Override
-            public void onAnimationStart(@NonNull Drawable drawable) {
+            public void onAnimationStart(@NonNull SeekableAnimatedVectorDrawable drawable) {
                 started.set(true);
             }
 
             @Override
-            public void onAnimationEnd(@NonNull Drawable drawable) {
+            public void onAnimationEnd(@NonNull SeekableAnimatedVectorDrawable drawable) {
                 ended.set(true);
+            }
+
+            @Override
+            public void onAnimationPause(@NonNull SeekableAnimatedVectorDrawable drawable) {
+                paused.set(true);
+            }
+
+            @Override
+            public void onAnimationResume(@NonNull SeekableAnimatedVectorDrawable drawable) {
+                resumed.set(true);
+            }
+
+            @Override
+            public void onAnimationUpdate(@NonNull SeekableAnimatedVectorDrawable drawable) {
+                updated.set(true);
             }
         });
 
+        assertThat(updated.get()).isFalse();
         assertThat(started.get()).isFalse();
-        assertThat(ended.get()).isFalse();
-
         avd.start();
         assertThat(started.get()).isTrue();
-        assertThat(ended.get()).isFalse();
+        animationRule.advanceTimeBy(40L);
 
+        assertThat(paused.get()).isFalse();
+        avd.pause();
+        assertThat(paused.get()).isTrue();
+
+        assertThat(resumed.get()).isFalse();
+        avd.resume();
+        assertThat(resumed.get()).isTrue();
+
+        assertThat(ended.get()).isFalse();
         animationRule.advanceTimeBy(1000L);
-        assertThat(started.get()).isTrue();
         assertThat(ended.get()).isTrue();
+        assertThat(updated.get()).isTrue();
     }
 
     @Test
@@ -146,7 +171,7 @@ public class SeekableAnimatedVectorDrawableTest {
     @UiThreadTest
     public void unregisterCallback() {
         final SeekableAnimatedVectorDrawable avd = createAvd();
-        final Animatable2.AnimationCallback callback = createFailingCallback();
+        final SeekableAnimatedVectorDrawable.AnimationCallback callback = createFailingCallback();
         avd.registerAnimationCallback(callback);
         final boolean removed = avd.unregisterAnimationCallback(callback);
         assertThat(removed).isTrue();
@@ -238,12 +263,7 @@ public class SeekableAnimatedVectorDrawableTest {
             assertThat(Color.green(fillColor)).isEqualTo(0);
             historicalRed.add(Color.red(fillColor));
         }
-        assertThat(historicalRed).isInOrder(new Comparator<Integer>() {
-            @Override
-            public int compare(Integer o1, Integer o2) {
-                return o2 - o1;
-            }
-        });
+        assertThat(historicalRed).isInOrder((Comparator<Integer>) (o1, o2) -> o2 - o1);
     }
 
     @Test
@@ -264,25 +284,114 @@ public class SeekableAnimatedVectorDrawableTest {
         );
     }
 
+    @Test
+    @UiThreadTest
+    public void pauseAndResume() {
+        final Bitmap bitmap = Bitmap.createBitmap(
+                IMAGE_WIDTH, IMAGE_HEIGHT, Bitmap.Config.ARGB_8888
+        );
+        final Canvas canvas = new Canvas(bitmap);
+        final SeekableAnimatedVectorDrawable avd = SeekableAnimatedVectorDrawable.create(
+                ApplicationProvider.getApplicationContext(),
+                R.drawable.animated_color_fill
+        );
+
+        assertThat(avd).isNotNull();
+        avd.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        avd.draw(canvas);
+        assertThat(bitmap.getPixel(0, 0)).isEqualTo(Color.RED);
+
+        avd.start();
+        assertThat(avd.isRunning()).isTrue();
+        assertThat(avd.isPaused()).isFalse();
+        animationRule.advanceTimeBy(100L);
+        avd.draw(canvas);
+        final int pausedColor = bitmap.getPixel(0, 0);
+        assertThat(Color.red(pausedColor)).isLessThan(0xff);
+
+        avd.pause();
+        assertThat(avd.isRunning()).isTrue();
+        assertThat(avd.isPaused()).isTrue();
+        animationRule.advanceTimeBy(1000L);
+        avd.draw(canvas);
+        assertThat(bitmap.getPixel(0, 0)).isEqualTo(pausedColor);
+
+        avd.resume();
+        assertThat(avd.isRunning()).isTrue();
+        assertThat(avd.isPaused()).isFalse();
+        animationRule.advanceTimeBy(100L);
+        avd.draw(canvas);
+        assertThat(Color.red(bitmap.getPixel(0, 0))).isLessThan(Color.red(pausedColor));
+    }
+
+    @Test
+    @UiThreadTest
+    public void setCurrentPlayTime() {
+        final Bitmap bitmap = Bitmap.createBitmap(
+                IMAGE_WIDTH, IMAGE_HEIGHT, Bitmap.Config.ARGB_8888
+        );
+        final Canvas canvas = new Canvas(bitmap);
+        final SeekableAnimatedVectorDrawable avd = SeekableAnimatedVectorDrawable.create(
+                ApplicationProvider.getApplicationContext(),
+                R.drawable.animated_color_fill
+        );
+
+        assertThat(avd).isNotNull();
+        avd.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        avd.draw(canvas);
+        assertThat(bitmap.getPixel(0, 0)).isEqualTo(Color.RED);
+
+        int previousRed = Integer.MAX_VALUE;
+        for (int i = 0; i < 10; i++) {
+            avd.setCurrentPlayTime((i + 1) * 100L);
+            avd.draw(canvas);
+            final int fillColor = bitmap.getPixel(IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2);
+            assertThat(Color.blue(fillColor)).isEqualTo(0);
+            assertThat(Color.green(fillColor)).isEqualTo(0);
+            int red = Color.red(fillColor);
+            assertThat(red).isLessThan(previousRed);
+            previousRed = red;
+        }
+    }
+
+    @Test
+    @UiThreadTest
+    public void getCurrentPlayTime() {
+        final SeekableAnimatedVectorDrawable avd = SeekableAnimatedVectorDrawable.create(
+                ApplicationProvider.getApplicationContext(),
+                R.drawable.animated_color_fill
+        );
+        assertThat(avd).isNotNull();
+        avd.setCurrentPlayTime(100L);
+        assertThat(avd.getCurrentPlayTime()).isEqualTo(100L);
+    }
+
+    @Test
+    @UiThreadTest
+    public void getTotalDuration() {
+        final SeekableAnimatedVectorDrawable avd = createAvd();
+        assertThat(avd.getTotalDuration()).isEqualTo(150L);
+    }
+
     private SeekableAnimatedVectorDrawable createAvd() {
         final SeekableAnimatedVectorDrawable avd = SeekableAnimatedVectorDrawable.create(
                 ApplicationProvider.getApplicationContext(),
-                R.drawable.animation_vector_drawable_grouping_1 // Duration: 50 ms
+                R.drawable.animation_vector_drawable_grouping_1 // Duration: 50 * 3 ms
         );
         assertThat(avd).isNotNull();
         avd.setBounds(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
         return avd;
     }
 
-    private Animatable2.AnimationCallback createFailingCallback() {
-        return new Animatable2.AnimationCallback() {
+    private SeekableAnimatedVectorDrawable.AnimationCallback createFailingCallback() {
+        return new SeekableAnimatedVectorDrawable.AnimationCallback() {
             @Override
-            public void onAnimationStart(@NonNull Drawable drawable) {
+            public void onAnimationStart(@NonNull SeekableAnimatedVectorDrawable drawable) {
                 fail("This callback should not be invoked.");
             }
 
             @Override
-            public void onAnimationEnd(@NonNull Drawable drawable) {
+            public void onAnimationEnd(@NonNull SeekableAnimatedVectorDrawable drawable) {
                 fail("This callback should not be invoked.");
             }
         };
@@ -305,9 +414,9 @@ public class SeekableAnimatedVectorDrawableTest {
         assertThat(bitmap.getPixel(IMAGE_WIDTH / 2, IMAGE_WIDTH / 2)).isEqualTo(Color.RED);
 
         final AtomicBoolean ended = new AtomicBoolean(false);
-        avd.registerAnimationCallback(new Animatable2.AnimationCallback() {
+        avd.registerAnimationCallback(new SeekableAnimatedVectorDrawable.AnimationCallback() {
             @Override
-            public void onAnimationEnd(@NonNull Drawable drawable) {
+            public void onAnimationEnd(@NonNull SeekableAnimatedVectorDrawable drawable) {
                 ended.set(true);
             }
         });

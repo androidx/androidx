@@ -98,11 +98,19 @@ class FragmentStore {
     }
 
     void dispatchStateChange(int state) {
+        for (FragmentStateManager fragmentStateManager : mActive.values()) {
+            if (fragmentStateManager != null) {
+                fragmentStateManager.setFragmentManagerState(state);
+            }
+        }
+    }
+
+    void moveToExpectedState() {
         // Must add them in the proper order. mActive fragments may be out of order
         for (Fragment f : mAdded) {
             FragmentStateManager fragmentStateManager = mActive.get(f.mWho);
             if (fragmentStateManager != null) {
-                fragmentStateManager.setFragmentManagerState(state);
+                fragmentStateManager.moveToExpectedState();
             }
         }
 
@@ -110,7 +118,13 @@ class FragmentStore {
         // and detached.
         for (FragmentStateManager fragmentStateManager : mActive.values()) {
             if (fragmentStateManager != null) {
-                fragmentStateManager.setFragmentManagerState(state);
+                fragmentStateManager.moveToExpectedState();
+
+                Fragment f = fragmentStateManager.getFragment();
+                boolean beingRemoved = f.mRemoving && !f.isInBackStack();
+                if (beingRemoved) {
+                    makeInactive(fragmentStateManager);
+                }
             }
         }
     }
@@ -139,23 +153,6 @@ class FragmentStore {
 
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "Removed fragment from active set " + f);
-        }
-
-        // Ensure that any Fragment that had this Fragment as its
-        // target Fragment retains a reference to the Fragment
-        for (FragmentStateManager fragmentStateManager : mActive.values()) {
-            if (fragmentStateManager != null) {
-                Fragment fragment = fragmentStateManager.getFragment();
-                if (f.mWho.equals(fragment.mTargetWho)) {
-                    fragment.mTarget = f;
-                    fragment.mTargetWho = null;
-                }
-            }
-        }
-        if (f.mTargetWho != null) {
-            // Restore the target Fragment so that it can be accessed
-            // even after the Fragment is removed.
-            f.mTarget = findActiveFragment(f.mTargetWho);
         }
     }
 

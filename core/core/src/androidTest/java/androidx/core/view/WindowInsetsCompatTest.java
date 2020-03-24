@@ -39,9 +39,45 @@ public class WindowInsetsCompatTest {
     public void consumeDisplayCutout_returnsNonNullWindowInsets_pre28() {
         // There is no API create a WindowInsets instance, so we cannot test the 28 code path.
         if (SDK_INT < 28) {
-            WindowInsetsCompat insets = new WindowInsetsCompat(new Object());
+            WindowInsetsCompat insets = new WindowInsetsCompat.Builder().build();
             assertThat(insets.consumeDisplayCutout(), notNullValue());
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void inset() {
+        final Insets sysWindow = Insets.of(12, 34, 35, 31);
+        final WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                .setSystemWindowInsets(sysWindow)
+                .build();
+
+        final Insets resultSysWindow = insets.inset(10, 10, 10, 10)
+                .getSystemWindowInsets();
+
+        assertEquals(sysWindow.left - 10, resultSysWindow.left);
+        assertEquals(sysWindow.top - 10, resultSysWindow.top);
+        assertEquals(sysWindow.right - 10, resultSysWindow.right);
+        assertEquals(sysWindow.bottom - 10, resultSysWindow.bottom);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void inset_largeValues() {
+        final Insets sysWindow = Insets.of(12, 34, 35, 31);
+        final WindowInsetsCompat insets = new WindowInsetsCompat.Builder()
+                .setSystemWindowInsets(sysWindow)
+                .build();
+
+        // This time we inset with values larger than the inset values
+        final Insets resultSysWindow = insets.inset(100, 100, 100, 100)
+                .getSystemWindowInsets();
+
+        // And assert that we have 0 inset values
+        assertEquals(0, resultSysWindow.left);
+        assertEquals(0, resultSysWindow.top);
+        assertEquals(0, resultSysWindow.right);
+        assertEquals(0, resultSysWindow.bottom);
     }
 
     /**

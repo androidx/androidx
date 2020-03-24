@@ -84,6 +84,7 @@ package androidx.ui.graphics {
     method public void drawArc(androidx.ui.geometry.Rect rect, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.graphics.Paint paint);
     method public default void drawArcRad(androidx.ui.geometry.Rect rect, float startAngleRad, float sweepAngleRad, boolean useCenter, androidx.ui.graphics.Paint paint);
     method public void drawCircle(androidx.ui.geometry.Offset center, float radius, androidx.ui.graphics.Paint paint);
+    method public void drawDoubleRoundRect(androidx.ui.geometry.RRect outer, androidx.ui.geometry.RRect inner, androidx.ui.graphics.Paint paint);
     method public void drawImage(androidx.ui.graphics.Image image, androidx.ui.geometry.Offset topLeftOffset, androidx.ui.graphics.Paint paint);
     method public void drawImageRect(androidx.ui.graphics.Image image, androidx.ui.geometry.Rect src, androidx.ui.geometry.Rect dst, androidx.ui.graphics.Paint paint);
     method public void drawLine(androidx.ui.geometry.Offset p1, androidx.ui.geometry.Offset p2, androidx.ui.graphics.Paint paint);
@@ -91,9 +92,9 @@ package androidx.ui.graphics {
     method public void drawPath(androidx.ui.graphics.Path path, androidx.ui.graphics.Paint paint);
     method public void drawPicture(androidx.ui.graphics.Picture picture);
     method public void drawPoints(androidx.ui.graphics.PointMode pointMode, java.util.List<androidx.ui.geometry.Offset> points, androidx.ui.graphics.Paint paint);
+    method public void drawRRect(androidx.ui.geometry.RRect rrect, androidx.ui.graphics.Paint paint);
     method public void drawRawPoints(androidx.ui.graphics.PointMode pointMode, float[] points, androidx.ui.graphics.Paint paint);
     method public void drawRect(androidx.ui.geometry.Rect rect, androidx.ui.graphics.Paint paint);
-    method public void drawRoundRect(float left, float top, float right, float bottom, float radiusX, float radiusY, androidx.ui.graphics.Paint paint);
     method public void drawVertices(androidx.ui.graphics.Vertices vertices, androidx.ui.graphics.BlendMode blendMode, androidx.ui.graphics.Paint paint);
     method public android.graphics.Canvas getNativeCanvas();
     method public void restore();

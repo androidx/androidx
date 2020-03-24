@@ -64,7 +64,7 @@ class PreferenceViewHolderStateTest {
     }
 
     @Test
-    fun testReusingViewHolder_stateReset() {
+    fun testReusingViewHolder_unselectablePreference_stateReset() {
         val preferenceScreen = fragment.preferenceScreen
 
         val copyableTitle = "Copyable"
@@ -72,7 +72,7 @@ class PreferenceViewHolderStateTest {
         // Add 20 unselectable + copyable Preferences. This is so that when we add a new item, it
         // will be offscreen, and when scrolling to it RecyclerView will attempt to reuse an
         // existing cached ViewHolder.
-        val preferences = (0..20).map { index ->
+        val preferences = (1..20).map { index ->
             TestPreference(fragment.context!!).apply {
                 title = copyableTitle + index
                 summary = "Summary to copy"
@@ -86,7 +86,7 @@ class PreferenceViewHolderStateTest {
         }
 
         // Wait for a Preference to be visible
-        onView(withText("${copyableTitle}0")).check(matches(isDisplayed()))
+        onView(withText("${copyableTitle}1")).check(matches(isDisplayed()))
 
         // The title color should be the same as the summary color for unselectable Preferences
         val unselectableTitleColor = preferences[0].titleColor
@@ -127,6 +127,47 @@ class PreferenceViewHolderStateTest {
         assertNotEquals(unselectableTitleColor, normalPreference.titleColor)
         // The summary color should be the same as the unselected Preference
         assertEquals(unselectableSummaryColor, normalPreference.summaryColor)
+    }
+
+    @Test
+    fun testReusingViewHolder_disabledPreference_stateReset() {
+        val preferenceScreen = fragment.preferenceScreen
+
+        val disabledTitle = "Disabled"
+
+        // Add 40 disabled Preferences. The ones at the end haven't been bound yet, and we want
+        // to ensure that when they are bound, reusing a ViewHolder, they should have the correct
+        // disabled state.
+        val preferences = (1..40).map { index ->
+            TestPreference(fragment.context!!).apply {
+                title = disabledTitle + index
+                isEnabled = false
+            }
+        }
+
+        activityRule.runOnUiThread {
+            preferences.forEach { preferenceScreen.addPreference(it) }
+        }
+
+        // Wait for a Preference to be visible
+        onView(withText("${disabledTitle}1")).check(matches(isDisplayed()))
+
+        val expectedTitleColor = preferences[0].titleColor
+
+        val maxAttempts = 10
+
+        // Scroll until the end, ensuring all Preferences have been bound.
+        onView(withId(R.id.recycler_view))
+            .perform(repeatedlyUntil(
+                swipeUp(),
+                hasDescendant(withText("${disabledTitle}40")),
+                maxAttempts
+            ))
+
+        // All preferences should have the correct title color
+        preferences.forEach { preference ->
+            assertEquals(expectedTitleColor, preference.titleColor)
+        }
     }
 }
 

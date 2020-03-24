@@ -53,23 +53,6 @@ class SlotTableTests {
     }
 
     @Test
-    fun testPrevious() {
-        val slots = testSlotsNumbered()
-        slots.read { reader ->
-            for (i in 0 until 100) {
-                assertEquals(i, reader.next())
-                reader.previous()
-                assertEquals(i, reader.next())
-            }
-            for (i in 99 downTo 0) {
-                reader.previous()
-                assertEquals(i, reader.next())
-                reader.previous()
-            }
-        }
-    }
-
-    @Test
     fun testInsertAtTheStart() {
         val slots = testSlotsNumbered()
         slots.write { writer ->
@@ -417,6 +400,15 @@ class SlotTableTests {
     // Semantic tests (testing groups and nodes)
 
     @Test
+    fun testEmptySlotTable() {
+        val slotTable = SlotTable()
+
+        slotTable.read { reader ->
+            assertEquals(EMPTY, reader.groupKey)
+        }
+    }
+
+    @Test
     fun testExtractKeys() {
         val slots = testItems()
         slots.read { reader ->
@@ -759,12 +751,6 @@ class SlotTableTests {
     }
 
     @Test
-    fun testReportUncertainNodeCount() {
-        val slots = SlotTable()
-        slots.read { reader -> reader.reportUncertainNodeCount() }
-    }
-
-    @Test
     fun testMoveGroup() {
         val slots = SlotTable()
 
@@ -1055,14 +1041,24 @@ class SlotTableTests {
             }
         }
     }
+
+    @Test
+    fun testValidateSlotTableIndexes() {
+        val (slots, _) = narrowTrees()
+        validate(slots)
+    }
 }
 
 fun testSlotsNumbered(): SlotTable {
-    val items = arrayOfNulls<Any?>(100)
-    repeat(100) {
-        items[it] = it
+    val slotTable = SlotTable()
+    slotTable.write { writer ->
+        writer.beginInsert()
+        repeat(100) {
+            writer.update(it)
+        }
+        writer.endInsert()
     }
-    return SlotTable(items)
+    return slotTable
 }
 
 private val rootKey = object {}
@@ -1103,6 +1099,70 @@ fun testItems(): SlotTable {
     }
 
     return slots
+}
+
+fun narrowTrees(): Pair<SlotTable, List<Anchor>> {
+    val slots = SlotTable()
+    val anchors = mutableListOf<Anchor>()
+    slots.write { writer ->
+        writer.beginInsert()
+        writer.startGroup(rootKey)
+
+        fun item(key: Int, block: () -> Unit) {
+            writer.startGroup(key)
+            block()
+            writer.endGroup()
+        }
+
+        fun element(key: Int, block: () -> Unit) {
+            writer.startNode(key)
+            block()
+            writer.endNode()
+        }
+
+        fun tree(key: Int, width: Int, depth: Int) {
+            anchors.add(writer.anchor())
+            item(key) {
+                if (width > 0)
+                    for (childKey in 1..width) {
+                        tree(childKey, width - 1, depth + 1)
+                    }
+                else if (depth > 0) {
+                    tree(1001, width, depth - 1)
+                } else {
+                    repeat(depth + 2) {
+                        element(-1) { }
+                    }
+                }
+            }
+        }
+
+        tree(0, 5, 5)
+        writer.endGroup()
+        writer.endInsert()
+    }
+
+    return slots to anchors
+}
+
+fun validate(slots: SlotTable) {
+    slots.read { reader ->
+        fun processGroup(): Int {
+            require(reader.isGroup) { "Group expected at ${reader.current}" }
+            var nodeCount = 0
+            val r = reader
+            val isNode = r.isNode
+            if (isNode) r.startNode(EMPTY) else r.startGroup(EMPTY)
+            while (!r.isGroupEnd) {
+                nodeCount += processGroup()
+            }
+            require(r.nodeIndex == nodeCount) { "Node index off at ${reader.current}" }
+            if (isNode) r.endNode() else r.endGroup()
+            return if (isNode) 1 else nodeCount
+        }
+
+        processGroup()
+    }
 }
 
 fun SlotReader.expectGroup(key: Any): Int {

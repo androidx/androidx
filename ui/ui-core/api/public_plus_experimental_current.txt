@@ -114,6 +114,36 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.Direction UP;
   }
 
+  public interface DrawLayerModifier extends androidx.ui.core.Modifier.Element {
+    method @FloatRange(from=0.0, to=1.0) public default float getAlpha();
+    method public default boolean getClipToBounds();
+    method public default boolean getClipToOutline();
+    method @FloatRange(from=0.0) public default float getElevation();
+    method public default androidx.ui.graphics.Shape? getOutlineShape();
+    method @FloatRange(from=0.0, to=360.0) public default float getRotationX();
+    method @FloatRange(from=0.0, to=360.0) public default float getRotationY();
+    method @FloatRange(from=0.0, to=360.0) public default float getRotationZ();
+    method public default float getScaleX();
+    method public default float getScaleY();
+    method public default androidx.ui.core.TransformOrigin getTransformOrigin();
+    property @FloatRange(from=0.0, to=1.0) public default float alpha;
+    property public default boolean clipToBounds;
+    property public default boolean clipToOutline;
+    property @FloatRange(from=0.0) public default float elevation;
+    property public default androidx.ui.graphics.Shape? outlineShape;
+    property @FloatRange(from=0.0, to=360.0) public default float rotationX;
+    property @FloatRange(from=0.0, to=360.0) public default float rotationY;
+    property @FloatRange(from=0.0, to=360.0) public default float rotationZ;
+    property public default float scaleX;
+    property public default float scaleY;
+    property public default androidx.ui.core.TransformOrigin transformOrigin;
+  }
+
+  public final class DrawLayerModifierKt {
+    method public static inline androidx.ui.core.TransformOrigin TransformOrigin(float pivotFractionX, float pivotFractionY);
+    method public static androidx.ui.core.Modifier drawLayer(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.core.TransformOrigin transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = true, boolean clipToOutline = true);
+  }
+
   public interface DrawModifier extends androidx.ui.core.Modifier.Element {
     method public void draw(androidx.ui.unit.Density density, kotlin.jvm.functions.Function0<kotlin.Unit> drawContent, androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize size);
   }
@@ -144,6 +174,7 @@ package androidx.ui.core {
   }
 
   public interface LayoutCoordinates {
+    method public androidx.ui.unit.PxBounds childBoundingBox(androidx.ui.core.LayoutCoordinates child);
     method public androidx.ui.unit.PxPosition childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.unit.PxPosition childLocal);
     method public operator androidx.ui.unit.IntPx? get(androidx.ui.core.AlignmentLine line);
     method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
@@ -160,8 +191,8 @@ package androidx.ui.core {
   }
 
   public final class LayoutCoordinatesKt {
-    method public static inline androidx.ui.unit.PxBounds getBoundsInRoot(androidx.ui.core.LayoutCoordinates);
-    method public static inline androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.core.LayoutCoordinates);
+    method public static androidx.ui.unit.PxBounds getBoundsInRoot(androidx.ui.core.LayoutCoordinates);
+    method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.core.LayoutCoordinates);
     method public static inline androidx.ui.unit.PxPosition getGlobalPosition(androidx.ui.core.LayoutCoordinates);
     method public static inline androidx.ui.unit.PxPosition getPositionInRoot(androidx.ui.core.LayoutCoordinates);
   }
@@ -172,37 +203,31 @@ package androidx.ui.core {
   }
 
   public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
-    method public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
-    method public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
-    method public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
-    method public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
-    method public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints);
-    method public default androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
-    method public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
   }
 
   public interface Measurable extends androidx.ui.core.IntrinsicMeasurable {
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
   }
 
-  public abstract class MeasureScope implements androidx.ui.core.ModifierScope {
+  public abstract class MeasureScope implements androidx.ui.unit.Density {
     ctor public MeasureScope();
-    method public androidx.ui.core.LayoutDirection getAmbientLayoutDirection();
-    method public androidx.ui.core.LayoutDirection getLayoutDirection();
     method public final androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
-    method public void setAmbientLayoutDirection(androidx.ui.core.LayoutDirection p);
-    method public void setLayoutDirection(androidx.ui.core.LayoutDirection p);
-    property public androidx.ui.core.LayoutDirection ambientLayoutDirection;
-    property public androidx.ui.core.LayoutDirection layoutDirection;
   }
 
   public static interface MeasureScope.LayoutResult {
     method public java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> getAlignmentLines();
     method public androidx.ui.unit.IntPx getHeight();
     method public androidx.ui.unit.IntPx getWidth();
-    method public void placeChildren(androidx.ui.core.Placeable.PlacementScope placementScope);
+    method public void placeChildren(androidx.ui.core.LayoutDirection layoutDirection);
     property public abstract java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines;
     property public abstract androidx.ui.unit.IntPx height;
     property public abstract androidx.ui.unit.IntPx width;
@@ -229,11 +254,19 @@ package androidx.ui.core {
     field public static final androidx.ui.core.Modifier.None! INSTANCE;
   }
 
-  public interface ModifierScope extends androidx.ui.unit.Density {
-    method public androidx.ui.core.LayoutDirection getAmbientLayoutDirection();
-    method public androidx.ui.core.LayoutDirection getLayoutDirection();
-    property public abstract androidx.ui.core.LayoutDirection ambientLayoutDirection;
-    property public abstract androidx.ui.core.LayoutDirection layoutDirection;
+  public interface OnChildPositionedModifier extends androidx.ui.core.Modifier.Element {
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> getOnChildPositioned();
+    property public abstract kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> onChildPositioned;
+  }
+
+  public interface OnPositionedModifier extends androidx.ui.core.Modifier.Element {
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> getOnPositioned();
+    property public abstract kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned;
+  }
+
+  public final class OnPositionedModifierKt {
+    method public static androidx.ui.core.Modifier onChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onChildPositioned);
+    method public static androidx.ui.core.Modifier onPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
   }
 
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {
@@ -258,6 +291,10 @@ package androidx.ui.core {
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.Px x, androidx.ui.unit.Px y);
+    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
+    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
+    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
+    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.Px x, androidx.ui.unit.Px y);
   }
 
   public enum PointerEventPass {
@@ -312,6 +349,20 @@ package androidx.ui.core {
     method public static androidx.ui.unit.PxPosition positionChangeIgnoreConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean positionChanged(androidx.ui.core.PointerInputChange);
     method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.PointerInputChange);
+  }
+
+  public final class TransformOrigin {
+    ctor public TransformOrigin(internal long value);
+    method public float getPivotFractionX();
+    method public float getPivotFractionY();
+    property public final float pivotFractionX;
+    property public final float pivotFractionY;
+    field public static final androidx.ui.core.TransformOrigin.Companion! Companion;
+  }
+
+  public static final class TransformOrigin.Companion {
+    method public androidx.ui.core.TransformOrigin getCenter();
+    property public final androidx.ui.core.TransformOrigin Center;
   }
 
   public final class VerticalAlignmentLine extends androidx.ui.core.AlignmentLine {

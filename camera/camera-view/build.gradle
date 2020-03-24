@@ -38,6 +38,8 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(ROBOLECTRIC)
     testImplementation(TRUTH)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation project(":camera:camera-testing")
 
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(MOCKITO_CORE)

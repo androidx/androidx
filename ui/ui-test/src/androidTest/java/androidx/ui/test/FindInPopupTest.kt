@@ -20,7 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Popup
 import androidx.ui.core.TestTag
-import androidx.ui.layout.Container
+import androidx.ui.foundation.Box
 import androidx.ui.semantics.Semantics
 import org.junit.Rule
 import org.junit.Test
@@ -41,14 +41,14 @@ class FindInPopupTest {
         composeTestRule.setContent {
             TestTag(contentTag) {
                 Semantics {
-                    Container(children = { })
+                    Box()
                 }
             }
 
             Popup(alignment = Alignment.Center) {
                 TestTag(popupTag) {
                     Semantics {
-                        Container(children = { })
+                        Box()
                     }
                 }
             }

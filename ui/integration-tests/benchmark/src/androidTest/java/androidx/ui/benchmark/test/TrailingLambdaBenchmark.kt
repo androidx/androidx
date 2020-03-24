@@ -23,11 +23,12 @@ import androidx.compose.state
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkFirstCompose
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
+import androidx.ui.foundation.Box
 import androidx.ui.unit.dp
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.layout.LayoutWidth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -71,7 +72,7 @@ private sealed class TrailingLambdaTestCase() : ComposeTestCase,
         numberState = number
 
         val content = @Composable {
-            Container(width = 10.dp, height = 10.dp) {}
+            Box(LayoutWidth(10.dp))
         }
 
         Column {
@@ -109,4 +110,5 @@ private class WithoutTrailingLambdas : TrailingLambdaTestCase() {
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
-private fun EmptyComposable(number: Int, children: @Composable() () -> Unit) {}
+private fun EmptyComposable(number: Int, children: @Composable() () -> Unit) {
+}

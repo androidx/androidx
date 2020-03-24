@@ -43,7 +43,7 @@ class SqliteInspectorTestEnvironment : ExternalResource() {
         inspectorTester.dispose()
     }
 
-    @ExperimentalCoroutinesApi
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun assertNoQueuedEvents() {
         assertThat(inspectorTester.channel.isEmpty).isTrue()
     }

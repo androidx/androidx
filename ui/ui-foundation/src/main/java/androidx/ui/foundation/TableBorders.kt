@@ -35,12 +35,14 @@ import androidx.ui.unit.Dp
  * @param defaultBorder The default [Border] appearance to be used for borders that do not
  * specify a style.
  */
+// TODO (popam): this should be a modifier b/150276337
 fun TableChildren.drawBorders(
     defaultBorder: Border = Border(color = Color.Black, size = Dp.Hairline),
     block: DrawBordersReceiver.() -> Unit
 ) {
     tableDecoration(overlay = true) {
         val paint = remember { Paint() }
+        @Suppress("DEPRECATION") // remove when b/150276337 is fixed
         Draw { canvas, _ ->
             val borders = DrawBordersReceiver(
                 rowCount = verticalOffsets.size - 1,

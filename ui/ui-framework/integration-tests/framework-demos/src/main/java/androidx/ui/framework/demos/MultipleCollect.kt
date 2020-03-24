@@ -22,12 +22,9 @@ import androidx.compose.Composable
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutTag
-import androidx.ui.core.LayoutTagParentData
-import androidx.ui.core.ParentData
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Container
 import androidx.ui.layout.LayoutSize
 import androidx.ui.unit.ipx
 
@@ -38,15 +35,10 @@ fun HeaderFooterLayout(
     content: @Composable() () -> Unit
 ) {
     Layout({
-        Container(LayoutTag("header"), children = header)
-        Container(LayoutTag("footer"), children = footer)
-        ParentData(
-            object : LayoutTagParentData {
-                override val tag: Any get() = "content"
-            },
-            children = content
-        )
-    }) { measurables, constraints ->
+        Box(LayoutTag("header"), children = header)
+        Box(LayoutTag("footer"), children = footer)
+        content()
+    }) { measurables, constraints, _ ->
         val headerPlaceable = measurables.first { it.tag == "header" }.measure(
             Constraints.fixed(constraints.maxWidth, 100.ipx)
         )
@@ -54,10 +46,12 @@ fun HeaderFooterLayout(
         val footerPlaceable = measurables.first { it.tag == "footer" }.measure(
             Constraints.fixed(constraints.maxWidth - footerPadding * 2, 100.ipx)
         )
+
+        val contentMeasurables = measurables.filter { it.tag == null }
         val itemHeight =
             (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
-                    measurables.filter { it.tag == "content" }.size
-        val contentPlaceables = measurables.filter { it.tag == "content" }.map { measurable ->
+                    contentMeasurables.size
+        val contentPlaceables = contentMeasurables.map { measurable ->
             measurable.measure(Constraints.fixed(constraints.maxWidth, itemHeight))
         }
 

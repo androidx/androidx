@@ -26,18 +26,25 @@ plugins {
 
 dependencies {
     implementation("androidx.arch.core:core-runtime:2.1.0")
-    implementation("androidx.room:room-runtime:2.2.3")
-    implementation("androidx.room:room-rxjava2:2.2.3")
+    implementation("androidx.room:room-runtime:2.2.5")
+    implementation("androidx.room:room-rxjava2:2.2.5")
 
     implementation(project(":paging:paging-common-ktx"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    kapt("androidx.room:room-compiler:2.2.3")
+    kapt("androidx.room:room-compiler:2.2.5")
 
     implementation(MULTIDEX)
-    implementation("androidx.recyclerview:recyclerview:1.1.0")
+    implementation(project(":recyclerview:recyclerview"))
     implementation(project(":fragment:fragment-ktx"))
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(KOTLIN_STDLIB)
+}
+
+kapt {
+    javacOptions {
+        option("-source", "8")
+        option("-target", "8")
+    }
 }

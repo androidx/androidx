@@ -39,7 +39,3 @@ android {
         testInstrumentationRunner "androidx.testutils.ActivityRecyclingAndroidJUnitRunner"
     }
 }
-
-androidx {
-    toolingProject = true
-}

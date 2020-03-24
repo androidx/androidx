@@ -19,13 +19,14 @@ package androidx.paging
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class PageFetcher<Key : Any, Value : Any>(
     private val pagingSourceFactory: () -> PagingSource<Key, Value>,
     private val initialKey: Key?,
@@ -34,11 +35,12 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     // NOTE: This channel is conflated, which means it has a buffer size of 1, and will always
     // broadcast the latest value received.
-    private var refreshChannel = ConflatedBroadcastChannel<Unit>()
+    private val refreshChannel = ConflatedBroadcastChannel<Unit>()
+
+    private val retryChannel = ConflatedBroadcastChannel<Unit>()
 
     // The object built by paging builder can maintain the scope so that on rotation we don't stop
     // the paging.
-    @UseExperimental(FlowPreview::class)
     val flow = refreshChannel
         .asFlow()
         .onStart { emit(Unit) }
@@ -54,11 +56,11 @@ internal class PageFetcher<Key : Any, Value : Any>(
             previousGeneration?.pagingSource?.invalidate() // Note: Invalidate is idempotent.
             previousGeneration?.close()
 
-            Pager(initialKey, pagingSource, config)
+            Pager(initialKey, pagingSource, config, retryChannel.asFlow())
         }
         .filterNotNull()
         .mapLatest { generation ->
-            PagingData(generation.pageEventFlow, PagerUiReceiver(generation))
+            PagingData(generation.pageEventFlow, PagerUiReceiver(generation, retryChannel))
         }
 
     fun refresh() {
@@ -66,11 +68,14 @@ internal class PageFetcher<Key : Any, Value : Any>(
     }
 
     inner class PagerUiReceiver<Key : Any, Value : Any> constructor(
-        private val pager: Pager<Key, Value>
+        private val pager: Pager<Key, Value>,
+        private val retryChannel: SendChannel<Unit>
     ) : UiReceiver {
         override fun addHint(hint: ViewportHint) = pager.addHint(hint)
 
-        override fun retry() = pager.retry()
+        override fun retry() {
+            retryChannel.offer(Unit)
+        }
 
         override fun refresh() = this@PageFetcher.refresh()
     }

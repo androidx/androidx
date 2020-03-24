@@ -24,7 +24,7 @@ import androidx.annotation.RestrictTo
 /**
  * Span which shifts the vertical position of baseline.
  *
- * @hide
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 open class BaselineShiftSpan(val multiplier: Float) : MetricAffectingSpan() {

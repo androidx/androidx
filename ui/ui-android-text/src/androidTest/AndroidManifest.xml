@@ -14,8 +14,4 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.text.test">
-    <!-- TODO(147665937): Remove android:process when b/147665937 is fixed -->
-    <application android:process="androidx.text" />
-</manifest>
+<manifest package="androidx.text.test" />

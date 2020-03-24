@@ -172,30 +172,23 @@ package androidx.ui.core {
   }
 
   public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
-    method public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
-    method public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
-    method public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
-    method public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.core.ModifierScope, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
-    method public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.core.ModifierScope, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
-    method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints);
-    method public default androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.core.ModifierScope);
-    method public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.core.ModifierScope, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
-    method public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.core.ModifierScope, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
+    method public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
+    method public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
+    method public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width);
+    method public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height);
+    method public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value);
+    method public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints);
+    method public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize);
+    method public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.unit.IntPxSize childSize);
   }
 
   public interface Measurable extends androidx.ui.core.IntrinsicMeasurable {
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
   }
 
-  public abstract class MeasureScope implements androidx.ui.core.ModifierScope {
+  public abstract class MeasureScope implements androidx.ui.unit.Density {
     ctor public MeasureScope();
-    method public androidx.ui.core.LayoutDirection getAmbientLayoutDirection();
-    method public androidx.ui.core.LayoutDirection getLayoutDirection();
     method public final androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
-    method public void setAmbientLayoutDirection(androidx.ui.core.LayoutDirection p);
-    method public void setLayoutDirection(androidx.ui.core.LayoutDirection p);
-    property public androidx.ui.core.LayoutDirection ambientLayoutDirection;
-    property public androidx.ui.core.LayoutDirection layoutDirection;
   }
 
   public static interface MeasureScope.LayoutResult {
@@ -227,13 +220,6 @@ package androidx.ui.core {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     field public static final androidx.ui.core.Modifier.None! INSTANCE;
-  }
-
-  public interface ModifierScope extends androidx.ui.unit.Density {
-    method public androidx.ui.core.LayoutDirection getAmbientLayoutDirection();
-    method public androidx.ui.core.LayoutDirection getLayoutDirection();
-    property public abstract androidx.ui.core.LayoutDirection ambientLayoutDirection;
-    property public abstract androidx.ui.core.LayoutDirection layoutDirection;
   }
 
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {

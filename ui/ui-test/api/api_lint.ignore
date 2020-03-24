@@ -1,5 +1,3 @@
 // Baseline format: 1.0
-DocumentExceptions: androidx.ui.test.AssertionsKt#assertCountEquals(java.util.List<androidx.ui.test.SemanticsNodeInteraction>, int):
-    Method AssertionsKt.assertCountEquals appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.ui.test.GoldenSemanticsKt#assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration):
     Method GoldenSemanticsKt.assertEquals appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions

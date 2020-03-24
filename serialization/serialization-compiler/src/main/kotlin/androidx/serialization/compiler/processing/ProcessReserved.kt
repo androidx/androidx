@@ -29,20 +29,21 @@ import androidx.serialization.Reserved as ReservedAnnotation
  * [IntRange], reserving the same range of IDs as if they had been correctly placed.
  */
 internal fun processReserved(element: TypeElement): Reserved {
-    return when (val reserved = element.getAnnotationMirror(ReservedAnnotation::class)) {
+    return when (val reserved = element[ReservedAnnotation::class]) {
         null -> Reserved.empty()
         else -> Reserved(
-            ids = reserved[ReservedAnnotation::ids].toSet(),
-            names = reserved[ReservedAnnotation::names].toSet(),
-            idRanges = reserved.getAnnotationArray(ReservedAnnotation::idRanges).map { idRange ->
-                val from = idRange[IdRange::from]
-                val to = idRange[IdRange::to]
+            ids = reserved["ids"].asList().mapTo(mutableSetOf()) { it.asInt() },
+            names = reserved["names"].asList().mapTo(mutableSetOf()) { it.asString() },
+            idRanges = reserved["idRanges"].asList().mapTo(mutableSetOf()) { annotationValue ->
+                val idRange = annotationValue.asAnnotationMirror()
+                val from = idRange["from"].asInt()
+                val to = idRange["to"].asInt()
 
                 when {
                     from <= to -> from..to
                     else -> to..from
                 }
-            }.toSet()
+            }
         )
     }
 }

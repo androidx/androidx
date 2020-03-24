@@ -32,7 +32,7 @@ import androidx.ui.core.setContent
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TriStateCheckbox
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.Surface
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,7 +115,7 @@ class MultipleComposeRootsTest {
                         Surface {
                             TestTag(tag = "checkbox1") {
                                 TriStateCheckbox(
-                                    value = state1.value,
+                                    state = state1.value,
                                     onClick = {
                                         state1.toggle()
                                         state2.toggle()
@@ -132,7 +132,7 @@ class MultipleComposeRootsTest {
                         Surface {
                             TestTag(tag = "checkbox2") {
                                 TriStateCheckbox(
-                                    value = state2.value,
+                                    state = state2.value,
                                     onClick = {
                                         state1.toggle()
                                         state2.toggle()

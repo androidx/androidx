@@ -17,8 +17,7 @@
 package androidx.activity
 
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -83,11 +82,7 @@ class OnBackPressedDispatcherTest {
     @UiThreadTest
     @Test
     fun testLifecycleCallback() {
-        val lifecycleOwner = object : LifecycleOwner {
-            val lifecycleRegistry = LifecycleRegistry(this)
-
-            override fun getLifecycle() = lifecycleRegistry
-        }
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         var count = 0
         dispatcher.addCallback(lifecycleOwner) {
             count++
@@ -101,14 +96,14 @@ class OnBackPressedDispatcherTest {
             .isEqualTo(0)
 
         // Now start the Lifecycle
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
         dispatcher.onBackPressed()
         assertWithMessage("Once the callbacks is started, the count should increment")
             .that(count)
             .isEqualTo(1)
 
         // Now stop the Lifecycle
-        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
         assertWithMessage("Handler should return false if the Lifecycle isn't started")
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()

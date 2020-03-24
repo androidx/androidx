@@ -2922,6 +2922,11 @@ public class ExifInterface {
      * See JEITA CP-3451C Section 4.5.2 and 4.5.4 specifications for more details.
      */
     public static final int STREAM_TYPE_EXIF_DATA_ONLY = 1;
+    /**
+     * Constant used to indicate invalid date time.
+     * @see #getGpsDateTime().
+     */
+    public static final long INVALID_DATE_TIME = Long.MIN_VALUE;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -2984,19 +2989,14 @@ public class ExifInterface {
     private static final int WEBP_FILE_SIZE_BYTE_LENGTH = 4;
     private static final byte[] WEBP_CHUNK_TYPE_EXIF = new byte[]{(byte) 0x45, (byte) 0x58,
             (byte) 0x49, (byte) 0x46};
-    @SuppressWarnings("unused")
     private static final byte[] WEBP_VP8_SIGNATURE = new byte[]{(byte) 0x9d, (byte) 0x01,
             (byte) 0x2a};
-    @SuppressWarnings("unused")
     private static final byte WEBP_VP8L_SIGNATURE = (byte) 0x2f;
     private static final byte[] WEBP_CHUNK_TYPE_VP8X = "VP8X".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_VP8L = "VP8L".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_VP8 = "VP8 ".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_ANIM = "ANIM".getBytes(Charset.defaultCharset());
     private static final byte[] WEBP_CHUNK_TYPE_ANMF = "ANMF".getBytes(Charset.defaultCharset());
-    @SuppressWarnings("unused")
-    private static final byte[] WEBP_CHUNK_TYPE_XMP = "XMP ".getBytes(Charset.defaultCharset());
-    @SuppressWarnings("unused")
     private static final int WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH = 10;
     private static final int WEBP_CHUNK_TYPE_BYTE_LENGTH = 4;
     private static final int WEBP_CHUNK_SIZE_BYTE_LENGTH = 4;
@@ -5088,7 +5088,8 @@ public class ExifInterface {
     /**
      * Returns parsed {@link ExifInterface#TAG_DATETIME} value as number of milliseconds since
      * Jan. 1, 1970, midnight local time.
-     * Returns -1 if date time information is unavailable or invalid.
+     * @return {@link ExifInterface#INVALID_DATE_TIME} if date time information is unavailable or
+     * invalid.
      *
      * @hide
      */
@@ -5101,7 +5102,8 @@ public class ExifInterface {
     /**
      * Returns parsed {@link ExifInterface#TAG_DATETIME_DIGITIZED} value as number of
      * milliseconds since Jan. 1, 1970, midnight local time.
-     * Returns -1 if digitized date time information is unavailable or invalid.
+     * @return {@link ExifInterface#INVALID_DATE_TIME} if digitized date time information is
+     * unavailable or invalid.
      *
      * @hide
      */
@@ -5114,7 +5116,8 @@ public class ExifInterface {
     /**
      * Returns parsed {@link ExifInterface#TAG_DATETIME_ORIGINAL} value as number of
      * milliseconds since Jan. 1, 1970, midnight local time.
-     * Returns -1 if original date time information is unavailable or invalid.
+     * @return {@link ExifInterface#INVALID_DATE_TIME} if original date time information is
+     * unavailable or invalid.
      *
      * @hide
      */
@@ -5126,14 +5129,14 @@ public class ExifInterface {
 
     private static long parseDateTime(@Nullable String dateTimeString, @Nullable String subSecs) {
         if (dateTimeString == null
-                || !sNonZeroTimePattern.matcher(dateTimeString).matches()) return -1;
+                || !sNonZeroTimePattern.matcher(dateTimeString).matches()) return INVALID_DATE_TIME;
 
         ParsePosition pos = new ParsePosition(0);
         try {
             // The exif field is in local time. Parsing it as if it is UTC will yield time
             // since 1/1/1970 local time
             Date datetime = sFormatter.parse(dateTimeString, pos);
-            if (datetime == null) return -1;
+            if (datetime == null) return INVALID_DATE_TIME;
             long msecs = datetime.getTime();
 
             if (subSecs != null) {
@@ -5149,13 +5152,13 @@ public class ExifInterface {
             }
             return msecs;
         } catch (IllegalArgumentException e) {
-            return -1;
+            return INVALID_DATE_TIME;
         }
     }
 
     /**
      * Returns number of milliseconds since Jan. 1, 1970, midnight UTC.
-     * Returns -1 if the date time information is not available.
+     * @return {@link Long#MIN_VALUE} if the date time information is not available.
      */
     public long getGpsDateTime() {
         String date = getAttribute(TAG_GPS_DATESTAMP);
@@ -5163,7 +5166,7 @@ public class ExifInterface {
         if (date == null || time == null
                 || (!sNonZeroTimePattern.matcher(date).matches()
                 && !sNonZeroTimePattern.matcher(time).matches())) {
-            return -1;
+            return INVALID_DATE_TIME;
         }
 
         String dateTimeString = date + ' ' + time;
@@ -5171,10 +5174,10 @@ public class ExifInterface {
         ParsePosition pos = new ParsePosition(0);
         try {
             Date datetime = sFormatter.parse(dateTimeString, pos);
-            if (datetime == null) return -1;
+            if (datetime == null) return INVALID_DATE_TIME;
             return datetime.getTime();
         } catch (IllegalArgumentException e) {
-            return -1;
+            return INVALID_DATE_TIME;
         }
     }
 
@@ -6472,9 +6475,90 @@ public class ExifInterface {
                     }
                 } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)
                         || Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
-                    // TODO: Add support for WebP files with only VP8 or VP8L chunks
-                    throw new IOException("WebP files with only VP8 or VP8L chunks are currently "
-                            + "not supported");
+                    int size = totalInputStream.readInt();
+                    int bytesToRead = size;
+                    // WebP files have a single padding byte at the end if the chunk size is odd.
+                    if (size % 2 == 1) {
+                        bytesToRead += 1;
+                    }
+
+                    // Retrieve image width/height
+                    int widthAndHeight = 0;
+                    int width = 0;
+                    int height = 0;
+                    int alpha = 0;
+                    // Save VP8 frame data for later
+                    byte[] vp8Frame = new byte[3];
+
+                    if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)) {
+                        totalInputStream.read(vp8Frame);
+
+                        // Check signature
+                        byte[] vp8Signature = new byte[3];
+                        if (totalInputStream.read(vp8Signature) != vp8Signature.length
+                                || !Arrays.equals(WEBP_VP8_SIGNATURE, vp8Signature)) {
+                            throw new IOException("Encountered error while checking VP8 "
+                                    + "signature");
+                        }
+
+                        // Retrieve image width/height
+                        widthAndHeight = totalInputStream.readInt();
+                        width = (widthAndHeight << 18) >> 18;
+                        height = (widthAndHeight << 2) >> 18;
+                        bytesToRead -= (vp8Frame.length + vp8Signature.length + 4);
+                    } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
+                        // Check signature
+                        byte vp8lSignature = totalInputStream.readByte();
+                        if (vp8lSignature != WEBP_VP8L_SIGNATURE) {
+                            throw new IOException("Encountered error while checking VP8L "
+                                    + "signature");
+                        }
+
+                        // Retrieve image width/height
+                        widthAndHeight = totalInputStream.readInt();
+                        // VP8L stores width - 1 and height - 1 values. See "2 RIFF Header" of
+                        // "WebP Lossless Bitstream Specification"
+                        width = ((widthAndHeight << 18) >> 18) + 1;
+                        height = ((widthAndHeight << 4) >> 18) + 1;
+                        // Retrieve alpha bit
+                        alpha = widthAndHeight & (1 << 3);
+                        bytesToRead -= (1 /* VP8L signature */ + 4);
+                    }
+
+                    // Create VP8X with Exif flag set to 1
+                    nonHeaderOutputStream.write(WEBP_CHUNK_TYPE_VP8X);
+                    nonHeaderOutputStream.writeInt(WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH);
+                    byte[] data = new byte[WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH];
+                    // EXIF flag
+                    data[0] = (byte) (data[0] | (1 << 3));
+                    // ALPHA flag
+                    data[0] = (byte) (data[0] | (alpha << 4));
+                    // VP8X stores Width - 1 and Height - 1 values
+                    width -= 1;
+                    height -= 1;
+                    data[4] = (byte) width;
+                    data[5] = (byte) (width >> 8);
+                    data[6] = (byte) (width >> 16);
+                    data[7] = (byte) height;
+                    data[8] = (byte) (height >> 8);
+                    data[9] = (byte) (height >> 16);
+                    nonHeaderOutputStream.write(data);
+
+                    // Write VP8 or VP8L data
+                    nonHeaderOutputStream.write(firstChunkType);
+                    nonHeaderOutputStream.writeInt(size);
+                    if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8)) {
+                        nonHeaderOutputStream.write(vp8Frame);
+                        nonHeaderOutputStream.write(WEBP_VP8_SIGNATURE);
+                        nonHeaderOutputStream.writeInt(widthAndHeight);
+                    } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
+                        nonHeaderOutputStream.write(WEBP_VP8L_SIGNATURE);
+                        nonHeaderOutputStream.writeInt(widthAndHeight);
+                    }
+                    copy(totalInputStream, nonHeaderOutputStream, bytesToRead);
+
+                    // Write EXIF chunk
+                    writeExifSegment(nonHeaderOutputStream);
                 }
             }
 
