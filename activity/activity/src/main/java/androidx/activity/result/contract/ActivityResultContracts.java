@@ -128,7 +128,7 @@ public class ActivityResultContracts {
                 @NonNull Context context, @Nullable String[] input) {
 
             if (input == null || input.length == 0) {
-                return new SynchronousResult<Map<String, Boolean>>(Collections.<String, Boolean>emptyMap());
+                return new SynchronousResult<>(Collections.<String, Boolean>emptyMap());
             }
 
             Map<String, Boolean> grantState = new ArrayMap<>();
@@ -141,7 +141,7 @@ public class ActivityResultContracts {
             }
 
             if (allGranted) {
-                return new SynchronousResult<Map<String, Boolean>>(grantState);
+                return new SynchronousResult<>(grantState);
             }
             return null;
         }
@@ -157,7 +157,7 @@ public class ActivityResultContracts {
             int[] grantResults = intent.getIntArrayExtra(EXTRA_PERMISSION_GRANT_RESULTS);
             if (grantResults == null || permissions == null) return emptyMap();
 
-            Map<String, Boolean> result = new HashMap<String, Boolean>();
+            Map<String, Boolean> result = new HashMap<>();
             for (int i = 0, size = permissions.length; i < size; i++) {
                 result.put(permissions[i], grantResults[i] == PackageManager.PERMISSION_GRANTED);
             }
@@ -212,10 +212,10 @@ public class ActivityResultContracts {
         public @Nullable SynchronousResult<Boolean> getSynchronousResult(
                 @NonNull Context context, @Nullable String input) {
             if (input == null) {
-                return new SynchronousResult<Boolean>(false);
+                return new SynchronousResult<>(false);
             } else if (ContextCompat.checkSelfPermission(context, input)
                     == PackageManager.PERMISSION_GRANTED) {
-                return new SynchronousResult<Boolean>(true);
+                return new SynchronousResult<>(true);
             } else {
                 // proceed with permission request
                 return null;
@@ -437,7 +437,7 @@ public class ActivityResultContracts {
         @Override
         public List<Uri> parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) {
-                return Collections.<Uri>emptyList();
+                return Collections.emptyList();
             }
             return getClipDataUris(intent);
         }
@@ -445,7 +445,7 @@ public class ActivityResultContracts {
         @NonNull
         static List<Uri> getClipDataUris(@NonNull Intent intent) {
             ClipData clipData = intent.getClipData();
-            if (clipData == null) return Collections.<Uri>emptyList();
+            if (clipData == null) return Collections.emptyList();
             ArrayList<Uri> result = new ArrayList<>();
             int size = clipData.getItemCount();
             for (int i = 0; i < size; i++) {
