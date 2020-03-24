@@ -136,40 +136,6 @@ class TapGestureDetectorTest {
         verify(recognizer.onTap!!, never()).invoke()
     }
 
-    @Test
-    fun pointerInputHandler_disabledDownUp_onReleaseNotCalled() {
-        recognizer.setEnabled(false)
-        var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-
-        verify(recognizer.onTap!!, never()).invoke()
-    }
-
-    @Test
-    fun pointerInputHandler_disabledDownEnabledUp_onReleaseNotCalled() {
-        recognizer.setEnabled(false)
-        var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        recognizer.setEnabled(true)
-        pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-
-        verify(recognizer.onTap!!, never()).invoke()
-    }
-
-    @Test
-    fun pointerInputHandler_downDisabledUp_onReleaseNotCalled() {
-        var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        recognizer.setEnabled(false)
-        pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-
-        verify(recognizer.onTap!!, never()).invoke()
-    }
-
     // Verification for when onReleased should be called.
 
     @Test
@@ -210,30 +176,11 @@ class TapGestureDetectorTest {
         verify(recognizer.onTap!!).invoke()
     }
 
-    @Test
-    fun pointerInputHandler_downEnabledUp_onReleaseCalled() {
-        var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        recognizer.setEnabled(true)
-        pointer = pointer.up(100.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-
-        verify(recognizer.onTap!!).invoke()
-    }
-
     // Verification for when the down change should not be consumed.
 
     @Test
     fun pointerInputHandler_consumeDownOnStartIsFalse_downChangeNotConsumed() {
         recognizer.consumeDownOnStart = false
-        val pointerEventChange =
-            recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
-        assertThat(pointerEventChange.consumed.downChange, `is`(false))
-    }
-
-    @Test
-    fun pointerInputHandler_disabledAndConsumeDownOnStartIsDefault_downChangeNotConsumed() {
-        recognizer.setEnabled(false)
         val pointerEventChange =
             recognizer.pointerInputHandler.invokeOverAllPasses(down(0, 0.milliseconds))
         assertThat(pointerEventChange.consumed.downChange, `is`(false))
@@ -249,40 +196,6 @@ class TapGestureDetectorTest {
     }
 
     // Verification for when the up change should not be consumed.
-
-    @Test
-    fun pointerInputHandler_disabledDownUp_upChangeNotConsumed() {
-        recognizer.setEnabled(false)
-        var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        pointer = pointer.up(100.milliseconds)
-        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-
-        assertThat(pointerEventChange.consumed.downChange, `is`(false))
-    }
-
-    @Test
-    fun pointerInputHandler_disabledDownEnabledUp_upChangeNotConsumed() {
-        recognizer.setEnabled(false)
-        var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        recognizer.setEnabled(true)
-        pointer = pointer.up(100.milliseconds)
-        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-
-        assertThat(pointerEventChange.consumed.downChange, `is`(false))
-    }
-
-    @Test
-    fun pointerInputHandler_downDisabledUp_upChangeNotConsumed() {
-        var pointer = down(0, 0.milliseconds)
-        recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-        recognizer.setEnabled(false)
-        pointer = pointer.up(100.milliseconds)
-        val pointerEventChange = recognizer.pointerInputHandler.invokeOverAllPasses(pointer)
-
-        assertThat(pointerEventChange.consumed.downChange, `is`(false))
-    }
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeXUp_upChangeNotConsumed() {

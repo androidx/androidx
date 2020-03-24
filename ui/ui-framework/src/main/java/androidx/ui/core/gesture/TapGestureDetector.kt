@@ -43,17 +43,17 @@ import androidx.ui.unit.IntPxSize
  * - While it has at least one pointer touching it, no [PointerInputChange] has had any
  *   movement consumed (as that would indicate that something in the heirarchy moved and this a
  *   press should be cancelled.
+ *
+ *   @param onTap Called when a tap has occurred.
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 @Composable
 fun TapGestureDetector(
-    onTap: (() -> Unit)? = null,
-    enabled: Boolean = true
+    onTap: () -> Unit
 ): Modifier {
     val recognizer = remember { TapGestureRecognizer() }
     recognizer.onTap = onTap
     recognizer.consumeDownOnStart = false
-    recognizer.setEnabled(enabled)
     return PointerInputModifier(recognizer)
 }
 
@@ -63,7 +63,8 @@ internal class TapGestureRecognizer : PointerInputFilter() {
      *
      * This should be used to fire a state changing event as if a button was pressed.
      */
-    var onTap: (() -> Unit)? = null
+    lateinit var onTap: () -> Unit
+
     /**
      * True if down change should be consumed when start is called.  The default is true.
      */
@@ -74,15 +75,6 @@ internal class TapGestureRecognizer : PointerInputFilter() {
      */
     private var active = false
 
-    private var enabled = true
-
-    fun setEnabled(value: Boolean) {
-        enabled = value
-        if (!enabled) {
-            active = false
-        }
-    }
-
     override val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
 
@@ -90,7 +82,7 @@ internal class TapGestureRecognizer : PointerInputFilter() {
 
             if (pass == PointerEventPass.PostUp) {
 
-                if (enabled && internalChanges.all { it.changedToDown() }) {
+                if (internalChanges.all { it.changedToDown() }) {
                     // If we have not yet started and all of the changes changed to down, we are
                     // starting.
                     active = true
@@ -98,7 +90,7 @@ internal class TapGestureRecognizer : PointerInputFilter() {
                     // If we have started and all of the changes changed to up, we are stopping.
                     active = false
                     internalChanges = internalChanges.map { it.consumeDownChange() }
-                    onTap?.invoke()
+                    onTap.invoke()
                 } else if (!internalChanges.anyPointersInBounds(bounds)) {
                     // If none of the pointers are in bounds of our bounds, we should reset and wait
                     // till all pointers are changing to down.
