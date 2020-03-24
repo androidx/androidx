@@ -59,7 +59,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     private var stages = listOf(
         MetricsContainer(arrayOf(TimeCapture()), 1),
-        MetricsContainer(arrayOf(TimeCapture()), REPEAT_COUNT[RUNNING_TIME_STAGE]!!)
+        MetricsContainer(arrayOf(TimeCapture()), REPEAT_COUNT_TIME)
     )
 
     private var metrics = stages[0]
@@ -68,7 +68,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     var traceUniqueName = "benchmark"
 
-    private var warmupIterations = 0 // number of warmup loops that occurred
+    private var warmupRepeats = 0 // number of warmup repeats that occurred
 
     /**
      * Decreasing iteration count used when [state] == [RUNNING_TIME_STAGE]
@@ -78,7 +78,13 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     @PublishedApi
     internal var iterationsRemaining = -1
 
-    private var maxIterations = 0
+    /**
+     * Number of iterations in a repeat.
+     *
+     * This value is overridden by the end of the warmup stage. The default value defines
+     * behavior for modes that bypass warmup (dryRun and startup).
+     */
+    private var iterationsPerRepeat = 1
 
     private var state = NOT_STARTED // Current benchmark state.
 
@@ -241,16 +247,15 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
                 // Run GC to avoid memory pressure from previous run from affecting this one.
                 // Note, we don't use System.gc() because it doesn't always have consistent behavior
                 Runtime.getRuntime().gc()
-                maxIterations = 1
+                iterationsPerRepeat = 1
                 Trace.beginSection("Warmup")
             }
             RUNNING_TIME_STAGE -> {
                 startProfilingTimeStageIfRequested()
-                maxIterations = computeIterations()
-                Trace.beginSection("Benchmark")
+                Trace.beginSection("Benchmark Time")
             }
         }
-        iterationsRemaining = maxIterations
+        iterationsRemaining = iterationsPerRepeat
         metrics.captureStart()
     }
 
@@ -272,17 +277,14 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         Trace.endSection() // paired with start in beginBenchmarkingLoop()
         when (state) {
             RUNNING_WARMUP_STAGE -> {
-                warmupIterations = repeatCount
+                warmupRepeats = repeatCount
+                iterationsPerRepeat = computeMaxIterations()
             }
             RUNNING_TIME_STAGE -> {
                 stopProfilingTimeStageIfRequested()
-                totalRunTimeNs = System.nanoTime() - totalRunTimeStartNs
-                ThreadPriority.resetBumpedThread()
 
-                stats.addAll(metrics.captureFinished(maxIterations = maxIterations))
+                stats.addAll(metrics.captureFinished(maxIterations = iterationsPerRepeat))
                 allData.addAll(metrics.data)
-
-                warmupManager.logInfo()
             }
         }
         state += 1
@@ -296,19 +298,21 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         metrics.captureStop()
         repeatCount++
         // overwrite existing data, we don't keep data for warmup
-        if (state == RUNNING_WARMUP_STAGE) {
-            metrics.captureInit()
+        if (state == RUNNING_WARMUP_STAGE) { metrics.captureInit()
             if (warmupManager.onNextIteration(metrics.data.last()[0])) {
                 endRunningStage()
                 beginRunningStage()
             }
-        } else if (repeatCount >= REPEAT_COUNT[state]!!) {
+        } else if (state == RUNNING_TIME_STAGE && repeatCount >= REPEAT_COUNT_TIME) {
             if (endRunningStage()) {
-                if (state == FINISHED) return false
+                if (state == FINISHED) {
+                    afterBenchmark()
+                    return false
+                }
                 beginRunningStage()
             }
         }
-        iterationsRemaining = maxIterations
+        iterationsRemaining = iterationsPerRepeat
         metrics.captureStart()
         return true
     }
@@ -384,10 +388,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     internal fun keepRunningInternal(): Boolean {
         when (state) {
             NOT_STARTED -> {
-                initialize()
-                totalRunTimeStartNs = System.nanoTime() // Record this time to find total duration
-                state = RUNNING_WARMUP_STAGE // begin benchmarking
-                if (Arguments.dryRunMode || Arguments.startupMode) state = RUNNING_TIME_STAGE
+                beforeBenchmark()
                 beginRunningStage()
                 return true
             }
@@ -403,7 +404,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         }
     }
 
-    private fun initialize() {
+    private fun beforeBenchmark() {
         Errors.throwIfError()
         if (!firstBenchmark && Arguments.startupMode) {
             throw AssertionError(
@@ -424,11 +425,21 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         }
 
         ThreadPriority.bumpCurrentThreadPriority()
+
+        totalRunTimeStartNs = System.nanoTime() // Record this time to find total duration
+        state = RUNNING_WARMUP_STAGE // begin benchmarking
+        if (Arguments.dryRunMode || Arguments.startupMode) state = RUNNING_TIME_STAGE
     }
 
-    private fun computeIterations(): Int {
+    private fun afterBenchmark() {
+        totalRunTimeNs = System.nanoTime() - totalRunTimeStartNs
+        ThreadPriority.resetBumpedThread()
+        warmupManager.logInfo()
+    }
+
+    private fun computeMaxIterations(): Int {
         var idealIterations =
-            (TARGET_TEST_DURATION_NS / warmupManager.estimatedIterationTimeNs).toInt()
+            (REPEAT_DURATION_TARGET_NS / warmupManager.estimatedIterationTimeNs).toInt()
         idealIterations = idealIterations.coerceIn(MIN_TEST_ITERATIONS, MAX_TEST_ITERATIONS)
         OVERRIDE_ITERATIONS?.let { idealIterations = OVERRIDE_ITERATIONS }
         return idealIterations
@@ -464,9 +475,9 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         totalRunTimeNs = totalRunTimeNs,
         data = allData.map { it.toList() },
         stats = stats,
-        repeatIterations = maxIterations,
+        repeatIterations = iterationsPerRepeat,
         thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
-        warmupIterations = warmupIterations
+        warmupIterations = warmupRepeats
     )
 
     internal fun getReport() = checkState().run { getReport("", "") }
@@ -475,9 +486,10 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
      * Acquires a status report bundle
      *
      * @param key Run identifier, prepended to bundle properties.
+     * @param includeStats True if stats should be included in the output bundle.
      */
     internal fun getFullStatusReport(key: String, includeStats: Boolean): Bundle {
-        Log.i(TAG, key + stats.map { it.getSummary() } + "count=$maxIterations")
+        Log.i(TAG, key + stats.map { it.getSummary() } + "count=$iterationsPerRepeat")
         val status = Bundle()
         if (includeStats) {
             // these 'legacy' CI output stats are considered output
@@ -539,14 +551,12 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
         // Values determined empirically.
         @VisibleForTesting
-        internal val REPEAT_COUNT = mapOf(
-            RUNNING_TIME_STAGE to when {
-                Arguments.dryRunMode -> 1
-                Arguments.profilingMode == ProfilingMode.ConnectedAllocation -> 1
-                Arguments.startupMode -> 10
-                else -> 50
-            }
-        )
+        internal val REPEAT_COUNT_TIME = when {
+            Arguments.dryRunMode -> 1
+            Arguments.profilingMode == ProfilingMode.ConnectedAllocation -> 1
+            Arguments.startupMode -> 10
+            else -> 50
+        }
 
         private val OVERRIDE_ITERATIONS = if (
             Arguments.dryRunMode ||
@@ -554,7 +564,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             Arguments.profilingMode == ProfilingMode.ConnectedAllocation
         ) 1 else null
 
-        internal val TARGET_TEST_DURATION_NS = when (Arguments.profilingMode) {
+        internal val REPEAT_DURATION_TARGET_NS = when (Arguments.profilingMode) {
             ProfilingMode.None, ProfilingMode.Method -> TimeUnit.MICROSECONDS.toNanos(500)
             // longer measurements while profiling to ensure we have enough data
             else -> TimeUnit.MILLISECONDS.toNanos(20)

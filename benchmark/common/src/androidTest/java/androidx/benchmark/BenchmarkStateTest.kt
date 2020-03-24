@@ -113,13 +113,13 @@ class BenchmarkStateTest {
 
         val report = state.getReport()
         val expectedCount =
-            report.warmupIterations + report.repeatIterations * BenchmarkState.REPEAT_COUNT[1]!!
+            report.warmupIterations + report.repeatIterations * BenchmarkState.REPEAT_COUNT_TIME
         assertEquals(expectedCount, total)
 
         // verify we're not in warmup mode
         assertTrue(report.warmupIterations > 0)
         assertTrue(report.repeatIterations > 1)
-        assertEquals(50, BenchmarkState.REPEAT_COUNT[1])
+        assertEquals(50, BenchmarkState.REPEAT_COUNT_TIME)
     }
 
     @Test
