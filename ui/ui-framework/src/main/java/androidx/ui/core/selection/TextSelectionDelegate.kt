@@ -18,6 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.geometry.Offset
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.unit.Px
@@ -89,6 +90,11 @@ internal class TextSelectionDelegate(
         val layoutCoordinates = coordinatesCallback()
         if (layoutCoordinates == null || !layoutCoordinates.isAttached) return null
         return layoutCoordinates
+    }
+
+    override fun getText(): AnnotatedString {
+        val textLayoutResult = layoutResultCallback() ?: return AnnotatedString("")
+        return textLayoutResult.layoutInput.text
     }
 }
 

@@ -279,6 +279,7 @@ package androidx.ui.core.selection {
     method public androidx.ui.unit.PxPosition getHandlePosition(androidx.ui.core.selection.Selection selection, boolean isStartHandle);
     method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
     method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean longPress, androidx.ui.core.selection.Selection? previousSelection = null, boolean isStartHandle = true);
+    method public androidx.ui.text.AnnotatedString getText();
   }
 
   public final class Selection {

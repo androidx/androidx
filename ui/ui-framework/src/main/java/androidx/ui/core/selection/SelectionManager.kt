@@ -21,6 +21,9 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
+import androidx.ui.text.AnnotatedString
+import androidx.ui.text.length
+import androidx.ui.text.subSequence
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 
@@ -110,6 +113,32 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             HapticFeedbackType.TextHandleMove
         )
         return newSelection
+    }
+
+    internal fun getSelectedText(): AnnotatedString? {
+        val selectables = selectionRegistrar.sort(containerLayoutCoordinates)
+        var selectedText: AnnotatedString? = null
+
+        selection?.let {
+            for (handler in selectables) {
+                // Continue if the current selectable is before the selection starts.
+                if (handler != it.start.selectable && handler != it.end.selectable &&
+                    selectedText == null
+                ) continue
+
+                val currentSelectedText = getCurrentSelectedText(
+                    selectable = handler,
+                    selection = it
+                )
+                selectedText = selectedText?.plus(currentSelectedText) ?: currentSelectedText
+
+                // Break if the current selectable is the last selected selectable.
+                if (handler == it.end.selectable && !it.handlesCrossed ||
+                    handler == it.start.selectable && it.handlesCrossed
+                ) break
+            }
+        }
+        return selectedText
     }
 
     // This is for PressGestureDetector to cancel the selection.
@@ -262,4 +291,47 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
 private fun merge(lhs: Selection?, rhs: Selection?): Selection? {
     return lhs?.merge(rhs) ?: rhs
+}
+
+private fun getCurrentSelectedText(
+    selectable: Selectable,
+    selection: Selection
+): AnnotatedString {
+    val currentText = selectable.getText()
+
+    return if (
+        selectable != selection.start.selectable &&
+        selectable != selection.end.selectable
+    ) {
+        // Select the full text content if the current selectable is between the
+        // start and the end selectables.
+        currentText
+    } else if (
+        selectable == selection.start.selectable &&
+        selectable == selection.end.selectable
+    ) {
+        // Select partial text content if the current selectable is the start and
+        // the end selectable.
+        if (selection.handlesCrossed) {
+            currentText.subSequence(selection.end.offset, selection.start.offset)
+        } else {
+            currentText.subSequence(selection.start.offset, selection.end.offset)
+        }
+    } else if (selectable == selection.start.selectable) {
+        // Select partial text content if the current selectable is the start
+        // selectable.
+        if (selection.handlesCrossed) {
+            currentText.subSequence(0, selection.start.offset)
+        } else {
+            currentText.subSequence(selection.start.offset, currentText.length)
+        }
+    } else {
+        // Selectable partial text content if the current selectable is the end
+        // selectable.
+        if (selection.handlesCrossed) {
+            currentText.subSequence(selection.end.offset, currentText.length)
+        } else {
+            currentText.subSequence(0, selection.end.offset)
+        }
+    }
 }

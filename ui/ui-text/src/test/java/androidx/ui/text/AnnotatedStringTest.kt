@@ -163,6 +163,24 @@ class AnnotatedStringTest {
     }
 
     @Test
+    fun subSequence_returns_original_text_for_text_range_is_full_range() {
+        val annotatedString = with(AnnotatedString.Builder()) {
+            withStyle(SpanStyle(fontSize = 12.sp)) {
+                append("a")
+            }
+            withStyle(SpanStyle(fontSize = 12.sp)) {
+                append("b")
+            }
+            withStyle(ParagraphStyle(lineHeight = 14.sp)) {
+                append("c")
+            }
+            toAnnotatedString()
+        }
+
+        assertThat(annotatedString.subSequence(0, 3)).isSameInstanceAs(annotatedString)
+    }
+
+    @Test
     fun subSequence_doesNot_include_styles_before_the_start() {
         val annotatedString = with(AnnotatedString.Builder()) {
             withStyle(SpanStyle(fontSize = 12.sp)) {

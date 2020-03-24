@@ -683,7 +683,7 @@ private fun <T> filterItemsByRange(items: List<Item<T>>, start: Int, end: Int): 
  */
 fun AnnotatedString.subSequence(start: Int, end: Int): AnnotatedString {
     require(start <= end) { "start ($start) should be less or equal to end ($end)" }
-
+    if (start == 0 && end == text.length) return this
     val text = text.substring(start, end)
     return AnnotatedString(
         text = text,

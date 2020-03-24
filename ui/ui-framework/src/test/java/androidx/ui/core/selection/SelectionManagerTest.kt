@@ -20,7 +20,10 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.text.AnnotatedString
+import androidx.ui.text.length
 import androidx.ui.text.style.TextDirection
+import androidx.ui.text.subSequence
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
@@ -45,6 +48,8 @@ class SelectionManagerTest {
     private val containerLayoutCoordinates = mock<LayoutCoordinates>()
     private val startSelectable = mock<Selectable>()
     private val endSelectable = mock<Selectable>()
+    private val middleSelectable = mock<Selectable>()
+    private val lastSelectable = mock<Selectable>()
 
     private val startCoordinates = PxPosition(3.px, 30.px)
     private val endCoordinates = PxPosition(3.px, 600.px)
@@ -163,6 +168,140 @@ class SelectionManagerTest {
             hapticFeedback,
             times(0)
         ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun getSelectedText_selection_null_return_null() {
+        selectionManager.selection = null
+
+        assertThat(selectionManager.getSelectedText()).isNull()
+        verify(selectable, times(0)).getText()
+    }
+
+    @Test
+    fun getSelectedText_not_crossed_single_widget() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text = text)
+        val startOffset = text.indexOf('e')
+        val endOffset = text.indexOf('m')
+        whenever(selectable.getText()).thenReturn(annotatedString)
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = startOffset,
+                selectable = selectable),
+            end = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = endOffset,
+                selectable = selectable
+            ),
+            handlesCrossed = false
+        )
+
+        assertThat(selectionManager.getSelectedText())
+            .isEqualTo(annotatedString.subSequence(startOffset, endOffset))
+        verify(selectable, times(1)).getText()
+    }
+
+    @Test
+    fun getSelectedText_crossed_single_widget() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text = text)
+        val startOffset = text.indexOf('m')
+        val endOffset = text.indexOf('x')
+        whenever(selectable.getText()).thenReturn(annotatedString)
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = startOffset,
+                selectable = selectable),
+            end = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = endOffset,
+                selectable = selectable
+            ),
+            handlesCrossed = true
+        )
+
+        assertThat(selectionManager.getSelectedText())
+            .isEqualTo(annotatedString.subSequence(endOffset, startOffset))
+        verify(selectable, times(1)).getText()
+    }
+
+    @Test
+    fun getSelectedText_not_crossed_multi_widgets() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text = text)
+        val startOffset = text.indexOf('m')
+        val endOffset = text.indexOf('x')
+
+        selectionRegistrar.subscribe(startSelectable)
+        selectionRegistrar.subscribe(middleSelectable)
+        selectionRegistrar.subscribe(endSelectable)
+        selectionRegistrar.subscribe(lastSelectable)
+        selectionRegistrar.sorted = true
+        whenever(startSelectable.getText()).thenReturn(annotatedString)
+        whenever(middleSelectable.getText()).thenReturn(annotatedString)
+        whenever(endSelectable.getText()).thenReturn(annotatedString)
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = startOffset,
+                selectable = startSelectable),
+            end = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = endOffset,
+                selectable = endSelectable
+            ),
+            handlesCrossed = false
+        )
+
+        val result = annotatedString.subSequence(startOffset, annotatedString.length) +
+                annotatedString + annotatedString.subSequence(0, endOffset)
+        assertThat(selectionManager.getSelectedText()).isEqualTo(result)
+        verify(selectable, times(0)).getText()
+        verify(startSelectable, times(1)).getText()
+        verify(middleSelectable, times(1)).getText()
+        verify(endSelectable, times(1)).getText()
+        verify(lastSelectable, times(0)).getText()
+    }
+
+    @Test
+    fun getSelectedText_crossed_multi_widgets() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text = text)
+        val startOffset = text.indexOf('m')
+        val endOffset = text.indexOf('x')
+
+        selectionRegistrar.subscribe(endSelectable)
+        selectionRegistrar.subscribe(middleSelectable)
+        selectionRegistrar.subscribe(startSelectable)
+        selectionRegistrar.subscribe(lastSelectable)
+        selectionRegistrar.sorted = true
+        whenever(startSelectable.getText()).thenReturn(annotatedString)
+        whenever(middleSelectable.getText()).thenReturn(annotatedString)
+        whenever(endSelectable.getText()).thenReturn(annotatedString)
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = startOffset,
+                selectable = startSelectable),
+            end = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = endOffset,
+                selectable = endSelectable
+            ),
+            handlesCrossed = true
+        )
+
+        val result = annotatedString.subSequence(endOffset, annotatedString.length) +
+                annotatedString + annotatedString.subSequence(0, startOffset)
+        assertThat(selectionManager.getSelectedText()).isEqualTo(result)
+        verify(selectable, times(0)).getText()
+        verify(startSelectable, times(1)).getText()
+        verify(middleSelectable, times(1)).getText()
+        verify(endSelectable, times(1)).getText()
+        verify(lastSelectable, times(0)).getText()
     }
 
     @Test
