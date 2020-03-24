@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appcompat.res
+package androidx.appcompat
 
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
