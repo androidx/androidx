@@ -113,7 +113,7 @@ public abstract class MediaRouteProviderService extends Service {
 
     private final ArrayList<ClientRecord> mClients = new ArrayList<ClientRecord>();
     private final ReceiveHandler mReceiveHandler;
-    private final Messenger mReceiveMessenger;
+    final Messenger mReceiveMessenger;
     final PrivateHandler mPrivateHandler;
     private final MediaRouteProvider.Callback mProviderCallback;
 

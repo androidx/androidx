@@ -16,6 +16,7 @@
 
 package androidx.core.content;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 
@@ -45,6 +46,7 @@ public final class IntentCompat {
      * @see android.content.Intent#EXTRA_TEXT
      * @see #EXTRA_TIME
      */
+    @SuppressLint("ActionValue")
     public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
 
     /**
@@ -70,6 +72,7 @@ public final class IntentCompat {
      * Type: long
      * </p>
      */
+    @SuppressLint("ActionValue")
     public static final String EXTRA_TIME = "android.intent.extra.TIME";
 
     /**
