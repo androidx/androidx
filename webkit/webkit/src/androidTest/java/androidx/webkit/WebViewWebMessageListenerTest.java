@@ -69,10 +69,10 @@ public class WebViewWebMessageListenerTest {
             public WebMessageCompat mMessage;
             public Uri mSourceOrigin;
             public boolean mIsMainFrame;
-            public JsReplyProxy mReplyProxy;
+            public JavaScriptReplyProxy mReplyProxy;
 
             Data(WebMessageCompat message, Uri sourceOrigin, boolean isMainFrame,
-                    JsReplyProxy replyProxy) {
+                    JavaScriptReplyProxy replyProxy) {
                 mMessage = message;
                 mSourceOrigin = sourceOrigin;
                 mIsMainFrame = isMainFrame;
@@ -82,7 +82,7 @@ public class WebViewWebMessageListenerTest {
 
         @Override
         public void onPostMessage(WebView webView, WebMessageCompat message, Uri sourceOrigin,
-                boolean isMainFrame, JsReplyProxy replyProxy) {
+                boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
             mQueue.add(new Data(message, sourceOrigin, isMainFrame, replyProxy));
         }
 
@@ -184,8 +184,8 @@ public class WebViewWebMessageListenerTest {
                 mListener.hasNoMoreOnPostMessage());
     }
 
-    // Test that for one injection of the JavaScript object, we receive the same JsReplyProxy from
-    // different onPostMessage() calls.
+    // Test that for one injection of the JavaScript object, we receive the same
+    // JavaScriptReplyProxy from different onPostMessage() calls.
     @Test
     public void testWebMessageListenerReplyProxyIsIsomorphic() throws Exception {
         mWebViewOnUiThread.addWebMessageListener(JS_OBJECT_NAME, MATCH_EXAMPLE_COM, mListener);
@@ -201,7 +201,7 @@ public class WebViewWebMessageListenerTest {
     }
 
     @Test
-    public void testJsReplyProxyBasicUsage() throws Exception {
+    public void testJavaScriptReplyProxyBasicUsage() throws Exception {
         mWebViewOnUiThread.addWebMessageListener(JS_OBJECT_NAME, MATCH_EXAMPLE_COM, mListener);
 
         // REPLY_PROXY html page will set myObject.onmessage to save the message to

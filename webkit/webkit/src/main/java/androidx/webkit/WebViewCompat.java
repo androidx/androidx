@@ -97,7 +97,8 @@ public class WebViewCompat {
          */
         @UiThread
         void onPostMessage(@NonNull WebView view, @NonNull WebMessageCompat message,
-                @NonNull Uri sourceOrigin, boolean isMainFrame, @NonNull JsReplyProxy replyProxy);
+                @NonNull Uri sourceOrigin, boolean isMainFrame,
+                @NonNull JavaScriptReplyProxy replyProxy);
     }
 
     /**
@@ -569,7 +570,7 @@ public class WebViewCompat {
      * <p>
      * We start the communication between JavaScript and the app from the JavaScript side. In order
      * to send message from the app to JavaScript, it needs to post a message from JavaScript first,
-     * so the app will have a {@link JsReplyProxy} object to respond. Example:
+     * so the app will have a {@link JavaScriptReplyProxy} object to respond. Example:
      * <pre class="prettyprint">
      * // Web page (in JavaScript)
      * myObject.onmessage = function(event) {
@@ -582,7 +583,7 @@ public class WebViewCompat {
      * WebMessageListener myListener = new WebMessageListener() {
      *   &#064;Override
      *   public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
-     *            boolean isMainFrame, JsReplyProxy replyProxy) {
+     *            boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
      *     // do something about view, message, sourceOrigin and isMainFrame.
      *     replyProxy.postMessage("Got it!");
      *   }
@@ -602,7 +603,7 @@ public class WebViewCompat {
      *         calls on the JavaScript object.
      * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
      *
-     * @see JsReplyProxy
+     * @see JavaScriptReplyProxy
      * @see WebMessageListener
      *
      * //TODO(ctzsm): unhide
