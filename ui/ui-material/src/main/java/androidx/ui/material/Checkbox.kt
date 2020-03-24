@@ -67,7 +67,7 @@ fun Checkbox(
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true,
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors().secondary
+    color: Color = MaterialTheme.colors.secondary
 ) {
     TriStateCheckbox(
         state = ToggleableState(checked),
@@ -103,7 +103,7 @@ fun TriStateCheckbox(
     onClick: () -> Unit,
     enabled: Boolean = true,
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors().secondary
+    color: Color = MaterialTheme.colors.secondary
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
         Box(modifier, gravity = ContentGravity.Center) {
@@ -125,7 +125,7 @@ fun TriStateCheckbox(
 
 @Composable
 private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: Modifier) {
-    val unselectedColor = MaterialTheme.colors().onSurface.copy(alpha = UncheckedBoxOpacity)
+    val unselectedColor = MaterialTheme.colors.onSurface.copy(alpha = UncheckedBoxOpacity)
     val definition = remember(activeColor, unselectedColor) {
         generateTransitionDefinition(activeColor, unselectedColor)
     }

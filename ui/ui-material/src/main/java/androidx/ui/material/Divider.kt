@@ -34,7 +34,7 @@ import androidx.ui.unit.dp
 @Composable
 fun Divider(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors().surface,
+    color: Color = MaterialTheme.colors.surface,
     height: Dp = 1.dp,
     indent: Dp = 0.dp
 ) {

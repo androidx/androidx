@@ -31,7 +31,7 @@ fun SimpleSnackbar() {
         text = { Text("Action has been done") },
         action = {
             TextButton(
-                contentColor = snackbarPrimaryColorFor(MaterialTheme.colors()),
+                contentColor = snackbarPrimaryColorFor(MaterialTheme.colors),
                 onClick = { /* perform undo */ }
             ) {
                 Text("UNDO")

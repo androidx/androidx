@@ -54,7 +54,7 @@ fun Switch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true,
-    color: Color = MaterialTheme.colors().secondaryVariant
+    color: Color = MaterialTheme.colors.secondaryVariant
 ) {
     Semantics(container = true, mergeAllDescendants = true) {
         Stack {
@@ -104,11 +104,11 @@ private fun DrawSwitch(
     thumbValue: AnimatedFloat,
     modifier: Modifier
 ) {
-    val thumbColor = if (checked) checkedThumbColor else MaterialTheme.colors().surface
+    val thumbColor = if (checked) checkedThumbColor else MaterialTheme.colors.surface
     val trackColor = if (checked) {
         checkedThumbColor.copy(alpha = CheckedTrackOpacity)
     } else {
-        MaterialTheme.colors().onSurface.copy(alpha = UncheckedTrackOpacity)
+        MaterialTheme.colors.onSurface.copy(alpha = UncheckedTrackOpacity)
     }
     Canvas(modifier + LayoutSize(SwitchWidth, SwitchHeight)) {
         drawTrack(trackColor)

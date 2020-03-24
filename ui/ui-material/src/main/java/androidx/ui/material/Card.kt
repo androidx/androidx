@@ -43,8 +43,8 @@ import androidx.ui.unit.dp
 @Composable
 fun Card(
     modifier: Modifier = Modifier.None,
-    shape: Shape = MaterialTheme.shapes().card,
-    color: Color = MaterialTheme.colors().surface,
+    shape: Shape = MaterialTheme.shapes.card,
+    color: Color = MaterialTheme.colors.surface,
     contentColor: Color = contentColorFor(color),
     border: Border? = null,
     elevation: Dp = 1.dp,

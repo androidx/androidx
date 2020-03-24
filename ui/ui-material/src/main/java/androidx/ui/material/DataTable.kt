@@ -321,7 +321,7 @@ fun DataTable(
     headerRowHeight: Dp = HeaderRowHeight,
     cellSpacing: EdgeInsets = CellSpacing,
     border: Border = Border(color = BorderColor, size = BorderWidth),
-    selectedColor: Color = MaterialTheme.colors().primary.copy(alpha = 0.08f),
+    selectedColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.08f),
     pagination: DataTablePagination? = null,
     sorting: DataTableSorting? = null,
     block: DataTableChildren.() -> Unit

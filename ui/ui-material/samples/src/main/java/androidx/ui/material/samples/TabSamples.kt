@@ -64,7 +64,7 @@ fun TextTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Text tab ${state + 1} selected",
-            style = MaterialTheme.typography().body1
+            style = MaterialTheme.typography.body1
         )
     }
 }
@@ -80,7 +80,7 @@ fun IconTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Icon tab ${state + 1} selected",
-            style = MaterialTheme.typography().body1
+            style = MaterialTheme.typography.body1
         )
     }
 }
@@ -105,7 +105,7 @@ fun TextAndIconTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Text and icon tab ${state + 1} selected",
-            style = MaterialTheme.typography().body1
+            style = MaterialTheme.typography.body1
         )
     }
 }
@@ -132,7 +132,7 @@ fun ScrollingTextTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Scrolling text tab ${state + 1} selected",
-            style = MaterialTheme.typography().body1
+            style = MaterialTheme.typography.body1
         )
     }
 }
@@ -149,7 +149,7 @@ fun FancyTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Fancy tab ${state + 1} selected",
-            style = MaterialTheme.typography().body1
+            style = MaterialTheme.typography.body1
         )
     }
 }
@@ -178,7 +178,7 @@ fun FancyIndicatorTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Fancy indicator tab ${state + 1} selected",
-            style = MaterialTheme.typography().body1
+            style = MaterialTheme.typography.body1
         )
     }
 }
@@ -204,7 +204,7 @@ fun FancyIndicatorContainerTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Fancy transition tab ${state + 1} selected",
-            style = MaterialTheme.typography().body1
+            style = MaterialTheme.typography.body1
         )
     }
 }
@@ -240,7 +240,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
         Text(
             modifier = LayoutGravity.Center,
             text = "Scrolling fancy transition tab ${state + 1} selected",
-            style = MaterialTheme.typography().body1
+            style = MaterialTheme.typography.body1
         )
     }
 }
@@ -261,7 +261,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
             )
             Text(
                 text = title,
-                style = MaterialTheme.typography().body1,
+                style = MaterialTheme.typography.body1,
                 modifier = LayoutGravity.Center
             )
         }

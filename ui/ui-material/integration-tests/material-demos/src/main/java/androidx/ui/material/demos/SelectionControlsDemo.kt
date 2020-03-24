@@ -31,7 +31,7 @@ import androidx.ui.unit.dp
 
 @Composable
 fun SelectionControlsDemo() {
-    val headerStyle = MaterialTheme.typography().h6
+    val headerStyle = MaterialTheme.typography.h6
     Column(LayoutPadding(10.dp), arrangement = Arrangement.SpaceEvenly) {
         Text(text = "Checkbox", style = headerStyle)
         TriStateCheckboxSample()

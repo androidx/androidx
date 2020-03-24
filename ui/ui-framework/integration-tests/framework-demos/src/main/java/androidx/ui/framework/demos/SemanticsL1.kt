@@ -190,7 +190,7 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
     val primary = actions.firstOrNull { it.types.contains(AccessibilityAction.Primary) }
     val secondary =
         actions.firstOrNull { it.types.contains(AccessibilityAction.Secondary) }
-    Text(text = "Accessibility Actions By Type", style = MaterialTheme.typography().h6)
+    Text(text = "Accessibility Actions By Type", style = MaterialTheme.typography.h6)
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = { primary?.invoke(ActionCaller.Accessibility) }) {
             Text("Primary")
@@ -208,7 +208,7 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
 private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf()) {
     Text(
         text = "Accessibility Actions By Phrase",
-        style = MaterialTheme.typography().h6
+        style = MaterialTheme.typography.h6
     )
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         actions.forEach {
@@ -226,7 +226,7 @@ private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf
 private fun InvokeActionsByAssistantAction(actions: Set<SemanticAction<out Any?>> = setOf()) {
     val positive = actions.firstOrNull { it.types.contains(PolarityAction.Positive) }
     val negative = actions.firstOrNull { it.types.contains(PolarityAction.Negative) }
-    Text(text = "Assistant Actions", style = MaterialTheme.typography().h6)
+    Text(text = "Assistant Actions", style = MaterialTheme.typography.h6)
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = { negative?.invoke(ActionCaller.Assistant) }) {
             Text("Negative")
@@ -250,7 +250,7 @@ private fun InvokeActionsByParameters(actions: Set<SemanticAction<out Any?>> = s
     @Suppress("UNCHECKED_CAST")
     val unitAction =
         actions.firstOrNull { it.defaultParam is Unit } as SemanticAction<Unit>?
-    Text(text = "Actions using Parameters", style = MaterialTheme.typography().h6)
+    Text(text = "Actions using Parameters", style = MaterialTheme.typography.h6)
     Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = { pxPositionAction?.invoke(param = PxPosition(1.px, 1.px)) }) {
             Text("IntAction")

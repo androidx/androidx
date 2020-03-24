@@ -133,8 +133,8 @@ fun ListItem(
     trailing: @Composable() (() -> Unit)? = null,
     onClick: (() -> Unit)? = null
 ) {
-    val emphasisLevels = MaterialTheme.emphasisLevels()
-    val typography = MaterialTheme.typography()
+    val emphasisLevels = MaterialTheme.emphasisLevels
+    val typography = MaterialTheme.typography
 
     val styledText = applyTextStyle(typography.subtitle1, emphasisLevels.high, text)!!
     val styledSecondaryText = applyTextStyle(typography.body2, emphasisLevels.medium, secondaryText)
@@ -166,7 +166,7 @@ fun ListItem(
     }
 
     if (onClick != null) {
-        val rippleColor = MaterialTheme.colors().onSurface.copy(alpha = RippleOpacity)
+        val rippleColor = MaterialTheme.colors.onSurface.copy(alpha = RippleOpacity)
         Clickable(onClick = onClick, children = item, modifier = ripple(color = rippleColor))
     } else {
         item()
