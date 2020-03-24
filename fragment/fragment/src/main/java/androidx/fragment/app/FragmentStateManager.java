@@ -415,7 +415,10 @@ class FragmentStateManager {
             targetFragmentStateManager = null;
         }
         if (targetFragmentStateManager != null) {
-            targetFragmentStateManager.moveToExpectedState();
+            if (FragmentManager.USE_STATE_MANAGER
+                    || targetFragmentStateManager.getFragment().mState < Fragment.CREATED) {
+                targetFragmentStateManager.moveToExpectedState();
+            }
         }
         mFragment.mHost = mFragment.mFragmentManager.getHost();
         mFragment.mParentFragment = mFragment.mFragmentManager.getParent();
