@@ -61,6 +61,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
+import androidx.arch.core.util.Function;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.view.LayoutInflaterCompat;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
@@ -3122,20 +3123,47 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public <I, O> ActivityResultLauncher<I> prepareCall(
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultCallback<O> callback) {
-        final String key = generateActivityResultKey();
-        final AtomicReference<ActivityResultLauncher<I>> ref =
-                new AtomicReference<ActivityResultLauncher<I>>();
+        return prepareCallInternal(contract, new Function<Void, ActivityResultRegistry>() {
+            @Override
+            public ActivityResultRegistry apply(Void input) {
+                return requireActivity().getActivityResultRegistry();
+            }
+        }, callback);
+    }
 
+    @NonNull
+    @Override
+    public <I, O> ActivityResultLauncher<I> prepareCall(
+            @NonNull final ActivityResultContract<I, O> contract,
+            @NonNull final ActivityResultRegistry registry,
+            @NonNull final ActivityResultCallback<O> callback) {
+        return prepareCallInternal(contract, new Function<Void, ActivityResultRegistry>() {
+            @Override
+            public ActivityResultRegistry apply(Void input) {
+                return registry;
+            }
+        }, callback);
+    }
+
+    @NonNull
+    private <I, O> ActivityResultLauncher<I> prepareCallInternal(
+            @NonNull final ActivityResultContract<I, O> contract,
+            @NonNull final Function<Void, ActivityResultRegistry> registryProvider,
+            @NonNull final ActivityResultCallback<O> callback) {
+        final AtomicReference<ActivityResultLauncher<I>> ref = new AtomicReference<>();
+
+        // We can't call generateActivityResultKey during initialization of the Fragment
+        // since we need to wait for the mWho to be restored from saved instance state
+        // so we'll wait until the Lifecycle is CREATED to actually generate the key
+        // and register.
         getLifecycle().addObserver(new LifecycleEventObserver() {
             @Override
             public void onStateChanged(@NonNull LifecycleOwner lifecycleOwner,
                     @NonNull Lifecycle.Event event) {
-
                 if (Lifecycle.Event.ON_CREATE.equals(event)) {
-                    ref.set(requireActivity()
-                            .getActivityResultRegistry()
-                            .register(
-                                    key, Fragment.this, contract, callback));
+                    final String key = generateActivityResultKey();
+                    ActivityResultRegistry registry = registryProvider.apply(null);
+                    ref.set(registry.register(key, Fragment.this, contract, callback));
                 }
             }
         });
@@ -3162,18 +3190,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     @NonNull
-    private String generateActivityResultKey() {
+    String generateActivityResultKey() {
         return "fragment_" + mWho + "_rq#" + mNextLocalRequestCode.getAndIncrement();
-    }
-
-    @NonNull
-    @Override
-    public <I, O> ActivityResultLauncher<I> prepareCall(
-            @NonNull final ActivityResultContract<I, O> contract,
-            @NonNull ActivityResultRegistry registry,
-            @NonNull final ActivityResultCallback<O> callback) {
-        return registry.register(
-                generateActivityResultKey(), this, contract, callback);
     }
 
     /**
