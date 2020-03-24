@@ -126,6 +126,8 @@ package androidx.ui.core {
     method public default float getScaleX();
     method public default float getScaleY();
     method public default androidx.ui.core.TransformOrigin getTransformOrigin();
+    method public default float getTranslationX();
+    method public default float getTranslationY();
     property @FloatRange(from=0.0, to=1.0) public default float alpha;
     property public default boolean clipToBounds;
     property public default boolean clipToOutline;
@@ -137,11 +139,13 @@ package androidx.ui.core {
     property public default float scaleX;
     property public default float scaleY;
     property public default androidx.ui.core.TransformOrigin transformOrigin;
+    property public default float translationX;
+    property public default float translationY;
   }
 
   public final class DrawLayerModifierKt {
     method public static inline androidx.ui.core.TransformOrigin TransformOrigin(float pivotFractionX, float pivotFractionY);
-    method public static androidx.ui.core.Modifier drawLayer(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.core.TransformOrigin transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = true, boolean clipToOutline = true);
+    method public static androidx.ui.core.Modifier drawLayer(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float translationX = 0f, float translationY = 0f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.core.TransformOrigin transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = true, boolean clipToOutline = true);
   }
 
   public interface DrawModifier extends androidx.ui.core.Modifier.Element {
