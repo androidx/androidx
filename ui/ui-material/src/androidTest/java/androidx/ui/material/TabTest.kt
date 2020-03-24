@@ -27,6 +27,7 @@ import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
+import androidx.ui.layout.LayoutWidth
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.ScrollingTextTabs
@@ -277,7 +278,7 @@ class TabTest {
                 ) { index, text ->
                     Tab(
                         text = {
-                            Text(text, onPositioned { coords ->
+                            Text(text, LayoutWidth(100.dp) + onPositioned { coords ->
                                 textCoords = coords
                                 textBaseline = coords[LastBaseline]!!.toPx()
                             }, maxLines = 2)
