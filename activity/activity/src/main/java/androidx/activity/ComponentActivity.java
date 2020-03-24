@@ -46,6 +46,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
@@ -123,10 +124,11 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 final int requestCode,
                 @NonNull ActivityResultContract<I, O> contract,
                 I input) {
+            ComponentActivity activity = ComponentActivity.this;
 
             // Immediate result path
             final ActivityResultContract.SynchronousResult<O> synchronousResult =
-                    contract.getSynchronousResult(ComponentActivity.this, input);
+                    contract.getSynchronousResult(activity, input);
             if (synchronousResult != null) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
@@ -138,13 +140,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             }
 
             // Start activity path
-            Intent intent = contract.createIntent(ComponentActivity.this, input);
+            Intent intent = contract.createIntent(activity, input);
             if (ACTION_REQUEST_PERMISSIONS.equals(intent.getAction())) {
 
                 // requestPermissions path
                 String[] permissions = intent.getStringArrayExtra(EXTRA_PERMISSIONS);
 
-                if (SDK_INT < Build.VERSION_CODES.M || permissions == null) {
+                if (permissions == null) {
                     return;
                 }
 
@@ -158,12 +160,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
 
                 if (!nonGrantedPermissions.isEmpty()) {
-                    requestPermissions(nonGrantedPermissions.toArray(new String[0]), requestCode);
+                    ActivityCompat.requestPermissions(activity,
+                            nonGrantedPermissions.toArray(new String[0]), requestCode);
                 }
             } else {
 
                 // startActivityForResult path
-                ComponentActivity.this.startActivityForResult(intent, requestCode);
+                ActivityCompat.startActivityForResult(activity, intent, requestCode, null);
             }
         }
     };
