@@ -40,6 +40,8 @@ dependencies {
     implementation(AUTO_COMMON)
     implementation(JAVAPOET)
 
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
     testImplementation(GOOGLE_COMPILE_TESTING)
 }
 
