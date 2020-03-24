@@ -92,6 +92,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -105,10 +106,13 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
@@ -728,7 +732,6 @@ public final class ImageCapture extends UseCase {
                 mConfig.getTargetRotation(Surface.ROTATION_0));
 
         Rational targetRatio = mConfig.getTargetAspectRatioCustom(null);
-        targetRatio = ImageUtil.rotate(targetRatio, relativeRotation);
 
         mPendingImageCaptureRequests.offer(
                 new ImageCaptureRequest(relativeRotation, getJpegQuality(), targetRatio,
@@ -1851,15 +1854,26 @@ public final class ImageCapture extends UseCase {
 
         AtomicBoolean mDispatched = new AtomicBoolean(false);
 
+        /**
+         * @param rotationDegrees The degrees to rotate the image buffer from sensor
+         *                        coordinates into the final output coordinate space.
+         * @param targetRatio     The aspect ratio of the image in final output coordinate space.
+         *                        This must be a non-negative, non-zero value.
+         * @throws IllegalArgumentException If targetRatio is not a valid value.
+         */
         ImageCaptureRequest(
                 @RotationValue int rotationDegrees,
-                @IntRange(from = 1, to = 100)
-                int jpegQuality,
+                @IntRange(from = 1, to = 100) int jpegQuality,
                 Rational targetRatio,
                 @NonNull Executor executor,
                 @NonNull OnImageCapturedCallback callback) {
             mRotationDegrees = rotationDegrees;
             mJpegQuality = jpegQuality;
+            if (targetRatio != null) {
+                Preconditions.checkArgument(!targetRatio.isZero(), "Target ratio cannot be zero");
+                Preconditions.checkArgument(targetRatio.floatValue() > 0, "Target ratio must be "
+                        + "positive");
+            }
             mTargetRatio = targetRatio;
             mListenerExecutor = executor;
             mCallback = callback;
@@ -1871,19 +1885,64 @@ public final class ImageCapture extends UseCase {
                 return;
             }
 
+            Size dispatchResolution = null;
+            int dispatchRotation = 0;
+
+            if (image.getFormat() == ImageFormat.JPEG) {
+                // JPEG needs to have rotation/crop based on the EXIF
+                try {
+                    ImageProxy.PlaneProxy[] planes = image.getPlanes();
+                    ByteBuffer buffer = planes[0].getBuffer();
+                    Exif exif;
+
+                    buffer.rewind();
+
+                    byte[] data = new byte[buffer.capacity()];
+                    buffer.get(data);
+                    exif = Exif.createFromInputStream(new ByteArrayInputStream(data));
+
+                    dispatchResolution = new Size(exif.getWidth(), exif.getHeight());
+                    dispatchRotation = exif.getRotation();
+                } catch (IOException e) {
+                    notifyCallbackError(ERROR_FILE_IO, "Unable to parse JPEG exif", e);
+                    image.close();
+                    return;
+                }
+            } else {
+                // All other formats take the rotation based simply on the target rotation
+                dispatchRotation = mRotationDegrees;
+            }
+
+            // Construct the ImageProxy with the updated rotation & crop for the output
+            ImageInfo imageInfo = ImmutableImageInfo.create(
+                    image.getImageInfo().getTag(),
+                    image.getImageInfo().getTimestamp(), dispatchRotation);
+
+            final ImageProxy dispatchedImageProxy = new SettableImageProxy(image,
+                    dispatchResolution,
+                    imageInfo);
+
+            // Update the crop rect aspect ratio after it has been rotated into the buffer
+            // orientation
+            if (mTargetRatio != null) {
+                Rational dispatchRatio = mTargetRatio;
+                if ((dispatchRotation % 180) != 0) {
+                    dispatchRatio = new Rational(
+                            /* invert the ratio numerator=*/ mTargetRatio.getDenominator(),
+                            /* invert the ratio denominator=*/ mTargetRatio.getNumerator());
+                }
+                Size sourceSize = new Size(dispatchedImageProxy.getWidth(),
+                        dispatchedImageProxy.getHeight());
+                if (ImageUtil.isAspectRatioValid(sourceSize, dispatchRatio)) {
+                    dispatchedImageProxy.setCropRect(
+                            ImageUtil.computeCropRectFromAspectRatio(sourceSize,
+                                    dispatchRatio));
+                }
+            }
+
             try {
                 mListenerExecutor.execute(() -> {
-                    Size sourceSize = new Size(image.getWidth(), image.getHeight());
-                    if (ImageUtil.isAspectRatioValid(sourceSize, mTargetRatio)) {
-                        image.setCropRect(
-                                ImageUtil.computeCropRectFromAspectRatio(sourceSize,
-                                        mTargetRatio));
-                    }
-
-                    ImageInfo imageInfo = ImmutableImageInfo.create(image.getImageInfo().getTag(),
-                            image.getImageInfo().getTimestamp(), mRotationDegrees);
-
-                    mCallback.onCaptureSuccess(new SettableImageProxy(image, imageInfo));
+                    mCallback.onCaptureSuccess(dispatchedImageProxy);
                 });
             } catch (RejectedExecutionException e) {
                 Log.e(TAG, "Unable to post to the supplied executor.");
