@@ -177,7 +177,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
      * @see Canvas.clipPath
      */
     override fun clipPath(path: Path) {
-        internalCanvas.clipPath(path.toFrameworkPath())
+        internalCanvas.clipPath(path.asAndroidPath())
     }
 
     /**
@@ -265,7 +265,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
      * @see Canvas.drawPath
      */
     override fun drawPath(path: Path, paint: Paint) {
-        internalCanvas.drawPath(path.toFrameworkPath(), paint.asFrameworkPaint())
+        internalCanvas.drawPath(path.asAndroidPath(), paint.asFrameworkPaint())
     }
 
     /**
