@@ -16,6 +16,7 @@
 
 package androidx.ui.savedinstancestate
 
+import androidx.compose.Composer
 import androidx.compose.staticAmbientOf
 
 /**
@@ -121,3 +122,17 @@ private class UiSavedStateRegistryImpl(
         return map
     }
 }
+
+// NOTE(lmr): This API is no longer needed in any way by the compiler, but we still need this API
+// to be here to support versions of Android Studio that are still looking for it. Without it,
+// valid composable code will look broken in the IDE. Remove this after we have left some time to
+// get all versions of Studio upgraded.
+// b/152059242
+@Deprecated(
+    "This property should not be called directly. It is only used by the compiler.",
+    replaceWith = ReplaceWith("currentComposer")
+)
+internal val composer: Composer<*>
+    get() = error(
+        "This property should not be called directly. It is only used by the compiler."
+    )
