@@ -312,7 +312,7 @@ public class UseCaseAttachStateTest {
         // Change the template to STILL_CAPTURE.
         SessionConfig.Builder builder = new SessionConfig.Builder();
         builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
-        fakeUseCase.attachToCamera(builder.build());
+        fakeUseCase.updateSessionConfig(builder.build());
 
         useCaseAttachState.updateUseCase(fakeUseCase);
 
@@ -366,7 +366,7 @@ public class UseCaseAttachStateTest {
         TestUseCase(FakeUseCaseConfig config, CameraSelector selector, String cameraId) {
             super(config);
             String selectedCameraId = CameraX.getCameraWithCameraSelector(selector);
-            onBind(new FakeCamera(selectedCameraId, null,
+            onAttach(new FakeCamera(selectedCameraId, null,
                     new FakeCameraInfoInternal(selectedCameraId, 0, selector.getLensFacing())));
             updateSuggestedResolution(new Size(640, 480));
         }
@@ -385,7 +385,7 @@ public class UseCaseAttachStateTest {
             builder.addSessionStateCallback(mSessionStateCallback);
             builder.addRepeatingCameraCaptureCallback(mCameraCaptureCallback);
 
-            attachToCamera(builder.build());
+            updateSessionConfig(builder.build());
 
             return suggestedResolution;
         }
@@ -399,8 +399,8 @@ public class UseCaseAttachStateTest {
         }
 
         @Override
-        public void attachToCamera(@NonNull SessionConfig sessionConfig) {
-            super.attachToCamera(sessionConfig);
+        public void updateSessionConfig(@NonNull SessionConfig sessionConfig) {
+            super.updateSessionConfig(sessionConfig);
         }
 
     }

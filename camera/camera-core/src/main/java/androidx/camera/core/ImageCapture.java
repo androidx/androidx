@@ -362,7 +362,7 @@ public final class ImageCapture extends UseCase {
             if (isCurrentlyBoundCamera(cameraId)) {
                 // Only reset the pipeline when the bound camera is the same.
                 mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
-                attachToCamera(mSessionConfigBuilder.build());
+                updateSessionConfig(mSessionConfigBuilder.build());
                 notifyReset();
             }
         });
@@ -973,7 +973,7 @@ public final class ImageCapture extends UseCase {
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
         mSessionConfigBuilder = createPipeline(getBoundCameraId(), mConfig, suggestedResolution);
 
-        attachToCamera(mSessionConfigBuilder.build());
+        updateSessionConfig(mSessionConfigBuilder.build());
 
         // In order to speed up the take picture process, notifyActive at an early stage to
         // attach the session capture callback to repeating and get capture result all the time.

@@ -501,7 +501,7 @@ public class VideoCapture extends UseCase {
             }
         });
 
-        attachToCamera(sessionConfigBuilder.build());
+        updateSessionConfig(sessionConfigBuilder.build());
 
         // audio encoder setup
         setAudioParametersByCamcorderProfile(resolution, cameraId);

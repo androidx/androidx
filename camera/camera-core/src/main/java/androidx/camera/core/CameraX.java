@@ -317,7 +317,7 @@ public final class CameraX {
         // At this point the binding will succeed since all the calculations are done
         // Do all binding related work
         for (UseCase useCase : useCases) {
-            useCase.onBind(camera);
+            useCase.onAttach(camera);
             useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
 
             // Update the UseCaseGroup
@@ -389,7 +389,7 @@ public final class CameraX {
 
             // Unbind the UseCase from the currently bound camera if it is bound
             if (wasUnbound) {
-                useCase.onUnbind();
+                useCase.onDetach();
             }
         }
     }

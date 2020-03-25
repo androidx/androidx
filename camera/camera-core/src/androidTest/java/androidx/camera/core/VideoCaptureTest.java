@@ -111,7 +111,7 @@ public class VideoCaptureTest {
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
             mLifecycleOwner.startAndResume();
         });
-        useCase.onBind(mMockCameraInternal);
+        useCase.onAttach(mMockCameraInternal);
 
         useCase.startRecording(
                 new File(
@@ -131,7 +131,7 @@ public class VideoCaptureTest {
             CameraX.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCase);
             mLifecycleOwner.startAndResume();
         });
-        useCase.onBind(mMockCameraInternal);
+        useCase.onAttach(mMockCameraInternal);
 
         useCase.startRecording(
                 new File(

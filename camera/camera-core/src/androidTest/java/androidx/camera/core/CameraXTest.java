@@ -508,7 +508,7 @@ public final class CameraXTest {
         protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
             SessionConfig.Builder builder = new SessionConfig.Builder();
 
-            attachToCamera(builder.build());
+            updateSessionConfig(builder.build());
             return suggestedResolution;
         }
     }
