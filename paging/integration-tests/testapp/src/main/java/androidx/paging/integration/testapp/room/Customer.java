@@ -87,6 +87,7 @@ public class Customer {
         return result;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Customer{"

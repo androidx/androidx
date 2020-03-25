@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import static androidx.build.dependencies.DependenciesKt.MULTIDEX
 import static androidx.build.dependencies.DependenciesKt.getKOTLIN_STDLIB
 
@@ -26,7 +29,7 @@ plugins {
 
 dependencies {
     implementation("androidx.arch.core:core-runtime:2.1.0")
-    implementation("androidx.room:room-runtime:2.2.5")
+    implementation("androidx.room:room-ktx:2.2.5")
     implementation("androidx.room:room-rxjava2:2.2.5")
 
     implementation(project(":paging:paging-common-ktx"))
@@ -46,5 +49,12 @@ kapt {
     javacOptions {
         option("-source", "8")
         option("-target", "8")
+    }
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     }
 }

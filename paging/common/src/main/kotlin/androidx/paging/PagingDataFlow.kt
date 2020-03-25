@@ -33,24 +33,12 @@ import kotlinx.coroutines.flow.Flow
  */
 @Suppress("FunctionName")
 @JvmName("create")
+@JvmOverloads
 fun <Key : Any, Value : Any> PagingDataFlow(
     config: PagingConfig,
-    initialKey: Key?,
+    initialKey: Key? = null,
+    remoteMediator: RemoteMediator<Key, Value>? = null,
     pagingSourceFactory: () -> PagingSource<Key, Value>
-): Flow<PagingData<Value>> =
-    PageFetcher(pagingSourceFactory, initialKey, config).flow
-
-/**
- * Construct the primary Paging reactive stream: `Flow<PagingData<T>>`.
- *
- * Creates a stream of [PagingData] objects, each of which represents a single generation of
- * paginated data. These objects can be transformed to alter data as it loads, and presented in a
- * `RecyclerView`.
- */
-@Suppress("FunctionName")
-@JvmName("create")
-fun <Key : Any, Value : Any> PagingDataFlow(
-    config: PagingConfig,
-    pagingSourceFactory: () -> PagingSource<Key, Value>
-): Flow<PagingData<Value>> =
-    PageFetcher(pagingSourceFactory, null, config).flow
+): Flow<PagingData<Value>> {
+    return PageFetcher(pagingSourceFactory, initialKey, config, remoteMediator).flow
+}
