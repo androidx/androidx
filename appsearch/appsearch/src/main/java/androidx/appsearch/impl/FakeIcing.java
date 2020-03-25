@@ -158,6 +158,14 @@ public class FakeIcing {
         }
     }
 
+    /** Deletes all document. */
+    public void deleteAll() {
+        mDocStore.clear();
+        mUriToDocIdMap.clear();
+        mIndex.clear();
+        mNextDocId.set(0);
+    }
+
     /**
      * Deletes all documents having the given type.
      *

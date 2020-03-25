@@ -18,12 +18,10 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.content.Context;
-
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
-import androidx.test.InstrumentationRegistry;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import junit.framework.AssertionFailedError;
 
@@ -35,16 +33,16 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AppSearchManagerTest {
-    private final Context mContext = InstrumentationRegistry.getInstrumentation().getContext();
-    private final AppSearchManager mAppSearch = new AppSearchManager(mContext);
+    private final AppSearchManager mAppSearch = new AppSearchManager();
 
     @After
-    public void tearDown() {
-        mAppSearch.deleteAll();
+    public void tearDown() throws Exception {
+        ListenableFuture<AppSearchResult<Void>> future = mAppSearch.deleteAll();
+        future.get();
     }
 
     @Test
-    public void testSetSchema() {
+    public void testSetSchema() throws Exception {
         AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email")
                 .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
                         .setDataType(PropertyConfig.DATA_TYPE_STRING)
@@ -63,7 +61,7 @@ public class AppSearchManagerTest {
     }
 
     @Test
-    public void testPutDocuments() {
+    public void testPutDocuments() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch.setSchema(AppSearchEmail.SCHEMA));
 
@@ -75,15 +73,16 @@ public class AppSearchManagerTest {
                 .setBody("This is the body of the testPut email")
                 .build();
 
-        AppSearchBatchResult<String, Void> result =
+        ListenableFuture<AppSearchBatchResult<String, Void>> future =
                 mAppSearch.putDocuments(ImmutableList.of(email));
-        checkIsSuccess(result);
+        checkIsSuccess(future);
+        AppSearchBatchResult<String, Void> result = future.get();
         assertThat(result.getSuccesses()).containsExactly("uri1", null);
         assertThat(result.getFailures()).isEmpty();
     }
 
     @Test
-    public void testGetDocuments() {
+    public void testGetDocuments() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch.setSchema(AppSearchEmail.SCHEMA));
 
@@ -105,7 +104,7 @@ public class AppSearchManagerTest {
     }
 
     @Test
-    public void testQuery() {
+    public void testQuery() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch.setSchema(AppSearchEmail.SCHEMA));
 
@@ -131,7 +130,7 @@ public class AppSearchManagerTest {
     }
 
     @Test
-    public void testQuery_TypeFilter() {
+    public void testQuery_TypeFilter() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch.setSchema(AppSearchEmail.SCHEMA));
 
@@ -159,7 +158,7 @@ public class AppSearchManagerTest {
     }
 
     @Test
-    public void testDelete() {
+    public void testDelete() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch.setSchema(AppSearchEmail.SCHEMA));
 
@@ -189,7 +188,7 @@ public class AppSearchManagerTest {
 
         // Make sure it's really gone
         AppSearchBatchResult<String, AppSearchDocument> getResult =
-                mAppSearch.getDocuments(ImmutableList.of("uri1", "uri2"));
+                mAppSearch.getDocuments(ImmutableList.of("uri1", "uri2")).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -197,7 +196,7 @@ public class AppSearchManagerTest {
     }
 
     @Test
-    public void testDeleteByTypes() {
+    public void testDeleteByTypes() throws Exception {
         // Schema registration
         checkIsSuccess(mAppSearch.setSchema(AppSearchEmail.SCHEMA));
 
@@ -229,7 +228,7 @@ public class AppSearchManagerTest {
 
         // Make sure it's really gone
         AppSearchBatchResult<String, AppSearchDocument> getResult =
-                mAppSearch.getDocuments(ImmutableList.of("uri1", "uri2", "uri3"));
+                mAppSearch.getDocuments(ImmutableList.of("uri1", "uri2", "uri3")).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -238,10 +237,11 @@ public class AppSearchManagerTest {
         assertThat(getResult.getSuccesses().get("uri3")).isEqualTo(document1);
     }
 
-    private List<AppSearchDocument> doGet(String... uris) {
-        AppSearchBatchResult<String, AppSearchDocument> result =
+    private List<AppSearchDocument> doGet(String... uris) throws Exception {
+        ListenableFuture<AppSearchBatchResult<String, AppSearchDocument>> future =
                 mAppSearch.getDocuments(Arrays.asList(uris));
-        checkIsSuccess(result);
+        checkIsSuccess(future);
+        AppSearchBatchResult<String, AppSearchDocument> result = future.get();
         assertThat(result.getSuccesses()).hasSize(uris.length);
         assertThat(result.getFailures()).isEmpty();
         List<AppSearchDocument> list = new ArrayList<>(uris.length);
@@ -251,14 +251,14 @@ public class AppSearchManagerTest {
         return list;
     }
 
-    private List<AppSearchDocument> doQuery(String queryExpression, String... schemaTypes) {
+    private List<AppSearchDocument> doQuery(String queryExpression, String... schemaTypes)
+            throws Exception {
         AppSearchResult<SearchResults> result = mAppSearch.query(
                 queryExpression,
                 SearchSpec.newBuilder()
                         .setSchemaTypes(schemaTypes)
                         .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
-                        .build());
-        checkIsSuccess(result);
+                        .build()).get();
         SearchResults searchResults = result.getResultValue();
         List<AppSearchDocument> documents = new ArrayList<>();
         while (searchResults.hasNext()) {
@@ -267,16 +267,20 @@ public class AppSearchManagerTest {
         return documents;
     }
 
-    private void checkIsSuccess(AppSearchResult<?> result) {
-        if (!result.isSuccess()) {
-            throw new AssertionFailedError("AppSearchResult not successful: " + result);
-        }
-    }
-
-    private void checkIsSuccess(AppSearchBatchResult<?, ?> result) {
-        if (!result.isSuccess()) {
-            throw new AssertionFailedError(
-                    "AppSearchBatchResult not successful: " + result.getFailures());
+    private <T> void checkIsSuccess(ListenableFuture<T> future) throws Exception {
+        T futureGet = future.get();
+        if (futureGet instanceof AppSearchBatchResult) {
+            AppSearchBatchResult<?, ?> result = (AppSearchBatchResult) futureGet;
+            if (!result.isSuccess()) {
+                throw new AssertionFailedError(
+                        "AppSearchBatchResult not successful: " + result.getFailures());
+            }
+        } else if (futureGet instanceof AppSearchResult) {
+            AppSearchResult<?> result = (AppSearchResult) futureGet;
+            if (!result.isSuccess()) {
+                throw new AssertionFailedError(
+                        "AppSearchBatchResult not successful: " + result);
+            }
         }
     }
 }
