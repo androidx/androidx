@@ -93,7 +93,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
     @Suppress("UNCHECKED_CAST")
     override val lastKey: K?
         get() {
-            return (storage.getRefreshKeyInfo(config.initialLoadSizeHint) as PagingState<K, V>?)
+            return (storage.getRefreshKeyInfo(config) as PagingState<K, V>?)
                 ?.let { pagingSource.getRefreshKey(it) }
                 ?: initialLastKey
         }

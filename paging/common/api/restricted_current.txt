@@ -333,7 +333,7 @@ package androidx.paging {
     method public Value closestItemToPosition(int anchorPosition);
     method public androidx.paging.PagingSource.LoadResult.Page<Key,Value> closestPageToPosition(int anchorPosition);
     method public int getAnchorPosition();
-    method public int getInitialLoadSize();
+    method public androidx.paging.PagingConfig getConfig();
     method public java.util.List<androidx.paging.PagingSource.LoadResult.Page<Key,Value>> getPages();
   }
 
