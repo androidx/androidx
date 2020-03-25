@@ -45,6 +45,20 @@ fun unregisterComposeFromEspresso() {
 }
 
 /**
+ * Registers the given [clock] so Espresso can await the animations subscribed to that clock.
+ */
+fun registerTestClock(clock: TestAnimationClock) {
+    ComposeIdlingResource.registerTestClock(clock)
+}
+
+/**
+ * Unregisters the [clock] that was registered with [registerTestClock].
+ */
+fun unregisterTestClock(clock: TestAnimationClock) {
+    ComposeIdlingResource.unregisterTestClock(clock)
+}
+
+/**
  * Provides an idle check to be registered into Espresso.
  *
  * This makes sure that Espresso is able to wait for any pending changes in Compose. This
@@ -115,7 +129,7 @@ internal object ComposeIdlingResource : IdlingResource {
      *
      * Can be called multiple times.
      */
-    fun registerSelfIntoEspresso() {
+    internal fun registerSelfIntoEspresso() {
         if (isRegistered) {
             return
         }
@@ -128,7 +142,7 @@ internal object ComposeIdlingResource : IdlingResource {
      *
      * Can be called multiple times.
      */
-    fun unregisterSelfFromEspresso() {
+    internal fun unregisterSelfFromEspresso() {
         if (!isRegistered) {
             return
         }
@@ -136,13 +150,13 @@ internal object ComposeIdlingResource : IdlingResource {
         isRegistered = false
     }
 
-    fun registerTestClock(clock: TestAnimationClock) {
+    internal fun registerTestClock(clock: TestAnimationClock) {
         synchronized(clocks) {
             clocks.add(clock)
         }
     }
 
-    fun unregisterTestClock(clock: TestAnimationClock) {
+    internal fun unregisterTestClock(clock: TestAnimationClock) {
         synchronized(clocks) {
             clocks.remove(clock)
         }

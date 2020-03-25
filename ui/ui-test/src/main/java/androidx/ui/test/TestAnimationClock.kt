@@ -18,9 +18,10 @@ package androidx.ui.test
 
 import androidx.animation.AnimationClockObservable
 import androidx.animation.rootAnimationClockFactory
-import androidx.ui.test.android.AndroidTestAnimationClock
-import androidx.ui.test.android.ComposeIdlingResource
 import androidx.test.espresso.IdlingResource
+import androidx.ui.test.android.AndroidTestAnimationClock
+import androidx.ui.test.android.registerTestClock
+import androidx.ui.test.android.unregisterTestClock
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -71,14 +72,14 @@ interface TestAnimationClock : AnimationClockObservable {
 /**
  * A [TestRule] to monitor and take over the animation clock in the composition. It substitutes
  * the ambient animation clock provided at the root of the composition tree with a
- * [TestAnimationClock] and registers it with [ComposeIdlingResource].
+ * [TestAnimationClock] and registers it with [registerTestClock].
  *
  * Usually you don't need to create this rule by yourself, it is done for you in
  * [ComposeTestRule]. If you don't use [ComposeTestRule], use this rule in your test and make
  * sure it is run _before_ your activity is created.
  *
  * If your app provides a custom animation clock somewhere in your composition, make sure to have
- * it implement [TestAnimationClock] and register it with [ComposeIdlingResource]. Alternatively,
+ * it implement [TestAnimationClock] and register it with [registerTestClock]. Alternatively,
  * if you use Espresso you can create your own [IdlingResource] to let Espresso await your
  * animations. Otherwise, built in steps that make sure the UI is stable when performing actions
  * or assertions will fail to work.
@@ -92,7 +93,7 @@ class AnimationClockTestRule : TestRule {
      * The ambient animation clock that is provided at the root of the composition tree.
      * Typically, apps will only use this clock. If your app provides another clock in the tree,
      * make sure to let it implement [TestAnimationClock] and register it with
-     * [ComposeIdlingResource].
+     * [registerTestClock].
      */
     val clock: TestAnimationClock get() = _clock
 
@@ -123,7 +124,7 @@ class AnimationClockTestRule : TestRule {
     private inner class AnimationClockStatement(private val base: Statement) : Statement() {
         override fun evaluate() {
             val oldFactory = rootAnimationClockFactory
-            ComposeIdlingResource.registerTestClock(clock)
+            registerTestClock(clock)
             rootAnimationClockFactory = { clock }
             try {
                 base.evaluate()
@@ -132,7 +133,7 @@ class AnimationClockTestRule : TestRule {
                     _clock.dispose()
                 } finally {
                     rootAnimationClockFactory = oldFactory
-                    ComposeIdlingResource.unregisterTestClock(clock)
+                    unregisterTestClock(clock)
                 }
             }
         }
