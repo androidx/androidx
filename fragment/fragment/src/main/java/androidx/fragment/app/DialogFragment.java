@@ -503,7 +503,11 @@ public class DialogFragment extends Fragment
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.d(TAG, "get layout inflater for DialogFragment " + this + " from dialog context");
         }
-        return layoutInflater.cloneInContext(requireDialog().getContext());
+
+        if (mDialog != null) {
+            layoutInflater = layoutInflater.cloneInContext(mDialog.getContext());
+        }
+        return layoutInflater;
     }
 
     /** @hide */
@@ -581,20 +585,27 @@ public class DialogFragment extends Fragment
             try {
                 mCreatingDialog = true;
                 mDialog = onCreateDialog(savedInstanceState);
-                setupDialog(mDialog, mStyle);
-                final Activity activity = getActivity();
-                if (activity != null) {
-                    mDialog.setOwnerActivity(activity);
+                // mShowsDialog might have changed in onCreateDialog, so we should only proceed
+                // with setting up the dialog if mShowsDialog is still true
+                if (mShowsDialog) {
+                    setupDialog(mDialog, mStyle);
+                    final Activity activity = getActivity();
+                    if (activity != null) {
+                        mDialog.setOwnerActivity(activity);
+                    }
+                    mDialog.setCancelable(mCancelable);
+                    mDialog.setOnCancelListener(mOnCancelListener);
+                    mDialog.setOnDismissListener(mOnDismissListener);
+                    mDialogCreated = true;
+                } else {
+                    // Ensure that when mShowsDialog is set to false in onCreateDialog
+                    // that getDialog() returns null
+                    mDialog = null;
                 }
-                mDialog.setCancelable(mCancelable);
-                mDialog.setOnCancelListener(mOnCancelListener);
-                mDialog.setOnDismissListener(mOnDismissListener);
             } finally {
                 mCreatingDialog = false;
             }
         }
-
-        mDialogCreated = true;
     }
 
     @MainThread
