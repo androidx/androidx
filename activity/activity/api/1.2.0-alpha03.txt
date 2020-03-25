@@ -103,6 +103,20 @@ package androidx.activity.result.contract {
     method public final android.net.Uri? parseResult(int, android.content.Intent?);
   }
 
+  public static class ActivityResultContracts.GetContent extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
+    ctor public ActivityResultContracts.GetContent();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context, String);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri!>? getSynchronousResult(android.content.Context, String);
+    method public final android.net.Uri? parseResult(int, android.content.Intent?);
+  }
+
+  public static class ActivityResultContracts.GetContents extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.util.List<android.net.Uri>> {
+    ctor public ActivityResultContracts.GetContents();
+    method @CallSuper public android.content.Intent createIntent(android.content.Context, String);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri!>!>? getSynchronousResult(android.content.Context, String);
+    method public final java.util.List<android.net.Uri!> parseResult(int, android.content.Intent?);
+  }
+
   public static class ActivityResultContracts.OpenDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],android.net.Uri> {
     ctor public ActivityResultContracts.OpenDocument();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, String![]);
@@ -128,20 +142,6 @@ package androidx.activity.result.contract {
     ctor public ActivityResultContracts.PickContact();
     method public android.content.Intent createIntent(android.content.Context, Void?);
     method public android.net.Uri? parseResult(int, android.content.Intent?);
-  }
-
-  public static class ActivityResultContracts.PickFile extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
-    ctor public ActivityResultContracts.PickFile();
-    method @CallSuper public android.content.Intent createIntent(android.content.Context, String);
-    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri!>? getSynchronousResult(android.content.Context, String);
-    method public final android.net.Uri? parseResult(int, android.content.Intent?);
-  }
-
-  public static class ActivityResultContracts.PickFiles extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.util.List<android.net.Uri>> {
-    ctor public ActivityResultContracts.PickFiles();
-    method @CallSuper public android.content.Intent createIntent(android.content.Context, String);
-    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri!>!>? getSynchronousResult(android.content.Context, String);
-    method public final java.util.List<android.net.Uri!> parseResult(int, android.content.Intent?);
   }
 
   public static final class ActivityResultContracts.RequestPermission extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {

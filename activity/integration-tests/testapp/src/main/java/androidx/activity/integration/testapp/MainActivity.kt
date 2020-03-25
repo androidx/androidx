@@ -32,7 +32,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.invoke
 import androidx.activity.prepareCall
-import androidx.activity.result.contract.ActivityResultContracts.PickFile
+import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
 
@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
         toast("Got picture: $bitmap")
     }
 
-    val dial = prepareCall(PickFile()) { uri ->
+    val getContent = prepareCall(GetContent()) { uri ->
         toast("Got image: $uri")
     }
 
@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                     takePicture()
                 }
                 button("Pick an image") {
-                    dial("image/*")
+                    getContent("image/*")
                 }
             }
         }
