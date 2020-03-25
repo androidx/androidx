@@ -43,20 +43,25 @@ internal interface AnimationWrapper<T, V : AnimationVector> {
 internal class TargetBasedAnimationWrapper<T, V : AnimationVector>(
     startValue: T,
     private val startVelocity: V,
-    endValue: T,
+    val endValue: T,
     private val animation: Animation<V>,
     private val typeConverter: TwoWayConverter<T, V>
 ) : AnimationWrapper<T, V> {
     private val startValueVector = typeConverter.convertToVector.invoke(startValue)
     private val endValueVector = typeConverter.convertToVector.invoke(endValue)
 
-    override fun getValue(playTime: Long): T =
-        typeConverter.convertFromVector.invoke(
-            animation.getValue(
-                playTime, startValueVector,
-                endValueVector, startVelocity
+    override fun getValue(playTime: Long): T {
+        return if (playTime < durationMillis) {
+            typeConverter.convertFromVector.invoke(
+                animation.getValue(
+                    playTime, startValueVector,
+                    endValueVector, startVelocity
+                )
             )
-        )
+        } else {
+            endValue
+        }
+    }
 
     override val durationMillis: Long = animation.getDurationMillis(
         start = startValueVector,
@@ -64,8 +69,25 @@ internal class TargetBasedAnimationWrapper<T, V : AnimationVector>(
         startVelocity = startVelocity
     )
 
-    override fun getVelocity(playTime: Long): V =
-        animation.getVelocity(playTime, startValueVector, endValueVector, startVelocity)
+    private val endVelocity = animation.getEndVelocity(
+        startValueVector,
+        endValueVector,
+        startVelocity,
+        durationMillis
+    )
+
+    override fun getVelocity(playTime: Long): V {
+        return if (playTime < durationMillis) {
+            animation.getVelocity(
+                playTime,
+                startValueVector,
+                endValueVector,
+                startVelocity
+            )
+        } else {
+            endVelocity
+        }
+    }
 }
 
 /**
