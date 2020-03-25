@@ -13,11 +13,13 @@ package androidx.ui.core {
 
   public interface AndroidOwner extends androidx.ui.core.Owner {
     method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
+    method public android.view.View getView();
     method public void removeAndroidView(android.view.View view);
+    property public abstract android.view.View view;
   }
 
   public final class AndroidOwnerKt {
-    method public static androidx.ui.core.Owner createOwner(android.content.Context context);
+    method public static androidx.ui.core.AndroidOwner createOwner(android.content.Context context);
   }
 
   public abstract sealed class ComponentNode {
