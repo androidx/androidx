@@ -64,6 +64,8 @@ internal class RenderNodeLayer(
         renderNode.scaleX = drawLayerModifier.scaleX
         renderNode.scaleY = drawLayerModifier.scaleY
         renderNode.alpha = drawLayerModifier.alpha
+        renderNode.translationX = drawLayerModifier.translationX
+        renderNode.translationY = drawLayerModifier.translationY
         renderNode.elevation = drawLayerModifier.elevation
         renderNode.rotationZ = drawLayerModifier.rotationZ
         renderNode.rotationX = drawLayerModifier.rotationX

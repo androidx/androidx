@@ -93,6 +93,16 @@ interface DrawLayerModifier : Modifier.Element {
     val alpha: Float get() = 1f
 
     /**
+     * Horizontal pixel offset of the layer relative to its left bound
+     */
+    val translationX: Float get() = 0f
+
+    /**
+     * Vertical pixel offset of the layer relative to its top bound
+     */
+    val translationY: Float get() = 0f
+
+    /**
      * Sets the Z coordinate of the layer in pixels. With [outlineShape] set, this will cause
      * a shadow. Varying the [elevation] can also change the order in which layers are drawn.
      */
@@ -153,6 +163,8 @@ private data class SimpleDrawLayerModifier(
     override val scaleX: Float,
     override val scaleY: Float,
     override val alpha: Float,
+    override val translationX: Float,
+    override val translationY: Float,
     override val elevation: Float,
     override val rotationX: Float,
     override val rotationY: Float,
@@ -171,6 +183,8 @@ private data class SimpleDrawLayerModifier(
  * @param scaleX [DrawLayerModifier.scaleX]
  * @param scaleY [DrawLayerModifier.scaleY]
  * @param alpha [DrawLayerModifier.alpha]
+ * @param translationX [DrawLayerModifier.translationX]
+ * @param translationY [DrawLayerModifier.translationY]
  * @param elevation [DrawLayerModifier.elevation]
  * @param rotationX [DrawLayerModifier.rotationX]
  * @param rotationY [DrawLayerModifier.rotationY]
@@ -184,6 +198,8 @@ fun drawLayer(
     scaleX: Float = 1f,
     scaleY: Float = 1f,
     alpha: Float = 1f,
+    translationX: Float = 0f,
+    translationY: Float = 0f,
     elevation: Float = 0f,
     rotationX: Float = 0f,
     rotationY: Float = 0f,
@@ -196,6 +212,8 @@ fun drawLayer(
     scaleX = scaleX,
     scaleY = scaleY,
     alpha = alpha,
+    translationX = translationX,
+    translationY = translationY,
     elevation = elevation,
     rotationX = rotationX,
     rotationY = rotationY,
