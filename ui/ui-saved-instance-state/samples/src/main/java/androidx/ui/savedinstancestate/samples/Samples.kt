@@ -21,6 +21,8 @@ package androidx.ui.savedinstancestate.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.savedinstancestate.Saver
+import androidx.ui.savedinstancestate.listSaver
+import androidx.ui.savedinstancestate.mapSaver
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.savedinstancestate.savedInstanceState
 
@@ -47,4 +49,30 @@ fun CustomSaverSample() {
         save = { it.value },
         restore = { Holder(it) }
     )
+}
+
+@Sampled
+@Composable
+fun ListSaverSample() {
+    data class Size(val x: Int, val y: Int)
+
+    val sizeSaver = listSaver<Size, Int>(
+        save = { listOf(it.x, it.y) },
+        restore = { Size(it[0], it[1]) }
+    )
+}
+
+@Sampled
+@Composable
+fun MapSaverSample() {
+    data class User(val name: String, val age: Int)
+
+    val userSaver = run {
+        val nameKey = "Name"
+        val ageKey = "Age"
+        mapSaver(
+            save = { mapOf(nameKey to it.name, ageKey to it.age) },
+            restore = { User(it[nameKey] as String, it[ageKey] as Int) }
+        )
+    }
 }
