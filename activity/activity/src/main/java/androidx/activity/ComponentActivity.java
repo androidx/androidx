@@ -47,6 +47,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
@@ -123,7 +124,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         public <I, O> void invoke(
                 final int requestCode,
                 @NonNull ActivityResultContract<I, O> contract,
-                I input) {
+                I input,
+                @Nullable ActivityOptionsCompat options) {
             ComponentActivity activity = ComponentActivity.this;
 
             // Immediate result path
@@ -164,9 +166,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                             nonGrantedPermissions.toArray(new String[0]), requestCode);
                 }
             } else {
-
                 // startActivityForResult path
-                ActivityCompat.startActivityForResult(activity, intent, requestCode, null);
+                ActivityCompat.startActivityForResult(activity, intent, requestCode,
+                        options != null ? options.toBundle() : null);
             }
         }
     };

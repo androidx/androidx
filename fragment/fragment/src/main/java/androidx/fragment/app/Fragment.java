@@ -62,6 +62,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.arch.core.util.Function;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.view.LayoutInflaterCompat;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
@@ -3170,13 +3171,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
         return new ActivityResultLauncher<I>() {
             @Override
-            public void launch(I input) {
+            public void launch(I input, @Nullable ActivityOptionsCompat options) {
                 ActivityResultLauncher<I> delegate = ref.get();
                 if (delegate == null) {
                     throw new IllegalStateException("Operation cannot be started before fragment "
                             + "is in created state");
                 }
-                delegate.launch(input);
+                delegate.launch(input, options);
             }
 
             @Override

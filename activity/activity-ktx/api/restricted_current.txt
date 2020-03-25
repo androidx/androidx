@@ -7,9 +7,9 @@ package androidx.activity {
   }
 
   public final class ActivityResultLauncherKt {
-    method public static operator <I> void invoke(androidx.activity.result.ActivityResultLauncher<I>, I? input);
-    method public static operator void invoke(androidx.activity.result.ActivityResultLauncher<java.lang.Void>);
-    method public static operator void invokeUnit(androidx.activity.result.ActivityResultLauncher<kotlin.Unit>);
+    method public static operator <I> void invoke(androidx.activity.result.ActivityResultLauncher<I>, I? input, androidx.core.app.ActivityOptionsCompat? options = null);
+    method public static operator void invoke(androidx.activity.result.ActivityResultLauncher<java.lang.Void>, androidx.core.app.ActivityOptionsCompat? options = null);
+    method public static operator void invokeUnit(androidx.activity.result.ActivityResultLauncher<kotlin.Unit>, androidx.core.app.ActivityOptionsCompat? options = null);
   }
 
   public final class ActivityViewModelLazyKt {
