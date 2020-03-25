@@ -72,9 +72,36 @@ class RoundedCornerShapeTest {
     }
 
     @Test
+    fun createsRectangleOutlineForZeroSizedCorners() {
+        val rounded = RoundedCornerShape(0.px, 0.px, 0.px, 0.px)
+
+        assertThat(rounded.toOutline())
+            .isEqualTo(Outline.Rectangle(size.toRect()))
+    }
+
+    @Test
     fun roundedCornerShapesAreEquals() {
         assertThat(RoundedCornerShape(12.dp))
             .isEqualTo(RoundedCornerShape(12.dp))
+    }
+
+    @Test
+    fun roundedCornerUpdateAllCornerSize() {
+        assertThat(RoundedCornerShape(10.px).copy(CornerSize(5.dp)))
+            .isEqualTo(RoundedCornerShape(5.dp))
+    }
+
+    @Test
+    fun roundedCornerUpdateTwoCornerSizes() {
+        assertThat(RoundedCornerShape(10.px).copy(
+            topLeft = CornerSize(3.dp),
+            bottomLeft = CornerSize(50)
+        )).isEqualTo(RoundedCornerShape(
+            topLeft = CornerSize(3.dp),
+            topRight = CornerSize(10.px),
+            bottomRight = CornerSize(10.px),
+            bottomLeft = CornerSize(50)
+        ))
     }
 
     private fun Shape.toOutline() = createOutline(size, density)

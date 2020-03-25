@@ -16,18 +16,27 @@
 
 package androidx.ui.material
 
+import androidx.compose.Providers
 import androidx.test.filters.MediumTest
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
+import androidx.ui.core.TestTag
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.shape.corner.CutCornerShape
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
+import androidx.ui.semantics.Semantics
+import androidx.ui.test.assertShape
+import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
+import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.test.positionInParent
 import androidx.ui.unit.IntPx
@@ -309,5 +318,38 @@ class SnackbarTest {
                 ).isEqualTo(8.dp.toIntPx())
             }
         }
+    }
+
+    @Test
+    fun shapeAndColorFromThemeIsUsed() {
+        val shape = CutCornerShape(8.dp)
+        var background = Color.Yellow
+        var snackBarColor = Color.Transparent
+        composeTestRule.setMaterialContent {
+            Stack {
+                background = MaterialTheme.colors.surface
+                // Snackbar has a background color of onSurface with an alpha applied blended
+                // on top of surface
+                snackBarColor = MaterialTheme.colors.onSurface.copy(alpha = 0.8f)
+                    .compositeOver(background)
+                Providers(ShapesAmbient provides Shapes(medium = shape)) {
+                    TestTag(tag = "snackbar") {
+                        Semantics(container = true, mergeAllDescendants = true) {
+                            Snackbar(text = { Text("") })
+                        }
+                    }
+                }
+            }
+        }
+
+        findByTag("snackbar")
+            .captureToBitmap()
+            .assertShape(
+                density = composeTestRule.density,
+                shape = shape,
+                shapeColor = snackBarColor,
+                backgroundColor = background,
+                shapeOverlapPixelCount = with(composeTestRule.density) { 2.dp.toPx() }
+            )
     }
 }

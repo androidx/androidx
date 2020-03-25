@@ -21,8 +21,9 @@ import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.min
+import androidx.ui.unit.minDimension
 import androidx.ui.unit.px
-import androidx.ui.unit.toRect
 
 /**
  * Base class for [Shape]s defined by four [CornerSize]s.
@@ -35,25 +36,23 @@ import androidx.ui.unit.toRect
  * @param bottomLeft a size of the bottom right corner
  */
 abstract class CornerBasedShape(
-    private val topLeft: CornerSize,
-    private val topRight: CornerSize,
-    private val bottomRight: CornerSize,
-    private val bottomLeft: CornerSize
+    val topLeft: CornerSize,
+    val topRight: CornerSize,
+    val bottomRight: CornerSize,
+    val bottomLeft: CornerSize
 ) : Shape {
 
     final override fun createOutline(size: PxSize, density: Density): Outline {
-        val topLeft = topLeft.toPx(size, density)
-        val topRight = topRight.toPx(size, density)
-        val bottomRight = bottomRight.toPx(size, density)
-        val bottomLeft = bottomLeft.toPx(size, density)
+        val halfMinDimension = size.minDimension / 2f
+        val topLeft = min(topLeft.toPx(size, density), halfMinDimension)
+        val topRight = min(topRight.toPx(size, density), halfMinDimension)
+        val bottomRight = min(bottomRight.toPx(size, density), halfMinDimension)
+        val bottomLeft = min(bottomLeft.toPx(size, density), halfMinDimension)
         require(topLeft >= 0.px && topRight >= 0.px && bottomRight >= 0.px && bottomLeft >= 0.px) {
-            "Corner size in Px can't be negative!"
+            "Corner size in Px can't be negative(topLeft = $topLeft, topRight = $topRight, " +
+                    "bottomRight = $bottomRight, bottomLeft = $bottomLeft)!"
         }
-        return if (topLeft + topRight + bottomLeft + bottomRight == 0.px) {
-            Outline.Rectangle(size.toRect())
-        } else {
-            createOutline(size, topLeft, topRight, bottomRight, bottomLeft)
-        }
+        return createOutline(size, topLeft, topRight, bottomRight, bottomLeft)
     }
 
     /**
@@ -72,4 +71,49 @@ abstract class CornerBasedShape(
         bottomRight: Px,
         bottomLeft: Px
     ): Outline
+
+    /**
+     * Creates a copy of this Shape with a new corner sizes.
+     *
+     * @param topLeft a size of the top left corner
+     * @param topRight a size of the top right corner
+     * @param bottomRight a size of the bottom left corner
+     * @param bottomLeft a size of the bottom right corner
+     */
+    abstract fun copy(
+        topLeft: CornerSize = this.topLeft,
+        topRight: CornerSize = this.topRight,
+        bottomRight: CornerSize = this.bottomRight,
+        bottomLeft: CornerSize = this.bottomLeft
+    ): CornerBasedShape
+
+    /**
+     * Creates a copy of this Shape with a new corner size.
+     * @param all a size to apply for all four corners
+     */
+    fun copy(all: CornerSize): CornerBasedShape = copy(all, all, all, all)
+
+    // Implementations can't be data classes as we defined the abstract copy() method and the data
+    // class code generation is not compatible with it, so we provide our hashCode() and equals()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CornerBasedShape
+
+        if (topLeft != other.topLeft) return false
+        if (topRight != other.topRight) return false
+        if (bottomRight != other.bottomRight) return false
+        if (bottomLeft != other.bottomLeft) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = topLeft.hashCode()
+        result = 31 * result + topRight.hashCode()
+        result = 31 * result + bottomRight.hashCode()
+        result = 31 * result + bottomLeft.hashCode()
+        return result
+    }
 }
