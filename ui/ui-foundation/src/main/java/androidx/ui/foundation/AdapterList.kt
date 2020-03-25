@@ -35,7 +35,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.subcomposeInto
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.Scrollable
+import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
@@ -475,14 +475,16 @@ fun <T> AdapterList(
     state.compositionRef = compositionReference()
     state.forceRecompose = true
 
-    Scrollable(dragDirection = DragDirection.Vertical, scrollableState = ScrollableState(
-        onScrollDeltaConsumptionRequested = state.onScrollDeltaConsumptionRequestedListener
-    )) {
-        androidx.ui.core.LayoutNode(
-            modifier = modifier + DrawClipToBounds,
-            ref = state.rootNodeRef,
-            measureBlocks = state.measureBlocks
+    val scroll = scrollable(
+        dragDirection = DragDirection.Vertical,
+        scrollableState = ScrollableState(
+            onScrollDeltaConsumptionRequested = state.onScrollDeltaConsumptionRequestedListener
         )
-    }
+    )
+    androidx.ui.core.LayoutNode(
+        modifier = modifier + scroll + DrawClipToBounds,
+        ref = state.rootNodeRef,
+        measureBlocks = state.measureBlocks
+    )
     state.recomposeIfAttached()
 }
