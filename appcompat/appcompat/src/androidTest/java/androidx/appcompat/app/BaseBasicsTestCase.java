@@ -37,9 +37,9 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.view.Menu;
 import android.view.View;
-import android.view.WindowInsets;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.custom.FitWindowsContentLayout;
 import androidx.appcompat.test.R;
@@ -117,7 +117,6 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     @Test
     @SdkSuppress(minSdkVersion = 21)
     @RequiresApi(21)
-    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public void testOnApplyWindowInsetsReachesContent() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -128,35 +127,26 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
         final View content = activity.findViewById(R.id.test_content);
         assertNotNull(content);
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicReference<WindowInsetsCompat> received = new AtomicReference<>();
-        // Set a listener to catch WindowInsets
-        ViewCompat.setOnApplyWindowInsetsListener(content, new OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-                received.set(insets);
-                latch.countDown();
-                return insets;
-            }
-        });
-
-        // Call setSystemUiVisibility with flags which will cause insets to be dispatched
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                content.setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-            }
-        });
-
-        // Await an inset pass
-        latch.await(5, TimeUnit.SECONDS);
-
-        WindowInsetsCompat receivedInsets = received.get();
-        WindowInsetsCompat rootWindowInsets = ViewCompat.getRootWindowInsets(content);
-
+        final WindowInsetsCompat receivedInsets = waitForWindowInsets(content);
         assertNotNull(receivedInsets);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void testOnApplyWindowInsetsReachesContent_matchesRootBottom() throws Throwable {
+        final A activity = mActivityTestRule.getActivity();
+        if (!canShowSystemUi(activity)) {
+            // Device cannot show system UI so setSystemUiVisibility will do nothing.
+            return;
+        }
+
+        final View content = activity.findViewById(R.id.test_content);
+        assertNotNull(content);
+
+        final WindowInsetsCompat receivedInsets = waitForWindowInsets(content);
+        assertNotNull(receivedInsets);
+
+        final WindowInsetsCompat rootWindowInsets = ViewCompat.getRootWindowInsets(content);
         assertNotNull(rootWindowInsets);
         // Assert that we dispatch the correct bottom system window inset
         assertEquals(rootWindowInsets.getSystemWindowInsets().bottom,
@@ -166,6 +156,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     @Test
     @SdkSuppress(minSdkVersion = 28)
     @RequiresApi(28)
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public void testOnApplyWindowInsetsReachesContent_withDisplayCutout() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -330,11 +321,33 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
         verify(apCallback).onSupportActionModeFinished(any(ActionMode.class));
     }
 
-    public static class TestOnApplyWindowInsetsListener
-            implements View.OnApplyWindowInsetsListener {
-        @Override
-        public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-            return windowInsets;
-        }
+    @RequiresApi(16)
+    @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
+    private WindowInsetsCompat waitForWindowInsets(@NonNull final View view) throws Throwable {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<WindowInsetsCompat> received = new AtomicReference<>();
+        // Set a listener to catch WindowInsets
+        ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
+                received.set(insets);
+                latch.countDown();
+                return insets;
+            }
+        });
+
+        // Call setSystemUiVisibility with flags which will cause insets to be dispatched
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                view.setSystemUiVisibility(
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+            }
+        });
+
+        // Await an inset pass
+        latch.await(5, TimeUnit.SECONDS);
+        return received.get();
     }
 }
