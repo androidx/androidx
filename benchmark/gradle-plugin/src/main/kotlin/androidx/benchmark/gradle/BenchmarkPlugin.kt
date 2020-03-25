@@ -191,17 +191,7 @@ class BenchmarkPlugin : Plugin<Project> {
         val minorVersion = agpVersionTokens[1].toInt()
         if (majorVersion > 3 || (majorVersion == 3 && minorVersion >= 6)) {
             testBuildType = buildType
-            buildTypes.named(buildType).configure {
-                // TODO: Migrate to property syntax, which allows buildType.isDefault = true
-                // Latest version of AGP breaks source compatibility with the API used to set
-                // isDefault on buildTypes, so we need to use reflection here until we can
-                // upgrade Studio to > 4.0.0-alpha09
-                val isDefaultField = it::class.java.declaredFields
-                    .first { field -> field.name == "__isDefault__" }
-
-                isDefaultField.isAccessible = true
-                isDefaultField.set(it, true)
-            }
+            buildTypes.named(buildType).configure { it.isDefault = true }
         }
     }
 }
