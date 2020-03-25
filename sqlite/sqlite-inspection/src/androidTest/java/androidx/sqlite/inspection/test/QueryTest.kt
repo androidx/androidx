@@ -138,7 +138,6 @@ class QueryTest {
         assertThat(error.message).contains("syntax error")
         assertThat(error.message).contains("near \"$mistypedSelect\"")
         assertThat(error.message).contains("while compiling: $command")
-        assertThat(error.stackTrace).contains("SqliteInspector.onReceiveCommand")
         assertThat(error.stackTrace).contains("SQLiteConnection.nativePrepareStatement")
         assertThat(error.stackTrace).contains("SQLiteDatabase.rawQueryWithFactory")
         assertThat(error.isRecoverable).isEqualTo(true)
@@ -156,7 +155,6 @@ class QueryTest {
         assertThat(error.message).contains("Cannot bind argument")
         assertThat(error.message).contains("index is out of range")
         assertThat(error.message).contains("The statement has 1 parameters")
-        assertThat(error.stackTrace).contains("SqliteInspector.onReceiveCommand")
         assertThat(error.stackTrace).contains("SQLiteDatabase.rawQueryWithFactory")
         assertThat(error.stackTrace).contains("SQLiteDirectCursorDriver.query")
         assertThat(error.stackTrace).contains("SQLiteProgram.bind")
@@ -551,8 +549,7 @@ class QueryTest {
         databaseId: Int,
         command: String,
         queryParams: List<String?>? = null
-    ): QueryResponse =
-        testEnvironment.sendCommand(createQueryCommand(databaseId, command, queryParams)).query
+    ): QueryResponse = testEnvironment.issueQuery(databaseId, command, queryParams)
 
     private suspend fun querySchema(databaseId: Int): List<Table> =
         testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).getSchema.toTableList()
