@@ -542,7 +542,7 @@ internal class Pager<Key : Any, Value : Any>(
             PagingState(
                 pages = state.pages.toList(),
                 anchorPosition = lastAccessedIndex + state.placeholdersStart,
-                initialLoadSize = config.initialLoadSize,
+                config = config,
                 placeholdersStart = state.placeholdersStart
             )
         }

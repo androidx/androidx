@@ -34,7 +34,7 @@ class PagingStateTest {
                 )
             ),
             anchorPosition = 10,
-            initialLoadSize = 10,
+            config = PagingConfig(pageSize = 10, prefetchDistance = 0),
             placeholdersStart = 0
         )
 
@@ -54,7 +54,7 @@ class PagingStateTest {
                 )
             ),
             anchorPosition = 10,
-            initialLoadSize = 10,
+            config = PagingConfig(pageSize = 10, prefetchDistance = 0),
             placeholdersStart = 10
         )
 
@@ -75,7 +75,7 @@ class PagingStateTest {
         val pagingState = PagingState(
             pages = pages,
             anchorPosition = 10,
-            initialLoadSize = 10,
+            config = PagingConfig(pageSize = 10, prefetchDistance = 0),
             placeholdersStart = 0
         )
 
@@ -96,7 +96,7 @@ class PagingStateTest {
         val pagingState = PagingState(
             pages = pages,
             anchorPosition = 10,
-            initialLoadSize = 10,
+            config = PagingConfig(pageSize = 10, prefetchDistance = 0),
             placeholdersStart = 10
         )
 
