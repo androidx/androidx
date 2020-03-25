@@ -171,7 +171,10 @@ class ViewUtilsBase {
         }
     }
 
-    @SuppressLint("PrivateApi")
+    /**
+     * Note, this is only called on API 18 and older.
+     */
+    @SuppressLint({"PrivateApi", "SoonBlockedPrivateApi"})
     private void fetchSetFrame() {
         if (!sSetFrameFetched) {
             try {

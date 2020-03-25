@@ -17,6 +17,7 @@
 package androidx.transition;
 
 import android.animation.LayoutTransition;
+import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.ViewGroup;
 
@@ -105,6 +106,10 @@ class ViewGroupUtilsApi14 {
         }
     }
 
+    /**
+     * Note, this is only called on API 17 and older.
+     */
+    @SuppressLint("SoonBlockedPrivateApi")
     private static void cancelLayoutTransition(LayoutTransition t) {
         if (!sCancelMethodFetched) {
             try {
