@@ -18,6 +18,7 @@ package androidx.core.view;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -50,6 +51,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
+import androidx.core.view.accessibility.AccessibilityEventCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat;
@@ -188,6 +190,92 @@ public class AccessibilityDelegateCompatTest extends
                 ArgumentCaptor.forClass(AccessibilityEvent.class);
         verify(mockDelegate, never()).sendAccessibilityEventUnchecked(
                 eq(mView), argumentCaptor.capture());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testAccessibilityPaneTitle_isSentOnAppearance() throws Throwable {
+        final CharSequence title = "Sample title";
+        ViewCompat.setAccessibilityPaneTitle(mView, title);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update the AccessibilityPaneVisibilityManager
+                mView.setVisibility(View.INVISIBLE);
+                mView.getViewTreeObserver().dispatchOnGlobalLayout();
+                mView.setVisibility(View.VISIBLE);
+            }
+        });
+
+        final AccessibilityDelegateCompat mockDelegate = mock(
+                AccessibilityDelegateCompat.class);
+        ViewCompat.setAccessibilityDelegate(mView, new BridgingDelegateCompat(mockDelegate));
+
+        mView.getViewTreeObserver().dispatchOnGlobalLayout();
+
+        ArgumentCaptor<AccessibilityEvent> argumentCaptor =
+                ArgumentCaptor.forClass(AccessibilityEvent.class);
+        if (Build.VERSION.SDK_INT < 28) {
+            // Validity check
+            assertThat(ViewCompat.getImportantForAccessibility(mView),
+                    equalTo(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES));
+
+            verify(mockDelegate).sendAccessibilityEventUnchecked(
+                    eq(mView), argumentCaptor.capture());
+            AccessibilityEvent event = argumentCaptor.getValue();
+            assertThat(event.getText().get(0), equalTo(title));
+            assertThat((event.getContentChangeTypes()
+                    & AccessibilityEventCompat.CONTENT_CHANGE_TYPE_PANE_APPEARED),  not(0));
+        } else {
+            verify(mockDelegate, never()).sendAccessibilityEventUnchecked(
+                    eq(mView), argumentCaptor.capture());
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testAccessibilityPaneTitle_isSentOnDisappearance() throws Throwable {
+        final CharSequence title = "Sample title";
+        ViewCompat.setAccessibilityPaneTitle(mView, title);
+
+        // Validity check
+        assertThat(ViewCompat.getImportantForAccessibility(mView),
+                equalTo(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES));
+
+        final Activity activity = mActivityTestRule.getActivity();
+        sUiAutomation.executeAndWaitForEvent(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mActivityTestRule.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Update the AccessibilityPaneVisibilityManager
+                            mView.setVisibility(View.INVISIBLE);
+                            mView.getViewTreeObserver().dispatchOnGlobalLayout();
+                        }
+                    });
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        }, new UiAutomation.AccessibilityEventFilter() {
+            @Override
+            public boolean accept(AccessibilityEvent event) {
+                boolean isWindowStateChanged = event.getEventType()
+                        == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
+                int isPaneTitle = (event.getContentChangeTypes()
+                        & AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED);
+                // onInitializeA11yEvent was not called in 28, so package name was not set
+                boolean isFromThisPackage = Build.VERSION.SDK_INT == 28
+                        || TextUtils.equals(event.getPackageName(), activity.getPackageName());
+                boolean hasTitleText = event.getText().get(0).equals(title);
+                return isWindowStateChanged
+                        && (isPaneTitle != 0)
+                        && isFromThisPackage
+                        && hasTitleText;
+            }
+        }, TIMEOUT_ASYNC_PROCESSING);
     }
 
     @Test
