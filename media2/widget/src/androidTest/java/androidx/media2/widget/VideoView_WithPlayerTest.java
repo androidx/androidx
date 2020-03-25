@@ -393,6 +393,9 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
             // See b/137321781
             return;
         }
+        if (Build.DEVICE.startsWith("generic_") && Build.VERSION.SDK_INT == 26) {
+            return;
+        }
         if (Build.DEVICE.equals("fugu") && Build.VERSION.SDK_INT == 24) {
             return;
         }
