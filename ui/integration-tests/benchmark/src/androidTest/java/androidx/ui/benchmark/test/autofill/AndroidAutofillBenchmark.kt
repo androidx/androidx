@@ -19,7 +19,6 @@ package androidx.ui.benchmark.test.autofill
 import android.app.Activity
 import android.graphics.Rect
 import android.util.SparseArray
-import android.view.View
 import android.view.autofill.AutofillValue
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
@@ -29,7 +28,7 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.autofill.AutofillNode
 import androidx.test.filters.SdkSuppress
 import androidx.ui.autofill.AutofillType
-import androidx.ui.core.Owner
+import androidx.ui.core.AndroidOwner
 import androidx.ui.core.createOwner
 import org.junit.Before
 import org.junit.Rule
@@ -47,7 +46,7 @@ class AndroidAutofillBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
-    private lateinit var owner: Owner
+    private lateinit var owner: AndroidOwner
 
     @Before
     fun setup() {
@@ -72,7 +71,7 @@ class AndroidAutofillBenchmark {
 
         // Assess.
         benchmarkRule.measureRepeated {
-            (owner as View).autofill(autofillValues)
+            owner.view.autofill(autofillValues)
         }
     }
 }

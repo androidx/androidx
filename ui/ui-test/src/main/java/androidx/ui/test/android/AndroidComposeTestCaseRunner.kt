@@ -34,6 +34,7 @@ import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.frames.currentFrame
 import androidx.compose.frames.inFrame
+import androidx.ui.core.AndroidOwner
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.DrawNode
 import androidx.ui.core.Owner
@@ -62,7 +63,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     override val measuredHeight: Int
         get() = view!!.measuredHeight
 
-    internal var view: ViewGroup? = null
+    internal var view: View? = null
         private set
 
     private var composition: Composition? = null
@@ -108,11 +109,11 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
         recomposer = Recomposer.current()
         composition = activity.setContent { testCase!!.emitContent() }
-        val composeView = (findComposeView(activity) as ViewGroup?)!!
-        // AndroidComposeView is postponing the composition till the saved state will be restored.
+        val ownerView = findAndroidOwner(activity)!!.view
+        // AndroidOwner is postponing the composition till the saved state will be restored.
         // We will emulate the restoration of the empty state to trigger the real composition.
-        composeView.restoreHierarchyState(SparseArray())
-        view = composeView
+        ownerView.restoreHierarchyState(SparseArray())
+        view = ownerView
         FrameManager.nextFrame()
         simulationState = SimulationState.EmitContentDone
     }
@@ -257,7 +258,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         activity.setContentView(imageView)
     }
 
-    private fun getView(): ViewGroup {
+    private fun getView(): View {
         require(view != null) { "View was not set! Call setupContent first!" }
         return view!!
     }
@@ -279,18 +280,18 @@ private enum class SimulationState {
     RecomposeDone
 }
 
-private fun findComposeView(activity: Activity): Owner? {
-    return findComposeView(activity.findViewById(android.R.id.content) as ViewGroup)
+private fun findAndroidOwner(activity: Activity): AndroidOwner? {
+    return findAndroidOwner(activity.findViewById(android.R.id.content) as ViewGroup)
 }
 
-private fun findComposeView(view: View): Owner? {
-    if (view is Owner) {
+private fun findAndroidOwner(view: View): AndroidOwner? {
+    if (view is AndroidOwner) {
         return view
     }
 
     if (view is ViewGroup) {
         for (i in 0 until view.childCount) {
-            val composeView = findComposeView(view.getChildAt(i))
+            val composeView = findAndroidOwner(view.getChildAt(i))
             if (composeView != null) {
                 return composeView
             }
