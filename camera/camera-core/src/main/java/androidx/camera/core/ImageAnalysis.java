@@ -220,7 +220,7 @@ public final class ImageAnalysis extends UseCase {
                     // Only reset the pipeline when the bound camera is the same.
                     SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
                             resolution);
-                    attachToCamera(sessionConfigBuilder.build());
+                    updateSessionConfig(sessionConfigBuilder.build());
 
                     notifyReset();
                 }
@@ -452,7 +452,7 @@ public final class ImageAnalysis extends UseCase {
 
         SessionConfig.Builder sessionConfigBuilder = createPipeline(getBoundCameraId(), config,
                 suggestedResolution);
-        attachToCamera(sessionConfigBuilder.build());
+        updateSessionConfig(sessionConfigBuilder.build());
 
         return suggestedResolution;
     }
