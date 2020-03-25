@@ -30,7 +30,7 @@ import android.util.AttributeSet;
 import android.util.Xml;
 import android.view.InflateException;
 
-import androidx.animator.AnimationTestRule;
+import androidx.animator.AnimatorTestRule;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.test.annotation.UiThreadTest;
@@ -57,7 +57,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SeekableAnimatedVectorDrawableTest {
 
     @ClassRule
-    public static AnimationTestRule animationRule = new AnimationTestRule();
+    public static AnimatorTestRule sAnimatorTestRule = new AnimatorTestRule();
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -141,7 +141,7 @@ public class SeekableAnimatedVectorDrawableTest {
         assertThat(started.get()).isFalse();
         avd.start();
         assertThat(started.get()).isTrue();
-        animationRule.advanceTimeBy(40L);
+        sAnimatorTestRule.advanceTimeBy(40L);
 
         assertThat(paused.get()).isFalse();
         avd.pause();
@@ -152,7 +152,7 @@ public class SeekableAnimatedVectorDrawableTest {
         assertThat(resumed.get()).isTrue();
 
         assertThat(ended.get()).isFalse();
-        animationRule.advanceTimeBy(1000L);
+        sAnimatorTestRule.advanceTimeBy(1000L);
         assertThat(ended.get()).isTrue();
         assertThat(updated.get()).isTrue();
     }
@@ -164,7 +164,7 @@ public class SeekableAnimatedVectorDrawableTest {
         avd.registerAnimationCallback(createFailingCallback());
         avd.clearAnimationCallbacks();
         avd.start();
-        animationRule.advanceTimeBy(1000L);
+        sAnimatorTestRule.advanceTimeBy(1000L);
     }
 
     @Test
@@ -176,7 +176,7 @@ public class SeekableAnimatedVectorDrawableTest {
         final boolean removed = avd.unregisterAnimationCallback(callback);
         assertThat(removed).isTrue();
         avd.start();
-        animationRule.advanceTimeBy(1000L);
+        sAnimatorTestRule.advanceTimeBy(1000L);
     }
 
     @Test
@@ -223,7 +223,7 @@ public class SeekableAnimatedVectorDrawableTest {
         // Now compare the following frames with the 1st frames. Expect some minor difference like
         // Anti-Aliased edges, so the compare is fuzzy.
         for (int i = 0; i < 5; i++) {
-            animationRule.advanceTimeBy(16L);
+            sAnimatorTestRule.advanceTimeBy(16L);
             bitmap.eraseColor(0);
             avd.draw(canvas);
             compareImages(firstFrame, bitmap);
@@ -253,7 +253,7 @@ public class SeekableAnimatedVectorDrawableTest {
 
         final ArrayList<Integer> historicalRed = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            animationRule.advanceTimeBy(100L);
+            sAnimatorTestRule.advanceTimeBy(100L);
             avd.draw(canvas);
             final int strokeColor = bitmap.getPixel(0, 0);
             assertThat(Color.blue(strokeColor)).isEqualTo(0);
@@ -304,7 +304,7 @@ public class SeekableAnimatedVectorDrawableTest {
         avd.start();
         assertThat(avd.isRunning()).isTrue();
         assertThat(avd.isPaused()).isFalse();
-        animationRule.advanceTimeBy(100L);
+        sAnimatorTestRule.advanceTimeBy(100L);
         avd.draw(canvas);
         final int pausedColor = bitmap.getPixel(0, 0);
         assertThat(Color.red(pausedColor)).isLessThan(0xff);
@@ -312,14 +312,14 @@ public class SeekableAnimatedVectorDrawableTest {
         avd.pause();
         assertThat(avd.isRunning()).isTrue();
         assertThat(avd.isPaused()).isTrue();
-        animationRule.advanceTimeBy(1000L);
+        sAnimatorTestRule.advanceTimeBy(1000L);
         avd.draw(canvas);
         assertThat(bitmap.getPixel(0, 0)).isEqualTo(pausedColor);
 
         avd.resume();
         assertThat(avd.isRunning()).isTrue();
         assertThat(avd.isPaused()).isFalse();
-        animationRule.advanceTimeBy(100L);
+        sAnimatorTestRule.advanceTimeBy(100L);
         avd.draw(canvas);
         assertThat(Color.red(bitmap.getPixel(0, 0))).isLessThan(Color.red(pausedColor));
     }
@@ -422,7 +422,7 @@ public class SeekableAnimatedVectorDrawableTest {
         });
 
         avd.start();
-        animationRule.advanceTimeBy(1000L);
+        sAnimatorTestRule.advanceTimeBy(1000L);
         assertThat(ended.get()).isTrue();
         bitmap.eraseColor(0);
         avd.draw(canvas);
