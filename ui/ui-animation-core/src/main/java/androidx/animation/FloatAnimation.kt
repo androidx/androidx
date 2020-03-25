@@ -35,6 +35,20 @@ internal interface FloatAnimation {
     ): Float
 
     /**
+     * Function to help snap velocity to a specific value after the animation is done. A specific
+     * use case is for springs, where transient trailing velocity should be snapped to zero.
+     *
+     * @return velocity for all time >= [animationDuration], or null if the function is to
+     * default to [getVelocity].
+     */
+    fun getEndVelocity(
+        start: Float,
+        end: Float,
+        startVelocity: Float,
+        animationDuration: Long
+    ): Float = getVelocity(animationDuration, start, end, startVelocity)
+
+    /**
      * Note that this may be a computation that is expensive - especially with spring based
      * animations
      */
@@ -141,14 +155,20 @@ internal class SpringAnimation(
         return velocity
     }
 
+    override fun getEndVelocity(
+        start: Float,
+        end: Float,
+        startVelocity: Float,
+        animationDuration: Long
+    ): Float = 0f
+
     override fun getDurationMillis(start: Float, end: Float, startVelocity: Float): Long =
         estimateAnimationDurationMillis(
             stiffness = spring.stiffness,
             dampingRatio = spring.dampingRatio,
             initialDisplacement = (start - end) / displacementThreshold,
             initialVelocity = startVelocity / displacementThreshold,
-            delta = 1f
-        )
+            delta = 1f)
 }
 
 /**
