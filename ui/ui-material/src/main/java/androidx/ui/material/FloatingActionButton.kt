@@ -78,7 +78,7 @@ fun FloatingActionButton(
         contentColor = contentColor,
         elevation = elevation
     ) {
-        Clickable(onClick, modifier = ripple()) {
+        Clickable(onClick, modifier = Modifier.ripple()) {
             ProvideTextStyle(MaterialTheme.typography.button) {
                 Box(
                     modifier = MinimumFabSizeModifier,

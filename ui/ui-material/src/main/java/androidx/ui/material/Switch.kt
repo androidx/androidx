@@ -62,7 +62,7 @@ fun Switch(
                 value = checked,
                 onValueChange = onCheckedChange,
                 enabled = enabled,
-                modifier = ripple(bounded = false, enabled = enabled)
+                modifier = Modifier.ripple(bounded = false, enabled = enabled)
             ) {
                 SwitchImpl(checked, onCheckedChange, color, Modifier.padding(DefaultSwitchPadding))
             }

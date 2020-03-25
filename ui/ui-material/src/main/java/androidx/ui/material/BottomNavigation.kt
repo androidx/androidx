@@ -139,7 +139,11 @@ fun BottomNavigationItem(
         val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
         ProvideTextStyle(style, children = text)
     }
-    MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
+    MutuallyExclusiveSetItem(
+        selected = selected,
+        onClick = onSelected,
+        modifier = Modifier.ripple()
+    ) {
         // TODO This composable has magic behavior within a Row; reconsider this behavior later
         Box(with(RowScope) { modifier.weight(1f) }, gravity = ContentGravity.Center) {
             BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->

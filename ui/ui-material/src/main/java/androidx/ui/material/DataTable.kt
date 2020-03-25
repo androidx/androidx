@@ -427,7 +427,7 @@ fun DataTable(
                                 Clickable(
                                     onClick = onSort,
                                     enabled = enabled,
-                                    modifier = ripple()
+                                    modifier = Modifier.ripple()
                                 ) {
                                     Row {
                                         headerDecoration?.invoke()
@@ -477,7 +477,7 @@ fun DataTable(
                         if (row.onSelectedChange == null) return@forEachIndexed
                         Clickable(
                             onClick = { row.onSelectedChange.invoke(!row.selected) },
-                            modifier = Modifier.tag(index) + ripple()
+                            modifier = Modifier.tag(index).ripple()
                         ) {
                             ColoredRect(
                                 color = if (row.selected) {
@@ -549,7 +549,7 @@ fun DataTable(
                                 if (newPage >= 0)
                                     pagination.onPageChange.invoke(newPage)
                             },
-                            modifier = ripple()
+                            modifier = Modifier.ripple()
                         ) {
                             Text(text = "Prev")
                         }
@@ -565,7 +565,7 @@ fun DataTable(
                                 if (newPage < pages)
                                     pagination.onPageChange.invoke(newPage)
                             },
-                            modifier = ripple()
+                            modifier = Modifier.ripple()
                         ) {
                             Text(text = "Next")
                         }

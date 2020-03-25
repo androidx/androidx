@@ -90,7 +90,7 @@ fun Button(
             Clickable(
                 onClick = onClick,
                 enabled = enabled,
-                modifier = ripple(enabled = enabled)
+                modifier = Modifier.ripple(enabled = enabled)
             ) {
                 Box(
                     ButtonConstraints,
