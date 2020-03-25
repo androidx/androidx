@@ -390,6 +390,7 @@ public final class CameraX {
             // Unbind the UseCase from the currently bound camera if it is bound
             if (wasUnbound) {
                 useCase.onDetach();
+                useCase.onDestroy();
             }
         }
     }

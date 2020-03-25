@@ -452,6 +452,17 @@ public final class Preview extends UseCase {
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void onDestroy() {
+        mSurfaceProvider = null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

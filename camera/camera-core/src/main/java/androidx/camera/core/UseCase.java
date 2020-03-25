@@ -319,6 +319,20 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void clear() {}
 
+    /**
+     * Called use case is unbound from lifecycle or the bound lifecycle is destroyed.
+     *
+     * TODO(b/152430679): remove this once UseCase can be reused. UseCase holds reference to user
+     * callbacks which causes memory leak. (see https://issuetracker.google.com/141188637) As
+     * long as the UseCase is never reused, it's safe to clear user callbacks when the lifecycle
+     * ends or unbinds. The proper fix should be breaking reference between Camera->UseCase
+     * when camera is detached (ON_STOP).
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void onDestroy() {}
+
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull

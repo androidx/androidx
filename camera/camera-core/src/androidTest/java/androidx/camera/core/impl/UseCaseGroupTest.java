@@ -79,7 +79,7 @@ public final class UseCaseGroupTest {
     @Test
     public void groupBecomesEmpty_afterGroupIsCleared() {
         mUseCaseGroup.addUseCase(mFakeUseCase);
-        mUseCaseGroup.clear();
+        mUseCaseGroup.destroy();
 
         assertThat(mUseCaseGroup.getUseCases()).isEmpty();
     }
@@ -89,7 +89,7 @@ public final class UseCaseGroupTest {
         mUseCaseGroup.addUseCase(mFakeUseCase);
         assertThat(mFakeUseCase.isCleared()).isFalse();
 
-        mUseCaseGroup.clear();
+        mUseCaseGroup.destroy();
 
         assertThat(mFakeUseCase.isCleared()).isTrue();
     }
