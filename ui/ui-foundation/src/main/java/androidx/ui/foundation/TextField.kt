@@ -21,6 +21,7 @@ import androidx.compose.state
 import androidx.ui.text.CoreTextField
 import androidx.ui.core.Modifier
 import androidx.ui.core.input.FocusManager
+import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
 import androidx.ui.input.EditorValue
 import androidx.ui.input.KeyboardType
@@ -67,6 +68,8 @@ data class TextFieldValue(
  * the input service update the text, selection or cursor, this callback is called with the updated
  * [TextFieldValue]. If you want to observe the composition text, use [TextField] with
  * compositionRange instead.
+ * @param textColor [Color] to apply to the text. If `null`, and [textStyle] has no color set, this
+ * will be [contentColor].
  * @param textStyle Style configuration that applies at character level such as color, font etc.
  * @param keyboardType The keyboard type to be used in this text field. Note that this input type
  * is honored by IME and shows corresponding keyboard but this is not guaranteed. For example,
@@ -96,6 +99,7 @@ fun TextField(
     value: TextFieldValue,
     modifier: Modifier = Modifier,
     onValueChange: (TextFieldValue) -> Unit,
+    textColor: Color? = null,
     textStyle: TextStyle = currentTextStyle(),
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
@@ -118,6 +122,9 @@ fun TextField(
         )
     }
 
+    val color = textColor ?: textStyle.color ?: contentColor()
+    val mergedStyle = textStyle.merge(TextStyle(color = color))
+
     CoreTextField(
         value = fullModel.value,
         modifier = modifier,
@@ -133,7 +140,7 @@ fun TextField(
                 )
             }
         },
-        textStyle = textStyle,
+        textStyle = mergedStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
         onFocus = onFocus,

@@ -54,7 +54,8 @@ private fun TextFieldWithFocusId(focusID: String, nextFocus: String) {
     }
     TextField(
         value = state.value,
-        textStyle = TextStyle(color = color, fontSize = 32.sp),
+        textColor = color,
+        textStyle = TextStyle(fontSize = 32.sp),
         onValueChange = {
             state.value = it
         },
