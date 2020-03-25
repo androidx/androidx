@@ -104,9 +104,59 @@ class AppCompatTextViewAutoSizeHelper {
     private final TextView mTextView;
     private final Context mContext;
 
+    private final Impl mImpl;
+
+    private static class Impl {
+        Impl() {}
+
+        boolean isHorizontallyScrollable(TextView textView) {
+            return invokeAndReturnWithDefault(textView, "getHorizontallyScrolling", false);
+        }
+
+        void computeAndSetTextDirection(StaticLayout.Builder layoutBuilder, TextView textView) {
+        }
+    }
+
+    @RequiresApi(23)
+    private static class Impl23 extends Impl {
+        Impl23() {}
+
+        @Override
+        void computeAndSetTextDirection(StaticLayout.Builder layoutBuilder,
+                TextView textView) {
+            final TextDirectionHeuristic textDirectionHeuristic =
+                    invokeAndReturnWithDefault(textView, "getTextDirectionHeuristic",
+                            TextDirectionHeuristics.FIRSTSTRONG_LTR);
+            layoutBuilder.setTextDirection(textDirectionHeuristic);
+        }
+    }
+
+    @RequiresApi(29)
+    private static class Impl29 extends Impl23 {
+        Impl29() {}
+
+        @Override
+        boolean isHorizontallyScrollable(TextView textView) {
+            return textView.isHorizontallyScrollable();
+        }
+
+        @Override
+        void computeAndSetTextDirection(StaticLayout.Builder layoutBuilder,
+                TextView textView) {
+            layoutBuilder.setTextDirection(textView.getTextDirectionHeuristic());
+        }
+    }
+
     AppCompatTextViewAutoSizeHelper(@NonNull TextView textView) {
         mTextView = textView;
         mContext = mTextView.getContext();
+        if (Build.VERSION.SDK_INT >= 29) {
+            mImpl = new Impl29();
+        } else if (Build.VERSION.SDK_INT >= 23) {
+            mImpl = new Impl23();
+        } else {
+            mImpl = new Impl();
+        }
     }
 
     void loadFromAttributes(@Nullable AttributeSet attrs, int defStyleAttr) {
@@ -557,9 +607,7 @@ class AppCompatTextViewAutoSizeHelper {
                 return;
             }
 
-            final boolean horizontallyScrolling = Build.VERSION.SDK_INT >= 29
-                    ? mTextView.isHorizontallyScrollable()
-                    : invokeAndReturnWithDefault(mTextView, "getHorizontallyScrolling", false);
+            final boolean horizontallyScrolling = mImpl.isHorizontallyScrollable(mTextView);
             final int availableWidth = horizontallyScrolling
                     ? VERY_WIDE
                     : mTextView.getMeasuredWidth() - mTextView.getTotalPaddingLeft()
@@ -741,11 +789,7 @@ class AppCompatTextViewAutoSizeHelper {
         try {
             // Can use the StaticLayout.Builder (along with TextView params added in or after
             // API 23) to construct the layout.
-            final TextDirectionHeuristic textDirectionHeuristic = Build.VERSION.SDK_INT >= 29
-                    ? mTextView.getTextDirectionHeuristic()
-                    : invokeAndReturnWithDefault(mTextView, "getTextDirectionHeuristic",
-                            TextDirectionHeuristics.FIRSTSTRONG_LTR);
-            layoutBuilder.setTextDirection(textDirectionHeuristic);
+            mImpl.computeAndSetTextDirection(layoutBuilder, mTextView);
         } catch (ClassCastException e) {
             // On some devices this exception happens, details: b/127137059.
             Log.w(TAG, "Failed to obtain TextDirectionHeuristic, auto size may be incorrect");
@@ -788,7 +832,9 @@ class AppCompatTextViewAutoSizeHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T invokeAndReturnWithDefault(@NonNull Object object,
+    // This is marked package-protected so that it doesn't require a synthetic accessor
+    // when being used from the Impl inner classes
+    static <T> T invokeAndReturnWithDefault(@NonNull Object object,
             @NonNull final String methodName, @NonNull final T defaultValue) {
         T result = null;
         boolean exceptionThrown = false;
