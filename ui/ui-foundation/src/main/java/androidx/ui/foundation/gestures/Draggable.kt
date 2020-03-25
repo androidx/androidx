@@ -34,7 +34,7 @@ import androidx.ui.unit.px
  *
  * If you need to control the whole dragging flow, consider using [DragGestureDetector] instead.
  *
- * If you need to achieve scroll/fling behavior, consider using [Scrollable].
+ * If you need to achieve scroll/fling behavior, consider using [scrollable].
  *
  * @sample androidx.ui.foundation.samples.DraggableSample
  *

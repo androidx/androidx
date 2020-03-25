@@ -21,7 +21,7 @@ import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 
 /**
- * Draggable Direction specifies the direction in which you can drag an [draggable] or [Scrollable].
+ * Draggable Direction specifies the direction in which you can drag an [draggable] or [scrollable].
  * It can be either [Horizontal] or [Vertical].
  */
 sealed class DragDirection {
@@ -37,7 +37,7 @@ sealed class DragDirection {
     internal open fun project(pos: PxPosition) = xProjection(pos.x) + yProjection(pos.y)
 
     /**
-     * Horizontal direction of dragging in [draggable] or [Scrollable].
+     * Horizontal direction of dragging in [draggable] or [scrollable].
      */
     object Horizontal : DragDirection() {
         internal override val xProjection: (Px) -> Float = { it.value }
@@ -54,7 +54,7 @@ sealed class DragDirection {
     }
 
     /**
-     * Vertical direction of dragging in [draggable] or [Scrollable].
+     * Vertical direction of dragging in [draggable] or [scrollable].
      */
     object Vertical : DragDirection() {
         internal override val xProjection: (Px) -> Float = { 0f }

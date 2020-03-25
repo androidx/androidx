@@ -23,7 +23,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.Scrollable
+import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.graphics.Color
 import androidx.ui.layout.LayoutSize
@@ -40,17 +40,17 @@ fun ScrollableSample() {
     // state for Scrollable, describes how to consume scrolling delta and update offset
     val scrollableState = ScrollableState(
         onScrollDeltaConsumptionRequested = { delta ->
-            offset.value += delta
+            offset.value = offset.value + delta
             delta
         }
     )
-    Scrollable(dragDirection = DragDirection.Vertical, scrollableState = scrollableState) {
-        Box(
-            LayoutSize(200.dp),
-            backgroundColor = Color.LightGray,
-            gravity = ContentGravity.Center
-        ) {
-            Text(offset.value.roundToInt().toString(), style = TextStyle(fontSize = 50.sp))
-        }
+    val scroll =
+        scrollable(dragDirection = DragDirection.Vertical, scrollableState = scrollableState)
+    Box(
+        LayoutSize(200.dp) + scroll,
+        backgroundColor = Color.LightGray,
+        gravity = ContentGravity.Center
+    ) {
+        Text(offset.value.roundToInt().toString(), style = TextStyle(fontSize = 50.sp))
     }
 }
