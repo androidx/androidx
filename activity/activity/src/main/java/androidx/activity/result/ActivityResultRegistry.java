@@ -93,7 +93,7 @@ public abstract class ActivityResultRegistry {
      * @return a launcher that can be used to execute an ActivityResultContract.
      */
     @NonNull
-    public <I, O> ActivityResultLauncher<I> register(
+    public final <I, O> ActivityResultLauncher<I> register(
             @NonNull final String key,
             @NonNull final LifecycleOwner lifecycleOwner,
             @NonNull final ActivityResultContract<I, O> contract,
@@ -167,7 +167,7 @@ public abstract class ActivityResultRegistry {
      * @return a launcher that can be used to execute an ActivityResultContract.
      */
     @NonNull
-    public <I, O> ActivityResultLauncher<I> register(
+    public final <I, O> ActivityResultLauncher<I> register(
             @NonNull final String key,
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultCallback<O> callback) {
@@ -202,7 +202,7 @@ public abstract class ActivityResultRegistry {
      * @param key the unique key used when registering a callback.
      */
     @MainThread
-    void unregister(@NonNull String key) {
+    final void unregister(@NonNull String key) {
         Integer rc = mKeyToRc.remove(key);
         if (rc != null) {
             mRcToKey.remove(rc);
@@ -219,7 +219,7 @@ public abstract class ActivityResultRegistry {
      *
      * @param outState the place to put state into
      */
-    public void onSaveInstanceState(@NonNull Bundle outState) {
+    public final void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putIntegerArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_RCS,
                 new ArrayList<>(mRcToKey.keySet()));
         outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS,
@@ -232,7 +232,7 @@ public abstract class ActivityResultRegistry {
      *
      * @param savedInstanceState the place to restore from
      */
-    public void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
+    public final void onRestoreInstanceState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             return;
         }
@@ -264,7 +264,7 @@ public abstract class ActivityResultRegistry {
      * or will be called.
      */
     @MainThread
-    public boolean dispatchResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public final boolean dispatchResult(int requestCode, int resultCode, @Nullable Intent data) {
         String key = mRcToKey.get(requestCode);
         if (key == null) {
             return false;
@@ -282,7 +282,8 @@ public abstract class ActivityResultRegistry {
      * @return true if there is a callback registered for the given request code, false otherwise.
      */
     @MainThread
-    public <O> boolean dispatchResult(int requestCode, @SuppressLint("UnknownNullness") O result) {
+    public final <O> boolean dispatchResult(int requestCode,
+            @SuppressLint("UnknownNullness") O result) {
         String key = mRcToKey.get(requestCode);
         if (key == null) {
             return false;

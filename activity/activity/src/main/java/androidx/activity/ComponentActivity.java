@@ -486,7 +486,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @NonNull
     @Override
-    public <I, O> ActivityResultLauncher<I> prepareCall(
+    public final <I, O> ActivityResultLauncher<I> prepareCall(
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultRegistry registry,
             @NonNull final ActivityResultCallback<O> callback) {
@@ -496,7 +496,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @NonNull
     @Override
-    public <I, O> ActivityResultLauncher<I> prepareCall(
+    public final <I, O> ActivityResultLauncher<I> prepareCall(
             @NonNull ActivityResultContract<I, O> contract,
             @NonNull ActivityResultCallback<O> callback) {
         return prepareCall(contract, mActivityResultRegistry, callback);
@@ -508,7 +508,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * @return the {@link ActivityResultRegistry}
      */
     @NonNull
-    public ActivityResultRegistry getActivityResultRegistry() {
+    public final ActivityResultRegistry getActivityResultRegistry() {
         return mActivityResultRegistry;
     }
 }
