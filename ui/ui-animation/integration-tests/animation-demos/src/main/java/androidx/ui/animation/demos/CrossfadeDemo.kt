@@ -21,13 +21,14 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.Crossfade
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredHeight
 import androidx.ui.unit.dp
 import kotlin.random.Random
 
@@ -37,20 +38,20 @@ fun CrossfadeDemo() {
     Column {
         Row {
             tabs.forEach {
-                val pressReleased =
+                Box(
                     TapGestureDetector(onTap = {
                         Log.e("Crossfade", "Switch to $it")
                         current = it
                     })
-                Box(
-                    pressReleased + LayoutWeight(1f) + LayoutHeight(48.dp),
+                        .weight(1f, true)
+                        .preferredHeight(48.dp),
                     backgroundColor = it.color
                 )
             }
         }
         Crossfade(current = current) { tab ->
             tab.lastInt = remember { Random.nextInt() }
-            Box(LayoutSize.Fill, backgroundColor = tab.color)
+            Box(Modifier.fillMaxSize(), backgroundColor = tab.color)
         }
     }
 }

@@ -22,7 +22,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.selection.Toggleable
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.ripple.ripple
 import androidx.ui.unit.dp
 
@@ -102,4 +102,4 @@ private val RippleRadius = 24.dp
 // TODO: b/149691127 investigate our strategy around accessibility touch targets, and remove
 // per-component definitions of this size.
 // Diameter of the IconButton, to allow for correct minimum touch target size for accessibility
-private val IconButtonSizeModifier = LayoutSize(48.dp)
+private val IconButtonSizeModifier = Modifier.preferredSize(48.dp)

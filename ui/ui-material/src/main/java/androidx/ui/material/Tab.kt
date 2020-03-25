@@ -26,12 +26,12 @@ import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
+import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTag
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.WithConstraints
@@ -46,12 +46,12 @@ import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.ripple
 import androidx.ui.text.style.TextAlign
@@ -191,12 +191,12 @@ private fun FixedTabRow(
         }
     }
 
-    Stack(LayoutWidth.Fill) {
+    Stack(Modifier.fillMaxWidth()) {
         Row {
-            tabs(LayoutWeight(1f))
+            tabs(Modifier.weight(1f))
         }
-        Box(LayoutGravity.BottomCenter + LayoutWidth.Fill, children = divider)
-        Box(LayoutGravity.Stretch) {
+        Box(Modifier.gravity(Alignment.BottomCenter).fillMaxWidth(), children = divider)
+        Box(Modifier.matchParent()) {
             indicatorContainer(tabPositions)
         }
     }
@@ -231,15 +231,15 @@ private fun ScrollableTabRow(
 
     HorizontalScroller(
         scrollerPosition = scrollableTabData.position,
-        modifier = LayoutWidth.Fill
+        modifier = Modifier.fillMaxWidth()
     ) {
         val indicatorTag = "indicator"
         val dividerTag = "divider"
         Layout(
             {
                 tabs()
-                Box(LayoutTag(indicatorTag), children = indicator)
-                Box(LayoutTag(dividerTag), children = divider)
+                Box(Modifier.tag(indicatorTag), children = indicator)
+                Box(Modifier.tag(dividerTag), children = divider)
             }
         ) { measurables, constraints, _ ->
             val tabPlaceables = mutableListOf<Pair<Placeable, IntPx>>()
@@ -382,11 +382,11 @@ object TabRow {
             tabPositions[selectedIndex].width.toDp()
         }
 
-        Box(LayoutSize.Fill, gravity = ContentGravity.BottomStart) {
+        Box(Modifier.fillMaxSize(), gravity = ContentGravity.BottomStart) {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
                 val offset = with(DensityAmbient.current) { indicatorOffset.toDp() }
                 Box(
-                    modifier = LayoutPadding(start = offset) + LayoutWidth(currentTabWidth),
+                    Modifier.padding(start = offset).preferredWidth(currentTabWidth),
                     children = indicator
                 )
             }
@@ -508,7 +508,7 @@ fun Tab(
     children: @Composable() () -> Unit
 ) {
     MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
-        Box(modifier + LayoutWidth.Fill, gravity = ContentGravity.Center, children = children)
+        Box(modifier.fillMaxWidth(), gravity = ContentGravity.Center, children = children)
     }
 }
 
@@ -570,12 +570,12 @@ private fun TabBaselineLayout(
     Layout(
         {
             Box(
-                LayoutTag("text"),
+                Modifier.tag("text"),
                 paddingStart = HorizontalTextPadding,
                 paddingEnd = HorizontalTextPadding,
                 children = text
             )
-            Box(LayoutTag("icon"), children = icon)
+            Box(Modifier.tag("icon"), children = icon)
         }
     ) { measurables, constraints, _ ->
         val textPlaceable = measurables.first { it.tag == "text" }.measure(

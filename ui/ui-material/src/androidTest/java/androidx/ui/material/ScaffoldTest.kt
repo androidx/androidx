@@ -17,6 +17,8 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.ColoredRect
@@ -72,8 +74,12 @@ class ScaffoldTest {
         lateinit var child2: PxPosition
         composeTestRule.setMaterialContent {
             Scaffold {
-                Text("One", onPositioned { child1 = it.positionInParent })
-                Text("Two", onPositioned { child2 = it.positionInParent })
+                Text("One",
+                    Modifier.onPositioned { child1 = it.positionInParent }
+                )
+                Text("Two",
+                    Modifier.onPositioned { child2 = it.positionInParent }
+                )
             }
         }
         assertThat(child1.y).isEqualTo(child2.y)
@@ -90,7 +96,7 @@ class ScaffoldTest {
                 topAppBar = {
                         ColoredRect(
                             Color.Red,
-                            onPositioned { positioned ->
+                            Modifier.onPositioned { positioned: LayoutCoordinates ->
                                 appbarPosition = positioned.localToGlobal(PxPosition.Origin)
                                 appbarSize = positioned.size
                             },
@@ -100,7 +106,7 @@ class ScaffoldTest {
             ) {
                 ColoredRect(
                     Color.Blue,
-                    onPositioned { contentPosition = it.localToGlobal(PxPosition.Origin) },
+                    Modifier.onPositioned { contentPosition = it.localToGlobal(PxPosition.Origin) },
                     height = 50.dp)
             }
         }
@@ -118,7 +124,7 @@ class ScaffoldTest {
                 bottomAppBar = {
                     ColoredRect(
                         Color.Red,
-                        onPositioned { positioned ->
+                        Modifier.onPositioned { positioned: LayoutCoordinates ->
                             appbarPosition = positioned.positionInParent
                             appbarSize = positioned.size
                         },
@@ -128,7 +134,7 @@ class ScaffoldTest {
             ) {
                 ColoredRect(
                     Color.Blue,
-                    onPositioned { positioned ->
+                    Modifier.onPositioned { positioned: LayoutCoordinates ->
                         contentPosition = positioned.positionInParent
                         contentSize = positioned.size
                     },
@@ -154,7 +160,7 @@ class ScaffoldTest {
                         drawerContent = {
                             ColoredRect(
                                 Color.Blue,
-                                onPositioned { positioned ->
+                                Modifier.onPositioned { positioned: LayoutCoordinates ->
                                     drawerChildPosition = positioned.positionInParent
                                 },
                                 height = 50.dp
@@ -203,7 +209,7 @@ class ScaffoldTest {
                         drawerContent = {
                             ColoredRect(
                                 Color.Blue,
-                                onPositioned { positioned ->
+                                Modifier.onPositioned { positioned: LayoutCoordinates ->
                                     drawerChildPosition = positioned.positionInParent
                                 },
                                 height = 50.dp
@@ -267,7 +273,7 @@ class ScaffoldTest {
             Scaffold(
                 floatingActionButton = {
                     FloatingActionButton(
-                        modifier = onPositioned { positioned ->
+                        modifier = Modifier.onPositioned { positioned: LayoutCoordinates ->
                             fabSize = positioned.size
                             fabPosition = positioned.localToGlobal(positioned.positionInParent)
                         },
@@ -279,7 +285,7 @@ class ScaffoldTest {
                 bottomAppBar = {
                     ColoredRect(
                         Color.Red,
-                        onPositioned { positioned ->
+                        Modifier.onPositioned { positioned: LayoutCoordinates ->
                             bottomBarPosition =
                                 positioned.localToGlobal(positioned.positionInParent)
                         },
@@ -303,7 +309,7 @@ class ScaffoldTest {
             Scaffold(
                 floatingActionButton = {
                     FloatingActionButton(
-                        modifier = onPositioned { positioned ->
+                        modifier = Modifier.onPositioned { positioned: LayoutCoordinates ->
                             fabSize = positioned.size
                             fabPosition = positioned.localToGlobal(positioned.positionInParent)
                         },
@@ -316,7 +322,7 @@ class ScaffoldTest {
                 bottomAppBar = {
                     ColoredRect(
                         Color.Red,
-                        onPositioned { positioned ->
+                        Modifier.onPositioned { positioned: LayoutCoordinates ->
                             bottomBarPosition =
                                 positioned.localToGlobal(positioned.positionInParent)
                         },

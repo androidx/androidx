@@ -27,8 +27,8 @@ import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.compositeOver
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
@@ -37,9 +37,9 @@ import androidx.ui.unit.dp
  */
 @Composable
 fun NestedPressDemo() {
-    PressableContainer(LayoutSize.Fill) {
-        PressableContainer(LayoutPadding(48.dp) + LayoutSize.Fill) {
-            PressableContainer(LayoutPadding(48.dp) + LayoutSize.Fill)
+    PressableContainer(Modifier.fillMaxSize()) {
+        PressableContainer(Modifier.padding(48.dp).fillMaxSize()) {
+            PressableContainer(Modifier.padding(48.dp).fillMaxSize())
         }
     }
 }

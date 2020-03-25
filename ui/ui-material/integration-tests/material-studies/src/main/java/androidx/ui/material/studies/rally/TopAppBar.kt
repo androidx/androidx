@@ -22,16 +22,18 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.VectorAsset
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.material.ripple.ripple
@@ -45,7 +47,7 @@ fun RallyTopAppBar(
     onTabSelected: (RallyScreenState) -> Unit,
     currentScreen: RallyScreenState
 ) {
-    Surface(modifier = LayoutHeight(TabHeight) + LayoutWidth.Fill) {
+    Surface(Modifier.preferredHeight(TabHeight).fillMaxWidth()) {
         Row {
             allScreens.forEachIndexed { index, screen ->
                 RallyTab(
@@ -67,7 +69,7 @@ private fun RallyTab(
     selected: Boolean
 ) {
     TabTransition(selected = selected) { tabTintColor ->
-        Box(LayoutPadding(16.dp) + LayoutHeight(TabHeight)) {
+        Box(Modifier.padding(16.dp).preferredHeight(TabHeight)) {
             MutuallyExclusiveSetItem(
                 selected = selected,
                 onClick = onSelected,
@@ -76,7 +78,7 @@ private fun RallyTab(
                 Row {
                     Icon(vectorImage = icon, tintColor = tabTintColor)
                     if (selected) {
-                        Spacer(modifier = LayoutWidth(12.dp))
+                        Spacer(Modifier.preferredWidth(12.dp))
                         Text(text, style = TextStyle(color = tabTintColor))
                     }
                 }

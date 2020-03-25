@@ -17,10 +17,10 @@
 package androidx.ui.integration.test.framework
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
+import androidx.ui.core.paint
 import androidx.ui.foundation.Box
-import androidx.ui.core.asModifier
-import androidx.ui.unit.dp
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.StrokeCap
@@ -29,10 +29,11 @@ import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorAssetBuilder
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.res.vectorResource
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.ComposeTestCase
+import androidx.ui.unit.dp
 
 /**
  * Generic test case for drawing a [VectorAsset].
@@ -47,8 +48,7 @@ sealed class VectorAssetTestCase : ComposeTestCase {
         Box {
             TestTag(testTag) {
                 Semantics(container = true) {
-                    val background = VectorPainter(getVectorAsset()).asModifier()
-                    Box(LayoutSize(24.dp) + background)
+                    Box(Modifier.preferredSize(24.dp).paint(VectorPainter(getVectorAsset())))
                 }
             }
         }

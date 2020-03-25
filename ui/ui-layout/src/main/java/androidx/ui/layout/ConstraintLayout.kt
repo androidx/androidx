@@ -35,6 +35,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
+import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.Placeable.PlacementScope.place
@@ -52,9 +53,13 @@ import androidx.ui.unit.ipx
  * Layout that positions its children according to the constraints between them.
  */
 @Composable
-fun ConstraintLayout(constraintSet: ConstraintSet, children: @Composable() () -> Unit) {
+fun ConstraintLayout(
+    constraintSet: ConstraintSet,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
     val measurer = remember { Measurer() }
-    Layout(children) { measurables, constraints, _ ->
+    Layout(children, modifier) { measurables, constraints, _ ->
         val layoutSize = measurer.performMeasure(
             constraints,
             constraintSet,

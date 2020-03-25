@@ -77,7 +77,7 @@ internal class AndroidComposeView constructor(context: Context) :
     override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
         it.layoutDirection = context.getLayoutDirection()
-        it.modifier = drawLayer(clipToBounds = false)
+        it.modifier = Modifier.drawLayer(clipToBounds = false)
     }
 
     // LayoutNodes that need measure and layout

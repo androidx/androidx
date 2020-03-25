@@ -21,15 +21,16 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutOffset
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.offset
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.dp
 
 @Sampled
@@ -55,12 +56,12 @@ fun DraggableSample() {
 
     // seekbar itself
     Box(
-        modifier = LayoutWidth(max + squareSize) + draggable,
+        modifier = Modifier.preferredWidth(max + squareSize) + draggable,
         backgroundColor = Color.Black
     ) {
         val xOffset = with(DensityAmbient.current) { position.toDp() }
         Box(
-            LayoutOffset(x = xOffset, y = 0.dp) + LayoutSize(squareSize),
+            Modifier.offset(x = xOffset, y = 0.dp).preferredSize(squareSize),
             backgroundColor = Color.Red
         )
     }
@@ -98,12 +99,12 @@ fun AnchoredDraggableSample() {
     }
     // seekbar itself
     Box(
-        modifier = LayoutWidth(max + squareSize) + draggable,
+        modifier = Modifier.preferredWidth(max + squareSize) + draggable,
         backgroundColor = Color.Black
     ) {
         val xOffset = with(DensityAmbient.current) { position.value.toDp() }
         Box(
-            LayoutOffset(x = xOffset, y = 0.dp) + LayoutSize(squareSize),
+            Modifier.offset(x = xOffset, y = 0.dp).preferredSize(squareSize),
             backgroundColor = Color.Red
         )
     }

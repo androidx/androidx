@@ -28,7 +28,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
@@ -223,7 +223,7 @@ inline fun TextButton(
 )
 
 // Specification for Material Button:
-private val ButtonConstraints = LayoutSize.Min(64.dp, 36.dp)
+private val ButtonConstraints = Modifier.preferredSizeIn(minWidth = 64.dp, minHeight = 36.dp)
 
 /**
  * Contains the default values used by [Button]

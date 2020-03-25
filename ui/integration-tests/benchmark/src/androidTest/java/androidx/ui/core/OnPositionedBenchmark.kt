@@ -25,8 +25,8 @@ import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -60,7 +60,7 @@ private class DeepHierarchyOnPositionedTestCase :
         val size = state { 200.dp }
         this.state = size
         Stack {
-            Box(LayoutSize(size.value), gravity = ContentGravity.Center) {
+            Box(Modifier.preferredSize(size.value), gravity = ContentGravity.Center) {
                 StaticChildren(100)
             }
         }
@@ -70,11 +70,11 @@ private class DeepHierarchyOnPositionedTestCase :
     private fun StaticChildren(count: Int) {
         if (count > 0) {
             val modifier = if (count == 1) {
-                onPositioned { it.size }
+                Modifier.onPositioned { it.size }
             } else {
                 Modifier.None
             }
-            Box(LayoutSize(100.dp) + modifier, gravity = ContentGravity.Center) {
+            Box(Modifier.preferredSize(100.dp) + modifier, gravity = ContentGravity.Center) {
                 StaticChildren(count - 1)
             }
         }

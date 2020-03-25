@@ -27,7 +27,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.ui.core.selection.SimpleContainer
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
@@ -94,7 +94,7 @@ class PopupTest {
                                 SimpleContainer(
                                     width = popupWidthDp,
                                     height = popupHeightDp,
-                                    modifier = onPositioned { measureLatch.countDown() },
+                                    modifier = Modifier.onPositioned { measureLatch.countDown() },
                                     children = emptyContent()
                                 )
                             }
@@ -131,7 +131,7 @@ class PopupTest {
             SimpleContainer {
                 PopupTestTag(testTag) {
                     Popup(alignment = Alignment.Center) {
-                        SimpleContainer(LayoutSize(50.dp), children = emptyContent())
+                        SimpleContainer(Modifier.preferredSize(50.dp), children = emptyContent())
                     }
                 }
             }

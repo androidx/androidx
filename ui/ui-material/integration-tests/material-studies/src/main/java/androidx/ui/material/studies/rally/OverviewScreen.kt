@@ -19,17 +19,18 @@ package androidx.ui.material.studies.rally
 import android.annotation.SuppressLint
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.Card
 import androidx.ui.material.Divider
 import androidx.ui.material.IconButton
@@ -42,11 +43,11 @@ import java.util.Locale
 @Composable
 fun OverviewBody() {
     VerticalScroller {
-        Column(modifier = LayoutPadding(16.dp)) {
+        Column(Modifier.padding(16.dp)) {
             AlertCard()
-            Spacer(LayoutHeight(RallyDefaultPadding))
+            Spacer(Modifier.preferredHeight(RallyDefaultPadding))
             AccountsCard()
-            Spacer(LayoutHeight(RallyDefaultPadding))
+            Spacer(Modifier.preferredHeight(RallyDefaultPadding))
             BillsCard()
         }
     }
@@ -71,9 +72,9 @@ private fun AlertCard() {
     }
     Card {
         Column {
-            AlertHeader({ openDialog = true })
+            AlertHeader { openDialog = true }
             RallyDivider(
-                modifier = LayoutPadding(start = RallyDefaultPadding, end = RallyDefaultPadding)
+                modifier = Modifier.padding(start = RallyDefaultPadding, end = RallyDefaultPadding)
             )
             AlertItem(alertMessage)
         }
@@ -83,18 +84,18 @@ private fun AlertCard() {
 @Composable
 private fun AlertHeader(onClickSeeAll: () -> Unit) {
     Row(
-        modifier = LayoutPadding(RallyDefaultPadding) + LayoutWidth.Fill,
+        modifier = Modifier.padding(RallyDefaultPadding).fillMaxWidth(),
         arrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = "Alerts",
             style = MaterialTheme.typography.subtitle2,
-            modifier = LayoutGravity.Center
+            modifier = Modifier.gravity(RowAlign.Center)
         )
         TextButton(
             onClick = onClickSeeAll,
             innerPadding = EdgeInsets(0.dp),
-            modifier = LayoutGravity.Center
+            modifier = Modifier.gravity(RowAlign.Center)
         ) {
             Text("SEE ALL")
         }
@@ -105,17 +106,17 @@ private fun AlertHeader(onClickSeeAll: () -> Unit) {
 private fun AlertItem(message: String) {
     // TODO: Make alerts into a data structure
     Row(
-        modifier = LayoutPadding(RallyDefaultPadding),
+        modifier = Modifier.padding(RallyDefaultPadding),
         arrangement = Arrangement.SpaceBetween
     ) {
         Text(
             style = MaterialTheme.typography.h3,
-            modifier = LayoutWeight(1f),
+            modifier = Modifier.weight(1f),
             text = message
         )
         IconButton(
             onClick = {},
-            modifier = LayoutGravity.Top
+            modifier = Modifier.gravity(RowAlign.Top)
         ) {
             Icon(Icons.Filled.Sort)
         }
@@ -136,13 +137,13 @@ private fun <T> OverviewScreenCard(
 ) {
     Card {
         Column {
-            Column(modifier = LayoutPadding(RallyDefaultPadding)) {
+            Column(Modifier.padding(RallyDefaultPadding)) {
                 Text(text = title, style = MaterialTheme.typography.subtitle2)
                 val amountText = "$" + formatAmount(amount)
                 Text(text = amountText, style = MaterialTheme.typography.h2)
             }
             Divider(color = rallyGreen, height = 1.dp)
-            Column(LayoutPadding(start = 16.dp, top = 4.dp, end = 8.dp)) {
+            Column(Modifier.padding(start = 16.dp, top = 4.dp, end = 8.dp)) {
                 data.take(3).forEach { row(it) }
                 SeeAllButton(onClick = onClickSeeAll)
             }
@@ -200,7 +201,7 @@ private fun BillsCard() {
 private fun SeeAllButton(onClick: () -> Unit) {
     TextButton(
         onClick = onClick,
-        modifier = LayoutHeight(44.dp) + LayoutWidth.Fill
+        modifier = Modifier.preferredHeight(44.dp).fillMaxWidth()
     ) {
         Text("SEE ALL")
     }

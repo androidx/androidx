@@ -23,12 +23,14 @@ import androidx.compose.Model
 import androidx.compose.onActive
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Column
+import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.LinearProgressIndicator
 
@@ -40,29 +42,29 @@ fun ProgressIndicatorDemo() {
     onDispose { state.stop() }
 
     Column {
-        val modifier = LayoutWeight(1f) + LayoutGravity.Center + LayoutWidth.Fill
-        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
+        val modifier = Modifier.weight(1f, true).gravity(ColumnAlign.Center).fillMaxWidth()
+        Row(modifier, arrangement = Arrangement.SpaceEvenly) {
             // Determinate indicators
-            LinearProgressIndicator(progress = state.progress, modifier = LayoutGravity.Center)
-            CircularProgressIndicator(progress = state.progress, modifier = LayoutGravity.Center)
+            LinearProgressIndicator(state.progress, Modifier.gravity(RowAlign.Center))
+            CircularProgressIndicator(state.progress, Modifier.gravity(RowAlign.Center))
         }
-        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
+        Row(modifier, arrangement = Arrangement.SpaceEvenly) {
             // Fancy colours!
             LinearProgressIndicator(
                 progress = (state.progress),
                 color = state.generateColor(),
-                modifier = LayoutGravity.Center
+                modifier = Modifier.gravity(RowAlign.Center)
             )
             CircularProgressIndicator(
                 progress = (state.progress),
                 color = state.generateColor(),
-                modifier = LayoutGravity.Center
+                modifier = Modifier.gravity(RowAlign.Center)
             )
         }
-        Row(modifier = modifier, arrangement = Arrangement.SpaceEvenly) {
+        Row(modifier, arrangement = Arrangement.SpaceEvenly) {
             // Indeterminate indicators
-            LinearProgressIndicator(modifier = LayoutGravity.Center)
-            CircularProgressIndicator(modifier = LayoutGravity.Center)
+            LinearProgressIndicator(Modifier.gravity(RowAlign.Center))
+            CircularProgressIndicator(Modifier.gravity(RowAlign.Center))
         }
     }
 }

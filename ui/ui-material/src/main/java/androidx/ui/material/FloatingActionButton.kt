@@ -30,12 +30,11 @@ import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSizeIn
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.ripple.ripple
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -124,7 +123,10 @@ fun ExtendedFloatingActionButton(
     elevation: Dp = 6.dp
 ) {
     FloatingActionButton(
-        modifier = modifier + LayoutSize.Min(ExtendedFabSize),
+        modifier = modifier.preferredSizeIn(
+            minWidth = ExtendedFabSize,
+            minHeight = ExtendedFabSize
+        ),
         onClick = onClick,
         shape = shape,
         backgroundColor = backgroundColor,
@@ -132,7 +134,7 @@ fun ExtendedFloatingActionButton(
         elevation = elevation
     ) {
         Box(
-            modifier = LayoutPadding(
+            modifier = Modifier.padding(
                 start = ExtendedFabTextPadding,
                 end = ExtendedFabTextPadding
             ),
@@ -143,7 +145,7 @@ fun ExtendedFloatingActionButton(
             } else {
                 Row {
                     icon()
-                    Spacer(LayoutWidth(ExtendedFabIconPadding))
+                    Spacer(Modifier.preferredWidth(ExtendedFabIconPadding))
                     text()
                 }
             }

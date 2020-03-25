@@ -85,20 +85,20 @@ class AppBarTest {
         var titleLastBaselineRelativePosition: Px? = null
         var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Box(onChildPositioned { appBarCoords = it }) {
+            Box(Modifier.onChildPositioned { appBarCoords = it }) {
                 TopAppBar(
                     navigationIcon = {
-                        FakeIcon(onPositioned { navigationIconCoords = it })
+                        FakeIcon(Modifier.onPositioned { navigationIconCoords = it })
                     },
                     title = {
-                        Text("title", onPositioned { coords ->
+                        Text("title", Modifier.onPositioned { coords: LayoutCoordinates ->
                             titleCoords = coords
                             titleLastBaselineRelativePosition =
                                 coords[LastBaseline]!!.toPx()
                         })
                     },
                     actions = {
-                        FakeIcon(onPositioned { actionCoords = it })
+                        FakeIcon(Modifier.onPositioned { actionCoords = it })
                     }
                 )
             }
@@ -152,13 +152,14 @@ class AppBarTest {
         var titleCoords: LayoutCoordinates? = null
         var actionCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Box(onChildPositioned { appBarCoords = it }) {
+            Box(Modifier.onChildPositioned { appBarCoords = it }) {
                 TopAppBar(
                     title = {
-                        Text("title", onPositioned { titleCoords = it })
+                        Text("title",
+                            Modifier.onPositioned { titleCoords = it })
                     },
                     actions = {
-                        FakeIcon(onPositioned { actionCoords = it })
+                        FakeIcon(Modifier.onPositioned { actionCoords = it })
                     }
                 )
             }
@@ -213,9 +214,9 @@ class AppBarTest {
         var appBarCoords: LayoutCoordinates? = null
         var childCoords: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Box(onChildPositioned { appBarCoords = it }) {
+            Box(Modifier.onChildPositioned { appBarCoords = it }) {
                 BottomAppBar {
-                    FakeIcon(onPositioned { childCoords = it })
+                    FakeIcon(Modifier.onPositioned { childCoords = it })
                 }
             }
         }

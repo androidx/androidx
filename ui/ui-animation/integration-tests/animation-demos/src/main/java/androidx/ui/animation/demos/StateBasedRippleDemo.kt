@@ -34,13 +34,13 @@ import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
 @Composable
 fun StateBasedRippleDemo() {
-    Box(LayoutSize.Fill) {
+    Box(Modifier.fillMaxSize()) {
         RippleRect()
     }
 }
@@ -69,7 +69,7 @@ private fun RippleRect() {
 
 @Composable
 private fun RippleRectFromState(modifier: Modifier = Modifier.None, state: TransitionState) {
-    Canvas(modifier + LayoutSize.Fill) {
+    Canvas(modifier.fillMaxSize()) {
         // TODO: file bug for when "down" is not a file level val, it's not memoized correctly
         val x = down.x
         val y = down.y

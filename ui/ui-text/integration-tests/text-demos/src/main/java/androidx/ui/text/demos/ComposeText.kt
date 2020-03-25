@@ -17,15 +17,16 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.text.SpanStyle
@@ -293,7 +294,7 @@ fun TextDemoBaselineShift() {
 @Composable
 fun TextDemoHeight() {
     // This group of text composables show different height.
-    Row(LayoutWidth.Fill) {
+    Row(Modifier.fillMaxWidth()) {
         Text(
             text = "$displayText\n$displayText   ",
             style = TextStyle(fontSize = fontSize8)
@@ -371,31 +372,31 @@ fun TextDemoTextAlign() {
     for (i in 1..10) {
         text = "$text$displayText "
     }
-    Column(LayoutHeight.Fill) {
+    Column(Modifier.fillMaxHeight()) {
         SecondTagLine(tag = "textAlign = TextAlign.Left")
         Text(
-            modifier = LayoutWidth.Fill,
+            modifier = Modifier.fillMaxWidth(),
             text = displayText,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Left)
         )
 
         SecondTagLine(tag = "textAlign = TextAlign.Right")
         Text(
-            modifier = LayoutWidth.Fill,
+            modifier = Modifier.fillMaxWidth(),
             text = displayText,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Right)
         )
 
         SecondTagLine(tag = "textAlign = TextAlign.Center")
         Text(
-            modifier = LayoutWidth.Fill,
+            modifier = Modifier.fillMaxWidth(),
             text = displayText,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Center)
         )
 
         SecondTagLine(tag = "textAlign = default and TextAlign.Justify")
         Text(
-            modifier = LayoutWidth.Fill,
+            modifier = Modifier.fillMaxWidth(),
             text = text,
             style = TextStyle(
                 fontSize = fontSize8,
@@ -403,7 +404,7 @@ fun TextDemoTextAlign() {
             )
         )
         Text(
-            modifier = LayoutWidth.Fill,
+            modifier = Modifier.fillMaxWidth(),
             text = text,
             style = TextStyle(
                 fontSize = fontSize8,
@@ -414,25 +415,25 @@ fun TextDemoTextAlign() {
 
         SecondTagLine(tag = "textAlign = TextAlign.Start for Ltr")
         Text(
-            modifier = LayoutWidth.Fill,
+            modifier = Modifier.fillMaxWidth(),
             text = displayText,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Start)
         )
         SecondTagLine(tag = "textAlign = TextAlign.Start for Rtl")
         Text(
-            modifier = LayoutWidth.Fill,
+            modifier = Modifier.fillMaxWidth(),
             text = displayTextArabic,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.Start)
         )
         SecondTagLine(tag = "textAlign = TextAlign.End for Ltr")
         Text(
-            modifier = LayoutWidth.Fill,
+            modifier = Modifier.fillMaxWidth(),
             text = displayText,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.End)
         )
         SecondTagLine(tag = "textAlign = TextAlign.End for Rtl")
         Text(
-            modifier = LayoutWidth.Fill,
+            modifier = Modifier.fillMaxWidth(),
             text = displayTextArabic,
             style = TextStyle(fontSize = fontSize8, textAlign = TextAlign.End)
         )
@@ -448,7 +449,7 @@ fun TextDemoSoftWrap() {
     }
     val textStyle = TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
 
-    Column(LayoutHeight.Fill) {
+    Column(Modifier.fillMaxHeight()) {
         Text(text = text, style = textStyle)
         Text(text = text, style = textStyle, softWrap = false)
     }

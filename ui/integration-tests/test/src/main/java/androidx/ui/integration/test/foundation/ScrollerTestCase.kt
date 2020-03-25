@@ -18,6 +18,7 @@ package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
@@ -26,8 +27,8 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.preferredSize
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.dp
 import androidx.ui.unit.toRect
@@ -44,7 +45,7 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
         VerticalScroller(
             scrollerPosition = scrollerPosition
         ) {
-            Column(LayoutHeight.Fill) {
+            Column(Modifier.fillMaxHeight()) {
                 for (green in 0..0xFF) {
                     ColorStripe(0xFF, green, 0)
                 }
@@ -74,7 +75,7 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
     @Composable
     fun ColorStripe(red: Int, green: Int, blue: Int) {
         val paint = remember { Paint() }
-        Canvas(LayoutSize(45.dp, 5.dp)) {
+        Canvas(Modifier.preferredSize(45.dp, 5.dp)) {
             paint.color = Color(red = red, green = green, blue = blue)
             paint.style = PaintingStyle.fill
             drawRect(size.toRect(), paint)

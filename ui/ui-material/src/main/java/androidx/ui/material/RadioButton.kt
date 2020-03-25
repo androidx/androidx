@@ -23,6 +23,7 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.CanvasScope
@@ -33,11 +34,11 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
@@ -160,12 +161,12 @@ class RadioGroupScope internal constructor() {
         RadioGroupItem(selected = selected, onSelect = onSelect) {
             // TODO: remove this Box when Ripple becomes a modifier.
             Box {
-                Row(LayoutWidth.Fill + LayoutPadding(DefaultRadioItemPadding)) {
+                Row(Modifier.fillMaxWidth().padding(DefaultRadioItemPadding)) {
                     RadioButton(selected = selected, onSelect = onSelect, color = radioColor)
                     Text(
                         text = text,
                         style = MaterialTheme.typography.body1.merge(textStyle),
-                        modifier = LayoutPadding(start = DefaultRadioLabelOffset)
+                        modifier = Modifier.padding(start = DefaultRadioLabelOffset)
                     )
                 }
             }
@@ -205,7 +206,7 @@ fun RadioButton(
                 generateTransitionDefinition(color, unselectedColor)
             }
             Transition(definition = definition, toState = selected) { state ->
-                Canvas(modifier = LayoutPadding(RadioButtonPadding) + LayoutSize(RadioButtonSize)) {
+                Canvas(Modifier.padding(RadioButtonPadding).preferredSize(RadioButtonSize)) {
                     drawRadio(
                         state[ColorProp],
                         state[OuterRadiusProp],
@@ -261,10 +262,10 @@ private val InnerRadiusProp = DpPropKey()
 private val GapProp = DpPropKey()
 private val ColorProp = ColorPropKey()
 
-private val RadiusClosureDuration = 150
-private val PulseDuration = 100
-private val GapDuration = 150
-private val TotalDuration = RadiusClosureDuration + PulseDuration + GapDuration
+private const val RadiusClosureDuration = 150
+private const val PulseDuration = 100
+private const val GapDuration = 150
+private const val TotalDuration = RadiusClosureDuration + PulseDuration + GapDuration
 
 private fun generateTransitionDefinition(
     selectedColor: Color,
@@ -328,7 +329,7 @@ private val RadioRadius = RadioButtonSize / 2
 private val RadioStrokeWidth = 2.dp
 // TODO(malkov): random numbers for now to produce radio as in material comp.
 private val DefaultGap = 3.dp
-private val UnselectedOpacity = 0.6f
+private const val UnselectedOpacity = 0.6f
 
 // for animations
 private val OuterOffsetDuringAnimation = 2.dp

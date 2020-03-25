@@ -21,7 +21,7 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTag
+import androidx.ui.core.Modifier
 import androidx.ui.core.tag
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
@@ -38,14 +38,14 @@ import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.ripple.ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontWeight
@@ -216,7 +216,7 @@ class DataTableChildren internal constructor() {
             } else {
                 Row {
                     Image(asset = image)
-                    Spacer(LayoutWidth(2.dp))
+                    Spacer(DataTableWidthSpacerModifier)
                     Text(text = text(j))
                 }
             }
@@ -261,7 +261,7 @@ class DataTableChildren internal constructor() {
             } else {
                 Row {
                     Image(asset = image)
-                    Spacer(LayoutWidth(2.dp))
+                    Spacer(DataTableWidthSpacerModifier)
                     Text(text = text(j))
                 }
             }
@@ -368,7 +368,7 @@ fun DataTable(
                 tableRow {
                     if (showCheckboxes) {
                         Box(
-                            LayoutHeight(headerRowHeight),
+                            Modifier.preferredHeight(headerRowHeight),
                             paddingStart = cellSpacing.left,
                             paddingTop = cellSpacing.top,
                             paddingEnd = cellSpacing.right,
@@ -392,7 +392,7 @@ fun DataTable(
                     }
                     for (j in 0 until columns) {
                         Box(
-                            LayoutHeight(headerRowHeight),
+                            Modifier.preferredHeight(headerRowHeight),
                             paddingStart = cellSpacing.left,
                             paddingTop = cellSpacing.top,
                             paddingEnd = cellSpacing.right,
@@ -414,7 +414,7 @@ fun DataTable(
                                     headerDecoration = {
                                         // TODO(calintat): Replace with animated arrow icons.
                                         Text(text = if (sorting.ascending) "↑" else "↓")
-                                        Spacer(LayoutWidth(2.dp))
+                                        Spacer(DataTableWidthSpacerModifier)
                                     }
                                 } else {
                                     onSort = {
@@ -445,7 +445,7 @@ fun DataTable(
                 tableRow {
                     if (showCheckboxes) {
                         Box(
-                            LayoutHeight(dataRowHeight),
+                            Modifier.preferredHeight(dataRowHeight),
                             paddingStart = cellSpacing.left,
                             paddingTop = cellSpacing.top,
                             paddingEnd = cellSpacing.right,
@@ -457,7 +457,7 @@ fun DataTable(
                     }
                     for (j in 0 until columns) {
                         Box(
-                            LayoutHeight(dataRowHeight),
+                            Modifier.preferredHeight(dataRowHeight),
                             paddingStart = cellSpacing.left,
                             paddingTop = cellSpacing.top,
                             paddingEnd = cellSpacing.right,
@@ -477,7 +477,7 @@ fun DataTable(
                         if (row.onSelectedChange == null) return@forEachIndexed
                         Clickable(
                             onClick = { row.onSelectedChange.invoke(!row.selected) },
-                            modifier = LayoutTag(index) + ripple()
+                            modifier = Modifier.tag(index) + ripple()
                         ) {
                             ColoredRect(
                                 color = if (row.selected) {
@@ -516,33 +516,33 @@ fun DataTable(
         Column {
             table()
             Box(
-                LayoutHeight(dataRowHeight),
+                Modifier.preferredHeight(dataRowHeight),
                 paddingStart = cellSpacing.left,
                 paddingTop = cellSpacing.top,
                 paddingEnd = cellSpacing.right,
                 paddingBottom = cellSpacing.bottom,
                 gravity = ContentGravity.Center
             ) {
-                Row(LayoutSize.Fill, arrangement = Arrangement.End) {
+                Row(Modifier.fillMaxSize(), arrangement = Arrangement.End) {
                     val pages = (rows.size - 1) / pagination.rowsPerPage + 1
                     val startRow = pagination.rowsPerPage * pagination.page
                     val endRow = (startRow + pagination.rowsPerPage).coerceAtMost(rows.size)
-                    val modifier = LayoutGravity.Center
+                    val center = Modifier.gravity(RowAlign.Center)
 
                     // TODO(calintat): Replace this with a dropdown menu whose items are taken
                     //  from availableRowsPerPage (filtered to those that are in the range
                     //  0 until rows.size). When an item is selected, it should invoke
                     //  onRowsPerPageChange with the appropriate value.
-                    Text(text = "Rows per page: ${pagination.rowsPerPage}", modifier = modifier)
+                    Text(text = "Rows per page: ${pagination.rowsPerPage}", modifier = center)
 
-                    Spacer(LayoutWidth(32.dp))
+                    Spacer(DataTableTextSpacerModifier)
 
-                    Text(text = "${startRow + 1}-$endRow of ${rows.size}", modifier = modifier)
+                    Text(text = "${startRow + 1}-$endRow of ${rows.size}", modifier = center)
 
-                    Spacer(LayoutWidth(32.dp))
+                    Spacer(DataTableTextSpacerModifier)
 
                     // TODO(calintat): Replace this with an image button with chevron_left icon.
-                    Box(modifier = modifier) {
+                    Box(center) {
                         Clickable(
                             onClick = {
                                 val newPage = pagination.page - 1
@@ -555,10 +555,10 @@ fun DataTable(
                         }
                     }
 
-                    Spacer(LayoutWidth(24.dp))
+                    Spacer(DataTableNextSpacerModifier)
 
                     // TODO(calintat): Replace this with an image button with chevron_right icon.
-                    Box(modifier = modifier) {
+                    Box(center) {
                         Clickable(
                             onClick = {
                                 val newPage = pagination.page + 1
@@ -581,3 +581,6 @@ private val HeaderRowHeight = 56.dp
 private val CellSpacing = EdgeInsets(left = 16.dp, right = 16.dp)
 private val BorderColor = Color(0xFFC6C6C6)
 private val BorderWidth = 1.dp
+private val DataTableWidthSpacerModifier = Modifier.preferredWidth(2.dp)
+private val DataTableTextSpacerModifier = Modifier.preferredWidth(32.dp)
+private val DataTableNextSpacerModifier = Modifier.preferredWidth(24.dp)

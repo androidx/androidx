@@ -17,9 +17,10 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.padding
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Snackbar
 import androidx.ui.material.TextButton
@@ -29,8 +30,8 @@ import androidx.ui.unit.dp
 
 @Composable
 fun SnackbarDemo() {
-    Column(LayoutPadding(start = 12.dp, end = 12.dp)) {
-        val textSpacing = LayoutPadding(top = 12.dp, bottom = 12.dp)
+    Column(Modifier.padding(12.dp, 0.dp, 12.dp, 0.dp)) {
+        val textSpacing = Modifier.padding(top = 12.dp, bottom = 12.dp)
         Text("Default Snackbar", modifier = textSpacing)
         SimpleSnackbar()
         Text("Snackbar with long text", modifier = textSpacing)

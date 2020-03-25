@@ -18,13 +18,15 @@ package androidx.ui.layout.test
 
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
-import androidx.ui.core.LayoutTag
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.layout.LayoutDirectionModifier
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Stack
+import androidx.ui.core.tag
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet
+import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.rtl
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
@@ -78,7 +80,7 @@ class ConstraintLayoutTest : LayoutTest() {
         val countDownLatch = CountDownLatch(3)
 
         show {
-            Stack(LayoutSize.Fill + LayoutDirectionModifier.Rtl) {
+            Stack(Modifier.fillMaxSize().rtl) {
                 TestLayout(size, position, countDownLatch)
             }
         }
@@ -134,18 +136,21 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         ) {
             Stack(
-                LayoutTag("box1") + LayoutSize(boxSize, boxSize) +
-                        saveLayoutInfo(size[0], position[0], countDownLatch)
+                Modifier.tag("box1")
+                    .preferredSize(boxSize)
+                    .saveLayoutInfo(size[0], position[0], countDownLatch)
             ) {
             }
             Stack(
-                LayoutTag("box2") + LayoutSize(boxSize, boxSize) +
-                        saveLayoutInfo(size[1], position[1], countDownLatch)
+                Modifier.tag("box2")
+                    .preferredSize(boxSize)
+                    .saveLayoutInfo(size[1], position[1], countDownLatch)
             ) {
             }
             Stack(
-                LayoutTag("box3") + LayoutSize(boxSize, boxSize) +
-                        saveLayoutInfo(size[2], position[2], countDownLatch)
+                Modifier.tag("box3")
+                    .preferredSize(boxSize)
+                    .saveLayoutInfo(size[2], position[2], countDownLatch)
             ) {
             }
         }

@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -38,6 +38,6 @@ fun Divider(
     height: Dp = 1.dp,
     indent: Dp = 0.dp
 ) {
-    val indentMod = if (indent.value != 0f) LayoutPadding(start = indent) else Modifier.None
+    val indentMod = if (indent.value != 0f) Modifier.padding(start = indent) else Modifier.None
     ColoredRect(color, modifier + indentMod, height = height)
 }

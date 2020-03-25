@@ -38,8 +38,8 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.vectormath.degrees
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.max
@@ -63,7 +63,7 @@ fun LinearProgressIndicator(
             color.copy(alpha = BackgroundOpacity),
             StrokeCap.butt
         )
-        Canvas(modifier + LayoutSize(LinearIndicatorWidth, StrokeWidth)) {
+        Canvas(modifier.preferredSize(LinearIndicatorWidth, StrokeWidth)) {
             drawLinearIndicatorBackground(backgroundPaint)
             drawLinearIndicator(0f, progress, paint)
         }
@@ -95,7 +95,7 @@ fun LinearProgressIndicator(
             color.copy(alpha = BackgroundOpacity),
             StrokeCap.butt
         )
-        Canvas(modifier + LayoutSize(LinearIndicatorWidth, StrokeWidth)) {
+        Canvas(modifier.preferredSize(LinearIndicatorWidth, StrokeWidth)) {
             drawLinearIndicatorBackground(backgroundPaint)
             if (firstLineHead - firstLineTail > 0) {
                 drawLinearIndicator(firstLineHead, firstLineTail, paint)
@@ -143,8 +143,9 @@ fun CircularProgressIndicator(
 ) {
     DeterminateProgressIndicator(progress = progress) {
         val paint = paint(color, StrokeCap.butt)
-        Canvas(modifier = modifier + LayoutPadding(CircularIndicatorPadding) +
-                LayoutSize(CircularIndicatorDiameter)
+        Canvas(
+            modifier.padding(CircularIndicatorPadding)
+                .preferredSize(CircularIndicatorDiameter)
         ) {
             // Start at 12 O'clock
             val startAngle = 270f
@@ -185,8 +186,9 @@ fun CircularProgressIndicator(
         startAngle += StartAngleOffset + currentRotationAngleOffset
         startAngle += baseRotation
 
-        Canvas(modifier = modifier + LayoutPadding(CircularIndicatorPadding) +
-                LayoutSize(CircularIndicatorDiameter)
+        Canvas(
+            modifier.padding(CircularIndicatorPadding)
+                .preferredSize(CircularIndicatorDiameter)
         ) {
             drawIndeterminateCircularIndicator(startAngle, sweep, paint)
         }

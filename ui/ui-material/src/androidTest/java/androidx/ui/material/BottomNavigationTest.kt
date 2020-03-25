@@ -18,6 +18,7 @@ package androidx.ui.material
 import androidx.test.filters.LargeTest
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
@@ -57,14 +58,13 @@ class BottomNavigationTest {
     fun bottomNavigation_size() {
         lateinit var parentCoords: LayoutCoordinates
         val height = 56.dp
-        composeTestRule
-            .setMaterialContentAndCollectSizes(modifier =
-                onPositioned { coords ->
-                    parentCoords = coords
-                }
-            ) {
-                BottomNavigationSample()
+        composeTestRule.setMaterialContentAndCollectSizes(
+            modifier = Modifier.onPositioned { coords: LayoutCoordinates ->
+                parentCoords = coords
             }
+        ) {
+            BottomNavigationSample()
+        }
             .assertWidthEqualsTo { parentCoords.size.width }
             .assertHeightEqualsTo(height)
     }
@@ -73,7 +73,7 @@ class BottomNavigationTest {
     fun bottomNavigationItem_sizeAndPositions() {
         lateinit var parentCoords: LayoutCoordinates
         val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
-        composeTestRule.setMaterialContent(modifier = onPositioned { coords ->
+        composeTestRule.setMaterialContent(Modifier.onPositioned { coords: LayoutCoordinates ->
             parentCoords = coords
         }) {
             Box {
@@ -84,7 +84,9 @@ class BottomNavigationTest {
                             text = { Text("Item $index") },
                             selected = index == 0,
                             onSelected = {},
-                            modifier = onPositioned { coords -> itemCoords[index] = coords }
+                            modifier = Modifier.onPositioned { coords: LayoutCoordinates ->
+                                itemCoords[index] = coords
+                            }
                         )
                     }
                 }
@@ -117,12 +119,18 @@ class BottomNavigationTest {
             Box {
                 BottomNavigation {
                     BottomNavigationItem(
-                        modifier = onPositioned { coords -> itemCoords = coords },
+                        modifier = Modifier.onPositioned { coords: LayoutCoordinates ->
+                            itemCoords = coords
+                        },
                         icon = {
-                            Icon(Icons.Filled.Favorite, onPositioned { iconCoords = it })
+                            Icon(Icons.Filled.Favorite,
+                                Modifier.onPositioned { iconCoords = it }
+                            )
                         },
                         text = {
-                            Text("Item", onPositioned { textCoords = it })
+                            Text("Item",
+                                Modifier.onPositioned { textCoords = it }
+                            )
                         },
                         selected = true,
                         onSelected = {}
@@ -164,9 +172,13 @@ class BottomNavigationTest {
             Box {
                 BottomNavigation {
                     BottomNavigationItem(
-                        modifier = onPositioned { coords -> itemCoords = coords },
+                        modifier = Modifier.onPositioned { coords: LayoutCoordinates ->
+                            itemCoords = coords
+                        },
                         icon = {
-                            Icon(Icons.Filled.Favorite, onPositioned { iconCoords = it })
+                            Icon(Icons.Filled.Favorite,
+                                Modifier.onPositioned { iconCoords = it }
+                            )
                         },
                         text = {
                             // TODO: b/149477576 we need a boundary here so that we don't
@@ -207,9 +219,13 @@ class BottomNavigationTest {
             Box {
                 BottomNavigation {
                     BottomNavigationItem(
-                        modifier = onPositioned { coords -> itemCoords = coords },
+                        modifier = Modifier.onPositioned { coords: LayoutCoordinates ->
+                            itemCoords = coords
+                        },
                         icon = {
-                            Icon(Icons.Filled.Favorite, onPositioned { iconCoords = it })
+                            Icon(Icons.Filled.Favorite,
+                                Modifier.onPositioned { iconCoords = it }
+                            )
                         },
                         text = {},
                         selected = false,

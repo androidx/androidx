@@ -17,6 +17,7 @@
 package androidx.ui.framework.demos.focus
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.focus.FocusState.Focused
 import androidx.ui.focus.FocusState.NotFocusable
@@ -26,9 +27,9 @@ import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.text.TextStyle
 
 @Composable
@@ -70,5 +71,5 @@ private fun FocusableText(text: String) {
 
 @Composable
 private fun CenteredRow(children: @Composable() RowScope.() -> Unit) {
-    Row(modifier = LayoutWidth.Fill, arrangement = Arrangement.Center, children = children)
+    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.Center, children = children)
 }

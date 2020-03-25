@@ -559,7 +559,7 @@ internal class InnerPlaceable(
             paint.strokeWidth = 1f
             paint.style = PaintingStyle.stroke
         }
-        val introducedDrawLayerModifier = drawLayer(
+        val introducedDrawLayerModifier = Modifier.drawLayer(
             clipToBounds = false,
             clipToOutline = false
         ) as DrawLayerModifier

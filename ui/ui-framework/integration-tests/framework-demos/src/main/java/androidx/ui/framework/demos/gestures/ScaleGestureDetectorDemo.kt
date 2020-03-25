@@ -18,12 +18,15 @@ package androidx.ui.framework.demos.gestures
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.ScaleGestureDetector
 import androidx.ui.core.gesture.ScaleObserver
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.dp
 
 /**
@@ -40,10 +43,10 @@ fun ScaleGestureDetectorDemo() {
     }
 
     Box(
-        LayoutSize.Fill +
-                LayoutAlign.Center +
-                ScaleGestureDetector(scaleObserver) +
-                LayoutSize(size.value),
+        Modifier.fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+            .plus(ScaleGestureDetector(scaleObserver))
+            .preferredSize(size.value),
         backgroundColor = Color(0xFF9e9e9e.toInt())
     )
 }

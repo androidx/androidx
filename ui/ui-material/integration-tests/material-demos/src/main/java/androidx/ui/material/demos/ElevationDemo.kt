@@ -17,6 +17,7 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
@@ -26,10 +27,10 @@ import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.Card
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.ripple
@@ -39,12 +40,12 @@ import androidx.ui.unit.dp
 @Composable
 fun ElevationDemo() {
     Column {
-        Box(LayoutPadding(20.dp) + LayoutWidth.Fill, gravity = ContentGravity.Center) {
+        Box(Modifier.padding(20.dp).fillMaxWidth(), gravity = ContentGravity.Center) {
             val text = getMessage(MaterialTheme.colors.isLight)
             Text(text)
         }
         VerticalScroller {
-            Column(LayoutPadding(25.dp) + LayoutSize.Fill) {
+            Column(Modifier.padding(25.dp).fillMaxSize()) {
                 elevations.forEach { elevation ->
                     ElevatedCard(elevation)
                 }
@@ -56,13 +57,13 @@ fun ElevationDemo() {
 @Composable
 private fun ElevatedCard(elevation: Dp) {
     Card(
-        LayoutPadding(start = 10.dp, end = 10.dp, top = 20.dp, bottom = 20.dp),
+        Modifier.padding(start = 10.dp, top = 20.dp, end = 10.dp, bottom = 20.dp),
         shape = RoundedCornerShape(4.dp),
         border = if (elevation == 0.dp) Border(1.dp, Color.Gray) else null,
         elevation = elevation
     ) {
         Clickable(onClick = {}, modifier = ripple()) {
-            Box(LayoutWidth.Fill + LayoutHeight(150.dp), gravity = ContentGravity.Center) {
+            Box(Modifier.fillMaxWidth().preferredHeight(150.dp), gravity = ContentGravity.Center) {
                 Text("$elevation", style = MaterialTheme.typography.h4)
             }
         }

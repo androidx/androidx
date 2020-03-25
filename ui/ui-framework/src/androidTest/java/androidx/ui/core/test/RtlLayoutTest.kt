@@ -170,7 +170,7 @@ class RtlLayoutTest {
     private fun saveLayoutInfo(
         position: Ref<PxPosition>,
         countDownLatch: CountDownLatch
-    ): Modifier = onPositioned {
+    ): Modifier = Modifier.onPositioned {
         position.value = it.localToGlobal(PxPosition(0.ipx, 0.ipx))
         countDownLatch.countDown()
     }

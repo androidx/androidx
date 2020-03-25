@@ -18,6 +18,7 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.foundation.Box
@@ -25,9 +26,9 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextStyle
@@ -77,7 +78,7 @@ fun TextSelectionSample() {
             selection = selection.value,
             onSelectionChange = { selection.value = it }
         ) {
-            Column(LayoutPadding(12.dp)) {
+            Column(Modifier.padding(12.dp)) {
                 Basics()
                 AddTextElement()
                 langContent.forEach {
@@ -98,12 +99,12 @@ private fun Basics() {
         style = commonStyle.merge(header)
     )
     Row {
-        Box(LayoutPadding(8.dp) + LayoutSize(48.dp), backgroundColor = rectColor)
+        Box(Modifier.padding(8.dp).preferredSize(48.dp), backgroundColor = rectColor)
         Text(
             text = "Jetpack Compose is a modern toolkit for building native Android UI." +
                     " Jetpack Compose simplifies and accelerates UI development on Android " +
                     "with less code, powerful tools, and intuitive Kotlin APIs.",
-            modifier = LayoutWeight(1f),
+            modifier = Modifier.weight(1f),
             style = commonStyle
         )
     }
@@ -116,7 +117,7 @@ private fun AddTextElement() {
         style = commonStyle.merge(header2)
     )
     Row {
-        Column(modifier = LayoutWeight(1f)) {
+        Column(Modifier.weight(1f)) {
             Text(
                 text = AnnotatedString {
                     append("To begin, follow the")
@@ -132,10 +133,10 @@ private fun AddTextElement() {
                 style = commonStyle
             )
         }
-        Box(LayoutPadding(8.dp) + LayoutSize(48.dp), backgroundColor = rectColor)
+        Box(Modifier.padding(8.dp).preferredSize(48.dp), backgroundColor = rectColor)
     }
     Box(
-        LayoutPadding(top = 20.dp, bottom = 20.dp) + LayoutSize(200.dp, 60.dp),
+        Modifier.padding(top = 20.dp, bottom = 20.dp).preferredSize(200.dp, 60.dp),
         backgroundColor = rectColor
     )
     Text(
@@ -202,12 +203,12 @@ private fun MultiLanguage(title: String, content: String) {
     )
     Row {
         Box(
-            LayoutPadding(8.dp) + LayoutSize(48.dp),
+            Modifier.padding(8.dp).preferredSize(48.dp),
             backgroundColor = rectColor
         )
         Text(
             text = content,
-            modifier = LayoutWeight(1f),
+            modifier = Modifier.weight(1f),
             style = commonStyle
         )
     }

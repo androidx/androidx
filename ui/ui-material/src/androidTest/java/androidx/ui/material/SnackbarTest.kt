@@ -20,6 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Text
@@ -82,7 +83,9 @@ class SnackbarTest {
         ) {
             Snackbar(
                 text = {
-                    Text("Message", onPositioned { textCoords = it })
+                    Text("Message",
+                        Modifier.onPositioned { textCoords = it }
+                    )
                 }
             )
         }
@@ -111,13 +114,20 @@ class SnackbarTest {
             parentConstraints = DpConstraints(maxWidth = 300.dp)
         ) {
             Snackbar(
-                modifier = onPositioned { snackCoords = it },
+                modifier = Modifier.onPositioned { snackCoords = it },
                 text = {
-                    Text("Message", onPositioned { textCoords = it })
+                    Text("Message",
+                        Modifier.onPositioned { textCoords = it }
+                    )
                 },
                 action = {
-                    TextButton(onClick = {}, modifier = onPositioned { buttonCoords = it }) {
-                        Text("Undo", onPositioned { buttonTextCoords = it })
+                    TextButton(
+                        onClick = {},
+                        modifier = Modifier.onPositioned { buttonCoords = it }
+                    ) {
+                        Text("Undo",
+                            Modifier.onPositioned { buttonTextCoords = it }
+                        )
                     }
                 }
             )
@@ -163,7 +173,8 @@ class SnackbarTest {
         ) {
             Snackbar(
                 text = {
-                    Text(longText, onPositioned { textCoords = it }, maxLines = 2)
+                    Text(longText,
+                        Modifier.onPositioned { textCoords = it }, maxLines = 2)
                 }
             )
         }
@@ -192,12 +203,16 @@ class SnackbarTest {
             parentConstraints = DpConstraints(maxWidth = 300.dp)
         ) {
             Snackbar(
-                modifier = onPositioned { snackCoords = it },
+                modifier = Modifier.onPositioned { snackCoords = it },
                 text = {
-                    Text(longText, onPositioned { textCoords = it }, maxLines = 2)
+                    Text(longText,
+                        Modifier.onPositioned { textCoords = it }, maxLines = 2)
                 },
                 action = {
-                    TextButton(modifier = onPositioned { buttonCoords = it }, onClick = {}) {
+                    TextButton(
+                        modifier = Modifier.onPositioned { buttonCoords = it },
+                        onClick = {}
+                    ) {
                         Text("Undo")
                     }
                 }
@@ -243,12 +258,17 @@ class SnackbarTest {
             parentConstraints = DpConstraints(maxWidth = 300.dp)
         ) {
             Snackbar(
-                modifier = onPositioned { snackCoords = it },
+                modifier = Modifier.onPositioned { snackCoords = it },
                 text = {
-                    Text("Message", onPositioned { textCoords = it })
+                    Text("Message",
+                        Modifier.onPositioned { textCoords = it }
+                    )
                 },
                 action = {
-                    TextButton(onClick = {}, modifier = onPositioned { buttonCoords = it }) {
+                    TextButton(
+                        onClick = {},
+                        modifier = Modifier.onPositioned { buttonCoords = it }
+                    ) {
                         Text("Undo")
                     }
                 },

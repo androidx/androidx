@@ -26,17 +26,17 @@ import androidx.compose.remember
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.MeasuringIntrinsicsMeasureBlocks
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
+import androidx.ui.core.clipToBounds
 import androidx.ui.core.subcomposeInto
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.foundation.gestures.ScrollableState
+import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -482,7 +482,7 @@ fun <T> AdapterList(
         )
     )
     androidx.ui.core.LayoutNode(
-        modifier = modifier + scroll + DrawClipToBounds,
+        modifier = modifier.plus(scroll).clipToBounds(),
         ref = state.rootNodeRef,
         measureBlocks = state.measureBlocks
     )

@@ -20,16 +20,17 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.material.BottomAppBar.FabDockedPosition
 import androidx.ui.material.Scaffold.FabPosition
@@ -131,12 +132,12 @@ fun Scaffold(
 ) {
     val child = @Composable {
         Surface(color = MaterialTheme.colors.background) {
-            Column(LayoutSize.Fill) {
+            Column(Modifier.fillMaxSize()) {
                 if (topAppBar != null) ScaffoldSlot(children = topAppBar)
-                Stack(modifier = LayoutWeight(1f, fill = true)) {
-                    ScaffoldContent(LayoutSize.Fill, scaffoldState, bodyContent)
+                Stack(Modifier.weight(1f, fill = true)) {
+                    ScaffoldContent(Modifier.fillMaxSize(), scaffoldState, bodyContent)
                     ScaffoldBottom(
-                        modifier = LayoutGravity.BottomCenter,
+                        Modifier.gravity(Alignment.BottomCenter),
                         scaffoldState = scaffoldState,
                         fabPos = floatingActionButtonPosition,
                         fab = floatingActionButton,
@@ -160,6 +161,9 @@ fun Scaffold(
     }
 }
 
+private fun FabPosition.toColumnAlign() =
+    if (this == FabPosition.End) ColumnAlign.End else ColumnAlign.Center
+
 /**
  * Scaffold part that is on the bottom. Includes FAB and BottomBar
  */
@@ -172,13 +176,15 @@ private fun ScaffoldBottom(
     bottomBar: @Composable() ((FabConfiguration?) -> Unit)? = null
 ) {
     if (fabPos != FabPosition.CenterDocked && fabPos != FabPosition.EndDocked) {
-        Column(modifier = modifier + LayoutWidth.Fill) {
+        Column(modifier.fillMaxWidth()) {
             if (fab != null) {
-                val fabSpacing =
-                    LayoutPadding(bottom = FabSpacing, start = FabSpacing, end = FabSpacing)
-                val gravity =
-                    if (fabPos == FabPosition.End) LayoutGravity.End else LayoutGravity.Center
-                FabContainer(fabPos, gravity + fabSpacing, scaffoldState, fab)
+                FabContainer(
+                    fabPos,
+                    Modifier.gravity(fabPos.toColumnAlign())
+                        .padding(start = FabSpacing, end = FabSpacing, bottom = FabSpacing),
+                    scaffoldState,
+                    fab
+                )
             }
             if (bottomBar != null) {
                 BottomBarContainer(scaffoldState, bottomBar)
@@ -249,7 +255,7 @@ private fun ScaffoldContent(
         val bottomSpace = with(DensityAmbient.current) {
             scaffoldState.bottomBarSize?.height?.toDp() ?: 0.dp
         }
-        content(LayoutPadding(bottom = bottomSpace))
+        content(Modifier.padding(bottom = bottomSpace))
     }
 }
 
@@ -260,7 +266,7 @@ private fun BottomBarContainer(
 ) {
     onDispose(callback = { scaffoldState.bottomBarSize = null })
     ScaffoldSlot(
-        modifier = onPositioned {
+        modifier = Modifier.onPositioned {
             if (scaffoldState.bottomBarSize != it.size) scaffoldState.bottomBarSize = it.size
         },
         children = {
@@ -276,26 +282,28 @@ private fun FabContainer(
     scaffoldState: ScaffoldState,
     fab: @Composable() () -> Unit
 ) {
-    onDispose(callback = { scaffoldState.fabConfiguration = null })
-    val onPositioned = onPositioned { coords ->
-        // TODO(mount): This should probably use bounding box rather than position/size
-        val position = coords.parentCoordinates?.childToLocal(coords, PxPosition.Origin)
-            ?: PxPosition.Origin
-        val config =
-            when (fabPos) {
-                FabPosition.CenterDocked -> {
-                    FabConfiguration(coords.size, position, FabDockedPosition.Center)
+    onDispose { scaffoldState.fabConfiguration = null }
+    ScaffoldSlot(
+        modifier = modifier.onPositioned { coords ->
+            // TODO(mount): This should probably use bounding box rather than position/size
+            val position = coords.parentCoordinates?.childToLocal(coords, PxPosition.Origin)
+                ?: PxPosition.Origin
+            val config =
+                when (fabPos) {
+                    FabPosition.CenterDocked -> {
+                        FabConfiguration(coords.size, position, FabDockedPosition.Center)
+                    }
+                    FabPosition.EndDocked -> {
+                        FabConfiguration(coords.size, position, FabDockedPosition.End)
+                    }
+                    else -> {
+                        null
+                    }
                 }
-                FabPosition.EndDocked -> {
-                    FabConfiguration(coords.size, position, FabDockedPosition.End)
-                }
-                else -> {
-                    null
-                }
-            }
-        if (scaffoldState.fabConfiguration != config) scaffoldState.fabConfiguration = config
-    }
-    ScaffoldSlot(modifier = modifier + onPositioned, children = fab)
+            if (scaffoldState.fabConfiguration != config) scaffoldState.fabConfiguration = config
+        },
+        children = fab
+    )
 }
 
 /**

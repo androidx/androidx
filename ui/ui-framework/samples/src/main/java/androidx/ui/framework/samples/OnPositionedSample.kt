@@ -20,12 +20,13 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.globalPosition
 import androidx.ui.core.positionInRoot
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 
@@ -33,7 +34,7 @@ import androidx.ui.unit.ipx
 @Composable
 fun OnChildPositionedSample() {
     Column {
-        Box(LayoutSize(20.dp), backgroundColor = Color.Green)
+        Box(Modifier.preferredSize(20.dp), backgroundColor = Color.Green)
         OnChildPositioned(onPositioned = { coordinates ->
             // This will be the size of the child SizedRectangle.
             coordinates.size
@@ -46,7 +47,7 @@ fun OnChildPositionedSample() {
             // This will a LayoutCoordinates instance corresponding to the Column.
             coordinates.parentCoordinates
         }) {
-            Box(LayoutSize(20.dp), backgroundColor = Color.Blue)
+            Box(Modifier.preferredSize(20.dp), backgroundColor = Color.Blue)
         }
     }
 }
