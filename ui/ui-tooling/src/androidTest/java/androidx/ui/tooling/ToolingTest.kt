@@ -19,10 +19,11 @@ package androidx.ui.tooling
 import android.os.Handler
 import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
 import org.junit.Before
 import org.junit.Rule
 import java.util.concurrent.CountDownLatch
@@ -49,8 +50,10 @@ open class ToolingTest {
         positionedLatch = CountDownLatch(1)
         activityTestRule.onUiThread {
             activity.setContent {
-                Box(onPositioned { positionedLatch.countDown() } + LayoutSize.Fill,
-                    children = composable)
+                Box(
+                    Modifier.onPositioned { positionedLatch.countDown() }.fillMaxSize(),
+                    children = composable
+                )
             }
         }
 

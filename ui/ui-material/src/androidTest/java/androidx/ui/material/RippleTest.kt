@@ -23,23 +23,24 @@ import androidx.compose.Providers
 import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
-import androidx.ui.material.ripple.RippleThemeAmbient
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
+import androidx.ui.material.ripple.RippleThemeAmbient
 import androidx.ui.material.ripple.ripple
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -80,10 +81,10 @@ class RippleTest {
             DrawRectRippleCallback {
                 TestTag(contentTag) {
                     Box(
-                        modifier = DrawBackground(Color.Blue),
+                        modifier = Modifier.drawBackground(Color.Blue),
                         gravity = ContentGravity.Center
                     ) {
-                        Box(LayoutSize(10.dp) + ripple())
+                        Box(Modifier.preferredSize(10.dp) + ripple())
                     }
                 }
             }
@@ -112,15 +113,15 @@ class RippleTest {
             DrawRectRippleCallback {
                 TestTag(contentTag) {
                     Box(
-                        modifier = DrawBackground(Color.Blue),
+                        modifier = Modifier.drawBackground(Color.Blue),
                         gravity = ContentGravity.Center
                     ) {
                         Box(
-                            LayoutSize(30.dp) +
-                                    LayoutPadding(5.dp) +
-                                    ripple() +
-                                    // this padding should not affect the size of the ripple
-                                    LayoutPadding(5.dp)
+                            Modifier.preferredSize(30.dp)
+                                .padding(5.dp)
+                                .plus(ripple())
+                                // this padding should not affect the size of the ripple
+                                .padding(5.dp)
                         )
                     }
                 }
@@ -150,10 +151,10 @@ class RippleTest {
             DrawRectRippleCallback {
                 TestTag(contentTag) {
                     Box(
-                        modifier = DrawBackground(Color.Blue),
+                        modifier = Modifier.drawBackground(Color.Blue),
                         gravity = ContentGravity.Center
                     ) {
-                        Box(LayoutSize(10.dp) + ripple(bounded = false))
+                        Box(Modifier.preferredSize(10.dp) + ripple(bounded = false))
                     }
                 }
             }
@@ -180,10 +181,14 @@ class RippleTest {
             DrawRectRippleCallback {
                 TestTag(contentTag) {
                     Box(
-                        modifier = DrawBackground(Color.Blue),
+                        modifier = Modifier.drawBackground(Color.Blue),
                         gravity = ContentGravity.Center
                     ) {
-                        Box(LayoutSize(10.dp) + ripple() + DrawBackground(Color.Blue))
+                        Box(
+                            Modifier.preferredSize(10.dp)
+                                .plus(ripple())
+                                .drawBackground(Color.Blue)
+                        )
                     }
                 }
             }
@@ -360,7 +365,7 @@ class RippleTest {
             onClick = {},
             modifier = ripple(bounded = false, color = color, enabled = enabled)
         ) {
-            Box(LayoutSize(size))
+            Box(Modifier.preferredSize(size))
         }
     }
 

@@ -25,7 +25,6 @@ import androidx.ui.animation.animate
 import androidx.ui.core.Constraints
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTag
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
@@ -40,10 +39,10 @@ import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.ripple.ripple
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
@@ -93,7 +92,7 @@ fun BottomNavigation(
         modifier = modifier
     ) {
         Row(
-            LayoutWidth.Fill + LayoutHeight(BottomNavigationHeight),
+            Modifier.fillMaxWidth().preferredHeight(BottomNavigationHeight),
             arrangement = Arrangement.SpaceBetween,
             children = children
         )
@@ -141,7 +140,8 @@ fun BottomNavigationItem(
         ProvideTextStyle(style, children = text)
     }
     MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
-        Box(modifier + RowScope.LayoutWeight(1f), gravity = ContentGravity.Center) {
+        // TODO This composable has magic behavior within a Row; reconsider this behavior later
+        Box(with(RowScope) { modifier.weight(1f) }, gravity = ContentGravity.Center) {
             BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
                 val animationProgress = if (alwaysShowLabels) 1f else progress
 
@@ -204,9 +204,9 @@ private fun BottomNavigationItemBaselineLayout(
 ) {
     Layout(
         {
-            Box(LayoutTag("icon"), children = icon)
+            Box(Modifier.tag("icon"), children = icon)
             Box(
-                LayoutTag("text") + drawOpacity(iconPositionAnimationProgress),
+                Modifier.tag("text").drawOpacity(iconPositionAnimationProgress),
                 paddingStart = BottomNavigationItemHorizontalPadding,
                 paddingEnd = BottomNavigationItemHorizontalPadding,
                 children = text

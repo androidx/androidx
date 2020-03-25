@@ -18,11 +18,12 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutAspectRatio
+import androidx.ui.layout.aspectRatio
 import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Typography
@@ -68,7 +69,7 @@ fun MaterialThemeSample() {
 @Composable
 fun ThemeColorSample() {
     val colors = MaterialTheme.colors
-    ColoredRect(color = colors.primary, modifier = LayoutAspectRatio(1f))
+    ColoredRect(color = colors.primary, modifier = Modifier.aspectRatio(1f))
 }
 
 @Sampled

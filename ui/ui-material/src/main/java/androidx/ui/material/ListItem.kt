@@ -29,12 +29,12 @@ import androidx.ui.foundation.Image
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.ImageAsset
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeightIn
+import androidx.ui.layout.preferredSizeIn
+import androidx.ui.layout.preferredWidthIn
 import androidx.ui.material.ripple.ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
@@ -196,11 +196,11 @@ private object OneLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
-        Row(LayoutHeight.Min(minHeight)) {
+        Row(Modifier.preferredHeightIn(minHeight = minHeight)) {
             if (icon != null) {
                 Box(
-                    modifier = LayoutGravity.Center +
-                            LayoutWidth.Min(IconLeftPadding + IconMinPaddedWidth),
+                    Modifier.gravity(RowAlign.Center)
+                        .preferredWidthIn(minWidth = IconLeftPadding + IconMinPaddedWidth),
                     gravity = ContentGravity.CenterStart,
                     paddingStart = IconLeftPadding,
                     paddingTop = IconVerticalPadding,
@@ -209,14 +209,15 @@ private object OneLine {
                 )
             }
             Box(
-                modifier = LayoutWeight(1f) + LayoutGravity.Center +
-                        LayoutPadding(start = ContentLeftPadding, end = ContentRightPadding),
+                Modifier.weight(1f)
+                    .gravity(RowAlign.Center)
+                    .padding(start = ContentLeftPadding, end = ContentRightPadding),
                 gravity = ContentGravity.CenterStart,
                 children = text
             )
             if (trailing != null) {
                 Box(
-                    LayoutGravity.Center,
+                    Modifier.gravity(RowAlign.Center),
                     paddingEnd = TrailingRightPadding,
                     children = trailing
                 )
@@ -254,15 +255,16 @@ private object TwoLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
-        Row(LayoutHeight.Min(minHeight)) {
-            val modifier = LayoutWeight(1f) + LayoutPadding(
-                start = ContentLeftPadding,
-                end = ContentRightPadding
-            )
+        Row(Modifier.preferredHeightIn(minHeight = minHeight)) {
+            val modifier = Modifier.weight(1f)
+                .padding(start = ContentLeftPadding, end = ContentRightPadding)
 
             if (icon != null) {
                 Box(
-                    LayoutSize.Min(IconLeftPadding + IconMinPaddedWidth, minHeight),
+                    Modifier.preferredSizeIn(
+                        minWidth = IconLeftPadding + IconMinPaddedWidth,
+                        minHeight = minHeight
+                    ),
                     gravity = ContentGravity.TopStart,
                     paddingStart = IconLeftPadding,
                     paddingTop = IconVerticalPadding,
@@ -309,7 +311,8 @@ private object TwoLine {
                 ) {
                     Box(
                         // TODO(popam): find way to center and wrap content without minHeight
-                        LayoutHeight.Min(minHeight) + LayoutPadding(end = TrailingRightPadding),
+                        Modifier.preferredHeightIn(minHeight = minHeight)
+                            .padding(end = TrailingRightPadding),
                         gravity = ContentGravity.Center,
                         children = trailing
                     )
@@ -344,10 +347,11 @@ private object ThreeLine {
         overlineText: @Composable() (() -> Unit)?,
         trailing: @Composable() (() -> Unit)?
     ) {
-        Row(LayoutHeight.Min(MinHeight)) {
+        Row(Modifier.preferredHeightIn(minHeight = MinHeight)) {
             if (icon != null) {
+                val minSize = IconLeftPadding + IconMinPaddedWidth
                 Box(
-                    LayoutSize.Min(IconLeftPadding + IconMinPaddedWidth),
+                    Modifier.preferredSizeIn(minWidth = minSize, minHeight = minSize),
                     gravity = ContentGravity.CenterStart,
                     paddingStart = IconLeftPadding,
                     paddingTop = IconThreeLineVerticalPadding,
@@ -361,8 +365,8 @@ private object ThreeLine {
                     ThreeLineBaselineSecondOffset,
                     ThreeLineBaselineThirdOffset
                 ),
-                LayoutWeight(1f) +
-                        LayoutPadding(start = ContentLeftPadding, end = ContentRightPadding)
+                Modifier.weight(1f)
+                    .padding(start = ContentLeftPadding, end = ContentRightPadding)
             ) {
                 if (overlineText != null) overlineText()
                 text()
@@ -371,7 +375,7 @@ private object ThreeLine {
             if (trailing != null) {
                 OffsetToBaselineOrCenter(
                     ThreeLineBaselineFirstOffset - ThreeLineTrailingTopPadding,
-                    LayoutPadding(top = ThreeLineTrailingTopPadding, end = TrailingRightPadding),
+                    Modifier.padding(top = ThreeLineTrailingTopPadding, end = TrailingRightPadding),
                     trailing
                 )
             }

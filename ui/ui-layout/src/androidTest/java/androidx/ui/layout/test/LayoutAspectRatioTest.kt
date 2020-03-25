@@ -20,8 +20,9 @@ import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.layout.LayoutAspectRatio
+import androidx.ui.layout.aspectRatio
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -41,7 +42,7 @@ class LayoutAspectRatioTest : LayoutTest() {
     @Test
     fun testAspectRatioModifier_intrinsicDimensions() = with(density) {
         testIntrinsics(@Composable {
-            Container(modifier = LayoutAspectRatio(2f), width = 30.dp, height = 40.dp) { }
+            Container(modifier = Modifier.aspectRatio(2f), width = 30.dp, height = 40.dp) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             assertEquals(40.ipx, minIntrinsicWidth(20.ipx))
             assertEquals(40.ipx, maxIntrinsicWidth(20.ipx))
@@ -57,12 +58,12 @@ class LayoutAspectRatioTest : LayoutTest() {
 
     @Test(expected = IllegalArgumentException::class)
     fun testAspectRatioModifier_zeroRatio() {
-        LayoutAspectRatio(0f)
+        Modifier.aspectRatio(0f)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testAspectRatioModifier_negativeRatio() {
-        LayoutAspectRatio(-2f)
+        Modifier.aspectRatio(-2f)
     }
 
     @Test
@@ -93,8 +94,9 @@ class LayoutAspectRatioTest : LayoutTest() {
         val position = Ref<PxPosition>()
         show {
             Layout(@Composable {
-                Container(LayoutAspectRatio(aspectRatio) +
-                    saveLayoutInfo(size, position, positionedLatch)
+                Container(
+                    Modifier.aspectRatio(aspectRatio) +
+                        Modifier.saveLayoutInfo(size, position, positionedLatch)
                 ) {
                 }
             }) { measurables, incomingConstraints, _ ->

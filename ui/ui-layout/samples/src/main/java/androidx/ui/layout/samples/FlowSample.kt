@@ -18,11 +18,12 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.FlowColumn
 import androidx.ui.layout.FlowRow
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
 val sizes = listOf(
@@ -38,7 +39,7 @@ fun SimpleFlowRow() {
         crossAxisSpacing = 10.dp
     ) {
         sizes.forEach { size ->
-            Box(LayoutSize(size, 20.dp), backgroundColor = Color.Magenta)
+            Box(Modifier.preferredSize(size, 20.dp), backgroundColor = Color.Magenta)
         }
     }
 }
@@ -51,7 +52,7 @@ fun SimpleFlowColumn() {
         crossAxisSpacing = 10.dp
     ) {
         sizes.forEach { size ->
-            Box(LayoutSize(20.dp, size), backgroundColor = Color.Magenta)
+            Box(Modifier.preferredSize(20.dp, size), backgroundColor = Color.Magenta)
         }
     }
 }

@@ -22,18 +22,43 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Row
+import androidx.ui.layout.padding
 import androidx.ui.material.Button
 import androidx.ui.unit.dp
+
+@Sampled
+@Composable
+fun ModifierUsageSample() {
+    Text(
+        "Hello, World!",
+        Modifier.padding(16.dp) // Outer padding; outside background
+            .drawBackground(Color.Green) // Solid element background color
+            .padding(16.dp) // Inner padding; inside background, around text
+    )
+}
+
+@Sampled
+@Composable
+fun ModifierFactorySample() {
+    class FancyModifier(val level: Float) : Modifier.Element
+
+    fun Modifier.fancy(level: Float) = this + FancyModifier(level)
+
+    Row(Modifier.fancy(1f).padding(10.dp)) {
+        // content
+    }
+}
 
 @Sampled
 @Composable
 fun ModifierParameterSample() {
     @Composable
     fun PaddedColumn(modifier: Modifier = Modifier.None) {
-        Column(modifier + LayoutPadding(10.dp)) {
+        Column(modifier.padding(10.dp)) {
             // ...
         }
     }
@@ -59,5 +84,3 @@ fun SubcomponentModifierSample() {
         }
     }
 }
-
-private val defaultFooModifier = Modifier.None

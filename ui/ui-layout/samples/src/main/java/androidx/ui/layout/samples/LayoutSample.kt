@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
-import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.unit.Dp
 import androidx.ui.unit.ipx
@@ -40,7 +40,7 @@ fun SizedRectangleWithLines(
 ) {
     Layout(
         children = { },
-        modifier = modifier + DrawBackground(color = color)
+        modifier = modifier.drawBackground(color = color)
     ) { _, constraints, _ ->
         val widthPx = max(width?.toIntPx() ?: constraints.maxWidth, constraints.minWidth)
         val heightPx = max(height?.toIntPx() ?: constraints.maxHeight, constraints.minHeight)

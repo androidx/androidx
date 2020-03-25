@@ -34,12 +34,12 @@ import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.offset
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.padding
+import androidx.ui.test.ComposeTestCase
+import androidx.ui.unit.Dp
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.min
@@ -215,7 +215,7 @@ private class ModifierTestCase : PaddingTestCase() {
 
     @Composable
     override fun emitPaddedContainer(padding: Dp, child: @Composable() () -> Unit) {
-        FillerContainer(LayoutPadding(padding), child)
+        FillerContainer(Modifier.padding(padding), child)
     }
 }
 

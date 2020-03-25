@@ -24,8 +24,8 @@ import androidx.ui.core.gesture.DoubleTapGestureDetector
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.PointerInputRecorder
@@ -54,9 +54,9 @@ private fun Ui(onDoubleTap: (PxPosition) -> Unit, pointerInputRecorder: PointerI
             Semantics(container = true) {
                 with(DensityAmbient.current) {
                     Box(
-                        DoubleTapGestureDetector(onDoubleTap) +
-                                pointerInputRecorder +
-                                LayoutSize(width.toDp(), height.toDp()),
+                        DoubleTapGestureDetector(onDoubleTap)
+                            .plus(pointerInputRecorder)
+                            .preferredSize(width.toDp(), height.toDp()),
                         backgroundColor = Color.Yellow
                     )
                 }

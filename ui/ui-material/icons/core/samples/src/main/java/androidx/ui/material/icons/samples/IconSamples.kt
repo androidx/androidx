@@ -18,7 +18,8 @@ package androidx.ui.material.icons.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.asModifier
+import androidx.ui.core.Modifier
+import androidx.ui.core.paint
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.graphics.vector.VectorAsset
@@ -42,5 +43,5 @@ fun DrawIcon() {
 
 @Composable
 private fun SomeComposable(icon: VectorAsset) {
-    Box(modifier = VectorPainter(icon).asModifier())
+    Box(Modifier.paint(VectorPainter(icon)))
 }

@@ -33,14 +33,30 @@ interface DrawModifier : Modifier.Element {
 }
 
 /**
+ * Draw into a [Canvas] behind the modified content.
+ */
+fun Modifier.drawBehind(
+    onDraw: Density.(canvas: Canvas, size: PxSize) -> Unit
+) = this + DrawBackgroundModifier(onDraw)
+
+/**
  * Creates a [DrawModifier] that calls [onDraw] before the contents of the layout.
  */
+@Deprecated(
+    "Replaced by Modifier.drawBehind",
+    replaceWith = ReplaceWith(
+        "Modifier.drawBehind(onDraw)",
+        "androidx.ui.core.drawBehind",
+        "androidx.ui.core.Modifier"
+    )
+)
 fun draw(
     onDraw: Density.(canvas: Canvas, size: PxSize) -> Unit
-): DrawModifier = object : DrawModifier, Density {
-    private var _density: Density? = null
-    override val density: Float get() = _density!!.density
-    override val fontScale: Float get() = _density!!.fontScale
+): DrawModifier = DrawBackgroundModifier(onDraw)
+
+private class DrawBackgroundModifier(
+    val onDraw: Density.(canvas: Canvas, size: PxSize) -> Unit
+) : DrawModifier {
 
     override fun draw(
         density: Density,
@@ -48,11 +64,9 @@ fun draw(
         canvas: Canvas,
         size: PxSize
     ) {
-        _density = density
         try {
-            this.onDraw(canvas, size)
+            density.onDraw(canvas, size)
         } finally {
-            _density = null
             drawContent()
         }
     }
@@ -64,6 +78,7 @@ fun draw(
  */
 // TODO(mount): DrawReceiver should accept a Canvas for drawChildren()
 // TODO(mount): drawChildren() should be drawContent()
+// TODO Current implementation is not thread-safe
 fun drawWithContent(
     onDraw: DrawReceiver.(canvas: Canvas, size: PxSize) -> Unit
 ): DrawModifier = object : DrawModifier, DrawReceiver {

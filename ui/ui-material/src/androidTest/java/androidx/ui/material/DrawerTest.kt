@@ -20,11 +20,13 @@ import android.os.SystemClock.sleep
 import androidx.compose.Model
 import androidx.compose.emptyContent
 import androidx.test.filters.MediumTest
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -64,7 +66,7 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Box(LayoutSize.Fill + onPositioned { coords ->
+                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
                     position = coords.localToGlobal(PxPosition.Origin)
                 })
             }, bodyContent = emptyContent())
@@ -79,7 +81,7 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Closed, {}, drawerContent = {
-                Box(LayoutSize.Fill + onPositioned { coords ->
+                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
                     position = coords.localToGlobal(PxPosition.Origin)
                 })
             }, bodyContent = emptyContent())
@@ -95,7 +97,9 @@ class DrawerTest {
         var size: IntPxSize? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Box(LayoutSize.Fill + onPositioned { coords -> size = coords.size })
+                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
+                    size = coords.size
+                })
             }, bodyContent = emptyContent())
         }
 
@@ -111,7 +115,7 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Box(LayoutSize.Fill + onPositioned { coords ->
+                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
                     position = coords.localToGlobal(PxPosition.Origin)
                 })
             }, bodyContent = emptyContent())
@@ -131,7 +135,7 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Closed, {}, drawerContent = {
-                Box(LayoutSize.Fill + onPositioned { coords ->
+                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
                     position = coords.localToGlobal(PxPosition.Origin)
                 })
             }, bodyContent = emptyContent())
@@ -147,7 +151,7 @@ class DrawerTest {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 StaticDrawer {
-                    Box(LayoutSize.Fill)
+                    Box(Modifier.fillMaxSize())
                 }
             }
             .assertWidthEqualsTo(256.dp)
@@ -166,7 +170,7 @@ class DrawerTest {
                     ModalDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
                             Box(
-                                LayoutSize.Fill + onPositioned { info ->
+                                Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
                                     val pos = info.localToGlobal(PxPosition.Origin)
                                     if (pos.x == 0.px) {
                                         // If fully opened, mark the openedLatch if present
@@ -179,7 +183,8 @@ class DrawerTest {
                             )
                         },
                         bodyContent = {
-                            Box(LayoutSize.Fill + onPositioned { contentWidth = it.size.width })
+                            Box(Modifier.fillMaxSize()
+                                .onPositioned { contentWidth = it.size.width })
                         })
                 }
             }
@@ -216,12 +221,12 @@ class DrawerTest {
                     ModalDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
                             Clickable(onClick = { drawerClicks += 1 }) {
-                                Box(LayoutSize.Fill, children = emptyContent())
+                                Box(Modifier.fillMaxSize(), children = emptyContent())
                             }
                         },
                         bodyContent = {
                             Clickable(onClick = { bodyClicks += 1 }) {
-                                Box(LayoutSize.Fill, children = emptyContent())
+                                Box(Modifier.fillMaxSize(), children = emptyContent())
                             }
                         })
                 }
@@ -265,7 +270,7 @@ class DrawerTest {
                 Semantics(container = true) {
                     BottomDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
-                            Box(LayoutSize.Fill + onPositioned { info ->
+                            Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
                                 val pos = info.localToGlobal(PxPosition.Origin)
                                 if (pos.y.round() == openedHeight) {
                                     // If fully opened, mark the openedLatch if present
@@ -277,7 +282,7 @@ class DrawerTest {
                             })
                         },
                         bodyContent = {
-                            Box(LayoutSize.Fill + onPositioned {
+                            Box(Modifier.fillMaxSize().onPositioned {
                                 contentHeight = it.size.height
                                 openedHeight = it.size.height * BottomDrawerOpenFraction
                             })
@@ -318,12 +323,12 @@ class DrawerTest {
                     BottomDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
                             Clickable(onClick = { drawerClicks += 1 }) {
-                                Box(LayoutSize.Fill, children = emptyContent())
+                                Box(Modifier.fillMaxSize(), children = emptyContent())
                             }
                         },
                         bodyContent = {
                             Clickable(onClick = { bodyClicks += 1 }) {
-                                Box(LayoutSize.Fill, children = emptyContent())
+                                Box(Modifier.fillMaxSize(), children = emptyContent())
                             }
                         })
                 }

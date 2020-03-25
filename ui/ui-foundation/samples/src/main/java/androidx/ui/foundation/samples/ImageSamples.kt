@@ -19,6 +19,7 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Image
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
@@ -29,7 +30,7 @@ import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.painter.Painter
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
@@ -50,7 +51,7 @@ fun ImageVectorAssetSample() {
     vectorAsset.resource.resource?.let {
         Image(
             asset = it,
-            modifier = LayoutSize(200.dp, 200.dp),
+            modifier = Modifier.preferredSize(200.dp, 200.dp),
             scaleFit = ScaleFit.FillMinDimension,
             colorFilter = ColorFilter.tint(Color.Cyan)
         )
@@ -77,7 +78,7 @@ fun ImagePainterSample() {
         }
     }
 
-    Image(painter = customPainter, modifier = LayoutSize(100.dp, 100.dp))
+    Image(painter = customPainter, modifier = Modifier.preferredSize(100.dp, 100.dp))
 }
 
 /**

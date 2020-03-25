@@ -19,6 +19,7 @@ package androidx.ui.integration.test.foundation
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ScrollerPosition
@@ -27,10 +28,10 @@ import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
@@ -69,10 +70,10 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     fun SquareRow(useScrollerPosition: Boolean) {
         val playStoreColor = Color(red = 0x00, green = 0x00, blue = 0x80)
         val content = @Composable {
-            Row(LayoutWidth.Fill) {
+            Row(Modifier.fillMaxWidth()) {
                 repeat(6) {
                     with(DensityAmbient.current) {
-                        Column(LayoutHeight.Fill) {
+                        Column(Modifier.fillMaxHeight()) {
                             val color = remember {
                                 val red = Random.nextInt(256)
                                 val green = Random.nextInt(256)
@@ -88,17 +89,17 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                                 text = "Some title",
                                 style = TextStyle(Color.Black, 60.px.toSp())
                             )
-                            Row(LayoutWidth.Fill) {
+                            Row(Modifier.fillMaxWidth()) {
                                 Text(
                                     "3.5 ★",
                                     style = TextStyle(fontSize = 40.px.toSp()),
-                                    modifier = LayoutGravity.Center
+                                    modifier = Modifier.gravity(RowAlign.Center)
                                 )
                                 ColoredRect(
                                     width = 40.px.toDp(),
                                     height = 40.px.toDp(),
                                     color = playStoreColor,
-                                    modifier = LayoutGravity.Center
+                                    modifier = Modifier.gravity(RowAlign.Center)
                                 )
                             }
                         }

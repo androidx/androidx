@@ -26,24 +26,27 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutOffset
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.offset
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
@@ -62,7 +65,7 @@ fun TextTabs() {
             Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = LayoutGravity.Center,
+            modifier = Modifier.gravity(ColumnAlign.Center),
             text = "Text tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -78,7 +81,7 @@ fun IconTabs() {
             Tab(icon = { Icon(icon) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = LayoutGravity.Center,
+            modifier = Modifier.gravity(ColumnAlign.Center),
             text = "Icon tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -103,7 +106,7 @@ fun TextAndIconTabs() {
             )
         }
         Text(
-            modifier = LayoutGravity.Center,
+            modifier = Modifier.gravity(ColumnAlign.Center),
             text = "Text and icon tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -130,7 +133,7 @@ fun ScrollingTextTabs() {
             Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = LayoutGravity.Center,
+            modifier = Modifier.gravity(ColumnAlign.Center),
             text = "Scrolling text tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -147,7 +150,7 @@ fun FancyTabs() {
             FancyTab(title = title, onClick = { state = index }, selected = (index == state))
         }
         Text(
-            modifier = LayoutGravity.Center,
+            modifier = Modifier.gravity(ColumnAlign.Center),
             text = "Fancy tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -176,7 +179,7 @@ fun FancyIndicatorTabs() {
             Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = LayoutGravity.Center,
+            modifier = Modifier.gravity(ColumnAlign.Center),
             text = "Fancy indicator tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -202,7 +205,7 @@ fun FancyIndicatorContainerTabs() {
             Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = LayoutGravity.Center,
+            modifier = Modifier.gravity(ColumnAlign.Center),
             text = "Fancy transition tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -238,7 +241,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
             Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = LayoutGravity.Center,
+            modifier = Modifier.gravity(ColumnAlign.Center),
             text = "Scrolling fancy transition tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -250,19 +253,19 @@ fun ScrollingFancyIndicatorContainerTabs() {
 fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
     Tab(selected, onClick) {
         Column(
-            LayoutPadding(10.dp) + LayoutHeight(50.dp) + LayoutWidth.Fill,
+            Modifier.padding(10.dp).preferredHeight(50.dp).fillMaxWidth(),
             arrangement = Arrangement.SpaceBetween
         ) {
             Box(
-                LayoutSize(10.dp) + LayoutGravity.Center + DrawBackground(
-                    color = if (selected) Color.Red else Color.White
-                ),
+                Modifier.preferredSize(10.dp)
+                    .gravity(ColumnAlign.Center)
+                    .drawBackground(color = if (selected) Color.Red else Color.White),
                 children = emptyContent()
             )
             Text(
                 text = title,
                 style = MaterialTheme.typography.body1,
-                modifier = LayoutGravity.Center
+                modifier = Modifier.gravity(ColumnAlign.Center)
             )
         }
     }
@@ -274,10 +277,14 @@ fun FancyIndicator(color: Color) {
     // Draws a rounded rectangular with border around the Tab, with a 5.dp padding from the edges
     // Color is passed in as a parameter [color]
     Stack(
-        LayoutPadding(5.dp) + LayoutSize.Fill + DrawBorder(
-            Border(2.dp, color),
-            RoundedCornerShape(5.dp)
-        )
+        Modifier.padding(5.dp)
+            .fillMaxSize()
+            .plus(
+                DrawBorder(
+                    Border(2.dp, color),
+                    RoundedCornerShape(5.dp)
+                )
+            )
     ) {}
 }
 
@@ -325,7 +332,7 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
 
     // Fill up the entire TabRow with this container, and place children at the left so we can use
     // Padding to set the 'offset'
-    Box(LayoutSize.Fill, gravity = ContentGravity.BottomStart) {
+    Box(Modifier.fillMaxSize(), gravity = ContentGravity.BottomStart) {
         Transition(transitionDefinition, selectedIndex) { state ->
             val density = DensityAmbient.current
             val offset = with(density) { state[indicatorStart].toDp() }
@@ -333,7 +340,7 @@ fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedInde
                 (state[indicatorEnd] - state[indicatorStart]).toDp()
             }
             Box(
-                LayoutOffset(x = offset, y = 0.dp) + LayoutWidth(width),
+                Modifier.offset(x = offset, y = 0.dp).preferredWidth(width),
                 gravity = ContentGravity.Center
             ) {
                 // Pass the current color to the indicator

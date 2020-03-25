@@ -35,13 +35,15 @@ import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Density
@@ -87,19 +89,16 @@ fun TopAppBar(
     AppBar(color, contentColor, elevation, RectangleShape, modifier) {
         val emphasisLevels = MaterialTheme.emphasisLevels
         if (navigationIcon == null) {
-            Spacer(LayoutWidth(TitleInsetWithoutIcon))
+            Spacer(TitleInsetWithoutIcon)
         } else {
             // TODO: make this a row after b/148014745 is fixed
-            Box(
-                LayoutHeight.Fill + LayoutWidth(TitleInsetWithIcon),
-                gravity = ContentGravity.CenterStart
-            ) {
+            Box(TitleIconModifier, gravity = ContentGravity.CenterStart) {
                 ProvideEmphasis(emphasisLevels.high, navigationIcon)
             }
         }
 
         // TODO(soboleva): rework this once AlignmentLineOffset is a modifier
-        Box(LayoutHeight.Fill + LayoutWeight(1f), gravity = ContentGravity.BottomStart) {
+        Box(Modifier.fillMaxHeight().weight(1f), gravity = ContentGravity.BottomStart) {
             val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
             AlignmentLineOffset(alignmentLine = LastBaseline, after = baselineOffset) {
                 Semantics(container = true) {
@@ -113,7 +112,7 @@ fun TopAppBar(
         }
 
         // TODO: remove box and center align row's children after b/148014745 is fixed
-        Box(modifier = LayoutHeight.Fill, gravity = ContentGravity.CenterEnd) {
+        Box(Modifier.fillMaxHeight(), gravity = ContentGravity.CenterEnd) {
             Row(arrangement = Arrangement.End) {
                 ProvideEmphasis(emphasisLevels.medium) {
                     actions()
@@ -243,9 +242,9 @@ fun BottomAppBar(
     }
     AppBar(color, contentColor, BottomAppBarElevation, shape, modifier) {
         // TODO: remove box and inline row's children after b/148014745 is fixed
-        Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
+        Box(Modifier.fillMaxSize(), gravity = ContentGravity.Center) {
             // TODO: b/150609566 clarify emphasis for children
-            Row(LayoutWidth.Fill, children = children)
+            Row(Modifier.fillMaxWidth(), children = children)
         }
     }
 }
@@ -501,10 +500,9 @@ private fun AppBar(
         modifier = modifier
     ) {
         Row(
-            LayoutWidth.Fill + LayoutPadding(
-                start = AppBarHorizontalPadding,
-                end = AppBarHorizontalPadding
-            ) + LayoutHeight(AppBarHeight),
+            Modifier.fillMaxWidth()
+                .padding(start = AppBarHorizontalPadding, end = AppBarHorizontalPadding)
+                .preferredHeight(AppBarHeight),
             arrangement = Arrangement.SpaceBetween,
             children = children
         )
@@ -515,9 +513,10 @@ private val AppBarHeight = 56.dp
 // TODO: this should probably be part of the touch target of the start and end icons, clarify this
 private val AppBarHorizontalPadding = 4.dp
 // Start inset for the title when there is no navigation icon provided
-private val TitleInsetWithoutIcon = 16.dp - AppBarHorizontalPadding
+private val TitleInsetWithoutIcon = Modifier.preferredWidth(16.dp - AppBarHorizontalPadding)
 // Start inset for the title when there is a navigation icon provided
-private val TitleInsetWithIcon = 72.dp - AppBarHorizontalPadding
+private val TitleIconModifier = Modifier.fillMaxHeight()
+    .preferredWidth(72.dp - AppBarHorizontalPadding)
 // The baseline distance for the title from the bottom of the app bar
 private val TitleBaselineOffset = 20.sp
 

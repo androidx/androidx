@@ -34,7 +34,7 @@ import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.unit.PxPosition
@@ -124,8 +124,9 @@ private fun Ui(recordedClicks: MutableList<ClickData>) {
                                     override val cancelHandler: () -> Unit = {}
                                 }
                             }
+                        squareSize.toDp()
                         Box(
-                            pointerInputModifier + LayoutSize(squareSize.toDp()),
+                            pointerInputModifier.preferredSize(squareSize.toDp()),
                             backgroundColor = colors[i]
                         )
                     }

@@ -138,11 +138,11 @@ open class LayoutTest {
         assertTrue(viewDrawLatch.await(1, TimeUnit.SECONDS))
     }
 
-    internal fun saveLayoutInfo(
+    internal fun Modifier.saveLayoutInfo(
         size: Ref<IntPxSize>,
         position: Ref<PxPosition>,
         positionedLatch: CountDownLatch
-    ): Modifier = onPositioned { coordinates ->
+    ): Modifier = this.onPositioned { coordinates ->
         size.value = IntPxSize(coordinates.size.width, coordinates.size.height)
         position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
         positionedLatch.countDown()

@@ -24,7 +24,8 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.asModifier
+import androidx.ui.core.Modifier
+import androidx.ui.core.paint
 import androidx.ui.core.setContent
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.core.test.runOnUiThreadIR
@@ -134,21 +135,25 @@ class VectorTest {
     ) {
         val sizePx = size.toPx()
         val sizeDp = (size.value / DensityAmbient.current.density).dp
-        val background = VectorPainter(
-            defaultWidth = sizeDp,
-            defaultHeight = sizeDp) { _, _ ->
-            Path(
-                pathData = PathData {
-                    lineTo(sizePx.value, 0.0f)
-                    lineTo(sizePx.value, sizePx.value)
-                    lineTo(0.0f, sizePx.value)
-                    close()
-                },
-                fill = SolidColor(Color.Black)
-            )
+        val background = Modifier.paint(
+            VectorPainter(
+                defaultWidth = sizeDp,
+                defaultHeight = sizeDp) { _, _ ->
+                Path(
+                    pathData = PathData {
+                        lineTo(sizePx.value, 0.0f)
+                        lineTo(sizePx.value, sizePx.value)
+                        lineTo(0.0f, sizePx.value)
+                        close()
+                    },
+                    fill = SolidColor(Color.Black)
+                )
 
-            drawLatch.countDown()
-        }.asModifier(colorFilter = ColorFilter.tint(Color.Cyan), alignment = alignment)
+                drawLatch.countDown()
+            },
+            colorFilter = ColorFilter.tint(Color.Cyan),
+            alignment = alignment
+        )
         AtLeastSize(size = minimumSize, modifier = background) {
         }
     }

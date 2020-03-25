@@ -19,10 +19,11 @@ package androidx.ui.material
 import android.os.Build
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
@@ -101,7 +102,7 @@ class ElevationOverlayTest(private val elevation: Dp, private val expectedOverla
                             TestTag(Tag) {
                                 Semantics(container = true) {
                                     Box(
-                                        LayoutSize(
+                                        Modifier.preferredSize(
                                             SurfaceSize.width.toDp(),
                                             SurfaceSize.height.toDp()
                                         )

@@ -24,14 +24,15 @@ import androidx.ui.autofill.AutofillType
 import androidx.ui.core.AutofillAmbient
 import androidx.ui.core.AutofillTreeAmbient
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.Text
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.MaterialTheme
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -61,7 +62,7 @@ fun ExplicitAutofillTypesDemo() {
             )
         }
 
-        Spacer(LayoutHeight(40.dp))
+        Spacer(Modifier.preferredHeight(40.dp))
 
         Text("Email", style = labelStyle)
         Autofill(

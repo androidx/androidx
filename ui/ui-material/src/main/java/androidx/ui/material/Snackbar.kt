@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTag
 import androidx.ui.core.Modifier
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
@@ -30,9 +29,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.ColumnAlign
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -94,7 +93,7 @@ fun Snackbar(
 private fun TextOnlySnackbar(text: @Composable() () -> Unit) {
     Layout(
         text,
-        modifier = LayoutPadding(start = HorizontalSpacing, end = HorizontalSpacing)
+        modifier = Modifier.padding(start = HorizontalSpacing, end = HorizontalSpacing)
     ) { measurables, constraints, _ ->
         require(measurables.size == 1) {
             "text for Snackbar expected to have exactly only one child"
@@ -117,18 +116,19 @@ private fun NewLineButtonSnackbar(
     action: @Composable() () -> Unit
 ) {
     Column(
-        modifier = LayoutWidth.Fill + LayoutPadding(
-            start = HorizontalSpacing,
-            end = HorizontalSpacingButtonSide,
-            bottom = SeparateButtonExtraY
-        )
+        modifier = Modifier.fillMaxWidth()
+            .padding(
+                start = HorizontalSpacing,
+                end = HorizontalSpacingButtonSide,
+                bottom = SeparateButtonExtraY
+            )
     ) {
         AlignmentLineOffset(alignmentLine = LastBaseline, after = LongButtonVerticalOffset) {
             AlignmentLineOffset(alignmentLine = FirstBaseline, before = HeightToFirstLine) {
-                Box(LayoutPadding(end = HorizontalSpacingButtonSide), children = text)
+                Box(Modifier.padding(end = HorizontalSpacingButtonSide), children = text)
             }
         }
-        Box(modifier = LayoutGravity.End, children = action)
+        Box(Modifier.gravity(ColumnAlign.End), children = action)
     }
 }
 
@@ -141,10 +141,10 @@ private fun OneRowSnackbar(
     val actionTag = "action"
     Layout(
         {
-            Box(LayoutTag(textTag), children = text)
-            Box(LayoutTag(actionTag), children = action)
+            Box(Modifier.tag(textTag), children = text)
+            Box(Modifier.tag(actionTag), children = action)
         },
-        modifier = LayoutPadding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide)
+        modifier = Modifier.padding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide)
     ) { measurables, constraints, _ ->
         val buttonPlaceable = measurables.first { it.tag == actionTag }.measure(constraints)
         val textMaxWidth =

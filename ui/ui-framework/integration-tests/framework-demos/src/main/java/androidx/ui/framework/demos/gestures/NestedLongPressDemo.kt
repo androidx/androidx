@@ -24,8 +24,8 @@ import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.graphics.compositeOver
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
@@ -34,9 +34,9 @@ import androidx.ui.unit.dp
  */
 @Composable
 fun NestedLongPressDemo() {
-    LongPressableContainer(LayoutSize.Fill) {
-        LongPressableContainer(LayoutPadding(48.dp) + LayoutSize.Fill) {
-            LongPressableContainer(LayoutPadding(48.dp) + LayoutSize.Fill) {}
+    LongPressableContainer(Modifier.fillMaxSize()) {
+        LongPressableContainer(Modifier.padding(48.dp).fillMaxSize()) {
+            LongPressableContainer(Modifier.padding(48.dp).fillMaxSize()) {}
         }
     }
 }

@@ -17,6 +17,39 @@
 package androidx.ui.core
 
 /**
+ * Invoke [onPositioned] with the [LayoutCoordinates] of the element after positioning.
+ * Note that it will be called **after** a composition when the coordinates are finalized.
+ *
+ * Usage example:
+ * @sample androidx.ui.core.samples.OnPositionedSample
+ */
+// TODO inline me!
+fun Modifier.onPositioned(
+    onPositioned: (LayoutCoordinates) -> Unit
+) = this + object : OnPositionedModifier {
+    override fun onPositioned(coordinates: LayoutCoordinates) {
+        onPositioned(coordinates)
+    }
+}
+
+/**
+ * Invoke [onChildPositioned] with the [LayoutCoordinates] of each child element after each one
+ * is positioned.
+  * Note that it will be called **after** a composition when the coordinates are finalized.
+ *
+ * Usage example:
+ * @sample androidx.ui.core.samples.OnChildPositionedSample
+ */
+// TODO inline me!
+fun Modifier.onChildPositioned(
+    onChildPositioned: (LayoutCoordinates) -> Unit
+) = this + object : OnChildPositionedModifier {
+    override fun onChildPositioned(coordinates: LayoutCoordinates) {
+        onChildPositioned(coordinates)
+    }
+}
+
+/**
  * A modifier whose [onPositioned] is called with the final LayoutCoordinates of the Layout
  * after measuring.
  * Note that it will be called after a composition when the coordinates are finalized.
@@ -31,7 +64,7 @@ interface OnPositionedModifier : Modifier.Element {
      * The position in the modifier chain makes no difference in either
      * the [LayoutCoordinates] argument or when the [onPositioned] is called.
      */
-    val onPositioned: (LayoutCoordinates) -> Unit
+    fun onPositioned(coordinates: LayoutCoordinates)
 }
 
 /**
@@ -50,7 +83,7 @@ interface OnChildPositionedModifier : Modifier.Element {
      * the [LayoutCoordinates] argument or when the [onChildPositioned] is called.
      * The [onChildPositioned] will be called for each positioned child Layout.
      */
-    val onChildPositioned: (LayoutCoordinates) -> Unit
+    fun onChildPositioned(coordinates: LayoutCoordinates)
 }
 
 /**
@@ -61,8 +94,16 @@ interface OnChildPositionedModifier : Modifier.Element {
  * Usage example:
  * @sample androidx.ui.core.samples.OnPositionedSample
  */
+@Deprecated(
+    "use Modifier.onPositioned",
+    replaceWith = ReplaceWith(
+        "Modifier.onPositioned(onPositioned)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.onPositioned"
+    )
+)
 fun onPositioned(onPositioned: (LayoutCoordinates) -> Unit): Modifier =
-    SimpleOnPositionedModifier(onPositioned)
+    Modifier.onPositioned(onPositioned)
 
 /**
  * Returns a modifier whose [onChildPositioned] is called with the final LayoutCoordinates of the
@@ -72,13 +113,13 @@ fun onPositioned(onPositioned: (LayoutCoordinates) -> Unit): Modifier =
  * Usage example:
  * @sample androidx.ui.core.samples.OnChildPositionedSample
  */
+@Deprecated(
+    "use Modifier.onChildPositioned",
+    replaceWith = ReplaceWith(
+        "Modifier.onChildPositioned(onChildPositioned)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.onChildPositioned"
+    )
+)
 fun onChildPositioned(onChildPositioned: (LayoutCoordinates) -> Unit): Modifier =
-    SimpleOnChildPositionedModifier(onChildPositioned)
-
-private data class SimpleOnPositionedModifier(
-    override val onPositioned: (LayoutCoordinates) -> Unit
-) : OnPositionedModifier
-
-private data class SimpleOnChildPositionedModifier(
-    override val onChildPositioned: (LayoutCoordinates) -> Unit
-) : OnChildPositionedModifier
+    Modifier.onChildPositioned(onChildPositioned)

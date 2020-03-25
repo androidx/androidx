@@ -29,8 +29,8 @@ import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.gestures.scrollable
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
@@ -530,13 +530,13 @@ class ScrollableTest {
                     Semantics(container = true) {
                         Box(
                             gravity = ContentGravity.Center,
-                            modifier = LayoutSize(300.dp) + scrollable(
+                            modifier = Modifier.preferredSize(300.dp) + scrollable(
                                 scrollableState = outerState,
                                 dragDirection = DragDirection.Horizontal
                             )
                         ) {
                             Box(
-                                modifier = LayoutSize(300.dp) + scrollable(
+                                modifier = Modifier.preferredSize(300.dp) + scrollable(
                                     scrollableState = innerState,
                                     dragDirection = DragDirection.Horizontal
                                 )
@@ -574,7 +574,7 @@ class ScrollableTest {
                 val scrollable = scrollableModifierFactory()
                 TestTag(scrollableBoxTag) {
                     Semantics(container = true) {
-                        Box(modifier = LayoutSize(100.dp) + scrollable)
+                        Box(modifier = Modifier.preferredSize(100.dp) + scrollable)
                     }
                 }
             }

@@ -18,17 +18,18 @@ package androidx.ui.benchmark.test
 
 import androidx.compose.Composable
 import androidx.compose.MutableState
-import androidx.test.filters.LargeTest
 import androidx.compose.state
+import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkFirstCompose
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.unit.dp
-import androidx.ui.layout.Column
-import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.Column
+import androidx.ui.layout.preferredWidth
+import androidx.ui.test.ComposeTestCase
+import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -72,7 +73,7 @@ private sealed class TrailingLambdaTestCase() : ComposeTestCase,
         numberState = number
 
         val content = @Composable {
-            Box(LayoutWidth(10.dp))
+            Box(Modifier.preferredWidth(10.dp))
         }
 
         Column {

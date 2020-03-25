@@ -20,6 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.core.Popup
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
@@ -28,8 +29,8 @@ import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.PxPosition
@@ -54,7 +55,7 @@ fun PopupDragDemo() {
     Popup(alignment = Alignment.TopStart, offset = offset.value.round()) {
         Stack {
             Box(
-                RawDragGestureDetector(observer) + LayoutSize(70.dp),
+                RawDragGestureDetector(observer) + Modifier.preferredSize(70.dp),
                 shape = CircleShape,
                 backgroundColor = Color.Green,
                 gravity = ContentGravity.Center

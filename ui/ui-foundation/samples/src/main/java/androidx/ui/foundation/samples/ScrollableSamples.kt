@@ -19,14 +19,15 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.foundation.gestures.ScrollableState
+import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
@@ -47,7 +48,7 @@ fun ScrollableSample() {
     val scroll =
         scrollable(dragDirection = DragDirection.Vertical, scrollableState = scrollableState)
     Box(
-        LayoutSize(200.dp) + scroll,
+        Modifier.preferredSize(200.dp) + scroll,
         backgroundColor = Color.LightGray,
         gravity = ContentGravity.Center
     ) {

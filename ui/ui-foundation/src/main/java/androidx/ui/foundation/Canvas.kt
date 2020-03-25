@@ -18,10 +18,9 @@ package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.draw
+import androidx.ui.core.drawBehind
 import androidx.ui.graphics.Canvas
 import androidx.ui.layout.ColumnScope
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Spacer
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
@@ -57,8 +56,8 @@ private class CanvasScopeImpl(
 @Composable
 fun Canvas(modifier: Modifier, onCanvas: CanvasScope.() -> Unit) {
     Spacer(
-        modifier + draw(onDraw = { canvas, size ->
+        modifier.drawBehind { canvas, size ->
             CanvasScopeImpl(canvas, this, size).onCanvas()
-        })
+        }
     )
 }

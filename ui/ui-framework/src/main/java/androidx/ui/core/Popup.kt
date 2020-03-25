@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
@@ -28,6 +29,7 @@ import androidx.compose.Composition
 import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
+import androidx.compose.emptyContent
 import androidx.compose.escapeCompose
 import androidx.compose.onCommit
 import androidx.compose.onDispose
@@ -116,12 +118,10 @@ fun DropdownPopup(
     )
 }
 
-private val DefaultTestTag = "DEFAULT_TEST_TAG"
-
 // TODO(b/142431825): This is a hack to work around Popups not using Semantics for test tags
 //  We should either remove it, or come up with an abstracted general solution that isn't specific
 //  to Popup
-private val PopupTestTagAmbient = ambientOf { DefaultTestTag }
+private val PopupTestTagAmbient = ambientOf { "DEFAULT_TEST_TAG" }
 
 @Composable
 internal fun PopupTestTag(tag: String, children: @Composable() () -> Unit) {
@@ -159,7 +159,7 @@ private fun Popup(
     // TODO(soboleva): Look at module arrangement so that Box can be
     // used instead of this custom Layout
     // Get the parent's global position and size
-    Layout(children = {}, modifier = onPositioned { childCoordinates ->
+    Layout(children = emptyContent(), modifier = Modifier.onPositioned { childCoordinates ->
         val coordinates = childCoordinates.parentCoordinates!!
         // Get the global position of the parent
         val layoutPosition = coordinates.localToGlobal(PxPosition.Origin)
@@ -174,7 +174,7 @@ private fun Popup(
 
     onCommit {
         composition = popupLayout.setContent {
-            SimpleStack(onPositioned {
+            SimpleStack(Modifier.onPositioned {
                 // Get the size of the content
                 popupLayout.popupPositionProperties.childrenSize = it.size.toPxSize()
 
@@ -233,6 +233,7 @@ private inline fun SimpleStack(modifier: Modifier, noinline children: @Composabl
  * @param popupProperties Properties of the popup.
  * @param calculatePopupPosition The logic of positioning the popup relative to its parent.
  */
+@SuppressLint("ViewConstructor")
 private class PopupLayout(
     context: Context,
     val composeView: View,

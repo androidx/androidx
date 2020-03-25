@@ -17,6 +17,7 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.layout.Column
 import androidx.ui.layout.Spacer
 import androidx.ui.material.samples.SimpleBottomAppBar
@@ -26,7 +27,7 @@ import androidx.ui.material.samples.SimpleTopAppBar
 fun AppBarDemo() {
     Column {
         SimpleTopAppBar()
-        Spacer(LayoutWeight(1f))
+        Spacer(Modifier.weight(1f, true))
         SimpleBottomAppBar()
     }
 }

@@ -34,20 +34,47 @@ import androidx.ui.unit.Dp
  * @param clipToOutline When active, the content drawing clips to the outline.
  * @param opacity The opacity of the layer, including the shadow.
  */
+@Deprecated(
+    "Use Modifier.drawShadow",
+    replaceWith = ReplaceWith(
+        "Modifier.drawShadow(shape, elevation, clipToOutline, opacity)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.drawShadow"
+    )
+)
 @Composable
 fun drawShadow(
     shape: Shape,
     elevation: Dp,
     clipToOutline: Boolean = true,
     @FloatRange(from = 0.0, to = 1.0) opacity: Float = 1f
-): Modifier {
-    with(DensityAmbient.current) {
-        return drawLayer(
-            outlineShape = shape,
-            elevation = elevation.toPx().value,
-            clipToOutline = clipToOutline,
-            alpha = opacity,
-            clipToBounds = false
-        )
-    }
+) = Modifier.drawShadow(shape, elevation, clipToOutline, opacity)
+
+/**
+ * Creates a [DrawLayerModifier] that draws the shadow. The [elevation] defines the visual depth of
+ * the physical object. The physical object has a shape specified by [shape].
+ *
+ * Example usage:
+ *
+ * @sample androidx.ui.framework.samples.DrawShadowSample
+ *
+ * @param elevation The z-coordinate at which to place this physical object.
+ * @param shape Defines a shape of the physical object
+ * @param clipToOutline When active, the content drawing clips to the outline.
+ * @param opacity The opacity of the layer, including the shadow.
+ */
+@Composable
+fun Modifier.drawShadow(
+    shape: Shape,
+    elevation: Dp,
+    clipToOutline: Boolean = true,
+    @FloatRange(from = 0.0, to = 1.0) opacity: Float = 1f
+) = this + with(DensityAmbient.current) {
+    Modifier.drawLayer(
+        alpha = opacity,
+        elevation = elevation.toPx().value,
+        outlineShape = shape,
+        clipToBounds = false,
+        clipToOutline = clipToOutline
+    )
 }

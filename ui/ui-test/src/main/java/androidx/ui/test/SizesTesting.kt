@@ -17,16 +17,16 @@
 package androidx.ui.test
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
+import androidx.ui.core.onChildPositioned
+import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSizeIn
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.core.onChildPositioned
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
-import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Stack
-import androidx.ui.layout.Stack
 import androidx.ui.unit.round
 import androidx.ui.unit.toPxSize
 import kotlin.math.abs
@@ -54,11 +54,10 @@ fun ComposeTestRule.setContentAndGetPixelSize(
     performSetContent {
         Stack {
             Stack(
-                LayoutSize.Min(parentConstraints.minWidth, parentConstraints.minHeight) +
-                        LayoutSize.Max(parentConstraints.maxWidth, parentConstraints.maxHeight) +
-                        onChildPositioned { coordinates -> realSize = coordinates.size.toPxSize() }
+                Modifier.preferredSizeIn(parentConstraints)
+                    .onChildPositioned { coordinates -> realSize = coordinates.size.toPxSize() }
             ) {
-                    children()
+                children()
             }
         }
     }

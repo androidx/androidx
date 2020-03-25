@@ -19,7 +19,9 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
@@ -29,11 +31,10 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
@@ -76,7 +77,7 @@ class IsDisplayedTests {
     private fun createScrollableContent() {
         composeTestRule.setContent {
             val style = TextStyle(fontSize = 30.sp)
-            VerticalScroller(modifier = LayoutPadding(10.dp)) {
+            VerticalScroller(modifier = Modifier.padding(10.dp)) {
                 Column {
                     for (i in 1..100) {
                         Semantics(container = true) {
@@ -180,7 +181,8 @@ class IsDisplayedTests {
                             }
                         }
                     },
-                    modifier = LayoutGravity.Center) { measurables, constraints, _ ->
+                    modifier = Modifier.gravity(Alignment.Center)
+                ) { measurables, constraints, _ ->
                     val placeable =
                         measurables[0].measure(constraints.copy(maxWidth = IntPx.Infinity))
                     layout(placeable.width, placeable.height) {
@@ -236,7 +238,7 @@ class IsDisplayedTests {
 
         val drawRect = @Composable { color: Color ->
             Semantics(container = true) {
-                Canvas(LayoutSize(100.dp)) {
+                Canvas(Modifier.preferredSize(100.dp)) {
                     val paint = Paint()
                     paint.color = color
                     paint.style = PaintingStyle.fill

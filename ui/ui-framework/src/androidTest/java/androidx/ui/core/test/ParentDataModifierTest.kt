@@ -20,11 +20,12 @@ import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTag
 import androidx.ui.core.LayoutTagParentData
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.core.draw
+import androidx.ui.core.drawBehind
 import androidx.ui.core.setContent
+import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -89,7 +90,7 @@ class ParentDataModifierTest {
         runOnUiThread {
             activity.setContent {
                 Layout(
-                    modifier = LayoutTag("Hello"),
+                    modifier = Modifier.tag("Hello"),
                     children = {
                         SimpleDrawChild(drawLatch = drawLatch)
                     },
@@ -115,13 +116,13 @@ class ParentDataModifierTest {
             activity.setContent {
                 val header = @Composable {
                     Layout(
-                        modifier = LayoutTag(0),
+                        modifier = Modifier.tag(0),
                         children = emptyContent()
                     ) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
                 }
                 val footer = @Composable {
                     Layout(
-                        modifier = LayoutTag(1),
+                        modifier = Modifier.tag(1),
                         children = emptyContent()
                     ) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
                 }
@@ -148,7 +149,7 @@ class ParentDataModifierTest {
 
 @Composable
 fun SimpleDrawChild(drawLatch: CountDownLatch) {
-    AtLeastSize(size = 10.ipx, modifier = draw { canvas, size ->
+    AtLeastSize(size = 10.ipx, modifier = Modifier.drawBehind { canvas, size ->
         val paint = Paint()
         paint.color = Color(0xFF008000)
         canvas.drawRect(size.toRect(), paint)

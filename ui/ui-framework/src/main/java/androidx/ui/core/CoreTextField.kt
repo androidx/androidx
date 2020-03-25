@@ -157,52 +157,49 @@ fun CoreTextField(
                 }
             }
         ) {
-            val textDrawModifier = draw { canvas, _ ->
-                state.layoutResult?.let { layoutResult ->
-                    TextFieldDelegate.draw(
-                        canvas,
-                        value,
-                        offsetMap,
-                        layoutResult,
-                        state.hasFocus,
-                        DefaultSelectionColor
-                    )
-                }
-            }
             Layout(
-                modifier = modifier + textDrawModifier +
-                        onPositioned {
-                            if (textInputService != null) {
-                                state.layoutCoordinates = it
-                                state.layoutResult?.let { layoutResult ->
-                                    TextFieldDelegate.notifyFocusedRect(
-                                        value,
-                                        state.textDelegate,
-                                        layoutResult,
-                                        it,
-                                        textInputService,
-                                        state.inputSession,
-                                        state.hasFocus,
-                                        offsetMap
-                                    )
-                                }
-                            }
-                        },
-                children = emptyContent(),
-                measureBlock = { _, constraints, _ ->
-                    TextFieldDelegate.layout(
-                        state.textDelegate,
-                        constraints,
-                        state.layoutResult
-                    ).let { (width, height, result) ->
-                        if (state.layoutResult != result) {
-                            state.layoutResult = result
-                            onTextLayout(result)
+                emptyContent(),
+                modifier.drawBehind { canvas, _ ->
+                    state.layoutResult?.let { layoutResult ->
+                        TextFieldDelegate.draw(
+                            canvas,
+                            value,
+                            offsetMap,
+                            layoutResult,
+                            state.hasFocus,
+                            DefaultSelectionColor
+                        )
+                    }
+                }.onPositioned {
+                    if (textInputService != null) {
+                        state.layoutCoordinates = it
+                        state.layoutResult?.let { layoutResult ->
+                            TextFieldDelegate.notifyFocusedRect(
+                                value,
+                                state.textDelegate,
+                                layoutResult,
+                                it,
+                                textInputService,
+                                state.inputSession,
+                                state.hasFocus,
+                                offsetMap
+                            )
                         }
-                        layout(width, height) {}
                     }
                 }
-            )
+            ) { _, constraints, _ ->
+                TextFieldDelegate.layout(
+                    state.textDelegate,
+                    constraints,
+                    state.layoutResult
+                ).let { (width, height, result) ->
+                    if (state.layoutResult != result) {
+                        state.layoutResult = result
+                        onTextLayout(result)
+                    }
+                    layout(width, height) {}
+                }
+            }
         }
     }
 }

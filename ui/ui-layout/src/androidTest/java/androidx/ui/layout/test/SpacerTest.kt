@@ -17,13 +17,15 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.MediumTest
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -53,8 +55,9 @@ class SpacerTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         show {
             Container(constraints = bigConstraints) {
-                Spacer(LayoutSize(width = width, height = height) +
-                        onPositioned { position ->
+                Spacer(
+                    Modifier.preferredSize(width = width, height = height)
+                        .onPositioned { position: LayoutCoordinates ->
                             size = position.size
                             drawLatch.countDown()
                         }
@@ -86,8 +89,9 @@ class SpacerTest : LayoutTest() {
                         maxHeight = containerHeight
                     )
                 ) {
-                    Spacer(LayoutSize(width = width, height = height) +
-                            onPositioned { position ->
+                    Spacer(
+                        Modifier.preferredSize(width = width, height = height)
+                            .onPositioned { position: LayoutCoordinates ->
                                 size = position.size
                                 drawLatch.countDown()
                             }
@@ -111,7 +115,7 @@ class SpacerTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         show {
             Container(constraints = bigConstraints) {
-                Spacer(LayoutWidth(width) + onPositioned { position ->
+                Spacer(Modifier.preferredWidth(width).onPositioned { position: LayoutCoordinates ->
                     size = position.size
                     drawLatch.countDown()
                 })
@@ -141,10 +145,11 @@ class SpacerTest : LayoutTest() {
                         maxHeight = containerHeight
                     )
                 ) {
-                    Spacer(LayoutWidth(width) + onPositioned { position ->
-                        size = position.size
-                        drawLatch.countDown()
-                    })
+                    Spacer(Modifier.preferredWidth(width)
+                        .onPositioned { position: LayoutCoordinates ->
+                            size = position.size
+                            drawLatch.countDown()
+                        })
                 }
             }
         }
@@ -164,10 +169,11 @@ class SpacerTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         show {
             Container(constraints = bigConstraints) {
-                Spacer(LayoutHeight(height) + onPositioned { position ->
-                    size = position.size
-                    drawLatch.countDown()
-                })
+                Spacer(Modifier.preferredHeight(height)
+                    .onPositioned { position: LayoutCoordinates ->
+                        size = position.size
+                        drawLatch.countDown()
+                    })
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -194,10 +200,11 @@ class SpacerTest : LayoutTest() {
                         maxHeight = containerHeight
                     )
                 ) {
-                    Spacer(LayoutHeight(height) + onPositioned { position ->
-                        size = position.size
-                        drawLatch.countDown()
-                    })
+                    Spacer(Modifier.preferredHeight(height)
+                        .onPositioned { position: LayoutCoordinates ->
+                            size = position.size
+                            drawLatch.countDown()
+                        })
                 }
             }
         }

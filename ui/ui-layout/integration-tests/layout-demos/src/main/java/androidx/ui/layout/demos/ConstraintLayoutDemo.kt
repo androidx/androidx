@@ -17,7 +17,8 @@
 package androidx.ui.layout.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.LayoutTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.tag
 import androidx.ui.foundation.Text
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet
@@ -64,10 +65,10 @@ fun ConstraintLayoutDemo() {
         text5.top constrainTo barrier
         text5.centerHorizontally()
     }) {
-        Text(modifier = LayoutTag("text1"), text = "Text1", style = TextStyle(fontSize = 10.sp))
-        Text(modifier = LayoutTag("text2"), text = "Text2", style = TextStyle(fontSize = 12.sp))
-        Text(modifier = LayoutTag("text3"), text = "Text3", style = TextStyle(fontSize = 14.sp))
-        Text(modifier = LayoutTag("text4"), text = "Text4", style = TextStyle(fontSize = 16.sp))
-        Text(modifier = LayoutTag("text5"), text = "Text5", style = TextStyle(fontSize = 18.sp))
+        Text(modifier = Modifier.tag("text1"), text = "Text1", style = TextStyle(fontSize = 10.sp))
+        Text(modifier = Modifier.tag("text2"), text = "Text2", style = TextStyle(fontSize = 12.sp))
+        Text(modifier = Modifier.tag("text3"), text = "Text3", style = TextStyle(fontSize = 14.sp))
+        Text(modifier = Modifier.tag("text4"), text = "Text4", style = TextStyle(fontSize = 16.sp))
+        Text(modifier = Modifier.tag("text5"), text = "Text5", style = TextStyle(fontSize = 18.sp))
     }
 }

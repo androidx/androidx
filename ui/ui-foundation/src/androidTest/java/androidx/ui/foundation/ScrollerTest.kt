@@ -23,13 +23,14 @@ import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.GestureScope
 import androidx.ui.test.SemanticsNodeInteraction
@@ -442,12 +443,12 @@ class ScrollerTest {
                     TestTag(scrollerTag) {
                         VerticalScroller(
                             scrollerPosition = scrollerPosition,
-                            modifier = LayoutSize(width.toDp(), height.toDp())
+                            modifier = Modifier.preferredSize(width.toDp(), height.toDp())
                         ) {
                             Column {
                                 colors.forEach { color ->
                                     Box(
-                                        LayoutSize(width.toDp(), rowHeight.toDp()),
+                                        Modifier.preferredSize(width.toDp(), rowHeight.toDp()),
                                         backgroundColor = color
                                     )
                                 }
@@ -475,12 +476,12 @@ class ScrollerTest {
                     TestTag(scrollerTag) {
                         HorizontalScroller(
                             scrollerPosition = scrollerPosition,
-                            modifier = LayoutSize(width.toDp(), height.toDp())
+                            modifier = Modifier.preferredSize(width.toDp(), height.toDp())
                         ) {
                             Row {
                                 colors.forEach { color ->
                                     Box(
-                                        LayoutSize(columnWidth.toDp(), height.toDp()),
+                                        Modifier.preferredSize(columnWidth.toDp(), height.toDp()),
                                         backgroundColor = color
                                     )
                                 }
@@ -541,7 +542,7 @@ class ScrollerTest {
                 }
             }
             Stack {
-                Box(LayoutSize(width, height), backgroundColor = Color.White) {
+                Box(Modifier.preferredSize(width, height), backgroundColor = Color.White) {
                     TestTag(scrollerTag) {
                         Semantics(container = true) {
                             if (isVertical) {

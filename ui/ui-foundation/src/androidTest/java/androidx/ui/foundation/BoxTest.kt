@@ -20,16 +20,19 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutDirectionModifier
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.rtl
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -63,8 +66,8 @@ class BoxTest {
         val padding = 20.dp
         composeTestRule.setContent {
             SemanticsParent {
-                Box(LayoutSize(size), padding = padding) {
-                    Box(LayoutSize.Fill + onPositioned { childSize = it.size })
+                Box(Modifier.preferredSize(size), padding = padding) {
+                    Box(Modifier.fillMaxSize().onPositioned { childSize = it.size })
                 }
             }
         }
@@ -87,13 +90,13 @@ class BoxTest {
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
-                    LayoutSize(size),
+                    Modifier.preferredSize(size),
                     paddingStart = start,
                     paddingEnd = end,
                     paddingTop = top,
                     paddingBottom = bottom
                 ) {
-                    Box(LayoutSize.Fill + onPositioned {
+                    Box(Modifier.fillMaxSize().onPositioned {
                         childSize = it.size
                         childPosition = it.localToGlobal(PxPosition.Origin)
                     })
@@ -123,13 +126,13 @@ class BoxTest {
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
-                    LayoutSize(size) + LayoutDirectionModifier.Rtl,
+                    Modifier.preferredSize(size).rtl,
                     paddingStart = start,
                     paddingEnd = end,
                     paddingTop = top,
                     paddingBottom = bottom
                 ) {
-                    Box(LayoutSize.Fill + onPositioned {
+                    Box(Modifier.fillMaxSize().onPositioned {
                         childSize = it.size
                         childPosition = it.localToGlobal(PxPosition.Origin)
                     })
@@ -158,13 +161,13 @@ class BoxTest {
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
-                    LayoutSize(size),
+                    Modifier.preferredSize(size),
                     padding = padding,
                     paddingStart = left,
                     paddingTop = top,
                     paddingBottom = bottom
                 ) {
-                    Box(LayoutSize.Fill + onPositioned { childSize = it.size })
+                    Box(Modifier.fillMaxSize().onPositioned { childSize = it.size })
                 }
             }
         }
@@ -182,7 +185,7 @@ class BoxTest {
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
-                    LayoutSize(50.dp),
+                    Modifier.preferredSize(50.dp),
                     backgroundColor = Color.Red
                 )
             }
@@ -198,11 +201,11 @@ class BoxTest {
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
-                    LayoutSize(size),
+                    Modifier.preferredSize(size),
                     backgroundColor = Color.Red,
                     padding = padding
                 ) {
-                    Box(LayoutSize.Fill, backgroundColor = Color.Blue)
+                    Box(Modifier.fillMaxSize(), backgroundColor = Color.Blue)
                 }
             }
         }
@@ -226,11 +229,11 @@ class BoxTest {
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
-                    LayoutSize(size),
+                    Modifier.preferredSize(size),
                     backgroundColor = Color.Red,
                     padding = padding
                 ) {
-                    Box(LayoutSize.Fill, backgroundColor = Color.Blue, shape = CircleShape)
+                    Box(Modifier.fillMaxSize(), backgroundColor = Color.Blue, shape = CircleShape)
                 }
             }
         }
@@ -255,7 +258,7 @@ class BoxTest {
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
-                    LayoutSize(size),
+                    Modifier.preferredSize(size),
                     backgroundColor = Color.Blue,
                     border = Border(borderSize, Color.Red)
                 )
@@ -282,11 +285,11 @@ class BoxTest {
         composeTestRule.setContent {
             SemanticsParent {
                 Box(
-                    LayoutSize(size),
+                    Modifier.preferredSize(size),
                     backgroundColor = Color.Red
                 ) {
                     Box(
-                        LayoutSize.Fill,
+                        Modifier.fillMaxSize(),
                         backgroundColor = Color.Blue,
                         shape = CircleShape,
                         border = Border(borderSize, Color.Blue)
@@ -313,8 +316,8 @@ class BoxTest {
         val borderSize = 10.dp
         composeTestRule.setContent {
             SemanticsParent {
-                Box(LayoutSize(size), border = Border(borderSize, Color.Red)) {
-                    Box(LayoutSize.Fill + onPositioned { childSize = it.size })
+                Box(Modifier.preferredSize(size), border = Border(borderSize, Color.Red)) {
+                    Box(Modifier.fillMaxSize().onPositioned { childSize = it.size })
                 }
             }
         }
@@ -328,7 +331,7 @@ class BoxTest {
 
     @Composable
     private fun SemanticsParent(children: @Composable Density.() -> Unit) {
-        Stack(LayoutAlign.TopStart) {
+        Stack(Modifier.wrapContentSize(Alignment.TopStart)) {
             TestTag(contentTag) {
                 Semantics(container = true) {
                     DensityAmbient.current.children()

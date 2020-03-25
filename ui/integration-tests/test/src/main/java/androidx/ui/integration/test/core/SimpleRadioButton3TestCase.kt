@@ -18,11 +18,12 @@ package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.minDimension
 
@@ -33,7 +34,7 @@ class SimpleRadioButton3TestCase : BaseSimpleRadioButtonTestCase() {
         val innerSize = getInnerSize()
         val borderPaint = remember { Paint().apply { style = PaintingStyle.stroke } }
         val fillPaint = remember { Paint() }
-        Canvas(LayoutSize(48.dp)) {
+        Canvas(Modifier.preferredSize(48.dp)) {
             val center = Offset(size.width.value / 2f, size.height.value / 2f)
             drawCircle(center, size.minDimension.value, borderPaint)
             val innerRadius = innerSize.value.value / 2f

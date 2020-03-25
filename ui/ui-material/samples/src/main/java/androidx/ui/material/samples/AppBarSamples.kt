@@ -18,6 +18,7 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -61,7 +62,7 @@ fun SimpleBottomAppBar() {
             Icon(Icons.Filled.Menu)
         }
         // The actions should be at the end of the BottomAppBar
-        Spacer(LayoutWeight(1f))
+        Spacer(Modifier.weight(1f, true))
         IconButton(onClick = { /* doSomething() */ }) {
             Icon(Icons.Filled.Favorite)
         }

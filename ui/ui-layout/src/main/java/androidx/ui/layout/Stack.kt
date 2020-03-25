@@ -104,6 +104,13 @@ class StackScope {
      * size of the [Stack] and are positioned within the stack after its size is calculated to
      * wrap the non-stretch components.
      */
+    @Deprecated(
+        "Use Modifier.matchParent()",
+        replaceWith = ReplaceWith(
+            "Modifier.matchParent()",
+            "androidx.ui.core.Modifier"
+        )
+    )
     val LayoutGravity.Stretch: ParentDataModifier get() = StretchGravityModifier
 
     /**
@@ -113,6 +120,14 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
     */
+    @Deprecated(
+        "Use Modifier.gravity(Alignment.TopStart)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(Alignment.TopStart)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment"
+        )
+    )
     val LayoutGravity.TopStart: ParentDataModifier get() = TopStartGravityModifier
 
     /**
@@ -120,6 +135,14 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
+    @Deprecated(
+        "Use Modifier.gravity(Alignment.TopCenter)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(Alignment.TopCenter)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment"
+        )
+    )
     val LayoutGravity.TopCenter: ParentDataModifier get() = TopCenterGravityModifier
 
     /**
@@ -129,6 +152,14 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
+    @Deprecated(
+        "Use Modifier.gravity(Alignment.TopEnd)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(Alignment.TopEnd)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment"
+        )
+    )
     val LayoutGravity.TopEnd: ParentDataModifier get() = TopEndGravityModifier
 
     /**
@@ -138,6 +169,14 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
+    @Deprecated(
+        "Use Modifier.gravity(Alignment.CenterStart)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(Alignment.CenterStart)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment"
+        )
+    )
     val LayoutGravity.CenterStart: ParentDataModifier get() = CenterStartGravityModifier
 
     /**
@@ -145,6 +184,14 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
+    @Deprecated(
+        "Use Modifier.gravity(Alignment.Center)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(Alignment.Center)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment"
+        )
+    )
     val LayoutGravity.Center: ParentDataModifier get() = CenterGravityModifier
 
     /**
@@ -154,6 +201,14 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
+    @Deprecated(
+        "Use Modifier.gravity(Alignment.CenterEnd)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(Alignment.CenterEnd)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment"
+        )
+    )
     val LayoutGravity.CenterEnd: ParentDataModifier get() = CenterEndGravityModifier
 
     /**
@@ -163,6 +218,14 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
+    @Deprecated(
+        "Use Modifier.gravity(Alignment.BottomStart)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(Alignment.BottomStart)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment"
+        )
+    )
     val LayoutGravity.BottomStart: ParentDataModifier get() = BottomStartGravityModifier
 
     /**
@@ -171,6 +234,14 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
+    @Deprecated(
+        "Use Modifier.gravity(Alignment.BottomCenter)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(Alignment.BottomCenter)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment"
+        )
+    )
     val LayoutGravity.BottomCenter: ParentDataModifier get() = BottomCenterGravityModifier
 
     /**
@@ -180,7 +251,36 @@ class StackScope {
      * If the [Stack] wraps its content (by not being constrained to a min size by its own
      * parent), a child with this gravity option will contribute to the size of the [Stack].
      */
+    @Deprecated(
+        "Use Modifier.gravity(Alignment.BottomEnd)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(Alignment.BottomEnd)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment"
+        )
+    )
     val LayoutGravity.BottomEnd: ParentDataModifier get() = BottomEndGravityModifier
+
+    /**
+     * Pull the content element to a specific [Alignment] within the [Stack].
+     */
+    fun Modifier.gravity(align: Alignment) = this + when (align) {
+        Alignment.TopStart -> TopStartGravityModifier
+        Alignment.TopCenter -> TopCenterGravityModifier
+        Alignment.TopEnd -> TopEndGravityModifier
+        Alignment.CenterStart -> CenterStartGravityModifier
+        Alignment.Center -> CenterGravityModifier
+        Alignment.CenterEnd -> CenterEndGravityModifier
+        Alignment.BottomStart -> BottomStartGravityModifier
+        Alignment.BottomCenter -> BottomCenterGravityModifier
+        Alignment.BottomEnd -> BottomEndGravityModifier
+    }
+
+    /**
+     * Size the element to match the size of the [Stack] after all other content elements have
+     * been measured.
+     */
+    fun Modifier.matchParent() = this + StretchGravityModifier
 
     internal companion object {
         val TopStartGravityModifier: ParentDataModifier = StackGravityModifier(Alignment.TopStart)

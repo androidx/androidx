@@ -19,12 +19,13 @@ package androidx.ui.integration.test.material
 import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutAlign
 import androidx.ui.layout.Row
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
@@ -48,7 +49,9 @@ class CheckboxesInRowsTestCase(
                     repeat(amountOfCheckboxes) {
                         Row {
                             Text(text = "Check Me!")
-                            CheckboxWithState(LayoutWeight(1f) + LayoutAlign.CenterEnd)
+                            CheckboxWithState(
+                                Modifier.weight(1f).wrapContentSize(Alignment.CenterEnd)
+                            )
                         }
                     }
                 }

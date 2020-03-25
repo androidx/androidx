@@ -21,13 +21,14 @@ import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.DrawLayerModifier
+import androidx.ui.core.Modifier
 import androidx.ui.core.drawLayer
 import androidx.ui.foundation.Text
 
 @Sampled
 @Composable
 fun ChangeOpacity() {
-    Text("Hello World", drawLayer(alpha = 0.5f))
+    Text("Hello World", Modifier.drawLayer(alpha = 0.5f))
 }
 
 @Sampled

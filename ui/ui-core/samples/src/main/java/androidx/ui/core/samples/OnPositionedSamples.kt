@@ -18,6 +18,7 @@ package androidx.ui.core.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
@@ -25,13 +26,13 @@ import androidx.ui.core.positionInRoot
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
 @Sampled
 @Composable
 fun OnPositionedSample() {
-    Column(onPositioned { coordinates ->
+    Column(Modifier.onPositioned { coordinates ->
         // This will be the size of the Column.
         coordinates.size
         // The position of the Column relative to the application window.
@@ -43,15 +44,15 @@ fun OnPositionedSample() {
         // This will a LayoutCoordinates instance corresponding to the parent of Column.
         coordinates.parentCoordinates
     }) {
-        Box(LayoutSize(20.dp), backgroundColor = Color.Green)
-        Box(LayoutSize(20.dp), backgroundColor = Color.Blue)
+        Box(Modifier.preferredSize(20.dp), backgroundColor = Color.Green)
+        Box(Modifier.preferredSize(20.dp), backgroundColor = Color.Blue)
     }
 }
 
 @Sampled
 @Composable
 fun OnChildPositionedSample() {
-    Column(onChildPositioned { coordinates ->
+    Column(Modifier.onChildPositioned { coordinates ->
         // This will be the size of the child SizedRectangle.
         coordinates.size
         // The position of the SizedRectangle relative to the application window.
@@ -63,6 +64,6 @@ fun OnChildPositionedSample() {
         // This will a LayoutCoordinates instance corresponding to the Column.
         coordinates.parentCoordinates
     }) {
-        Box(LayoutSize(20.dp), backgroundColor = Color.Green)
+        Box(Modifier.preferredSize(20.dp), backgroundColor = Color.Green)
     }
 }

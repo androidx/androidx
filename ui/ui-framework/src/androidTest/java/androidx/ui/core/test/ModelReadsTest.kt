@@ -20,7 +20,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.draw
+import androidx.ui.core.drawBehind
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertFalse
@@ -56,7 +56,7 @@ class ModelReadsTest {
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                Layout({}, modifier = draw { _, _ ->
+                Layout({}, modifier = Modifier.drawBehind { _, _ ->
                     // read from the model
                     model.offset
                     drawLatch.countDown()
@@ -99,7 +99,7 @@ class ModelReadsTest {
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                Layout({}, modifier = draw { _, _ ->
+                Layout({}, modifier = Modifier.drawBehind { _, _ ->
                     // read from the model
                     drawModel.offset
                     drawLatch.countDown()
@@ -141,7 +141,7 @@ class ModelReadsTest {
         var drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                Layout({}, modifier = draw { _, _ ->
+                Layout({}, modifier = Modifier.drawBehind { _, _ ->
                     // read from the model
                     model.offset
                     drawLatch.countDown()
@@ -222,7 +222,7 @@ class ModelReadsTest {
         val model = ValueModel(0)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                AtLeastSize(10.ipx, modifier = draw { _, _ ->
+                AtLeastSize(10.ipx, modifier = Modifier.drawBehind { _, _ ->
                     if (enabled.value) {
                         // read the model
                         model.value
@@ -285,7 +285,7 @@ class ModelReadsTest {
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
                 val modifier = if (enabled.value) {
-                    draw { _, _ ->
+                    Modifier.drawBehind { _, _ ->
                         // read the model
                         model.value
                         latch.countDown()

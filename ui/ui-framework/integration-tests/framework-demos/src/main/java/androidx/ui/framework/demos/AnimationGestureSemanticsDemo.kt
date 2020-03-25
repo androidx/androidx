@@ -28,7 +28,7 @@ import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.min
 
@@ -197,7 +197,7 @@ private fun Animation(modifier: Modifier = Modifier.None, animationEndState: Com
     Transition(definition = transitionDefinition, toState = animationEndState) { state ->
         val color = state[colorKey]
         val sizeRatio = state[sizeKey]
-        Canvas(modifier = modifier + LayoutSize.Fill) {
+        Canvas(modifier = modifier.fillMaxSize()) {
             drawCircle(
                 center = Offset(size.width.value / 2, size.height.value / 2),
                 radius = min(size.height, size.width).value * sizeRatio / 2,
