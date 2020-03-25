@@ -16,6 +16,7 @@
 
 package androidx.mediarouter.media;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
@@ -38,6 +39,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
+import android.util.ArraySet;
 import android.util.Log;
 import android.view.Display;
 
@@ -649,6 +651,7 @@ public final class MediaRouter {
         }
         if (updateNeeded) {
             sGlobal.updateDiscoveryRequest();
+            sGlobal.updateMR2RouteDiscoveryPreferenceFwk();
         }
     }
 
@@ -673,7 +676,27 @@ public final class MediaRouter {
         if (index >= 0) {
             mCallbackRecords.remove(index);
             sGlobal.updateDiscoveryRequest();
+            sGlobal.updateMR2RouteDiscoveryPreferenceFwk();
         }
+    }
+
+    /**
+     * Enables the MediaRouter receiving events about media routing changes from the system.
+     * From Android R, a user can change the media routing via system UI. This method will be
+     * no-op on earlier Android versions.
+     * <p>
+     * Note: Once enabled, it cannot be disabled for the same process.
+     *
+     * @see #addCallback(MediaRouteSelector, Callback, int)
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public void enableTransfer() {
+        if (!BuildCompat.isAtLeastR()) {
+            // Transfer cannot be enabled on devices running earlier than Android R
+            return;
+        }
+        sGlobal.enableTransfer();
     }
 
     private int findCallbackRecord(Callback callback) {
@@ -2138,6 +2161,7 @@ public final class MediaRouter {
         // selected route group.
         private final Map<String, RouteController> mRouteControllerMap = new HashMap<>();
         private MediaRouteDiscoveryRequest mDiscoveryRequest;
+        private boolean mIsTransferEnabled;
         private MediaSessionRecord mMediaSession;
         MediaSessionCompat mRccMediaSession;
         private MediaSessionCompat mCompatSession;
@@ -2377,6 +2401,15 @@ public final class MediaRouter {
             return false;
         }
 
+        void enableTransfer() {
+            if (mIsTransferEnabled) {
+                Log.w(TAG, "Transfer is already enabled.");
+                return;
+            }
+            mIsTransferEnabled = true;
+            updateMR2RouteDiscoveryPreferenceFwk();
+        }
+
         public void updateDiscoveryRequest() {
             // Combine all of the callback selectors and active scan flags.
             boolean discover = false;
@@ -2439,16 +2472,38 @@ public final class MediaRouter {
             for (int i = 0; i < providerCount; i++) {
                 mProviders.get(i).mProviderInstance.setDiscoveryRequest(mDiscoveryRequest);
             }
+        }
 
-            if (BuildCompat.isAtLeastR()) {
-                if (mDiscoveryRequest != null) {
-                    RouteDiscoveryPreference preference = new RouteDiscoveryPreference.Builder(
-                            selector.getControlCategories(), activeScan).build();
-                    mMediaRouter2Fwk.registerRouteCallback(
-                            mMr2CbExecutor, mMr2RouteCallbackFwk, preference);
+        void updateMR2RouteDiscoveryPreferenceFwk() {
+            if (!BuildCompat.isAtLeastR() || !mIsTransferEnabled) {
+                return;
+            }
+
+            boolean callbackExists = false;
+            Set<String> controlCategories = new ArraySet<>();
+            for (int i = mRouters.size(); --i >= 0; ) {
+                MediaRouter router = mRouters.get(i).get();
+                if (router == null) {
+                    mRouters.remove(i);
                 } else {
-                    mMediaRouter2Fwk.unregisterRouteCallback(mMr2RouteCallbackFwk);
+                    final int count = router.mCallbackRecords.size();
+                    if (count > 0) {
+                        callbackExists = true;
+                    }
+                    for (int j = 0; j < count; j++) {
+                        CallbackRecord callback = router.mCallbackRecords.get(j);
+                        controlCategories.addAll(callback.mSelector.getControlCategories());
+                    }
                 }
+            }
+
+            if (callbackExists) {
+                RouteDiscoveryPreference preference = new RouteDiscoveryPreference.Builder(
+                        new ArrayList<>(controlCategories), /* activeScan= */ false).build();
+                mMediaRouter2Fwk.registerRouteCallback(
+                        mMr2CbExecutor, mMr2RouteCallbackFwk, preference);
+            } else {
+                mMediaRouter2Fwk.unregisterRouteCallback(mMr2RouteCallbackFwk);
             }
         }
 
