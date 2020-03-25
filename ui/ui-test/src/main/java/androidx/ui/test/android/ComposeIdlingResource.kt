@@ -20,6 +20,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.Recomposer
 import androidx.compose.frames.currentFrame
+import androidx.compose.frames.inFrame
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.ui.test.TestAnimationClock
@@ -70,7 +71,7 @@ internal object ComposeIdlingResource : IdlingResource {
      */
     fun isIdle(): Boolean {
         return handler.runAndAwait {
-            !currentFrame().hasPendingChanges() &&
+            !(inFrame && currentFrame().hasPendingChanges()) &&
                     !Recomposer.hasPendingChanges() &&
                     areAllClocksIdle()
         }
