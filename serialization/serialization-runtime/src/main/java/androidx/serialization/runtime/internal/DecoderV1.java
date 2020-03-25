@@ -19,7 +19,6 @@ package androidx.serialization.runtime.internal;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.nio.ByteBuffer;
 import java.util.Collection;
 
 /**
@@ -167,15 +166,6 @@ public interface DecoderV1 {
     byte[] decodeByteArray();
 
     /**
-     * Decode a binary field.
-     *
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return Binary field value.
-     */
-    @NonNull
-    ByteBuffer decodeByteBuffer();
-
-    /**
      * Decode a repeated binary field.
      *
      * @param mergeFrom An optional collection to concatenate.
@@ -186,21 +176,6 @@ public interface DecoderV1 {
      */
     @NonNull
     <C extends Collection<byte[]>> C decodeByteArrayCollection(
-            @Nullable C mergeFrom,
-            @NonNull CollectionFactory<C> factory
-    );
-
-    /**
-     * Decode a repeated binary field.
-     *
-     * @param mergeFrom An optional collection to concatenate.
-     * @param factory   Factory for instantiating the collection.
-     * @param <C>       The collection class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A collection of binary field values.
-     */
-    @NonNull
-    <C extends Collection<ByteBuffer>> C decodeByteBufferCollection(
             @Nullable C mergeFrom,
             @NonNull CollectionFactory<C> factory
     );
