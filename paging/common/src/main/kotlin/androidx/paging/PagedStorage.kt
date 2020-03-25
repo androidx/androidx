@@ -172,7 +172,7 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
             page.data[pageInternalIndex]
         }
 
-    fun getRefreshKeyInfo(initialLoadSize: Int): PagingState<*, T>? {
+    fun getRefreshKeyInfo(@Suppress("DEPRECATION") config: PagedList.Config): PagingState<*, T>? {
         if (pages.isEmpty()) {
             return null
         }
@@ -181,7 +181,13 @@ internal class PagedStorage<T : Any> : AbstractList<T>, LegacyPager.KeyProvider<
         return PagingState(
             pages = pages.toList() as List<Page<Any, T>>,
             anchorPosition = lastLoadAroundIndex,
-            initialLoadSize = initialLoadSize,
+            config = PagingConfig(
+                config.pageSize,
+                config.prefetchDistance,
+                config.enablePlaceholders,
+                config.initialLoadSizeHint,
+                config.maxSize
+            ),
             placeholdersStart = placeholdersStart
         )
     }

@@ -36,7 +36,7 @@ class PagingState<Key : Any, Value : Any> internal constructor(
     /**
      * The initial load size set in [PagingConfig.initialLoadSize].
      */
-    val initialLoadSize: Int,
+    val config: PagingConfig,
     private val placeholdersStart: Int
 ) {
     init {
