@@ -24,32 +24,31 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class AutoSaverTest {
+class ListSaverTest {
 
     @Test
-    fun simpleSave() {
-        val saver = autoSaver<Int>()
-
-        with(saver) {
-            assertThat(allowingScope.save(2))
-                .isEqualTo(2)
+    fun simpleSaveAndRestore() {
+        val original = Size(2, 3)
+        val saved = with(SizeSaver) {
+            allowingScope.save(original)
         }
+
+        assertThat(saved).isNotNull()
+        assertThat(SizeSaver.restore(saved!!))
+            .isEqualTo(original)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun exceptionWhenCantBeSaved() {
-        val saver = autoSaver<Int>()
-
-        with(saver) {
-            disallowingScope.save(2)
+    fun exceptionWhenAllItemsCantBeSaved() {
+        with(SizeSaver) {
+            disallowingScope.save(Size(2, 3))
         }
     }
 }
 
-val allowingScope = object : SaverScope {
-    override fun canBeSaved(value: Any) = true
-}
+private data class Size(val x: Int, val y: Int)
 
-val disallowingScope = object : SaverScope {
-    override fun canBeSaved(value: Any) = false
-}
+private val SizeSaver = listSaver<Size, Int>(
+    save = { listOf(it.x, it.y) },
+    restore = { Size(it[0], it[1]) }
+)
