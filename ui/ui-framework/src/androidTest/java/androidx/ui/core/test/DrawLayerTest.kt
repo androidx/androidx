@@ -159,6 +159,29 @@ class DrawLayerTest {
     }
 
     @Test
+    fun testTranslationXY() {
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                Padding(10.ipx) {
+                    FixedSize(10.ipx,
+                        drawLayer(
+                            translationX = 5.0f,
+                            translationY = 8.0f
+                        ) + positioner
+                    )
+                }
+            }
+        }
+
+        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        activity.runOnUiThread {
+            val bounds = layoutCoordinates.boundsInRoot
+            assertEquals(PxBounds(15.px, 18.px, 25.px, 28.px), bounds)
+            assertEquals(PxPosition(15.px, 18.px), layoutCoordinates.positionInRoot)
+        }
+    }
+
+    @Test
     fun testClip() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {

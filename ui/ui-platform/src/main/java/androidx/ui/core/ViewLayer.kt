@@ -67,6 +67,8 @@ internal class ViewLayer(
         this.scaleX = drawLayerModifier.scaleX
         this.scaleY = drawLayerModifier.scaleY
         this.alpha = drawLayerModifier.alpha
+        this.translationX = drawLayerModifier.translationX
+        this.translationY = drawLayerModifier.translationY
         this.elevation = drawLayerModifier.elevation
         this.rotation = drawLayerModifier.rotationZ
         this.rotationX = drawLayerModifier.rotationX
