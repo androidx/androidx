@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import androidx.core.graphics.Insets;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -134,5 +135,19 @@ public class WindowInsetsCompatTest {
                 .build();
 
         assertNotNull(result);
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 19)
+    public void consumed_exists() {
+        assertNotNull(WindowInsetsCompat.CONSUMED);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 20)
+    public void consumed_exists_api20() {
+        assertNotNull(WindowInsetsCompat.CONSUMED);
+        assertNotNull(WindowInsetsCompat.CONSUMED.toWindowInsets());
+        assertTrue(WindowInsetsCompat.CONSUMED.isConsumed());
     }
 }

@@ -2119,7 +2119,7 @@ package androidx.core.view {
     method public static void cancelDragAndDrop(android.view.View);
     method @Deprecated public static int combineMeasuredStates(int, int);
     method public static androidx.core.view.WindowInsetsCompat computeSystemWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat, android.graphics.Rect);
-    method public static androidx.core.view.WindowInsetsCompat! dispatchApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat!);
+    method public static androidx.core.view.WindowInsetsCompat dispatchApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat);
     method public static void dispatchFinishTemporaryDetach(android.view.View);
     method public static boolean dispatchNestedFling(android.view.View, float, float, boolean);
     method public static boolean dispatchNestedPreFling(android.view.View, float, float);
@@ -2201,7 +2201,7 @@ package androidx.core.view {
     method public static android.view.View! keyboardNavigationClusterSearch(android.view.View, android.view.View!, int);
     method public static void offsetLeftAndRight(android.view.View, int);
     method public static void offsetTopAndBottom(android.view.View, int);
-    method public static androidx.core.view.WindowInsetsCompat! onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat!);
+    method public static androidx.core.view.WindowInsetsCompat onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat);
     method @Deprecated public static void onInitializeAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
     method public static void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat!);
     method @Deprecated public static void onPopulateAccessibilityEvent(android.view.View!, android.view.accessibility.AccessibilityEvent!);
@@ -2243,7 +2243,7 @@ package androidx.core.view {
     method public static void setLayoutDirection(android.view.View, int);
     method public static void setNestedScrollingEnabled(android.view.View, boolean);
     method public static void setNextClusterForwardId(android.view.View, int);
-    method public static void setOnApplyWindowInsetsListener(android.view.View, androidx.core.view.OnApplyWindowInsetsListener!);
+    method public static void setOnApplyWindowInsetsListener(android.view.View, androidx.core.view.OnApplyWindowInsetsListener?);
     method @Deprecated public static void setOverScrollMode(android.view.View!, int);
     method public static void setPaddingRelative(android.view.View, @Px int, @Px int, @Px int, @Px int);
     method @Deprecated public static void setPivotX(android.view.View!, float);
@@ -2443,7 +2443,7 @@ package androidx.core.view {
     method public boolean isRound();
     method @Deprecated public androidx.core.view.WindowInsetsCompat replaceSystemWindowInsets(int, int, int, int);
     method @Deprecated public androidx.core.view.WindowInsetsCompat replaceSystemWindowInsets(android.graphics.Rect);
-    method @RequiresApi(20) public android.view.WindowInsets toWindowInsets();
+    method @RequiresApi(20) public android.view.WindowInsets? toWindowInsets();
     method @RequiresApi(20) public static androidx.core.view.WindowInsetsCompat toWindowInsetsCompat(android.view.WindowInsets);
   }
 
