@@ -17,9 +17,10 @@
 package androidx.ui.core.focus
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.FocusNode
+import androidx.ui.core.InnerPlaceable
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.LayoutNode
-import androidx.ui.core.PointerInputNode
+import androidx.ui.core.ModifiedLayoutNode
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +33,9 @@ class FindParentFocusNodeTest {
     @Test
     fun noParentReturnsNull() {
         // Arrange.
-        val focusNode = FocusNode()
+        val layoutNode = LayoutNode()
+        val focusNode = ModifiedFocusNode(InnerPlaceable(layoutNode))
+        layoutNode.layoutNodeWrapper = focusNode
 
         // Act.
         val parentFousNode = focusNode.findParentFocusNode()
@@ -42,27 +45,84 @@ class FindParentFocusNodeTest {
     }
 
     @Test
-    fun returnsParent() {
+    fun returnsImmediateParentFromModifierChain() {
         // Arrange.
-        val focusNode = FocusNode()
-        val parentFocusNode = FocusNode()
-        parentFocusNode.insertAt(0, focusNode)
+        // focusNode1--focusNode2--focusNode3--focusNode4--focusNode5
+        val focusNode5 = ModifiedFocusNode(InnerPlaceable(LayoutNode()))
+        val focusNode4 = ModifiedFocusNode(focusNode5)
+        val focusNode3 = ModifiedFocusNode(focusNode4)
+        val focusNode2 = ModifiedFocusNode(focusNode3)
+        val focusNode1 = ModifiedFocusNode(focusNode2)
+
+        // Act.
+        val parent = focusNode3.findParentFocusNode()
+
+        // Assert.
+        assertThat(parent).isEqualTo(focusNode2)
+    }
+
+    @Test
+    fun returnsImmediateParentFromModifierChain_ignoresNonFocusModifiers() {
+        // Arrange.
+        // focusNode1--focusNode2--nonFocusNode--focusNode3
+        val focusNode3 = ModifiedFocusNode(InnerPlaceable(LayoutNode()))
+        val nonFocusNode = ModifiedLayoutNode(focusNode3, LayoutModifierTestImpl())
+        val focusNode2 = ModifiedFocusNode(nonFocusNode)
+        val focusNode1 = ModifiedFocusNode(focusNode2)
+
+        // Act.
+        val parent = focusNode3.findParentFocusNode()
+
+        // Assert.
+        assertThat(parent).isEqualTo(focusNode2)
+    }
+
+    @Test
+    fun returnsLastFocusParentFromParentLayoutNode() {
+        // Arrange.
+        // parentLayoutNode--parentFocusNode1--parentFocusNode2
+        //       |
+        // layoutNode--focusNode
+        val parentLayoutNode = LayoutNode()
+        val parentFocusNode2 = ModifiedFocusNode(InnerPlaceable(parentLayoutNode))
+        val parentFocusNode1 = ModifiedFocusNode(parentFocusNode2)
+        parentLayoutNode.layoutNodeWrapper = parentFocusNode1
+
+        val layoutNode = LayoutNode()
+        val focusNode = ModifiedFocusNode(InnerPlaceable(layoutNode))
+        layoutNode.layoutNodeWrapper = focusNode
+
+        parentLayoutNode.insertAt(0, layoutNode)
 
         // Act.
         val parent = focusNode.findParentFocusNode()
 
         // Assert.
-        assertThat(parent).isEqualTo(parentFocusNode)
+        assertThat(parent).isEqualTo(parentFocusNode2)
     }
 
     @Test
     fun returnsImmediateParent() {
         // Arrange.
-        val focusNode = FocusNode()
-        val parentFocusNode = FocusNode()
-        val grandparentFocusNode = FocusNode()
-        grandparentFocusNode.insertAt(0, parentFocusNode)
-        parentFocusNode.insertAt(0, focusNode)
+        // grandparentLayoutNode--grandparentFocusNode
+        //       |
+        // parentLayoutNode--parentFocusNode
+        //       |
+        // layoutNode--focusNode
+        val grandparentLayoutNode = LayoutNode()
+        val grandparentFocusNode = ModifiedFocusNode(InnerPlaceable(grandparentLayoutNode))
+        grandparentLayoutNode.layoutNodeWrapper = grandparentFocusNode
+
+        val parentLayoutNode = LayoutNode()
+        val parentFocusNode = ModifiedFocusNode(InnerPlaceable(parentLayoutNode))
+        parentLayoutNode.layoutNodeWrapper = parentFocusNode
+
+        val layoutNode = LayoutNode()
+        val focusNode = ModifiedFocusNode(InnerPlaceable(layoutNode))
+        layoutNode.layoutNodeWrapper = focusNode
+
+        parentLayoutNode.insertAt(0, layoutNode)
+        grandparentLayoutNode.insertAt(0, parentLayoutNode)
 
         // Act.
         val parent = focusNode.findParentFocusNode()
@@ -72,20 +132,32 @@ class FindParentFocusNodeTest {
     }
 
     @Test
-    fun ignoresIntermediateComponentNodes() {
+    fun ignoresIntermediateLayoutNodesThatDontHaveFocusNodes() {
         // Arrange.
-        val focusNode = FocusNode()
-        val intermediatePointerInputNode = PointerInputNode()
-        val intermediateLayoutNode = LayoutNode()
-        val parentFocusNode = FocusNode()
-        parentFocusNode.insertAt(0, intermediatePointerInputNode)
-        intermediatePointerInputNode.insertAt(0, intermediateLayoutNode)
-        intermediateLayoutNode.insertAt(0, focusNode)
+        // grandparentLayoutNode--grandparentFocusNode
+        //       |
+        // parentLayoutNode
+        //       |
+        // layoutNode--focusNode
+        val grandparentLayoutNode = LayoutNode()
+        val grandparentFocusNode = ModifiedFocusNode(InnerPlaceable(grandparentLayoutNode))
+        grandparentLayoutNode.layoutNodeWrapper = grandparentFocusNode
+
+        val parentLayoutNode = LayoutNode()
+
+        val layoutNode = LayoutNode()
+        val focusNode = ModifiedFocusNode(InnerPlaceable(layoutNode))
+        layoutNode.layoutNodeWrapper = focusNode
+
+        parentLayoutNode.insertAt(0, layoutNode)
+        grandparentLayoutNode.insertAt(0, parentLayoutNode)
 
         // Act.
         val parent = focusNode.findParentFocusNode()
 
         // Assert.
-        assertThat(parent).isEqualTo(parentFocusNode)
+        assertThat(parent).isEqualTo(grandparentFocusNode)
     }
+
+    private class LayoutModifierTestImpl : LayoutModifier
 }

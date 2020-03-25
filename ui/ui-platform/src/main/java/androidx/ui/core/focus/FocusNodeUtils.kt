@@ -17,6 +17,7 @@
 package androidx.ui.core.focus
 
 import androidx.ui.core.FocusNode
+import androidx.ui.core.LayoutNode
 
 /**
  * Find the first ancestor that is a [FocusNode].
@@ -45,19 +46,11 @@ internal fun FocusNode.requestFocusForOwner() {
     // TODO(b/144893832): Ask the owner to request focus.
 }
 
-/**
- * Find the first ancestor that is a [ModifiedFocusNode].
- */
-internal fun ModifiedFocusNode.findParentFocusNode(): ModifiedFocusNode? {
-    TODO()
-}
-
-internal fun ModifiedFocusNode.ownerHasFocus(): Boolean {
-    TODO()
-}
-
-internal fun ModifiedFocusNode.requestFocusForOwner() {
-    TODO()
+internal fun LayoutNode.focusableChildren(): List<ModifiedFocusNode> {
+    val focusableChildren = mutableListOf<ModifiedFocusNode>()
+    layoutNodeWrapper.findFocusWrapperWrappingThisWrapper()?.let { focusableChildren.add(it) }
+        ?: layoutChildren.forEach { layout -> focusableChildren.addAll(layout.focusableChildren()) }
+    return focusableChildren
 }
 
 /**
@@ -65,6 +58,8 @@ internal fun ModifiedFocusNode.requestFocusForOwner() {
  * the node.
  *
  * Note: This function acts only on the root node. It is a no-op for other nodes.
+ *
+ * TODO(b/151765386): Delete this function after converting focus to a Modifier.
  */
 fun FocusNode.initializeFocusState() {
     if (findParentFocusNode() == null && ownerHasFocus()) {
