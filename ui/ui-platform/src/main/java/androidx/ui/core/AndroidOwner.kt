@@ -31,6 +31,7 @@ import android.view.ViewStructure
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.annotation.RestrictTo
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -62,12 +63,15 @@ import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.util.trace
+import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.Method
 
 /***
  * This function creates an instance of [AndroidOwner]
  */
-fun createOwner(context: Context): AndroidOwner = AndroidComposeView(context)
+fun createOwner(context: Context): AndroidOwner = AndroidComposeView(context).also {
+    AndroidOwner.onAndroidOwnerCreatedCallback?.invoke(it)
+}
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 internal class AndroidComposeView constructor(context: Context) :
@@ -819,6 +823,19 @@ interface AndroidOwner : Owner {
      * from the hierarchy.
      */
     fun removeAndroidView(view: View)
+
+    /** @suppress */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    companion object {
+        /**
+         * Called after an [AndroidOwner] is created. Used by AndroidComposeTestRule to keep
+         * track of all attached [AndroidComposeView]s. Not to be set or used by any other
+         * component.
+         */
+        var onAndroidOwnerCreatedCallback: ((AndroidOwner) -> Unit)? = null
+            @TestOnly
+            set
+    }
 }
 
 private class ConstraintRange(val min: IntPx, val max: IntPx)

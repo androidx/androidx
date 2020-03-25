@@ -23,12 +23,14 @@ import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.SparseArray
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
+import androidx.ui.core.AndroidOwner
 import androidx.ui.core.setContent
 import androidx.ui.geometry.Rect
 import androidx.ui.test.AnimationClockTestRule
@@ -83,10 +85,9 @@ class AndroidComposeTestRule<T : Activity>(
         activityTestRule.activity.resources.displayMetrics
 
     override fun apply(base: Statement, description: Description?): Statement {
-        return clockTestRule.apply(
-            activityTestRule.apply(AndroidComposeStatement(base), description),
-            description
-        )
+        val activityTestRuleStatement = activityTestRule.apply(base, description)
+        val composeTestRuleStatement = AndroidComposeStatement(activityTestRuleStatement)
+        return clockTestRule.apply(composeTestRuleStatement, description)
     }
 
     override fun <T> runOnUiThread(action: () -> T): T {
@@ -171,16 +172,22 @@ class AndroidComposeTestRule<T : Activity>(
         return captureRegionToBitmap(screenRect, handler, activityTestRule.activity.window)
     }
 
+    private fun onAndroidOwnerCreated(owner: AndroidOwner) {
+        owner.view.addOnAttachStateChangeListener(OwnerAttachedListener(owner))
+    }
+
     inner class AndroidComposeStatement(
         private val base: Statement
     ) : Statement() {
         override fun evaluate() {
             transitionsEnabled = !disableTransitions
-            ComposeIdlingResource.registerSelfIntoEspresso()
+            AndroidOwner.onAndroidOwnerCreatedCallback = ::onAndroidOwnerCreated
+            registerComposeWithEspresso()
             try {
                 base.evaluate()
             } finally {
                 transitionsEnabled = true
+                AndroidOwner.onAndroidOwnerCreatedCallback = null
                 // Dispose the content
                 if (disposeContentHook != null) {
                     runOnUiThread {
@@ -199,6 +206,22 @@ class AndroidComposeTestRule<T : Activity>(
                     }
                 }
             }
+        }
+    }
+
+    private class OwnerAttachedListener(
+        private val owner: AndroidOwner
+    ) : View.OnAttachStateChangeListener {
+
+        // Note: owner.view === view, because the owner _is_ the view,
+        // and this listener is only referenced from within the view.
+
+        override fun onViewAttachedToWindow(view: View) {
+            AndroidOwnerRegistry.registerOwner(owner)
+        }
+
+        override fun onViewDetachedFromWindow(view: View) {
+            AndroidOwnerRegistry.unregisterOwner(owner)
         }
     }
 }
