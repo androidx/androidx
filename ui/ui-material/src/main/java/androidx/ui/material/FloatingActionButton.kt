@@ -27,7 +27,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.ui.foundation.shape.corner.CornerSize
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.Row
@@ -36,6 +36,7 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.ripple.ripple
+import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -65,26 +66,30 @@ import androidx.ui.unit.max
 fun FloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
-    shape: Shape = CircleShape,
+    shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp,
     children: @Composable() () -> Unit
 ) {
-    Surface(
-        modifier = modifier,
-        shape = shape,
-        color = backgroundColor,
-        contentColor = contentColor,
-        elevation = elevation
-    ) {
-        Clickable(onClick, modifier = Modifier.ripple()) {
-            ProvideTextStyle(MaterialTheme.typography.button) {
-                Box(
-                    modifier = MinimumFabSizeModifier,
-                    gravity = ContentGravity.Center,
-                    children = children
-                )
+    // Since we're adding layouts in between the clickable layer and the content, we need to
+    // merge all descendants, or we'll get multiple nodes
+    Semantics(container = true, mergeAllDescendants = true) {
+        Surface(
+            modifier = modifier,
+            shape = shape,
+            color = backgroundColor,
+            contentColor = contentColor,
+            elevation = elevation
+        ) {
+            Clickable(onClick, modifier = Modifier.ripple()) {
+                ProvideTextStyle(MaterialTheme.typography.button) {
+                    Box(
+                        modifier = MinimumFabSizeModifier,
+                        gravity = ContentGravity.Center,
+                        children = children
+                    )
+                }
             }
         }
     }
@@ -117,7 +122,7 @@ fun ExtendedFloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
     icon: @Composable() (() -> Unit)? = null,
-    shape: Shape = CircleShape,
+    shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp

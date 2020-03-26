@@ -7,8 +7,8 @@ package androidx.ui.material {
   }
 
   public final class AlertDialogKt {
-    method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = null, androidx.ui.material.AlertDialogButtonLayout buttonLayout = androidx.ui.material.AlertDialogButtonLayout.SideBySide);
-    method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> buttons);
+    method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = null, androidx.ui.material.AlertDialogButtonLayout buttonLayout = androidx.ui.material.AlertDialogButtonLayout.SideBySide, androidx.ui.graphics.Shape shape = medium);
+    method public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> buttons, androidx.ui.graphics.Shape shape = medium);
   }
 
   public final class AppBarKt {
@@ -43,13 +43,13 @@ package androidx.ui.material {
   }
 
   public final class ButtonKt {
-    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 2.dp, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = null, androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors.primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.layout.EdgeInsets innerPadding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static inline void OutlinedButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 0.dp, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = Border(1.dp, MaterialTheme.colors.onSurface.copy(OutlinedStrokeOpacity)), androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors.surface, androidx.ui.graphics.Color contentColor = MaterialTheme.colors.primary, androidx.ui.layout.EdgeInsets innerPadding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static inline void TextButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 0.dp, androidx.ui.graphics.Shape shape = button, androidx.ui.foundation.Border? border = null, androidx.ui.graphics.Color backgroundColor = Color.Transparent, androidx.ui.graphics.Color contentColor = MaterialTheme.colors.primary, androidx.ui.layout.EdgeInsets innerPadding = TextButton.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 2.dp, androidx.ui.graphics.Shape shape = small, androidx.ui.foundation.Border? border = null, androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors.primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.layout.EdgeInsets innerPadding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static inline void OutlinedButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.ui.foundation.Border? border = Border(1.dp, MaterialTheme.colors.onSurface.copy(OutlinedStrokeOpacity)), androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors.surface, androidx.ui.graphics.Color contentColor = MaterialTheme.colors.primary, androidx.ui.layout.EdgeInsets innerPadding = Button.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static inline void TextButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, boolean enabled = true, androidx.ui.unit.Dp elevation = 0.dp, androidx.ui.graphics.Shape shape = small, androidx.ui.foundation.Border? border = null, androidx.ui.graphics.Color backgroundColor = Color.Transparent, androidx.ui.graphics.Color contentColor = MaterialTheme.colors.primary, androidx.ui.layout.EdgeInsets innerPadding = TextButton.DefaultInnerPadding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class CardKt {
-    method public static void Card(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = card, androidx.ui.graphics.Color color = MaterialTheme.colors.surface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Card(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = medium, androidx.ui.graphics.Color color = MaterialTheme.colors.surface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class CheckboxKt {
@@ -168,8 +168,8 @@ package androidx.ui.material {
   }
 
   public final class FloatingActionButtonKt {
-    method public static void ExtendedFloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? icon = null, androidx.ui.graphics.Shape shape = CircleShape, androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors.primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.unit.Dp elevation = 6.dp);
-    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = CircleShape, androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors.primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.unit.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void ExtendedFloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit>? icon = null, androidx.ui.graphics.Shape shape = MaterialTheme.shapes.small.copy(CornerSize(50)), androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors.primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.unit.Dp elevation = 6.dp);
+    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Shape shape = MaterialTheme.shapes.small.copy(CornerSize(50)), androidx.ui.graphics.Color backgroundColor = MaterialTheme.colors.primary, androidx.ui.graphics.Color contentColor = contentColorFor(backgroundColor), androidx.ui.unit.Dp elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class IconButtonKt {
@@ -195,7 +195,7 @@ package androidx.ui.material {
   }
 
   public final class MaterialThemeKt {
-    method public static void MaterialTheme(androidx.ui.material.ColorPalette colors = lightColorPalette(), androidx.ui.material.Typography typography = androidx.ui.material.Typography(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MaterialTheme(androidx.ui.material.ColorPalette colors = lightColorPalette(), androidx.ui.material.Typography typography = androidx.ui.material.Typography(), androidx.ui.material.Shapes shapes = MaterialTheme.shapes, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ProgressIndicatorKt {
@@ -242,17 +242,19 @@ package androidx.ui.material {
     method public void setDrawerState(androidx.ui.material.DrawerState p);
   }
 
-  public final class ShapeKt {
+  public final class Shapes {
+    ctor public Shapes(androidx.ui.foundation.shape.corner.CornerBasedShape small, androidx.ui.foundation.shape.corner.CornerBasedShape medium, androidx.ui.foundation.shape.corner.CornerBasedShape large);
+    ctor public Shapes();
+    method public androidx.ui.foundation.shape.corner.CornerBasedShape component1();
+    method public androidx.ui.foundation.shape.corner.CornerBasedShape component2();
+    method public androidx.ui.foundation.shape.corner.CornerBasedShape component3();
+    method public androidx.ui.material.Shapes copy(androidx.ui.foundation.shape.corner.CornerBasedShape small, androidx.ui.foundation.shape.corner.CornerBasedShape medium, androidx.ui.foundation.shape.corner.CornerBasedShape large);
+    method public androidx.ui.foundation.shape.corner.CornerBasedShape getLarge();
+    method public androidx.ui.foundation.shape.corner.CornerBasedShape getMedium();
+    method public androidx.ui.foundation.shape.corner.CornerBasedShape getSmall();
   }
 
-  public final class Shapes {
-    ctor public Shapes(androidx.ui.graphics.Shape button, androidx.ui.graphics.Shape card);
-    ctor public Shapes();
-    method public androidx.ui.graphics.Shape component1();
-    method public androidx.ui.graphics.Shape component2();
-    method public androidx.ui.material.Shapes copy(androidx.ui.graphics.Shape button, androidx.ui.graphics.Shape card);
-    method public androidx.ui.graphics.Shape getButton();
-    method public androidx.ui.graphics.Shape getCard();
+  public final class ShapesKt {
   }
 
   public final class SliderKt {
@@ -269,7 +271,7 @@ package androidx.ui.material {
   }
 
   public final class SnackbarKt {
-    method public static void Snackbar(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? action = null, androidx.ui.core.Modifier modifier = Modifier.None, boolean actionOnNewLine = false);
+    method public static void Snackbar(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? action = null, androidx.ui.core.Modifier modifier = Modifier.None, boolean actionOnNewLine = false, androidx.ui.graphics.Shape shape = small, androidx.ui.unit.Dp elevation = 6.dp);
     method public static androidx.ui.graphics.Color snackbarPrimaryColorFor(androidx.ui.material.ColorPalette colors);
   }
 

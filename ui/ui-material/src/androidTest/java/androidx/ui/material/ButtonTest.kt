@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
@@ -24,13 +25,19 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.foundation.shape.corner.CutCornerShape
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertSemanticsIsEqualTo
+import androidx.ui.test.assertShape
+import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
@@ -282,6 +289,36 @@ class ButtonTest {
         assertLeftPaddingIs(8.dp) { children ->
             TextButton(onClick = {}, children = children)
         }
+    }
+
+    @Test
+    fun buttonTest_shapeAndColorFromThemeIsUsed() {
+        val shape = CutCornerShape(10.dp)
+        var surface = Color.Transparent
+        var primary = Color.Transparent
+        composeTestRule.setMaterialContent {
+            Stack {
+                surface = MaterialTheme.colors.surface
+                primary = MaterialTheme.colors.primary
+                Providers(ShapesAmbient provides Shapes(small = shape)) {
+                    TestTag(tag = "myButton") {
+                        Button(onClick = {}, elevation = 0.dp) {
+                            Box(Modifier.preferredSize(10.dp, 10.dp))
+                        }
+                    }
+                }
+            }
+        }
+
+        findByTag("myButton")
+            .captureToBitmap()
+            .assertShape(
+                density = composeTestRule.density,
+                shape = shape,
+                shapeColor = primary,
+                backgroundColor = surface,
+                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx() }
+            )
     }
 
     private fun assertLeftPaddingIs(
