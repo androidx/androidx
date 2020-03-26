@@ -37,36 +37,37 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.collection.ArrayMap;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProviderService.MediaRouteProviderServiceImplApi30;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RequiresApi(api = Build.VERSION_CODES.R)
-class MediaRoute2ProviderServiceStub extends MediaRoute2ProviderService {
+class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
     private static final String TAG = "MR2ProviderService";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final Object mLock = new Object();
 
-    final MediaRouteProviderService mService;
-    final MediaRouteProviderServiceImplApi30 mImpl;
+    final MediaRouteProviderServiceImplApi30 mServiceImpl;
     @GuardedBy("mLock")
-    final Map<String, DynamicGroupRouteController> mControllers = new HashMap<>();
+    final Map<String, DynamicGroupRouteController> mControllers = new ArrayMap<>();
+    final SparseArray<String> mSessionIdMap = new SparseArray<>();
     //TODO: Remove these when xMR is finished
-    final Map<String, Messenger> mMessengers = new HashMap<>();
+    final Map<String, Messenger> mMessengers = new ArrayMap<>();
     private static final String KEY_MESSENGER_BINDER = "binder";
 
     private volatile MediaRouteProviderDescriptor mProviderDescriptor;
@@ -74,9 +75,8 @@ class MediaRoute2ProviderServiceStub extends MediaRoute2ProviderService {
     @SuppressLint("InlinedApi")
     public static final String SERVICE_INTERFACE = MediaRoute2ProviderService.SERVICE_INTERFACE;
 
-    MediaRoute2ProviderServiceStub(MediaRouteProviderServiceImplApi30 impl) {
-        mImpl = impl;
-        mService = impl.getService();
+    MediaRoute2ProviderServiceAdapter(MediaRouteProviderServiceImplApi30 serviceImpl) {
+        mServiceImpl = serviceImpl;
     }
 
     @Override
@@ -110,7 +110,7 @@ class MediaRoute2ProviderServiceStub extends MediaRoute2ProviderService {
     @Override
     public void onCreateSession(long requestId, @NonNull String packageName,
             @NonNull String routeId, @Nullable Bundle sessionHints) {
-        MediaRouteProvider provider = mService.getMediaRouteProvider();
+        MediaRouteProvider provider = getMediaRouteProvider();
         MediaRouteDescriptor selectedRoute = getRouteDescriptor(routeId, "onCreateSession");
         if (selectedRoute == null) {
             notifyRequestFailed(requestId, REASON_ROUTE_NOT_AVAILABLE);
@@ -136,15 +136,7 @@ class MediaRoute2ProviderServiceStub extends MediaRoute2ProviderService {
             controller = new DynamicGroupRouteControllerProxy(routeController);
         }
 
-        String sessionId;
-        synchronized (mLock) {
-            do {
-                //TODO: Consider a better way to create a session ID.
-                sessionId = UUID.randomUUID().toString();
-            } while (mControllers.containsKey(sessionId));
-            mControllers.put(sessionId, controller);
-        }
-
+        String sessionId = assignSessionId(controller);
         controller.onSelect();
 
         //TODO: Set the client package name of the selected route.
@@ -265,7 +257,7 @@ class MediaRoute2ProviderServiceStub extends MediaRoute2ProviderService {
                 .addControlCategories(preference.getPreferredFeatures().stream()
                         .map(MediaRouter2Utils::toControlCategory)
                         .collect(Collectors.toList())).build();
-        mImpl.setBaseDiscoveryRequest(new MediaRouteDiscoveryRequest(selector,
+        mServiceImpl.setBaseDiscoveryRequest(new MediaRouteDiscoveryRequest(selector,
                 preference.shouldPerformActiveScan()));
     }
 
@@ -285,7 +277,7 @@ class MediaRoute2ProviderServiceStub extends MediaRoute2ProviderService {
     }
 
     private MediaRouteDescriptor getRouteDescriptor(String routeId, String description) {
-        MediaRouteProvider provider = mService.getMediaRouteProvider();
+        MediaRouteProvider provider = getMediaRouteProvider();
         if (provider == null || mProviderDescriptor == null) {
             Log.w(TAG, description + ": no provider info");
             return null;
@@ -417,6 +409,68 @@ class MediaRoute2ProviderServiceStub extends MediaRoute2ProviderService {
         controller.onControlRequest(intent, callback);
     }
 
+    void addRouteController(MediaRouteProvider.RouteController routeController,
+            int controllerId, String packageName, String routeId) {
+        MediaRouteDescriptor descriptor = getRouteDescriptor(routeId, "addRouteController");
+        if (descriptor == null) {
+            return;
+        }
+
+        DynamicGroupRouteController controller;
+        if (routeController instanceof DynamicGroupRouteController) {
+            controller = (DynamicGroupRouteController) routeController;
+        } else {
+            controller = new DynamicGroupRouteControllerProxy(routeController);
+        }
+
+        String sessionId = assignSessionId(controller);
+        mSessionIdMap.put(controllerId, sessionId);
+
+        RoutingSessionInfo.Builder builder =
+                new RoutingSessionInfo.Builder(sessionId, packageName)
+                        .addSelectedRoute(routeId)
+                        .setName(descriptor.getName())
+                        .setVolumeHandling(descriptor.getVolumeHandling())
+                        .setVolume(descriptor.getVolume())
+                        .setVolumeMax(descriptor.getVolumeMax());
+
+        RoutingSessionInfo sessionInfo = builder.build();
+        notifySessionCreated(REQUEST_ID_NONE, sessionInfo);
+    }
+
+    void removeRouteController(int controllerId) {
+        String sessionId = mSessionIdMap.get(controllerId);
+        if (sessionId == null) {
+            return;
+        }
+        mSessionIdMap.remove(controllerId);
+
+        synchronized (mLock) {
+            mControllers.remove(sessionId);
+            notifySessionReleased(sessionId);
+        }
+    }
+
+    private MediaRouteProvider getMediaRouteProvider() {
+        MediaRouteProviderService service =  mServiceImpl.getService();
+        if (service == null) {
+            return null;
+        }
+        return service.getMediaRouteProvider();
+    }
+
+    private String assignSessionId(DynamicGroupRouteController controller) {
+        String sessionId;
+        synchronized (mLock) {
+            do {
+                //TODO: Consider a better way to create a session ID.
+                sessionId = UUID.randomUUID().toString();
+            } while (mControllers.containsKey(sessionId));
+            mControllers.put(sessionId, controller);
+        }
+        return sessionId;
+    }
+
     private static class DynamicGroupRouteControllerProxy
             extends DynamicGroupRouteController {
         private final MediaRouteProvider.RouteController mRouteController;
@@ -479,12 +533,12 @@ class MediaRoute2ProviderServiceStub extends MediaRoute2ProviderService {
 
     //TODO: Remove this and use the existing messenger
     static class IncomingHandler extends Handler {
-        private final MediaRoute2ProviderServiceStub mStub;
+        private final MediaRoute2ProviderServiceAdapter mServiceAdapter;
         private final String mSessionId;
 
-        IncomingHandler(MediaRoute2ProviderServiceStub stub, String sessionId) {
+        IncomingHandler(MediaRoute2ProviderServiceAdapter serviceAdapter, String sessionId) {
             super(Looper.myLooper());
-            mStub = stub;
+            mServiceAdapter = serviceAdapter;
             mSessionId = sessionId;
         }
 
@@ -498,7 +552,8 @@ class MediaRoute2ProviderServiceStub extends MediaRoute2ProviderService {
             switch (what) {
                 case CLIENT_MSG_ROUTE_CONTROL_REQUEST:
                     if (obj instanceof Intent) {
-                        mStub.onControlRequest(messenger, requestId, mSessionId, (Intent) obj);
+                        mServiceAdapter.onControlRequest(messenger, requestId,
+                                mSessionId, (Intent) obj);
                     }
                     break;
             }

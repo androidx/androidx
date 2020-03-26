@@ -137,7 +137,8 @@ public abstract class MediaRouteProviderService extends Service {
         IBinder onBind(Intent intent);
         void attachBaseContext(Context context);
         void onBinderDied(Messenger messenger);
-        boolean onRegisterClient(Messenger messenger, int requestId, int version);
+        boolean onRegisterClient(Messenger messenger, int requestId, int version,
+                String packageName);
         boolean onUnregisterClient(Messenger messenger, int requestId);
         boolean onCreateRouteController(Messenger messenger, int requestId,
                 int controllerId, String routeId, String routeGroupId);
@@ -335,7 +336,18 @@ public abstract class MediaRouteProviderService extends Service {
                 final int arg = msg.arg2;
                 final Object obj = msg.obj;
                 final Bundle data = msg.peekData();
-                if (!processMessage(what, messenger, requestId, arg, obj, data)) {
+
+                String packageName = null;
+                if (what == CLIENT_MSG_REGISTER && Build.VERSION.SDK_INT
+                        >= Build.VERSION_CODES.LOLLIPOP) {
+                    String[] packages = mServiceRef.get().getPackageManager()
+                            .getPackagesForUid(msg.sendingUid);
+                    if (packages != null && packages.length > 0) {
+                        packageName = packages[0];
+                    }
+                }
+
+                if (!processMessage(what, messenger, requestId, arg, obj, data, packageName)) {
                     if (DEBUG) {
                         Log.d(TAG, getClientId(messenger) + ": Message failed, what=" + what
                                 + ", requestId=" + requestId + ", arg=" + arg
@@ -350,13 +362,14 @@ public abstract class MediaRouteProviderService extends Service {
             }
         }
 
-        private boolean processMessage(int what,
-                Messenger messenger, int requestId, int arg, Object obj, Bundle data) {
+        private boolean processMessage(int what, Messenger messenger,
+                int requestId, int arg, Object obj, Bundle data, String packageName) {
             MediaRouteProviderService service = mServiceRef.get();
             if (service != null) {
                 switch (what) {
                     case CLIENT_MSG_REGISTER:
-                        return service.mImpl.onRegisterClient(messenger, requestId, arg);
+                        return service.mImpl.onRegisterClient(messenger, requestId, arg,
+                                packageName);
 
                     case CLIENT_MSG_UNREGISTER:
                         return service.mImpl.onUnregisterClient(messenger, requestId);
@@ -496,11 +509,12 @@ public abstract class MediaRouteProviderService extends Service {
         }
 
         @Override
-        public boolean onRegisterClient(Messenger messenger, int requestId, int version) {
+        public boolean onRegisterClient(Messenger messenger, int requestId, int version,
+                String packageName) {
             if (version >= CLIENT_VERSION_1) {
                 int index = findClient(messenger);
                 if (index < 0) {
-                    ClientRecord client = createClientRecord(messenger, version);
+                    ClientRecord client = createClientRecord(messenger, version, packageName);
                     if (client.register()) {
                         mClients.add(client);
                         if (DEBUG) {
@@ -899,12 +913,14 @@ public abstract class MediaRouteProviderService extends Service {
             return -1;
         }
 
+        //TODO: Reconsider "ClientRecord" structure
         class ClientRecord implements DeathRecipient {
             public final Messenger mMessenger;
             public final int mVersion;
+            public final String mPackageName;
             public MediaRouteDiscoveryRequest mDiscoveryRequest;
 
-            private final SparseArray<MediaRouteProvider.RouteController> mControllers =
+            final SparseArray<MediaRouteProvider.RouteController> mControllers =
                     new SparseArray<MediaRouteProvider.RouteController>();
 
             final DynamicGroupRouteController.OnDynamicRoutesChangedListener
@@ -918,9 +934,10 @@ public abstract class MediaRouteProviderService extends Service {
                         }
                     };
 
-            ClientRecord(Messenger messenger, int version) {
+            ClientRecord(Messenger messenger, int version, String packageName) {
                 mMessenger = messenger;
                 mVersion = version;
+                mPackageName = packageName;
             }
 
             public boolean register() {
@@ -1043,8 +1060,8 @@ public abstract class MediaRouteProviderService extends Service {
             }
         }
 
-        ClientRecord createClientRecord(Messenger messenger, int version) {
-            return new ClientRecord(messenger, version);
+        ClientRecord createClientRecord(Messenger messenger, int version, String packageName) {
+            return new ClientRecord(messenger, version, packageName);
         }
 
         class ProviderCallbackBase extends MediaRouteProvider.Callback {
@@ -1059,7 +1076,7 @@ public abstract class MediaRouteProviderService extends Service {
     //TODO: We may need to change version number
     @RequiresApi(api = Build.VERSION_CODES.R)
     static class MediaRouteProviderServiceImplApi30 extends MediaRouteProviderServiceImplBase {
-        MediaRoute2ProviderServiceStub mMR2Stub;
+        MediaRoute2ProviderServiceAdapter mMR2ProviderServiceAdapter;
 
         MediaRouteProviderServiceImplApi30(MediaRouteProviderService instance) {
             super(instance);
@@ -1067,44 +1084,73 @@ public abstract class MediaRouteProviderService extends Service {
 
         @Override
         public IBinder onBind(Intent intent) {
-            if (MediaRoute2ProviderServiceStub.SERVICE_INTERFACE.equals(intent.getAction())) {
-                mService.ensureProvider();
-                if (mService.getMediaRouteProvider() != null) {
-                    if (mMR2Stub == null) {
-                        mMR2Stub = new MediaRoute2ProviderServiceStub(this);
-                        if (mService.getBaseContext() != null) {
-                            mMR2Stub.attachBaseContext(mService);
-                        }
-                    }
-                    return mMR2Stub.onBind(intent);
+            mService.ensureProvider();
+            if (mMR2ProviderServiceAdapter == null) {
+                mMR2ProviderServiceAdapter = new MediaRoute2ProviderServiceAdapter(this);
+                if (mService.getBaseContext() != null) {
+                    mMR2ProviderServiceAdapter.attachBaseContext(mService);
                 }
             }
-            return super.onBind(intent);
+            IBinder binder = super.onBind(intent);
+            if (binder != null) {
+                return binder;
+            }
+            return mMR2ProviderServiceAdapter.onBind(intent);
         }
 
         @Override
         public void attachBaseContext(Context context) {
-            if (mMR2Stub != null) {
-                mMR2Stub.attachBaseContext(context);
+            if (mMR2ProviderServiceAdapter != null) {
+                mMR2ProviderServiceAdapter.attachBaseContext(context);
             }
         }
 
         @Override
         void sendDescriptorChanged(MediaRouteProviderDescriptor descriptor) {
             super.sendDescriptorChanged(descriptor);
-            if (mMR2Stub != null) {
-                mMR2Stub.setProviderDescriptor(descriptor);
-            }
+            mMR2ProviderServiceAdapter.setProviderDescriptor(descriptor);
         }
 
         @Override
-        ClientRecord createClientRecord(Messenger messenger, int version) {
-            return new ClientRecordApi30(messenger, version);
+        MediaRouteProviderServiceImplBase.ClientRecord createClientRecord(
+                Messenger messenger, int version, String packageName) {
+            return new ClientRecord(messenger, version, packageName);
         }
 
-        class ClientRecordApi30 extends ClientRecord {
-            ClientRecordApi30(Messenger messenger, int version) {
-                super(messenger, version);
+        class ClientRecord extends MediaRouteProviderServiceImplBase.ClientRecord {
+            ClientRecord(Messenger messenger, int version, String packageName) {
+                super(messenger, version, packageName);
+            }
+
+            @Override
+            public boolean createRouteController(String routeId, String routeGroupId,
+                    int controllerId) {
+                boolean result = super.createRouteController(routeId, routeGroupId,
+                        controllerId);
+                // Don't add route controllers of member routes.
+                if (routeGroupId == null && result && mPackageName != null) {
+                    mMR2ProviderServiceAdapter.addRouteController(mControllers.get(controllerId),
+                            controllerId, mPackageName, routeId);
+                }
+                return result;
+            }
+
+            @Override
+            public Bundle createDynamicGroupRouteController(
+                    String initialMemberRouteId, int controllerId) {
+                Bundle result =
+                        super.createDynamicGroupRouteController(initialMemberRouteId, controllerId);
+                if (result != null && mPackageName != null) {
+                    mMR2ProviderServiceAdapter.addRouteController(mControllers.get(controllerId),
+                            controllerId, mPackageName, initialMemberRouteId);
+                }
+                return result;
+            }
+
+            @Override
+            public boolean releaseRouteController(int controllerId) {
+                mMR2ProviderServiceAdapter.removeRouteController(controllerId);
+                return super.releaseRouteController(controllerId);
             }
 
             @Override
@@ -1112,8 +1158,8 @@ public abstract class MediaRouteProviderService extends Service {
                     DynamicGroupRouteController controller,
                     Collection<DynamicRouteDescriptor> descriptors) {
                 super.sendDynamicRouteDescriptors(controller, descriptors);
-                if (mMR2Stub != null) {
-                    mMR2Stub.setDynamicRouteDescriptor(controller, descriptors);
+                if (mMR2ProviderServiceAdapter != null) {
+                    mMR2ProviderServiceAdapter.setDynamicRouteDescriptor(controller, descriptors);
                 }
             }
         }

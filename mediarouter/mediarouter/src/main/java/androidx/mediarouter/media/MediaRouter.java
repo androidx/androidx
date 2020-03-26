@@ -1582,7 +1582,9 @@ public final class MediaRouter {
                 final int count = mMemberRoutes.size();
                 for (int i = 0; i < count; i++) {
                     if (i > 0) sb.append(", ");
-                    sb.append(mMemberRoutes.get(i));
+                    if (mMemberRoutes.get(i) != this) {
+                        sb.append(mMemberRoutes.get(i));
+                    }
                 }
                 sb.append(']');
                 return sb.toString();
