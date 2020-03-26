@@ -38,15 +38,20 @@ import androidx.ui.foundation.ProvideTextStyle
  *
  * @param colors A complete definition of the Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
+ * @param shapes A set of shapes to be used by the components in this hierarchy
  */
 @Composable
 fun MaterialTheme(
     colors: ColorPalette = lightColorPalette(),
     typography: Typography = Typography(),
+    shapes: Shapes = MaterialTheme.shapes,
     children: @Composable() () -> Unit
 ) {
     ProvideColorPalette(colors) {
-        Providers(TypographyAmbient provides typography) {
+        Providers(
+            TypographyAmbient provides typography,
+            ShapesAmbient provides shapes
+        ) {
             ProvideTextStyle(value = typography.body1, children = children)
         }
     }
@@ -80,7 +85,7 @@ object MaterialTheme {
      */
     @Composable
     val shapes: Shapes
-        get() = ShapeAmbient.current
+        get() = ShapesAmbient.current
 
     /**
      * Retrieves the current [EmphasisLevels] at the call site's position in the hierarchy.

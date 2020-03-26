@@ -22,7 +22,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Dialog
 import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.shape.corner.RoundedCornerShape
+import androidx.ui.graphics.Shape
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnAlign
@@ -62,7 +62,7 @@ import androidx.ui.unit.dp
  * @param dismissButton A button which is meant to dismiss the dialog.
  * @param buttonLayout An enum which specifies how the buttons are positioned inside the dialog:
  * SideBySide or Stacked.
- *
+ * @param shape Defines the Dialog's shape
  */
 @Composable
 fun AlertDialog(
@@ -71,7 +71,8 @@ fun AlertDialog(
     text: @Composable() () -> Unit,
     confirmButton: @Composable() () -> Unit,
     dismissButton: @Composable() (() -> Unit)? = null,
-    buttonLayout: AlertDialogButtonLayout = SideBySide
+    buttonLayout: AlertDialogButtonLayout = SideBySide,
+    shape: Shape = MaterialTheme.shapes.medium
 ) {
     AlertDialog(
         onCloseRequest = onCloseRequest,
@@ -83,7 +84,8 @@ fun AlertDialog(
                 dismissButton = dismissButton,
                 buttonLayout = buttonLayout
             )
-        }
+        },
+        shape = shape
     )
 }
 
@@ -102,13 +104,15 @@ fun AlertDialog(
  * @param text The text which presents the details regarding the Dialog's purpose. Provided text
  * style will be [Typography.body1].
  * @param buttons Function that emits the layout with the buttons
+ * @param shape Defines the Dialog's shape
  */
 @Composable
 fun AlertDialog(
     onCloseRequest: () -> Unit,
     title: (@Composable() () -> Unit)? = null,
     text: @Composable() () -> Unit,
-    buttons: @Composable() () -> Unit
+    buttons: @Composable() () -> Unit,
+    shape: Shape = MaterialTheme.shapes.medium
 ) {
     // TODO: Find a cleaner way to pass the properties of the MaterialTheme
     val currentColors = MaterialTheme.colors
@@ -117,7 +121,7 @@ fun AlertDialog(
         MaterialTheme(colors = currentColors, typography = currentTypography) {
             Surface(
                 modifier = AlertDialogWidth,
-                shape = AlertDialogShape
+                shape = shape
             ) {
                 val emphasisLevels = MaterialTheme.emphasisLevels
                 Column {
@@ -202,5 +206,3 @@ private val TitlePadding = Modifier.padding(start = 24.dp, top = 24.dp, end = 24
 // The height difference of the padding between a Dialog with a title and one without a title
 private val NoTitleExtraHeight = Modifier.preferredHeight(2.dp)
 private val TextToButtonsHeight = Modifier.preferredHeight(28.dp)
-// TODO: The corner radius should be customizable
-private val AlertDialogShape = RoundedCornerShape(4.dp)

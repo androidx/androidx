@@ -24,14 +24,15 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
+import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -57,13 +58,18 @@ import androidx.ui.unit.max
  * @param modifier modifiers for the the Snackbar layout
  * @param actionOnNewLine whether or not action should be put on the separate line. Recommended
  * for action with long action text
+ * @param shape Defines the Snackbar's shape as well as its shadow
+ * @param elevation The z-coordinate at which to place the SnackBar. This controls the size
+ * of the shadow below the SnackBar
  */
 @Composable
 fun Snackbar(
     text: @Composable() () -> Unit,
     action: @Composable() (() -> Unit)? = null,
     modifier: Modifier = Modifier.None,
-    actionOnNewLine: Boolean = false
+    actionOnNewLine: Boolean = false,
+    shape: Shape = MaterialTheme.shapes.small,
+    elevation: Dp = 6.dp
 ) {
     val colors = MaterialTheme.colors
     // Snackbar has a background color of onSurface with an alpha applied blended on top of surface
@@ -71,8 +77,8 @@ fun Snackbar(
     val snackbarColor = snackbarOverlayColor.compositeOver(colors.surface)
     Surface(
         modifier = modifier,
-        shape = SnackbarShape,
-        elevation = SnackbarElevation,
+        shape = shape,
+        elevation = elevation,
         color = snackbarColor,
         contentColor = colors.surface
     ) {
@@ -214,8 +220,6 @@ fun snackbarPrimaryColorFor(colors: ColorPalette): Color {
 }
 
 private const val SnackbarOverlayAlpha = 0.8f
-private val SnackbarShape = RoundedCornerShape(4.dp)
-private val SnackbarElevation = 6.dp
 
 private val MinHeightOneLine = 48.dp
 private val MinHeightTwoLines = 68.dp

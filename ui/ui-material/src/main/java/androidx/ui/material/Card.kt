@@ -43,7 +43,7 @@ import androidx.ui.unit.dp
 @Composable
 fun Card(
     modifier: Modifier = Modifier.None,
-    shape: Shape = MaterialTheme.shapes.card,
+    shape: Shape = MaterialTheme.shapes.medium,
     color: Color = MaterialTheme.colors.surface,
     contentColor: Color = contentColorFor(color),
     border: Border? = null,
