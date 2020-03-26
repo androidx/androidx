@@ -29,6 +29,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.util.fastAny
 
 /**
  * This gesture detector has callbacks for when a press gesture starts and ends for the purposes of
@@ -176,7 +177,7 @@ internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
             if (
                 pass == PointerEventPass.PostDown &&
                 state == State.Started &&
-                internalChanges.any { it.anyPositionChangeConsumed() }
+                internalChanges.fastAny { it.anyPositionChangeConsumed() }
             ) {
                 // On the final pass, if we have started and any of the changes had consumed
                 // position changes, we cancel.

@@ -38,6 +38,7 @@ import androidx.ui.unit.round
 import androidx.ui.unit.toPx
 import androidx.ui.unit.toPxPosition
 import androidx.ui.unit.toPxSize
+import androidx.ui.util.fastAny
 import androidx.ui.util.fastForEach
 
 private val Unmeasured = IntPxSize(IntPx.Zero, IntPx.Zero)
@@ -489,7 +490,7 @@ internal class InnerPlaceable(
 
     override fun draw(canvas: Canvas, density: Density) {
         if (introducedLayer != null ||
-            (!layoutNode.hasLayer && layoutNode.layoutChildren.any { it.hasElevation })
+            (!layoutNode.hasLayer && layoutNode.layoutChildren.fastAny { it.hasElevation })
         ) {
             layoutNodeInvalidate = null
             // we need to introduce a layer
@@ -540,7 +541,7 @@ internal class InnerPlaceable(
         if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
             // Any because as soon as true is returned, we know we have found a hit path and we must
             //  not add PointerInputFilters on different paths so we should not even go looking.
-            return layoutNode.children.reversed().any { child ->
+            return layoutNode.children.reversed().fastAny { child ->
                 callHitTest(child, pointerPositionRelativeToScreen, hitPointerInputFilters)
             }
         } else {
@@ -576,7 +577,7 @@ private fun callHitTest(
     } else {
         // Any because as soon as true is returned, we know we have found a hit path and we must
         // not add PointerInputFilters on different paths so we should not even go looking.
-        return node.children.reversed().any { child ->
+        return node.children.reversed().fastAny { child ->
             callHitTest(child, globalPoint, hitPointerInputFilters)
         }
     }
