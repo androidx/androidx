@@ -23,6 +23,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
 import androidx.ui.framework.test.R
 import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.asAndroidBitmap
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
@@ -89,7 +90,8 @@ class ResourcesTest {
             assertThat(pendingExecutor.runnable).isNotNull()
             assertThat(res!!.resource).isInstanceOf(PendingResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()
-            assertThat(res!!.resource.resource!!.nativeImage.sameAs(pendingImage.nativeImage))
+            assertThat(res!!.resource.resource!!.asAndroidBitmap().sameAs(pendingImage
+                .asAndroidBitmap()))
         }
 
         runOnIdleCompose {
@@ -103,7 +105,9 @@ class ResourcesTest {
             assertThat(pendingExecutor.runnable).isNull()
             assertThat(res!!.resource).isInstanceOf(LoadedResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()
-            assertThat(res!!.resource.resource!!.nativeImage.sameAs(loadedImage.nativeImage))
+            assertThat(res!!.resource.resource!!
+                .asAndroidBitmap()
+                .sameAs(loadedImage.asAndroidBitmap()))
                 .isTrue()
         }
     }
@@ -143,7 +147,9 @@ class ResourcesTest {
             assertThat(pendingExecutor.runnable).isNotNull()
             assertThat(res!!.resource).isInstanceOf(PendingResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()
-            assertThat(res!!.resource.resource!!.nativeImage.sameAs(pendingImage.nativeImage))
+            assertThat(res!!.resource.resource!!
+                .asAndroidBitmap()
+                .sameAs(pendingImage.asAndroidBitmap()))
                 .isTrue()
         }
 
@@ -158,7 +164,9 @@ class ResourcesTest {
             assertThat(pendingExecutor.runnable).isNull()
             assertThat(res!!.resource).isInstanceOf(FailedResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()
-            assertThat(res!!.resource.resource!!.nativeImage.sameAs(failedImage.nativeImage))
+            assertThat(res!!.resource.resource!!
+                .asAndroidBitmap()
+                .sameAs(failedImage.asAndroidBitmap()))
                 .isTrue()
         }
     }

@@ -106,7 +106,7 @@ import androidx.ui.geometry.Offset
 ): Shader {
     return Shader(
         BitmapShader(
-            image.nativeImage,
+            image.asAndroidBitmap(),
             tileModeX.nativeTileMode,
             tileModeY.nativeTileMode
         )

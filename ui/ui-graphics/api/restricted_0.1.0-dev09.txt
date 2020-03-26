@@ -18,6 +18,7 @@ package androidx.ui.graphics {
 
   public final class AndroidImageAssetKt {
     method public static androidx.ui.graphics.ImageAsset ImageAsset(int width, int height, androidx.ui.graphics.ImageAssetConfig config = androidx.ui.graphics.ImageAssetConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
+    method public static android.graphics.Bitmap asAndroidBitmap(androidx.ui.graphics.ImageAsset);
     method public static androidx.ui.graphics.ImageAsset asImageAsset(android.graphics.Bitmap);
     method public static androidx.ui.graphics.ImageAsset imageFromResource(android.content.res.Resources res, int resId);
   }
@@ -252,14 +253,13 @@ package androidx.ui.graphics {
     method public androidx.ui.graphics.ImageAssetConfig getConfig();
     method public boolean getHasAlpha();
     method public int getHeight();
-    method public android.graphics.Bitmap getNativeImage();
     method public int getWidth();
     method public void prepareToDraw();
+    method public void readPixels(int[] buffer, int startX = 0, int startY = 0, int width = this.width, int height = this.height, int bufferOffset = 0, int stride = width);
     property public abstract androidx.ui.graphics.colorspace.ColorSpace colorSpace;
     property public abstract androidx.ui.graphics.ImageAssetConfig config;
     property public abstract boolean hasAlpha;
     property public abstract int height;
-    property public abstract android.graphics.Bitmap nativeImage;
     property public abstract int width;
   }
 
@@ -272,6 +272,7 @@ package androidx.ui.graphics {
   }
 
   public final class ImageAssetKt {
+    method public static androidx.ui.graphics.PixelMap toPixelMap(androidx.ui.graphics.ImageAsset, int startX = 0, int startY = 0, int width = this.width, int height = this.height, int[] buffer = null(width * height), int bufferOffset = 0, int stride = width);
   }
 
   public final class LinearGradient extends androidx.ui.graphics.ShaderBrush {
@@ -436,6 +437,16 @@ package androidx.ui.graphics {
     method public androidx.ui.graphics.Picture endRecording();
     method public boolean isRecording();
     property public final boolean isRecording;
+  }
+
+  public final class PixelMap {
+    ctor public PixelMap(int[] buffer, int width, int height, int bufferOffset, int stride);
+    method public operator androidx.ui.graphics.Color get(@IntRange(from=0) int x, @IntRange(from=0) int y);
+    method public int[] getBuffer();
+    method public int getBufferOffset();
+    method public int getHeight();
+    method public int getStride();
+    method public int getWidth();
   }
 
   public enum PointMode {
