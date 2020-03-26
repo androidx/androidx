@@ -362,14 +362,10 @@ package androidx.ui.core.pointerinput {
 
   public abstract class PointerInputFilter {
     ctor public PointerInputFilter();
-    method public abstract kotlin.jvm.functions.Function0<kotlin.Unit> getCancelHandler();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.CustomEvent,androidx.ui.core.PointerEventPass,kotlin.Unit>? getCustomEventHandler();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? getInitHandler();
-    method public abstract kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> getPointerInputHandler();
-    property public abstract kotlin.jvm.functions.Function0<kotlin.Unit> cancelHandler;
-    property public kotlin.jvm.functions.Function2<androidx.ui.core.CustomEvent,androidx.ui.core.PointerEventPass,kotlin.Unit>? customEventHandler;
-    property public kotlin.jvm.functions.Function1<androidx.ui.core.CustomEventDispatcher,kotlin.Unit>? initHandler;
-    property public abstract kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler;
+    method public abstract void onCancel();
+    method public void onCustomEvent(androidx.ui.core.CustomEvent customEvent, androidx.ui.core.PointerEventPass pass);
+    method public void onInit(androidx.ui.core.CustomEventDispatcher customEventDispatcher);
+    method public abstract java.util.List<androidx.ui.core.PointerInputChange> onPointerInput(java.util.List<androidx.ui.core.PointerInputChange> changes, androidx.ui.core.PointerEventPass pass, androidx.ui.unit.IntPxSize bounds);
   }
 
   public interface PointerInputModifier extends androidx.ui.core.Modifier.Element {

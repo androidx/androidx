@@ -25,7 +25,7 @@ import androidx.compose.Composition
 import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInputHandler
+import androidx.ui.core.PointerInputChange
 import androidx.ui.core.TestTag
 import androidx.ui.core.changedToUp
 import androidx.ui.core.pointerinput.PointerInputFilter
@@ -37,6 +37,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
@@ -110,18 +111,24 @@ private fun Ui(recordedClicks: MutableList<ClickData>) {
                         val pointerInputModifier =
                             object : PointerInputModifier {
                                 override val pointerInputFilter = object : PointerInputFilter() {
-                                    override val pointerInputHandler: PointerInputHandler =
-                                        { changes, pass, _ ->
-                                            if (pass == PointerEventPass.InitialDown) {
-                                                changes.filter { it.changedToUp() }.forEach {
-                                                    recordedClicks.add(
-                                                        ClickData(i, it.current.position!!)
-                                                    )
-                                                }
+                                    override fun onPointerInput(
+                                        changes: List<PointerInputChange>,
+                                        pass: PointerEventPass,
+                                        bounds: IntPxSize
+                                    ): List<PointerInputChange> {
+                                        if (pass == PointerEventPass.InitialDown) {
+                                            changes.filter { it.changedToUp() }.forEach {
+                                                recordedClicks.add(
+                                                    ClickData(i, it.current.position!!)
+                                                )
                                             }
-                                            changes
                                         }
-                                    override val cancelHandler: () -> Unit = {}
+                                        return changes
+                                    }
+
+                                    override fun onCancel() {
+                                        // Do nothing
+                                    }
                                 }
                             }
                         squareSize.toDp()
