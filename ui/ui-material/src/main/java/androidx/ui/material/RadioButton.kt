@@ -133,7 +133,7 @@ class RadioGroupScope internal constructor() {
                 MutuallyExclusiveSetItem(
                     selected = selected,
                     onClick = { if (!selected) onSelect() }, children = children,
-                    modifier = ripple()
+                    modifier = Modifier.ripple()
                 )
             }
         }
@@ -198,7 +198,7 @@ fun RadioButton(
     Stack {
         MutuallyExclusiveSetItem(
             selected = selected, onClick = { if (!selected) onSelect?.invoke() },
-            modifier = ripple(bounded = false)
+            modifier = Modifier.ripple(bounded = false)
         ) {
             val unselectedColor =
                 MaterialTheme.colors.onSurface.copy(alpha = UnselectedOpacity)

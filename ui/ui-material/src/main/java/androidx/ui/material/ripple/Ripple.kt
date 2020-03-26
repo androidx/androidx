@@ -62,7 +62,7 @@ import androidx.ui.unit.toPxSize
  * @param enabled The ripple effect will not start if false is provided.
  */
 @Composable
-fun ripple(
+fun Modifier.ripple(
     bounded: Boolean = true,
     radius: Dp? = null,
     color: Color? = null,
@@ -85,7 +85,7 @@ fun ripple(
         onStop = { rippleModifier.handleFinish(false) },
         onCancel = { rippleModifier.handleFinish(true) }
     )
-    return pressIndicator + rippleModifier
+    return this + pressIndicator + rippleModifier
 }
 
 private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycleObserver {

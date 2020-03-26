@@ -62,7 +62,7 @@ private fun ElevatedCard(elevation: Dp) {
         border = if (elevation == 0.dp) Border(1.dp, Color.Gray) else null,
         elevation = elevation
     ) {
-        Clickable(onClick = {}, modifier = ripple()) {
+        Clickable(onClick = {}, modifier = Modifier.ripple()) {
             Box(Modifier.fillMaxWidth().preferredHeight(150.dp), gravity = ContentGravity.Center) {
                 Text("$elevation", style = MaterialTheme.typography.h4)
             }

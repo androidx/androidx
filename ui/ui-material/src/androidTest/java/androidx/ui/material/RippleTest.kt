@@ -84,7 +84,10 @@ class RippleTest {
                         modifier = Modifier.drawBackground(Color.Blue),
                         gravity = ContentGravity.Center
                     ) {
-                        Box(Modifier.preferredSize(10.dp) + ripple())
+                        Box(
+                            Modifier.preferredSize(10.dp)
+                                .ripple()
+                        )
                     }
                 }
             }
@@ -119,7 +122,7 @@ class RippleTest {
                         Box(
                             Modifier.preferredSize(30.dp)
                                 .padding(5.dp)
-                                .plus(ripple())
+                                .ripple()
                                 // this padding should not affect the size of the ripple
                                 .padding(5.dp)
                         )
@@ -154,7 +157,7 @@ class RippleTest {
                         modifier = Modifier.drawBackground(Color.Blue),
                         gravity = ContentGravity.Center
                     ) {
-                        Box(Modifier.preferredSize(10.dp) + ripple(bounded = false))
+                        Box(Modifier.preferredSize(10.dp).ripple(bounded = false))
                     }
                 }
             }
@@ -186,7 +189,7 @@ class RippleTest {
                     ) {
                         Box(
                             Modifier.preferredSize(10.dp)
-                                .plus(ripple())
+                                .ripple()
                                 .drawBackground(Color.Blue)
                         )
                     }
@@ -363,7 +366,7 @@ class RippleTest {
     private fun RippleButton(size: Dp = 10.dp, color: Color? = null, enabled: Boolean = true) {
         Clickable(
             onClick = {},
-            modifier = ripple(bounded = false, color = color, enabled = enabled)
+            modifier = Modifier.ripple(bounded = false, color = color, enabled = enabled)
         ) {
             Box(Modifier.preferredSize(size))
         }

@@ -51,7 +51,7 @@ fun IconButton(
     modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    Clickable(onClick = onClick, modifier = ripple(bounded = false, radius = RippleRadius)) {
+    Clickable(onClick, Modifier.ripple(bounded = false, radius = RippleRadius)) {
         Box(
             modifier = modifier + IconButtonSizeModifier,
             gravity = ContentGravity.Center,
@@ -86,7 +86,7 @@ fun IconToggleButton(
         value = checked,
         onValueChange = onCheckedChange,
         enabled = enabled,
-        modifier = ripple(bounded = false, radius = RippleRadius, enabled = enabled)
+        modifier = Modifier.ripple(bounded = false, radius = RippleRadius, enabled = enabled)
     ) {
         Box(
             modifier = modifier + IconButtonSizeModifier,
