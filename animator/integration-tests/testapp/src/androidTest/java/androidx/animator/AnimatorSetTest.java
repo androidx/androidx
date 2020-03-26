@@ -66,7 +66,7 @@ public class AnimatorSetTest {
     }
 
     @ClassRule
-    public static AnimationTestRule sTestAnimationHandler = new AnimationTestRule();
+    public static AnimatorTestRule sAnimatorTestRule = new AnimatorTestRule();
 
     @UiThreadTest
     @Test
@@ -112,9 +112,9 @@ public class AnimatorSetTest {
 
         set.start();
 
-        sTestAnimationHandler.advanceTimeBy(set.getStartDelay());
+        sAnimatorTestRule.advanceTimeBy(set.getStartDelay());
         for (int i = 0; i < animators.length; i++) {
-            sTestAnimationHandler.advanceTimeBy(animators[i].getTotalDuration());
+            sAnimatorTestRule.advanceTimeBy(animators[i].getTotalDuration());
         }
 
         // All animations should finish by now
@@ -192,7 +192,7 @@ public class AnimatorSetTest {
         ArrayList<AnimEvent> animEvents = registerAnimatorsForEvents(
                 new Animator[] {emptySet, set});
         set.start();
-        sTestAnimationHandler.advanceTimeBy(10);
+        sAnimatorTestRule.advanceTimeBy(10);
 
         // Check callback sequence via Animator Events
         assertEquals(animEvents.get(0).mAnim, set);
@@ -216,17 +216,17 @@ public class AnimatorSetTest {
         set.playTogether(anim);
 
         set.start();
-        sTestAnimationHandler.advanceTimeBy(300);
+        sAnimatorTestRule.advanceTimeBy(300);
         assertEquals(300L, set.getCurrentPlayTime());
         assertEquals(300f, (float) anim.getAnimatedValue(), EPSILON);
 
         set.pause();
-        sTestAnimationHandler.advanceTimeBy(300);
+        sAnimatorTestRule.advanceTimeBy(300);
         assertEquals(300L, set.getCurrentPlayTime());
         assertEquals(300f, (float) anim.getAnimatedValue(), EPSILON);
 
         set.resume();
-        sTestAnimationHandler.advanceTimeBy(300);
+        sAnimatorTestRule.advanceTimeBy(300);
         assertEquals(600L, set.getCurrentPlayTime());
         assertEquals(600f, (float) anim.getAnimatedValue(), EPSILON);
     }
@@ -238,22 +238,22 @@ public class AnimatorSetTest {
         set.playTogether(mAnim1, mAnim2);
 
         set.start();
-        sTestAnimationHandler.advanceTimeBy(0);
+        sAnimatorTestRule.advanceTimeBy(0);
         set.pause();
         assertTrue(set.isPaused());
-        sTestAnimationHandler.advanceTimeBy(5);
+        sAnimatorTestRule.advanceTimeBy(5);
 
         // After 10s, set is still not yet finished.
-        sTestAnimationHandler.advanceTimeBy(10000);
+        sAnimatorTestRule.advanceTimeBy(10000);
         assertTrue(set.isStarted());
         assertTrue(set.isPaused());
         set.resume();
 
-        sTestAnimationHandler.advanceTimeBy(5);
+        sAnimatorTestRule.advanceTimeBy(5);
         assertTrue(set.isStarted());
         assertFalse(set.isPaused());
 
-        sTestAnimationHandler.advanceTimeBy(10000);
+        sAnimatorTestRule.advanceTimeBy(10000);
         assertFalse(set.isStarted());
         assertFalse(set.isPaused());
     }
@@ -268,10 +268,10 @@ public class AnimatorSetTest {
         // Verify that pause should have no effect on a not-yet-started animator.
         assertFalse(set.isPaused());
         set.start();
-        sTestAnimationHandler.advanceTimeBy(0);
+        sAnimatorTestRule.advanceTimeBy(0);
         assertTrue(set.isStarted());
 
-        sTestAnimationHandler.advanceTimeBy(set.getTotalDuration());
+        sAnimatorTestRule.advanceTimeBy(set.getTotalDuration());
         assertFalse(set.isStarted());
     }
 
@@ -288,7 +288,7 @@ public class AnimatorSetTest {
 
         assertEquals(2000L, set.getTotalDuration());
         set.start();
-        sTestAnimationHandler.advanceTimeBy(1500L);
+        sAnimatorTestRule.advanceTimeBy(1500L);
         assertEquals(1000f, (float) a1.getAnimatedValue(), EPSILON);
         assertEquals(500, (int) a2.getAnimatedValue());
 
@@ -298,11 +298,11 @@ public class AnimatorSetTest {
         assertEquals(0, (int) a2.getAnimatedValue());
 
         set.resume();
-        sTestAnimationHandler.advanceTimeBy(250L);
+        sAnimatorTestRule.advanceTimeBy(250L);
         assertEquals(750f, (float) a1.getAnimatedValue(), EPSILON);
         assertEquals(0, (int) a2.getAnimatedValue());
 
-        sTestAnimationHandler.advanceTimeBy(750L);
+        sAnimatorTestRule.advanceTimeBy(750L);
         assertEquals(1000f, (float) a1.getAnimatedValue(), EPSILON);
         assertEquals(500, (int) a2.getAnimatedValue());
     }
@@ -398,22 +398,22 @@ public class AnimatorSetTest {
         set.setStartDelay(1000);
 
         set.reverse();
-        sTestAnimationHandler.advanceTimeBy(0);
+        sAnimatorTestRule.advanceTimeBy(0);
         assertTrue(a2.isStarted());
         assertTrue(a2.isRunning());
         assertFalse(a1.isStarted());
 
         // a2 should finish 200ms after reverse started
-        sTestAnimationHandler.advanceTimeBy(200);
+        sAnimatorTestRule.advanceTimeBy(200);
         assertFalse(a2.isStarted());
         // By the time a2 finishes reversing, a1 should not have started.
         assertFalse(a1.isStarted());
 
-        sTestAnimationHandler.advanceTimeBy(100);
+        sAnimatorTestRule.advanceTimeBy(100);
         assertTrue(a1.isStarted());
 
         // a1 finishes within 200ms after starting
-        sTestAnimationHandler.advanceTimeBy(200);
+        sAnimatorTestRule.advanceTimeBy(200);
         assertFalse(a1.isStarted());
         assertFalse(set.isStarted());
 
@@ -460,29 +460,29 @@ public class AnimatorSetTest {
         // Sleep for part of the start delay and check that no child animator has started, to verify
         // that the duration scale has been properly scaled.
         set.start();
-        sTestAnimationHandler.advanceTimeBy(0);
+        sAnimatorTestRule.advanceTimeBy(0);
         assertFalse(set.isRunning());
         // start delay of the set should be scaled to 600ms
-        sTestAnimationHandler.advanceTimeBy(550);
+        sAnimatorTestRule.advanceTimeBy(550);
         assertFalse(set.isRunning());
 
-        sTestAnimationHandler.advanceTimeBy(50);
+        sAnimatorTestRule.advanceTimeBy(50);
         assertTrue(set.isRunning());
         assertTrue(a1.isStarted());
         assertFalse(a2.isStarted());
 
         // Verify that a1 finish in 300ms (3x its defined duration)
-        sTestAnimationHandler.advanceTimeBy(300);
+        sAnimatorTestRule.advanceTimeBy(300);
         assertFalse(a1.isStarted());
         assertTrue(a2.isStarted());
         assertFalse(a2.isRunning());
 
         // a2 should finish the delay stage now
-        sTestAnimationHandler.advanceTimeBy(600);
+        sAnimatorTestRule.advanceTimeBy(600);
         assertTrue(a2.isStarted());
         assertTrue(a2.isRunning());
 
-        sTestAnimationHandler.advanceTimeBy(300);
+        sAnimatorTestRule.advanceTimeBy(300);
         assertFalse(a2.isStarted());
         assertFalse(a2.isRunning());
         assertFalse(set.isStarted());
@@ -585,10 +585,10 @@ public class AnimatorSetTest {
         assertEquals(280f, (Float) a3.getAnimatedValue(), EPSILON);
 
         set.start();
-        sTestAnimationHandler.advanceTimeBy(0);
+        sAnimatorTestRule.advanceTimeBy(0);
         assertEquals(280, set.getCurrentPlayTime());
         assertTrue(set.isRunning());
-        sTestAnimationHandler.advanceTimeBy(20);
+        sAnimatorTestRule.advanceTimeBy(20);
         assertFalse(set.isStarted());
 
         // Seek after a run to the middle-ish, and verify the first animator is at the end
@@ -775,13 +775,13 @@ public class AnimatorSetTest {
         set.setStartDelay(80);
 
         set.start();
-        sTestAnimationHandler.advanceTimeBy(0);
+        sAnimatorTestRule.advanceTimeBy(0);
         assertTrue(set.isStarted());
         assertFalse(set.isRunning());
-        sTestAnimationHandler.advanceTimeBy(80);
+        sAnimatorTestRule.advanceTimeBy(80);
         for (int i = 0; i < 10; i++) {
             assertTrue(animators[i].isRunning());
-            sTestAnimationHandler.advanceTimeBy(100);
+            sAnimatorTestRule.advanceTimeBy(100);
             assertFalse(animators[i].isStarted());
         }
 

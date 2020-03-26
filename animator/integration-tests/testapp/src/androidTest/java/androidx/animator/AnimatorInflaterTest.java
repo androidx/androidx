@@ -43,7 +43,7 @@ public class AnimatorInflaterTest {
     private static final float EPSILON = 0.01f;
 
     @ClassRule
-    public static AnimationTestRule sAnimationTestRule = new AnimationTestRule();
+    public static AnimatorTestRule sAnimatorTestRule = new AnimatorTestRule();
 
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
@@ -60,7 +60,7 @@ public class AnimatorInflaterTest {
         anim.start();
 
         assertTrue(anim.isRunning());
-        sAnimationTestRule.advanceTimeBy(anim.getTotalDuration());
+        sAnimatorTestRule.advanceTimeBy(anim.getTotalDuration());
         assertFalse(anim.isRunning());
 
         float targetX = context.getResources().getDimension(R.dimen.test_animator_target_x);
@@ -89,7 +89,7 @@ public class AnimatorInflaterTest {
             float y = i <= 50 ? 0 : 100;
             assertEquals(i, obj.x, EPSILON);
             assertEquals(y, obj.y, EPSILON);
-            sAnimationTestRule.advanceTimeBy(inc);
+            sAnimatorTestRule.advanceTimeBy(inc);
         }
     }
 

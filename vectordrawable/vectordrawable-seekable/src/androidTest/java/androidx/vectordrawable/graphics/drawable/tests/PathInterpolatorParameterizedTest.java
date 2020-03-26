@@ -24,7 +24,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
-import androidx.animator.AnimationTestRule;
+import androidx.animator.AnimatorTestRule;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
@@ -59,7 +59,7 @@ public class PathInterpolatorParameterizedTest {
     }
 
     @ClassRule
-    public static AnimationTestRule animationRule = new AnimationTestRule();
+    public static AnimatorTestRule sAnimatorTestRule = new AnimatorTestRule();
 
     public PathInterpolatorParameterizedTest(int resId) {
         mResId = resId;
@@ -107,7 +107,7 @@ public class PathInterpolatorParameterizedTest {
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             avd.start();
-            animationRule.advanceTimeBy(1000);
+            sAnimatorTestRule.advanceTimeBy(1000);
         });
         assertThat(ended.get()).isTrue();
 
