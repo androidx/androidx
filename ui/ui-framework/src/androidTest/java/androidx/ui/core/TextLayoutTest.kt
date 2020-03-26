@@ -22,6 +22,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.framework.test.R
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.layout.rtl
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
@@ -35,6 +36,7 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -194,6 +196,29 @@ class TextLayoutTest {
         }
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
         verify(callback, times(1)).invoke(any())
+    }
+
+    @Test
+    fun testCorrectLayoutDirection() {
+        val latch = CountDownLatch(1)
+        var layoutDirection: LayoutDirection? = null
+        show {
+            CoreText(
+                text = AnnotatedString("..."),
+                modifier = Modifier.rtl,
+                style = TextStyle.Default,
+                softWrap = true,
+                overflow = TextOverflow.Clip,
+                maxLines = 1
+            ) { result ->
+                layoutDirection = result.layoutInput.layoutDirection
+                latch.countDown()
+            }
+        }
+
+        assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
+        assertThat(layoutDirection).isNotNull()
+        assertThat(layoutDirection!!).isEqualTo(LayoutDirection.Rtl)
     }
 
     private fun show(composable: @Composable() () -> Unit) {
