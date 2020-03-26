@@ -3120,7 +3120,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     @NonNull
     @Override
-    public <I, O> ActivityResultLauncher<I> prepareCall(
+    public final <I, O> ActivityResultLauncher<I> prepareCall(
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultCallback<O> callback) {
         return prepareCallInternal(contract, new Function<Void, ActivityResultRegistry>() {
@@ -3133,7 +3133,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     @NonNull
     @Override
-    public <I, O> ActivityResultLauncher<I> prepareCall(
+    public final <I, O> ActivityResultLauncher<I> prepareCall(
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultRegistry registry,
             @NonNull final ActivityResultCallback<O> callback) {

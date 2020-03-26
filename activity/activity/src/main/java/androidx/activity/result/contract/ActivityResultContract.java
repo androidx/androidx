@@ -64,7 +64,7 @@ public abstract class ActivityResultContract<I, O> {
      *
      * @param <T> type of the result
      */
-    public static class SynchronousResult<T> {
+    public static final class SynchronousResult<T> {
         private final @SuppressLint("UnknownNullness") T mValue;
 
         /**
