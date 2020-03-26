@@ -100,16 +100,13 @@ public class DeviceCredentialHandlerBridgeTest {
     }
 
     @Test
-    public void testFingerprintFragments_CanSetAndGet() {
+    public void testFingerprintDialogFragment_CanSetAndGet() {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
         assertThat(bridge.getFingerprintDialogFragment()).isNull();
-        assertThat(bridge.getFingerprintHelperFragment()).isNull();
 
-        final FingerprintDialogFragment dialogFragment = FingerprintDialogFragment.newInstance();
-        final FingerprintHelperFragment helperFragment = FingerprintHelperFragment.newInstance();
-        bridge.setFingerprintFragments(dialogFragment, helperFragment);
-        assertThat(bridge.getFingerprintDialogFragment()).isEqualTo(dialogFragment);
-        assertThat(bridge.getFingerprintHelperFragment()).isEqualTo(helperFragment);
+        final FingerprintDialogFragment fragment = FingerprintDialogFragment.newInstance();
+        bridge.setFingerprintDialogFragment(fragment);
+        assertThat(bridge.getFingerprintDialogFragment()).isEqualTo(fragment);
     }
 
     @Test
@@ -142,19 +139,18 @@ public class DeviceCredentialHandlerBridgeTest {
     }
 
     @Test
-    public void testCallbacks_ArePassedToFingerprintFragments_WhenSetAfter() {
+    public void testCallbacks_ArePassedToFingerprintDialogFragment_WhenSetAfter() {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
-        final FingerprintDialogFragment dialogFragment = FingerprintDialogFragment.newInstance();
-        final FingerprintHelperFragment helperFragment = FingerprintHelperFragment.newInstance();
-        bridge.setFingerprintFragments(dialogFragment, helperFragment);
-        assertThat(dialogFragment.mNegativeButtonListener).isNull();
-        assertThat(helperFragment.mExecutor).isNull();
-        assertThat(helperFragment.mClientAuthenticationCallback).isNull();
+        final FingerprintDialogFragment fragment = FingerprintDialogFragment.newInstance();
+        bridge.setFingerprintDialogFragment(fragment);
+        assertThat(fragment.mNegativeButtonListener).isNull();
+        assertThat(fragment.mExecutor).isNull();
+        assertThat(fragment.mClientAuthenticationCallback).isNull();
 
         bridge.setCallbacks(EXECUTOR, CLICK_LISTENER, AUTH_CALLBACK);
-        assertThat(dialogFragment.mNegativeButtonListener).isEqualTo(CLICK_LISTENER);
-        assertThat(helperFragment.mExecutor).isEqualTo(EXECUTOR);
-        assertThat(helperFragment.mClientAuthenticationCallback).isEqualTo(AUTH_CALLBACK);
+        assertThat(fragment.mNegativeButtonListener).isEqualTo(CLICK_LISTENER);
+        assertThat(fragment.mExecutor).isEqualTo(EXECUTOR);
+        assertThat(fragment.mClientAuthenticationCallback).isEqualTo(AUTH_CALLBACK);
     }
 
     @Test
@@ -194,8 +190,7 @@ public class DeviceCredentialHandlerBridgeTest {
     public void testReset_ClearsState_WhenNotIgnoringReset() {
         final DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstance();
         bridge.setClientThemeResId(1);
-        bridge.setFingerprintFragments(
-                FingerprintDialogFragment.newInstance(), FingerprintHelperFragment.newInstance());
+        bridge.setFingerprintDialogFragment(FingerprintDialogFragment.newInstance());
         bridge.setCallbacks(EXECUTOR, CLICK_LISTENER, AUTH_CALLBACK);
         bridge.setDeviceCredentialResult(DeviceCredentialHandlerBridge.RESULT_SUCCESS);
         bridge.setConfirmingDeviceCredential(true);
@@ -203,7 +198,6 @@ public class DeviceCredentialHandlerBridgeTest {
         bridge.reset();
         assertThat(bridge.getClientThemeResId()).isEqualTo(0);
         assertThat(bridge.getFingerprintDialogFragment()).isNull();
-        assertThat(bridge.getFingerprintHelperFragment()).isNull();
         assertThat(bridge.getExecutor()).isNull();
         assertThat(bridge.getOnClickListener()).isNull();
         assertThat(bridge.getAuthenticationCallback()).isNull();
