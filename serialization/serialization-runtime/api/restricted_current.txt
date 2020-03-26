@@ -1,11 +1,6 @@
 // Signature format: 3.0
 package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) androidx.serialization.runtime.internal {
 
-  public final class CollectionFactories {
-    method public static <T> androidx.serialization.runtime.internal.CollectionFactory<java.util.List<T!>!> getListFactory();
-    method public static <T> androidx.serialization.runtime.internal.CollectionFactory<java.util.Set<T!>!> getSetFactory();
-  }
-
   public interface CollectionFactory<C extends java.util.Collection<?>> {
     method public C create(int);
   }
@@ -105,6 +100,12 @@ package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @
   public interface EnumSerializerV1<T extends java.lang.Enum<T>> {
     method public T decode(int);
     method public int encode(T);
+  }
+
+  public final class SerializationRuntime {
+    method public static <T> T defaultInstanceOf(androidx.serialization.runtime.internal.SerializerV1<T!>);
+    method public static <T> androidx.serialization.runtime.internal.CollectionFactory<java.util.List<T!>!> getListFactory();
+    method public static <T> androidx.serialization.runtime.internal.CollectionFactory<java.util.Set<T!>!> getSetFactory();
   }
 
   public interface SerializerV1<T> {
