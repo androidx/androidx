@@ -211,6 +211,7 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
         return internalPath.op(path1.asAndroidPath(), path2.asAndroidPath(), op)
     }
 
+    @Suppress("DEPRECATION") // Path.isConvex
     override val isConvex: Boolean get() = internalPath.isConvex
 
     override val isEmpty: Boolean get() = internalPath.isEmpty
