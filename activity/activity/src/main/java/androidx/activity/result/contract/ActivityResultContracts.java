@@ -333,21 +333,26 @@ public final class ActivityResultContracts {
     }
 
     /**
-     * An {@link ActivityResultContract} to prompt the user to pick a file, receiving its copy as
-     * a {@code file:/http:/content:} {@link Uri}.
+     * An {@link ActivityResultContract} to prompt the user to pick a piece of content, receiving
+     * a {@code content://} {@link Uri} for that content that allows you to use
+     * {@link android.content.ContentResolver#openInputStream(Uri)} to access the raw data. By
+     * default, this adds {@link Intent#CATEGORY_OPENABLE} to only return content that can be
+     * represented as a stream.
      * <p>
      * The input is the mime type to filter by, e.g. {@code image/*}.
      * <p>
      * This can be extended to override {@link #createIntent} if you wish to pass additional
      * extras to the Intent created by {@code super.createIntent()}.
      */
-    public static class PickFile extends ActivityResultContract<String, Uri> {
+    public static class GetContent extends ActivityResultContract<String, Uri> {
 
         @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull String input) {
-            return new Intent(Intent.ACTION_GET_CONTENT).setType(input);
+            return new Intent(Intent.ACTION_GET_CONTENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType(input);
         }
 
         @Nullable
@@ -366,8 +371,11 @@ public final class ActivityResultContracts {
     }
 
     /**
-     * An {@link ActivityResultContract} to prompt the user to pick (possibly multiple) files,
-     * receiving their copies as a {@code file:/http:/content:} {@link Uri}s.
+     * An {@link ActivityResultContract} to prompt the user to pick one or more a pieces of
+     * content, receiving a {@code content://} {@link Uri} for each piece of content that allows
+     * you to use {@link android.content.ContentResolver#openInputStream(Uri)}
+     * to access the raw data. By default, this adds {@link Intent#CATEGORY_OPENABLE} to only
+     * return content that can be represented as a stream.
      * <p>
      * The input is the mime type to filter by, e.g. {@code image/*}.
      * <p>
@@ -375,13 +383,14 @@ public final class ActivityResultContracts {
      * extras to the Intent created by {@code super.createIntent()}.
      */
     @TargetApi(18)
-    public static class PickFiles extends ActivityResultContract<String, List<Uri>> {
+    public static class GetContents extends ActivityResultContract<String, List<Uri>> {
 
         @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull String input) {
             return new Intent(Intent.ACTION_GET_CONTENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
                     .setType(input)
                     .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         }
@@ -489,7 +498,7 @@ public final class ActivityResultContracts {
         public final List<Uri> parseResult(int resultCode, @Nullable Intent intent) {
             if (resultCode != Activity.RESULT_OK) return null;
             if (intent == null) return null;
-            return PickFiles.getClipDataUris(intent);
+            return GetContents.getClipDataUris(intent);
         }
     }
 
