@@ -60,7 +60,7 @@ public class ObjectAnimatorTest {
     }
 
     @ClassRule
-    public static AnimationTestRule sAnimationTestRule = new AnimationTestRule();
+    public static AnimatorTestRule sAnimatorTestRule = new AnimatorTestRule();
 
     class AnimObject {
         public int x = 0;
@@ -119,10 +119,10 @@ public class ObjectAnimatorTest {
         assertEquals(1, obj.x);
         assertTrue(objectAnimator.isRunning());
 
-        sAnimationTestRule.advanceTimeBy(1999);
+        sAnimatorTestRule.advanceTimeBy(1999);
         assertTrue(objectAnimator.isRunning());
 
-        sAnimationTestRule.advanceTimeBy(1);
+        sAnimatorTestRule.advanceTimeBy(1);
         assertFalse(objectAnimator.isRunning());
     }
 
@@ -147,7 +147,7 @@ public class ObjectAnimatorTest {
 
         for (long i = 1; i < objAnimator.getDuration(); i++) {
             // Advance time by 1ms at a time
-            sAnimationTestRule.advanceTimeBy(1);
+            sAnimatorTestRule.advanceTimeBy(1);
             assertEquals((float) i, object.y, EPSILON);
         }
     }
@@ -188,7 +188,7 @@ public class ObjectAnimatorTest {
         for (long i = 0; i <= intAnimator.getDuration(); i++) {
             // Advance time by 1ms at a time
             assertEquals((int) i, 100 - object.x);
-            sAnimationTestRule.advanceTimeBy(1);
+            sAnimatorTestRule.advanceTimeBy(1);
         }
     }
 
@@ -221,7 +221,7 @@ public class ObjectAnimatorTest {
             // Check that channel is interpolated separately.
             assertEquals(0xFF, Color.alpha(object.color));
             assertEquals(0x80, Color.green(object.color));
-            sAnimationTestRule.advanceTimeBy(1);
+            sAnimatorTestRule.advanceTimeBy(1);
         }
 
     }
@@ -249,7 +249,7 @@ public class ObjectAnimatorTest {
 
         for (int i = 0; i <= 200; i++) {
             assertEquals(i, 200 - object.x);
-            sAnimationTestRule.advanceTimeBy(1);
+            sAnimatorTestRule.advanceTimeBy(1);
         }
 
         assertFalse(intAnimator.isStarted());
@@ -279,7 +279,7 @@ public class ObjectAnimatorTest {
 
             // Check that channel is interpolated separately.
             assertEquals(0xFF, Color.alpha(object.color));
-            sAnimationTestRule.advanceTimeBy(1);
+            sAnimatorTestRule.advanceTimeBy(1);
         }
     }
 
@@ -295,10 +295,10 @@ public class ObjectAnimatorTest {
 
         // Check that the animation didn't fail to start due to null target
         assertTrue(anim.isStarted());
-        sAnimationTestRule.advanceTimeBy(299);
+        sAnimatorTestRule.advanceTimeBy(299);
         assertTrue(anim.isStarted());
 
-        sAnimationTestRule.advanceTimeBy(1);
+        sAnimatorTestRule.advanceTimeBy(1);
         assertFalse(anim.isStarted());
     }
 
@@ -344,7 +344,7 @@ public class ObjectAnimatorTest {
             float fraction = i / 2000f;
             fraction = objAnimator.getInterpolator().getInterpolation(fraction);
             assertEquals(fraction * 2000, object.y);
-            sAnimationTestRule.advanceTimeBy(100);
+            sAnimatorTestRule.advanceTimeBy(100);
         }
 
         assertFalse(objAnimator.isStarted());
@@ -452,7 +452,7 @@ public class ObjectAnimatorTest {
                 assertEquals(x, target.positionX, EPSILON);
                 assertEquals(x, target.positionY, EPSILON);
             }
-            sAnimationTestRule.advanceTimeBy(2);
+            sAnimatorTestRule.advanceTimeBy(2);
         }
     }
 
@@ -495,7 +495,7 @@ public class ObjectAnimatorTest {
                 assertEquals(i - 100, target.positionX);
                 assertEquals(i - 100, target.positionY);
             }
-            sAnimationTestRule.advanceTimeBy(1);
+            sAnimatorTestRule.advanceTimeBy(1);
         }
 
         assertFalse(anim.isStarted());
@@ -538,7 +538,7 @@ public class ObjectAnimatorTest {
                 assertEquals(i - 100f, target.x, EPSILON);
                 assertEquals(i - 100f, target.y, EPSILON);
             }
-            sAnimationTestRule.advanceTimeBy(1);
+            sAnimatorTestRule.advanceTimeBy(1);
         }
 
         assertFalse(anim.isStarted());
@@ -581,7 +581,7 @@ public class ObjectAnimatorTest {
             assertEquals(expectedX * 2, target.y, EPSILON);
             assertEquals(0f, target.z, 0.0f);
 
-            sAnimationTestRule.advanceTimeBy(1);
+            sAnimatorTestRule.advanceTimeBy(1);
         }
     }
 
@@ -622,7 +622,7 @@ public class ObjectAnimatorTest {
                 assertEquals(i - 100, target.x);
                 assertEquals(i - 100, target.y);
             }
-            sAnimationTestRule.advanceTimeBy(1);
+            sAnimatorTestRule.advanceTimeBy(1);
         }
 
         assertFalse(anim.isStarted());
@@ -665,7 +665,7 @@ public class ObjectAnimatorTest {
             assertEquals(expectedX * 2, target.y);
             assertEquals(0, target.z);
 
-            sAnimationTestRule.advanceTimeBy(1);
+            sAnimatorTestRule.advanceTimeBy(1);
         }
     }
 
@@ -718,7 +718,7 @@ public class ObjectAnimatorTest {
             PointF position = (PointF) anim2.getAnimatedValue();
             assertEquals(distance, Math.sqrt(position.x * position.x + position.y * position.y),
                     EPSILON);
-            sAnimationTestRule.advanceTimeBy(10);
+            sAnimatorTestRule.advanceTimeBy(10);
         }
     }
 
@@ -739,10 +739,10 @@ public class ObjectAnimatorTest {
         objAnimator.start();
         assertTrue(objAnimator.isStarted());
 
-        sAnimationTestRule.advanceTimeBy(199);
+        sAnimatorTestRule.advanceTimeBy(199);
         assertTrue(objAnimator.isStarted());
 
-        sAnimationTestRule.advanceTimeBy(1);
+        sAnimatorTestRule.advanceTimeBy(1);
         assertFalse(objAnimator.isStarted());
     }
 
@@ -763,7 +763,7 @@ public class ObjectAnimatorTest {
 
         anim1.start();
         assertEquals(startValue, target.y, EPSILON);
-        sAnimationTestRule.advanceTimeBy(anim1.getDuration());
+        sAnimatorTestRule.advanceTimeBy(anim1.getDuration());
         assertEquals(endValue, target.y, EPSILON);
     }
 }
