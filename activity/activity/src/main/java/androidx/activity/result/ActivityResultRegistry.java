@@ -27,6 +27,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -72,12 +73,14 @@ public abstract class ActivityResultRegistry {
      * @param requestCode request code to use
      * @param contract contract to use for type conversions
      * @param input input required to execute an ActivityResultContract.
+     * @param options Additional options for how the Activity should be started.
      */
     @MainThread
     public abstract <I, O> void invoke(
             int requestCode,
             @NonNull ActivityResultContract<I, O> contract,
-            @SuppressLint("UnknownNullness") I input);
+            @SuppressLint("UnknownNullness") I input,
+            @Nullable ActivityOptionsCompat options);
 
     /**
      * Register a new callback with this registry.
@@ -139,8 +142,8 @@ public abstract class ActivityResultRegistry {
 
         return new ActivityResultLauncher<I>() {
             @Override
-            public void launch(I input) {
-                invoke(requestCode, contract, input);
+            public void launch(I input, @Nullable ActivityOptionsCompat options) {
+                invoke(requestCode, contract, input, options);
             }
 
             @Override
@@ -184,8 +187,8 @@ public abstract class ActivityResultRegistry {
 
         return new ActivityResultLauncher<I>() {
             @Override
-            public void launch(I input) {
-                invoke(requestCode, contract, input);
+            public void launch(I input, @Nullable ActivityOptionsCompat options) {
+                invoke(requestCode, contract, input, options);
             }
 
             @Override

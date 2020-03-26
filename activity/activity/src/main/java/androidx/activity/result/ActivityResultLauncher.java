@@ -21,6 +21,8 @@ import android.annotation.SuppressLint;
 
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.MainThread;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityOptionsCompat;
 
 /**
  * A launcher for a prevoiusly-{@link ActivityResultCaller#prepareCall prepared call} to start
@@ -28,14 +30,25 @@ import androidx.annotation.MainThread;
  *
  * @param <I> type of the input required to launch
  */
-public interface ActivityResultLauncher<I> {
+public abstract class ActivityResultLauncher<I> {
 
     /**
      * Executes an {@link ActivityResultContract}.
      *
      * @param input the input required to execute an {@link ActivityResultContract}.
      */
-    void launch(@SuppressLint("UnknownNullness") I input);
+    public void launch(@SuppressLint("UnknownNullness") I input) {
+        launch(input, null);
+    }
+
+    /**
+     * Executes an {@link ActivityResultContract}.
+     *
+     * @param input the input required to execute an {@link ActivityResultContract}.
+     * @param options Additional options for how the Activity should be started.
+     */
+    public abstract void launch(@SuppressLint("UnknownNullness") I input,
+            @Nullable ActivityOptionsCompat options);
 
     /**
      * Unregisters this launcher, releasing the underlying result callback, and any references
@@ -45,5 +58,5 @@ public interface ActivityResultLauncher<I> {
      * launcher.
      */
     @MainThread
-    void unregister();
+    public abstract void unregister();
 }
