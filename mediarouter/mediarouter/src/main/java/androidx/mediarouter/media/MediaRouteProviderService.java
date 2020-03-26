@@ -267,7 +267,7 @@ public abstract class MediaRouteProviderService extends Service {
         }
     }
 
-    private static void sendGenericSuccess(Messenger messenger, int requestId) {
+    static void sendGenericSuccess(Messenger messenger, int requestId) {
         if (requestId != 0) {
             sendReply(messenger, SERVICE_MSG_GENERIC_SUCCESS, requestId, 0, null, null);
         }
