@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 @RequiresApi(api = Build.VERSION_CODES.R)
 class MediaRoute2ProviderServiceStub extends MediaRoute2ProviderService {
     private static final String TAG = "MR2ProviderService";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final Object mLock = new Object();
 
