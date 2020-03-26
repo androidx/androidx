@@ -18,6 +18,7 @@ package androidx.ui.res
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
+import android.util.TypedValue
 import android.util.Xml
 import androidx.annotation.DrawableRes
 import androidx.compose.Composable
@@ -71,7 +72,13 @@ fun loadVectorResource(
     val res = context.resources
     val theme = context.theme
 
-    return loadResource(id, pendingResource, failedResource) {
+    val value = remember { TypedValue() }
+    res.getValue(id, value, true)
+    // We use the file path as a key of the request cache.
+    // TODO(nona): Add density to the key?
+    val key = value.string!!.toString() // Vector drawable must have path in resource.
+
+    return loadResource(key, pendingResource, failedResource) {
         trace("Vector Resource Loading") {
             loadVectorResource(theme, res, id)
         }

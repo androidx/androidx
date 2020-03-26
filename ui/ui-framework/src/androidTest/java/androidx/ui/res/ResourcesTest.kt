@@ -71,7 +71,7 @@ class ResourcesTest {
         composeTestRule.setContent {
             Providers(ContextAmbient provides context) {
                 res = loadResourceInternal(
-                    id = R.drawable.loaded_image,
+                    key = "random key string",
                     pendingResource = pendingImage,
                     failedResource = failedImage,
                     executor = pendingExecutor,
@@ -79,7 +79,7 @@ class ResourcesTest {
                     cacheLock = cacheLock,
                     requestCache = requestCache,
                     resourceCache = resourceCache,
-                    loader = { imageFromResource(resource, it) }
+                    loader = { imageFromResource(resource, R.drawable.loaded_image) }
                 )
             }
         }
@@ -125,7 +125,7 @@ class ResourcesTest {
         composeTestRule.setContent {
             Providers(ContextAmbient provides context) {
                 res = loadResourceInternal(
-                    id = R.drawable.loaded_image,
+                    key = "random key string",
                     pendingResource = pendingImage,
                     failedResource = failedImage,
                     executor = pendingExecutor,

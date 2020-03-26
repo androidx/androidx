@@ -16,16 +16,13 @@
 
 package androidx.ui.res
 
-import android.content.res.Resources
 import android.os.Handler
 import android.os.Looper
 import android.util.LruCache
-import android.util.TypedValue
 import androidx.annotation.GuardedBy
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.remember
-import androidx.ui.core.ContextAmbient
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
@@ -109,13 +106,13 @@ class FailedResource<T>(resource: T?, val throwable: Throwable?) : Resource<T>(r
 // TODO(nona): Accept CoroutineScope for customizing fetching coroutine.
 @Composable
 internal fun <T> loadResource(
-    id: Int,
+    key: String,
     pendingResource: T? = null,
     failedResource: T? = null,
-    loader: (Int) -> T
+    loader: () -> T
 ): DeferredResource<T> {
     return loadResourceInternal(
-        id,
+        key,
         pendingResource,
         failedResource,
         executor,
@@ -132,7 +129,7 @@ internal fun <T> loadResource(
 @Suppress("UNCHECKED_CAST")
 @Composable
 internal fun <T> loadResourceInternal(
-    id: Int,
+    key: String,
     pendingResource: T? = null,
     failedResource: T? = null,
     executor: Executor,
@@ -140,14 +137,8 @@ internal fun <T> loadResourceInternal(
     cacheLock: Any,
     requestCache: MutableMap<String, MutableList<DeferredResource<*>>>,
     resourceCache: LruCache<String, Any>,
-    loader: (Int) -> T
+    loader: () -> T
 ): DeferredResource<T> {
-    val context = ContextAmbient.current
-    val value = remember { TypedValue() }
-    context.resources.getValue(id, value, true)
-    // We use the file path as a key of the request cache.
-    // TODO(nona): Add density to the key?
-    val key = value.string?.toString()
     val deferred = remember(key, pendingResource, failedResource) {
         DeferredResource(
             state = LoadingState.PENDING,
@@ -162,12 +153,7 @@ internal fun <T> loadResourceInternal(
         return deferred
     }
 
-    if (key == null) {
-        return deferred.apply { failed(Resources.NotFoundException("path not found")) }
-    }
-
     synchronized(cacheLock) {
-
         // Check if we already know the loadedresource, return with marking load completed.
         resourceCache.get(key)?.let { return deferred.apply { loadCompleted(it as T) } }
 
@@ -178,7 +164,7 @@ internal fun <T> loadResourceInternal(
 
                 executor.execute {
                     try {
-                        val loaded = loader(id)
+                        val loaded = loader()
                         uiThreadHandler {
                             synchronized(cacheLock) {
                                 requestCache.remove(key)?.forEach {
@@ -198,6 +184,6 @@ internal fun <T> loadResourceInternal(
                 }
             }
         }
-        return deferred
     }
+    return deferred
 }
