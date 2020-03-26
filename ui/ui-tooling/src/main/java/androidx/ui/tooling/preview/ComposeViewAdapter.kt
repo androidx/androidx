@@ -30,7 +30,7 @@ import androidx.compose.Providers
 import androidx.compose.currentComposer
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
-import androidx.ui.core.toFrameworkRect
+import androidx.ui.core.toAndroidRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.tooling.Group
@@ -205,7 +205,7 @@ internal class ComposeViewAdapter : FrameLayout {
                             it.bounds.right.toPx(),
                             it.bounds.bottom.toPx()
                         )
-                        drawRect(pxBounds.toRect().toFrameworkRect(), debugBoundsPaint)
+                        drawRect(pxBounds.toRect().toAndroidRect(), debugBoundsPaint)
                     }
                 }
             }

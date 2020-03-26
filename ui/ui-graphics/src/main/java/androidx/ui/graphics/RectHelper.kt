@@ -17,7 +17,11 @@ package androidx.ui.core
 
 import androidx.ui.geometry.Rect
 
-fun Rect.toFrameworkRect(): android.graphics.Rect {
+/**
+ * Creates a new instance of [android.graphics.Rect] with the same bounds
+ * specified in the given [Rect]
+ */
+fun Rect.toAndroidRect(): android.graphics.Rect {
     return android.graphics.Rect(
         left.toInt(),
         top.toInt(),
@@ -26,7 +30,11 @@ fun Rect.toFrameworkRect(): android.graphics.Rect {
     )
 }
 
-fun Rect.toFrameworkRectF(): android.graphics.RectF {
+/**
+ * Creates a new instance of [android.graphics.RectF] with the same bounds
+ * specified in the given [Rect]
+ */
+fun Rect.toAndroidRectF(): android.graphics.RectF {
     return android.graphics.RectF(
         left,
         top,
