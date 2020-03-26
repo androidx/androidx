@@ -263,7 +263,7 @@ private fun SliderImpl(
                     shape = CircleShape,
                     color = color,
                     elevation = if (pressed) 6.dp else 1.dp,
-                    modifier = ripple(bounded = false)
+                    modifier = Modifier.ripple(bounded = false)
                 ) {
                     Spacer(Modifier.preferredSize(thumbSize, thumbSize))
                 }

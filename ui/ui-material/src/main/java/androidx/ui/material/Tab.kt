@@ -507,7 +507,11 @@ fun Tab(
     modifier: Modifier = Modifier.None,
     children: @Composable() () -> Unit
 ) {
-    MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
+    MutuallyExclusiveSetItem(
+        selected = selected,
+        onClick = onSelected,
+        modifier = Modifier.ripple()
+    ) {
         Box(modifier.fillMaxWidth(), gravity = ContentGravity.Center, children = children)
     }
 }

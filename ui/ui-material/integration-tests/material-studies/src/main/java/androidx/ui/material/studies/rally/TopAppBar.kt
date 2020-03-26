@@ -73,7 +73,7 @@ private fun RallyTab(
             MutuallyExclusiveSetItem(
                 selected = selected,
                 onClick = onSelected,
-                modifier = ripple(bounded = false)
+                modifier = Modifier.ripple(bounded = false)
             ) {
                 Row {
                     Icon(vectorImage = icon, tintColor = tabTintColor)

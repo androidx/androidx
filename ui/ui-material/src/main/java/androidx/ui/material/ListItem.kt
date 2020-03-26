@@ -167,7 +167,11 @@ fun ListItem(
 
     if (onClick != null) {
         val rippleColor = MaterialTheme.colors.onSurface.copy(alpha = RippleOpacity)
-        Clickable(onClick = onClick, children = item, modifier = ripple(color = rippleColor))
+        Clickable(
+            onClick = onClick,
+            modifier = Modifier.ripple(color = rippleColor),
+            children = item
+        )
     } else {
         item()
     }

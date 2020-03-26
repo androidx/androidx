@@ -111,7 +111,7 @@ fun TriStateCheckbox(
                 state = state,
                 onClick = onClick,
                 enabled = enabled,
-                modifier = ripple(bounded = false, enabled = enabled)
+                modifier = Modifier.ripple(bounded = false, enabled = enabled)
             ) {
                 DrawCheckbox(
                     value = state,
