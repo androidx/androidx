@@ -30,10 +30,10 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.drawBorder
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
@@ -279,12 +279,7 @@ fun FancyIndicator(color: Color) {
     Stack(
         Modifier.padding(5.dp)
             .fillMaxSize()
-            .plus(
-                DrawBorder(
-                    Border(2.dp, color),
-                    RoundedCornerShape(5.dp)
-                )
-            )
+            .drawBorder(Border(2.dp, color), RoundedCornerShape(5.dp))
     ) {}
 }
 

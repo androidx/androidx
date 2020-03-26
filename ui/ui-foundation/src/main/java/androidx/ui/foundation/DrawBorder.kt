@@ -50,9 +50,81 @@ import androidx.ui.unit.px
  * @param border [Border] class that specifies border appearance, such as size and color
  * @param shape shape of the border
  */
+@Deprecated(
+    "Use Modifier.drawBorder",
+    replaceWith = ReplaceWith(
+        "Modifier.drawBorder(border, shape)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.foundation.drawBorder",
+        "androidx.ui.foundation.shape.RectangleShape",
+        "androidx.ui.foundation.Border"
+    )
+)
 @Composable
-fun DrawBorder(border: Border, shape: Shape = RectangleShape): DrawBorder =
-    DrawBorder(size = border.size, brush = border.brush, shape = shape)
+fun DrawBorder(border: Border, shape: Shape = RectangleShape): Modifier =
+    Modifier.drawBorder(size = border.size, brush = border.brush, shape = shape)
+
+/**
+ * Returns a [Modifier] that adds border with appearance specified with [size], [color] and a
+ * [shape]
+ *
+ * @sample androidx.ui.foundation.samples.BorderSampleWithDataClass()
+ *
+ * @param size width of the border. Use [Dp.Hairline] for a hairline border.
+ * @param color color to paint the border with
+ * @param shape shape of the border
+ */
+@Deprecated(
+    "Use Modifier.drawBorder",
+    replaceWith = ReplaceWith(
+        "Modifier.drawBorder(size, color, shape)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.foundation.drawBorder",
+        "androidx.ui.foundation.shape.RectangleShape"
+    )
+)
+@Composable
+fun DrawBorder(size: Dp, color: Color, shape: Shape = RectangleShape): Modifier =
+    Modifier.drawBorder(size, SolidColor(color), shape)
+
+/**
+ * Returns a [Modifier] that adds border with appearance specified with [size], [brush] and a
+ * [shape]
+ *
+ * @sample androidx.ui.foundation.samples.BorderSampleWithBrush()
+ *
+ * @param size width of the border. Use [Dp.Hairline] for a hairline border.
+ * @param brush brush to paint the border with
+ * @param shape shape of the border
+ */
+@Deprecated(
+    "Use Modifier.drawBorder",
+    replaceWith = ReplaceWith(
+        "Modifier.drawBorder(size, brush, shape)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.foundation.drawBorder",
+        "androidx.ui.foundation.shape.RectangleShape"
+    )
+)
+@Composable
+fun DrawBorder(size: Dp, brush: Brush, shape: Shape): DrawBorder {
+    val cache = remember {
+        DrawBorderCache()
+    }
+    return DrawBorder(cache, shape, size, brush)
+}
+
+/**
+ * Returns a [Modifier] that adds border with appearance specified with a [border] and a [shape]
+ *
+ * @sample androidx.ui.foundation.samples.BorderSample()
+ *
+ * @param border [Border] class that specifies border appearance, such as size and color
+ * @param shape shape of the border
+ */
+@Composable
+fun Modifier.drawBorder(border: Border, shape: Shape = RectangleShape) =
+    drawBorder(size = border.size, brush = border.brush, shape = shape)
 
 /**
  * Returns a [Modifier] that adds border with appearance specified with [size], [color] and a
@@ -65,8 +137,8 @@ fun DrawBorder(border: Border, shape: Shape = RectangleShape): DrawBorder =
  * @param shape shape of the border
  */
 @Composable
-fun DrawBorder(size: Dp, color: Color, shape: Shape = RectangleShape): DrawBorder =
-    DrawBorder(size, SolidColor(color), shape)
+fun Modifier.drawBorder(size: Dp, color: Color, shape: Shape = RectangleShape) =
+    drawBorder(size, SolidColor(color), shape)
 
 /**
  * Returns a [Modifier] that adds border with appearance specified with [size], [brush] and a
@@ -79,11 +151,11 @@ fun DrawBorder(size: Dp, color: Color, shape: Shape = RectangleShape): DrawBorde
  * @param shape shape of the border
  */
 @Composable
-fun DrawBorder(size: Dp, brush: Brush, shape: Shape): DrawBorder {
+fun Modifier.drawBorder(size: Dp, brush: Brush, shape: Shape): Modifier {
     val cache = remember {
         DrawBorderCache()
     }
-    return DrawBorder(cache, shape, size, brush)
+    return this + DrawBorder(cache, shape, size, brush)
 }
 
 class DrawBorder internal constructor(
