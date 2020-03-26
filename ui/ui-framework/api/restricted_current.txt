@@ -516,6 +516,12 @@ package androidx.ui.res {
     method public Throwable? getThrowable();
   }
 
+  public final class FontResourcesKt {
+    method public static androidx.ui.text.Typeface fontResource(androidx.ui.text.font.FontFamily fontFamily);
+    method public static androidx.ui.res.DeferredResource<androidx.ui.text.Typeface> loadFontResource(androidx.ui.text.font.FontFamily fontFamily, androidx.ui.text.font.FontFamily? pendingFontFamily = null, androidx.ui.text.font.FontFamily? failedFontFamily = null);
+    method public static androidx.ui.res.DeferredResource<androidx.ui.text.Typeface> loadFontResource(androidx.ui.text.font.FontFamily fontFamily, androidx.ui.text.Typeface? pendingTypeface = null, androidx.ui.text.Typeface? failedTypeface = null);
+  }
+
   public final class ImageResourcesKt {
     method public static androidx.ui.graphics.ImageAsset imageResource(@DrawableRes int id);
     method public static androidx.ui.res.DeferredResource<androidx.ui.graphics.ImageAsset> loadImageResource(int id, androidx.ui.graphics.ImageAsset? pendingImage = null, androidx.ui.graphics.ImageAsset? failedImage = null);
