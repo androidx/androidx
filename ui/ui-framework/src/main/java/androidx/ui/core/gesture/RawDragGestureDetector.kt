@@ -140,8 +140,11 @@ internal class RawDragGestureRecognizer : PointerInputFilter() {
     var canStartDragging: (() -> Boolean)? = null
     lateinit var dragObserver: DragObserver
 
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
 
             var changesToReturn = changes
 
@@ -296,10 +299,10 @@ internal class RawDragGestureRecognizer : PointerInputFilter() {
                 changesToReturn = movedChanges + otherChanges
             }
 
-            changesToReturn
+            return changesToReturn
         }
 
-    override val cancelHandler = {
+    override fun onCancel() {
         downPositions.clear()
         velocityTrackers.clear()
         if (started) {

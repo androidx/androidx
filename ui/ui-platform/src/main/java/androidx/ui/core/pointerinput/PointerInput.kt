@@ -22,7 +22,6 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
-import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.PointerInputNode
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -45,37 +44,55 @@ abstract class PointerInputFilter {
 
     /**
      * Invoked when pointers that previously hit this [PointerInputFilter] have changed.
+     *
+     * @param changes The list of [PointerInputChange]s with positions relative to this
+     * [PointerInputFilter].
+     * @param pass The [PointerEventPass] in which this function is being called.
+     * @param bounds The width and height associated with this [PointerInputFilter].
+     * @return The list of [PointerInputChange]s after any aspect of the changes have been consumed.
+     *
+     * @see PointerInputChange
+     * @see PointerEventPass
      */
-    abstract val pointerInputHandler: PointerInputHandler
+    abstract fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange>
 
     /**
      * Invoked to notify the handler that no more calls to [PointerInputFilter] will be made, until
      * at least new pointers exist.  This can occur for a few reasons:
-     * 1. Android dispatches ACTION_CANCEL to AndroidComposeView.onTouchEvent.
-     * 2. This [PointerInputFilter] is no longer associated with a Layout
+     * 1. Android dispatches ACTION_CANCEL to Compose.
+     * 2. This [PointerInputFilter] is no longer associated with a LayoutNode.
      * 3. This [PointerInputFilter]'s associated LayoutNode is no longer in the composition tree.
      */
-    abstract val cancelHandler: () -> Unit
+    abstract fun onCancel()
 
     /**
      * Invoked right after this [PointerInputFilter] is hit by a pointer during hit testing.
      *
+     * @param customEventDispatcher The [CustomEventDispatcher] that can be used to dispatch
+     * [CustomEvent] across the tree of hit [PointerInputFilter]s.
+     *
      * @See CustomEventDispatcher
      */
-    open val initHandler: ((CustomEventDispatcher) -> Unit)? = null
+    open fun onInit(customEventDispatcher: CustomEventDispatcher) {}
 
     /**
      * Invoked when a [CustomEvent] is dispatched by a [PointerInputNode].
      *
      * Dispatch occurs over all passes of [PointerEventPass].
      *
-     * The [CustomEvent] is the event being dispatched. The [PointerEventPass] is the pass that
-     * dispatch is currently on.
+     * @param customEvent The [CustomEvent] is the event being dispatched.
+     * @param pass The [PointerEventPass] in which this function is being called.
      *
      * @see CustomEvent
      * @see PointerEventPass
      */
-    open val customEventHandler: ((CustomEvent, PointerEventPass) -> Unit)? = null
+    open fun onCustomEvent(customEvent: CustomEvent, pass: PointerEventPass) {}
+
+    internal lateinit var layoutCoordinates: LayoutCoordinates
 
     internal val size: IntPxSize
         get() = layoutCoordinates.size
@@ -83,6 +100,4 @@ abstract class PointerInputFilter {
         get() = layoutCoordinates.localToGlobal(PxPosition.Origin).round()
     internal val isAttached: Boolean
         get() = layoutCoordinates.isAttached
-
-    internal lateinit var layoutCoordinates: LayoutCoordinates
 }

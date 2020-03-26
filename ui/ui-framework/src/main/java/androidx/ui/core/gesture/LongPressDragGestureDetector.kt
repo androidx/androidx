@@ -125,8 +125,8 @@ fun LongPressDragGestureDetector(
     glue.longPressDragObserver = longPressDragObserver
 
     return RawDragGestureDetector(glue.dragObserver, glue::dragEnabled) +
-                PointerInputModifierImpl(glue) +
-                LongPressGestureDetector(glue.onLongPress)
+            PointerInputModifierImpl(glue) +
+            LongPressGestureDetector(glue.onLongPress)
 }
 
 /**
@@ -166,22 +166,26 @@ private class LongPressDragGestureDetectorGlue : PointerInputFilter() {
 
     // This handler ensures that onStop will be called after long press happened, but before
     // dragging actually has begun.
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
-            if (pass == PointerEventPass.PostUp &&
-                dragEnabled &&
-                !dragStarted &&
-                changes.all { it.changedToUpIgnoreConsumed() }
-            ) {
-                dragEnabled = false
-                longPressDragObserver.onStop(PxPosition.Origin)
-            }
-            changes
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
+
+        if (pass == PointerEventPass.PostUp &&
+            dragEnabled &&
+            !dragStarted &&
+            changes.all { it.changedToUpIgnoreConsumed() }
+        ) {
+            dragEnabled = false
+            longPressDragObserver.onStop(PxPosition.Origin)
         }
+        return changes
+    }
 
     // This handler ensures that onCancel is called if onLongPress was previously called but
     // dragging has not yet started.
-    override val cancelHandler = {
+    override fun onCancel() {
         if (dragEnabled && !dragStarted) {
             dragEnabled = false
             longPressDragObserver.onCancel()
