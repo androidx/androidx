@@ -34,6 +34,9 @@ import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.util.Size;
 
@@ -73,7 +76,6 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 @LargeTest
 @RunWith(Parameterized.class)
@@ -102,7 +104,7 @@ public class ExtensionTest {
     }
 
     @Before
-    public void setUp() throws InterruptedException, TimeoutException, ExecutionException {
+    public void setUp() throws Exception {
         assumeTrue(CameraUtil.deviceHasCamera());
 
         Context context = ApplicationProvider.getApplicationContext();
@@ -112,6 +114,8 @@ public class ExtensionTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
         assumeTrue(ExtensionsTestUtil.initExtensions());
         assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
+        assumeTrue(isTargetDeviceAvailableForExtensions(context,
+                CameraX.getCameraWithLensFacing(mLensFacing)));
 
         mLifecycleOwner = new FakeLifecycleOwner();
         mLifecycleOwner.startAndResume();
@@ -196,5 +200,43 @@ public class ExtensionTest {
         assertNotNull(callback2);
         assertEquals(callback2.getAllItems().size(), 1);
         assertThat(callback2.getAllItems().get(0)).isInstanceOf(CameraEventCallback.class);
+    }
+
+    /**
+     * Returns whether the target camera device can support the test cases.
+     *
+     * <p>The test cases bind both ImageCapture and Preview. In the test lib implementation for
+     * HDR mode, both use cases will occupy YUV_420_888 format of stream. Therefore, the testing
+     * target devices need to be LIMITED hardware level at least to support two YUV_420_888
+     * streams at the same time.
+     *
+     * @param context  The context to obtain CameraCharacteristics.
+     * @param cameraId The id of the testing target camera device.
+     * @return true if the testing target camera device is LIMITED hardware level at least.
+     */
+    private boolean isTargetDeviceAvailableForExtensions(@NonNull Context context,
+            @NonNull String cameraId) {
+        boolean isAvailable = false;
+        CameraManager cameraManager = (CameraManager) context.getSystemService(
+                Context.CAMERA_SERVICE);
+        CameraCharacteristics cameraCharacteristics = null;
+        try {
+            cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
+        } catch (CameraAccessException e) {
+            throw new IllegalArgumentException(
+                    "Unable to retrieve info for camera with id " + cameraId + ".", e);
+        }
+
+        if (cameraCharacteristics != null) {
+            Integer keyValue = cameraCharacteristics.get(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+
+            if (keyValue != null) {
+                isAvailable =
+                        keyValue != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+            }
+        }
+
+        return isAvailable;
     }
 }
