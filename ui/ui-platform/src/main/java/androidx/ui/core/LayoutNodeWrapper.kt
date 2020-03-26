@@ -810,18 +810,22 @@ internal class LayerWrapper(
 
     override fun toParentPosition(position: PxPosition): PxPosition {
         val matrix = layer.getMatrix()
-        val x = position.x.value
-        val y = position.y.value
-        val cache = positionCache
-        val point = if (cache != null) {
-            cache[0] = x
-            cache[1] = y
-            cache
+        if (!matrix.isIdentity) {
+            val x = position.x.value
+            val y = position.y.value
+            val cache = positionCache
+            val point = if (cache != null) {
+                cache[0] = x
+                cache[1] = y
+                cache
+            } else {
+                floatArrayOf(x, y).also { positionCache = it }
+            }
+            matrix.mapPoints(point)
+            return super.toParentPosition(PxPosition(point[0].px, point[1].px))
         } else {
-            floatArrayOf(x, y).also { positionCache = it }
+            return super.toParentPosition(position)
         }
-        matrix.mapPoints(point)
-        return super.toParentPosition(PxPosition(point[0].px, point[1].px))
     }
 
     override fun rectInParent(bounds: RectF) {
