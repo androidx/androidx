@@ -20,6 +20,7 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
+import androidx.ui.util.fastAny
 
 /**
  * Utility method that determines if any pointers are currently in [bounds].
@@ -30,7 +31,7 @@ import androidx.ui.unit.IntPxSize
  * @return True if at least one pointer is in bounds.
  */
 fun List<PointerInputChange>.anyPointersInBounds(bounds: IntPxSize) =
-    any {
+    fastAny {
         it.current.down &&
                 it.current.position!!.x.value >= 0 &&
                 it.current.position!!.x < bounds.width &&

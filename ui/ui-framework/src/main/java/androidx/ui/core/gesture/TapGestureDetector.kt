@@ -27,6 +27,7 @@ import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
+import androidx.ui.util.fastAny
 
 /**
  * This gesture detector fires a callback when a traditional press is being released.  This is
@@ -102,7 +103,7 @@ internal class TapGestureRecognizer : PointerInputFilter() {
             }
 
             if (pass == PointerEventPass.PostDown && active &&
-                internalChanges.any { it.anyPositionChangeConsumed() }
+                internalChanges.fastAny { it.anyPositionChangeConsumed() }
             ) {
                 // On the final pass, if we have started and any of the changes had consumed
                 // position changes, we cancel.

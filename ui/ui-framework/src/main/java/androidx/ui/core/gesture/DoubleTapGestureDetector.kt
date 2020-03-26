@@ -30,6 +30,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.util.fastAny
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
@@ -102,7 +103,7 @@ internal class DoubleTapGestureRecognizer(
             }
 
             if (pass == PointerEventPass.PostDown &&
-                changesToReturn.any { it.anyPositionChangeConsumed() }
+                changesToReturn.fastAny { it.anyPositionChangeConsumed() }
             ) {
                 state = State.Idle
             }

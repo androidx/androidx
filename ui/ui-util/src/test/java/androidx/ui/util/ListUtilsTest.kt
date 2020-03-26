@@ -17,12 +17,14 @@
 package androidx.ui.util
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class FastForEachTest {
+class ListUtilsTest {
     @Test
     fun regularIteration() {
         val list = listOf(1, 5, 10)
@@ -48,5 +50,23 @@ class FastForEachTest {
         assertEquals(2, otherList.size)
         assertEquals(1, otherList[0])
         assertEquals(10, otherList[1])
+    }
+
+    @Test
+    fun anyEmpty() {
+        val list = listOf<Int>()
+        assertFalse(list.fastAny { it > 0 })
+    }
+
+    @Test
+    fun anyNotFound() {
+        val list = listOf(0, -1, -500)
+        assertFalse(list.fastAny { it > 0 })
+    }
+
+    @Test
+    fun anyFound() {
+        val list = listOf(0, -1, -500, 1)
+        assertTrue(list.fastAny { it > 0 })
     }
 }

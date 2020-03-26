@@ -34,6 +34,7 @@ import androidx.ui.core.positionChange
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
+import androidx.ui.util.fastAny
 
 interface DragObserver {
 
@@ -163,7 +164,7 @@ internal class RawDragGestureRecognizer : PointerInputFilter() {
 
                 // Handle up changes, which includes removing individual pointer VelocityTrackers
                 // and potentially calling onStop().
-                if (changesToReturn.any { it.changedToUpIgnoreConsumed() }) {
+                if (changesToReturn.fastAny { it.changedToUpIgnoreConsumed() }) {
 
                     var velocityTracker: VelocityTracker? = null
 
@@ -203,7 +204,7 @@ internal class RawDragGestureRecognizer : PointerInputFilter() {
                 }
 
                 // For each new pointer that has been added, start tracking information about it.
-                if (changesToReturn.any { it.changedToDownIgnoreConsumed() }) {
+                if (changesToReturn.fastAny { it.changedToDownIgnoreConsumed() }) {
                     changesToReturn.forEach {
                         // If a pointer has changed to down, we should start tracking information
                         // about it.
