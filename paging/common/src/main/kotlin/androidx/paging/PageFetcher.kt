@@ -19,6 +19,8 @@ package androidx.paging
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
+import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.RemoteMediator.InitializeAction
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.MediatorResult
@@ -68,7 +70,16 @@ internal class PageFetcher<Key : Any, Value : Any>(
             .onStart {
                 val shouldLaunch = remoteMediatorAccessor?.onInitialize()
                 if (shouldLaunch == LAUNCH_INITIAL_REFRESH) {
-                    remoteMediatorAccessor?.load(this@channelFlow, REFRESH, null)
+                    remoteMediatorAccessor?.load(
+                        scope = this@channelFlow,
+                        loadType = REFRESH,
+                        state = PagingState(
+                            pages = emptyList<Page<Key, Value>>(),
+                            anchorPosition = null,
+                            config = config,
+                            placeholdersStart = COUNT_UNDEFINED
+                        )
+                    )
                 }
 
                 emit(false)
@@ -77,7 +88,16 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 // Only trigger remote refresh on refresh signals that do not originate from
                 // initialization or PagingSource invalidation.
                 if (triggerRemoteRefresh) {
-                    remoteMediatorAccessor?.load(this@channelFlow, REFRESH, null)
+                    remoteMediatorAccessor?.load(
+                        scope = this@channelFlow,
+                        loadType = REFRESH,
+                        state = PagingState(
+                            pages = emptyList<Page<Key, Value>>(),
+                            anchorPosition = null,
+                            config = config,
+                            placeholdersStart = COUNT_UNDEFINED
+                        )
+                    )
                 }
 
                 val pagingSource = pagingSourceFactory()
@@ -150,14 +170,15 @@ internal class RemoteMediatorAccessor<Key : Any, Value : Any>(
     internal suspend fun load(
         scope: CoroutineScope,
         loadType: LoadType,
-        state: PagingState<Key, Value>?
+        state: PagingState<Key, Value>
     ): MediatorResult {
         val deferred = jobsByLoadTypeLock.withLock {
             val oldDeferred = jobsByLoadType[loadType]
             if (oldDeferred?.isActive == true) {
                 oldDeferred
             } else {
-                scope.async {
+                scope
+                    .async {
                         if (loadType == REFRESH) {
                             // Since RemoteMediator is expected to perform writes to the local DB
                             // in the common case, it's not safe to just cancel and proceed with

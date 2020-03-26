@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+AutoBoxing: androidx.paging.PagingState#getAnchorPosition():
+    Must avoid boxed primitives (`java.lang.Integer`)
+
+
 DocumentExceptions: androidx.paging.PagedList#loadAround(int):
     Method PagedList.loadAround appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.paging.PagedList.Config.Builder#build():
