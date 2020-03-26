@@ -569,13 +569,13 @@ class AnnotatedStringBuilderTest {
         val annotation = "Annotation"
         val scope = "Scope"
         val buildResult = AnnotatedString.Builder().apply {
-            pushAnnotationString(scope, annotation)
+            pushStringAnnotation(scope, annotation)
             append(text)
             pop()
         }.toAnnotatedString()
 
         assertThat(buildResult.text).isEqualTo(text)
-        assertThat(buildResult.getAnnotationString(scope, 0, text.length)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope, 0, text.length)).hasSize(1)
     }
 
     @Test
@@ -584,9 +584,9 @@ class AnnotatedStringBuilderTest {
         val annotation2 = "Annotation2"
         val scope = "Scope"
         val buildResult = AnnotatedString.Builder().apply {
-            pushAnnotationString(scope, annotation1)
+            pushStringAnnotation(scope, annotation1)
             append("Hello")
-            pushAnnotationString(scope, annotation2)
+            pushStringAnnotation(scope, annotation2)
             append("world")
             pop()
             append("!")
@@ -597,11 +597,11 @@ class AnnotatedStringBuilderTest {
         //                     [         ]
         //                          [   ]
         assertThat(buildResult.text).isEqualTo("Helloworld!")
-        assertThat(buildResult.getAnnotationString(scope, 0, 11)).hasSize(2)
-        assertThat(buildResult.getAnnotationString(scope, 0, 5)).hasSize(1)
-        assertThat(buildResult.getAnnotationString(scope, 5, 10)).hasSize(2)
-        assertThat(buildResult.getAnnotationString(scope, 10, 11)).hasSize(1)
-        val annotations = buildResult.getAnnotationString(scope, 0, 11)
+        assertThat(buildResult.getStringAnnotations(scope, 0, 11)).hasSize(2)
+        assertThat(buildResult.getStringAnnotations(scope, 0, 5)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope, 5, 10)).hasSize(2)
+        assertThat(buildResult.getStringAnnotations(scope, 10, 11)).hasSize(1)
+        val annotations = buildResult.getStringAnnotations(scope, 0, 11)
         assertThat(annotations[0]).isEqualTo(
             AnnotatedString.Item(annotation1, 0, 11, scope)
         )
@@ -617,9 +617,9 @@ class AnnotatedStringBuilderTest {
         val scope1 = "Scope1"
         val scope2 = "Scope2"
         val buildResult = AnnotatedString.Builder().apply {
-            pushAnnotationString(scope1, annotation1)
+            pushStringAnnotation(scope1, annotation1)
             append("Hello")
-            pushAnnotationString(scope2, annotation2)
+            pushStringAnnotation(scope2, annotation2)
             append("world")
             pop()
             append("!")
@@ -630,16 +630,16 @@ class AnnotatedStringBuilderTest {
         //                     [         ]
         //                          [   ]
         assertThat(buildResult.text).isEqualTo("Helloworld!")
-        assertThat(buildResult.getAnnotationString(scope1, 0, 11)).hasSize(1)
-        assertThat(buildResult.getAnnotationString(scope1, 0, 5)).hasSize(1)
-        assertThat(buildResult.getAnnotationString(scope1, 5, 10)).hasSize(1)
-        assertThat(buildResult.getAnnotationString(scope1, 5, 10).first())
+        assertThat(buildResult.getStringAnnotations(scope1, 0, 11)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope1, 0, 5)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope1, 5, 10)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope1, 5, 10).first())
             .isEqualTo(AnnotatedString.Item(annotation1, 0, 11, scope1))
 
-        assertThat(buildResult.getAnnotationString(scope2, 5, 10)).hasSize(1)
-        assertThat(buildResult.getAnnotationString(scope2, 5, 10).first())
+        assertThat(buildResult.getStringAnnotations(scope2, 5, 10)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope2, 5, 10).first())
             .isEqualTo(AnnotatedString.Item(annotation2, 5, 10, scope2))
-        assertThat(buildResult.getAnnotationString(scope2, 10, 11)).hasSize(0)
+        assertThat(buildResult.getStringAnnotations(scope2, 10, 11)).hasSize(0)
     }
 
     @Test
@@ -648,26 +648,26 @@ class AnnotatedStringBuilderTest {
         val scope = "Scope"
         val buildResult = AnnotatedString.Builder().apply {
             append("Hello")
-            pushAnnotationString(scope, annotation)
+            pushStringAnnotation(scope, annotation)
             append("World")
             pop()
             append("Hello")
-            pushAnnotationString(scope, annotation)
+            pushStringAnnotation(scope, annotation)
             pop()
             append("World")
         }.toAnnotatedString()
         // The final result is: HelloWorldHelloWorld
         //                           [   ]
         //                                    []
-        assertThat(buildResult.getAnnotationString(scope, 0, 5)).hasSize(0)
-        assertThat(buildResult.getAnnotationString(scope, 0, 6)).hasSize(1)
-        assertThat(buildResult.getAnnotationString(scope, 6, 6)).hasSize(1)
-        assertThat(buildResult.getAnnotationString(scope, 10, 10)).hasSize(0)
-        assertThat(buildResult.getAnnotationString(scope, 8, 13)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope, 0, 5)).hasSize(0)
+        assertThat(buildResult.getStringAnnotations(scope, 0, 6)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope, 6, 6)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope, 10, 10)).hasSize(0)
+        assertThat(buildResult.getStringAnnotations(scope, 8, 13)).hasSize(1)
 
-        assertThat(buildResult.getAnnotationString(scope, 15, 15)).hasSize(1)
-        assertThat(buildResult.getAnnotationString(scope, 10, 15)).hasSize(0)
-        assertThat(buildResult.getAnnotationString(scope, 15, 20)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope, 15, 15)).hasSize(1)
+        assertThat(buildResult.getStringAnnotations(scope, 10, 15)).hasSize(0)
+        assertThat(buildResult.getStringAnnotations(scope, 15, 20)).hasSize(1)
     }
 
     private fun createAnnotatedString(
