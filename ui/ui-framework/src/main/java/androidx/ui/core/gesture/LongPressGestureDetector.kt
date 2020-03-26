@@ -34,6 +34,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.util.fastAny
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
@@ -123,7 +124,7 @@ internal class LongPressGestureRecognizer(
             if (
                 pass == PointerEventPass.PostDown &&
                 state != State.Idle &&
-                changes.any { it.anyPositionChangeConsumed() }
+                changes.fastAny { it.anyPositionChangeConsumed() }
             ) {
                 // If we are anything but Idle and something consumed movement, reset.
                 resetToIdle()

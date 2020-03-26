@@ -26,3 +26,11 @@ inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
         action(item)
     }
 }
+
+/**
+ * Returns `true` if at least one element matches the given [predicate].
+ */
+inline fun <T> List<T>.fastAny(predicate: (T) -> Boolean): Boolean {
+    fastForEach { if (predicate(it)) return true }
+    return false
+}
