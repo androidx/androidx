@@ -32,6 +32,11 @@ import java.util.Set;
 @SuppressLint("NewApi")
 @RequiresApi(api = Build.VERSION_CODES.R)
 class MediaRouter2Utils {
+    //TODO: Once the prebuilt is updated, use those in MediaRoute2Info.
+    static final String FEATURE_LIVE_AUDIO = "android.media.route.feature.LIVE_AUDIO";
+    static final String FEATURE_LIVE_VIDEO = "android.media.route.feature.LIVE_VIDEO";
+    static final String FEATURE_REMOTE_PLAYBACK = "android.media.route.feature.REMOTE_PLAYBACK";
+
     private MediaRouter2Utils() {}
 
     public static MediaRoute2Info toFwkMediaRoute2Info(MediaRouteDescriptor descriptor) {
@@ -56,9 +61,33 @@ class MediaRouter2Utils {
         for (IntentFilter filter : controlFilters) {
             int count = filter.countCategories();
             for (int i = 0; i < count; i++) {
-                features.add(filter.getCategory(i));
+                features.add(toRouteFeature(filter.getCategory(i)));
             }
         }
         return features;
+    }
+
+    static String toRouteFeature(String controlCategory) {
+        switch (controlCategory) {
+            case MediaControlIntent.CATEGORY_LIVE_AUDIO:
+                return FEATURE_LIVE_AUDIO;
+            case MediaControlIntent.CATEGORY_LIVE_VIDEO:
+                return FEATURE_LIVE_VIDEO;
+            case MediaControlIntent.CATEGORY_REMOTE_PLAYBACK:
+                return FEATURE_REMOTE_PLAYBACK;
+        }
+        return controlCategory;
+    }
+
+    static String toControlCategory(String routeFeature) {
+        switch (routeFeature) {
+            case FEATURE_LIVE_AUDIO:
+                return MediaControlIntent.CATEGORY_LIVE_AUDIO;
+            case FEATURE_LIVE_VIDEO:
+                return MediaControlIntent.CATEGORY_LIVE_VIDEO;
+            case FEATURE_REMOTE_PLAYBACK:
+                return MediaControlIntent.CATEGORY_REMOTE_PLAYBACK;
+        }
+        return routeFeature;
     }
 }
