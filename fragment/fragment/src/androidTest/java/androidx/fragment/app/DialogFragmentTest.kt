@@ -81,6 +81,17 @@ class DialogFragmentTest {
 
     @UiThreadTest
     @Test
+    fun testDialogFragmentSetShowDialog() {
+        val fragment = TestDialogFragment(true)
+        fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+
+        assertWithMessage("Dialog was not null")
+            .that(fragment.dialog)
+            .isNull()
+    }
+
+    @UiThreadTest
+    @Test
     fun testDialogFragmentSetContentViewCalledBeforeStart() {
         val fragment = TestLayoutDialogFragment()
 
@@ -297,10 +308,13 @@ class DialogFragmentTest {
         fc2.shutdown(viewModelStore)
     }
 
-    class TestDialogFragment : DialogFragment() {
+    class TestDialogFragment(val setShowsDialog: Boolean = false) : DialogFragment() {
         var onCancelCalled = false
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            if (setShowsDialog) {
+                showsDialog = false
+            }
             val view = layoutInflater.inflate(R.layout.with_edit_text, null, false)
             return AlertDialog.Builder(context)
                 .setTitle("Test")
