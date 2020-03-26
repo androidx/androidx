@@ -31,6 +31,7 @@ import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
+import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
 import com.example.android.supportv7.R;
 
@@ -62,6 +63,12 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
     @Override
     public RouteController onCreateRouteController(String routeId) {
+        MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(routeId);
+        if (routeDescriptor == null) {
+            Log.w(TAG, "onCreateRouteController: unknown route ID " + routeId);
+            return null;
+        }
+
         return new SampleDynamicGroupRouteController(routeId, null);
     }
 
@@ -253,6 +260,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             extends MediaRouteProvider.DynamicGroupRouteController {
         private final String mRouteId;
         private final RouteControlHelper mHelper;
+        private final boolean mIsGroup;
 
         private List<String> mMemberRouteIds = new ArrayList<>();
         private Map<String, DynamicRouteDescriptor> mDynamicRouteDescriptors = new HashMap<>();
@@ -261,6 +269,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         SampleDynamicGroupRouteController(String dynamicGroupRouteId,
                 List<String> memberIds) {
             mRouteId = dynamicGroupRouteId;
+            mIsGroup = memberIds != null;
             MediaRouteDescriptor selectedRouteDescriptor = mRouteDescriptors.get(mRouteId);
             mTvSelectedCount = countTvFromRoute(selectedRouteDescriptor);
 
@@ -269,6 +278,9 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             if (routeDescriptors != null && !routeDescriptors.isEmpty()) {
                 for (MediaRouteDescriptor descriptor: routeDescriptors) {
                     String routeId = descriptor.getId();
+                    //TODO: This makes the route has itself as its member, which is a workaround
+                    // for (fwk) RoutingSessionInfo to have at least a single selected route.
+                    // We need to clean up this mess.
                     boolean selected = memberIds != null && (TextUtils.equals(routeId,
                             dynamicGroupRouteId) ||  memberIds.contains(routeId));
                     DynamicRouteDescriptor.Builder builder =
@@ -454,6 +466,16 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         public void onSelect() {
             Log.d(TAG, mRouteId + ": Selected");
             mHelper.onSelect();
+            if (mIsGroup) {
+                MediaRouteDescriptor groupDescriptor = mRouteDescriptors.get(mRouteId);
+                if (groupDescriptor != null) {
+                    mRouteDescriptors.put(mRouteId,
+                            new MediaRouteDescriptor.Builder(groupDescriptor)
+                                    .setConnectionState(RouteInfo.CONNECTION_STATE_CONNECTED)
+                                    .build());
+                    publishRoutes();
+                }
+            }
         }
 
         @Override
@@ -461,10 +483,21 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             Log.d(TAG, mRouteId + ": Unselected");
             mHelper.onUnselect();
 
-            if (mRouteDescriptors.get(mRouteId).isDynamicGroupRoute()) {
-                mRouteDescriptors.remove(mRouteId);
+            if (mIsGroup) {
+                MediaRouteDescriptor groupDescriptor = mRouteDescriptors.get(mRouteId);
+                if (groupDescriptor == null) {
+                    return;
+                }
+                if (groupDescriptor.isDynamicGroupRoute()) {
+                    mRouteDescriptors.remove(mRouteId);
+                } else {
+                    mRouteDescriptors.put(mRouteId,
+                            new MediaRouteDescriptor.Builder(groupDescriptor)
+                            .setConnectionState(RouteInfo.CONNECTION_STATE_DISCONNECTED)
+                            .build());
+                }
+                publishRoutes();
             }
-            publishRoutes();
         }
 
         @Override

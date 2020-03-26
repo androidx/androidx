@@ -257,19 +257,28 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         public void onSelect() {
             Log.d(TAG, mRouteId + ": Selected");
             mHelper.onSelect();
-            MediaRouteDescriptor groupDescriptor =
-                    new MediaRouteDescriptor.Builder(mRouteDescriptors.get(mRouteId))
-                            .setConnectionState(RouteInfo.CONNECTION_STATE_CONNECTED)
-                            .setVolume(mVolume)
-                            .build();
-            mRouteDescriptors.put(mRouteId, groupDescriptor);
-            publishRoutes();
+            MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(mRouteId);
+            if (routeDescriptor != null) {
+                mRouteDescriptors.put(mRouteId, new MediaRouteDescriptor.Builder(routeDescriptor)
+                        .setConnectionState(RouteInfo.CONNECTION_STATE_CONNECTED)
+                        .setVolume(mVolume)
+                        .build());
+                publishRoutes();
+            }
         }
 
         @Override
         public void onUnselect() {
             Log.d(TAG, mRouteId + ": Unselected");
             mHelper.onUnselect();
+            MediaRouteDescriptor routeDescriptor = mRouteDescriptors.get(mRouteId);
+            if (routeDescriptor != null) {
+                mRouteDescriptors.put(mRouteId, new MediaRouteDescriptor.Builder(routeDescriptor)
+                        .setConnectionState(RouteInfo.CONNECTION_STATE_DISCONNECTED)
+                        .setVolume(mVolume)
+                        .build());
+                publishRoutes();
+            }
         }
 
         @Override
@@ -323,15 +332,6 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
 
         public void onUnselect() {
             mPlayer.release();
-            MediaRouteDescriptor groupDescriptor = mRouteDescriptors.get(mRouteId);
-            if (groupDescriptor != null) {
-                new MediaRouteDescriptor.Builder(groupDescriptor)
-                        .setConnectionState(RouteInfo.CONNECTION_STATE_DISCONNECTED)
-                        .setVolume(mVolume)
-                        .build();
-                mRouteDescriptors.put(mRouteId, groupDescriptor);
-            }
-            publishRoutes();
         }
 
         public void onSetVolume(int volume) {

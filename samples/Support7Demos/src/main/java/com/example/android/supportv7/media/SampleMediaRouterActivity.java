@@ -211,6 +211,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
 
         // Get the media router service.
         mMediaRouter = MediaRouter.getInstance(this);
+        mMediaRouter.enableTransfer();
 
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
