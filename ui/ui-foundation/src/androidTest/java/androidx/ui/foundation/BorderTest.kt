@@ -68,7 +68,7 @@ class BorderTest(val shape: Shape) {
                 Stack(
                     Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
                         .drawBackground(Color.Blue, shape)
-                        .plus(DrawBorder(Border(10.px.toDp(), Color.Red), shape))
+                        .drawBorder(Border(10.px.toDp(), Color.Red), shape)
 
                 ) {}
             }
@@ -93,7 +93,10 @@ class BorderTest(val shape: Shape) {
                 Stack(
                     Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
                         .drawBackground(Color.Blue, shape)
-                        .plus(DrawBorder(Border(10.px.toDp(), SolidColor(Color.Red)), shape))
+                        .drawBorder(
+                            Border(10.px.toDp(), SolidColor(Color.Red)),
+                            shape
+                        )
                 ) {}
             }
         }
@@ -117,7 +120,7 @@ class BorderTest(val shape: Shape) {
                 Stack(
                     Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
                         .drawBackground(Color.Blue, shape)
-                        .plus(DrawBorder(Border(1500.px.toDp(), Color.Red), shape))
+                        .drawBorder(Border(1500.px.toDp(), Color.Red), shape)
                 ) {}
             }
         }
@@ -139,7 +142,7 @@ class BorderTest(val shape: Shape) {
                 Stack(
                     Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
                         .drawBackground(Color.Blue, shape)
-                        .plus(DrawBorder(Border(-5.px.toDp(), Color.Red), shape))
+                        .drawBorder(Border(-5.px.toDp(), Color.Red), shape)
                 ) {}
             }
         }
@@ -164,7 +167,7 @@ class BorderTest(val shape: Shape) {
                 ) {
                     Stack(
                         Modifier.preferredSize(0.px.toDp(), 40.px.toDp())
-                            .plus(DrawBorder(Border(4.px.toDp(), Color.Red), shape))
+                            .drawBorder(Border(4.px.toDp(), Color.Red), shape)
                     ) {}
                 }
             }

@@ -82,9 +82,12 @@ package androidx.ui.foundation {
   }
 
   public final class DrawBorderKt {
-    method public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = RectangleShape);
-    method public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
-    method public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
+    method @Deprecated public static androidx.ui.core.Modifier DrawBorder(androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @Deprecated public static androidx.ui.core.Modifier DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @Deprecated public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
+    method public static androidx.ui.core.Modifier drawBorder(androidx.ui.core.Modifier, androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = RectangleShape);
+    method public static androidx.ui.core.Modifier drawBorder(androidx.ui.core.Modifier, androidx.ui.unit.Dp size, androidx.ui.graphics.Color color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method public static androidx.ui.core.Modifier drawBorder(androidx.ui.core.Modifier, androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
   }
 
   public final class DrawBordersReceiver {

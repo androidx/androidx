@@ -30,8 +30,8 @@ import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.gesture.TapGestureDetector
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.drawBorder
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
@@ -184,7 +184,7 @@ private fun Pressable(
  */
 @Composable
 private fun RepeatingList(repetitions: Int, row: @Composable() () -> Unit) {
-    Column(DrawBorder(border = Border(2.dp, BorderColor))) {
+    Column(Modifier.drawBorder(border = Border(2.dp, BorderColor))) {
         for (i in 1..repetitions) {
             row()
             if (i != repetitions) {
