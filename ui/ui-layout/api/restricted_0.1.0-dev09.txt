@@ -354,10 +354,17 @@ package androidx.ui.layout {
   }
 
   public final class IntrinsicKt {
-    method public static void MaxIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void MaxIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void MinIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void MinIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated public static void MaxIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated public static void MaxIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated public static void MinIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated public static void MinIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier preferredHeight(androidx.ui.core.Modifier, androidx.ui.layout.IntrinsicSize intrinsicSize);
+    method public static androidx.ui.core.Modifier preferredWidth(androidx.ui.core.Modifier, androidx.ui.layout.IntrinsicSize intrinsicSize);
+  }
+
+  public enum IntrinsicSize {
+    enum_constant public static final androidx.ui.layout.IntrinsicSize Max;
+    enum_constant public static final androidx.ui.layout.IntrinsicSize Min;
   }
 
   public final class LayoutAlign {

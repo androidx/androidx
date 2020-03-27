@@ -18,26 +18,173 @@ package androidx.ui.layout
 
 import androidx.compose.Composable
 import androidx.ui.core.Constraints
+import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
+import androidx.ui.core.Modifier
 import androidx.ui.core.enforce
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.ipx
+
+/**
+ * Declare the preferred width of the content to be the same as the min or max intrinsic width of
+ * the content. The incoming measurement [Constraints] may override this value, forcing the content
+ * to be either smaller or larger.
+ *
+ * See [preferredHeight] for options of sizing to intrinsic height.
+ * Also see [preferredWidth] and [preferredWidthIn] for other options to set the preferred width.
+ *
+ * Example usage for min intrinsic:
+ * @sample androidx.ui.layout.samples.SameWidthBoxes
+ *
+ * Example usage for max intrinsic:
+ * @sample androidx.ui.layout.samples.SameWidthTextBoxes
+ */
+fun Modifier.preferredWidth(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
+    IntrinsicSize.Min -> this + PreferredMinIntrinsicWidthModifier
+    IntrinsicSize.Max -> this + PreferredMaxIntrinsicWidthModifier
+}
+
+/**
+ * Declare the preferred height of the content to be the same as the min or max intrinsic height of
+ * the content. The incoming measurement [Constraints] may override this value, forcing the content
+ * to be either smaller or larger.
+ *
+ * See [preferredWidth] for other options of sizing to intrinsic width.
+ * Also see [preferredHeight] and [preferredHeightIn] for other options to set the preferred height.
+ *
+ * Example usage for min intrinsic:
+ * @sample androidx.ui.layout.samples.MatchParentDividerForText
+ *
+ * Example usage for max intrinsic:
+ * @sample androidx.ui.layout.samples.MatchParentDividerForAspectRatio
+ */
+fun Modifier.preferredHeight(intrinsicSize: IntrinsicSize) = when (intrinsicSize) {
+    IntrinsicSize.Min -> this + PreferredMinIntrinsicHeightModifier
+    IntrinsicSize.Max -> this + PreferredMaxIntrinsicHeightModifier
+}
+
+/**
+ * Intrinsic size used in [preferredWidth] or [preferredHeight] which can refer to width or height.
+ */
+enum class IntrinsicSize { Min, Max }
+
+private object PreferredMinIntrinsicWidthModifier : PreferredIntrinsicSizeModifier {
+    override fun calculateContentConstraints(
+        measurable: Measurable,
+        constraints: Constraints
+    ): Constraints {
+        val width = measurable.minIntrinsicWidth(constraints.maxHeight)
+        return Constraints.fixedWidth(width)
+    }
+
+    override fun Density.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.minIntrinsicWidth(height)
+}
+
+private object PreferredMinIntrinsicHeightModifier : PreferredIntrinsicSizeModifier {
+    override fun calculateContentConstraints(
+        measurable: Measurable,
+        constraints: Constraints
+    ): Constraints {
+        val height = measurable.minIntrinsicHeight(constraints.maxWidth)
+        return Constraints.fixedHeight(height)
+    }
+
+    override fun Density.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.minIntrinsicHeight(width)
+}
+
+private object PreferredMaxIntrinsicWidthModifier : PreferredIntrinsicSizeModifier {
+    override fun calculateContentConstraints(
+        measurable: Measurable,
+        constraints: Constraints
+    ): Constraints {
+        val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
+        return Constraints.fixedWidth(width)
+    }
+
+    override fun Density.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.maxIntrinsicWidth(height)
+}
+
+private object PreferredMaxIntrinsicHeightModifier : PreferredIntrinsicSizeModifier {
+    override fun calculateContentConstraints(
+        measurable: Measurable,
+        constraints: Constraints
+    ): Constraints {
+        val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
+        return Constraints.fixedHeight(height)
+    }
+
+    override fun Density.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.maxIntrinsicHeight(width)
+}
+
+private interface PreferredIntrinsicSizeModifier : LayoutModifier2 {
+    fun calculateContentConstraints(measurable: Measurable, constraints: Constraints): Constraints
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): MeasureScope.LayoutResult {
+        val placeable = measurable.measure(
+            calculateContentConstraints(measurable, constraints).enforce(constraints)
+        )
+        return layout(placeable.width, placeable.height) {
+            placeable.place(IntPxPosition.Origin)
+        }
+    }
+
+    override fun Density.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.minIntrinsicWidth(height)
+
+    override fun Density.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.minIntrinsicHeight(width)
+
+    override fun Density.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.maxIntrinsicWidth(height)
+
+    override fun Density.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.maxIntrinsicHeight(width)
+}
 
 /**
  * Layout composable that forces its child to be as wide as its min intrinsic width.
  * If incoming constraints do not allow this, the closest possible width will be used.
- *
- * Example usage:
- *
- * @sample androidx.ui.layout.samples.SameWidthBoxes
- *
- * The sample builds a layout containing three [androidx.ui.foundation.Box] having the same width
- * as the widest one.
- *
- * Here [MinIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
- * whose minimum intrinsic width will correspond to the preferred width of the largest
- * [androidx.ui.foundation.Box]. Then [MinIntrinsicWidth] will measure the [Column] with tight
- * width, the same as the premeasured minimum intrinsic width.
  */
+@Deprecated("This component is deprecated. " +
+        "Please use the preferredWidth(IntrinsicSize.Min) modifier instead.")
 @Composable
 fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
     Layout(
@@ -69,20 +216,9 @@ fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
 /**
  * Layout composable that forces its child to be as tall as its min intrinsic height.
  * If incoming constraints do not allow this, the closest possible height will be used.
- *
- * Example usage:
- *
- * @sample androidx.ui.layout.samples.MatchParentDividerForText
- *
- * The sample builds a layout containing two pieces of text separated by a divider, where the
- * divider is sized according to the height of the longest text.
- *
- * Here [MinIntrinsicHeight] is adding a speculative height measurement pass for the [Row],
- * whose minimum intrinsic height will correspond to the height of the largest [Text]. Then
- * [MinIntrinsicHeight] will measure the [Row] with tight height, the same as the premeasured
- * minimum intrinsic height, which due to [LayoutHeight.Fill] will force the [Text]s and
- * the divider to use the same height.
  */
+@Deprecated("This component is deprecated. " +
+        "Please use the preferredHeight(IntrinsicSize.Min) modifier instead.")
 @Composable
 fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
     Layout(
@@ -114,20 +250,9 @@ fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
 /**
  * Layout composable that forces its child to be as wide as its max intrinsic width.
  * If incoming constraints do not allow this, the closest possible width will be used.
- *
- * Example usage:
- *
- * @sample androidx.ui.layout.samples.SameWidthTextBoxes
- *
- * The sample builds a layout containing three [Text] boxes having the same width as the widest one.
- *
- * Here [MaxIntrinsicWidth] is adding a speculative width measurement pass for the [Column],
- * whose maximum intrinsic width will correspond to the preferred width of the largest
- * [androidx.ui.foundation.Box]. Then [MaxIntrinsicWidth] will measure the [Column] with tight
- * width, the same as the premeasured maximum intrinsic width, which due to [LayoutWidth.Fill]
- * will force the [androidx.ui.foundation.Box]s to use the same width.
- * The sample is a layout containing three composables having the same width as the widest one.
  */
+@Deprecated("This component is deprecated. " +
+        "Please use the preferredWidth(IntrinsicSize.Max) modifier instead.")
 @Composable
 fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
     Layout(
@@ -159,20 +284,9 @@ fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
 /**
  * Layout composable that forces its child to be as tall as its max intrinsic height.
  * If incoming constraints do not allow this, the closest possible height will be used.
- *
- * Example usage:
- *
- * @sample androidx.ui.layout.samples.MatchParentDividerForAspectRatio
- *
- * The sample builds a layout containing two [LayoutAspectRatio]s separated by a divider, where the
- * divider is sized according to the height of the taller [LayoutAspectRatio].
- *
- * Here [MaxIntrinsicHeight] is adding a speculative height measurement pass for the [Row],
- * whose maximum intrinsic height will correspond to the height of the taller [AspectRatio]. Then
- * [MaxIntrinsicHeight] will measure the [Row] with tight height, the same as the premeasured
- * maximum intrinsic height, which due to [LayoutHeight.Fill] will force the [AspectRatio]s
- * and the divider to use the same height.
  */
+@Deprecated("This component is deprecated. " +
+        "Please use the preferredHeight(IntrinsicSize.Max) modifier instead.")
 @Composable
 fun MaxIntrinsicHeight(children: @Composable() () -> Unit) {
     Layout(
