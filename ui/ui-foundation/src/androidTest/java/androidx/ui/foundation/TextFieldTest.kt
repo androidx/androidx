@@ -24,6 +24,8 @@ import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
+import androidx.ui.core.input.FocusNode
+import androidx.ui.core.input.FocusTransitionObserver
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorValue
@@ -89,16 +91,43 @@ class TextFieldTest {
         )
     }
 
+    /**
+     * Fake class for giving input focus when requestFocus is called.
+     */
+    class FakeFocusManager : FocusManager {
+        var observer: FocusTransitionObserver? = null
+
+        override fun registerObserver(node: FocusNode, observer: FocusTransitionObserver) {
+            this.observer = observer
+        }
+
+        override fun requestFocus(client: FocusNode) {
+            observer?.invoke(null, client)
+        }
+
+        override fun requestFocusById(identifier: String) {
+            throw RuntimeException("Not implemented")
+        }
+
+        override fun registerFocusNode(identifier: String, node: FocusNode) {
+            throw RuntimeException("Not implemented")
+        }
+
+        override fun unregisterFocusNode(identifier: String) {
+            throw RuntimeException("Not implemented")
+        }
+
+        override fun blur(client: FocusNode) {
+            throw RuntimeException("Not implemented")
+        }
+    }
+
     @Test
     fun textField_commitTexts() {
-        val focusManager = mock<FocusManager>()
+        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
-        // Always give focus to the passed node.
-        whenever(focusManager.requestFocus(any())).thenAnswer {
-            (it.arguments[0] as FocusManager.FocusNode).onFocus()
-        }
         whenever(textInputService.startInput(any(), any(), any(), any(), any()))
             .thenReturn(inputSessionToken)
 
@@ -172,14 +201,10 @@ class TextFieldTest {
 
     @Test
     fun textField_commitTexts_state_may_not_set() {
-        val focusManager = mock<FocusManager>()
+        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
-        // Always give focus to the passed node.
-        whenever(focusManager.requestFocus(any())).thenAnswer {
-            (it.arguments[0] as FocusManager.FocusNode).onFocus()
-        }
         whenever(textInputService.startInput(any(), any(), any(), any(), any()))
             .thenReturn(inputSessionToken)
 
@@ -241,14 +266,10 @@ class TextFieldTest {
 
     @Test
     fun textField_onTextLayoutCallback() {
-        val focusManager = mock<FocusManager>()
+        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
-        // Always give focus to the passed node.
-        whenever(focusManager.requestFocus(any())).thenAnswer {
-            (it.arguments[0] as FocusManager.FocusNode).onFocus()
-        }
         whenever(textInputService.startInput(any(), any(), any(), any(), any()))
             .thenReturn(inputSessionToken)
 
