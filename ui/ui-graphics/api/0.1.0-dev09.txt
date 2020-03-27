@@ -2,8 +2,8 @@
 package androidx.ui.core {
 
   public final class RectHelperKt {
-    method public static android.graphics.Rect toFrameworkRect(androidx.ui.geometry.Rect);
-    method public static android.graphics.RectF toFrameworkRectF(androidx.ui.geometry.Rect);
+    method public static android.graphics.Rect toAndroidRect(androidx.ui.geometry.Rect);
+    method public static android.graphics.RectF toAndroidRectF(androidx.ui.geometry.Rect);
   }
 
 }

@@ -17,8 +17,8 @@
 package androidx.ui.graphics
 
 import android.graphics.Matrix
-import androidx.ui.core.toFrameworkRect
-import androidx.ui.core.toFrameworkRectF
+import androidx.ui.core.toAndroidRect
+import androidx.ui.core.toAndroidRectF
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
@@ -155,7 +155,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
      */
     @SuppressWarnings("deprecation")
     override fun clipRect(rect: Rect, clipOp: ClipOp) {
-        val frameworkRect = rect.toFrameworkRect()
+        val frameworkRect = rect.toAndroidRect()
         @Suppress("DEPRECATION")
         when (clipOp) {
             ClipOp.intersect -> internalCanvas.clipRect(frameworkRect)
@@ -197,7 +197,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
      * @see Canvas.drawRect
      */
     override fun drawRect(rect: Rect, paint: Paint) {
-        internalCanvas.drawRect(rect.toFrameworkRectF(), paint.asFrameworkPaint())
+        internalCanvas.drawRect(rect.toAndroidRectF(), paint.asFrameworkPaint())
     }
 
     override fun drawRoundRect(
@@ -224,7 +224,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
      * @see Canvas.drawOval
      */
     override fun drawOval(rect: Rect, paint: Paint) {
-        internalRectF.set(rect.toFrameworkRect())
+        internalRectF.set(rect.toAndroidRect())
         internalCanvas.drawOval(internalRectF,
             paint.asFrameworkPaint())
     }
@@ -251,7 +251,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
         useCenter: Boolean,
         paint: Paint
     ) {
-        internalRectF.set(rect.toFrameworkRect())
+        internalRectF.set(rect.toAndroidRect())
         internalCanvas.drawArc(
             internalRectF,
             startAngle,
@@ -286,8 +286,8 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
     override fun drawImageRect(image: ImageAsset, src: Rect, dst: Rect, paint: Paint) {
         internalCanvas.drawBitmap(
             image.nativeImage,
-            src.toFrameworkRect(),
-            dst.toFrameworkRect(),
+            src.toAndroidRect(),
+            dst.toAndroidRect(),
             paint.asFrameworkPaint()
         )
     }
