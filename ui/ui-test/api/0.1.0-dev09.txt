@@ -312,7 +312,9 @@ package androidx.ui.test.android {
 
   public final class ComposeIdlingResourceKt {
     method public static void registerComposeWithEspresso();
+    method public static void registerTestClock(androidx.ui.test.TestAnimationClock clock);
     method public static void unregisterComposeFromEspresso();
+    method public static void unregisterTestClock(androidx.ui.test.TestAnimationClock clock);
   }
 
   public final class InternalUtilsKt {
