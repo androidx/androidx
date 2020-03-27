@@ -475,14 +475,16 @@ fun <T> AdapterList(
     state.compositionRef = compositionReference()
     state.forceRecompose = true
 
-    val scroll = scrollable(
-        dragDirection = DragDirection.Vertical,
-        scrollableState = ScrollableState(
-            onScrollDeltaConsumptionRequested = state.onScrollDeltaConsumptionRequestedListener
-        )
-    )
     androidx.ui.core.LayoutNode(
-        modifier = modifier.plus(scroll).clipToBounds(),
+        modifier = modifier
+            .scrollable(
+                dragDirection = DragDirection.Vertical,
+                scrollableState = ScrollableState(
+                    onScrollDeltaConsumptionRequested =
+                    state.onScrollDeltaConsumptionRequestedListener
+                )
+            )
+            .clipToBounds(),
         ref = state.rootNodeRef,
         measureBlocks = state.measureBlocks
     )

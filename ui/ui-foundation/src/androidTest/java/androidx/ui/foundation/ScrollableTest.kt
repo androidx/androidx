@@ -73,7 +73,7 @@ class ScrollableTest {
             animationClock = clocks
         )
         setScrollableContent {
-            scrollable(
+            Modifier.scrollable(
                 scrollableState = state,
                 dragDirection = DragDirection.Horizontal
             )
@@ -129,7 +129,7 @@ class ScrollableTest {
             animationClock = clocks
         )
         setScrollableContent {
-            scrollable(
+            Modifier.scrollable(
                 scrollableState = state,
                 dragDirection = DragDirection.Vertical
             )
@@ -187,7 +187,7 @@ class ScrollableTest {
             animationClock = clocks
         )
         setScrollableContent {
-            scrollable(
+            Modifier.scrollable(
                 scrollableState = state,
                 dragDirection = DragDirection.Horizontal,
                 onScrollStarted = { startTrigger++ },
@@ -232,7 +232,7 @@ class ScrollableTest {
             animationClock = clocks
         )
         setScrollableContent {
-            scrollable(
+            Modifier.scrollable(
                 scrollableState = state,
                 dragDirection = DragDirection.Horizontal,
                 enabled = enabled.value
@@ -278,7 +278,7 @@ class ScrollableTest {
             animationClock = clocks
         )
         setScrollableContent {
-            scrollable(
+            Modifier.scrollable(
                 scrollableState = state,
                 dragDirection = DragDirection.Horizontal,
                 onScrollStopped = { velocity ->
@@ -325,7 +325,7 @@ class ScrollableTest {
             animationClock = clocks
         )
         setScrollableContent {
-            scrollable(
+            Modifier.scrollable(
                 scrollableState = state,
                 dragDirection = DragDirection.Horizontal
             )
@@ -371,7 +371,7 @@ class ScrollableTest {
         )
         setScrollableContent {
             if (total < 20) {
-                scrollable(
+                Modifier.scrollable(
                     scrollableState = state,
                     dragDirection = DragDirection.Horizontal,
                     onScrollStopped = {
@@ -408,7 +408,7 @@ class ScrollableTest {
             animationClock = clocks
         )
         setScrollableContent {
-            scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
+            Modifier.scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
         }
         composeTestRule.runOnIdleCompose {
             assertThat(total).isEqualTo(0f)
@@ -445,7 +445,7 @@ class ScrollableTest {
         )
         setScrollableContent {
             if (!disposed.value) {
-                scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
+                Modifier.scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
             } else {
                 Modifier.None
             }
@@ -476,7 +476,7 @@ class ScrollableTest {
         )
         setScrollableContent {
             if (!disposed.value) {
-                scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
+                Modifier.scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
             } else {
                 Modifier.None
             }
@@ -530,13 +530,13 @@ class ScrollableTest {
                     Semantics(container = true) {
                         Box(
                             gravity = ContentGravity.Center,
-                            modifier = Modifier.preferredSize(300.dp) + scrollable(
+                            modifier = Modifier.preferredSize(300.dp).scrollable(
                                 scrollableState = outerState,
                                 dragDirection = DragDirection.Horizontal
                             )
                         ) {
                             Box(
-                                modifier = Modifier.preferredSize(300.dp) + scrollable(
+                                modifier = Modifier.preferredSize(300.dp).scrollable(
                                     scrollableState = innerState,
                                     dragDirection = DragDirection.Horizontal
                                 )

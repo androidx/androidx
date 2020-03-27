@@ -220,7 +220,7 @@ fun Slider(
                         gestureEndAction(0f)
                     })
 
-                val drag = draggable(
+                val drag = Modifier.draggable(
                     dragDirection = DragDirection.Horizontal,
                     onDragDeltaConsumptionRequested = { delta ->
                         val old = position.holder.value

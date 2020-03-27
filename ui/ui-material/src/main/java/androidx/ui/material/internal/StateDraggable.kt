@@ -24,6 +24,7 @@ import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
+import androidx.ui.core.Modifier
 import androidx.ui.core.PassThroughLayout
 import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.fling
@@ -92,7 +93,7 @@ internal fun <T> StateDraggable(
     onCommit(currentValue, forceAnimationCheck.value) {
         position.animateTo(currentValue, animationBuilder)
     }
-    val draggable = draggable(
+    val draggable = Modifier.draggable(
         dragDirection = dragDirection,
         onDragDeltaConsumptionRequested = { delta ->
             val old = position.value
