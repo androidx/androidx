@@ -78,7 +78,7 @@ fun Box(
     children: @Composable() () -> Unit = emptyContent()
 ) {
     val borderModifier =
-        if (border != null) DrawBorder(border, shape) else Modifier.None
+        if (border != null) Modifier.drawBorder(border, shape) else Modifier.None
     val backgroundModifier =
         if (backgroundColor == Color.Transparent) {
             Modifier.None

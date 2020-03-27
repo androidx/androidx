@@ -22,11 +22,11 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.clip
 import androidx.ui.core.drawShadow
 import androidx.ui.foundation.Border
-import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.drawBorder
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
@@ -88,7 +88,7 @@ fun Surface(
 ) {
     SurfaceLayout(
         modifier.drawShadow(shape = shape, elevation = elevation, clipToOutline = false)
-            .plus(if (border != null) DrawBorder(border, shape) else Modifier.None)
+            .plus(if (border != null) Modifier.drawBorder(border, shape) else Modifier.None)
             .drawBackground(
                 color = getBackgroundColorForElevation(color, elevation),
                 shape = shape
