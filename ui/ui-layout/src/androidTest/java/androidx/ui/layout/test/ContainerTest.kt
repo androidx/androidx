@@ -25,7 +25,6 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Align
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Row
@@ -60,7 +59,7 @@ class ContainerTest : LayoutTest() {
         val positionedLatch = CountDownLatch(1)
         val containerSize = Ref<IntPxSize>()
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Container(Modifier.onPositioned { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -85,7 +84,7 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Container(
                     padding = EdgeInsets(paddingDp),
                     modifier = Modifier.onPositioned { coordinates ->
@@ -125,7 +124,7 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<IntPxSize>()
         val childSize = Array(3) { IntPxSize(0.ipx, 0.ipx) }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Row(Modifier.onPositioned { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -231,7 +230,7 @@ class ContainerTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 val constraints = DpConstraints(minWidth = sizeDp * 2, minHeight = sizeDp * 2)
                 ConstrainedBox(
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -270,7 +269,7 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<IntPxSize>()
         val latch = CountDownLatch(1)
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Container(width = sizeDp, height = sizeDp, padding = EdgeInsets(10.dp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         containerSize.value = coordinates.size
@@ -360,7 +359,7 @@ class ContainerTest : LayoutTest() {
         var measure = 0
         var layout = 0
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Layout(children = {
                     Container {
                         EmptyBox(
@@ -398,7 +397,7 @@ class ContainerTest : LayoutTest() {
         var measure = 0
         var layout = 0
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Layout(children = {
                     Container(expanded = true) {
                         EmptyBox(
@@ -436,7 +435,7 @@ class ContainerTest : LayoutTest() {
         var measure = 0
         var layout = 0
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Layout(children = {
                     Container(width = 20.dp, height = 20.dp) {
                         EmptyBox(

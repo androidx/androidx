@@ -17,18 +17,17 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Align
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.FlowColumn
 import androidx.ui.layout.FlowCrossAxisAlignment
 import androidx.ui.layout.FlowMainAxisAlignment
 import androidx.ui.layout.FlowRow
 import androidx.ui.layout.SizeMode
+import androidx.ui.layout.Stack
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -58,7 +57,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -114,7 +113,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -169,7 +168,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -226,7 +225,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -286,7 +285,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -345,7 +344,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -405,7 +404,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -468,7 +467,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -531,7 +530,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -594,7 +593,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -662,7 +661,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -730,7 +729,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -800,7 +799,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -857,7 +856,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -921,7 +920,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -982,7 +981,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -1048,7 +1047,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxWidth = flowWidthDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -1105,7 +1104,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1160,7 +1159,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1215,7 +1214,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1270,7 +1269,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1328,7 +1327,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1386,7 +1385,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(
                     constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -1446,7 +1445,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1507,7 +1506,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1568,7 +1567,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1629,7 +1628,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1695,7 +1694,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1761,7 +1760,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1829,7 +1828,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1884,7 +1883,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -1947,7 +1946,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -2004,7 +2003,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size
@@ -2069,7 +2068,7 @@ class FlowTest : LayoutTest() {
         val positionedLatch = CountDownLatch(numberOfSquares + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = flowHeightDp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         flowSize.value = coordinates.size

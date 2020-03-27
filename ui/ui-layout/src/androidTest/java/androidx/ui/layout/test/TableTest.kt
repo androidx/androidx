@@ -18,13 +18,12 @@ package androidx.ui.layout.test
 
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onChildPositioned
-import androidx.ui.layout.Align
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.Stack
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
 import androidx.ui.layout.TableMeasurable
@@ -65,7 +64,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
                     modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                         tableSize.value = coordinates.size
@@ -132,7 +131,7 @@ class TableTest : LayoutTest() {
         val totalFlex = flexes.sum()
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
                     modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                         tableSize.value = coordinates.size
@@ -195,9 +194,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(
-                Alignment.TopStart,
-                modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
+            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }
@@ -260,7 +257,7 @@ class TableTest : LayoutTest() {
         val totalFlex = flexes.sum()
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
                     modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                         tableSize.value = coordinates.size
@@ -327,9 +324,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(
-                Alignment.TopStart,
-                modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
+            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }
@@ -390,9 +385,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(
-                Alignment.TopStart,
-                modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
+            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }
@@ -453,9 +446,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(
-                Alignment.TopStart,
-                modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
+            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }
@@ -520,7 +511,7 @@ class TableTest : LayoutTest() {
         val fractions = Array(columns) { j -> 1 / 2f.pow(j + 1) }
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
                     modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                         tableSize.value = coordinates.size
@@ -587,7 +578,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
                     modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                         tableSize.value = coordinates.size
@@ -663,7 +654,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
                     modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                         tableSize.value = coordinates.size
@@ -737,9 +728,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(
-                Alignment.TopStart,
-                modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
+            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }
@@ -804,9 +793,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(
-                Alignment.TopStart,
-                modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
+            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }
@@ -869,9 +856,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(
-                Alignment.TopStart,
-                modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
+            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }
@@ -931,9 +916,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(
-                Alignment.TopStart,
-                modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
+            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }
@@ -1005,9 +988,7 @@ class TableTest : LayoutTest() {
         }
 
         show {
-            Align(
-                Alignment.TopStart,
-                modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
+            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }
@@ -1071,7 +1052,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
                     modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                         tableSize.value = coordinates.size
@@ -1138,7 +1119,7 @@ class TableTest : LayoutTest() {
         val positionedLatch = CountDownLatch(rows * columns + 1)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
                     modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                         tableSize.value = coordinates.size
@@ -1252,7 +1233,7 @@ class TableTest : LayoutTest() {
         val itemsLatch = CountDownLatch(rows * columns)
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp),
                     modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
                         tableSize.value = coordinates.size

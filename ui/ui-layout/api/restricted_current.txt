@@ -356,10 +356,6 @@ package androidx.ui.layout {
     field public static final androidx.ui.layout.LayoutAlign! INSTANCE;
   }
 
-  public final class LayoutAlignKt {
-    method @Deprecated public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public final class LayoutAspectRatio implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutAspectRatio(@FloatRange(from=null, fromInclusive=null) float aspectRatio);
     method public float component1();
@@ -830,10 +826,6 @@ package androidx.ui.layout {
     method public kotlin.jvm.functions.Function1<androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> getMaxIntrinsicWidth();
     method public kotlin.jvm.functions.Function1<androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> getMinIntrinsicWidth();
     method public kotlin.jvm.functions.Function0<androidx.ui.unit.IntPx> getPreferredWidth();
-  }
-
-  public final class WrapKt {
-    method @Deprecated public static void Wrap(androidx.ui.core.Alignment alignment = Alignment.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }
