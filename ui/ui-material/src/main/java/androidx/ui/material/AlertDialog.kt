@@ -123,7 +123,7 @@ fun AlertDialog(
                 modifier = AlertDialogWidth,
                 shape = shape
             ) {
-                val emphasisLevels = MaterialTheme.emphasisLevels
+                val emphasisLevels = EmphasisAmbient.current
                 Column {
                     if (title != null) {
                         Box(TitlePadding.gravity(ColumnAlign.Start)) {

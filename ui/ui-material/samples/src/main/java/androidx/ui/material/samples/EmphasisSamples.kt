@@ -20,7 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.foundation.Text
 import androidx.ui.layout.Column
-import androidx.ui.material.MaterialTheme
+import androidx.ui.material.EmphasisAmbient
 import androidx.ui.material.ProvideEmphasis
 
 @Sampled
@@ -28,7 +28,7 @@ import androidx.ui.material.ProvideEmphasis
 fun EmphasisSample() {
     Column {
         Text("No emphasis applied - 100% opacity")
-        val emphasisLevels = MaterialTheme.emphasisLevels
+        val emphasisLevels = EmphasisAmbient.current
         ProvideEmphasis(emphasisLevels.high) {
             Text("High emphasis applied - 87% opacity")
         }
