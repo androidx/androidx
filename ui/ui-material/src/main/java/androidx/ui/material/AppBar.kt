@@ -87,7 +87,7 @@ fun TopAppBar(
     elevation: Dp = TopAppBarElevation
 ) {
     AppBar(color, contentColor, elevation, RectangleShape, modifier) {
-        val emphasisLevels = MaterialTheme.emphasisLevels
+        val emphasisLevels = EmphasisAmbient.current
         if (navigationIcon == null) {
             Spacer(TitleInsetWithoutIcon)
         } else {

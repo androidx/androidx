@@ -33,7 +33,7 @@ package androidx.ui.material {
 
   public final class BottomNavigationKt {
     method public static void BottomNavigation(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors.primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), androidx.ui.unit.Dp elevation = androidx.ui.material.BottomNavigationKt.BottomNavigationElevation, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
-    method public static void BottomNavigationItem(kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.core.Modifier modifier = Modifier.None, boolean alwaysShowLabels = true, androidx.ui.graphics.Color activeColor = contentColor(), androidx.ui.graphics.Color inactiveColor = MaterialTheme.emphasisLevels.medium.emphasize(activeColor));
+    method public static void BottomNavigationItem(kotlin.jvm.functions.Function0<kotlin.Unit> icon, kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.core.Modifier modifier = Modifier.None, boolean alwaysShowLabels = true, androidx.ui.graphics.Color activeColor = contentColor(), androidx.ui.graphics.Color inactiveColor = EmphasisAmbient.current.medium.emphasize(activeColor));
   }
 
   public final class Button {
@@ -184,18 +184,16 @@ package androidx.ui.material {
 
   public final class MaterialTheme {
     method public androidx.ui.material.ColorPalette getColors();
-    method public androidx.ui.material.EmphasisLevels getEmphasisLevels();
     method public androidx.ui.material.Shapes getShapes();
     method public androidx.ui.material.Typography getTypography();
     property public final androidx.ui.material.ColorPalette colors;
-    property public final androidx.ui.material.EmphasisLevels emphasisLevels;
     property public final androidx.ui.material.Shapes shapes;
     property public final androidx.ui.material.Typography typography;
     field public static final androidx.ui.material.MaterialTheme! INSTANCE;
   }
 
   public final class MaterialThemeKt {
-    method public static void MaterialTheme(androidx.ui.material.ColorPalette colors = lightColorPalette(), androidx.ui.material.Typography typography = androidx.ui.material.Typography(), androidx.ui.material.Shapes shapes = MaterialTheme.shapes, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MaterialTheme(androidx.ui.material.ColorPalette colors = MaterialTheme.colors, androidx.ui.material.Typography typography = MaterialTheme.typography, androidx.ui.material.Shapes shapes = MaterialTheme.shapes, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ProgressIndicatorKt {
@@ -285,7 +283,7 @@ package androidx.ui.material {
   }
 
   public final class TabKt {
-    method public static void Tab(kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), kotlin.jvm.functions.Function0<kotlin.Unit> icon = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color activeColor = contentColor(), androidx.ui.graphics.Color inactiveColor = MaterialTheme.emphasisLevels.medium.emphasize(activeColor));
+    method public static void Tab(kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), kotlin.jvm.functions.Function0<kotlin.Unit> icon = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color activeColor = contentColor(), androidx.ui.graphics.Color inactiveColor = EmphasisAmbient.current.medium.emphasize(activeColor));
     method public static void Tab(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.ui.core.Modifier modifier = Modifier.None, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static <T> void TabRow(java.util.List<? extends T> items, int selectedIndex, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors.primarySurface, androidx.ui.graphics.Color contentColor = contentColorFor(color), boolean scrollable = false, kotlin.jvm.functions.Function1<? super java.util.List<androidx.ui.material.TabRow.TabPosition>,kotlin.Unit> indicatorContainer = { tabPositions -> TabRow.IndicatorContainer(tabPositions, selectedIndex, { 
     TabRow.Indicator()

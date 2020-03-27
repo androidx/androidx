@@ -67,7 +67,7 @@ interface Emphasis {
  * This typically should not be customized as the default implementation is optimized for
  * correct accessibility and contrast on different surfaces.
  *
- * See [MaterialTheme.emphasisLevels] to retrieve the current [EmphasisLevels]
+ * See [EmphasisAmbient] to retrieve the current [EmphasisLevels]
  */
 interface EmphasisLevels {
     /**
@@ -90,7 +90,7 @@ interface EmphasisLevels {
 /**
  * Applies [emphasis] to [children], by modifying the value of [contentColor].
  *
- * See [MaterialTheme.emphasisLevels] to retrieve the levels of emphasis provided in the theme,
+ * See [EmphasisAmbient] to retrieve the levels of emphasis provided in the theme,
  * so they can be applied with this function.
  *
  * @sample androidx.ui.material.samples.EmphasisSample
