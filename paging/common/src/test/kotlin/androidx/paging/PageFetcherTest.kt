@@ -21,7 +21,7 @@ import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.collect
@@ -40,7 +40,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-@InternalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PageFetcherTest {
     private val testScope = TestCoroutineScope()
@@ -290,6 +290,7 @@ internal fun CoroutineScope.collectFetcherState(fetcher: PageFetcher<Int, Int>):
     val pageEventLists: ArrayList<ArrayList<PageEvent<Int>>> = ArrayList()
 
     val job = launch {
+        @OptIn(ExperimentalCoroutinesApi::class)
         fetcher.flow.collectIndexed { index, pagingData ->
             pagingDataList.add(index, pagingData)
             pageEventLists.add(index, ArrayList())
