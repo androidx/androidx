@@ -31,7 +31,6 @@ import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Align
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.ColumnAlign
@@ -600,8 +599,7 @@ class RowColumnTest : LayoutTest() {
         val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Align(Alignment.CenterStart) {
-                Row {
+            Row {
                     Container(
                         width = sizeDp,
                         height = sizeDp,
@@ -626,7 +624,6 @@ class RowColumnTest : LayoutTest() {
                     ) {
                     }
                 }
-            }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
@@ -651,8 +648,7 @@ class RowColumnTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(3)
         val childPosition = arrayOfNulls<PxPosition>(3)
         show {
-            Align(Alignment.TopStart) {
-                Row(Modifier.fillMaxHeight()) {
+            Row(Modifier.fillMaxHeight()) {
                     Container(
                         width = sizeDp,
                         height = sizeDp,
@@ -687,7 +683,6 @@ class RowColumnTest : LayoutTest() {
                     ) {
                     }
                 }
-            }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
@@ -721,8 +716,7 @@ class RowColumnTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(4)
         val childPosition = arrayOfNulls<PxPosition>(4)
         show {
-            Align(Alignment.TopStart) {
-                Row(Modifier.fillMaxHeight()) {
+            Row(Modifier.fillMaxHeight()) {
                     BaselineTestLayout(
                         baseline = baseline1Dp,
                         width = sizeDp,
@@ -770,7 +764,6 @@ class RowColumnTest : LayoutTest() {
                     ) {
                     }
                 }
-            }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
@@ -807,8 +800,7 @@ class RowColumnTest : LayoutTest() {
         val childSize = arrayOf(IntPxSize(-1.ipx, -1.ipx), IntPxSize(-1.ipx, -1.ipx))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show {
-            Align(Alignment.TopCenter) {
-                Column {
+            Column {
                     Container(
                         width = sizeDp,
                         height = sizeDp,
@@ -833,7 +825,6 @@ class RowColumnTest : LayoutTest() {
                     ) {
                     }
                 }
-            }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
@@ -858,8 +849,7 @@ class RowColumnTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(3)
         val childPosition = arrayOfNulls<PxPosition>(3)
         show {
-            Align(Alignment.TopCenter) {
-                Column(Modifier.fillMaxWidth()) {
+            Column(Modifier.fillMaxWidth()) {
                     Container(
                         width = sizeDp,
                         height = sizeDp,
@@ -894,7 +884,6 @@ class RowColumnTest : LayoutTest() {
                     ) {
                     }
                 }
-            }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
@@ -926,8 +915,7 @@ class RowColumnTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(4)
         val childPosition = arrayOfNulls<PxPosition>(4)
         show {
-            Align(Alignment.TopStart) {
-                Column(Modifier.fillMaxWidth()) {
+            Column(Modifier.fillMaxWidth()) {
                     Container(
                         width = sizeDp,
                         height = sizeDp,
@@ -975,7 +963,6 @@ class RowColumnTest : LayoutTest() {
                     ) {
                     }
                 }
-            }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
@@ -3150,7 +3137,7 @@ class RowColumnTest : LayoutTest() {
         val columnHeight = 24.ipx
 
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 Column(Modifier.preferredHeight(columnHeight.toDp())) {
                     Container(
                         Modifier.weight(2f)
