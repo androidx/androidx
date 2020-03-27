@@ -17,8 +17,8 @@ package androidx.ui.material
 
 import android.os.Build
 import androidx.animation.AnimationClockObservable
+import androidx.animation.AnimationClockObserver
 import androidx.compose.Composable
-import androidx.compose.Model
 import androidx.compose.Providers
 import androidx.compose.mutableStateOf
 import androidx.test.filters.MediumTest
@@ -55,6 +55,7 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.px
 import androidx.ui.unit.toPxSize
 import androidx.ui.unit.toRect
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -217,7 +218,7 @@ class RippleTest {
     fun twoEffectsDrawnAndDisposedCorrectly() {
         val drawLatch = CountDownLatch(2)
         val disposeLatch = CountDownLatch(2)
-        val emit = DoEmit(true)
+        var emit by mutableStateOf(true)
 
         composeTestRule.setMaterialContent {
             RippleCallback(
@@ -225,7 +226,7 @@ class RippleTest {
                 onDispose = { disposeLatch.countDown() }
             ) {
                 Card {
-                    if (emit.emit) {
+                    if (emit) {
                         Row {
                             TestTag(tag = contentTag) {
                                 RippleButton()
@@ -245,10 +246,90 @@ class RippleTest {
         // wait for drawEffect to be called
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        composeTestRule.runOnUiThread { emit.emit = false }
+        composeTestRule.runOnUiThread { emit = false }
 
         // wait for dispose to be called
         assertTrue(disposeLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun animationIsDisposedCorrectly() {
+        var emit by mutableStateOf(true)
+        var effectCreated = false
+        var rippleAnimationTime = 0L
+
+        val factory = object : RippleEffectFactory {
+            override fun create(
+                size: IntPxSize,
+                startPosition: PxPosition,
+                density: Density,
+                radius: Dp?,
+                clipped: Boolean,
+                clock: AnimationClockObservable,
+                onAnimationFinished: (RippleEffect) -> Unit
+            ): RippleEffect {
+                clock.subscribe(object : AnimationClockObserver {
+                    override fun onAnimationFrame(frameTimeMillis: Long) {
+                        rippleAnimationTime = frameTimeMillis
+                    }
+                })
+                effectCreated = true
+                return object : RippleEffect {
+                    override fun draw(canvas: Canvas, size: IntPxSize, color: Color) {}
+                    override fun finish(canceled: Boolean) {}
+                }
+            }
+        }
+
+        composeTestRule.clockTestRule.pauseClock()
+
+        composeTestRule.setMaterialContent {
+            Providers(
+                RippleThemeAmbient provides RippleThemeAmbient.current.copy(
+                    factory = factory
+                )
+            ) {
+                Card {
+                    if (emit) {
+                        Row {
+                            TestTag(tag = contentTag) {
+                                RippleButton()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // create an effect
+        findByTag(contentTag)
+            .doClick()
+
+        // wait for drawEffect to be called
+        assertThat(effectCreated).isTrue()
+        assertThat(rippleAnimationTime).isEqualTo(0)
+
+        // we got a first frame
+        composeTestRule.clockTestRule.advanceClock(100)
+        assertThat(rippleAnimationTime).isNotEqualTo(0)
+        var prevValue = rippleAnimationTime
+
+        // animation is working and we are getting the next frames
+        composeTestRule.clockTestRule.advanceClock(100)
+        assertThat(rippleAnimationTime).isGreaterThan(prevValue)
+        prevValue = rippleAnimationTime
+
+        composeTestRule.runOnIdleCompose {
+            emit = false
+        }
+
+        composeTestRule.runOnIdleCompose {
+            // wait for the dispose to be applied
+        }
+
+        composeTestRule.clockTestRule.advanceClock(100)
+        // asserts our animation is disposed and not reacting on a new timestamp
+        assertThat(rippleAnimationTime).isEqualTo(prevValue)
     }
 
     @Test
@@ -414,7 +495,6 @@ class RippleTest {
                 radius: Dp?,
                 clipped: Boolean,
                 clock: AnimationClockObservable,
-                requestRedraw: () -> Unit,
                 onAnimationFinished: (RippleEffect) -> Unit
             ): RippleEffect {
                 onEffectCreated()
@@ -441,6 +521,3 @@ class RippleTest {
             }
         }
 }
-
-@Model
-private data class DoEmit(var emit: Boolean)
