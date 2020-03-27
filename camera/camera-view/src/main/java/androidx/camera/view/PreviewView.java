@@ -50,6 +50,7 @@ public class PreviewView extends FrameLayout {
     @NonNull
     private ImplementationMode mPreferredImplementationMode = DEFAULT_IMPL_MODE;
 
+    @VisibleForTesting
     @Nullable
     PreviewViewImplementation mImplementation;
 
@@ -188,7 +189,6 @@ public class PreviewView extends FrameLayout {
      * @param cameraSelector the CameraSelector which the {@link Preview} is bound to.
      * @return a {@link MeteringPointFactory}
      */
-    @SuppressWarnings("ConstantConditions")
     @NonNull
     public MeteringPointFactory createMeteringPointFactory(@NonNull CameraSelector cameraSelector) {
         Preconditions.checkNotNull(mImplementation);
@@ -217,12 +217,6 @@ public class PreviewView extends FrameLayout {
                 throw new IllegalStateException(
                         "Unsupported implementation mode " + mode);
         }
-    }
-
-    @VisibleForTesting
-    @Nullable
-    PreviewViewImplementation getImplementation() {
-        return mImplementation;
     }
 
     /**
