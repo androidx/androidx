@@ -23,7 +23,6 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Align
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
 import androidx.ui.layout.aspectRatio
@@ -62,7 +61,7 @@ class StackTest : LayoutTest() {
         val positionedChildSize = Ref<IntPxSize>()
         val positionedChildPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopStart) {
+            Container(alignment = Alignment.TopStart) {
                 Stack {
                     Container(
                         Modifier.gravity(Alignment.BottomEnd)
@@ -110,34 +109,34 @@ class StackTest : LayoutTest() {
         val childSize = arrayOf(Ref<IntPxSize>(), Ref<IntPxSize>())
         val childPosition = arrayOf(Ref<PxPosition>(), Ref<PxPosition>())
         show {
-            Align(alignment = Alignment.TopStart) {
-                    Stack(Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                        stackSize.value = coordinates.size
-                        positionedLatch.countDown()
-                    }) {
-                        Container(
-                            modifier = Modifier.gravity(Alignment.BottomEnd)
-                                .saveLayoutInfo(
-                                    childSize[0],
-                                    childPosition[0],
-                                    positionedLatch
-                                ),
-                            width = sizeDp,
-                            height = sizeDp
-                        ) {
-                        }
-                        Container(
-                            modifier = Modifier.gravity(Alignment.BottomEnd)
-                                .saveLayoutInfo(
-                                    size = childSize[1],
-                                    position = childPosition[1],
-                                    positionedLatch = positionedLatch
-                                ),
-                            width = doubleSizeDp,
-                            height = doubleSizeDp
-                        ) {
-                        }
+            Container(alignment = Alignment.TopStart) {
+                Stack(Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                    stackSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Container(
+                        modifier = Modifier.gravity(Alignment.BottomEnd)
+                            .saveLayoutInfo(
+                                childSize[0],
+                                childPosition[0],
+                                positionedLatch
+                            ),
+                        width = sizeDp,
+                        height = sizeDp
+                    ) {
                     }
+                    Container(
+                        modifier = Modifier.gravity(Alignment.BottomEnd)
+                            .saveLayoutInfo(
+                                size = childSize[1],
+                                position = childPosition[1],
+                                positionedLatch = positionedLatch
+                            ),
+                        width = doubleSizeDp,
+                        height = doubleSizeDp
+                    ) {
+                    }
+                }
             }
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
@@ -162,7 +161,7 @@ class StackTest : LayoutTest() {
         val childSize = Array(5) { Ref<IntPxSize>() }
         val childPosition = Array(5) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Container(alignment = Alignment.TopStart) {
                 Stack(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
@@ -331,7 +330,7 @@ class StackTest : LayoutTest() {
         val childSize = Array(2) { Ref<IntPxSize>() }
         val childPosition = Array(2) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Container(alignment = Alignment.TopStart) {
                 Container(
                     Modifier.preferredSize(
                         sizeDp,

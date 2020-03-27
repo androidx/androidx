@@ -21,7 +21,6 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
@@ -30,7 +29,6 @@ import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
-import androidx.ui.layout.Align
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
@@ -272,7 +270,7 @@ class OnPositionedTest : LayoutTest() {
         var realLeft: Px? = null
         var positionedLatch = CountDownLatch(1)
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 Offset(modelLeft) {
                     Container(width = 10.dp, height = 10.dp) {
                         Container(width = 10.dp, height = 10.dp) {

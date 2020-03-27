@@ -19,15 +19,14 @@ package androidx.ui.layout.test
 import android.content.res.Resources
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Align
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
+import androidx.ui.layout.Stack
 import androidx.ui.layout.aspectRatio
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxSize
@@ -66,7 +65,7 @@ class LayoutSizeTest : LayoutTest() {
         val size = MutableList(6) { Ref<IntPxSize>() }
         val position = MutableList(6) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Column {
                     Container(
                         Modifier.preferredWidthIn(minWidth = sizeDp, maxWidth = sizeDp * 2)
@@ -138,7 +137,7 @@ class LayoutSizeTest : LayoutTest() {
         val size = MutableList(6) { Ref<IntPxSize>() }
         val position = MutableList(6) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Row {
                     Container(
                         Modifier.preferredHeightIn(minHeight = sizeDp, maxHeight = sizeDp * 2)
@@ -210,7 +209,7 @@ class LayoutSizeTest : LayoutTest() {
         val size = MutableList(5) { Ref<IntPxSize>() }
         val position = MutableList(5) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Row {
                     val maxSize = sizeDp * 2
                     Container(
@@ -275,7 +274,7 @@ class LayoutSizeTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Container(width = sizeDp, height = sizeDp) {
                     Container(
                         Modifier.preferredWidth(sizeDp * 2)
@@ -313,7 +312,7 @@ class LayoutSizeTest : LayoutTest() {
         val size = MutableList(4) { Ref<IntPxSize>() }
         val position = MutableList(4) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Row {
                     Container(Modifier.preferredWidthIn(maxWidth = Dp.Infinity)) {
                         Container(width = sizeDp, height = sizeDp,
@@ -707,7 +706,7 @@ class LayoutSizeTest : LayoutTest() {
         val position = Ref<PxPosition>()
         show {
             Layout(@Composable {
-                Align(alignment = Alignment.TopStart) {
+                Stack {
                     Container(modifier + Modifier.saveLayoutInfo(size, position, positionedLatch)) {
                         Container(width = width, height = height) { }
                     }
