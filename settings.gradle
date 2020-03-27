@@ -243,6 +243,7 @@ includeProject(":remotecallback:remotecallback", "remotecallback/remotecallback"
 includeProject(":versionedparcelable:versionedparcelable-annotation", "versionedparcelable/annotation")
 includeProject(":versionedparcelable:versionedparcelable", "versionedparcelable/versionedparcelable")
 includeProject(":savedstate:savedstate", "savedstate/savedstate")
+includeProject(":security:security-biometric", "security/security-biometric")
 includeProject(":security:security-crypto", "security/crypto")
 includeProject(":security:security-identity-credential", "security/identity-credential")
 includeProject(":serialization:serialization", "serialization/serialization")
