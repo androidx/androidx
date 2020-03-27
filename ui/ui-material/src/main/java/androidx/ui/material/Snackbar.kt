@@ -82,7 +82,7 @@ fun Snackbar(
         color = snackbarColor,
         contentColor = colors.surface
     ) {
-        ProvideEmphasis(MaterialTheme.emphasisLevels.high) {
+        ProvideEmphasis(EmphasisAmbient.current.high) {
             val textStyle = MaterialTheme.typography.body2
             ProvideTextStyle(value = textStyle) {
                 when {
