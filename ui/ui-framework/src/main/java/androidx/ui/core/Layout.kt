@@ -483,21 +483,3 @@ private class WithConstrainsState {
         forceRecompose = false
     }
 }
-
-/**
- * [onPositioned] callback will be called with the final LayoutCoordinates of the children
- * MeasureBox(es) after measuring.
- * Note that it will be called after a composition when the coordinates are finalized.
- *
- * Usage example:
- * @sample androidx.ui.framework.samples.OnChildPositionedSample
- */
-@Composable
-inline fun OnChildPositioned(
-    noinline onPositioned: (coordinates: LayoutCoordinates) -> Unit,
-    crossinline children: @Composable() () -> Unit
-) {
-    DataNode(key = OnChildPositionedKey, value = onPositioned) {
-        children()
-    }
-}

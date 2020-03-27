@@ -23,6 +23,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
+import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
