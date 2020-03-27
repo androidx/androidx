@@ -28,6 +28,7 @@ import androidx.ui.demos.common.DemoCategory
 import androidx.ui.demos.common.allLaunchableDemos
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredHeight
@@ -60,7 +61,7 @@ fun DemoApp(
         }
     }).takeIf { canNavigateUp }
 
-    var filterText by mutableStateOf("")
+    var filterText by mutableStateOf(TextFieldValue())
 
     Scaffold(topAppBar = {
         DemoAppBar(
@@ -74,7 +75,7 @@ fun DemoApp(
             onEndFiltering = onEndFiltering
         )
     }) {
-        DemoContent(currentDemo, isFiltering, filterText, onNavigateToDemo)
+        DemoContent(currentDemo, isFiltering, filterText.text, onNavigateToDemo)
     }
 }
 
@@ -136,8 +137,8 @@ private fun DemoAppBar(
     title: String,
     navigationIcon: @Composable() (() -> Unit)?,
     isFiltering: Boolean,
-    filterText: String,
-    onFilter: (String) -> Unit,
+    filterText: TextFieldValue,
+    onFilter: (TextFieldValue) -> Unit,
     onStartFiltering: () -> Unit,
     onEndFiltering: () -> Unit,
     launchSettings: () -> Unit

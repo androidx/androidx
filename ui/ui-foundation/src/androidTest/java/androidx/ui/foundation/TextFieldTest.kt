@@ -57,7 +57,7 @@ class TextFieldTest {
         val focusManager = mock<FocusManager>()
         val inputService = mock<TextInputService>()
         composeTestRule.setContent {
-            val state = state { "" }
+            val state = state { TextFieldValue("") }
             Providers(
                 FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides inputService
@@ -80,7 +80,7 @@ class TextFieldTest {
 
     @Composable
     private fun TextFieldApp() {
-        val state = state { "" }
+        val state = state { TextFieldValue("") }
         TextField(
             value = state.value,
             onValueChange = {
@@ -159,11 +159,11 @@ class TextFieldTest {
 
     @Composable
     private fun OnlyDigitsApp() {
-        val state = state { "" }
+        val state = state { TextFieldValue("") }
         TextField(
             value = state.value,
             onValueChange = {
-                if (it.all { it.isDigit() }) {
+                if (it.text.all { it.isDigit() }) {
                     state.value = it
                 }
             }
@@ -259,7 +259,7 @@ class TextFieldTest {
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {
-                    val state = state { "" }
+                    val state = state { TextFieldValue("") }
                     TextField(
                         value = state.value,
                         onValueChange = {

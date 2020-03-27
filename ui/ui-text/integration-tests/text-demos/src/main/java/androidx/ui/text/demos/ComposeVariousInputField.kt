@@ -39,7 +39,7 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.Column
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
-import androidx.ui.text.TextFieldValue
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
 import androidx.ui.text.toUpperCase
@@ -263,20 +263,25 @@ private fun VariousEditLine(
     onValueChange: (String, String) -> String = { _, new -> new },
     visualTransformation: VisualTransformation
 ) {
-    val state = state { "" }
+    val state = state { TextFieldValue() }
     TextField(
         value = state.value,
         keyboardType = keyboardType,
         imeAction = imeAction,
         visualTransformation = visualTransformation,
-        onValueChange = { state.value = onValueChange(state.value, it) },
+        onValueChange = {
+            state.value = TextFieldValue(
+                onValueChange(state.value.text, it.text),
+                state.value.selection
+            )
+        },
         textStyle = TextStyle(fontSize = fontSize8)
     )
 }
 
 @Composable
 private fun HintEditText(hintText: @Composable() () -> Unit) {
-    val state = state { "" }
+    val state = state { TextFieldValue() }
 
     val inputField = @Composable {
         TextField(
@@ -287,7 +292,7 @@ private fun HintEditText(hintText: @Composable() () -> Unit) {
         )
     }
 
-    if (state.value.isNotEmpty()) {
+    if (state.value.text.isNotEmpty()) {
         inputField()
     } else {
         Layout({
