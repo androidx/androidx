@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.hilt
+package androidx.lifecycle.hilt.ext
 
+import androidx.lifecycle.hilt.HiltViewModelProcessor
 import com.google.auto.common.GeneratedAnnotationSpecs
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.SourceVersion

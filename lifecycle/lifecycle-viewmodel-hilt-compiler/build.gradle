@@ -43,7 +43,13 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation(GOOGLE_COMPILE_TESTING)
+    testImplementation fileTree(
+            dir: "${new File(project(":lifecycle:lifecycle-viewmodel-hilt").buildDir, "libJar")}",
+            include : "*.jar")
+    testImplementation(HILT_ANDROID)
 }
+
+tasks.findByName("compileKotlin").dependsOn(":lifecycle:lifecycle-viewmodel-hilt:jarDebug")
 
 androidx {
     name = "Android Lifecycle ViewModel Hilt Extension Compiler"
