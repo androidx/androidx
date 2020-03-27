@@ -317,6 +317,10 @@ package androidx.ui.core {
 
 package androidx.ui.core.focus {
 
+  public final class FocusModifierImplKt {
+    method public static androidx.ui.focus.FocusModifier createFocusModifier(androidx.ui.focus.FocusDetailedState focusDetailedState);
+  }
+
   public final class FocusNodeUtilsKt {
     method public static void initializeFocusState(androidx.ui.core.FocusNode);
   }

@@ -396,6 +396,14 @@ package androidx.ui.focus {
     enum_constant public static final androidx.ui.focus.FocusDetailedState Inactive;
   }
 
+  public interface FocusModifier extends androidx.ui.core.Modifier.Element {
+    method public boolean captureFocus();
+    method public boolean freeFocus();
+    method public androidx.ui.focus.FocusDetailedState getFocusDetailedState();
+    method public void requestFocus();
+    property public abstract androidx.ui.focus.FocusDetailedState focusDetailedState;
+  }
+
   public enum FocusState {
     enum_constant public static final androidx.ui.focus.FocusState Focused;
     enum_constant public static final androidx.ui.focus.FocusState NotFocusable;

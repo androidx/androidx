@@ -48,7 +48,9 @@ internal fun FocusNode.requestFocusForOwner() {
 
 internal fun LayoutNode.focusableChildren(): List<ModifiedFocusNode> {
     val focusableChildren = mutableListOf<ModifiedFocusNode>()
-    layoutNodeWrapper.findFocusWrapperWrappingThisWrapper()?.let { focusableChildren.add(it) }
+    // TODO(b/152529395): Write a test for LayoutNode.focusableChildren(). We were calling the wrong
+    //  function on [LayoutNodeWrapper] but no test caught this.
+    layoutNodeWrapper.findFocusWrapperWrappedByThisWrapper()?.let { focusableChildren.add(it) }
         ?: layoutChildren.forEach { layout -> focusableChildren.addAll(layout.focusableChildren()) }
     return focusableChildren
 }
