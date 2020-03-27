@@ -54,6 +54,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 
 @LargeTest
@@ -94,8 +95,15 @@ public class AdvertisingIdBenchmark {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        clearAdvertisingIdConnection();
         stopAdvertisingIdService();
+    }
+
+    private void clearAdvertisingIdConnection() throws Exception {
+        Method method = AdvertisingIdClient.class.getDeclaredMethod("clearConnectionClient");
+        method.setAccessible(true);
+        method.invoke(null);
     }
 
     private void stopAdvertisingIdService() {
