@@ -121,7 +121,7 @@ class QueryTest {
                 val error = response.errorOccurred.content
                 assertThat(error.message).isEqualTo("No database with id=$databaseId")
                 assertThat(error.stackTrace).isEqualTo("")
-                assertThat(error.isRecoverable).isEqualTo(true)
+                assertThat(error.recoverability.isRecoverable).isEqualTo(true)
             }
     }
 
@@ -140,7 +140,7 @@ class QueryTest {
         assertThat(error.message).contains("while compiling: $command")
         assertThat(error.stackTrace).contains("SQLiteConnection.nativePrepareStatement")
         assertThat(error.stackTrace).contains("SQLiteDatabase.rawQueryWithFactory")
-        assertThat(error.isRecoverable).isEqualTo(true)
+        assertThat(error.recoverability.isRecoverable).isEqualTo(true)
     }
 
     @Test
@@ -158,7 +158,7 @@ class QueryTest {
         assertThat(error.stackTrace).contains("SQLiteDatabase.rawQueryWithFactory")
         assertThat(error.stackTrace).contains("SQLiteDirectCursorDriver.query")
         assertThat(error.stackTrace).contains("SQLiteProgram.bind")
-        assertThat(error.isRecoverable).isEqualTo(true)
+        assertThat(error.recoverability.isRecoverable).isEqualTo(true)
     }
 
     @Test
