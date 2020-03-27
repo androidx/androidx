@@ -34,11 +34,7 @@ import androidx.annotation.RestrictTo;
  *
  * @see WebViewCompat#addWebMessageListener(android.webkit.WebView, String, List,
  * WebViewCompat.WebMessageListener).
- *
- * TODO(ctzsm): unhide
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class JavaScriptReplyProxy {
     /**
      * Post a String message to the injected JavaScript object which sent this {@link
