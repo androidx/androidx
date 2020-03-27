@@ -16,3 +16,9 @@
 
 // Empty project from which to run Dokka to generate public documentation
 // from .jar files containing sources
+
+plugins {
+    // Workaround for b/150960949 , https://github.com/gradle/gradle/issues/9415
+    id("java")
+}
+
