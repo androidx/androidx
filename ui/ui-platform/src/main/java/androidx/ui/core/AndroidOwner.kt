@@ -711,7 +711,7 @@ internal class AndroidComposeView constructor(context: Context) :
                 measurables: List<Measurable>,
                 constraints: Constraints,
                 layoutDirection: LayoutDirection
-            ): MeasureScope.LayoutResult {
+            ): MeasureScope.MeasureResult {
                 return when {
                     measurables.isEmpty() -> measureScope.layout(IntPx.Zero, IntPx.Zero) {}
                     measurables.size == 1 -> {

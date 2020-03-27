@@ -523,7 +523,7 @@ package androidx.ui.layout {
     method public androidx.ui.unit.Dp getEnd();
     method public androidx.ui.unit.Dp getStart();
     method public androidx.ui.unit.Dp getTop();
-    method public androidx.ui.core.MeasureScope.LayoutResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.core.MeasureScope.MeasureResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
   }
 
   public final class LayoutPaddingAbsolute implements androidx.ui.core.LayoutModifier2 {
@@ -538,7 +538,7 @@ package androidx.ui.layout {
     method public androidx.ui.unit.Dp getLeft();
     method public androidx.ui.unit.Dp getRight();
     method public androidx.ui.unit.Dp getTop();
-    method public androidx.ui.core.MeasureScope.LayoutResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.core.MeasureScope.MeasureResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
   }
 
   public final class LayoutPaddingKt {

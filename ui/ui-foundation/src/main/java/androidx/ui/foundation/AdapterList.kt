@@ -256,7 +256,7 @@ private class ListState<T>(
             measurables: List<Measurable>,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): MeasureScope.LayoutResult {
+        ): MeasureScope.MeasureResult {
             measuredThisPass.clear()
             if (forceRecompose) {
                 rootNode.ignoreModelReads { recomposeAllChildren() }

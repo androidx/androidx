@@ -58,15 +58,15 @@ internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = M
         resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
         var wrapper: LayoutNodeWrapper? = layoutNodeWrapper
         while (wrapper != null) {
-            wrapper.layoutResult = innerLayoutNodeWrapper.layoutResult
+            wrapper.measureResult = innerLayoutNodeWrapper.measureResult
             wrapper = (wrapper as? LayoutNodeWrapper)?.wrapped
         }
         place(x.ipx, y.ipx)
     }
 
 internal fun LayoutNode.resize(width: IntPx, height: IntPx) {
-    handleLayoutResult(
-        object : MeasureScope.LayoutResult {
+    handleMeasureResult(
+        object : MeasureScope.MeasureResult {
             override val width: IntPx = width
             override val height: IntPx = height
             override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()

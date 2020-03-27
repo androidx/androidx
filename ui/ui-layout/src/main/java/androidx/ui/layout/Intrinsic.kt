@@ -145,7 +145,7 @@ private interface PreferredIntrinsicSizeModifier : LayoutModifier2 {
         measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ): MeasureScope.LayoutResult {
+    ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(
             calculateContentConstraints(measurable, constraints).enforce(constraints)
         )
