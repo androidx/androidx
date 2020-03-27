@@ -233,15 +233,14 @@ private fun Scroller(
             })
         }
     }) {
-        val scroll = scrollable(
-            scrollableState = scrollerPosition.scrollableState,
-            dragDirection = direction,
-            enabled = isScrollable
-        )
         ScrollerLayout(
             scrollerPosition = scrollerPosition,
             onMaxPositionChanged = { scrollerPosition.maxPosition = it },
-            modifier = modifier + scroll,
+            modifier = modifier.scrollable(
+                scrollableState = scrollerPosition.scrollableState,
+                dragDirection = direction,
+                enabled = isScrollable
+            ),
             isVertical = isVertical,
             child = child
         )

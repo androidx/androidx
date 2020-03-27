@@ -159,7 +159,7 @@ class ScrollableState(
  * @param enabled whether of not scrolling in enabled
  */
 @Composable
-fun scrollable(
+fun Modifier.scrollable(
     dragDirection: DragDirection,
     scrollableState: ScrollableState,
     onScrollStarted: (startedPosition: PxPosition) -> Unit = {},
@@ -169,7 +169,7 @@ fun scrollable(
     onDispose {
         scrollableState.stopAnimation()
     }
-    return DragGestureDetector(
+    return this + DragGestureDetector(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {
