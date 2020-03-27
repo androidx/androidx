@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Rect
 import android.os.Binder
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Size
 import android.util.SizeF
 import android.view.View
@@ -113,7 +114,7 @@ class BundleTest {
 
     @SdkSuppress(minSdkVersion = 18)
     @Test fun bundleOfValidApi18() {
-        val binderValue = Binder()
+        val binderValue = object : IBinder by Binder() {}
         val bundle = bundleOf("binder" to binderValue)
         assertSame(binderValue, bundle["binder"])
     }
