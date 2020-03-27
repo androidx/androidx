@@ -262,12 +262,12 @@ package androidx.ui.foundation.gestures {
   }
 
   public final class DraggableKt {
-    method public static androidx.ui.core.Modifier draggable(androidx.ui.foundation.gestures.DragDirection dragDirection, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onDragDeltaConsumptionRequested);
+    method public static androidx.ui.core.Modifier draggable(androidx.ui.core.Modifier, androidx.ui.foundation.gestures.DragDirection dragDirection, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDragStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragStopped = {}, boolean enabled = true, boolean startDragImmediately = false, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onDragDeltaConsumptionRequested);
   }
 
   public final class ScrollableKt {
     method public static androidx.ui.foundation.gestures.ScrollableState ScrollableState(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onScrollDeltaConsumptionRequested);
-    method public static androidx.ui.core.Modifier scrollable(androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.gestures.ScrollableState scrollableState, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {}, boolean enabled = true);
+    method public static androidx.ui.core.Modifier scrollable(androidx.ui.core.Modifier, androidx.ui.foundation.gestures.DragDirection dragDirection, androidx.ui.foundation.gestures.ScrollableState scrollableState, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onScrollStarted = {}, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onScrollStopped = {}, boolean enabled = true);
   }
 
   public final class ScrollableState {

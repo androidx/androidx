@@ -55,7 +55,7 @@ class DraggableTest {
     fun draggable_horizontalDrag() {
         var total = 0f
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Horizontal,
                 onDragDeltaConsumptionRequested = { delta ->
                     total += delta
@@ -100,7 +100,7 @@ class DraggableTest {
     fun draggable_verticalDrag() {
         var total = 0f
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Vertical,
                 onDragDeltaConsumptionRequested = { delta ->
                     total += delta
@@ -146,7 +146,7 @@ class DraggableTest {
         var startTrigger = 0f
         var stopTrigger = 0f
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Horizontal,
                 onDragStarted = {
                     startTrigger += 1
@@ -181,7 +181,7 @@ class DraggableTest {
         var total = 0f
         val enabled = mutableStateOf(true)
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Horizontal,
                 onDragDeltaConsumptionRequested = { delta ->
                     total += delta
@@ -218,7 +218,7 @@ class DraggableTest {
     fun draggable_velocityProxy() {
         var velocityTriggered = 0f
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Horizontal,
                 onDragStopped = {
                     velocityTriggered = it
@@ -246,7 +246,7 @@ class DraggableTest {
     fun draggable_startWithoutSlop_ifAnimating() {
         var total = 0f
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Horizontal,
                 onDragDeltaConsumptionRequested = { delta ->
                     total += delta
@@ -274,7 +274,7 @@ class DraggableTest {
         var dragStopped = 0f
         setDraggableContent {
             if (total < 20f) {
-                draggable(
+                Modifier.draggable(
                     dragDirection = DragDirection.Horizontal,
                     onDragDeltaConsumptionRequested = { delta ->
                         total += delta
@@ -308,20 +308,22 @@ class DraggableTest {
                 TestTag(draggableBoxTag) {
                     Semantics(container = true) {
                         Box(gravity = ContentGravity.Center,
-                            modifier = Modifier.preferredSize(300.dp) + draggable(
-                                dragDirection = DragDirection.Horizontal,
-                                onDragDeltaConsumptionRequested = { delta ->
-                                    outerDrag += delta
-                                    delta
-                                }
-                            )) {
-                            Box(modifier = Modifier.preferredSize(300.dp) + draggable(
-                                dragDirection = DragDirection.Horizontal,
-                                onDragDeltaConsumptionRequested = { delta ->
-                                    innerDrag += delta / 2
-                                    delta / 2
-                                }
-                            ))
+                            modifier = Modifier.preferredSize(300.dp)
+                                .draggable(
+                                    dragDirection = DragDirection.Horizontal,
+                                    onDragDeltaConsumptionRequested = { delta ->
+                                        outerDrag += delta
+                                        delta
+                                    }
+                                )) {
+                            Box(modifier = Modifier.preferredSize(300.dp)
+                                .draggable(
+                                    dragDirection = DragDirection.Horizontal,
+                                    onDragDeltaConsumptionRequested = { delta ->
+                                        innerDrag += delta / 2
+                                        delta / 2
+                                    }
+                                ))
                         }
                     }
                 }

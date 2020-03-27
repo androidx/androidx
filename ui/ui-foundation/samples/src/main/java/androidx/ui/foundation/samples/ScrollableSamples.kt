@@ -45,10 +45,10 @@ fun ScrollableSample() {
             delta
         }
     )
-    val scroll =
-        scrollable(dragDirection = DragDirection.Vertical, scrollableState = scrollableState)
     Box(
-        Modifier.preferredSize(200.dp) + scroll,
+        Modifier
+            .preferredSize(200.dp)
+            .scrollable(dragDirection = DragDirection.Vertical, scrollableState = scrollableState),
         backgroundColor = Color.LightGray,
         gravity = ContentGravity.Center
     ) {

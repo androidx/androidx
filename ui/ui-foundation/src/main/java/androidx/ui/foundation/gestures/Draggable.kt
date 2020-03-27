@@ -55,7 +55,7 @@ import androidx.ui.unit.px
  * pressing on it. It's useful to set it when value you're dragging is settling / animating.
  */
 @Composable
-fun draggable(
+fun Modifier.draggable(
     dragDirection: DragDirection,
     onDragStarted: (startedPosition: PxPosition) -> Unit = {},
     onDragStopped: (velocity: Float) -> Unit = {},
@@ -66,7 +66,7 @@ fun draggable(
     val dragState = remember {
         DraggableState()
     }
-    return DragGestureDetector(
+    return this + DragGestureDetector(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {
