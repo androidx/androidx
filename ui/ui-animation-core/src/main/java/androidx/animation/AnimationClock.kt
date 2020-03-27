@@ -21,11 +21,14 @@ import android.os.Looper
 import android.view.Choreographer
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
+import org.jetbrains.annotations.TestOnly
 import java.util.concurrent.CountDownLatch
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 var rootAnimationClockFactory: () -> AnimationClockObservable = { DefaultAnimationClock() }
+    @TestOnly
+    set
 
 /**
  * Default Choreographer based clock that pushes a new frame to all subscribers on each
