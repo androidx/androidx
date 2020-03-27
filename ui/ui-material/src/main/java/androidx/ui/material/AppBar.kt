@@ -134,7 +134,7 @@ fun TopAppBar(
  * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
  * the theme, this will keep the same value set above this TopAppBar.
  * @param elevation the elevation of this TopAppBar.
- * @param children the children of this TopAppBar.The default layout here is a [Row],
+ * @param content the content of this TopAppBar.The default layout here is a [Row],
  * so content inside will be placed horizontally.
  */
 @Composable
@@ -143,9 +143,9 @@ fun TopAppBar(
     color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = TopAppBarElevation,
-    children: @Composable() RowScope.() -> Unit
+    content: @Composable() RowScope.() -> Unit
 ) {
-    AppBar(color, contentColor, elevation, RectangleShape, modifier = modifier, children = children)
+    AppBar(color, contentColor, elevation, RectangleShape, modifier = modifier, children = content)
 }
 
 object BottomAppBar {
@@ -219,7 +219,7 @@ object BottomAppBar {
  * @param cutoutShape the shape of the cutout that will be added to the BottomAppBar - this
  * should typically be the same shape used inside the [FloatingActionButton]. This shape will be
  * drawn with an offset around all sides. If null, where will be no cutout.
- * @param children the children of this BottomAppBar. The default layout here is a [Row],
+ * @param content the content of this BottomAppBar. The default layout here is a [Row],
  * so content inside will be placed horizontally.
  */
 @Composable
@@ -229,7 +229,7 @@ fun BottomAppBar(
     contentColor: Color = contentColorFor(color),
     fabConfiguration: FabConfiguration? = null,
     cutoutShape: Shape? = null,
-    children: @Composable() RowScope.() -> Unit
+    content: @Composable() RowScope.() -> Unit
 ) {
     val shape = if (cutoutShape == null || fabConfiguration == null) {
         RectangleShape
@@ -244,7 +244,7 @@ fun BottomAppBar(
         // TODO: remove box and inline row's children after b/148014745 is fixed
         Box(Modifier.fillMaxSize(), gravity = ContentGravity.Center) {
             // TODO: b/150609566 clarify emphasis for children
-            Row(Modifier.fillMaxWidth(), children = children)
+            Row(Modifier.fillMaxWidth(), children = content)
         }
     }
 }

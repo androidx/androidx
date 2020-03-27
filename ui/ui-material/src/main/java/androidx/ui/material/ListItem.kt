@@ -397,9 +397,9 @@ private object ThreeLine {
 private fun BaselinesOffsetColumn(
     offsets: List<Dp>,
     modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
-    Layout(children, modifier) { measurables, constraints, _ ->
+    Layout(content, modifier) { measurables, constraints, _ ->
         val childConstraints = constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity)
         val placeables = measurables.map { it.measure(childConstraints) }
 
@@ -439,9 +439,9 @@ private fun BaselinesOffsetColumn(
 private fun OffsetToBaselineOrCenter(
     offset: Dp,
     modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
-    Layout(children, modifier) { measurables, constraints, _ ->
+    Layout(content, modifier) { measurables, constraints, _ ->
         val placeable = measurables[0].measure(constraints.copy(minHeight = 0.ipx))
         val baseline = placeable[FirstBaseline]
         val y: IntPx
@@ -463,12 +463,12 @@ private fun OffsetToBaselineOrCenter(
 private fun applyTextStyle(
     textStyle: TextStyle,
     emphasis: Emphasis,
-    children: @Composable() (() -> Unit)?
+    icon: @Composable() (() -> Unit)?
 ): @Composable() (() -> Unit)? {
-    if (children == null) return null
+    if (icon == null) return null
     return {
         ProvideEmphasis(emphasis) {
-            ProvideTextStyle(textStyle, children)
+            ProvideTextStyle(textStyle, icon)
         }
     }
 }

@@ -60,7 +60,7 @@ import androidx.ui.unit.max
  * @param contentColor The preferred content color for content inside this FAB
  * @param elevation The z-coordinate at which to place this FAB. This controls the size
  * of the shadow below the button.
- * @param children the content of this FAB
+ * @param icon the content of this FAB
  */
 @Composable
 fun FloatingActionButton(
@@ -70,7 +70,7 @@ fun FloatingActionButton(
     backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp,
-    children: @Composable() () -> Unit
+    icon: @Composable() () -> Unit
 ) {
     // Since we're adding layouts in between the clickable layer and the content, we need to
     // merge all descendants, or we'll get multiple nodes
@@ -87,7 +87,7 @@ fun FloatingActionButton(
                     Box(
                         modifier = MinimumFabSizeModifier,
                         gravity = ContentGravity.Center,
-                        children = children
+                        children = icon
                     )
                 }
             }
