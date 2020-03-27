@@ -23,12 +23,12 @@ import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
+import androidx.ui.test.InputDispatcher
 import androidx.ui.unit.Duration
+import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.milliseconds
 import androidx.ui.util.lerp
-import androidx.ui.test.InputDispatcher
-import androidx.ui.unit.PxPosition
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.util.concurrent.CountDownLatch
@@ -36,8 +36,8 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-internal class AndroidInputDispatcher(
-    private val treeProviders: CollectedProviders
+internal class AndroidInputDispatcher constructor(
+    private val sendEvent: (MotionEvent) -> Unit
 ) : InputDispatcher {
     companion object {
         /**
@@ -89,8 +89,8 @@ internal class AndroidInputDispatcher(
 
     override fun sendClick(position: PxPosition) {
         val downTime = generateDownTime(eventPeriod.milliseconds)
-        treeProviders.sendMotionEvent(downTime, downTime, ACTION_DOWN, position)
-        treeProviders.sendMotionEvent(downTime, downTime + eventPeriod, ACTION_UP, position)
+        sendMotionEvent(downTime, downTime, ACTION_DOWN, position)
+        sendMotionEvent(downTime, downTime + eventPeriod, ACTION_UP, position)
     }
 
     override fun sendSwipe(
@@ -118,7 +118,7 @@ internal class AndroidInputDispatcher(
         val upTime = downTime + duration.inMilliseconds()
 
         // Send down event
-        treeProviders.sendMotionEvent(downTime, downTime, ACTION_DOWN, curve(startTime))
+        sendMotionEvent(downTime, downTime, ACTION_DOWN, curve(startTime))
 
         // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
         var currTime = startTime
@@ -135,7 +135,7 @@ internal class AndroidInputDispatcher(
         }
 
         // And end with up event
-        treeProviders.sendMotionEvent(downTime, upTime, ACTION_UP, curve(endTime))
+        sendMotionEvent(downTime, upTime, ACTION_UP, curve(endTime))
     }
 
     /**
@@ -164,14 +164,14 @@ internal class AndroidInputDispatcher(
         while (step++ < steps) {
             val progress = step / steps.toFloat()
             val t = lerp(t0, tN, progress)
-            treeProviders.sendMotionEvent(downTime, downTime + t, ACTION_MOVE, f(t))
+            sendMotionEvent(downTime, downTime + t, ACTION_MOVE, f(t))
         }
     }
 
     /**
      * Sends an event with the given parameters. Method blocks if [dispatchInRealTime] is `true`.
      */
-    private fun CollectedProviders.sendMotionEvent(
+    private fun sendMotionEvent(
         downTime: Long,
         eventTime: Long,
         action: Int,
@@ -193,10 +193,10 @@ internal class AndroidInputDispatcher(
     }
 
     /**
-     * Sends the [event] to the [CollectedProviders] and [recycles][MotionEvent.recycle] it
+     * Sends the [event] to the [CollectedOwners] and [recycles][MotionEvent.recycle] it
      * regardless of the result. This method blocks until the event is sent.
      */
-    private fun CollectedProviders.sendAndRecycleEvent(event: MotionEvent) {
+    private fun sendAndRecycleEvent(event: MotionEvent) {
         val latch = CountDownLatch(1)
         handler.post {
             try {

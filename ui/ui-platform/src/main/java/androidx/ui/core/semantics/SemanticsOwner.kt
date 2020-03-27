@@ -101,3 +101,20 @@ class SemanticsOwner(rootNode: ComponentNode) {
         rootSemanticsNode.invalidateChildren()
     }
 }
+
+/**
+ * Finds all [SemanticsNode]s in the tree owned by this [SemanticsOwner]
+ */
+fun SemanticsOwner.getAllSemanticsNodes(): List<SemanticsNode> {
+    val nodes = mutableListOf<SemanticsNode>()
+
+    fun findAllSemanticNodesRecursive(currentNode: SemanticsNode) {
+        nodes.add(currentNode)
+        for (child in currentNode.children) {
+            findAllSemanticNodesRecursive(child)
+        }
+    }
+
+    findAllSemanticNodesRecursive(rootSemanticsNode)
+    return nodes
+}

@@ -32,8 +32,6 @@ internal abstract class SemanticsTreeInteraction(
     val selector: SemanticsPredicate
 ) {
 
-    internal abstract fun sendInput(action: (InputDispatcher) -> Unit)
-
     internal abstract fun isInScreenBounds(rectangle: PxBounds): Boolean
 
     internal abstract fun getAllSemanticsNodes(): List<SemanticsNode>
@@ -69,6 +67,4 @@ internal abstract class SemanticsTreeInteraction(
 
 internal var semanticsTreeInteractionFactory: (
     selector: SemanticsPredicate
-) -> SemanticsTreeInteraction = { selector ->
-    AndroidSemanticsTreeInteraction(selector)
-}
+) -> SemanticsTreeInteraction = ::AndroidSemanticsTreeInteraction

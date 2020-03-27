@@ -24,5 +24,7 @@
         <activity android:name="androidx.ui.test.ActivityWithActionBar" />
         <activity android:name="androidx.ui.test.MultipleActivitiesFindTest$Activity1" />
         <activity android:name="androidx.ui.test.MultipleActivitiesFindTest$Activity2" />
+        <activity android:name="androidx.ui.test.MultipleActivitiesClickTest$Activity1" />
+        <activity android:name="androidx.ui.test.MultipleActivitiesClickTest$Activity2" />
     </application>
 </manifest>

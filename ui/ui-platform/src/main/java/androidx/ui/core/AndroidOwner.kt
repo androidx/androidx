@@ -43,7 +43,6 @@ import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
-import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.graphics.Canvas
@@ -67,7 +66,7 @@ fun createOwner(context: Context): AndroidOwner = AndroidComposeView(context)
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 internal class AndroidComposeView constructor(context: Context) :
-    ViewGroup(context), AndroidOwner, SemanticsTreeProvider {
+    ViewGroup(context), AndroidOwner {
 
     override val view: View = this
 
@@ -586,14 +585,6 @@ internal class AndroidComposeView constructor(context: Context) :
             MeasureSpec.AT_MOST -> ConstraintRange(IntPx.Zero, size)
             else -> throw IllegalStateException()
         }
-    }
-
-    override fun getAllSemanticNodes(): List<SemanticsNode> {
-        return findAllSemanticNodesIn(semanticsOwner.rootSemanticsNode)
-    }
-
-    override fun sendEvent(event: MotionEvent) {
-        dispatchTouchEvent(event)
     }
 
     private fun Context.getLayoutDirection() =

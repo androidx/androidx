@@ -70,7 +70,7 @@ class AndroidInputDispatcherSendClickTest(config: TestConfig) {
     @Before
     fun setUp() {
         recorder = MotionEventRecorder()
-        subject = AndroidInputDispatcher(recorder.asCollectedProviders())
+        subject = AndroidInputDispatcher(recorder::sendEvent)
     }
 
     @After
