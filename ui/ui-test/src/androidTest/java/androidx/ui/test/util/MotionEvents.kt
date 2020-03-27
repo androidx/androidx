@@ -17,14 +17,11 @@
 package androidx.ui.test.util
 
 import android.view.MotionEvent
-import androidx.ui.core.SemanticsTreeProvider
-import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.test.android.CollectedProviders
 import androidx.ui.unit.PxPosition
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 
-internal class MotionEventRecorder : SemanticsTreeProvider {
+internal class MotionEventRecorder {
 
     private val _events = mutableListOf<MotionEvent>()
     val events get() = _events as List<MotionEvent>
@@ -33,15 +30,7 @@ internal class MotionEventRecorder : SemanticsTreeProvider {
         _events.removeAll { it.recycle(); true }
     }
 
-    fun asCollectedProviders(): CollectedProviders {
-        return CollectedProviders(setOf(this))
-    }
-
-    override fun getAllSemanticNodes(): List<SemanticsNode> {
-        throw NotImplementedError()
-    }
-
-    override fun sendEvent(event: MotionEvent) {
+    fun sendEvent(event: MotionEvent) {
         _events.add(MotionEvent.obtain(event))
     }
 }

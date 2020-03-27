@@ -23,7 +23,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.test.InputDispatcher
 import androidx.ui.test.SemanticsPredicate
 import androidx.ui.test.SemanticsTreeInteraction
 import androidx.ui.unit.PxBounds
@@ -44,16 +43,12 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
 
     private val handler = Handler(Looper.getMainLooper())
 
-    override fun sendInput(action: (InputDispatcher) -> Unit) {
-        action(AndroidInputDispatcher(SynchronizedTreeCollector.collectSemanticsProviders()))
-    }
-
     override fun getAllSemanticsNodes(): List<SemanticsNode> {
-        return SynchronizedTreeCollector.collectSemanticsProviders().getAllSemanticNodes()
+        return SynchronizedTreeCollector.collectOwners().getAllSemanticNodes()
     }
 
     override fun isInScreenBounds(rectangle: PxBounds): Boolean {
-        val displayMetrics = SynchronizedTreeCollector.collectSemanticsProviders()
+        val displayMetrics = SynchronizedTreeCollector.collectOwners()
             .findActivity()
             .resources
             .displayMetrics
@@ -70,7 +65,7 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun captureNodeToBitmap(node: SemanticsNode): Bitmap {
-        val collectedInfo = SynchronizedTreeCollector.collectSemanticsProviders()
+        val collectedInfo = SynchronizedTreeCollector.collectOwners()
 
         val exists = contains(node.id)
         if (!exists) {

@@ -16,7 +16,9 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.AndroidOwner
 import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.test.android.AndroidInputDispatcher
 
 internal fun SemanticsNodeInteraction(
     node: SemanticsNode,
@@ -50,6 +52,14 @@ class SemanticsNodeInteraction internal constructor(
 
     internal fun fetchSemanticsNodes(): List<SemanticsNode> {
         return semanticsTreeInteraction.getNodesByIds(nodeIds)
+    }
+
+    /**
+     * Executes the given [action] on an [InputDispatcher] that sends the input to the underlying
+     * input system.
+     */
+    internal fun sendInput(action: (InputDispatcher) -> Unit) {
+        action(inputDispatcherFactory(fetchOneOrDie("Failed to dispatch input")))
     }
 
     /**
@@ -131,4 +141,9 @@ class SemanticsNodeInteraction internal constructor(
         lastSeenSemantics = nodes.first().toStringInfo()
         return nodes.first()
     }
+}
+
+internal var inputDispatcherFactory: (SemanticsNode) -> InputDispatcher = { node ->
+    val view = (node.componentNode.owner as AndroidOwner).view
+    AndroidInputDispatcher { view.dispatchTouchEvent(it) }
 }

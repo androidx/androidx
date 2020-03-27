@@ -318,14 +318,6 @@ package androidx.ui.core {
     property public final androidx.ui.core.semantics.SemanticsNode semanticsNode;
   }
 
-  public final class SemanticsTreeNodeImplKt {
-  }
-
-  public interface SemanticsTreeProvider {
-    method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getAllSemanticNodes();
-    method public void sendEvent(android.view.MotionEvent event);
-  }
-
 }
 
 package androidx.ui.core.focus {
@@ -457,6 +449,10 @@ package androidx.ui.core.semantics {
     ctor public SemanticsOwner(androidx.ui.core.ComponentNode rootNode);
     method public androidx.ui.core.semantics.SemanticsNode getRootSemanticsNode();
     property public final androidx.ui.core.semantics.SemanticsNode rootSemanticsNode;
+  }
+
+  public final class SemanticsOwnerKt {
+    method public static java.util.List<androidx.ui.core.semantics.SemanticsNode> getAllSemanticsNodes(androidx.ui.core.semantics.SemanticsOwner);
   }
 
 }
