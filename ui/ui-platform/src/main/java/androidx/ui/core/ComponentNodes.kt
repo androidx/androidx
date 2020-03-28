@@ -36,6 +36,7 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.round
+import androidx.ui.util.fastForEach
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -1300,9 +1301,15 @@ class LayoutNode : ComponentNode(), Measurable {
         // There are two types of callbacks:
         // a) when the Layout is positioned - `onPositioned`
         // b) when the child of the Layout is positioned - `onChildPositioned`
-        walkPositionModifiers(this)
-        walkOnPosition(this, this.coordinates)
-        walkOnChildPositioned(this, this.coordinates)
+        if (needsRelayout) {
+            return // it hasn't been properly positioned, so don't make a call
+        }
+        val onPositioned = onPositionedCallbacks
+        onPositioned.fastForEach { it.onPositioned(coordinates) }
+        parentLayoutNode?.onChildPositionedCallbacks?.fastForEach {
+            it.onChildPositioned(coordinates)
+        }
+        layoutChildren.fastForEach { it.dispatchOnPositionedCallbacks() }
     }
 
     override fun toString(): String {
@@ -1310,49 +1317,6 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     internal companion object {
-        @Suppress("UNCHECKED_CAST")
-        private fun walkOnPosition(node: ComponentNode, coordinates: LayoutCoordinates) {
-            node.visitChildren { child ->
-                if (child !is LayoutNode) {
-                    walkOnPosition(child, coordinates)
-                } else {
-                    if (!child.needsRelayout) {
-                        child.dispatchOnPositionedCallbacks()
-                    }
-                }
-            }
-        }
-
-        private fun walkPositionModifiers(layoutNode: LayoutNode) {
-            if (layoutNode.needsRelayout) {
-                return // it hasn't been properly positioned, so don't make a call
-            }
-            val onPositioned = layoutNode.onPositionedCallbacks
-            for (i in 0..onPositioned.lastIndex) {
-                val callback = onPositioned[i]
-                callback.onPositioned(layoutNode.coordinates)
-            }
-            val onChildPositioned = layoutNode.parentLayoutNode?.onChildPositionedCallbacks
-            if (onChildPositioned != null) {
-                for (i in 0..onChildPositioned.lastIndex) {
-                    val callback = onChildPositioned[i]
-                    callback.onChildPositioned(layoutNode.coordinates)
-                }
-            }
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun walkOnChildPositioned(layoutNode: LayoutNode, coordinates: LayoutCoordinates) {
-            var node = layoutNode.parent
-            while (node != null && node !is LayoutNode) {
-                if (node is DataNode<*> && node.key === OnChildPositionedKey) {
-                    val method = node.value as (LayoutCoordinates) -> Unit
-                    method(coordinates)
-                }
-                node = node.parent
-            }
-        }
-
         private val ErrorMeasureBlocks = object : NoIntrinsicsMeasureBlocks(
             error = "Undefined intrinsics block and it is required"
         ) {
@@ -1715,12 +1679,6 @@ internal fun ComponentNode.requireFirstLayoutNodeInTree(): LayoutNode {
  * DataNodeKey for ParentData
  */
 val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
-
-/**
- * DataNodeKey for OnChildPositioned callback
- */
-val OnChildPositionedKey =
-    DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnChildPositioned")
 
 /**
  * True when there is a DrawLayerModifier in the modifier chain

@@ -20,9 +20,11 @@ import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.compose.remember
 import androidx.ui.core.FocusNode
-import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.Modifier
+import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Ref
 import androidx.ui.core.focus.initializeFocusState
+import androidx.ui.core.onChildPositioned
 import androidx.ui.focus.FocusDetailedState.Inactive
 
 private val focusNotCreated = "Focus node could not be created."
@@ -60,15 +62,15 @@ fun Focusable(
 
             // Set the focusNode coordinates when the composable is positioned. Also, if this is
             // the focus root and the host view is in focus, request focus for this node.
-            OnChildPositioned(
-                onPositioned = {
-                    focusNode.layoutCoordinates = it
-                    if (focusNode.focusState == Inactive) {
-                        focusNode.initializeFocusState()
-                    }
-                }, children = {
-                    children(focusOperator)
-                })
+            @Suppress("DEPRECATION")
+            PassThroughLayout(Modifier.onChildPositioned {
+                focusNode.layoutCoordinates = it
+                if (focusNode.focusState == Inactive) {
+                    focusNode.initializeFocusState()
+                }
+            }) {
+                children(focusOperator)
+            }
         }
     }
 }
