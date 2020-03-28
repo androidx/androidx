@@ -195,6 +195,25 @@ public class ListBuilder extends TemplateSliceBuilder {
     public @interface LayoutDirection{}
 
     /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+            RANGE_MODE_DETERMINATE, RANGE_MODE_INDETERMINATE
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RangeMode{}
+
+    /**
+     * Indicates that the progress bar should be presented in determinate mode.
+     */
+    public static final int RANGE_MODE_DETERMINATE = SliceHints.DETERMINATE_RANGE;
+    /**
+     * Indicates that the progress bar should be presented in indeterminate mode.
+     */
+    public static final int RANGE_MODE_INDETERMINATE = SliceHints.INDETERMINATE_RANGE;
+
+    /**
      * Create a ListBuilder for constructing slice content.
      * <p>
      * A slice requires an associated time-to-live, i.e. how long the data contained in the slice
@@ -515,6 +534,7 @@ public class ListBuilder extends TemplateSliceBuilder {
         private SliceAction mPrimaryAction;
         private CharSequence mContentDescription;
         private int mLayoutDirection = -1;
+        private int mMode = 0;
 
         /**
          * Builder to construct a range row which can be added to a {@link ListBuilder}.
@@ -599,6 +619,20 @@ public class ListBuilder extends TemplateSliceBuilder {
         }
 
         /**
+         * Sets the progress bar mode, it could be the determinate or indeterminate mode.
+         *
+         * @param mode the mode that progress bar should represent progress.
+         *
+         * @see #RANGE_MODE_DETERMINATE
+         * @see #RANGE_MODE_INDETERMINATE
+         */
+        @NonNull
+        public RangeBuilder setMode(@RangeMode int mode) {
+            mMode = mode;
+            return this;
+        }
+
+        /**
          * @hide
          */
         @RestrictTo(LIBRARY)
@@ -660,6 +694,14 @@ public class ListBuilder extends TemplateSliceBuilder {
         @RestrictTo(LIBRARY)
         public int getLayoutDirection() {
             return mLayoutDirection;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getMode() {
+            return mMode;
         }
     }
 

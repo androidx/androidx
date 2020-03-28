@@ -38,6 +38,7 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.slice.Slice.SUBTYPE_RANGE_MODE;
 import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
@@ -314,6 +315,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         protected CharSequence mContentDescr;
         protected SliceAction mPrimaryAction;
         protected int mLayoutDir = -1;
+        private int mMode = 0;
 
         RangeBuilderImpl(Slice.Builder sb, RangeBuilder builder) {
             super(sb, null);
@@ -326,6 +328,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
                 mContentDescr = builder.getContentDescription();
                 mPrimaryAction = builder.getPrimaryAction();
                 mLayoutDir = builder.getLayoutDirection();
+                mMode = builder.getMode();
             }
         }
 
@@ -359,7 +362,8 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
             builder.addHints(HINT_LIST_ITEM)
                     .addInt(mMin, SUBTYPE_MIN)
                     .addInt(mMax, SUBTYPE_MAX)
-                    .addInt(mValue, SUBTYPE_VALUE);
+                    .addInt(mValue, SUBTYPE_VALUE)
+                    .addInt(mMode, SUBTYPE_RANGE_MODE);
         }
         boolean hasText() {
             return mTitle != null || mSubtitle != null;

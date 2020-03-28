@@ -96,6 +96,7 @@ public class SampleSliceProvider extends SliceProvider {
             "contact3",
             "contact4",
             "gallery",
+            "indeterminaterange",
             "weather",
             "reservation",
             "loadlist",
@@ -161,6 +162,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createNoteSlice(sliceUri);
             case "/grocery":
                 return createInteractiveNote(sliceUri);
+            case "/indeterminaterange":
+                return createIndeterminateProgressRange(sliceUri);
             case "/ride":
                 return createRideSlice(sliceUri);
             case "/toggle":
@@ -855,6 +858,21 @@ public class SampleSliceProvider extends SliceProvider {
                         .setSubtitle("Download is happening")
                         .setMax(100)
                         .setValue(progress)
+                        .setPrimaryAction(primaryAction))
+                .build();
+    }
+
+    private Slice createIndeterminateProgressRange(Uri sliceUri) {
+        IconCompat icon = IconCompat.createWithResource(getContext(), R.drawable.ic_star_on);
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open download"), icon, ICON_IMAGE,
+                "Download");
+        return new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setAccentColor(0xff4285f4)
+                .addRange(new RangeBuilder()
+                        .setMode(ListBuilder.RANGE_MODE_INDETERMINATE)
+                        .setTitle("Indeterminate progress")
+                        .setSubtitle("Download is happening")
                         .setPrimaryAction(primaryAction))
                 .build();
     }
