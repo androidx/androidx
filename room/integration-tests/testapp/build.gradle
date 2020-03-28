@@ -41,6 +41,9 @@ android {
             }
         }
     }
+    buildFeatures {
+        aidl = true
+    }
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
         androidTest.assets.srcDirs += files("$projectDir/databases".toString())
