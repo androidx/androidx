@@ -16,30 +16,21 @@
 
 package androidx.lifecycle.hilt;
 
-import androidx.annotation.RestrictTo;
-import androidx.lifecycle.ViewModel;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import dagger.MapKey;
+import javax.inject.Qualifier;
 
 /**
- * Dagger multibinding key for ViewModels
- *
- * @hide
+ * Qualifier for requesting the activity level {@link ViewModelFactory}
  */
-@MapKey
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public @interface ViewModelKey {
-    /**
-     * The ViewModel class used as key.
-     * @return the class.
-     */
-    // TODO(danysantiago): Change to use strings and add optimizer rule to avoid class loading.
-    Class<? extends ViewModel> value();
+@Target({METHOD, PARAMETER, FIELD})
+@Retention(RUNTIME)
+@Qualifier
+public @interface ActivityViewModelFactory {
 }
