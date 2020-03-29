@@ -80,8 +80,8 @@ public abstract class DeferrableSurface {
         }
     }
 
-    private static final boolean DEBUG = false;
-    protected static final String TAG = "DeferrableSurface";
+    private static final String TAG = "DeferrableSurface";
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     // Debug only, used to track total count of surfaces in use.
     private static AtomicInteger sUsedCount = new AtomicInteger(0);
