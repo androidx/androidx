@@ -19,51 +19,14 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.foundation.PasswordTextField
 import androidx.ui.foundation.TextField
-import androidx.ui.text.TextFieldValue
-import androidx.ui.text.TextRange
+import androidx.ui.foundation.TextFieldValue
 
 @Sampled
 @Composable
-fun StringTextFieldSample() {
-    val state = state { "" }
-    TextField(
-        value = state.value,
-        onValueChange = { state.value = it }
-    )
-}
-
-@Sampled
-@Composable
-fun EditorModelTextFieldSample() {
+fun TextFieldSample() {
     val state = state { TextFieldValue() }
     TextField(
-        value = state.value,
-        onValueChange = { state.value = it }
-    )
-}
-
-@Sampled
-@Composable
-fun CompositionEditorModelTextFieldSample() {
-    val model = state { TextFieldValue() }
-    val composition = state<TextRange?> { null }
-    TextField(
-        model = model.value,
-        compositionRange = composition.value,
-        onValueChange = { newModel, newComposition ->
-            model.value = newModel
-            composition.value = newComposition
-        }
-    )
-}
-
-@Sampled
-@Composable
-fun PasswordTextFieldSample() {
-    val state = state { "" }
-    PasswordTextField(
         value = state.value,
         onValueChange = { state.value = it }
     )

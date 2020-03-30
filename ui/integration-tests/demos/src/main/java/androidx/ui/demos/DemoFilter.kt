@@ -26,6 +26,7 @@ import androidx.ui.demos.common.Demo
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.Column
@@ -69,7 +70,11 @@ fun DemoFilter(launchableDemos: List<Demo>, filterText: String, onNavigate: (Dem
  * [TopAppBar] with a text field allowing filtering all the demos.
  */
 @Composable
-fun FilterAppBar(filterText: String, onFilter: (String) -> Unit, onClose: () -> Unit) {
+fun FilterAppBar(
+    filterText: TextFieldValue,
+    onFilter: (TextFieldValue) -> Unit,
+    onClose: () -> Unit
+) {
     with(MaterialTheme.colors) {
         val appBarColor = if (isLight) {
             surface
@@ -92,8 +97,8 @@ fun FilterAppBar(filterText: String, onFilter: (String) -> Unit, onClose: () -> 
  */
 @Composable
 private fun FilterField(
-    filterText: String,
-    onFilter: (String) -> Unit,
+    filterText: TextFieldValue,
+    onFilter: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier.None
 ) {
     val identifier = "filter"
