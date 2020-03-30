@@ -161,6 +161,20 @@ import androidx.ui.unit.min
 }
 
 @Composable
+@Deprecated("This composable is temporary to enable quicker prototyping in ConstraintLayout. " +
+        "It should not be used in app code directly.")
+fun MultiMeasureLayout(
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit,
+    measureBlock: MeasureBlock
+) {
+    val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
+    LayoutNode(modifier = modifier, measureBlocks = measureBlocks, canMultiMeasure = true) {
+        children()
+    }
+}
+
+@Composable
 @Deprecated("This composable supports our transition from single child composables to modifiers. " +
         "It should not be used in app code directly.")
 fun PassThroughLayout(
