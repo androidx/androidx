@@ -27,9 +27,11 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.Composable
 import androidx.compose.frames.modelListOf
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.preference.PreferenceManager

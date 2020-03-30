@@ -22,7 +22,9 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.emptyContent
+import androidx.compose.getValue
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

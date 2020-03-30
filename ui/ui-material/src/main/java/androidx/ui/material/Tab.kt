@@ -21,7 +21,9 @@ import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.emptyContent
+import androidx.compose.getValue
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey

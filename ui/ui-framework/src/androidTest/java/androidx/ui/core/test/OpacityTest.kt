@@ -19,7 +19,9 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule

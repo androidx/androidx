@@ -18,8 +18,10 @@ package androidx.ui.test
 
 import androidx.compose.Composable
 import androidx.compose.Providers
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.ui.savedinstancestate.UiSavedStateRegistry
 import androidx.ui.savedinstancestate.UiSavedStateRegistryAmbient
 import androidx.ui.savedinstancestate.rememberSavedInstanceState
