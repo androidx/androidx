@@ -272,22 +272,22 @@ class ButtonTest {
 
     @Test
     fun buttonTest_ContainedButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(16.dp) { children ->
-            Button(onClick = {}, children = children)
+        assertLeftPaddingIs(16.dp) { text ->
+            Button(onClick = {}, text = text)
         }
     }
 
     @Test
     fun buttonTest_OutlinedButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(16.dp) { children ->
-            OutlinedButton(onClick = {}, children = children)
+        assertLeftPaddingIs(16.dp) { text ->
+            OutlinedButton(onClick = {}, text = text)
         }
     }
 
     @Test
     fun buttonTest_TextButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(8.dp) { children ->
-            TextButton(onClick = {}, children = children)
+        assertLeftPaddingIs(8.dp) { text ->
+            TextButton(onClick = {}, text = text)
         }
     }
 

@@ -187,9 +187,9 @@ class DataTableChildren internal constructor() {
     fun dataRow(
         selected: Boolean = false,
         onSelectedChange: ((Boolean) -> Unit)? = null,
-        children: @Composable() (index: Int) -> Unit
+        content: @Composable() (index: Int) -> Unit
     ) {
-        rows += DataRowInfo(children, selected, onSelectedChange)
+        rows += DataRowInfo(content, selected, onSelectedChange)
     }
 
     /**
@@ -209,7 +209,7 @@ class DataTableChildren internal constructor() {
         selected: Boolean = false,
         onSelectedChange: ((Boolean) -> Unit)? = null
     ) {
-        val children: @Composable() (Int) -> Unit = { j ->
+        val content: @Composable() (Int) -> Unit = { j ->
             val image = icon(j)
             if (image == null) {
                 Text(text = text(j))
@@ -221,7 +221,7 @@ class DataTableChildren internal constructor() {
                 }
             }
         }
-        rows += DataRowInfo(children, selected, onSelectedChange)
+        rows += DataRowInfo(content, selected, onSelectedChange)
     }
 
     /**
@@ -234,9 +234,9 @@ class DataTableChildren internal constructor() {
      */
     fun headerRow(
         onSelectAll: ((Boolean) -> Unit)? = null,
-        children: @Composable() (index: Int) -> Unit
+        content: @Composable() (index: Int) -> Unit
     ) {
-        header = HeaderRowInfo(children, onSelectAll)
+        header = HeaderRowInfo(content, onSelectAll)
     }
 
     /**
@@ -254,7 +254,7 @@ class DataTableChildren internal constructor() {
         icon: (index: Int) -> ImageAsset? = { null },
         onSelectAll: ((Boolean) -> Unit)? = null
     ) {
-        val children: @Composable() (Int) -> Unit = { j ->
+        val content: @Composable() (Int) -> Unit = { j ->
             val image = icon(j)
             if (image == null) {
                 Text(text = text(j))
@@ -266,7 +266,7 @@ class DataTableChildren internal constructor() {
                 }
             }
         }
-        header = HeaderRowInfo(children, onSelectAll)
+        header = HeaderRowInfo(content, onSelectAll)
     }
 }
 
@@ -274,7 +274,7 @@ class DataTableChildren internal constructor() {
  * Configuration for the data row of a [DataTable].
  */
 internal data class DataRowInfo(
-    val children: @Composable() (index: Int) -> Unit,
+    val content: @Composable() (index: Int) -> Unit,
     val selected: Boolean,
     val onSelectedChange: ((Boolean) -> Unit)?
 )
@@ -283,7 +283,7 @@ internal data class DataRowInfo(
  * Configuration for the header row of a [DataTable].
  */
 internal data class HeaderRowInfo(
-    val children: @Composable() (index: Int) -> Unit,
+    val content: @Composable() (index: Int) -> Unit,
     val onSelectAll: ((Boolean) -> Unit)?
 )
 
@@ -431,7 +431,7 @@ fun DataTable(
                                 ) {
                                     Row {
                                         headerDecoration?.invoke()
-                                        header.children(index = j)
+                                        header.content(index = j)
                                     }
                                 }
                             }
@@ -464,7 +464,7 @@ fun DataTable(
                             paddingBottom = cellSpacing.bottom,
                             gravity = ContentGravity.Center
                         ) {
-                            row.children(index = j)
+                            row.content(index = j)
                         }
                     }
                 }

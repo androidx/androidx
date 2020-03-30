@@ -50,14 +50,14 @@ fun MaterialTheme(
     colors: ColorPalette = MaterialTheme.colors,
     typography: Typography = MaterialTheme.typography,
     shapes: Shapes = MaterialTheme.shapes,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     ProvideColorPalette(colors) {
         Providers(
             TypographyAmbient provides typography,
             ShapesAmbient provides shapes
         ) {
-            ProvideTextStyle(value = typography.body1, children = children)
+            ProvideTextStyle(value = typography.body1, children = content)
         }
     }
 }

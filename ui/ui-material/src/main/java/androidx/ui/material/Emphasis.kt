@@ -88,7 +88,7 @@ interface EmphasisLevels {
 }
 
 /**
- * Applies [emphasis] to [children], by modifying the value of [contentColor].
+ * Applies [emphasis] to [content], by modifying the value of [contentColor].
  *
  * See [EmphasisAmbient] to retrieve the levels of emphasis provided in the theme,
  * so they can be applied with this function.
@@ -96,9 +96,9 @@ interface EmphasisLevels {
  * @sample androidx.ui.material.samples.EmphasisSample
  */
 @Composable
-fun ProvideEmphasis(emphasis: Emphasis, children: @Composable() () -> Unit) {
+fun ProvideEmphasis(emphasis: Emphasis, content: @Composable() () -> Unit) {
     val emphasizedColor = emphasis.emphasize(contentColor())
-    ProvideContentColor(emphasizedColor, children)
+    ProvideContentColor(emphasizedColor, content)
 }
 
 /**

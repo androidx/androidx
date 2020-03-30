@@ -32,7 +32,7 @@ fun ComposeTestRule.setMaterialContent(
 ) {
     setContent {
         MaterialTheme {
-            Surface(modifier = modifier, children = composable)
+            Surface(modifier = modifier, content = composable)
         }
     }
 }
@@ -59,6 +59,6 @@ fun ComposeTestRule.setMaterialContentAndGetPixelSize(
     { setMaterialContent(composable = it) }
 ) {
     MaterialTheme {
-        Surface(modifier = modifier, children = children)
+        Surface(modifier = modifier, content = children)
     }
 }

@@ -280,7 +280,7 @@ private fun MagnifierSelectionCircle(modifier: Modifier, color: Color) {
         elevation = 4.dp,
         color = color,
         border = Border(2.dp, SolidColor(Color.Black.copy(alpha = 0.75f))),
-        children = emptyContent()
+        content = emptyContent()
     )
 }
 

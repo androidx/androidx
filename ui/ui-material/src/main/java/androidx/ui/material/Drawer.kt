@@ -235,7 +235,7 @@ fun BottomDrawerLayout(
 private fun DrawerContent(
     xOffset: AnimatedFloat,
     constraints: DpConstraints,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     WithOffset(xOffset = xOffset) {
         Box(
@@ -249,7 +249,7 @@ private fun DrawerContent(
         ) {
             // remove Container when we will support multiply children
             Surface {
-                Box(Modifier.fillMaxSize(), children = children)
+                Box(Modifier.fillMaxSize(), children = content)
             }
         }
     }
@@ -259,7 +259,7 @@ private fun DrawerContent(
 private fun BottomDrawerContent(
     yOffset: AnimatedFloat,
     constraints: DpConstraints,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     WithOffset(yOffset = yOffset) {
         Box(
@@ -272,7 +272,7 @@ private fun BottomDrawerContent(
         ) {
             // remove Container when we will support multiply children
             Surface {
-                Box(Modifier.fillMaxSize(), children = children)
+                Box(Modifier.fillMaxSize(), children = content)
             }
         }
     }
