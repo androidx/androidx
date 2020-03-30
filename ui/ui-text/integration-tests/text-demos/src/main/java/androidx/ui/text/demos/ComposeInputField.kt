@@ -25,6 +25,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxHeight
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.text.TextStyle
 
 private val KEYBOARD_TYPES = listOf(
@@ -75,7 +76,7 @@ private fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified
 ) {
-    val state = state { "" }
+    val state = state { TextFieldValue() }
     TextField(
         value = state.value,
         keyboardType = keyboardType,

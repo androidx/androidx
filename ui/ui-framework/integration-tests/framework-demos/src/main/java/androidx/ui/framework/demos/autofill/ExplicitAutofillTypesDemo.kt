@@ -35,14 +35,15 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.preferredHeight
 import androidx.ui.material.MaterialTheme
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
 @Composable
 fun ExplicitAutofillTypesDemo() {
     Column {
-        val nameState = state { "Enter name here" }
-        val emailState = state { "Enter email here" }
+        val nameState = state { TextFieldValue("Enter name here") }
+        val emailState = state { TextFieldValue("Enter email here") }
         val autofill = AutofillAmbient.current
         val labelStyle = MaterialTheme.typography.subtitle1
         val textStyle = MaterialTheme.typography.h6
@@ -50,7 +51,9 @@ fun ExplicitAutofillTypesDemo() {
         Text("Name", style = labelStyle)
         Autofill(
             autofillTypes = listOf(AutofillType.Name),
-            onFill = { nameState.value = it }
+            onFill = { nameState.value =
+                TextFieldValue(it)
+            }
         ) { autofillNode ->
             TextField(
                 value = nameState.value,
@@ -68,7 +71,9 @@ fun ExplicitAutofillTypesDemo() {
         Text("Email", style = labelStyle)
         Autofill(
             autofillTypes = listOf(AutofillType.EmailAddress),
-            onFill = { emailState.value = it }
+            onFill = { emailState.value =
+                TextFieldValue(it)
+            }
         ) { autofillNode ->
             TextField(
                 value = emailState.value,

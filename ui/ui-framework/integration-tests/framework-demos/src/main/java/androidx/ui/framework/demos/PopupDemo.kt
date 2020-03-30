@@ -46,6 +46,7 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
@@ -475,7 +476,7 @@ private fun EditLine(
     initialText: String = "",
     color: Color = Color.White
 ) {
-    val state = state { initialText }
+    val state = state { TextFieldValue(initialText) }
     TextField(
         value = state.value,
         modifier = modifier.drawBackground(color = color),
@@ -483,7 +484,7 @@ private fun EditLine(
         imeAction = imeAction,
         onValueChange = {
             state.value = it
-            onValueChange(it)
+            onValueChange(it.text)
         },
         textStyle = TextStyle()
     )

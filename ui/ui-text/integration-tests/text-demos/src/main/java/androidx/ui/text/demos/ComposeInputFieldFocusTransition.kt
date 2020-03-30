@@ -24,6 +24,7 @@ import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
 import androidx.ui.layout.Column
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
 
@@ -44,7 +45,7 @@ fun TextFieldFocusTransition() {
 @Composable
 private fun TextFieldWithFocusId(focusID: String, nextFocus: String) {
     val focusManager = FocusManagerAmbient.current
-    val state = state { "Focus ID: $focusID" }
+    val state = state { TextFieldValue("Focus ID: $focusID") }
     val focused = state { false }
     val color = if (focused.value) {
         Color.Red
