@@ -149,9 +149,7 @@ final class ImageSaver implements Runnable {
             } else if (isSaveToOutputStream()) {
                 copyTempFileToOutputStream(file, mOutputFileOptions.getOutputStream());
             }
-
-            // Write temp file to Uri
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write or close the file";
             exception = e;
