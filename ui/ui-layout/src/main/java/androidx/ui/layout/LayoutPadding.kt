@@ -19,13 +19,12 @@ package androidx.ui.layout
 import androidx.compose.Immutable
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Modifier
+import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.offset
-import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 
 /**
@@ -109,7 +108,7 @@ fun LayoutPadding(all: Dp): LayoutPadding = LayoutPadding(
 )
 
 /**
- * A [LayoutModifier] that adds [start], [top], [end] and [bottom] padding to the wrapped layout.
+ * A [LayoutModifier2] that adds [start], [top], [end] and [bottom] padding to the wrapped layout.
  * The requested padding will be subtracted from the available space before the wrapped layout has
  * the chance to choose its own size, so conceptually the padding has higher priority to occupy
  * the available space than the content.
@@ -122,6 +121,7 @@ fun LayoutPadding(all: Dp): LayoutPadding = LayoutPadding(
  * @sample androidx.ui.layout.samples.LayoutPaddingModifier
  *
  * @see LayoutOffset
+ * @see LayoutPaddingAbsolute
  */
 data class LayoutPadding
 @Deprecated(
@@ -137,45 +137,36 @@ constructor(
     val top: Dp = 0.dp,
     val end: Dp = 0.dp,
     val bottom: Dp = 0.dp
-) : LayoutModifier {
+) : LayoutModifier2 {
     init {
-        require(
-            start.value >= 0f && top.value >= 0f && end.value >= 0f && bottom.value >= 0f
-        ) { "Padding must be non-negative" }
+        require(start.value >= 0f && top.value >= 0f && end.value >= 0f && bottom.value >= 0f) {
+            "Padding must be non-negative"
+        }
     }
 
-    override fun Density.modifyConstraints(
+    override fun MeasureScope.measure(
+        measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ) = constraints.offset(
-        horizontal = -start.toIntPx() - end.toIntPx(),
-        vertical = -top.toIntPx() - bottom.toIntPx()
-    )
+    ): MeasureScope.LayoutResult {
+        val horizontal = start.toIntPx() + end.toIntPx()
+        val vertical = top.toIntPx() + bottom.toIntPx()
 
-    override fun Density.modifySize(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection,
-        childSize: IntPxSize
-    ) = IntPxSize(
-        (start.toIntPx() + childSize.width + end.toIntPx())
-            .coerceIn(constraints.minWidth, constraints.maxWidth),
-        (top.toIntPx() + childSize.height + bottom.toIntPx())
+        val placeable = measurable.measure(constraints.offset(-horizontal, -vertical))
+
+        val width = (placeable.width + horizontal)
+            .coerceIn(constraints.minWidth, constraints.maxWidth)
+        val height = (placeable.height + vertical)
             .coerceIn(constraints.minHeight, constraints.maxHeight)
-    )
-
-    override fun Density.modifyPosition(
-        childSize: IntPxSize,
-        containerSize: IntPxSize,
-        layoutDirection: LayoutDirection
-    ): IntPxPosition = if (layoutDirection == LayoutDirection.Ltr) {
-        IntPxPosition(start.toIntPx(), top.toIntPx())
-    } else {
-        IntPxPosition(end.toIntPx(), top.toIntPx())
+        return layout(width, height) {
+            // Place will automatically mirror based on the incoming layout direction.
+            placeable.place(start.toIntPx(), top.toIntPx())
+        }
     }
 }
 
 /**
- * A [LayoutModifier] that adds [left], [top], [right] and [bottom] padding to the wrapped layout
+ * A [LayoutModifier2] that adds [left], [top], [right] and [bottom] padding to the wrapped layout
  * without regard for layout direction.
  * The requested padding will be subtracted from the available space before the wrapped layout has
  * the chance to choose its own size, so conceptually the padding has higher priority to occupy
@@ -205,37 +196,31 @@ constructor(
     val top: Dp = 0.dp,
     val right: Dp = 0.dp,
     val bottom: Dp = 0.dp
-) : LayoutModifier {
+) : LayoutModifier2 {
     init {
-        require(
-            left.value >= 0f && top.value >= 0f && right.value >= 0f && bottom.value >= 0f
-        ) { "Padding must be non-negative" }
+        require(left.value >= 0f && top.value >= 0f && right.value >= 0f && bottom.value >= 0f) {
+            "Padding must be non-negative"
+        }
     }
 
-    override fun Density.modifyConstraints(
+    override fun MeasureScope.measure(
+        measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ) = constraints.offset(
-        horizontal = -left.toIntPx() - right.toIntPx(),
-        vertical = -top.toIntPx() - bottom.toIntPx()
-    )
+    ): MeasureScope.LayoutResult {
+        val horizontal = left.toIntPx() + right.toIntPx()
+        val vertical = top.toIntPx() + bottom.toIntPx()
 
-    override fun Density.modifySize(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection,
-        childSize: IntPxSize
-    ) = IntPxSize(
-        (left.toIntPx() + childSize.width + right.toIntPx())
-            .coerceIn(constraints.minWidth, constraints.maxWidth),
-        (top.toIntPx() + childSize.height + bottom.toIntPx())
+        val placeable = measurable.measure(constraints.offset(-horizontal, -vertical))
+
+        val width = (placeable.width + horizontal)
+            .coerceIn(constraints.minWidth, constraints.maxWidth)
+        val height = (placeable.height + vertical)
             .coerceIn(constraints.minHeight, constraints.maxHeight)
-    )
-
-    override fun Density.modifyPosition(
-        childSize: IntPxSize,
-        containerSize: IntPxSize,
-        layoutDirection: LayoutDirection
-    ): IntPxPosition = IntPxPosition(left.toIntPx(), top.toIntPx())
+        return layout(width, height) {
+            placeable.placeAbsolute(left.toIntPx(), top.toIntPx())
+        }
+    }
 }
 
 /**

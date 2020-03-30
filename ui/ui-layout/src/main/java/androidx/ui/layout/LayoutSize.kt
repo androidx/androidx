@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.layout
 
 import androidx.compose.Stable
@@ -154,7 +156,6 @@ fun Modifier.preferredSizeIn(constraints: DpConstraints) = this + SizeModifier(c
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleFillWidthModifier
  */
-@Suppress("DEPRECATION")
 fun Modifier.fillMaxWidth() = this + LayoutWidth.Fill
 
 /**
@@ -166,7 +167,6 @@ fun Modifier.fillMaxWidth() = this + LayoutWidth.Fill
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleFillHeightModifier
  */
-@Suppress("DEPRECATION")
 fun Modifier.fillMaxHeight() = this + LayoutHeight.Fill
 
 /**
@@ -179,7 +179,6 @@ fun Modifier.fillMaxHeight() = this + LayoutHeight.Fill
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleFillModifier
  */
-@Suppress("DEPRECATION")
 fun Modifier.fillMaxSize() = this + LayoutSize.Fill
 
 /**
@@ -188,7 +187,6 @@ fun Modifier.fillMaxSize() = this + LayoutSize.Fill
  * than the minimum width constraint, [align] it within that minimum width space.
  */
 // TODO: Consider an axis-specific [Alignment]
-@Suppress("DEPRECATION")
 fun Modifier.wrapContentWidth(align: Alignment = Center) = this + when (align) {
     TopStart, CenterStart, BottomStart -> LayoutAlign.Start
     TopCenter, Center, BottomCenter -> LayoutAlign.CenterHorizontally
@@ -201,7 +199,6 @@ fun Modifier.wrapContentWidth(align: Alignment = Center) = this + when (align) {
  * than the minimum height constraint, [align] it within that minimum height space.
  */
 // TODO: Consider an axis-specific [Alignment]
-@Suppress("DEPRECATION")
 fun Modifier.wrapContentHeight(align: Alignment = Center) = this + when (align) {
     TopStart, TopCenter, TopEnd -> LayoutAlign.Top
     CenterStart, Center, CenterEnd -> LayoutAlign.CenterVertically
@@ -214,7 +211,6 @@ fun Modifier.wrapContentHeight(align: Alignment = Center) = this + when (align) 
  * If the content's measured size is smaller than the minimum size constraint, [align] it
  * within that minimum sized space.
  */
-@Suppress("DEPRECATION")
 fun Modifier.wrapContentSize(align: Alignment = Center) = this + when (align) {
     TopStart -> LayoutAlign.TopStart
     TopCenter -> LayoutAlign.TopCenter
@@ -595,7 +591,6 @@ constructor(val width: Dp, val height: Dp)
     /**
      * [Modifies][LayoutModifier] a Compose UI layout element to have a square size of [size].
      */
-    @Suppress("DEPRECATION")
     @Deprecated(
         "Use Modifier.preferredSize",
         replaceWith = ReplaceWith(
@@ -640,7 +635,6 @@ constructor(val width: Dp, val height: Dp)
          * [Modifies][LayoutModifier] a Compose UI layout element to have a square minimum size of
          * [minSize].
          */
-        @Suppress("DEPRECATION")
         @Deprecated(
             "Use Modifier.preferredSizeIn",
             replaceWith = ReplaceWith(
@@ -684,7 +678,6 @@ constructor(val width: Dp, val height: Dp)
          * [Modifies][LayoutModifier] a Compose UI layout element to have a square maximum size of
          * [maxSize].
          */
-        @Suppress("DEPRECATION")
         @Deprecated(
             "Use Modifier.preferredSizeIn",
             replaceWith = ReplaceWith(
@@ -733,7 +726,6 @@ constructor(val width: Dp, val height: Dp)
          * [Modifies][LayoutModifier] a Compose UI layout element to have a square minimum
          * size of [minSize] and a square maximum size of [maxSize].
          */
-        @Suppress("DEPRECATION")
         @Deprecated(
             "Use Modifier.preferredSizeIn",
             replaceWith = ReplaceWith(

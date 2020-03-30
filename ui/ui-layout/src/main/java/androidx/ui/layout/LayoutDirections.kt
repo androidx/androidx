@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.layout
 
 import androidx.ui.core.LayoutDirection
@@ -24,13 +26,11 @@ import androidx.ui.unit.Density
 /**
  * Changes the [LayoutDirection] of the content to [LayoutDirection.Ltr].
  */
-@Suppress("DEPRECATION")
 val Modifier.ltr: Modifier get() = this + LayoutDirectionModifier.Ltr
 
 /**
  * Changes the [LayoutDirection] of the content to [LayoutDirection.Rtl].
  */
-@Suppress("DEPRECATION")
 val Modifier.rtl: Modifier get() = this + LayoutDirectionModifier.Rtl
 
 /**

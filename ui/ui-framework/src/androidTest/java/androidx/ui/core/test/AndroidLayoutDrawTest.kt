@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("Deprecation")
+
 package androidx.ui.core.test
 
 import android.app.Activity

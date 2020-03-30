@@ -263,9 +263,7 @@ internal class DefaultIntrinsicMeasurable(
 @PublishedApi
 internal class IntrinsicsMeasureScope(
     density: Density
-) : MeasureScope(), Density by density {
-    // TODO(popam): clean this up and prevent measuring inside intrinsics
-}
+) : MeasureScope(), Density by density
 
 /**
  * Default [LayoutNode.MeasureBlocks] object implementation, providing intrinsic measurements
@@ -319,7 +317,7 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
 private inline fun Density.MeasuringMinIntrinsicWidth(
-    measureBlock: MeasureBlock,
+    measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
     h: IntPx,
     layoutDirection: LayoutDirection
@@ -338,7 +336,7 @@ private inline fun Density.MeasuringMinIntrinsicWidth(
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
 private inline fun Density.MeasuringMinIntrinsicHeight(
-    measureBlock: MeasureBlock,
+    measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
     w: IntPx,
     layoutDirection: LayoutDirection
@@ -357,7 +355,7 @@ private inline fun Density.MeasuringMinIntrinsicHeight(
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
 private inline fun Density.MeasuringMaxIntrinsicWidth(
-    measureBlock: MeasureBlock,
+    measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
     h: IntPx,
     layoutDirection: LayoutDirection
@@ -376,7 +374,7 @@ private inline fun Density.MeasuringMaxIntrinsicWidth(
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
 private inline fun Density.MeasuringMaxIntrinsicHeight(
-    measureBlock: MeasureBlock,
+    measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
     w: IntPx,
     layoutDirection: LayoutDirection

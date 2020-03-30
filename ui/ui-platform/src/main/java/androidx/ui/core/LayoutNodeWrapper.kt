@@ -41,24 +41,29 @@ import androidx.ui.unit.toPxSize
 import androidx.ui.util.fastAny
 import androidx.ui.util.fastForEach
 
-private val Unmeasured = IntPxSize(IntPx.Zero, IntPx.Zero)
-
 /**
  * Measurable and Placeable type that has a position.
  */
 internal sealed class LayoutNodeWrapper(
     internal val layoutNode: LayoutNode
 ) : Placeable(), Measurable, LayoutCoordinates {
-    protected open val wrapped: LayoutNodeWrapper? = null
+    internal open val wrapped: LayoutNodeWrapper? = null
     internal var wrappedBy: LayoutNodeWrapper? = null
     open var position = IntPxPosition.Origin
 
     private var dirtySize: Boolean = false
     fun hasDirtySize(): Boolean = dirtySize || (wrapped?.hasDirtySize() ?: false)
-    override var size: IntPxSize = Unmeasured
-        protected set(value) {
-            if (field != value) dirtySize = true
-            field = value
+    // TODO(popam): avoid allocation here
+    final override val size: IntPxSize get() = IntPxSize(layoutResult.width, layoutResult.height)
+
+    private var _layoutResult: MeasureScope.LayoutResult? = null
+    var layoutResult: MeasureScope.LayoutResult
+        get() = _layoutResult ?: error(UnmeasuredError)
+        internal set(value) {
+            if (value.width != _layoutResult?.width || value.height != _layoutResult?.height) {
+                dirtySize = true
+            }
+            _layoutResult = value
         }
 
     override val parentCoordinates: LayoutCoordinates?
@@ -83,13 +88,6 @@ internal sealed class LayoutNodeWrapper(
                 localPointerPosition.y.value >= 0 &&
                 localPointerPosition.y < size.height
     }
-
-    /**
-     * Assigns a layout size to this [LayoutNodeWrapper] given the assigned innermost size
-     * from the call to [MeasureScope.layout].
-     * @return The size after adjusting for the modifier.
-     */
-    abstract fun layoutSize(innermostSize: IntPxSize): IntPxSize
 
     /**
      * Places the modified child.
@@ -296,6 +294,7 @@ internal sealed class LayoutNodeWrapper(
     internal companion object {
         const val ExpectAttachedLayoutCoordinates = "LayoutCoordinate operations are only valid " +
                 "when isAttached is true"
+        const val UnmeasuredError = "Asking for measurement result of unmeasured layout modifier"
     }
 }
 
@@ -314,11 +313,6 @@ internal open class DelegatingLayoutNodeWrapper(
 
     init {
         wrapped.wrappedBy = this
-    }
-
-    override fun layoutSize(innermostSize: IntPxSize): IntPxSize {
-        size = wrapped.layoutSize(innermostSize)
-        return size
     }
 
     override fun draw(canvas: Canvas, density: Density) {
@@ -348,11 +342,19 @@ internal open class DelegatingLayoutNodeWrapper(
 
     override fun place(position: IntPxPosition) {
         this.position = position
-        wrapped.place(IntPxPosition.Origin)
+        layoutResult.placeChildren(layoutNode.layoutDirection!!)
     }
 
     override fun measure(constraints: Constraints): Placeable {
-        wrapped.measure(constraints)
+        val placeable = wrapped.measure(constraints)
+        layoutResult = object : MeasureScope.LayoutResult {
+            override val width: IntPx = wrapped.layoutResult.width
+            override val height: IntPx = wrapped.layoutResult.height
+            override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
+            override fun placeChildren(layoutDirection: LayoutDirection) {
+                placeable.placeAbsolute(IntPxPosition.Origin)
+            }
+        }
         return this
     }
 
@@ -479,11 +481,6 @@ internal class InnerPlaceable(
         layoutNode.layout()
     }
 
-    override fun layoutSize(innermostSize: IntPxSize): IntPxSize {
-        size = innermostSize
-        return innermostSize
-    }
-
     override operator fun get(line: AlignmentLine): IntPx? {
         return layoutNode.calculateAlignmentLines()[line]
     }
@@ -598,44 +595,93 @@ internal class ModifiedParentDataNode(
         }
 }
 
+internal class ModifiedLayoutNode2(
+    wrapped: LayoutNodeWrapper,
+    val layoutModifier: LayoutModifier2
+) : DelegatingLayoutNodeWrapper(wrapped) {
+
+    override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
+        updateLayoutDirection()
+        layoutResult =
+            layoutNode.measureScope.measure(wrapped, constraints, layoutNode.layoutDirection!!)
+        this@ModifiedLayoutNode2
+    }
+
+    override fun minIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
+        updateLayoutDirection()
+        layoutNode.measureScope.minIntrinsicWidth(wrapped, height, layoutNode.layoutDirection!!)
+    }
+
+    override fun maxIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
+        updateLayoutDirection()
+        layoutNode.measureScope.maxIntrinsicWidth(wrapped, height, layoutNode.layoutDirection!!)
+    }
+
+    override fun minIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
+        updateLayoutDirection()
+        layoutNode.measureScope.minIntrinsicHeight(wrapped, width, layoutNode.layoutDirection!!)
+    }
+
+    override fun maxIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
+        updateLayoutDirection()
+        layoutNode.measureScope.maxIntrinsicHeight(wrapped, width, layoutNode.layoutDirection!!)
+    }
+
+    override operator fun get(line: AlignmentLine): IntPx? =
+        layoutResult.alignmentLines.getOrElse(line, { wrapped[line] })
+
+    override fun draw(canvas: Canvas, density: Density) {
+        withPositionTranslation(canvas) {
+            wrapped.draw(canvas, density)
+            if (layoutNode.requireOwner().showLayoutBounds) {
+                drawBorder(canvas, modifierBoundsPaint)
+            }
+        }
+    }
+
+    internal companion object {
+        val modifierBoundsPaint = Paint().also { paint ->
+            paint.color = Color.Blue
+            paint.strokeWidth = 1f
+            paint.style = PaintingStyle.stroke
+        }
+    }
+
+    private fun updateLayoutDirection() {
+        // TODO(popam): add support to change layout direction in the layout DSL
+    }
+}
+
+@Suppress("Deprecation")
 internal class ModifiedLayoutNode(
     wrapped: LayoutNodeWrapper,
     val layoutModifier: LayoutModifier
 ) : DelegatingLayoutNodeWrapper(wrapped) {
-    /**
-     * The [Placeable] returned by measuring [wrapped] in [measure].
-     * Used to avoid creating more wrapper objects than necessary since [ModifiedLayoutNode]
-     * also
-     */
-    private var measuredPlaceable: Placeable? = null
-
-    /**
-     * The [Constraints] used in the current measurement of this modified node wrapper.
-     * See [withMeasuredConstraints]
-     */
-    private var measuredConstraints: Constraints? = null
-
-    /**
-     * Sets [measuredConstraints] for the duration of [block].
-     */
-    private inline fun <R> withMeasuredConstraints(
-        constraints: Constraints,
-        block: () -> R
-    ): R = try {
-        measuredConstraints = constraints
-        block()
-    } finally {
-        measuredConstraints = null
-    }
-
     override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
         updateLayoutDirection()
-        val measureResult = withMeasuredConstraints(constraints) {
-            wrapped.measure(
-                layoutNode.measureScope.modifyConstraints(constraints, layoutNode.layoutDirection!!)
+        val placeable = wrapped.measure(
+            layoutNode.measureScope.modifyConstraints(constraints, layoutNode.layoutDirection!!)
+        )
+        val size = layoutNode.measureScope.modifySize(
+            constraints,
+            layoutNode.layoutDirection!!,
+            placeable.size
+        )
+        val wrappedPosition = with(layoutModifier) {
+            layoutNode.measureScope.modifyPosition(
+                placeable.size,
+                size,
+                layoutNode.layoutDirection!!
             )
         }
-        measuredPlaceable = measureResult
+        layoutResult = object : MeasureScope.LayoutResult {
+            override val width: IntPx = size.width
+            override val height: IntPx = size.height
+            override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
+            override fun placeChildren(layoutDirection: LayoutDirection) {
+                placeable.placeAbsolute(wrappedPosition)
+            }
+        }
         this@ModifiedLayoutNode
     }
 
@@ -659,36 +705,12 @@ internal class ModifiedLayoutNode(
         layoutNode.measureScope.maxIntrinsicHeightOf(wrapped, width, layoutNode.layoutDirection!!)
     }
 
-    override fun place(position: IntPxPosition) {
-        this.position = position
-        val placeable = measuredPlaceable ?: error("Placeable not measured")
-        val relativePosition = with(layoutModifier) {
-            layoutNode.measureScope.modifyPosition(
-                placeable.size,
-                size,
-                layoutNode.layoutDirection!!
-            )
-        }
-        placeable.placeAbsolute(relativePosition)
-    }
-
     override operator fun get(line: AlignmentLine): IntPx? = with(layoutModifier) {
         return layoutNode.measureScope.modifyAlignmentLine(
             line,
             super.get(line),
             layoutNode.layoutDirection!!
         )
-    }
-
-    override fun layoutSize(innermostSize: IntPxSize): IntPxSize = with(layoutModifier) {
-        val constraints = measuredConstraints ?: error("must be called during measurement")
-        layoutNode.measureScope.modifySize(
-            constraints,
-            layoutNode.layoutDirection!!,
-            wrapped.layoutSize(innermostSize)
-        ).also {
-            size = it
-        }
     }
 
     override fun draw(canvas: Canvas, density: Density) {
@@ -784,15 +806,15 @@ internal class LayerWrapper(
     // TODO(mount): This cache isn't thread safe at all.
     private var positionCache: FloatArray? = null
 
+    override fun measure(constraints: Constraints): Placeable {
+        val placeable = super.measure(constraints)
+        layer.resize(size)
+        return placeable
+    }
+
     override fun place(position: IntPxPosition) {
         super.place(position)
         layer.move(position)
-    }
-
-    override fun layoutSize(innermostSize: IntPxSize): IntPxSize {
-        val size = super.layoutSize(innermostSize)
-        layer.resize(size)
-        return size
     }
 
     override fun draw(canvas: Canvas, density: Density) {

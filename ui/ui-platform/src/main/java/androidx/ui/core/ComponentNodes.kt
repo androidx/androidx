@@ -31,7 +31,6 @@ import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
@@ -910,12 +909,6 @@ class LayoutNode : ComponentNode(), Measurable {
         get() = this
 
     /**
-     * The [MeasureScope.LayoutResult] obtained from the last measurement.
-     * It should only be used for running the positioning block of the layout.
-     */
-    private var lastLayoutResult: MeasureScope.LayoutResult = measureScope.layout(0.ipx, 0.ipx) {}
-
-    /**
      * A local version of [Owner.measureIteration] to ensure that [MeasureBlocks.measure]
      * is not called multiple times within a measure pass.
      */
@@ -1023,8 +1016,12 @@ class LayoutNode : ComponentNode(), Measurable {
                 if (mod is PointerInputModifier) {
                     wrapper = PointerInputDelegatingWrapper(wrapper, mod)
                 }
+                @Suppress("Deprecation")
                 if (mod is LayoutModifier) {
                     wrapper = ModifiedLayoutNode(wrapper, mod)
+                }
+                if (mod is LayoutModifier2) {
+                    wrapper = ModifiedLayoutNode2(wrapper, mod)
                 }
                 if (mod is ParentDataModifier) {
                     wrapper = ModifiedParentDataNode(wrapper, mod)
@@ -1212,8 +1209,9 @@ class LayoutNode : ComponentNode(), Measurable {
             owner.observeLayoutModelReads(this) {
                 layoutChildren.forEach { child ->
                     child.isPlaced = false
-                    if (alignmentLinesRequired && child.dirtyAlignmentLines) child.needsRelayout =
-                        true
+                    if (alignmentLinesRequired && child.dirtyAlignmentLines) {
+                        child.needsRelayout = true
+                    }
                     if (!child.alignmentLinesRequired) {
                         child.alignmentLinesQueryOwner = alignmentLinesQueryOwner
                     }
@@ -1221,7 +1219,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
                         parentLayoutNode?.positionedDuringMeasurePass ?: false
-                lastLayoutResult.placeChildren(layoutDirection!!)
+                innerLayoutNodeWrapper.layoutResult.placeChildren(layoutDirection!!)
                 layoutChildren.forEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
@@ -1263,16 +1261,12 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     internal fun handleLayoutResult(layoutResult: MeasureScope.LayoutResult) {
-        layoutNodeWrapper.layoutSize(
-            IntPxSize(layoutResult.width, layoutResult.height)
-        )
-
+        innerLayoutNodeWrapper.layoutResult = layoutResult
         if (layoutNodeWrapper.hasDirtySize()) {
             owner?.onSizeChange(this@LayoutNode)
         }
         this.providedAlignmentLines.clear()
         this.providedAlignmentLines += layoutResult.alignmentLines
-        this.lastLayoutResult = layoutResult
     }
 
     /**

@@ -115,6 +115,7 @@ fun Modifier.paint(
  * [DrawModifier] used to draw the provided [Painter] followed by the contents
  * of the component itself
  */
+@Suppress("Deprecation")
 private data class PainterModifier(
     val painter: Painter,
     val sizeToIntrinsics: Boolean,
