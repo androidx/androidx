@@ -45,10 +45,6 @@ DocumentExceptions: androidx.ui.graphics.vectormath.Vector4#set(int, float):
     Method Vector4.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
-KotlinOperator: androidx.ui.graphics.Path#contains(androidx.ui.geometry.Offset):
-    Note that adding the `operator` keyword would allow calling this method using operator syntax
-
-
 MissingBuildMethod: androidx.ui.graphics.vector.PathBuilder:
     androidx.ui.graphics.vector.PathBuilder does not declare a `build()` method, but builder classes are expected to
 

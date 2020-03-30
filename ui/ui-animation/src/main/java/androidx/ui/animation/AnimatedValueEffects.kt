@@ -21,6 +21,7 @@ import androidx.animation.AnimatedValue
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationVector
 import androidx.animation.AnimationVector4D
+import androidx.animation.Spring
 import androidx.animation.TwoWayConverter
 import androidx.compose.Composable
 import androidx.compose.Model
@@ -36,14 +37,19 @@ import androidx.ui.graphics.Color
  * @param initVal Initial value to set [AnimatedValue] to.
  * @param converter A value type converter for transforming any type T to an animatable type (i.e.
  *                  Floats, Vector2D, Vector3D, etc)
+ * @param visibilityThreshold Visibility threshold for the animatedValue to consider itself
+ * finished.
  */
 @Composable
 fun <T, V : AnimationVector> animatedValue(
     initVal: T,
     converter: TwoWayConverter<T, V>,
+    visibilityThreshold: V? = null,
     clock: AnimationClockObservable = AnimationClockAmbient.current
 ): AnimatedValue<T, V> = clock.asDisposableClock().let { disposableClock ->
-    remember(disposableClock) { AnimatedValueModel(initVal, converter, disposableClock) }
+    remember(disposableClock) {
+        AnimatedValueModel(initVal, converter, disposableClock, visibilityThreshold)
+    }
 }
 
 /**
@@ -56,9 +62,10 @@ fun <T, V : AnimationVector> animatedValue(
 @Composable
 fun animatedFloat(
     initVal: Float,
+    visibilityThreshold: Float = Spring.DefaultDisplacementThreshold,
     clock: AnimationClockObservable = AnimationClockAmbient.current
 ): AnimatedFloat = clock.asDisposableClock().let { disposableClock ->
-    remember(disposableClock) { AnimatedFloatModel(initVal, disposableClock) }
+    remember(disposableClock) { AnimatedFloatModel(initVal, disposableClock, visibilityThreshold) }
 }
 
 /**
@@ -95,8 +102,9 @@ fun animatedColor(
 class AnimatedValueModel<T, V : AnimationVector>(
     override var value: T,
     typeConverter: TwoWayConverter<T, V>,
-    clock: AnimationClockObservable
-) : AnimatedValue<T, V>(typeConverter, clock)
+    clock: AnimationClockObservable,
+    visibilityThreshold: V? = null
+) : AnimatedValue<T, V>(typeConverter, clock, visibilityThreshold)
 
 /**
  * Model class for [AnimatedFloat]. This class tracks the value field change, so that composables
@@ -108,5 +116,6 @@ class AnimatedValueModel<T, V : AnimationVector>(
 @Model
 class AnimatedFloatModel(
     override var value: Float,
-    clock: AnimationClockObservable
-) : AnimatedFloat(clock)
+    clock: AnimationClockObservable,
+    visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
+) : AnimatedFloat(clock, visibilityThreshold)

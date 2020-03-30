@@ -104,6 +104,10 @@ object Spring {
      * without oscillating.
      */
     const val DampingRatioNoBouncy = 1f
+    /**
+     * Default cutoff for rounding off physics based animations
+     */
+    const val DefaultDisplacementThreshold = 0.01f
 }
 
 /**
@@ -123,9 +127,9 @@ internal class SpringAnimation(
     stiffness: Float = Spring.StiffnessMedium,
     /**
      * The value threshold such that the animation is no longer significant. An example would be
-     * 1px for translation animations. Defaults to 0.01f
+     * 1px for translation animations. Defaults to [Spring.DefaultDisplacementThreshold]
      */
-    private val displacementThreshold: Float = 0.01f
+    private val displacementThreshold: Float = Spring.DefaultDisplacementThreshold
 ) : FloatAnimation {
 
     private val spring = SpringSimulation(1f).also {
