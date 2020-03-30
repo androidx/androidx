@@ -87,6 +87,7 @@ import java.util.concurrent.Executor;
  * <li><a href="#Thread">Thread</a>
  * <li><a href="#KeyEvents">Media key events mapping</a>
  * <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
+ * <li><a href="#BackwardCompatibility">Backward compatibility with legacy media session APIs</a>
  * </ol>
  * <h3 id="SessionLifecycle">Session Lifecycle</h3>
  * <p>
@@ -141,6 +142,12 @@ import java.util.concurrent.Executor;
  * not playing multiple audio content at the same time. Also keep in mind that multiple media
  * sessions would make Android Auto and Bluetooth device with display to show your apps multiple
  * times, because they list up media sessions, not media apps.
+ * <h3 id="BackwardCompatibility">Backward compatibility with legacy media session APIs</h3>
+ * An active {@link MediaSessionCompat} is internally created with the MediaSession for the backward
+ * compatibility. It's used to handle incoming connection and command from
+ * {@link android.support.v4.media.session.MediaControllerCompat}. And helps to utilize existing
+ * APIs that are built with legacy media session APIs. Use {@link #getSessionCompatToken} for
+ * getting the token for the underlying MediaSessionCompat.
  *
  * @see MediaSessionService
  */
@@ -393,11 +400,21 @@ public class MediaSession implements AutoCloseable {
 
     /**
      * @hide
-     * @return Bundle
      */
     @RestrictTo(LIBRARY)
     public MediaSessionCompat getSessionCompat() {
         return mImpl.getSessionCompat();
+    }
+
+    /**
+     * Gets the {@link MediaSessionCompat.Token} for the MediaSessionCompat created internally
+     * by this session.
+     *
+     * @return {@link MediaSessionCompat.Token}
+     */
+    @NonNull
+    public MediaSessionCompat.Token getSessionCompatToken() {
+        return mImpl.getSessionCompat().getSessionToken();
     }
 
     /**
