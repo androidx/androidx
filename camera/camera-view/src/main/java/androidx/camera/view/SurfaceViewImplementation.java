@@ -91,19 +91,22 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
 
         // Target Surface size. Only complete the SurfaceRequest when the size of the Surface
         // matches this value.
-        // Guarded by UI thread.
+        // Guarded by the UI thread.
         @Nullable
         private Size mTargetSize;
 
         // SurfaceRequest to set when the target size is met.
-        // Guarded by UI thread.
+        // Guarded by the UI thread.
         @Nullable
         private SurfaceRequest mSurfaceRequest;
 
         // The cached size of the current Surface.
-        // Guarded by UI thread.
+        // Guarded by the UI thread.
         @Nullable
         private Size mCurrentSurfaceSize;
+
+        // Guarded by the UI thread.
+        private boolean mWasSurfaceProvided = false;
 
         /**
          * Sets the completer and the size. The completer will only be set if the current size of
@@ -131,18 +134,21 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         @UiThread
         private boolean tryToComplete() {
             Surface surface = mSurfaceView.getHolder().getSurface();
-            if (mSurfaceRequest != null && mTargetSize != null && mTargetSize.equals(
-                    mCurrentSurfaceSize)) {
+            if (canProvideSurface()) {
                 Log.d(TAG, "Surface set on Preview.");
                 mSurfaceRequest.provideSurface(surface,
                         ContextCompat.getMainExecutor(mSurfaceView.getContext()),
                         (result) -> Log.d(TAG, "Safe to release surface."));
-                mSurfaceRequest = null;
-                mTargetSize = null;
+                mWasSurfaceProvided = true;
                 onSurfaceProvided();
                 return true;
             }
             return false;
+        }
+
+        private boolean canProvideSurface() {
+            return mSurfaceRequest != null && mTargetSize != null
+                    && mTargetSize.equals(mCurrentSurfaceSize);
         }
 
         @UiThread
@@ -150,9 +156,15 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
             if (mSurfaceRequest != null) {
                 Log.d(TAG, "Request canceled: " + mSurfaceRequest);
                 mSurfaceRequest.willNotProvideSurface();
-                mSurfaceRequest = null;
             }
-            mTargetSize = null;
+        }
+
+        @UiThread
+        private void invalidateSurface() {
+            if (mSurfaceRequest != null) {
+                Log.d(TAG, "Surface invalidated " + mSurfaceRequest);
+                mSurfaceRequest.getDeferrableSurface().close();
+            }
         }
 
         @Override
@@ -171,8 +183,14 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         @Override
         public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
             Log.d(TAG, "Surface destroyed.");
+            if (mWasSurfaceProvided) {
+                invalidateSurface();
+            } else {
+                cancelPreviousRequest();
+            }
+            mSurfaceRequest = null;
             mCurrentSurfaceSize = null;
-            cancelPreviousRequest();
+            mTargetSize = null;
         }
     }
 }
