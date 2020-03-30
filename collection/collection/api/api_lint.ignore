@@ -35,8 +35,6 @@ MissingNullability: androidx.collection.ArrayMap#putAll(java.util.Map<? extends 
     Missing nullability on parameter `map` in method `putAll`
 MissingNullability: androidx.collection.ArrayMap#values():
     Missing nullability on method `values` return
-MissingNullability: androidx.collection.ArraySet#iterator():
-    Missing nullability on method `iterator` return
 MissingNullability: androidx.collection.LongSparseArray#clone():
     Missing nullability on method `clone` return
 MissingNullability: androidx.collection.LongSparseArray#remove(long, Object) parameter #1:

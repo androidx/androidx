@@ -425,8 +425,6 @@ MissingNullability: androidx.core.app.NotificationCompat.Builder#addInvisibleAct
     Missing nullability on parameter `title` in method `addInvisibleAction`
 MissingNullability: androidx.core.app.NotificationCompat.Builder#addInvisibleAction(int, CharSequence, android.app.PendingIntent) parameter #2:
     Missing nullability on parameter `intent` in method `addInvisibleAction`
-MissingNullability: androidx.core.app.NotificationCompat.Builder#addPerson(String):
-    Missing nullability on method `addPerson` return
 MissingNullability: androidx.core.app.NotificationCompat.Builder#addPerson(String) parameter #0:
     Missing nullability on parameter `uri` in method `addPerson`
 MissingNullability: androidx.core.app.NotificationCompat.Builder#build():
@@ -1341,10 +1339,6 @@ MissingNullability: androidx.core.view.ViewCompat#canScrollHorizontally(android.
     Missing nullability on parameter `view` in method `canScrollHorizontally`
 MissingNullability: androidx.core.view.ViewCompat#canScrollVertically(android.view.View, int) parameter #0:
     Missing nullability on parameter `view` in method `canScrollVertically`
-MissingNullability: androidx.core.view.ViewCompat#dispatchApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat):
-    Missing nullability on method `dispatchApplyWindowInsets` return
-MissingNullability: androidx.core.view.ViewCompat#dispatchApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #1:
-    Missing nullability on parameter `insets` in method `dispatchApplyWindowInsets`
 MissingNullability: androidx.core.view.ViewCompat#enableAccessibleClickableSpanSupport(android.view.View) parameter #0:
     Missing nullability on parameter `view` in method `enableAccessibleClickableSpanSupport`
 MissingNullability: androidx.core.view.ViewCompat#getAccessibilityNodeProvider(android.view.View):
@@ -1407,10 +1401,6 @@ MissingNullability: androidx.core.view.ViewCompat#keyboardNavigationClusterSearc
     Missing nullability on method `keyboardNavigationClusterSearch` return
 MissingNullability: androidx.core.view.ViewCompat#keyboardNavigationClusterSearch(android.view.View, android.view.View, int) parameter #1:
     Missing nullability on parameter `currentCluster` in method `keyboardNavigationClusterSearch`
-MissingNullability: androidx.core.view.ViewCompat#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat):
-    Missing nullability on method `onApplyWindowInsets` return
-MissingNullability: androidx.core.view.ViewCompat#onApplyWindowInsets(android.view.View, androidx.core.view.WindowInsetsCompat) parameter #1:
-    Missing nullability on parameter `insets` in method `onApplyWindowInsets`
 MissingNullability: androidx.core.view.ViewCompat#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #0:
     Missing nullability on parameter `v` in method `onInitializeAccessibilityEvent`
 MissingNullability: androidx.core.view.ViewCompat#onInitializeAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent) parameter #1:
@@ -1455,8 +1445,6 @@ MissingNullability: androidx.core.view.ViewCompat#setLayerType(android.view.View
     Missing nullability on parameter `view` in method `setLayerType`
 MissingNullability: androidx.core.view.ViewCompat#setLayerType(android.view.View, int, android.graphics.Paint) parameter #2:
     Missing nullability on parameter `paint` in method `setLayerType`
-MissingNullability: androidx.core.view.ViewCompat#setOnApplyWindowInsetsListener(android.view.View, androidx.core.view.OnApplyWindowInsetsListener) parameter #1:
-    Missing nullability on parameter `listener` in method `setOnApplyWindowInsetsListener`
 MissingNullability: androidx.core.view.ViewCompat#setOverScrollMode(android.view.View, int) parameter #0:
     Missing nullability on parameter `v` in method `setOverScrollMode`
 MissingNullability: androidx.core.view.ViewCompat#setPivotX(android.view.View, float) parameter #0:

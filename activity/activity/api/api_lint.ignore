@@ -7,6 +7,10 @@ ForbiddenSuperClass: androidx.activity.ComponentActivity:
     ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+KotlinOperator: androidx.activity.result.ActivityResultRegistry#invoke(int, androidx.activity.result.contract.ActivityResultContract<I,O>, I, androidx.core.app.ActivityOptionsCompat):
+    Method can be invoked with function call syntax from Kotlin: `invoke` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
 RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.activity.OnBackPressedCallback):
     Callback methods should be named register/unregister; was addCallback
 RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
