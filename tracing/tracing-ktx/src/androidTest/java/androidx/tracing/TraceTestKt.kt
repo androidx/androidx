@@ -27,7 +27,7 @@ import org.junit.runner.RunWith
 class TraceTestKt {
     @Test
     fun traceTest() {
-        val x = trace({ "Test" }) {
+        val x = trace("Test") {
             10
         }
         assertEquals(10, x)
