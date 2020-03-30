@@ -133,7 +133,7 @@ fun Scaffold(
     val child = @Composable {
         Surface(color = MaterialTheme.colors.background) {
             Column(Modifier.fillMaxSize()) {
-                if (topAppBar != null) ScaffoldSlot(children = topAppBar)
+                if (topAppBar != null) ScaffoldSlot(content = topAppBar)
                 Stack(Modifier.weight(1f, fill = true)) {
                     ScaffoldContent(Modifier.fillMaxSize(), scaffoldState, bodyContent)
                     ScaffoldBottom(
@@ -153,7 +153,7 @@ fun Scaffold(
             drawerState = scaffoldState.drawerState,
             onStateChange = { scaffoldState.drawerState = it },
             gesturesEnabled = scaffoldState.isDrawerGesturesEnabled,
-            drawerContent = { ScaffoldSlot(children = drawerContent) },
+            drawerContent = { ScaffoldSlot(content = drawerContent) },
             bodyContent = child
         )
     } else {
@@ -269,7 +269,7 @@ private fun BottomBarContainer(
         modifier = Modifier.onPositioned {
             if (scaffoldState.bottomBarSize != it.size) scaffoldState.bottomBarSize = it.size
         },
-        children = {
+        content = {
             bottomBar(scaffoldState.fabConfiguration)
         }
     )
@@ -302,16 +302,16 @@ private fun FabContainer(
                 }
             if (scaffoldState.fabConfiguration != config) scaffoldState.fabConfiguration = config
         },
-        children = fab
+        content = fab
     )
 }
 
 /**
- * Default slot implementation for Scaffold slots children
+ * Default slot implementation for Scaffold slots content
  */
 @Composable
-private fun ScaffoldSlot(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
-    Stack(modifier) { children() }
+private fun ScaffoldSlot(modifier: Modifier = Modifier.None, content: @Composable() () -> Unit) {
+    Stack(modifier) { content() }
 }
 
 private val FabSpacing = 16.dp

@@ -84,7 +84,7 @@ fun Surface(
     contentColor: Color = contentColorFor(color),
     border: Border? = null,
     elevation: Dp = 0.dp,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     SurfaceLayout(
         modifier.drawShadow(shape = shape, elevation = elevation, clipToOutline = false)
@@ -95,7 +95,7 @@ fun Surface(
             )
             .clip(shape)
     ) {
-        ProvideContentColor(contentColor, children)
+        ProvideContentColor(contentColor, content)
     }
 }
 

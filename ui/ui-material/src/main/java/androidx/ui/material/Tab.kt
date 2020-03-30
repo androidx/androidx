@@ -412,7 +412,7 @@ object TabRow {
     internal fun IndicatorTransition(
         tabPositions: List<TabPosition>,
         selectedIndex: Int,
-        children: @Composable() (indicatorOffset: Px) -> Unit
+        indicator: @Composable() (indicatorOffset: Px) -> Unit
     ) {
         val transitionDefinition = remember(tabPositions) {
             transitionDefinition {
@@ -442,7 +442,7 @@ object TabRow {
         }
 
         Transition(transitionDefinition, selectedIndex) { state ->
-            children(state[IndicatorOffset])
+            indicator(state[IndicatorOffset])
         }
     }
 }
@@ -498,21 +498,21 @@ fun Tab(
  * @param selected whether this tab is selected or not
  * @param onSelected the callback to be invoked when this tab is selected
  * @param modifier optional [Modifier] for this tab
- * @param children the content of this tab
+ * @param content the content of this tab
  */
 @Composable
 fun Tab(
     selected: Boolean,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     MutuallyExclusiveSetItem(
         selected = selected,
         onClick = onSelected,
         modifier = Modifier.ripple()
     ) {
-        Box(modifier.fillMaxWidth(), gravity = ContentGravity.Center, children = children)
+        Box(modifier.fillMaxWidth(), gravity = ContentGravity.Center, children = content)
     }
 }
 
@@ -528,7 +528,7 @@ private fun TabTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     val transitionDefinition = remember(activeColor, inactiveColor) {
         transitionDefinition {
@@ -557,7 +557,7 @@ private fun TabTransition(
         }
     }
     Transition(transitionDefinition, selected) { state ->
-        ProvideContentColor(state[TabTintColor], children = children)
+        ProvideContentColor(state[TabTintColor], children = content)
     }
 }
 

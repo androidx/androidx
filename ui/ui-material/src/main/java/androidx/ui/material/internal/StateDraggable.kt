@@ -69,7 +69,7 @@ internal fun <T> StateDraggable(
     enabled: Boolean = true,
     minValue: Float = Float.MIN_VALUE,
     maxValue: Float = Float.MAX_VALUE,
-    children: @Composable() (AnimatedFloat) -> Unit
+    content: @Composable() (AnimatedFloat) -> Unit
 ) {
     val forceAnimationCheck = state { true }
 
@@ -108,6 +108,6 @@ internal fun <T> StateDraggable(
     //  is implemented with modifiers.
     @Suppress("DEPRECATION")
     PassThroughLayout(draggable) {
-        children(position)
+        content(position)
     }
 }

@@ -50,7 +50,7 @@ import androidx.ui.unit.dp
  * Because of the nature of mutually exclusive set, when radio button is selected,
  * it can't be unselected by being pressed again.
  *
- * Typical children for RadioGroup will be [RadioGroupScope.RadioGroupItem] and following usage:
+ * Typical content for RadioGroup will be [RadioGroupScope.RadioGroupItem] and following usage:
  *
  * @sample androidx.ui.material.samples.CustomRadioGroupSample
  *
@@ -58,9 +58,9 @@ import androidx.ui.unit.dp
  * consider using version that accepts list of [String] options and doesn't require any children
  */
 @Composable
-fun RadioGroup(children: @Composable RadioGroupScope.() -> Unit) {
+fun RadioGroup(content: @Composable RadioGroupScope.() -> Unit) {
     val scope = remember { RadioGroupScope() }
-    scope.children()
+    scope.content()
 }
 
 /**
@@ -126,13 +126,13 @@ class RadioGroupScope internal constructor() {
     fun RadioGroupItem(
         selected: Boolean,
         onSelect: () -> Unit,
-        children: @Composable() () -> Unit
+        content: @Composable() () -> Unit
     ) {
         Semantics(container = true, mergeAllDescendants = true) {
             Box {
                 MutuallyExclusiveSetItem(
                     selected = selected,
-                    onClick = { if (!selected) onSelect() }, children = children,
+                    onClick = { if (!selected) onSelect() }, children = content,
                     modifier = Modifier.ripple()
                 )
             }

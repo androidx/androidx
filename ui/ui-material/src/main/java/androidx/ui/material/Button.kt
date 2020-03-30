@@ -74,7 +74,7 @@ fun Button(
     backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
     innerPadding: EdgeInsets = Button.DefaultInnerPadding,
-    children: @Composable() () -> Unit
+    text: @Composable() () -> Unit
 ) {
     // Since we're adding layouts in between the clickable layer and the content, we need to
     // merge all descendants, or we'll get multiple nodes
@@ -101,7 +101,7 @@ fun Button(
                 ) {
                     ProvideTextStyle(
                         value = MaterialTheme.typography.button,
-                        children = children
+                        children = text
                     )
                 }
             }
@@ -154,7 +154,7 @@ inline fun OutlinedButton(
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = MaterialTheme.colors.primary,
     innerPadding: EdgeInsets = Button.DefaultInnerPadding,
-    noinline children: @Composable() () -> Unit
+    noinline text: @Composable() () -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
@@ -165,7 +165,7 @@ inline fun OutlinedButton(
     backgroundColor = backgroundColor,
     contentColor = contentColor,
     innerPadding = innerPadding,
-    children = children
+    text = text
 )
 
 /**
@@ -208,7 +208,7 @@ inline fun TextButton(
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colors.primary,
     innerPadding: EdgeInsets = TextButton.DefaultInnerPadding,
-    noinline children: @Composable() () -> Unit
+    noinline text: @Composable() () -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
@@ -219,7 +219,7 @@ inline fun TextButton(
     backgroundColor = backgroundColor,
     contentColor = contentColor,
     innerPadding = innerPadding,
-    children = children
+    text = text
 )
 
 // Specification for Material Button:

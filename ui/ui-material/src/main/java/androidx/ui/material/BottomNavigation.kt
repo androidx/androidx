@@ -74,7 +74,7 @@ import androidx.ui.unit.max
  * children. Defaults to either the matching `onFoo` color for [color], or if [color] is not a
  * color from the theme, this will keep the same value set above this BottomNavigation.
  * @param elevation elevation for this BottomNavigation
- * @param children destinations inside this BottomNavigation, this should contain multiple
+ * @param content destinations inside this BottomNavigation, this should contain multiple
  * [BottomNavigationItem]s
  */
 @Composable
@@ -83,7 +83,7 @@ fun BottomNavigation(
     color: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(color),
     elevation: Dp = BottomNavigationElevation,
-    children: @Composable() RowScope.() -> Unit
+    content: @Composable() RowScope.() -> Unit
 ) {
     Surface(
         color = color,
@@ -94,7 +94,7 @@ fun BottomNavigation(
         Row(
             Modifier.fillMaxWidth().preferredHeight(BottomNavigationHeight),
             arrangement = Arrangement.SpaceBetween,
-            children = children
+            children = content
         )
     }
 }
@@ -161,14 +161,14 @@ fun BottomNavigationItem(
 
 /**
  * Transition that animates [contentColor] between [inactiveColor] and [activeColor], depending
- * on [selected]. This component also provides the animation fraction as a parameter to [children],
+ * on [selected]. This component also provides the animation fraction as a parameter to [content],
  * to allow animating the position of the icon and the scale of the text alongside this color
  * animation.
  *
  * @param activeColor [contentColor] when this item is [selected]
  * @param inactiveColor [contentColor] when this item is not [selected]
  * @param selected whether this item is selected
- * @param children the content of the [BottomNavigationItem] to animate [contentColor] for, where
+ * @param content the content of the [BottomNavigationItem] to animate [contentColor] for, where
  * the animationProgress is the current progress of the animation from 0f to 1f.
  */
 @Composable
@@ -176,7 +176,7 @@ private fun BottomNavigationTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
-    children: @Composable() (animationProgress: Float) -> Unit
+    content: @Composable() (animationProgress: Float) -> Unit
 ) {
     val animationProgress = animate(
         target = if (selected) 1f else 0f,
@@ -186,7 +186,7 @@ private fun BottomNavigationTransition(
     val color = lerp(inactiveColor, activeColor, animationProgress)
 
     ProvideContentColor(color) {
-        children(animationProgress)
+        content(animationProgress)
     }
 }
 

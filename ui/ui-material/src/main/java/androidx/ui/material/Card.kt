@@ -48,7 +48,7 @@ fun Card(
     contentColor: Color = contentColorFor(color),
     border: Border? = null,
     elevation: Dp = 1.dp,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     Surface(
         modifier = modifier,
@@ -57,6 +57,6 @@ fun Card(
         contentColor = contentColor,
         elevation = elevation,
         border = border,
-        children = children
+        content = content
     )
 }
