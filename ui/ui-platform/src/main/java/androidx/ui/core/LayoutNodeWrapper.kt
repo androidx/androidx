@@ -851,10 +851,11 @@ internal class LayerWrapper(
     }
 
     override fun rectInParent(bounds: RectF) {
-        if (drawLayerModifier.clipToBounds ||
-            (drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null)
+        if ((drawLayerModifier.clipToBounds ||
+                    (drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null)) &&
+            !bounds.intersect(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
         ) {
-            bounds.intersect(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
+            bounds.setEmpty()
         }
         val matrix = layer.getMatrix()
         matrix.mapRect(bounds)
