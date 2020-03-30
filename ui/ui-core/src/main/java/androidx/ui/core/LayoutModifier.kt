@@ -38,16 +38,16 @@ interface LayoutModifier2 : Modifier.Element {
      * to the logic of the [LayoutModifier2]. The modifier needs to choose its own
      * size, which can depend on the size chosen by the wrapped content (the obtained
      * [Placeable]), if the wrapped content was measured. The size needs to be returned
-     * as part of a [MeasureScope.LayoutResult], alongside the placement logic of the
+     * as part of a [MeasureScope.MeasureResult], alongside the placement logic of the
      * [Placeable], which defines how the wrapped content should be positioned inside
-     * the [LayoutModifier2]. A convenient way to create the [MeasureScope.LayoutResult]
+     * the [LayoutModifier2]. A convenient way to create the [MeasureScope.MeasureResult]
      * is to use the [MeasureScope.layout] factory function.
      */
     fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ): MeasureScope.LayoutResult
+    ): MeasureScope.MeasureResult
 
     /**
      * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].

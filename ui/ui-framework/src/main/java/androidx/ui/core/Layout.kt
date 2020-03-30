@@ -455,7 +455,7 @@ private class WithConstrainsState {
             measurables: List<Measurable>,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): MeasureScope.LayoutResult {
+        ): MeasureScope.MeasureResult {
             val root = nodeRef.value!!
             if (lastConstraints != constraints || forceRecompose) {
                 lastConstraints = constraints

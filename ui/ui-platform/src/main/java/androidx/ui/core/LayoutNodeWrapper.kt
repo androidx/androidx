@@ -54,16 +54,16 @@ internal sealed class LayoutNodeWrapper(
     private var dirtySize: Boolean = false
     fun hasDirtySize(): Boolean = dirtySize || (wrapped?.hasDirtySize() ?: false)
     // TODO(popam): avoid allocation here
-    final override val size: IntPxSize get() = IntPxSize(layoutResult.width, layoutResult.height)
+    final override val size: IntPxSize get() = IntPxSize(measureResult.width, measureResult.height)
 
-    private var _layoutResult: MeasureScope.LayoutResult? = null
-    var layoutResult: MeasureScope.LayoutResult
-        get() = _layoutResult ?: error(UnmeasuredError)
+    private var _measureResult: MeasureScope.MeasureResult? = null
+    var measureResult: MeasureScope.MeasureResult
+        get() = _measureResult ?: error(UnmeasuredError)
         internal set(value) {
-            if (value.width != _layoutResult?.width || value.height != _layoutResult?.height) {
+            if (value.width != _measureResult?.width || value.height != _measureResult?.height) {
                 dirtySize = true
             }
-            _layoutResult = value
+            _measureResult = value
         }
 
     override val parentCoordinates: LayoutCoordinates?
@@ -342,14 +342,14 @@ internal open class DelegatingLayoutNodeWrapper(
 
     override fun place(position: IntPxPosition) {
         this.position = position
-        layoutResult.placeChildren(layoutNode.layoutDirection!!)
+        measureResult.placeChildren(layoutNode.layoutDirection!!)
     }
 
     override fun measure(constraints: Constraints): Placeable {
         val placeable = wrapped.measure(constraints)
-        layoutResult = object : MeasureScope.LayoutResult {
-            override val width: IntPx = wrapped.layoutResult.width
-            override val height: IntPx = wrapped.layoutResult.height
+        measureResult = object : MeasureScope.MeasureResult {
+            override val width: IntPx = wrapped.measureResult.width
+            override val height: IntPx = wrapped.measureResult.height
             override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
             override fun placeChildren(layoutDirection: LayoutDirection) {
                 placeable.placeAbsolute(IntPxPosition.Origin)
@@ -404,13 +404,13 @@ internal class InnerPlaceable(
         get() = layoutNode.isAttached()
 
     override fun measure(constraints: Constraints): Placeable {
-        val layoutResult = layoutNode.measureBlocks.measure(
+        val measureResult = layoutNode.measureBlocks.measure(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             constraints,
             layoutNode.layoutDirection!!
         )
-        layoutNode.handleLayoutResult(layoutResult)
+        layoutNode.handleMeasureResult(measureResult)
         return this
     }
 
@@ -602,7 +602,7 @@ internal class ModifiedLayoutNode2(
 
     override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
         updateLayoutDirection()
-        layoutResult =
+        measureResult =
             layoutNode.measureScope.measure(wrapped, constraints, layoutNode.layoutDirection!!)
         this@ModifiedLayoutNode2
     }
@@ -628,7 +628,7 @@ internal class ModifiedLayoutNode2(
     }
 
     override operator fun get(line: AlignmentLine): IntPx? =
-        layoutResult.alignmentLines.getOrElse(line, { wrapped[line] })
+        measureResult.alignmentLines.getOrElse(line, { wrapped[line] })
 
     override fun draw(canvas: Canvas, density: Density) {
         withPositionTranslation(canvas) {
@@ -674,7 +674,7 @@ internal class ModifiedLayoutNode(
                 layoutNode.layoutDirection!!
             )
         }
-        layoutResult = object : MeasureScope.LayoutResult {
+        measureResult = object : MeasureScope.MeasureResult {
             override val width: IntPx = size.width
             override val height: IntPx = size.height
             override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()

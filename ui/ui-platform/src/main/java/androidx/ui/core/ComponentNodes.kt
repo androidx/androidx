@@ -33,7 +33,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
-import androidx.ui.unit.ipx
 import androidx.ui.unit.round
 import androidx.ui.util.fastForEach
 import kotlin.properties.ReadWriteProperty
@@ -673,7 +672,7 @@ class LayoutNode : ComponentNode(), Measurable {
             measurables: List<Measurable>,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): MeasureScope.LayoutResult
+        ): MeasureScope.MeasureResult
 
         /**
          * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
@@ -1226,7 +1225,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
                         parentLayoutNode?.positionedDuringMeasurePass ?: false
-                innerLayoutNodeWrapper.layoutResult.placeChildren(layoutDirection!!)
+                innerLayoutNodeWrapper.measureResult.placeChildren(layoutDirection!!)
                 layoutChildren.forEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
@@ -1267,13 +1266,13 @@ class LayoutNode : ComponentNode(), Measurable {
         return alignmentLines
     }
 
-    internal fun handleLayoutResult(layoutResult: MeasureScope.LayoutResult) {
-        innerLayoutNodeWrapper.layoutResult = layoutResult
+    internal fun handleMeasureResult(measureResult: MeasureScope.MeasureResult) {
+        innerLayoutNodeWrapper.measureResult = measureResult
         if (layoutNodeWrapper.hasDirtySize()) {
             owner?.onSizeChange(this@LayoutNode)
         }
         this.providedAlignmentLines.clear()
-        this.providedAlignmentLines += layoutResult.alignmentLines
+        this.providedAlignmentLines += measureResult.alignmentLines
     }
 
     /**
