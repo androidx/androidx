@@ -31,7 +31,6 @@ import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.util.fastAny
-import androidx.ui.util.fastAny
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
@@ -51,14 +50,14 @@ import kotlin.coroutines.CoroutineContext
  * Also, given that this gesture detector is so temporary, opting to not write substantial tests.
  */
 @Composable
-fun DoubleTapGestureDetector(
+fun Modifier.doubleTapGestureFilter(
     onDoubleTap: (PxPosition) -> Unit
 ): Modifier {
     val coroutineContext = CoroutineContextAmbient.current
     // TODO(shepshapard): coroutineContext should be a field
     val recognizer = remember { DoubleTapGestureRecognizer(coroutineContext) }
     recognizer.onDoubleTap = onDoubleTap
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class DoubleTapGestureRecognizer(

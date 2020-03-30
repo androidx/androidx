@@ -43,7 +43,7 @@ import androidx.ui.unit.Px
  * If [canDrag] is not provided, touch slop will be able to be exceeded in all directions.
  */
 @Composable
-fun TouchSlopExceededGestureDetector(
+fun Modifier.touchSlopExceededGestureFilter(
     onTouchSlopExceeded: () -> Unit,
     canDrag: ((Direction) -> Boolean)? = null
 ): Modifier {
@@ -51,7 +51,7 @@ fun TouchSlopExceededGestureDetector(
     val recognizer = remember { TouchSlopExceededGestureRecognizer(touchSlop) }
     recognizer.canDrag = canDrag
     recognizer.onTouchSlopExceeded = onTouchSlopExceeded
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 // TODO(shepshapard): Shouldn't touchSlop be Px and not IntPx? What if the density bucket of the

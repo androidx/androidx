@@ -22,8 +22,8 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Direction
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
@@ -107,7 +107,7 @@ fun TouchSlopDragGestureDetectorDemo() {
         Modifier.offset(offsetX, offsetY)
             .fillMaxSize()
             .wrapContentSize(Alignment.Center)
-            .plus(DragGestureDetector(dragObserver, canDrag))
+            .dragGestureFilter(dragObserver, canDrag)
             .preferredSize(96.dp),
         backgroundColor = color
     )

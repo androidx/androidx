@@ -24,7 +24,7 @@ import androidx.compose.state
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
@@ -49,12 +49,12 @@ fun RepeatedRotationDemo() {
     ) {
         val textStyle = TextStyle(fontSize = 18.sp)
         Text(
-            modifier = TapGestureDetector(onTap = { state.value = RotationStates.Rotated }),
+            modifier = Modifier.tapGestureFilter(onTap = { state.value = RotationStates.Rotated }),
             text = "Rotate 10 times",
             style = textStyle
         )
         Text(
-            modifier = TapGestureDetector(onTap = { state.value = RotationStates.Original }),
+            modifier = Modifier.tapGestureFilter(onTap = { state.value = RotationStates.Original }),
             text = "Reset",
             style = textStyle
         )

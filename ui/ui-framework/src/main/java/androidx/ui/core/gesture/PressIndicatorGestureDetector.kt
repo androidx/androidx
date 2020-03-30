@@ -49,7 +49,7 @@ import androidx.ui.util.fastAny
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 @Composable
-fun PressIndicatorGestureDetector(
+fun Modifier.pressIndicatorGestureFilter(
     onStart: ((PxPosition) -> Unit)? = null,
     onStop: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
@@ -60,7 +60,7 @@ fun PressIndicatorGestureDetector(
     recognizer.onStop = onStop
     recognizer.onCancel = onCancel
     recognizer.setEnabled(enabled)
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class PressIndicatorGestureRecognizer : PointerInputFilter() {

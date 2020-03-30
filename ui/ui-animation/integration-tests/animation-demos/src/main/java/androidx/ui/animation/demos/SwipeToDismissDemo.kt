@@ -30,7 +30,7 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.RawDragGestureDetector
+import androidx.ui.core.gesture.rawDragGestureFilter
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
@@ -69,7 +69,7 @@ private fun SwipeToDismiss() {
     val index = state { 0 }
     val itemWidth = state { 0f }
     val isFlinging = state { false }
-    val modifier = RawDragGestureDetector(dragObserver = object : DragObserver {
+    val modifier = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
         override fun onStart(downPosition: PxPosition) {
             itemBottom.setBounds(0f, height)
             if (isFlinging.value && itemBottom.targetValue < 100f) {

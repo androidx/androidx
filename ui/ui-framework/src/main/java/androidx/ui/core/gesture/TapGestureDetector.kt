@@ -47,13 +47,13 @@ import androidx.ui.util.fastAny
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 @Composable
-fun TapGestureDetector(
+fun Modifier.tapGestureFilter(
     onTap: () -> Unit
 ): Modifier {
     val recognizer = remember { TapGestureRecognizer() }
     recognizer.onTap = onTap
     recognizer.consumeDownOnStart = false
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class TapGestureRecognizer : PointerInputFilter() {

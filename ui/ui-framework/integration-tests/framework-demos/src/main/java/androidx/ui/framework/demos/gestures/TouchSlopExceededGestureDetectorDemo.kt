@@ -21,7 +21,7 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Direction
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.TouchSlopExceededGestureDetector
+import androidx.ui.core.gesture.touchSlopExceededGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
@@ -79,7 +79,7 @@ fun TouchSlopExceededGestureDetectorDemo() {
     Box(
         Modifier.fillMaxSize()
             .wrapContentSize(Alignment.Center)
-            .plus(TouchSlopExceededGestureDetector(onTouchSlopExceeded, canDrag))
+            .touchSlopExceededGestureFilter(onTouchSlopExceeded, canDrag)
             .preferredSize(96.dp),
         backgroundColor = color
     )

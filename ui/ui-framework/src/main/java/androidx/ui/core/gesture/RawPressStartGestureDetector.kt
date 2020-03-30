@@ -50,7 +50,7 @@ import androidx.ui.unit.PxPosition
  * react to and consume down changes.  Defaults to [PointerEventPass.PostUp].
  */
 @Composable
-fun RawPressStartStartGestureDetector(
+fun Modifier.rawPressStartGestureFilter(
     onPressStart: (PxPosition) -> Unit,
     enabled: Boolean = false,
     executionPass: PointerEventPass = PointerEventPass.PostUp
@@ -59,7 +59,7 @@ fun RawPressStartStartGestureDetector(
     recognizer.onPressStart = onPressStart
     recognizer.setEnabled(enabled = enabled)
     recognizer.setExecutionPass(executionPass)
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class RawPressStartGestureRecognizer : PointerInputFilter() {

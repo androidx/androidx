@@ -49,13 +49,13 @@ import kotlin.coroutines.CoroutineContext
  * (double tap, triple tap) and tap.
  */
 @Composable
-fun LongPressGestureDetector(
+fun Modifier.longPressGestureFilter(
     onLongPress: (PxPosition) -> Unit
 ): Modifier {
     val coroutineContext = CoroutineContextAmbient.current
     val recognizer = remember { LongPressGestureRecognizer(coroutineContext) }
     recognizer.onLongPress = onLongPress
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class LongPressGestureRecognizer(

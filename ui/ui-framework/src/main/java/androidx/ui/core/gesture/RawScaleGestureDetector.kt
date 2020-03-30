@@ -29,8 +29,8 @@ import androidx.ui.testutils.consume
 import androidx.ui.unit.IntPxSize
 
 /**
- * Observes various events sent by [RawScaleGestureDetector].  Implement and pass into
- * [RawScaleGestureDetector] so that [RawScaleGestureDetector] may call the functions when events
+ * Observes various events sent by [rawScaleGestureFilter].  Implement and pass into
+ * [rawScaleGestureFilter] so that [rawScaleGestureFilter] may call the functions when events
  * occur.
  */
 interface RawScaleObserver {
@@ -38,11 +38,11 @@ interface RawScaleObserver {
     /**
      * Override to be notified when scaling has started.
      *
-     * This will be called when scaling occurs (and when the associated [RawScaleGestureDetector]
+     * This will be called when scaling occurs (and when the associated [rawScaleGestureFilter]
      * is allowed to start). Always called just before [onScale] and isn't called again until
      * after [onStop].
      *
-     * @see RawScaleGestureDetector
+     * @see rawScaleGestureFilter
      * @see onScale
      * @see onStop
      */
@@ -101,7 +101,7 @@ interface RawScaleObserver {
  * Note: By default, this gesture detector will start as soon as the average distance between
  * pointers changes by just a little bit. It is likely that you don't want to use this gesture
  * detector directly, but instead use a scale gesture detector that is less aggressive about
- * starting (such as [RawScaleGestureDetector] which waits for a pointer to have passed touch slop
+ * starting (such as [rawScaleGestureFilter] which waits for a pointer to have passed touch slop
  * before starting).
  *
  * Scaling begins when the average distance between a set of pointers changes and either
@@ -118,7 +118,7 @@ interface RawScaleObserver {
  * canStartScaling is called for each pointer event to check to see if it is allowed to start.
  */
 @Composable
-fun RawScaleGestureDetector(
+fun Modifier.rawScaleGestureFilter(
     scaleObserver: RawScaleObserver,
     canStartScaling: (() -> Boolean)? = null
 ): Modifier {
@@ -126,7 +126,7 @@ fun RawScaleGestureDetector(
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.scaleObserver = scaleObserver
     recognizer.canStartScaling = canStartScaling
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class RawScaleGestureRecognizer : PointerInputFilter() {
