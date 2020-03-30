@@ -21,13 +21,14 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 
 internal class ModifiedLayoutNode2(
     wrapped: LayoutNodeWrapper,
     val layoutModifier: LayoutModifier2
 ) : DelegatingLayoutNodeWrapper(wrapped) {
 
-    override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
+    override fun performMeasure(constraints: Constraints): Placeable = with(layoutModifier) {
         updateLayoutDirection()
         measureResult =
             layoutNode.measureScope.measure(wrapped, constraints, layoutNode.layoutDirection!!)
@@ -84,7 +85,7 @@ internal class ModifiedLayoutNode(
     wrapped: LayoutNodeWrapper,
     val layoutModifier: LayoutModifier
 ) : DelegatingLayoutNodeWrapper(wrapped) {
-    override fun measure(constraints: Constraints): Placeable = with(layoutModifier) {
+    override fun performMeasure(constraints: Constraints): Placeable = with(layoutModifier) {
         updateLayoutDirection()
         val placeable = wrapped.measure(
             layoutNode.measureScope.modifyConstraints(constraints, layoutNode.layoutDirection!!)
@@ -92,11 +93,11 @@ internal class ModifiedLayoutNode(
         val size = layoutNode.measureScope.modifySize(
             constraints,
             layoutNode.layoutDirection!!,
-            placeable.size
+            IntPxSize(placeable.width, placeable.height)
         )
         val wrappedPosition = with(layoutModifier) {
             layoutNode.measureScope.modifyPosition(
-                placeable.size,
+                IntPxSize(placeable.width, placeable.height),
                 size,
                 layoutNode.layoutDirection!!
             )

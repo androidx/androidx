@@ -72,14 +72,14 @@ internal open class DelegatingLayoutNodeWrapper(
         measureResult.placeChildren(layoutNode.layoutDirection!!)
     }
 
-    override fun measure(constraints: Constraints): Placeable {
+    override fun performMeasure(constraints: Constraints): Placeable {
         val placeable = wrapped.measure(constraints)
         measureResult = object : MeasureScope.MeasureResult {
             override val width: IntPx = wrapped.measureResult.width
             override val height: IntPx = wrapped.measureResult.height
             override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
             override fun placeChildren(layoutDirection: LayoutDirection) {
-                placeable.placeAbsolute(IntPxPosition.Origin)
+                placeable.placeAbsolute(-apparentToRealOffset)
             }
         }
         return this

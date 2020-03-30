@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
+
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.SemanticsPredicate
 import androidx.ui.test.SemanticsTreeInteraction

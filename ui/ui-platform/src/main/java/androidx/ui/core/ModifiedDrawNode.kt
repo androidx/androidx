@@ -63,7 +63,7 @@ internal class ModifiedDrawNode(
             get() = layoutNode.requireOwner().density.fontScale
 
         override val size: PxSize
-            get() = this@ModifiedDrawNode.size.toPxSize()
+            get() = this@ModifiedDrawNode.measuredSize.toPxSize()
 
         override val nativeCanvas: NativeCanvas
             get() = canvas!!.nativeCanvas
