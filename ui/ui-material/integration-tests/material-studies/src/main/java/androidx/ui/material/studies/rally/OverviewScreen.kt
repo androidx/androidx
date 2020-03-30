@@ -142,7 +142,7 @@ private fun <T> OverviewScreenCard(
                 val amountText = "$" + formatAmount(amount)
                 Text(text = amountText, style = MaterialTheme.typography.h2)
             }
-            Divider(color = rallyGreen, height = 1.dp)
+            Divider(color = rallyGreen, thickness = 1.dp)
             Column(Modifier.padding(start = 16.dp, top = 4.dp, end = 8.dp)) {
                 data.take(3).forEach { row(it) }
                 SeeAllButton(onClick = onClickSeeAll)

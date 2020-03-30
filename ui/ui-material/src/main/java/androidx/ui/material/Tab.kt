@@ -143,7 +143,7 @@ fun <T> TabRow(
         }
     },
     divider: @Composable() () -> Unit = {
-        Divider(height = 1.dp, color = contentColor().copy(alpha = DividerOpacity))
+        Divider(thickness = 1.dp, color = contentColor().copy(alpha = DividerOpacity))
     },
     tab: @Composable() (Int, T) -> Unit
 ) {
