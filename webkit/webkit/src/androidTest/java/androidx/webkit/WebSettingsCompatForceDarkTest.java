@@ -17,6 +17,7 @@
 package androidx.webkit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
@@ -32,7 +33,6 @@ import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,20 +43,13 @@ import java.util.Map;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class WebSettingsCompatForceDarkTest {
-    private final String mNoDarkThemeSupport = Base64.encodeToString((
-                      "<html>\n"
-                    + "  <head>"
-                    + "  </head>"
-                    + "  <body>"
-                    + "  </body>"
-                    + "</html>").getBytes(), Base64.NO_PADDING);
     private final String mDarkThemeSupport = Base64.encodeToString((
                       "<html>"
                     + "  <head>"
                     + "    <meta name=\"color-scheme\" content=\"light dark\">"
                     + "    <style>"
                     + "      @media (prefers-color-scheme: dark) {"
-                    + "      body {background-color: green; }"
+                    + "      body {background-color: rgba(0, 255, 0, 1); }"
                     + "    </style>"
                     + "  </head>"
                     + "  <body>"
@@ -76,6 +69,7 @@ public class WebSettingsCompatForceDarkTest {
     @Before
     public void setUp() {
         mWebViewOnUiThread = new WebViewOnUiThread(mActivityRule.getActivity().getWebView());
+        mWebViewOnUiThread.getSettings().setJavaScriptEnabled(true);
     }
 
     @After
@@ -151,22 +145,23 @@ public class WebSettingsCompatForceDarkTest {
         WebSettingsCompat.setForceDarkStrategy(mWebViewOnUiThread.getSettings(),
                 WebSettingsCompat.USER_AGENT_DARKENING_ONLY);
 
-        mWebViewOnUiThread.loadDataAndWaitForCompletion(mNoDarkThemeSupport, "text/html", "base64");
+
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be dark",
                 ColorUtils.calculateLuminance(getWebPageColor()) < 0.5f);
+        assertFalse(prefersDarkTheme());
 
         mWebViewOnUiThread.loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html", "base64");
         assertTrue("Bitmap colour should be dark",
                 ColorUtils.calculateLuminance(getWebPageColor()) < 0.5f);
+        assertFalse(prefersDarkTheme());
     }
 
     /**
      * Test to exercise WEB_THEME_DARKENING_ONLY option,
      * i.e. web contents are darkened only by web theme.
      */
-    // TODO(amalova): Enable test when meta-tag is supported by WV
     @Test
-    @Ignore
     public void testForceDark_webThemeDarkeningOnly() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
@@ -180,44 +175,49 @@ public class WebSettingsCompatForceDarkTest {
 
         // Loading a page without dark-theme support should result in a light background as web
         // page is not darken by a user agent
-        mWebViewOnUiThread.loadDataAndWaitForCompletion(mNoDarkThemeSupport, "text/html", "base64");
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         assertTrue("Bitmap colour should be light",
                 ColorUtils.calculateLuminance(getWebPageColor()) > 0.5f);
+        assertTrue(prefersDarkTheme());
 
         // Loading a page with dark-theme support should result in a green background (as
         // specified in media-query)
         mWebViewOnUiThread.loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html", "base64");
-        assertTrue("Bitmap colour should be green", Color.GREEN  == getWebPageColor());
+        assertTrue("Bitmap colour should be green", isGreen(getWebPageColor()));
+        assertTrue(prefersDarkTheme());
     }
 
     /**
      * Test to exercise PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING option,
      * i.e. web contents are darkened by a user agent if there is no dark web theme.
      */
-    // TODO(amalova): Enable test when meta-tag is supported by WV
     @Test
-    @Ignore
     public void testForceDark_preferWebThemeOverUADarkening() {
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK);
         WebkitUtils.checkFeature(WebViewFeature.FORCE_DARK_STRATEGY);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
         setWebViewSize(64, 64);
 
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
+
         WebSettingsCompat.setForceDark(
                 mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
         WebSettingsCompat.setForceDarkStrategy(mWebViewOnUiThread.getSettings(),
                 WebSettingsCompat.PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING);
 
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         // Loading a page without dark-theme support should result in a dark background as
         // web page is darken by a user agent
-        mWebViewOnUiThread.loadDataAndWaitForCompletion(mNoDarkThemeSupport, "text/html", "base64");
         assertTrue("Bitmap colour should be dark",
                 ColorUtils.calculateLuminance(getWebPageColor()) < 0.5f);
+        assertFalse(prefersDarkTheme());
 
         // Loading a page with dark-theme support should result in a green background (as
         // specified in media-query)
         mWebViewOnUiThread.loadDataAndWaitForCompletion(mDarkThemeSupport, "text/html", "base64");
-        assertTrue("Bitmap colour should be green", Color.GREEN == getWebPageColor());
+        assertTrue("Bitmap colour should be green",
+                isGreen(getWebPageColor()));
+        assertTrue(prefersDarkTheme());
     }
 
     private void setWebViewSize(final int width, final int height) {
@@ -257,5 +257,19 @@ public class WebSettingsCompatForceDarkTest {
         int[] pixels = new int[width * height];
         bitmap.getPixels(pixels, 0, width, x, y, width, height);
         return pixels;
+    }
+
+    private boolean prefersDarkTheme() {
+        final String colorSchemeSelector =
+                "window.matchMedia('(prefers-color-scheme: dark)').matches";
+        String result = mWebViewOnUiThread.evaluateJavascriptSync(colorSchemeSelector);
+
+        return "true".equals(result);
+    }
+
+    private boolean isGreen(int color) {
+        return Color.green(color) > 200
+                && Color.red(color) < 50
+                && Color.blue(color) < 50;
     }
 }
