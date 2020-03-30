@@ -26,11 +26,11 @@ import androidx.ui.core.tag
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorders
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.graphics.Color
@@ -479,13 +479,8 @@ fun DataTable(
                             onClick = { row.onSelectedChange.invoke(!row.selected) },
                             modifier = Modifier.tag(index).ripple()
                         ) {
-                            ColoredRect(
-                                color = if (row.selected) {
-                                    selectedColor
-                                } else {
-                                    Color.Transparent
-                                }
-                            )
+                            val color = if (row.selected) selectedColor else Color.Transparent
+                            Box(Modifier.fillMaxSize().drawBackground(color))
                         }
                     }
                 }

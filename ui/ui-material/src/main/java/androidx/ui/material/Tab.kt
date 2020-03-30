@@ -37,13 +37,13 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.contentColor
+import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Row
@@ -51,6 +51,7 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.ripple
@@ -402,7 +403,7 @@ object TabRow {
      */
     @Composable
     fun Indicator(modifier: Modifier = Modifier.None, color: Color = contentColor()) {
-        ColoredRect(color = color, height = IndicatorHeight, modifier = modifier)
+        Box(modifier.fillMaxWidth().preferredHeight(IndicatorHeight).drawBackground(color))
     }
 
     /**
