@@ -73,6 +73,7 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
@@ -324,6 +325,7 @@ public final class Camera2CameraControlTest {
     }
 
     @Test
+    @LargeTest
     public void triggerAf_futureSucceeds() throws Exception {
         Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
         ListenableFuture<CameraCaptureResult> future = camera2CameraControl.triggerAf();
@@ -331,6 +333,7 @@ public final class Camera2CameraControlTest {
     }
 
     @Test
+    @LargeTest
     public void triggerAePrecapture_futureSucceeds() throws Exception {
         Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
         ListenableFuture<CameraCaptureResult> future = camera2CameraControl.triggerAePrecapture();

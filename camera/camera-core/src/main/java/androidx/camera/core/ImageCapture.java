@@ -205,6 +205,8 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ImageCapture";
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private static final long CHECK_3A_TIMEOUT_IN_MS = 1000L;
     private static final int MAX_IMAGES = 2;
     // TODO(b/149336664) Move the quality to a compatibility class when there is a per device case.
@@ -1009,13 +1011,13 @@ public final class ImageCapture extends UseCase {
                 .transformAsync(captureResult -> {
                     state.mPreCaptureState = captureResult;
                     triggerAfIfNeeded(state);
-
-                    if (isFlashRequired(state)) {
-                        state.mIsFlashTriggered = true;
-                        triggerAePrecapture(state);
+                    if (isAePrecaptureRequired(state)) {
+                        // trigger AE precapture and await the result.
+                        return triggerAePrecapture(state);
                     }
-                    return check3AConverged(state);
+                    return Futures.immediateFuture(null);
                 }, mExecutor)
+                .transformAsync(v -> check3AConverged(state), mExecutor)
                 // Ignore the 3A convergence result.
                 .transform(is3AConverged -> null, mExecutor);
     }
@@ -1049,6 +1051,11 @@ public final class ImageCapture extends UseCase {
                         @Override
                         public CameraCaptureResult check(
                                 @NonNull CameraCaptureResult captureResult) {
+                            if (DEBUG) {
+                                Log.d(TAG, "preCaptureState, AE=" + captureResult.getAeState()
+                                        + " AF =" + captureResult.getAfState()
+                                        + " AWB=" + captureResult.getAwbState());
+                            }
                             return captureResult;
                         }
                     });
@@ -1056,7 +1063,7 @@ public final class ImageCapture extends UseCase {
         return Futures.immediateFuture(null);
     }
 
-    boolean isFlashRequired(TakePictureState state) {
+    boolean isAePrecaptureRequired(TakePictureState state) {
         switch (getFlashMode()) {
             case FLASH_MODE_ON:
                 return true;
@@ -1069,23 +1076,22 @@ public final class ImageCapture extends UseCase {
     }
 
     ListenableFuture<Boolean> check3AConverged(TakePictureState state) {
-        // Besides enableCheck3AConverged == true (MAX_QUALITY), if flash is triggered we also need
-        // to
-        // wait for 3A convergence.
-        if (!mEnableCheck3AConverged && !state.mIsFlashTriggered) {
+        // Skip the 3A converged check if enableCheck3AConverged is false and AE precapture is
+        // not triggered.
+        if (!mEnableCheck3AConverged && !state.mIsAePrecaptureTriggered) {
             return Futures.immediateFuture(false);
-        }
-
-        // if current capture result shows 3A is converged, no need to check upcoming capture
-        // result.
-        if (is3AConverged(state.mPreCaptureState)) {
-            return Futures.immediateFuture(true);
         }
 
         return mSessionCallbackChecker.checkCaptureResult(
                 new CaptureCallbackChecker.CaptureResultChecker<Boolean>() {
                     @Override
                     public Boolean check(@NonNull CameraCaptureResult captureResult) {
+                        if (DEBUG) {
+                            Log.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
+                                    + " AF =" + captureResult.getAfState()
+                                    + " AWB=" + captureResult.getAwbState());
+                        }
+
                         if (is3AConverged(captureResult)) {
                             return true;
                         }
@@ -1114,6 +1120,7 @@ public final class ImageCapture extends UseCase {
 
         // Unknown means cannot get valid state from CaptureResult
         boolean isAeReady = captureResult.getAeState() == AeState.CONVERGED
+                || captureResult.getAeState() == AeState.FLASH_REQUIRED
                 || captureResult.getAeState() == AeState.UNKNOWN;
 
         // Unknown means cannot get valid state from CaptureResult
@@ -1141,14 +1148,18 @@ public final class ImageCapture extends UseCase {
 
     /** Issues a request to start auto focus scan. */
     private void triggerAf(TakePictureState state) {
+        if (DEBUG) Log.d(TAG, "triggerAf");
         state.mIsAfTriggered = true;
-        getCameraControl().triggerAf();
+        ListenableFuture<CameraCaptureResult> future = getCameraControl().triggerAf();
+        // Add listener to avoid FutureReturnValueIgnored error.
+        future.addListener(() -> { }, CameraXExecutors.directExecutor());
     }
 
     /** Issues a request to start auto exposure scan. */
-    void triggerAePrecapture(TakePictureState state) {
+    ListenableFuture<CameraCaptureResult> triggerAePrecapture(TakePictureState state) {
+        if (DEBUG) Log.d(TAG, "triggerAePrecapture");
         state.mIsAePrecaptureTriggered = true;
-        getCameraControl().triggerAePrecapture();
+        return getCameraControl().triggerAePrecapture();
     }
 
     /** Issues a request to cancel auto focus and/or auto exposure scan. */
@@ -1172,9 +1183,10 @@ public final class ImageCapture extends UseCase {
      * is safe to reset or modify the 3A state.
      */
     ListenableFuture<Void> issueTakePicture(@NonNull ImageCaptureRequest imageCaptureRequest) {
+        if (DEBUG) Log.d(TAG, "issueTakePicture");
+
         final List<ListenableFuture<Void>> futureList = new ArrayList<>();
         final List<CaptureConfig> captureConfigs = new ArrayList<>();
-
         CaptureBundle captureBundle;
         if (mCaptureProcessor != null) {
             // If the Processor is provided, check if we have valid CaptureBundle and update
@@ -1705,7 +1717,6 @@ public final class ImageCapture extends UseCase {
         CameraCaptureResult mPreCaptureState = EmptyCameraCaptureResult.create();
         boolean mIsAfTriggered = false;
         boolean mIsAePrecaptureTriggered = false;
-        boolean mIsFlashTriggered = false;
     }
 
     /**
