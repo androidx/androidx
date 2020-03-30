@@ -39,7 +39,7 @@ internal class RecordingInputConnection(
     /**
      * The initial input state
      */
-    initState: InputState,
+    initState: EditorValue,
 
     /**
      * An input event listener.
@@ -52,9 +52,9 @@ internal class RecordingInputConnection(
 
     // The input state.
     @VisibleForTesting
-    internal var inputState: InputState = initState
+    internal var mEditorValue: EditorValue = initState
         set(value) {
-            if (DEBUG) { Log.d(TAG, "New InputState has set: $value -> $inputState") }
+            if (DEBUG) { Log.d(TAG, "New InputState has set: $value -> $mEditorValue") }
             field = value
         }
 
@@ -79,10 +79,10 @@ internal class RecordingInputConnection(
      * This function may emits updateSelection and updateExtractedText to notify IMEs that the text
      * contents has changed if needed.
      */
-    fun updateInputState(state: InputState, imm: InputMethodManager, view: View) {
-        val prev = inputState
+    fun updateInputState(state: EditorValue, imm: InputMethodManager, view: View) {
+        val prev = mEditorValue
         val next = state
-        inputState = next
+        mEditorValue = next
 
         if (prev == next) {
             return
@@ -214,17 +214,17 @@ internal class RecordingInputConnection(
 
     override fun getTextBeforeCursor(maxChars: Int, flags: Int): CharSequence {
         if (DEBUG) { Log.d(TAG, "getTextBeforeCursor($maxChars, $flags)") }
-        return inputState.getTextBeforeSelection(maxChars)
+        return mEditorValue.getTextBeforeSelection(maxChars)
     }
 
     override fun getTextAfterCursor(maxChars: Int, flags: Int): CharSequence {
         if (DEBUG) { Log.d(TAG, "getTextAfterCursor($maxChars, $flags)") }
-        return inputState.getTextAfterSelection(maxChars)
+        return mEditorValue.getTextAfterSelection(maxChars)
     }
 
     override fun getSelectedText(flags: Int): CharSequence {
         if (DEBUG) { Log.d(TAG, "getSelectedText($flags)") }
-        return inputState.getSelectedText()
+        return mEditorValue.getSelectedText()
     }
 
     override fun requestCursorUpdates(cursorUpdateMode: Int): Boolean {
@@ -239,7 +239,7 @@ internal class RecordingInputConnection(
         if (extractedTextMonitorMode) {
             currentExtractedTextRequestToken = request?.token ?: 0
         }
-        return inputState.toExtractedText()
+        return mEditorValue.toExtractedText()
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,7 +317,7 @@ internal class RecordingInputConnection(
 
     override fun getCursorCapsMode(reqModes: Int): Int {
         if (DEBUG) { Log.d(TAG, "getCursorCapsMode($reqModes)") }
-        return TextUtils.getCapsMode(inputState.text, inputState.selection.min, reqModes)
+        return TextUtils.getCapsMode(mEditorValue.text, mEditorValue.selection.min, reqModes)
     }
 
     override fun performPrivateCommand(action: String?, data: Bundle?): Boolean {

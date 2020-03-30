@@ -18,7 +18,7 @@ package androidx.ui.text
 
 import androidx.ui.geometry.Rect
 import androidx.ui.input.ImeAction
-import androidx.ui.input.InputState
+import androidx.ui.input.EditorValue
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.PlatformTextInputService
 import androidx.ui.input.TextInputService
@@ -43,13 +43,13 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         val firstToken = textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
             {}) // onImeActionPerformed
         val secondToken = textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
@@ -65,7 +65,7 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         val firstToken = textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
@@ -82,7 +82,7 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         val firstToken = textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
@@ -90,7 +90,7 @@ class TextInputServiceTest {
 
         // Start another session. The firstToken is now expired.
         textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
@@ -107,7 +107,7 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         val firstToken = textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
@@ -124,7 +124,7 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         val firstToken = textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
@@ -132,7 +132,7 @@ class TextInputServiceTest {
 
         // Start another session. The firstToken is now expired.
         textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
@@ -149,13 +149,13 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         val firstToken = textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
             {}) // onImeActionPerformed
 
-        val dummyEditorModel = InputState()
+        val dummyEditorModel = EditorValue()
         textInputService.onStateUpdated(firstToken, dummyEditorModel)
         verify(platformService, times(1)).onStateUpdated(eq(dummyEditorModel))
     }
@@ -167,7 +167,7 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         val firstToken = textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
@@ -175,13 +175,13 @@ class TextInputServiceTest {
 
         // Start another session. The firstToken is now expired.
         textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
             {}) // onImeActionPerformed
 
-        val dummyEditorModel = InputState()
+        val dummyEditorModel = EditorValue()
         textInputService.onStateUpdated(firstToken, dummyEditorModel)
         verify(platformService, never()).onStateUpdated(any())
     }
@@ -193,7 +193,7 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         val firstToken = textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
@@ -211,7 +211,7 @@ class TextInputServiceTest {
         val textInputService = TextInputService(platformService)
 
         val firstToken = textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand
@@ -219,7 +219,7 @@ class TextInputServiceTest {
 
         // Start another session. The firstToken is now expired.
         textInputService.startInput(
-            InputState(),
+            EditorValue(),
             KeyboardType.Text,
             ImeAction.NoAction,
             {}, // onEditCommand

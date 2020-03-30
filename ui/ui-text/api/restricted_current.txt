@@ -41,13 +41,28 @@ package androidx.ui.input {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class EditProcessor {
-    method public androidx.ui.input.InputState onEditCommands(java.util.List<? extends androidx.ui.input.EditOperation> ops);
-    method public void onNewState(androidx.ui.input.InputState model, androidx.ui.input.TextInputService? textInputService, int token);
+    method public androidx.ui.input.EditorValue onEditCommands(java.util.List<? extends androidx.ui.input.EditOperation> ops);
+    method public void onNewState(androidx.ui.input.EditorValue model, androidx.ui.input.TextInputService? textInputService, int token);
   }
 
   public final class EditingBuffer {
     ctor public EditingBuffer(String initialText, androidx.ui.text.TextRange initialSelection);
     field public static final int NOWHERE = -1; // 0xffffffff
+  }
+
+  public final class EditorValue {
+    ctor public EditorValue(String text, androidx.ui.text.TextRange selection, androidx.ui.text.TextRange? composition);
+    ctor public EditorValue();
+    method public String component1();
+    method public androidx.ui.text.TextRange component2();
+    method public androidx.ui.text.TextRange? component3();
+    method public androidx.ui.input.EditorValue copy(String text, androidx.ui.text.TextRange selection, androidx.ui.text.TextRange? composition);
+    method public androidx.ui.text.TextRange? getComposition();
+    method public String getSelectedText();
+    method public androidx.ui.text.TextRange getSelection();
+    method public String getText();
+    method public String getTextAfterSelection(int maxChars);
+    method public String getTextBeforeSelection(int maxChars);
   }
 
   public final class FinishComposingTextEditOp implements androidx.ui.input.EditOperation {
@@ -69,21 +84,6 @@ package androidx.ui.input {
   public interface InputEventListener {
     method public void onEditOperations(java.util.List<? extends androidx.ui.input.EditOperation> editOps);
     method public void onImeAction(androidx.ui.input.ImeAction imeAction);
-  }
-
-  public final class InputState {
-    ctor public InputState(String text, androidx.ui.text.TextRange selection, androidx.ui.text.TextRange? composition);
-    ctor public InputState();
-    method public String component1();
-    method public androidx.ui.text.TextRange component2();
-    method public androidx.ui.text.TextRange? component3();
-    method public androidx.ui.input.InputState copy(String text, androidx.ui.text.TextRange selection, androidx.ui.text.TextRange? composition);
-    method public androidx.ui.text.TextRange? getComposition();
-    method public String getSelectedText();
-    method public androidx.ui.text.TextRange getSelection();
-    method public String getText();
-    method public String getTextAfterSelection(int maxChars);
-    method public String getTextBeforeSelection(int maxChars);
   }
 
   public enum KeyboardType {
@@ -126,9 +126,9 @@ package androidx.ui.input {
   public interface PlatformTextInputService {
     method public void hideSoftwareKeyboard();
     method public void notifyFocusedRect(androidx.ui.geometry.Rect rect);
-    method public void onStateUpdated(androidx.ui.input.InputState model);
+    method public void onStateUpdated(androidx.ui.input.EditorValue model);
     method public void showSoftwareKeyboard();
-    method public void startInput(androidx.ui.input.InputState initModel, androidx.ui.input.KeyboardType keyboardType, androidx.ui.input.ImeAction imeAction, kotlin.jvm.functions.Function1<? super java.util.List<? extends androidx.ui.input.EditOperation>,kotlin.Unit> onEditCommand, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed);
+    method public void startInput(androidx.ui.input.EditorValue initModel, androidx.ui.input.KeyboardType keyboardType, androidx.ui.input.ImeAction imeAction, kotlin.jvm.functions.Function1<? super java.util.List<? extends androidx.ui.input.EditOperation>,kotlin.Unit> onEditCommand, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed);
     method public void stopInput();
   }
 
@@ -166,9 +166,9 @@ package androidx.ui.input {
     ctor public TextInputService(androidx.ui.input.PlatformTextInputService platformTextInputService);
     method public void hideSoftwareKeyboard(int token);
     method public void notifyFocusedRect(int token, androidx.ui.geometry.Rect rect);
-    method public void onStateUpdated(int token, androidx.ui.input.InputState model);
+    method public void onStateUpdated(int token, androidx.ui.input.EditorValue model);
     method public void showSoftwareKeyboard(int token);
-    method public int startInput(androidx.ui.input.InputState initModel, androidx.ui.input.KeyboardType keyboardType, androidx.ui.input.ImeAction imeAction, kotlin.jvm.functions.Function1<? super java.util.List<? extends androidx.ui.input.EditOperation>,kotlin.Unit> onEditCommand, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed);
+    method public int startInput(androidx.ui.input.EditorValue initModel, androidx.ui.input.KeyboardType keyboardType, androidx.ui.input.ImeAction imeAction, kotlin.jvm.functions.Function1<? super java.util.List<? extends androidx.ui.input.EditOperation>,kotlin.Unit> onEditCommand, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed);
     method public void stopInput(int token);
   }
 

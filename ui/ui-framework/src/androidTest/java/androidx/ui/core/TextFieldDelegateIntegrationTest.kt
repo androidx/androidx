@@ -25,7 +25,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.input.InputState
+import androidx.ui.input.EditorValue
 import androidx.ui.input.OffsetMap
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextDelegate
@@ -87,7 +87,7 @@ class TextFieldDelegateIntegrationTest {
         val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
         TextFieldDelegate.draw(
             canvas = actualCanvas,
-            value = InputState(text = "Hello, World", selection = selection),
+            value = EditorValue(text = "Hello, World", selection = selection),
             selectionColor = selectionColor,
             hasFocus = true,
             offsetMap = OffsetMap.identityOffsetMap,
@@ -122,7 +122,7 @@ class TextFieldDelegateIntegrationTest {
         val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
         TextFieldDelegate.draw(
             canvas = actualCanvas,
-            value = InputState(text = "Hello, World", selection = cursor),
+            value = EditorValue(text = "Hello, World", selection = cursor),
             selectionColor = Color.Black,
             hasFocus = true,
             offsetMap = OffsetMap.identityOffsetMap,
@@ -155,7 +155,7 @@ class TextFieldDelegateIntegrationTest {
         val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
         TextFieldDelegate.draw(
             canvas = actualCanvas,
-            value = InputState(text = "Hello, World", selection = cursor),
+            value = EditorValue(text = "Hello, World", selection = cursor),
             selectionColor = Color.Black,
             hasFocus = false,
             offsetMap = OffsetMap.identityOffsetMap,

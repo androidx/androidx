@@ -26,7 +26,7 @@ import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
-import androidx.ui.input.InputState
+import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
@@ -148,7 +148,7 @@ class TextFieldTest {
         }
 
         composeTestRule.runOnIdleCompose {
-            val stateCaptor = argumentCaptor<InputState>()
+            val stateCaptor = argumentCaptor<EditorValue>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
 
@@ -229,7 +229,7 @@ class TextFieldTest {
         }
 
         composeTestRule.runOnIdleCompose {
-            val stateCaptor = argumentCaptor<InputState>()
+            val stateCaptor = argumentCaptor<EditorValue>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
 

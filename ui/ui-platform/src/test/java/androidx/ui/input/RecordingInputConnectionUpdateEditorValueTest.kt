@@ -37,7 +37,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class RecordingInputConnectionUpdateInputStateTest {
+class RecordingInputConnectionUpdateEditorValueTest {
 
     private lateinit var ic: RecordingInputConnection
     private lateinit var listener: InputEventListener
@@ -46,7 +46,7 @@ class RecordingInputConnectionUpdateInputStateTest {
     fun setup() {
         listener = mock()
         ic = RecordingInputConnection(
-            InputState(
+            EditorValue(
                 "",
                 TextRange(0, 0)
             ), listener
@@ -58,7 +58,7 @@ class RecordingInputConnectionUpdateInputStateTest {
         val imm: InputMethodManager = mock()
         val view: View = mock()
 
-        val inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+        val inputState = EditorValue(text = "Hello, World.", selection = TextRange(0, 0))
 
         ic.updateInputState(inputState, imm, view)
 
@@ -73,7 +73,7 @@ class RecordingInputConnectionUpdateInputStateTest {
 
         ic.getExtractedText(null, InputConnection.GET_EXTRACTED_TEXT_MONITOR)
 
-        val inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+        val inputState = EditorValue(text = "Hello, World.", selection = TextRange(0, 0))
 
         ic.updateInputState(inputState, imm, view)
 
