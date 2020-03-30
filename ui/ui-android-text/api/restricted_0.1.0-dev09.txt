@@ -1,5 +1,5 @@
 // Signature format: 3.0
-package androidx.text {
+package androidx.ui.text.platform {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class LayoutIntrinsics {
     ctor public LayoutIntrinsics(CharSequence charSequence, android.text.TextPaint textPaint, int textDirectionHeuristic);
@@ -15,11 +15,11 @@ package androidx.text {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TextLayout {
-    ctor public TextLayout(CharSequence charSequence, float width, android.text.TextPaint textPaint, int alignment, android.text.TextUtils.TruncateAt? ellipsize, int textDirectionHeuristic, float lineSpacingMultiplier, @Px float lineSpacingExtra, boolean includePadding, int maxLines, int breakStrategy, int hyphenationFrequency, int justificationMode, int[]? leftIndents, int[]? rightIndents, androidx.text.LayoutIntrinsics layoutIntrinsics);
+    ctor public TextLayout(CharSequence charSequence, float width, android.text.TextPaint textPaint, int alignment, android.text.TextUtils.TruncateAt? ellipsize, int textDirectionHeuristic, float lineSpacingMultiplier, @Px float lineSpacingExtra, boolean includePadding, int maxLines, int breakStrategy, int hyphenationFrequency, int justificationMode, int[]? leftIndents, int[]? rightIndents, androidx.ui.text.platform.LayoutIntrinsics layoutIntrinsics);
     method public boolean getDidExceedMaxLines();
     method public int getHeight();
     method public android.text.Layout getLayout();
-    method public androidx.text.LayoutIntrinsics getLayoutIntrinsics();
+    method public androidx.ui.text.platform.LayoutIntrinsics getLayoutIntrinsics();
     method public float getLineBaseline(int line);
     method public float getLineBottom(int line);
     method public int getLineCount();
@@ -55,7 +55,7 @@ package androidx.text {
 
 }
 
-package androidx.text.selection {
+package androidx.ui.text.platform.selection {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class WordBoundary {
     ctor public WordBoundary(java.util.Locale locale, CharSequence text);
@@ -65,7 +65,7 @@ package androidx.text.selection {
 
 }
 
-package androidx.text.style {
+package androidx.ui.text.platform.style {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class BaselineShiftSpan extends android.text.style.MetricAffectingSpan {
     ctor public BaselineShiftSpan(float multiplier);
@@ -119,7 +119,7 @@ package androidx.text.style {
     field public static final int ALIGN_TEXT_CENTER = 6; // 0x6
     field public static final int ALIGN_TEXT_TOP = 4; // 0x4
     field public static final int ALIGN_TOP = 1; // 0x1
-    field public static final androidx.text.style.PlaceholderSpan.Companion! Companion;
+    field public static final androidx.ui.text.platform.style.PlaceholderSpan.Companion! Companion;
     field public static final int UNIT_EM = 1; // 0x1
     field public static final int UNIT_INHERIT = 2; // 0x2
     field public static final int UNIT_SP = 0; // 0x0
