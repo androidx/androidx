@@ -37,7 +37,7 @@ import androidx.core.util.Preconditions;
  */
 final class SurfaceViewImplementation extends PreviewViewImplementation {
 
-    private static final String TAG = "SurfaceViewPreviewView";
+    private static final String TAG = "SurfaceViewImpl";
 
     // Synthetic Accessor
     @SuppressWarnings("WeakerAccess")
