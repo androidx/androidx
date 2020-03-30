@@ -40,6 +40,7 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredResponse;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorRecoverability;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaResponse;
@@ -154,7 +155,7 @@ final class SqliteInspector extends Inspector {
                             "Unhandled Exception while processing the command: "
                                     + exception.getMessage(),
                             stackTraceFromException(exception),
-                            false
+                            null
                     ).toByteArray()
             );
         }
@@ -180,7 +181,7 @@ final class SqliteInspector extends Inspector {
                                     "Unhandled Exception while processing an onDatabaseAdded "
                                             + "event: "
                                             + exception.getMessage(),
-                                    stackTraceFromException(exception), false)
+                                    stackTraceFromException(exception), null)
                                     .toByteArray());
                         }
                         return database;
@@ -408,7 +409,7 @@ final class SqliteInspector extends Inspector {
             String message = exception.getMessage();
             // TODO: clean up, e.g. replace Exception message check with a custom Exception class
             if (message != null && message.contains("Database is already tracked")) {
-                response = createErrorOccurredEvent(exception, false);
+                response = createErrorOccurredEvent(exception, null);
             } else {
                 throw exception;
             }
@@ -424,7 +425,7 @@ final class SqliteInspector extends Inspector {
     }
 
     private Event createErrorOccurredEvent(@Nullable String message, @Nullable String stackTrace,
-            boolean isRecoverable) {
+            Boolean isRecoverable) {
         return Event.newBuilder().setErrorOccurred(
                 ErrorOccurredEvent.newBuilder()
                         .setContent(
@@ -435,13 +436,13 @@ final class SqliteInspector extends Inspector {
                 .build();
     }
 
-    private Event createErrorOccurredEvent(@NonNull Exception exception, boolean isRecoverable) {
+    private Event createErrorOccurredEvent(@NonNull Exception exception, Boolean isRecoverable) {
         return createErrorOccurredEvent(exception.getMessage(), stackTraceFromException(exception),
                 isRecoverable);
     }
 
     private static ErrorContent createErrorContentMessage(@Nullable String message,
-            @Nullable String stackTrace, boolean isRecoverable) {
+            @Nullable String stackTrace, Boolean isRecoverable) {
         ErrorContent.Builder builder = ErrorContent.newBuilder();
         if (message != null) {
             builder.setMessage(message);
@@ -449,18 +450,22 @@ final class SqliteInspector extends Inspector {
         if (stackTrace != null) {
             builder.setStackTrace(stackTrace);
         }
-        builder.setIsRecoverable(isRecoverable);
+        ErrorRecoverability.Builder recoverability = ErrorRecoverability.newBuilder();
+        if (isRecoverable != null) { // leave unset otherwise, which translates to 'unknown'
+            recoverability.setIsRecoverable(isRecoverable);
+        }
+        builder.setRecoverability(recoverability.build());
         return builder.build();
     }
 
     private static Response createErrorOccurredResponse(@NonNull Exception exception,
-            boolean isRecoverable) {
+            Boolean isRecoverable) {
         return createErrorOccurredResponse(exception.getMessage(),
                 stackTraceFromException(exception), isRecoverable);
     }
 
     private static Response createErrorOccurredResponse(@Nullable String message,
-            @Nullable String stackTrace, boolean isRecoverable) {
+            @Nullable String stackTrace, Boolean isRecoverable) {
         return Response.newBuilder()
                 .setErrorOccurred(
                         ErrorOccurredResponse.newBuilder()
