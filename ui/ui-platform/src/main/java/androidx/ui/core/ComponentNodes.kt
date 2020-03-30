@@ -915,6 +915,9 @@ class LayoutNode : ComponentNode(), Measurable {
     internal var measureIteration = 0L
         private set
 
+    @Deprecated("Temporary API to support ConstraintLayout prototyping.")
+    var canMultiMeasure: Boolean = false
+
     /**
      * Identifies when [layoutChildren] needs to be recalculated or if it can use
      * the cached value.
@@ -1105,7 +1108,11 @@ class LayoutNode : ComponentNode(), Measurable {
     override fun measure(constraints: Constraints): Placeable {
         val owner = requireOwner()
         val iteration = owner.measureIteration
-        check(measureIteration != iteration) {
+        @Suppress("Deprecation")
+        canMultiMeasure = canMultiMeasure ||
+                (parentLayoutNode != null && parentLayoutNode!!.canMultiMeasure)
+        @Suppress("Deprecation")
+        check(measureIteration != iteration || canMultiMeasure) {
             "measure() may not be called multiple times on the same Measurable"
         }
         measureIteration = iteration

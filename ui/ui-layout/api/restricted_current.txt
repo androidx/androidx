@@ -108,9 +108,30 @@ package androidx.ui.layout {
     method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.BarrierAnchor createRightBarrier(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
     method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.BarrierAnchor createTopBarrier(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference... elements);
     method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalChain createVerticalChain(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference![] elements, androidx.ui.layout.ConstraintSetBuilderScope.ChainStyle chainStyle = ChainStyle.Spread);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension.MinCoercible getMaxWrap(androidx.ui.layout.ConstraintSetBuilderScope.Dimension.Coercible);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension getMaxWrap(androidx.ui.layout.ConstraintSetBuilderScope.Dimension.MaxCoercible);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension.MaxCoercible getMinWrap(androidx.ui.layout.ConstraintSetBuilderScope.Dimension.Coercible);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension getMinWrap(androidx.ui.layout.ConstraintSetBuilderScope.Dimension.MinCoercible);
     method public androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference getParent();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension getSpread();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension.Coercible getWrap();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension getWrapFixed();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension.MinCoercible max(androidx.ui.layout.ConstraintSetBuilderScope.Dimension.Coercible, androidx.ui.unit.Dp dp);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension max(androidx.ui.layout.ConstraintSetBuilderScope.Dimension.MaxCoercible, androidx.ui.unit.Dp dp);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension.MaxCoercible min(androidx.ui.layout.ConstraintSetBuilderScope.Dimension.Coercible, androidx.ui.unit.Dp dp);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension min(androidx.ui.layout.ConstraintSetBuilderScope.Dimension.MinCoercible, androidx.ui.unit.Dp dp);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension percent(float percent);
     method public androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference tag(Object tag);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension.Coercible value(androidx.ui.unit.Dp dp);
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension valueFixed(androidx.ui.unit.Dp dp);
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.Dimension.MinCoercible maxWrap;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.Dimension maxWrap;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.Dimension.MaxCoercible minWrap;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.Dimension minWrap;
     property public final androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference parent;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.Dimension spread;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.Dimension.Coercible wrap;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.Dimension wrapFixed;
   }
 
   public static final class ConstraintSetBuilderScope.ChainStyle {
@@ -133,7 +154,7 @@ package androidx.ui.layout {
     method public Object getTag();
   }
 
-  public static final class ConstraintSetBuilderScope.ConstrainedLayoutReference {
+  public final class ConstraintSetBuilderScope.ConstrainedLayoutReference {
     method public void center();
     method public void centerHorizontally();
     method public void centerVertically();
@@ -142,25 +163,42 @@ package androidx.ui.layout {
     method public infix void constrainVerticallyTo(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutReference other);
     method public androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor getBaseline();
     method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor getBottom();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension getHeight();
     method public float getHorizontalBias();
     method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor getLeft();
     method public androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor getRight();
-    method public androidx.constraintlayout.solver.state.State getState();
     method public Object getTag();
     method public androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor getTop();
     method public float getVerticalBias();
+    method public androidx.ui.layout.ConstraintSetBuilderScope.Dimension getWidth();
     method public void setBaseline(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor p);
     method public void setBottom(androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor p);
+    method public void setHeight(androidx.ui.layout.ConstraintSetBuilderScope.Dimension value);
     method public void setHorizontalBias(float value);
     method public void setRight(androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor p);
     method public void setVerticalBias(float value);
+    method public void setWidth(androidx.ui.layout.ConstraintSetBuilderScope.Dimension value);
     property public final androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor baseline;
     property public final androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor bottom;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.Dimension height;
     property public final float horizontalBias;
     property public final androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor left;
     property public final androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor.ConstrainedLayoutAnchor right;
     property public final androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor top;
     property public final float verticalBias;
+    property public final androidx.ui.layout.ConstraintSetBuilderScope.Dimension width;
+  }
+
+  public static interface ConstraintSetBuilderScope.Dimension {
+  }
+
+  public static interface ConstraintSetBuilderScope.Dimension.Coercible extends androidx.ui.layout.ConstraintSetBuilderScope.Dimension {
+  }
+
+  public static interface ConstraintSetBuilderScope.Dimension.MaxCoercible extends androidx.ui.layout.ConstraintSetBuilderScope.Dimension {
+  }
+
+  public static interface ConstraintSetBuilderScope.Dimension.MinCoercible extends androidx.ui.layout.ConstraintSetBuilderScope.Dimension {
   }
 
   public abstract static sealed class ConstraintSetBuilderScope.HorizontalAnchor {
