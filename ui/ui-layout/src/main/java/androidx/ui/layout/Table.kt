@@ -199,9 +199,10 @@ abstract class TableColumnWidth private constructor(internal val flexValue: Floa
     /**
      * Sizes the column to the width of the widest child in that column.
      *
-     * Note that in order to compute their preferred widths, the children will be measured with
-     * infinite width constraints, which means that some of them may have infinite width. For a
-     * wrap content behaviour that avoids this, use [MinIntrinsicWidth] or [MaxIntrinsicWidth].
+     * Note that, in order to compute their preferred widths, the children will be measured with
+     * infinite width constraints to prevent them from filling the available space. For a
+     * wrap content behaviour without infinite measurements, use [minIntrinsicWidth] or
+     * [maxIntrinsicWidth].
      */
     object Wrap : Inflexible() {
 

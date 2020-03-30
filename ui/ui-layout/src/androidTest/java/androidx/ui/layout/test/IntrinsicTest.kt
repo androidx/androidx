@@ -17,6 +17,7 @@
 package androidx.ui.layout.test
 
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
@@ -24,11 +25,10 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onChildPositioned
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.MaxIntrinsicHeight
-import androidx.ui.layout.MaxIntrinsicWidth
-import androidx.ui.layout.MinIntrinsicHeight
-import androidx.ui.layout.MinIntrinsicWidth
 import androidx.ui.layout.Stack
+import androidx.ui.layout.IntrinsicSize
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -58,16 +58,14 @@ class IntrinsicTest : LayoutTest() {
                     positionedLatch.countDown()
                 }
             ) {
-                MinIntrinsicWidth {
-                    FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                        Modifier.saveLayoutInfo(
+                    FixedIntrinsicsBox(
+                        Modifier.preferredWidth(IntrinsicSize.Min).saveLayoutInfo(
                             size = childSize,
                             position = childPosition,
                             positionedLatch = positionedLatch
-                        )
-                    ) {
-                    }
-                }
+                        ),
+                        10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                    )
             }
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
@@ -89,16 +87,14 @@ class IntrinsicTest : LayoutTest() {
                     positionedLatch.countDown()
                 }
             ) {
-                MinIntrinsicHeight {
-                    FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                        Modifier.saveLayoutInfo(
-                            size = childSize,
-                            position = childPosition,
-                            positionedLatch = positionedLatch
-                        )
-                    ) {
-                    }
-                }
+                FixedIntrinsicsBox(
+                    Modifier.preferredHeight(IntrinsicSize.Min).saveLayoutInfo(
+                        size = childSize,
+                        position = childPosition,
+                        positionedLatch = positionedLatch
+                    ),
+                    10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                )
             }
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
@@ -120,16 +116,14 @@ class IntrinsicTest : LayoutTest() {
                     positionedLatch.countDown()
                 }
             ) {
-                MaxIntrinsicWidth {
-                    FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                        Modifier.saveLayoutInfo(
-                            size = childSize,
-                            position = childPosition,
-                            positionedLatch = positionedLatch
-                        )
-                    ) {
-                    }
-                }
+                FixedIntrinsicsBox(
+                    Modifier.preferredWidth(IntrinsicSize.Max).saveLayoutInfo(
+                        size = childSize,
+                        position = childPosition,
+                        positionedLatch = positionedLatch
+                    ),
+                    10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                )
             }
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
@@ -151,16 +145,14 @@ class IntrinsicTest : LayoutTest() {
                     positionedLatch.countDown()
                 }
             ) {
-                MaxIntrinsicHeight {
-                    FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                        Modifier.saveLayoutInfo(
+                    FixedIntrinsicsBox(
+                        Modifier.preferredHeight(IntrinsicSize.Max).saveLayoutInfo(
                             size = childSize,
                             position = childPosition,
                             positionedLatch = positionedLatch
-                        )
-                    ) {
-                    }
-                }
+                        ),
+                        10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                    )
             }
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
@@ -185,16 +177,14 @@ class IntrinsicTest : LayoutTest() {
                         positionedLatch.countDown()
                     }
                 ) {
-                    MinIntrinsicWidth {
-                        FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                            Modifier.saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
-                    }
+                    FixedIntrinsicsBox(
+                        Modifier.preferredWidth(IntrinsicSize.Min).saveLayoutInfo(
+                            size = childSize,
+                            position = childPosition,
+                            positionedLatch = positionedLatch
+                        ),
+                        10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                    )
                 }
             }
         }
@@ -220,16 +210,14 @@ class IntrinsicTest : LayoutTest() {
                         positionedLatch.countDown()
                     }
                 ) {
-                    MinIntrinsicWidth {
-                        FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                            Modifier.saveLayoutInfo(
+                        FixedIntrinsicsBox(
+                            Modifier.preferredWidth(IntrinsicSize.Min).saveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
                                 positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
-                    }
+                            ),
+                            10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                        )
                 }
             }
         }
@@ -253,16 +241,14 @@ class IntrinsicTest : LayoutTest() {
                 }
             ) {
                 ConstrainedBox(DpConstraints(maxHeight = 35.dp)) {
-                    MinIntrinsicHeight {
-                        FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                            Modifier.saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
-                    }
+                    FixedIntrinsicsBox(
+                        Modifier.preferredHeight(IntrinsicSize.Min).saveLayoutInfo(
+                            size = childSize,
+                            position = childPosition,
+                            positionedLatch = positionedLatch
+                        ),
+                        10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                    )
                 }
             }
         }
@@ -286,16 +272,14 @@ class IntrinsicTest : LayoutTest() {
                 }
             ) {
                 ConstrainedBox(DpConstraints(minHeight = 45.dp)) {
-                    MinIntrinsicHeight {
-                        FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                            Modifier.saveLayoutInfo(
+                        FixedIntrinsicsBox(
+                            Modifier.preferredHeight(IntrinsicSize.Min).saveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
                                 positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
-                    }
+                            ),
+                            10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                        )
                 }
             }
         }
@@ -319,16 +303,14 @@ class IntrinsicTest : LayoutTest() {
                 }
             ) {
                 ConstrainedBox(DpConstraints(maxWidth = 25.dp)) {
-                    MaxIntrinsicWidth {
-                        FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                            Modifier.saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
-                    }
+                    FixedIntrinsicsBox(
+                        Modifier.preferredWidth(IntrinsicSize.Max).saveLayoutInfo(
+                            size = childSize,
+                            position = childPosition,
+                            positionedLatch = positionedLatch
+                        ),
+                        10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                    )
                 }
             }
         }
@@ -352,16 +334,14 @@ class IntrinsicTest : LayoutTest() {
                 }
             ) {
                 ConstrainedBox(DpConstraints(minWidth = 35.dp)) {
-                    MaxIntrinsicWidth {
-                        FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                            Modifier.saveLayoutInfo(
+                        FixedIntrinsicsBox(
+                            Modifier.preferredWidth(IntrinsicSize.Max).saveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
                                 positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
-                    }
+                            ),
+                            10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                        )
                 }
             }
         }
@@ -385,16 +365,14 @@ class IntrinsicTest : LayoutTest() {
                 }
             ) {
                 ConstrainedBox(DpConstraints(maxHeight = 55.dp)) {
-                    MaxIntrinsicHeight {
-                        FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                            Modifier.saveLayoutInfo(
+                        FixedIntrinsicsBox(
+                            Modifier.preferredHeight(IntrinsicSize.Max).saveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
                                 positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
-                    }
+                            ),
+                            10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                        )
                 }
             }
         }
@@ -418,16 +396,14 @@ class IntrinsicTest : LayoutTest() {
                 }
             ) {
                 ConstrainedBox(DpConstraints(minHeight = 65.dp)) {
-                    MaxIntrinsicHeight {
-                        FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp,
-                            Modifier.saveLayoutInfo(
+                        FixedIntrinsicsBox(
+                            Modifier.preferredHeight(IntrinsicSize.Max).saveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
                                 positionedLatch = positionedLatch
-                            )
-                        ) {
-                        }
-                    }
+                            ),
+                            10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                        )
                 }
             }
         }
@@ -440,10 +416,10 @@ class IntrinsicTest : LayoutTest() {
 
     @Test
     fun testMinIntrinsicWidth_intrinsicMeasurements() = with(density) {
-        testIntrinsics(@Composable {
-            MinIntrinsicWidth {
-                FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp) { }
-            }
+        testIntrinsics({
+            FixedIntrinsicsBox(
+                Modifier.preferredWidth(IntrinsicSize.Min), 10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+            )
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             assertEquals(10.dp.toIntPx(), minIntrinsicWidth(0.ipx))
             assertEquals(40.dp.toIntPx(), minIntrinsicHeight(0.ipx))
@@ -454,10 +430,11 @@ class IntrinsicTest : LayoutTest() {
 
     @Test
     fun testMinIntrinsicHeight_intrinsicMeasurements() = with(density) {
-        testIntrinsics(@Composable {
-            MinIntrinsicHeight {
-                FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp) { }
-            }
+        testIntrinsics({
+            FixedIntrinsicsBox(
+                Modifier.preferredHeight(IntrinsicSize.Min),
+                10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+            )
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             assertEquals(10.dp.toIntPx(), minIntrinsicWidth(0.ipx))
             assertEquals(40.dp.toIntPx(), minIntrinsicHeight(0.ipx))
@@ -468,10 +445,10 @@ class IntrinsicTest : LayoutTest() {
 
     @Test
     fun testMaxIntrinsicWidth_intrinsicMeasurements() = with(density) {
-        testIntrinsics(@Composable {
-            MaxIntrinsicWidth {
-                FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp) { }
-            }
+        testIntrinsics({
+            FixedIntrinsicsBox(
+                Modifier.preferredWidth(IntrinsicSize.Max), 10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+            )
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             assertEquals(30.dp.toIntPx(), minIntrinsicWidth(0.ipx))
             assertEquals(40.dp.toIntPx(), minIntrinsicHeight(0.ipx))
@@ -482,10 +459,11 @@ class IntrinsicTest : LayoutTest() {
 
     @Test
     fun testMaxIntrinsicHeight_intrinsicMeasurements() = with(density) {
-        testIntrinsics(@Composable {
-            MaxIntrinsicHeight {
-                FixedIntrinsicsBox(10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp) { }
-            }
+        testIntrinsics({
+            FixedIntrinsicsBox(
+                Modifier.preferredHeight(IntrinsicSize.Max),
+                10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+            )
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             assertEquals(10.dp.toIntPx(), minIntrinsicWidth(0.ipx))
             assertEquals(60.dp.toIntPx(), minIntrinsicHeight(0.ipx))
@@ -497,17 +475,16 @@ class IntrinsicTest : LayoutTest() {
 
 @Composable
 private fun FixedIntrinsicsBox(
+    modifier: Modifier = Modifier.None,
     minIntrinsicWidth: Dp,
     width: Dp,
     maxIntrinsicWidth: Dp,
     minIntrinsicHeight: Dp,
     height: Dp,
-    maxIntrinsicHeight: Dp,
-    modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit
+    maxIntrinsicHeight: Dp
 ) {
     Layout(
-        children,
+        emptyContent(),
         minIntrinsicWidthMeasureBlock = { _, _, _ -> minIntrinsicWidth.toIntPx() },
         minIntrinsicHeightMeasureBlock = { _, _, _ -> minIntrinsicHeight.toIntPx() },
         maxIntrinsicWidthMeasureBlock = { _, _, _ -> maxIntrinsicWidth.toIntPx() },

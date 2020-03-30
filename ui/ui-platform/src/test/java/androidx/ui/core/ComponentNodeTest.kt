@@ -365,7 +365,7 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(0)).onSizeChange(node)
-        node.handleLayoutResult(object : MeasureScope.LayoutResult {
+        node.handleMeasureResult(object : MeasureScope.MeasureResult {
             override val width: IntPx = 10.ipx
             override val height: IntPx = 10.ipx
             override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
@@ -1668,7 +1668,7 @@ class ComponentNodeTest {
             resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
             var wrapper: LayoutNodeWrapper? = layoutNodeWrapper
             while (wrapper != null) {
-                wrapper.layoutResult = innerLayoutNodeWrapper.layoutResult
+                wrapper.measureResult = innerLayoutNodeWrapper.measureResult
                 wrapper = (wrapper as? LayoutNodeWrapper)?.wrapped
             }
             place(x.ipx, y.ipx)

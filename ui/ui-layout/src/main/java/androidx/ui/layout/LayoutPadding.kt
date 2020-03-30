@@ -148,7 +148,7 @@ constructor(
         measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ): MeasureScope.LayoutResult {
+    ): MeasureScope.MeasureResult {
         val horizontal = start.toIntPx() + end.toIntPx()
         val vertical = top.toIntPx() + bottom.toIntPx()
 
@@ -207,7 +207,7 @@ constructor(
         measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ): MeasureScope.LayoutResult {
+    ): MeasureScope.MeasureResult {
         val horizontal = left.toIntPx() + right.toIntPx()
         val vertical = top.toIntPx() + bottom.toIntPx()
 

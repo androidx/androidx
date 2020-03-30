@@ -189,7 +189,7 @@ package androidx.ui.core {
   public static interface LayoutNode.MeasureBlocks {
     method public androidx.ui.unit.IntPx maxIntrinsicHeight(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPx maxIntrinsicWidth(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h, androidx.ui.core.LayoutDirection layoutDirection);
-    method public androidx.ui.core.MeasureScope.LayoutResult measure(androidx.ui.core.MeasureScope measureScope, java.util.List<? extends androidx.ui.core.Measurable> measurables, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.core.MeasureScope.MeasureResult measure(androidx.ui.core.MeasureScope measureScope, java.util.List<? extends androidx.ui.core.Measurable> measurables, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPx minIntrinsicHeight(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx w, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPx minIntrinsicWidth(androidx.ui.unit.Density density, java.util.List<? extends androidx.ui.core.IntrinsicMeasurable> measurables, androidx.ui.unit.IntPx h, androidx.ui.core.LayoutDirection layoutDirection);
   }

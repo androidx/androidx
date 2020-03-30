@@ -112,7 +112,7 @@ internal fun View.toComponentNode(): ComponentNode {
             measurables: List<Measurable>,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): MeasureScope.LayoutResult {
+        ): MeasureScope.MeasureResult {
             if (constraints.minWidth != 0.ipx) {
                 minimumWidth = constraints.minWidth.value
             }

@@ -23,7 +23,8 @@ import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirectionAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.layout.MaxIntrinsicWidth
+import androidx.ui.layout.IntrinsicSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.rtl
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertNotNull
@@ -69,21 +70,19 @@ class LayoutDirectionModifierTest : LayoutTest() {
         val latch = CountDownLatch(1)
         val layoutDirection = Ref<androidx.ui.core.LayoutDirection>()
         val children = @Composable {
-            MaxIntrinsicWidth {
-                Layout(
-                    children = @Composable() {},
-                    modifier = Modifier.rtl,
-                    minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
-                    minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
-                    maxIntrinsicWidthMeasureBlock = { _, _, incomingLayoutDirection ->
-                        layoutDirection.value = incomingLayoutDirection
-                        latch.countDown()
-                        0.ipx
-                    },
-                    maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx }
-                ) { _, _, _ ->
-                    layout(0.ipx, 0.ipx) {}
-                }
+            Layout(
+                children = @Composable() {},
+                modifier = Modifier.preferredWidth(IntrinsicSize.Max).rtl,
+                minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
+                minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
+                maxIntrinsicWidthMeasureBlock = { _, _, incomingLayoutDirection ->
+                    layoutDirection.value = incomingLayoutDirection
+                    latch.countDown()
+                    0.ipx
+                },
+                maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx }
+            ) { _, _, _ ->
+                layout(0.ipx, 0.ipx) {}
             }
         }
 

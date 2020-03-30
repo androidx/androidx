@@ -223,7 +223,7 @@ package androidx.ui.core {
   public interface LayoutModifier2 extends androidx.ui.core.Modifier.Element {
     method public default androidx.ui.unit.IntPx maxIntrinsicHeight(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
     method public default androidx.ui.unit.IntPx maxIntrinsicWidth(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
-    method public androidx.ui.core.MeasureScope.LayoutResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.core.MeasureScope.MeasureResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
     method public default androidx.ui.unit.IntPx minIntrinsicHeight(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
     method public default androidx.ui.unit.IntPx minIntrinsicWidth(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
   }
@@ -234,10 +234,10 @@ package androidx.ui.core {
 
   public abstract class MeasureScope implements androidx.ui.unit.Density {
     ctor public MeasureScope();
-    method public final androidx.ui.core.MeasureScope.LayoutResult layout(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+    method public final androidx.ui.core.MeasureScope.MeasureResult layout(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
   }
 
-  public static interface MeasureScope.LayoutResult {
+  public static interface MeasureScope.MeasureResult {
     method public java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> getAlignmentLines();
     method public androidx.ui.unit.IntPx getHeight();
     method public androidx.ui.unit.IntPx getWidth();
