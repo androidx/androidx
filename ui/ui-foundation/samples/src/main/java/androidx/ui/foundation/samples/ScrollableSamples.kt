@@ -39,16 +39,16 @@ fun ScrollableSample() {
     // actual composable state
     val offset = state { 0f }
     // state for Scrollable, describes how to consume scrolling delta and update offset
-    val scrollableState = ScrollableState(
-        onScrollDeltaConsumptionRequested = { delta ->
-            offset.value = offset.value + delta
-            delta
-        }
-    )
     Box(
         Modifier
             .preferredSize(200.dp)
-            .scrollable(dragDirection = DragDirection.Vertical, scrollableState = scrollableState),
+            .scrollable(
+                dragDirection = DragDirection.Vertical,
+                scrollableState = ScrollableState { delta ->
+                    offset.value = offset.value + delta
+                    delta
+                }
+            ),
         backgroundColor = Color.LightGray,
         gravity = ContentGravity.Center
     ) {

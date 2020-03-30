@@ -134,10 +134,7 @@ class ScrollableState(
 }
 
 /**
- * High-level gesture modifier that provides scroll functionality.
- *
- * When you need to be able to scroll with fling support and smooth scrolling inside composable,
- * consider using this modifier.
+ * Enable scrolling and flinging of the modified UI element.
  *
  * Although [ScrollableState] is required for this composable to be able to work correctly, users
  * of this composable should own, update and reflect their own state. When constructing
