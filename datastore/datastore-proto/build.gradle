@@ -41,7 +41,6 @@ protobuf {
     protoc {
         artifact = PROTOBUF_COMPILER
     }
-
     // Generates the java proto-lite code for the protos in this project. See
     // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
     // for more information.

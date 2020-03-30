@@ -37,12 +37,8 @@ android {
         consumerProguardFiles 'proguard-rules.pro'
     }
     buildTypes {
-        //TODO: b/130307237 test coverage breaks robolectric
         debug {
-            testCoverageEnabled = false
-        }
-        release {
-            testCoverageEnabled = false
+            testCoverageEnabled = false // b/130307237 test coverage breaks robolectric
         }
     }
     defaultConfig {

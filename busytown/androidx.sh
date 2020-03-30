@@ -7,6 +7,7 @@ cd "$(dirname $0)"
 impl/build.sh --no-daemon listTaskOutputs "$@"
 impl/build.sh --no-daemon buildOnServer checkExternalLicenses \
     -PverifyUpToDate \
+    -Pandroidx.coverageEnabled=true \
     -Pandroidx.allWarningsAsErrors --profile "$@"
 
 # Merge some output files

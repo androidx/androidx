@@ -20,10 +20,9 @@ android {
             includeAndroidResources = true
         }
     }
-    // We need to disable code coverage for robolectric test
     buildTypes {
         debug {
-            testCoverageEnabled = false // Breaks Kotlin compiler.
+            testCoverageEnabled = false // disable code coverage for robolectric test
         }
     }
 
