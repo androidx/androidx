@@ -43,8 +43,8 @@ inline fun TextView.doOnTextChanged(
     crossinline action: (
         text: CharSequence?,
         start: Int,
-        count: Int,
-        after: Int
+        before: Int,
+        count: Int
     ) -> Unit
 ) = addTextChangedListener(onTextChanged = action)
 
@@ -72,8 +72,8 @@ inline fun TextView.addTextChangedListener(
     crossinline onTextChanged: (
         text: CharSequence?,
         start: Int,
-        count: Int,
-        after: Int
+        before: Int,
+        count: Int
     ) -> Unit = { _, _, _, _ -> },
     crossinline afterTextChanged: (text: Editable?) -> Unit = {}
 ): TextWatcher {
