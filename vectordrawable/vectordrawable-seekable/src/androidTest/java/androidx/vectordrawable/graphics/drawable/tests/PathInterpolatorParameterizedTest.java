@@ -24,8 +24,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
-import androidx.animator.AnimatorTestRule;
 import androidx.annotation.NonNull;
+import androidx.core.animation.AnimatorTestRule;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;

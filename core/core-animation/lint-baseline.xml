@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.6.0-beta05" client="gradle" variant="debug" version="3.6.0-beta05">
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`PropertyValuesHolder[]`) and setter parameter type (`PropertyValuesHolder...`) getter and setter methods for property `values` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public PropertyValuesHolder[] getValues() {"
+        errorLine2="                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/ValueAnimator.java"
+            line="513"
+            column="35"/>
+        <location
+            file="src/main/java/androidx/core/animation/ValueAnimator.java"
+            line="492"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 4, &quot;evaluator&quot;, in androidx.core.animation.ObjectAnimator.ofMultiInt) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull TypeEvaluator&lt;T> evaluator, @NonNull T... values) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/ObjectAnimator.java"
+            line="386"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 4, &quot;evaluator&quot;, in androidx.core.animation.ObjectAnimator.ofMultiFloat) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull TypeEvaluator&lt;T> evaluator, @NonNull T... values) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/ObjectAnimator.java"
+            line="601"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;evaluator&quot;, in androidx.core.animation.ObjectAnimator.ofObject) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull TypeEvaluator evaluator, @NonNull Object... values) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/ObjectAnimator.java"
+            line="632"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;evaluator&quot;, in androidx.core.animation.ObjectAnimator.ofObject) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull V... values) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/ObjectAnimator.java"
+            line="689"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 4, &quot;evaluator&quot;, in androidx.core.animation.ObjectAnimator.ofObject) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull TypeEvaluator&lt;V> evaluator, @NonNull V... values) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/ObjectAnimator.java"
+            line="725"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;evaluator&quot;, in androidx.core.animation.PropertyValuesHolder.ofMultiInt) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull TypeEvaluator&lt;V> evaluator, @NonNull V... values) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="247"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;evaluator&quot;, in androidx.core.animation.PropertyValuesHolder.ofMultiInt) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull Keyframe... values) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="272"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;evaluator&quot;, in androidx.core.animation.PropertyValuesHolder.ofMultiFloat) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull TypeEvaluator&lt;V> evaluator, @NonNull V... values) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="378"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;evaluator&quot;, in androidx.core.animation.PropertyValuesHolder.ofMultiFloat) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull Keyframe... values) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="404"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;evaluator&quot;, in androidx.core.animation.PropertyValuesHolder.ofObject) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull TypeEvaluator evaluator, @NonNull Object... values) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="428"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;evaluator&quot;, in androidx.core.animation.PropertyValuesHolder.ofObject) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull TypeEvaluator&lt;V> evaluator, @NonNull V... values) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="481"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;evaluator&quot;, in androidx.core.animation.PropertyValuesHolder.ofObject) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull T... values) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
+            line="516"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;evaluator&quot;, in androidx.core.animation.ValueAnimator.ofObject) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull Object... values) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/ValueAnimator.java"
+            line="384"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AccelerateInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AccelerateInterpolator.java"
+            line="53"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AccelerateInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AccelerateInterpolator.java"
+            line="53"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void set(T object, Integer value) {"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/core/animation/IntProperty.java"
+            line="63"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void set(T object, Integer value) {"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/IntProperty.java"
+            line="63"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Object getAnimatedValue(String propertyName) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/ValueAnimator.java"
+            line="834"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Object getAnimatedValue(String propertyName) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/ValueAnimator.java"
+            line="834"
+            column="36"/>
+    </issue>
+
+</issues>
