@@ -24,6 +24,7 @@ import androidx.ui.core.constrain
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.text.TextDelegate.Companion.paint
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
@@ -66,26 +67,21 @@ import androidx.ui.unit.px
  * to the last line before the line truncated by [maxLines], if [maxLines] is non-null and that
  * line overflows the width constraint.
  *
- * @param layoutDirection The composable layout direction.
- *
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TextDelegate(
     val text: AnnotatedString,
-    style: TextStyle,
+    val style: TextStyle,
     val maxLines: Int = Int.MAX_VALUE,
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
-    val layoutDirection: LayoutDirection,
     val resourceLoader: Font.ResourceLoader
 ) {
-
-    val style: TextStyle = resolveDefaults(style, layoutDirection)
-
     @VisibleForTesting
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
+    internal var intrinsicsLayoutDirection: LayoutDirection? = null
 
     private inline fun <T> assumeIntrinsics(block: (MultiParagraphIntrinsics) -> T) =
         block(paragraphIntrinsics
@@ -110,13 +106,21 @@ class TextDelegate(
         check(maxLines > 0)
     }
 
-    fun layoutIntrinsics() {
-        var intrinsics = paragraphIntrinsics ?: MultiParagraphIntrinsics(
-            annotatedString = text,
-            style = style,
-            density = density,
-            resourceLoader = resourceLoader
-        )
+    fun layoutIntrinsics(layoutDirection: LayoutDirection) {
+        val intrinsics = if (
+            paragraphIntrinsics == null ||
+            layoutDirection != intrinsicsLayoutDirection
+        ) {
+            intrinsicsLayoutDirection = layoutDirection
+            MultiParagraphIntrinsics(
+                annotatedString = text,
+                style = resolveDefaults(style, layoutDirection),
+                density = density,
+                resourceLoader = resourceLoader
+            )
+        } else {
+            paragraphIntrinsics
+        }
 
         paragraphIntrinsics = intrinsics
     }
@@ -127,8 +131,9 @@ class TextDelegate(
      * The text will layout with a width that's as close to its max intrinsic width as possible
      * while still being greater than or equal to `minWidth` and less than or equal to `maxWidth`.
      */
-    private fun layoutText(minWidth: Float, maxWidth: Float): MultiParagraph {
-        layoutIntrinsics()
+    private fun layoutText(minWidth: Float, maxWidth: Float, layoutDirection: LayoutDirection):
+            MultiParagraph {
+        layoutIntrinsics(layoutDirection)
         assumeIntrinsics { paragraphIntrinsics ->
             // if minWidth == maxWidth the width is fixed.
             //    therefore we can pass that value to our paragraph and use it
@@ -154,7 +159,11 @@ class TextDelegate(
         }
     }
 
-    fun layout(constraints: Constraints, prevResult: TextLayoutResult? = null): TextLayoutResult {
+    fun layout(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection,
+        prevResult: TextLayoutResult? = null
+    ): TextLayoutResult {
         val minWidth = constraints.minWidth
         val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
         val maxWidth = if (widthMatters) constraints.maxWidth else IntPx.Infinity
@@ -172,7 +181,11 @@ class TextDelegate(
             }
         }
 
-        val multiParagraph = layoutText(minWidth.value.toFloat(), maxWidth.value.toFloat())
+        val multiParagraph = layoutText(
+            minWidth.value.toFloat(),
+            maxWidth.value.toFloat(),
+            layoutDirection
+        )
 
         val size = constraints.constrain(
             IntPxSize(multiParagraph.width.px.ceil(), multiParagraph.height.px.ceil())
@@ -195,42 +208,44 @@ class TextDelegate(
         )
     }
 
-    /**
-     * Paints the text onto the given canvas.
-     *
-     * Valid only after [layout] has been called.
-     *
-     * If you cannot see the text being painted, check that your text color does not conflict with
-     * the background on which you are drawing. The default text color is white (to contrast with
-     * the default black background color), so if you are writing an application with a white
-     * background, the text will not be visible by default.
-     *
-     * To set the text style, specify a [SpanStyle] when creating the [AnnotatedString] that you pass to
-     * the [TextDelegate] constructor or to the [text] property.
-     */
-    fun paint(canvas: Canvas, textLayoutResult: TextLayoutResult) {
-        TextPainter.paint(canvas, textLayoutResult)
-    }
+    companion object {
+        /**
+         * Paints the text onto the given canvas.
+         *
+         * Valid only after [layout] has been called.
+         *
+         * If you cannot see the text being painted, check that your text color does not conflict
+         * with the background on which you are drawing. The default text color is white (to
+         * contrast with the default black background color), so if you are writing an
+         * application with a white background, the text will not be visible by default.
+         *
+         * To set the text style, specify a [SpanStyle] when creating the [AnnotatedString] that
+         * you pass to the [TextDelegate] constructor or to the [text] property.
+         */
+        fun paint(canvas: Canvas, textLayoutResult: TextLayoutResult) {
+            TextPainter.paint(canvas, textLayoutResult)
+        }
 
-    /**
-     * Draws text background of the given range.
-     *
-     * If the given range is empty, do nothing.
-     *
-     * @param start inclusive start character offset of the drawing range.
-     * @param end exclusive end character offset of the drawing range.
-     * @param color a color to be used for drawing background.
-     * @param canvas the target canvas.
-     */
-    fun paintBackground(
-        start: Int,
-        end: Int,
-        color: Color,
-        canvas: Canvas,
-        textLayoutResult: TextLayoutResult
-    ) {
-        if (start == end) return
-        val selectionPath = textLayoutResult.multiParagraph.getPathForRange(start, end)
-        canvas.drawPath(selectionPath, Paint().apply { this.color = color })
+        /**
+         * Draws text background of the given range.
+         *
+         * If the given range is empty, do nothing.
+         *
+         * @param start inclusive start character offset of the drawing range.
+         * @param end exclusive end character offset of the drawing range.
+         * @param color a color to be used for drawing background.
+         * @param canvas the target canvas.
+         */
+        fun paintBackground(
+            start: Int,
+            end: Int,
+            color: Color,
+            canvas: Canvas,
+            textLayoutResult: TextLayoutResult
+        ) {
+            if (start == end) return
+            val selectionPath = textLayoutResult.multiParagraph.getPathForRange(start, end)
+            canvas.drawPath(selectionPath, Paint().apply { this.color = color })
+        }
     }
 }

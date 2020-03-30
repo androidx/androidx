@@ -74,6 +74,8 @@ class TextFieldDelegateTest {
     private lateinit var multiParagraphIntrinsics: MultiParagraphIntrinsics
     private lateinit var textLayoutResult: TextLayoutResult
 
+    private val layoutDirection = LayoutDirection.Ltr
+
     /**
      * Test implementation of offset map which doubles the offset in transformed text.
      */
@@ -302,10 +304,14 @@ class TextFieldDelegateTest {
         whenever(mDelegate.style).thenReturn(TextStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
-        whenever(mDelegate.layout(any(), eq(null))).thenReturn(textLayoutResult)
+        whenever(mDelegate.layout(any(), any(), eq(null))).thenReturn(textLayoutResult)
         whenever(textLayoutResult.size).thenReturn(IntPxSize(1024.ipx, 512.ipx))
 
-        val (width, height, layoutResult) = TextFieldDelegate.layout(mDelegate, constraints)
+        val (width, height, layoutResult) = TextFieldDelegate.layout(
+            mDelegate,
+            constraints,
+            layoutDirection
+        )
         assertEquals(1024.px.round(), width)
         assertEquals(512.px.round(), height)
         assertEquals(layoutResult, textLayoutResult)
@@ -427,11 +433,11 @@ class TextFieldDelegateTest {
         whenever(mDelegate.style).thenReturn(TextStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
-        whenever(mDelegate.layout(any(), eq(null))).thenReturn(textLayoutResult)
+        whenever(mDelegate.layout(any(), any(), eq(null))).thenReturn(textLayoutResult)
         whenever(textLayoutResult.size).thenReturn(IntPxSize(123.ipx, 512.ipx))
         whenever(mDelegate.maxIntrinsicWidth).thenReturn(123.ipx)
 
-        val res = TextFieldDelegate.layout(mDelegate, constraints)
+        val res = TextFieldDelegate.layout(mDelegate, constraints, layoutDirection)
         assertThat(res.first).isEqualTo(123.ipx)
         assertEquals(512.ipx, res.second)
 
@@ -441,7 +447,8 @@ class TextFieldDelegateTest {
                 123.ipx,
                 0.ipx,
                 2048.ipx
-            )
+            ),
+            layoutDirection
         )
     }
 }

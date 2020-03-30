@@ -497,9 +497,8 @@ package androidx.ui.text {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TextDelegate {
-    ctor public TextDelegate(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.unit.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    ctor public TextDelegate(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
     method public androidx.ui.unit.Density getDensity();
-    method public androidx.ui.core.LayoutDirection getLayoutDirection();
     method public androidx.ui.unit.IntPx getMaxIntrinsicWidth();
     method public int getMaxLines();
     method public androidx.ui.unit.IntPx getMinIntrinsicWidth();
@@ -508,13 +507,16 @@ package androidx.ui.text {
     method public boolean getSoftWrap();
     method public androidx.ui.text.TextStyle getStyle();
     method public androidx.ui.text.AnnotatedString getText();
-    method public androidx.ui.text.TextLayoutResult layout(androidx.ui.core.Constraints constraints, androidx.ui.text.TextLayoutResult? prevResult = null);
-    method public void layoutIntrinsics();
-    method public void paint(androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
-    method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
+    method public androidx.ui.text.TextLayoutResult layout(androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.TextLayoutResult? prevResult = null);
+    method public void layoutIntrinsics(androidx.ui.core.LayoutDirection layoutDirection);
     property public final androidx.ui.unit.IntPx maxIntrinsicWidth;
     property public final androidx.ui.unit.IntPx minIntrinsicWidth;
-    property public final androidx.ui.text.TextStyle style;
+    field public static final androidx.ui.text.TextDelegate.Companion! Companion;
+  }
+
+  public static final class TextDelegate.Companion {
+    method public void paint(androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
+    method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.graphics.Canvas canvas, androidx.ui.text.TextLayoutResult textLayoutResult);
   }
 
   public final class TextLayoutHelperKt {

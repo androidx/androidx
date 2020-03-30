@@ -42,6 +42,7 @@ class TextLayoutResultIntegrationTest {
     private val density = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val resourceLoader = TestFontResourceLoader(context)
+    private val layoutDirection = LayoutDirection.Ltr
 
     @Test
     fun width_getter() {
@@ -54,11 +55,10 @@ class TextLayoutResultIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = this,
-                resourceLoader = resourceLoader,
-                layoutDirection = LayoutDirection.Ltr
+                resourceLoader = resourceLoader
             )
 
-            val layoutResult = textDelegate.layout(Constraints(0.ipx, 200.ipx))
+            val layoutResult = textDelegate.layout(Constraints(0.ipx, 200.ipx), layoutDirection)
 
             assertThat(layoutResult.size.width).isEqualTo(
                 (fontSize.toPx().value * text.length).toIntPx()
@@ -76,11 +76,10 @@ class TextLayoutResultIntegrationTest {
             text = annotatedString,
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
 
-        val layoutResult = textDelegate.layout(Constraints(maxWidth = width))
+        val layoutResult = textDelegate.layout(Constraints(maxWidth = width), layoutDirection)
 
         assertThat(layoutResult.size.width).isEqualTo(width)
     }
@@ -96,11 +95,10 @@ class TextLayoutResultIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = this,
-                resourceLoader = resourceLoader,
-                layoutDirection = LayoutDirection.Ltr
+                resourceLoader = resourceLoader
             )
 
-            val layoutResult = textDelegate.layout(Constraints())
+            val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
             assertThat(layoutResult.size.height).isEqualTo((fontSize.toPx().value).toIntPx())
         }
@@ -112,11 +110,10 @@ class TextLayoutResultIntegrationTest {
             text = AnnotatedString(text = "Hello"),
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
 
-        val layoutResult = textDelegate.layout(Constraints(0.ipx, 20.ipx))
+        val layoutResult = textDelegate.layout(Constraints(0.ipx, 20.ipx), layoutDirection)
 
         assertThat(layoutResult).isNotNull()
     }
@@ -133,10 +130,9 @@ class TextLayoutResultIntegrationTest {
             text = annotatedString,
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
-        val layoutResult = textDelegate.layout(Constraints())
+        val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
         val selection = layoutResult.getOffsetForPosition(PxPosition.Origin)
 
@@ -159,10 +155,9 @@ class TextLayoutResultIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = this,
-                resourceLoader = resourceLoader,
-                layoutDirection = LayoutDirection.Ltr
+                resourceLoader = resourceLoader
             )
-            val layoutResult = textDelegate.layout(Constraints())
+            val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
             val selection = layoutResult.getOffsetForPosition(
                 position = PxPosition((fontSize.toPx().value * characterIndex + 1).px, 0.px)
@@ -181,15 +176,14 @@ class TextLayoutResultIntegrationTest {
             text = annotatedString,
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
 
-        val layoutResult = textDelegate.layout(Constraints())
+        val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
         assertThat(layoutResult.hasVisualOverflow).isFalse()
 
         // paint should not throw exception
-        textDelegate.paint(Canvas(android.graphics.Canvas()), layoutResult)
+        TextDelegate.paint(Canvas(android.graphics.Canvas()), layoutResult)
     }
 }

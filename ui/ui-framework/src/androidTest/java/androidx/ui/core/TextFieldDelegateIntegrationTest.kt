@@ -48,6 +48,7 @@ class TextFieldDelegateIntegrationTest {
     private val density = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val resourceLoader = TestFontResourceLoader(context)
+    private val layoutDirection = LayoutDirection.Ltr
 
     private class TestFontResourceLoader(val context: Context) : Font.ResourceLoader {
         override fun load(font: Font): Typeface {
@@ -65,16 +66,15 @@ class TextFieldDelegateIntegrationTest {
             style = TextStyle.Default,
             maxLines = 2,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
         val selection = TextRange(0, 1)
         val selectionColor = Color.Blue
-        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx))
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx), layoutDirection)
 
         val expectedBitmap = layoutResult.toBitmap()
         val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
-        textDelegate.paintBackground(
+        TextDelegate.paintBackground(
             0,
             1,
             selectionColor,
@@ -106,10 +106,9 @@ class TextFieldDelegateIntegrationTest {
             style = TextStyle.Default,
             maxLines = 2,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
-        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx))
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx), layoutDirection)
 
         val expectedBitmap = layoutResult.toBitmap()
         val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
@@ -141,10 +140,9 @@ class TextFieldDelegateIntegrationTest {
             style = TextStyle.Default,
             maxLines = 2,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
-        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx))
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx), layoutDirection)
 
         val expectedBitmap = layoutResult.toBitmap()
         val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
@@ -172,15 +170,15 @@ class TextFieldDelegateIntegrationTest {
             style = TextStyle.Default,
             maxLines = 2,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
-        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx))
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx), layoutDirection)
         val requestHeight = layoutResult.size.height / 2
 
         val (_, height, _) = TextFieldDelegate.layout(
             textDelegate,
-            Constraints.fixedHeight(requestHeight)
+            Constraints.fixedHeight(requestHeight),
+            layoutDirection
         )
 
         assertThat(height).isEqualTo(requestHeight)
@@ -193,15 +191,15 @@ class TextFieldDelegateIntegrationTest {
             style = TextStyle.Default,
             maxLines = 2,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
-        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx))
+        val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024.ipx), layoutDirection)
         val requestHeight = layoutResult.size.height * 2
 
         val (_, height, _) = TextFieldDelegate.layout(
             textDelegate,
-            Constraints.fixedHeight(requestHeight)
+            Constraints.fixedHeight(requestHeight),
+            layoutDirection
         )
 
         assertThat(height).isEqualTo(requestHeight)

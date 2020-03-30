@@ -69,7 +69,6 @@ fun CoreTextField(
         val textInputService = TextInputServiceAmbient.current
         val density = DensityAmbient.current
         val resourceLoader = FontLoaderAmbient.current
-        val layoutDirection = LayoutDirectionAmbient.current
 
         // State
         val (visualText, offsetMap) = remember(value, visualTransformation) {
@@ -84,8 +83,7 @@ fun CoreTextField(
                     text = visualText,
                     style = textStyle,
                     density = density,
-                    resourceLoader = resourceLoader,
-                    layoutDirection = layoutDirection
+                    resourceLoader = resourceLoader
                 )
             )
         }
@@ -96,8 +94,7 @@ fun CoreTextField(
             // level TextField
             style = textStyle,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = layoutDirection
+            resourceLoader = resourceLoader
         )
 
         state.processor.onNewState(value, textInputService, state.inputSession)
@@ -187,10 +184,11 @@ fun CoreTextField(
                         }
                     }
                 }
-            ) { _, constraints, _ ->
+            ) { _, constraints, layoutDirection ->
                 TextFieldDelegate.layout(
                     state.textDelegate,
                     constraints,
+                    layoutDirection,
                     state.layoutResult
                 ).let { (width, height, result) ->
                     if (state.layoutResult != result) {

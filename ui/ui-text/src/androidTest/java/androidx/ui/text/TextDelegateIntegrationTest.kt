@@ -56,10 +56,10 @@ class TextDelegateIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = this,
-                resourceLoader = resourceLoader,
-                layoutDirection = LayoutDirection.Ltr
+                resourceLoader = resourceLoader
             )
-            textDelegate.layoutIntrinsics()
+
+            textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
 
             assertThat(textDelegate.minIntrinsicWidth)
                 .isEqualTo((fontSize.toPx().value * text.length).toIntPx())
@@ -77,11 +77,10 @@ class TextDelegateIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = this,
-                resourceLoader = resourceLoader,
-                layoutDirection = LayoutDirection.Ltr
+                resourceLoader = resourceLoader
             )
 
-            textDelegate.layoutIntrinsics()
+            textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
 
             assertThat(textDelegate.maxIntrinsicWidth)
                 .isEqualTo((fontSize.toPx().value * text.length).toIntPx())
@@ -101,10 +100,12 @@ class TextDelegateIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = this,
-                resourceLoader = resourceLoader,
-                layoutDirection = LayoutDirection.Ltr
+                resourceLoader = resourceLoader
             )
-            val layoutResult = textDelegate.layout(Constraints(maxWidth = 120.ipx))
+            val layoutResult = textDelegate.layout(
+                Constraints(maxWidth = 120.ipx),
+                LayoutDirection.Ltr
+            )
 
             val expectedBitmap = layoutResult.toBitmap()
             val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
@@ -135,7 +136,7 @@ class TextDelegateIntegrationTest {
 
             // Run.
             // Select all.
-            textDelegate.paintBackground(
+            TextDelegate.paintBackground(
                 start = 0,
                 end = text.length,
                 color = defaultSelectionColor,
@@ -163,10 +164,9 @@ class TextDelegateIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = this,
-                resourceLoader = resourceLoader,
-                layoutDirection = LayoutDirection.Ltr
+                resourceLoader = resourceLoader
             )
-            val layoutResult = textDelegate.layout(Constraints())
+            val layoutResult = textDelegate.layout(Constraints(), LayoutDirection.Ltr)
 
             val expectedBitmap = layoutResult.toBitmap()
             val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
@@ -187,7 +187,7 @@ class TextDelegateIntegrationTest {
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
-            textDelegate.paintBackground(
+            TextDelegate.paintBackground(
                 start = selectionStart,
                 end = selectionEnd,
                 color = defaultSelectionColor,
@@ -218,10 +218,9 @@ class TextDelegateIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = this,
-                resourceLoader = resourceLoader,
-                layoutDirection = LayoutDirection.Ltr
+                resourceLoader = resourceLoader
             )
-            val layoutResult = textDelegate.layout(Constraints())
+            val layoutResult = textDelegate.layout(Constraints(), LayoutDirection.Ltr)
 
             val expectedBitmap = layoutResult.toBitmap()
             val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
@@ -254,7 +253,7 @@ class TextDelegateIntegrationTest {
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
-            textDelegate.paintBackground(
+            TextDelegate.paintBackground(
                 start = selectionLTRStart,
                 end = textLTR.length + selectionRTLEnd,
                 color = defaultSelectionColor,
@@ -283,10 +282,9 @@ class TextDelegateIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = this,
-                resourceLoader = resourceLoader,
-                layoutDirection = LayoutDirection.Ltr
+                resourceLoader = resourceLoader
             )
-            val layoutResult = textDelegate.layout(Constraints())
+            val layoutResult = textDelegate.layout(Constraints(), LayoutDirection.Ltr)
 
             val expectedBitmap = layoutResult.toBitmap()
             val expectedCanvas = Canvas(android.graphics.Canvas(expectedBitmap))
@@ -306,7 +304,7 @@ class TextDelegateIntegrationTest {
             val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
             // Run.
-            textDelegate.paintBackground(
+            TextDelegate.paintBackground(
                 start = selectionStart,
                 end = selectionEnd,
                 color = selectionColor,
@@ -325,17 +323,16 @@ class TextDelegateIntegrationTest {
             text = AnnotatedString(text = "abc"),
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
 
         // create the intrinsics object
-        textDelegate.layoutIntrinsics()
+        textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
         val multiParagraphIntrinsics = textDelegate.paragraphIntrinsics
 
         // layout should create the MultiParagraph. The final MultiParagraph is expected to use
         // the previously calculated intrinsics
-        val layoutResult = textDelegate.layout(Constraints())
+        val layoutResult = textDelegate.layout(Constraints(), LayoutDirection.Ltr)
         val layoutIntrinsics = layoutResult.multiParagraph.intrinsics
 
         // primary assertions to make sure that the objects are not null
@@ -355,19 +352,22 @@ class TextDelegateIntegrationTest {
             text = AnnotatedString(text = "Hello World!"),
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
         val width = 200.ipx
         val heightFirstLayout = 100.ipx
         val heightSecondLayout = 200.ipx
 
         val constraintsFirstLayout = Constraints.fixed(width, heightFirstLayout)
-        val resultFirstLayout = textDelegate.layout(constraintsFirstLayout)
+        val resultFirstLayout = textDelegate.layout(constraintsFirstLayout, LayoutDirection.Ltr)
         assertThat(resultFirstLayout.layoutInput.constraints).isEqualTo(constraintsFirstLayout)
 
         val constraintsSecondLayout = Constraints.fixed(width, heightSecondLayout)
-        val resultSecondLayout = textDelegate.layout(constraintsSecondLayout, resultFirstLayout)
+        val resultSecondLayout = textDelegate.layout(
+            constraintsSecondLayout,
+            LayoutDirection.Ltr,
+            resultFirstLayout
+        )
         assertThat(resultSecondLayout.layoutInput.constraints).isEqualTo(constraintsSecondLayout)
     }
 
@@ -377,19 +377,22 @@ class TextDelegateIntegrationTest {
             text = AnnotatedString(text = "Hello World!"),
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
         val width = 200.ipx
         val heightFirstLayout = 100.ipx
         val heightSecondLayout = 200.ipx
 
         val constraintsFirstLayout = Constraints.fixed(width, heightFirstLayout)
-        val resultFirstLayout = textDelegate.layout(constraintsFirstLayout)
+        val resultFirstLayout = textDelegate.layout(constraintsFirstLayout, LayoutDirection.Ltr)
         assertThat(resultFirstLayout.size.height).isEqualTo(heightFirstLayout)
 
         val constraintsSecondLayout = Constraints.fixed(width, heightSecondLayout)
-        val resultSecondLayout = textDelegate.layout(constraintsSecondLayout, resultFirstLayout)
+        val resultSecondLayout = textDelegate.layout(
+            constraintsSecondLayout,
+            LayoutDirection.Ltr,
+            resultFirstLayout
+        )
         assertThat(resultSecondLayout.size.height).isEqualTo(heightSecondLayout)
     }
 }

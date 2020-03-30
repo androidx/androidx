@@ -102,6 +102,7 @@ internal class TextFieldDelegate {
         fun layout(
             textDelegate: TextDelegate,
             constraints: Constraints,
+            layoutDirection: LayoutDirection,
             prevResultText: TextLayoutResult? = null
         ): Triple<IntPx, IntPx, TextLayoutResult> {
             val layoutResult = if (constraints.maxWidth.isFinite()) {
@@ -112,12 +113,13 @@ internal class TextFieldDelegate {
                         constraints.minHeight,
                         constraints.maxHeight
                     ),
+                    layoutDirection,
                     prevResultText
                 )
             } else {
                 // TextField want to fill the required width but if infinite width is passed,
                 // falling back to wrap-content behavior since it may be in the horizontal scroller.
-                textDelegate.layoutIntrinsics()
+                textDelegate.layoutIntrinsics(layoutDirection)
                 textDelegate.layout(
                     Constraints(
                         textDelegate.maxIntrinsicWidth,
@@ -125,6 +127,7 @@ internal class TextFieldDelegate {
                         constraints.minHeight,
                         constraints.maxHeight
                     ),
+                    layoutDirection,
                     prevResultText
                 )
             }
