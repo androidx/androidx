@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,6 +44,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageSaver.OnImageSavedCallback;
 import androidx.camera.core.ImageSaver.SaveError;
+import androidx.camera.testing.AndroidUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -66,6 +68,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
+/**
+ *  Instrument tests for {@link ImageSaver}.
+ */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ImageSaverTest {
@@ -99,7 +104,7 @@ public class ImageSaverTest {
     // The image used here has a YUV_420_888 format.
 
     private static final String TAG = "ImageSaverTest";
-    private static final String INVALID_DATA_PATH = "/";
+    private static final String INVALID_DATA_PATH = "/invalid_path";
 
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
@@ -267,6 +272,9 @@ public class ImageSaverTest {
 
     @Test
     public void saveToUriWithInvalidDataColumn_onErrorCalled() throws InterruptedException {
+        assumeFalse("Emulator does not throw error for invalid path.",
+                AndroidUtil.isEmulator());
+
         // Arrange.
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
