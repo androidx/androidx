@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.androidview.test
+package androidx.ui.viewinterop
 
 import android.util.TypedValue
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -24,7 +24,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.filters.SmallTest
-import androidx.ui.androidview.AndroidView
+import androidx.ui.framework.test.R
 import androidx.ui.test.createComposeRule
 import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.instanceOf

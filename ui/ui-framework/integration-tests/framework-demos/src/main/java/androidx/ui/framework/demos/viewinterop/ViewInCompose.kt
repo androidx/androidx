@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.androidview.demos
+package androidx.ui.framework.demos.viewinterop
 
 import android.content.Context
 import android.graphics.Canvas
@@ -29,11 +29,11 @@ import android.widget.TextView
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.state
-import androidx.ui.androidview.AndroidView
-import androidx.ui.androidview.adapters.Ref
-import androidx.ui.androidview.adapters.setRef
+import androidx.ui.viewinterop.AndroidView
 import androidx.ui.core.ContextAmbient
+import androidx.ui.core.Ref
 import androidx.ui.foundation.Text
+import androidx.ui.framework.demos.R
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.Column
@@ -42,6 +42,10 @@ import androidx.ui.material.Button
 @Composable
 fun ViewInComposeDemo() {
     Column {
+        // This is a collection of multiple ways of including Android Views in Compose
+        // UI hierarchies. Note that these APIs are subject to change. Also note that
+        // pointer input is currently not working for Views inside Compose.
+
         // Include Android View.
         TextView(text = "This is a text in a TextView")
         val ref = Ref<View>()
@@ -65,7 +69,11 @@ fun ViewInComposeDemo() {
         // Compose custom Android View and do remeasurements and invalidates.
         val squareRef = Ref<ColoredSquareView>()
         FrameLayout {
-            ColoredSquareView(size = 200, color = Color.Cyan, ref = squareRef)
+            ColoredSquareView(
+                size = 200,
+                color = Color.Cyan,
+                ref = squareRef
+            )
         }
         Button(onClick = { squareRef.value!!.size += 50 }) {
             Text("Increase size of Android view")
