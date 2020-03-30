@@ -159,5 +159,6 @@ class FindParentFocusNodeTest {
         assertThat(parent).isEqualTo(grandparentFocusNode)
     }
 
+    @Suppress("Deprecation")
     private class LayoutModifierTestImpl : LayoutModifier
 }

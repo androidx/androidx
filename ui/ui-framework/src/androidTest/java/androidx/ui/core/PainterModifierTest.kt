@@ -463,6 +463,7 @@ class PainterModifierTest {
         }
     }
 
+    @Suppress("Deprecation")
     class FixedSizeModifier(val width: IntPx, val height: IntPx = width) : LayoutModifier {
         override fun Density.modifySize(
             constraints: Constraints,

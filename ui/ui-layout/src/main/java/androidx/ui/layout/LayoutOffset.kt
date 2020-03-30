@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.layout
 
 import androidx.ui.core.LayoutDirection
@@ -30,7 +32,6 @@ import androidx.ui.unit.IntPxSize
  * Example usage:
  * @sample androidx.ui.layout.samples.LayoutOffsetModifier
  */
-@Suppress("DEPRECATION")
 fun Modifier.offset(x: Dp, y: Dp) = this + LayoutOffset(x = x, y = y)
 
 /**

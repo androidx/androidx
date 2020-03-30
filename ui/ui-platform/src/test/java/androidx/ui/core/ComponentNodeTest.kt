@@ -1664,7 +1664,13 @@ class ComponentNodeTest {
     private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier.None) =
         LayoutNode().apply {
             this.modifier = modifier
+            layoutDirection = LayoutDirection.Ltr
             resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
+            var wrapper: LayoutNodeWrapper? = layoutNodeWrapper
+            while (wrapper != null) {
+                wrapper.layoutResult = innerLayoutNodeWrapper.layoutResult
+                wrapper = (wrapper as? LayoutNodeWrapper)?.wrapped
+            }
             place(x.ipx, y.ipx)
         }
 
