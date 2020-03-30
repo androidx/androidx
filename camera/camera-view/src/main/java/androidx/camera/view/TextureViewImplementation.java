@@ -41,7 +41,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 /**
  * The {@link TextureView} implementation for {@link PreviewView}
  */
-public class TextureViewImplementation extends PreviewViewImplementation {
+final class TextureViewImplementation extends PreviewViewImplementation {
 
     private static final String TAG = "TextureViewImpl";
 
