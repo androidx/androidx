@@ -390,16 +390,18 @@ public class DialogFragment extends Fragment
 
     /**
      * Controls whether this fragment should be shown in a dialog.  If not
-     * set, no Dialog will be created in {@link #onActivityCreated(Bundle)},
-     * and the fragment's view hierarchy will thus not be added to it.  This
-     * allows you to instead use it as a normal fragment (embedded inside of
-     * its activity).
+     * set, no Dialog will be created and the fragment's view hierarchy will
+     * thus not be added to it.  This allows you to instead use it as a
+     * normal fragment (embedded inside of its activity).
      *
      * <p>This is normally set for you based on whether the fragment is
      * associated with a container view ID passed to
      * {@link FragmentTransaction#add(int, Fragment) FragmentTransaction.add(int, Fragment)}.
      * If the fragment was added with a container, setShowsDialog will be
      * initialized to false; otherwise, it will be true.
+     *
+     * <p>If calling this manually, it should be called in {@link #onCreate(Bundle)}
+     * as calling it any later will have no effect.
      *
      * @param showsDialog If true, the fragment will be displayed in a Dialog.
      * If false, no Dialog will be created and the fragment's view hierarchy
@@ -534,7 +536,7 @@ public class DialogFragment extends Fragment
      * to be implemented since the AlertDialog takes care of its own content.
      *
      * <p>This method will be called after {@link #onCreate(Bundle)} and
-     * before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.  The
+     * immediately before {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.  The
      * default implementation simply instantiates and returns a {@link Dialog}
      * class.
      *
