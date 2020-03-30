@@ -17,17 +17,16 @@
 package androidx.serialization.compiler.processing.steps
 
 import androidx.serialization.EnumValue
-import androidx.serialization.compiler.codegen.java.JavaGenerator
-import androidx.serialization.compiler.codegen.java.enumSerializer
-import androidx.serialization.compiler.processing.asInt
-import androidx.serialization.compiler.processing.asTypeElement
-import androidx.serialization.compiler.processing.asVariableElement
-import androidx.serialization.compiler.processing.error
-import androidx.serialization.compiler.processing.get
-import androidx.serialization.compiler.processing.isVisibleToPackage
-import androidx.serialization.compiler.processing.isPrivate
-import androidx.serialization.compiler.processing.processReserved
+import androidx.serialization.compiler.processing.ext.asInt
+import androidx.serialization.compiler.processing.ext.asTypeElement
+import androidx.serialization.compiler.processing.ext.asVariableElement
+import androidx.serialization.compiler.processing.ext.error
+import androidx.serialization.compiler.processing.ext.get
+import androidx.serialization.compiler.processing.ext.isPrivate
+import androidx.serialization.compiler.processing.ext.isVisibleToPackage
+import androidx.serialization.compiler.processing.parsers.parseReserved
 import androidx.serialization.compiler.schema.Enum
+import androidx.serialization.compiler.schema.ext.toTypeName
 import com.google.auto.common.BasicAnnotationProcessor.ProcessingStep
 import com.google.common.collect.SetMultimap
 import javax.annotation.processing.Messager
@@ -40,8 +39,7 @@ import javax.lang.model.element.TypeElement
 /** Processing step that parses and validates enums, and generates enum coders. */
 internal class EnumProcessingStep(
     private val processingEnv: ProcessingEnvironment,
-    private val javaGenerator: JavaGenerator,
-    private val onEnum: ((Enum) -> Unit)? = null
+    private val onEnum: (Enum) -> Unit
 ) : ProcessingStep {
     private val messager: Messager = processingEnv.messager
 
@@ -90,7 +88,7 @@ internal class EnumProcessingStep(
      * This method operates by validating that the enum class is not private, then walking its
      * enum constants. It validates that all constants have an [EnumValue] annotation, and then
      * reads [EnumValue.id] and constructs an [Enum] and dispatches it to [onEnum]. It fills
-     * [Enum.reserved] using [processReserved].
+     * [Enum.reserved] using [parseReserved].
      */
     private fun processEnumClass(enumClass: TypeElement) {
         check(enumClass.kind == ElementKind.ENUM) {
@@ -114,14 +112,19 @@ internal class EnumProcessingStep(
             hasError = true
         }
 
-        val values = mutableSetOf<Enum.Value>()
+        val values = mutableListOf<Enum.Value>()
 
         for (element in enumClass.enclosedElements) {
             if (element.kind == ENUM_CONSTANT) {
                 val annotation = element[EnumValue::class]
 
                 if (annotation != null) {
-                    values += Enum.Value(element.asVariableElement(), annotation["value"].asInt())
+                    values += Enum.Value(
+                        id = annotation["value"].asInt(),
+                        name = element.simpleName.toString(),
+                        element = element.asVariableElement(),
+                        annotation = annotation
+                    )
                 } else {
                     messager.error(element) {
                         "To avoid unexpected behavior, all enum constants in a serializable " +
@@ -133,9 +136,7 @@ internal class EnumProcessingStep(
         }
 
         if (!hasError) {
-            val enum = Enum(enumClass, values, processReserved(enumClass))
-            onEnum?.invoke(enum)
-            javaGenerator.enumSerializer(enum).writeTo(processingEnv.filer)
+            onEnum(Enum(enumClass.toTypeName(), values, parseReserved(enumClass), enumClass))
         }
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.serialization.compiler.processing
+package androidx.serialization.compiler.processing.ext
 
 import com.google.auto.common.MoreElements
 import javax.lang.model.element.AnnotationMirror

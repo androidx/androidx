@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.serialization
+package androidx.serialization.compiler
 
 import com.google.testing.compile.Compilation
 import com.google.testing.compile.CompilationSubject.assertThat

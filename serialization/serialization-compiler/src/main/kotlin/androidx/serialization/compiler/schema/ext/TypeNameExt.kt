@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.serialization.compiler.schema
+package androidx.serialization.compiler.schema.ext
 
 import androidx.serialization.schema.TypeName
 import javax.lang.model.element.Element
