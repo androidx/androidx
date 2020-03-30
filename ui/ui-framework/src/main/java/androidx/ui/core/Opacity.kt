@@ -28,7 +28,7 @@ import androidx.annotation.FloatRange
  */
 fun Modifier.drawOpacity(
     @FloatRange(from = 0.0, to = 1.0) opacity: Float
-) = this + drawLayer(alpha = opacity)
+) = this + drawLayer(alpha = opacity, clipToBounds = true)
 
 /**
  * Makes its children partially transparent.

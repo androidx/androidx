@@ -26,11 +26,10 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
-import androidx.ui.core.drawLayer
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.foundation.gestures.ScrollableState
+import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.layout.Constraints
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
@@ -259,7 +258,7 @@ private fun ScrollerLayout(
         modifier = modifier.clipToBounds(),
         children = {
             Box(
-                modifier = Modifier.drawLayer(),
+                modifier = Modifier.clipToBounds(),
                 children = child
             )
         },
