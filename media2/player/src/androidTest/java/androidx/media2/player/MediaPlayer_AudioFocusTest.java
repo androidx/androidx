@@ -240,7 +240,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     }
 
     @Test
-    public void testNoisyIntent_pausePlaybackForMedia() throws Exception {
+    public void noisyIntent_pausePlaybackForMedia() throws Exception {
         testPausedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA),
                 new PlayerRunnable() {
                     @Override
@@ -252,7 +252,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     }
 
     @Test
-    public void testNoisyIntent_lowerVolumeForGame() throws Exception {
+    public void noisyIntent_lowerVolumeForGame() throws Exception {
         testDuckedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_GAME),
                 new PlayerRunnable() {
                     @Override
@@ -297,7 +297,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
      * Tests whether the session requests audio focus, so previously focused one loss focus.
      */
     @Test
-    public void testAudioFocus_requestFocusWhenPlay() throws Exception {
+    public void audioFocus_requestFocusWhenPlay() throws Exception {
         // Request an audio focus in advance.
         requestAudioFocus(AUDIOFOCUS_GAIN);
 
@@ -311,7 +311,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     }
 
     @Test
-    public void testAudioFocus_requestFocusWhenUnknown() throws Exception {
+    public void audioFocus_requestFocusWhenUnknown() throws Exception {
         // Request an audio focus in advance.
         requestAudioFocus(AUDIOFOCUS_GAIN);
 
@@ -325,7 +325,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     }
 
     @Test
-    public void testAudioFocus_requestFocusTransient() throws Exception {
+    public void audioFocus_requestFocusTransient() throws Exception {
         // Request an audio focus in advance.
         requestAudioFocus(AUDIOFOCUS_GAIN);
 
@@ -338,7 +338,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     }
 
     @Test
-    public void testAudioFocus_requestFocusTransientMayDuck() throws Exception {
+    public void audioFocus_requestFocusTransientMayDuck() throws Exception {
         // Request an audio focus in advance.
         requestAudioFocus(AUDIOFOCUS_GAIN);
 
@@ -353,7 +353,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     }
 
     @Test
-    public void testAudioFocus_pauseForFocusLoss() throws Exception {
+    public void audioFocus_pauseForFocusLoss() throws Exception {
         testPausedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA),
                 new PlayerRunnable() {
                     @Override
@@ -366,7 +366,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     }
 
     @Test
-    public void testAudioFocus_pauseForDuckableFocusLoss() throws Exception {
+    public void audioFocus_pauseForDuckableFocusLoss() throws Exception {
         testPausedAfterAction(createAudioAttributes(CONTENT_TYPE_SPEECH, USAGE_MEDIA),
                 new PlayerRunnable() {
                     @Override
@@ -378,7 +378,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     }
 
     @Test
-    public void testAudioFocus_duckForFocusLoss() throws Exception {
+    public void audioFocus_duckForFocusLoss() throws Exception {
         if (VERSION.SDK_INT >= 26) {
             // On API 26, framework automatically ducks so we cannot test it.
             return;

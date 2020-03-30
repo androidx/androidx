@@ -65,7 +65,7 @@ public class RemoteMediaSessionTest {
 
     @Test
     @SmallTest
-    public void testGettingToken() {
+    public void gettingToken() {
         SessionToken token = mRemoteSession2.getToken();
         assertNotNull(token);
         assertEquals(SERVICE_PACKAGE_NAME, token.getPackageName());
@@ -74,7 +74,7 @@ public class RemoteMediaSessionTest {
 
     @Test
     @SmallTest
-    public void testCreatingController() {
+    public void creatingController() {
         SessionToken token = mRemoteSession2.getToken();
         assertNotNull(token);
         MediaController controller = new MediaController.Builder(mContext)

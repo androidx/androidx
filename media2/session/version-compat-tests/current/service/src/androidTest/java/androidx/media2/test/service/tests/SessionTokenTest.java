@@ -71,7 +71,7 @@ public class SessionTokenTest extends MediaTestBase {
     }
 
     @Test
-    public void testConstructor_sessionService() {
+    public void constructor_sessionService() {
         SessionToken token = new SessionToken(mContext, new ComponentName(
                 mContext.getPackageName(),
                 MockMediaSessionService.class.getCanonicalName()));
@@ -81,7 +81,7 @@ public class SessionTokenTest extends MediaTestBase {
     }
 
     @Test
-    public void testConstructor_libraryService() {
+    public void constructor_libraryService() {
         ComponentName testComponentName = new ComponentName(mContext.getPackageName(),
                 MockMediaLibraryService.class.getCanonicalName());
         SessionToken token = new SessionToken(mContext, testComponentName);
@@ -93,7 +93,7 @@ public class SessionTokenTest extends MediaTestBase {
     }
 
     @Test
-    public void testGetters_whenCreatedBySession() {
+    public void getters_whenCreatedBySession() {
         Bundle testTokenExtras = TestUtils.createTestBundle();
         MediaSession session = new MediaSession.Builder(mContext, new MockPlayer(0))
                 .setId("testGetters_whenCreatedBySession")

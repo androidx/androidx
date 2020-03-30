@@ -210,7 +210,7 @@ public class MediaPlayerDrmTest {
 
     @Test
     @LargeTest
-    public void testCAR_CLEARKEY_AUDIO_DOWNLOADED_V0_SYNC() throws Exception {
+    public void carClearKeyAudioDownloadedV0Sync() throws Exception {
         download(CENC_AUDIO_URL,
                 CENC_AUDIO_URL_DOWNLOADED,
                 RES_AUDIO,
@@ -219,7 +219,7 @@ public class MediaPlayerDrmTest {
 
     @Test
     @LargeTest
-    public void testCAR_CLEARKEY_AUDIO_DOWNLOADED_V1_ASYNC() throws Exception {
+    public void carClearKeyAudioDownloadedV1Sync() throws Exception {
         download(CENC_AUDIO_URL,
                 CENC_AUDIO_URL_DOWNLOADED,
                 RES_AUDIO,
@@ -228,7 +228,7 @@ public class MediaPlayerDrmTest {
 
     @Test
     @LargeTest
-    public void testCAR_CLEARKEY_AUDIO_DOWNLOADED_V2_SYNC_CONFIG() throws Exception {
+    public void carClearKeyAudioDownloadedV2SyncConfig() throws Exception {
         download(CENC_AUDIO_URL,
                 CENC_AUDIO_URL_DOWNLOADED,
                 RES_AUDIO,
@@ -237,7 +237,7 @@ public class MediaPlayerDrmTest {
 
     @Test
     @LargeTest
-    public void testCAR_CLEARKEY_AUDIO_DOWNLOADED_V3_ASYNC_DRMPREPARED() throws Exception {
+    public void carClearKeyAudioDownloadedV3AsyncDrmPrepared() throws Exception {
         download(CENC_AUDIO_URL,
                 CENC_AUDIO_URL_DOWNLOADED,
                 RES_AUDIO,
