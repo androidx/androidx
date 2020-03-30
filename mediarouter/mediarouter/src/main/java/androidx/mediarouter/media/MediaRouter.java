@@ -16,7 +16,6 @@
 
 package androidx.mediarouter.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
@@ -570,35 +569,41 @@ public final class MediaRouter {
      *     private MediaRouter.Callback mCallback;
      *     private MediaRouteSelector mSelector;
      *
+     *     // Add the callback on start to tell the media router what kinds of routes
+     *     // the application is interested in so that it can get events about media routing changes
+     *     // from the system.
      *     protected void onCreate(Bundle savedInstanceState) {
      *         super.onCreate(savedInstanceState);
      *
-     *         mRouter = Mediarouter.getInstance(this);
+     *         mRouter = MediaRouter.getInstance(this);
+     *         mRouter.enableTransfer();
      *         mCallback = new MyCallback();
      *         mSelector = new MediaRouteSelector.Builder()
      *                 .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
      *                 .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
      *                 .build();
+     *         mRouter.addCallback(mSelector, mCallback, &#47;* flags= *&#47; 0);
      *     }
      *
-     *     // Add the callback on start to tell the media router what kinds of routes
-     *     // the application is interested in so that it can try to discover suitable ones.
+     *     // Add the callback flag CALLBACK_FLAG_REQUEST_DISCOVERY on start by calling
+     *     // addCallback() again so that the media router can try to discover suitable ones.
      *     public void onStart() {
      *         super.onStart();
      *
-     *         mediaRouter.addCallback(mSelector, mCallback,
+     *         mRouter.addCallback(mSelector, mCallback,
      *                 MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
      *
-     *         MediaRouter.RouteInfo route = mediaRouter.updateSelectedRoute(mSelector);
+     *         MediaRouter.RouteInfo route = mRouter.updateSelectedRoute(mSelector);
      *         // do something with the route...
      *     }
      *
-     *     // Remove the selector on stop to tell the media router that it no longer
+     *     // Remove the callback flag CALLBACK_FLAG_REQUEST_DISCOVERY on stop by calling
+     *     // addCallback() again in order to tell the media router that it no longer
      *     // needs to invest effort trying to discover routes of these kinds for now.
      *     public void onStop() {
      *         super.onStop();
      *
-     *         mediaRouter.removeCallback(mCallback);
+     *         mRouter.addCallback(mSelector, mCallback, &#47;* flags= *&#47; 0);
      *     }
      *
      *     private final class MyCallback extends MediaRouter.Callback {
@@ -688,9 +693,7 @@ public final class MediaRouter {
      * Note: Once enabled, it cannot be disabled for the same process.
      *
      * @see #addCallback(MediaRouteSelector, Callback, int)
-     * @hide
      */
-    @RestrictTo(LIBRARY)
     public void enableTransfer() {
         if (!BuildCompat.isAtLeastR()) {
             // Transfer cannot be enabled on devices running earlier than Android R
