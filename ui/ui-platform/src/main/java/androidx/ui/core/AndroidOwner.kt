@@ -356,6 +356,9 @@ internal class AndroidComposeView constructor(context: Context) :
     private val androidViewsHandler by lazy(LazyThreadSafetyMode.NONE) {
         AndroidViewsHandler(context).also { addView(it) }
     }
+    private val viewLayersContainer by lazy(LazyThreadSafetyMode.NONE) {
+        ViewLayerContainer(context).also { addView(it) }
+    }
 
     override fun addAndroidView(view: View, layoutNode: LayoutNode) {
         androidViewsHandler.addView(view)
@@ -498,12 +501,16 @@ internal class AndroidComposeView constructor(context: Context) :
 
     override fun createLayer(
         drawLayerModifier: DrawLayerModifier,
-        drawBlock: (Canvas, Density) -> Unit
+        drawBlock: (Canvas, Density) -> Unit,
+        invalidateParentLayer: () -> Unit
     ): OwnedLayer {
         val layer = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P || isInEditMode()) {
-            ViewLayer(this, drawLayerModifier, drawBlock)
+            ViewLayer(
+                this, viewLayersContainer, drawLayerModifier, drawBlock,
+                invalidateParentLayer
+            )
         } else {
-            RenderNodeLayer(this, drawLayerModifier, drawBlock)
+            RenderNodeLayer(this, drawLayerModifier, drawBlock, invalidateParentLayer)
         }
 
         updateLayerProperties(layer)
@@ -515,10 +522,6 @@ internal class AndroidComposeView constructor(context: Context) :
         modelObserver.observeReads(layer, onCommitAffectingLayerParams) {
             layer.updateLayerProperties()
         }
-    }
-
-    internal fun drawChild(canvas: Canvas, view: View, drawingTime: Long) {
-        super.drawChild(canvas.nativeCanvas, view, drawingTime)
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {

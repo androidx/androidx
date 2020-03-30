@@ -217,21 +217,18 @@ package androidx.ui.core {
   public interface OwnedLayer {
     method public void destroy();
     method public void drawLayer(androidx.ui.graphics.Canvas canvas);
-    method public boolean getHasElevation();
     method public android.graphics.Matrix getMatrix();
     method public void invalidate();
     method public void move(androidx.ui.unit.IntPxPosition position);
     method public void resize(androidx.ui.unit.IntPxSize size);
-    method public void setElevationRiseListener(kotlin.jvm.functions.Function0<kotlin.Unit>? block);
     method public void updateDisplayList();
     method public void updateLayerProperties();
-    property public abstract boolean hasElevation;
   }
 
   public interface Owner {
     method public androidx.ui.unit.IntPxPosition calculatePosition();
     method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.unit.PxSize parentSize);
-    method public androidx.ui.core.OwnedLayer createLayer(androidx.ui.core.DrawLayerModifier drawLayerModifier, kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.Density,kotlin.Unit> drawBlock);
+    method public androidx.ui.core.OwnedLayer createLayer(androidx.ui.core.DrawLayerModifier drawLayerModifier, kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.Density,kotlin.Unit> drawBlock, kotlin.jvm.functions.Function0<kotlin.Unit> invalidateParentLayer);
     method public androidx.ui.autofill.Autofill? getAutofill();
     method public androidx.ui.autofill.AutofillTree getAutofillTree();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getConfigurationChangeObserver();

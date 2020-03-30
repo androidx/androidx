@@ -395,8 +395,6 @@ internal open class DelegatingLayoutNodeWrapper(
 internal class InnerPlaceable(
     layoutNode: LayoutNode
 ) : LayoutNodeWrapper(layoutNode), Density by layoutNode.measureScope {
-    private var introducedLayer: OwnedLayer? = null
-    private var layoutNodeInvalidate: (() -> Unit)? = null
 
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = layoutNode.providedAlignmentLines.keys
@@ -425,7 +423,7 @@ internal class InnerPlaceable(
         }
 
     override fun findLayer(): OwnedLayer? {
-        return introducedLayer ?: wrappedBy?.findLayer()
+        return wrappedBy?.findLayer()
     }
 
     override fun findFocusWrapperWrappingThisWrapper() =
@@ -486,45 +484,12 @@ internal class InnerPlaceable(
     }
 
     override fun draw(canvas: Canvas, density: Density) {
-        if (introducedLayer != null ||
-            (!layoutNode.hasLayer && layoutNode.layoutChildren.fastAny { it.hasElevation })
-        ) {
-            layoutNodeInvalidate = null
-            // we need to introduce a layer
-            val layer = introducedLayer ?: layoutNode.owner!!.createLayer(
-                introducedDrawLayerModifier,
-                ::executeDraw
-            ).also {
-                layoutNode.layoutChildren.fastForEach {
-                    it.outerLayer?.layer?.setElevationRiseListener(null)
-                }
-                introducedLayer = it
-            }
-            layer.drawLayer(canvas)
-        } else {
-            if (!layoutNode.hasLayer && layoutNode.layoutChildren.isNotEmpty()) {
-                // We don't want to use layoutNode::onInvalidate because that will allocate
-                // a new lambda every time. This will reuse the lambda after the first allocation
-                // so we save allocations and won't allocate on each draw.
-                val invalidate = layoutNodeInvalidate ?: {
-                    if (introducedLayer == null) {
-                        layoutNode.onInvalidate()
-                    }
-                }.also { layoutNodeInvalidate = it }
-                layoutNode.layoutChildren.fastForEach {
-                    it.outerLayer?.layer?.setElevationRiseListener(invalidate)
-                }
-            }
-            executeDraw(canvas, density)
-        }
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    private fun executeDraw(canvas: Canvas, density: Density) {
         withPositionTranslation(canvas) {
             val owner = layoutNode.requireOwner()
             val sizePx = size.toPxSize()
-            layoutNode.children.forEach { child -> owner.callDraw(canvas, child, sizePx) }
+            layoutNode.zIndexSortedChildren.fastForEach { child ->
+                owner.callDraw(canvas, child, sizePx)
+            }
             if (owner.showLayoutBounds) {
                 drawBorder(canvas, innerBoundsPaint)
             }
@@ -557,10 +522,6 @@ internal class InnerPlaceable(
             paint.strokeWidth = 1f
             paint.style = PaintingStyle.stroke
         }
-        val introducedDrawLayerModifier = Modifier.drawLayer(
-            clipToBounds = false,
-            clipToOutline = false
-        ) as DrawLayerModifier
     }
 }
 
@@ -792,14 +753,21 @@ internal class LayerWrapper(
     val drawLayerModifier: DrawLayerModifier
 ) : DelegatingLayoutNodeWrapper(wrapped) {
     private var _layer: OwnedLayer? = null
+    private var layerDestroyed = false
+
+    private val invalidateParentLayer: () -> Unit = {
+        wrappedBy?.findLayer()?.invalidate()
+    }
+
     val layer: OwnedLayer
         get() {
             return _layer ?: layoutNode.requireOwner().createLayer(
                 drawLayerModifier,
-                wrapped::draw
+                wrapped::draw,
+                invalidateParentLayer
             ).also {
                 _layer = it
-                wrappedBy?.findLayer()?.invalidate()
+                invalidateParentLayer()
             }
         }
 
