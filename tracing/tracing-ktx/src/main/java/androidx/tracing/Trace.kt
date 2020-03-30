@@ -32,22 +32,3 @@ inline fun <T> trace(label: String, crossinline block: () -> T): T {
         Trace.endSection()
     }
 }
-
-/**
- * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [label] producer)
- * and [Trace.endSection].
- *
- * @param label Produces a name of the code section to appear in the trace. This may
- * be at most 127 Unicode code units long.
- * @param block A block of code which is being traced.
- */
-inline fun <T> trace(crossinline label: () -> String, crossinline block: () -> T): T {
-    try {
-        if (Trace.isEnabled()) {
-            Trace.beginSection(label())
-        }
-        return block()
-    } finally {
-        Trace.endSection()
-    }
-}
