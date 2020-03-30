@@ -47,6 +47,7 @@ import androidx.appcompat.custom.CustomDrawerLayout;
 import androidx.appcompat.test.R;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.test.espresso.action.CoordinatesProvider;
 import androidx.test.espresso.action.GeneralLocation;
 import androidx.test.espresso.action.GeneralSwipeAction;
 import androidx.test.espresso.action.Press;
@@ -496,13 +497,34 @@ public class DrawerLayoutTest {
         // Close the drawer
         // Note that we're using GeneralSwipeAction instead of swipeLeft() / swipeRight().
         // Those Espresso actions use edge fuzzying which doesn't work well with edge-based
-        // detection of swiping the drawers open in DrawerLayout.
+        // gesture navigation in the new versions of the platform. The emulated swipe goes
+        // horizontally across the vertical center of the drawer, from 75% width to 25% width.
         // It's critically important to wrap the GeneralSwipeAction to "wait" until the
         // DrawerLayout has settled to STATE_IDLE state before continuing to query the drawer
         // open / close state. This is done in DrawerLayoutActions.wrap method.
+        final int[] drawerLocation = new int[2];
+        mDrawerLayout.getLocationOnScreen(drawerLocation);
+        // Y coordinate of the swipe - halfway across the drawer
+        final int swipeY = drawerLocation[1] + mDrawerLayout.getHeight() / 2;
+        // Start X coordinate of the swipe - 75% across the drawer
+        final int swipeStartX = drawerLocation[0] + mDrawerLayout.getWidth() * 3 / 4;
+        // End X coordinate of the swipe - 25% across the drawer
+        final int swipeEndX = swipeY - mDrawerLayout.getWidth() / 2;
         onView(withId(R.id.drawer_layout)).perform(
-                wrap(new GeneralSwipeAction(Swipe.FAST, GeneralLocation.CENTER_RIGHT,
-                        GeneralLocation.CENTER_LEFT, Press.FINGER)));
+                wrap(new GeneralSwipeAction(Swipe.FAST,
+                        new CoordinatesProvider() {
+                            @Override
+                            public float[] calculateCoordinates(View view) {
+                                return new float[] { swipeStartX, swipeY };
+                            }
+                        },
+                        new CoordinatesProvider() {
+                            @Override
+                            public float[] calculateCoordinates(View view) {
+                                return new float[] { swipeEndX, swipeY };
+                            }
+                        },
+                        Press.FINGER)));
 
         // We expect that our listener has not been notified that the drawer has been opened
         verify(mockedListener, never()).onDrawerOpened(any(View.class));
