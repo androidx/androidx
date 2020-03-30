@@ -47,16 +47,16 @@ fun DraggableSample() {
     // this is the  state we will update while dragging
     var position by state { 0f }
 
-    val draggable = Modifier.draggable(dragDirection = DragDirection.Horizontal) { delta ->
-        // consume only delta that needed if we hit bounds
-        val old = position
-        position = (position + delta).coerceIn(minPx, maxPx)
-        position - old
-    }
-
     // seekbar itself
     Box(
-        modifier = Modifier.preferredWidth(max + squareSize) + draggable,
+        modifier = Modifier
+            .preferredWidth(max + squareSize)
+            .draggable(dragDirection = DragDirection.Horizontal) { delta ->
+                // consume only delta that needed if we hit bounds
+                val old = position
+                position = (position + delta).coerceIn(minPx, maxPx)
+                position - old
+            },
         backgroundColor = Color.Black
     ) {
         val xOffset = with(DensityAmbient.current) { position.toDp() }
@@ -86,20 +86,17 @@ fun AnchoredDraggableSample() {
     val position = animatedFloat(0f)
     position.setBounds(minPx, maxPx)
 
-    val draggable = Modifier.draggable(
-        startDragImmediately = position.isRunning,
-        dragDirection = DragDirection.Horizontal,
-        onDragStopped = {
-            // launch fling with velocity to animate to the closes anchor
-            position.fling(flingConfig, it)
-        }
-    ) { delta ->
-        position.snapTo(position.value + delta)
-        delta // consume all delta no matter the bounds to avoid nested dragging (as example)
-    }
     // seekbar itself
     Box(
-        modifier = Modifier.preferredWidth(max + squareSize) + draggable,
+        modifier = Modifier.preferredWidth(max + squareSize).draggable(
+            startDragImmediately = position.isRunning,
+            dragDirection = DragDirection.Horizontal,
+            // launch fling with velocity to animate to the closes anchor
+            onDragStopped = { position.fling(flingConfig, it) }
+        ) { delta ->
+            position.snapTo(position.value + delta)
+            delta // consume all delta no matter the bounds to avoid nested dragging (as example)
+        },
         backgroundColor = Color.Black
     ) {
         val xOffset = with(DensityAmbient.current) { position.value.toDp() }
