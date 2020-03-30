@@ -29,6 +29,10 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
+    buildFeatures {
+        // workaround for b/152759930
+        buildConfig = true
+    }
 }
 
 dependencies {

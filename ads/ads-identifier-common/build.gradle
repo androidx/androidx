@@ -36,10 +36,9 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 14
+    buildFeatures {
+        aidl = true
     }
-
     testOptions.unitTests.includeAndroidResources = true
 }
 

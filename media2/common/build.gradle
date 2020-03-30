@@ -27,7 +27,9 @@ android {
     defaultConfig {
         minSdkVersion 19
     }
-
+    buildFeatures {
+        aidl = true
+    }
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }

@@ -30,6 +30,9 @@ android {
     defaultConfig {
         minSdkVersion 19
     }
+    buildFeatures {
+        aidl = true
+    }
 }
 
 androidx {
