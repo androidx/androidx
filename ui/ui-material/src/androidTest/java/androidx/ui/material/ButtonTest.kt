@@ -16,10 +16,12 @@
 
 package androidx.ui.material
 
+import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
@@ -291,6 +293,7 @@ class ButtonTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun buttonTest_shapeAndColorFromThemeIsUsed() {
         val shape = CutCornerShape(10.dp)
