@@ -42,9 +42,9 @@ import java.util.concurrent.RejectedExecutionException;
  * open a camera.
  */
 public final class CameraStateRegistry {
-    private static final boolean DEBUG = false;
-    private StringBuilder mDebugString = DEBUG ? new StringBuilder() : null;
     private static final String TAG = "CameraStateRegistry";
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    private StringBuilder mDebugString = DEBUG ? new StringBuilder() : null;
 
     private final Object mLock = new Object();
 
