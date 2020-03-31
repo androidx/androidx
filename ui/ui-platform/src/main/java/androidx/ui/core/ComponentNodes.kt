@@ -1298,17 +1298,20 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     internal fun dispatchOnPositionedCallbacks() {
-        // There are two types of callbacks:
-        // a) when the Layout is positioned - `onPositioned`
-        // b) when the child of the Layout is positioned - `onChildPositioned`
         if (needsRelayout) {
             return // it hasn't been properly positioned, so don't make a call
         }
-        val onPositioned = onPositionedCallbacks
-        onPositioned.fastForEach { it.onPositioned(coordinates) }
+        if (!isPlaced) {
+            return // it hasn't been placed, so don't make a call
+        }
+        // There are two types of callbacks:
+        // a) when the Layout is positioned - `onPositioned`
+        // b) when the child of the Layout is positioned - `onChildPositioned`
+        onPositionedCallbacks.fastForEach { it.onPositioned(coordinates) }
         parentLayoutNode?.onChildPositionedCallbacks?.fastForEach {
             it.onChildPositioned(coordinates)
         }
+        // iterate through the subtree
         layoutChildren.fastForEach { it.dispatchOnPositionedCallbacks() }
     }
 
