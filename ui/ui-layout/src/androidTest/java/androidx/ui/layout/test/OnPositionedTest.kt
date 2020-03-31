@@ -27,13 +27,13 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInParent
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
-import androidx.ui.test.positionInParent
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp

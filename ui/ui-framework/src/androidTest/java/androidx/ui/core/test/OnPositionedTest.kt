@@ -20,12 +20,16 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
+import androidx.ui.core.boundsInParent
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInParent
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -231,5 +235,67 @@ class OnPositionedTest {
         assertFalse(wrap1OnPositionedCalled)
         assertTrue(wrap2OnPositionedCalled)
         assertEquals(1, onChildPositionedCalledTimes)
+    }
+
+    @Test
+    fun testPositionInParent() {
+        val positionedLatch = CountDownLatch(1)
+        var coordinates: LayoutCoordinates? = null
+
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                FixedSize(10.ipx,
+                    PaddingModifier(5.ipx) +
+                            Modifier.onPositioned {
+                                coordinates = it
+                                positionedLatch.countDown()
+                            }
+                ) {
+                }
+            }
+        }
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+
+        rule.runOnUiThread {
+            assertEquals(PxPosition(5.px, 5.px), coordinates!!.positionInParent)
+
+            var root = coordinates!!
+            while (root.parentCoordinates != null) {
+                root = root.parentCoordinates!!
+            }
+
+            assertEquals(PxPosition.Origin, root.positionInParent)
+        }
+    }
+
+    @Test
+    fun testBoundsInParent() {
+        val positionedLatch = CountDownLatch(1)
+        var coordinates: LayoutCoordinates? = null
+
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                FixedSize(10.ipx,
+                    PaddingModifier(5.ipx) +
+                            Modifier.onPositioned {
+                                coordinates = it
+                                positionedLatch.countDown()
+                            }
+                ) {
+                }
+            }
+        }
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+
+        rule.runOnUiThread {
+            assertEquals(PxBounds(5.px, 5.px, 15.px, 15.px), coordinates!!.boundsInParent)
+
+            var root = coordinates!!
+            while (root.parentCoordinates != null) {
+                root = root.parentCoordinates!!
+            }
+
+            assertEquals(PxBounds(0.px, 0.px, 20.px, 20.px), root.boundsInParent)
+        }
     }
 }
