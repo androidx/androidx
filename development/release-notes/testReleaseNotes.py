@@ -309,6 +309,150 @@ class TestGitClient(unittest.TestCase):
 		)
 		self.assertEqual("Added an awesome new API!", commitWithApiChange.releaseNote)
 
+	def test_parseAPICommitWithNotApplicableWithSlashRelnoteTag(self):
+		commitWithApiChangeString = """
+				_CommitStart
+				_CommitSHA:mySha
+				_Author:anemail@google.com
+				_Date:Tue Aug 6 15:05:55 2019 -0700
+				_Subject:API Tracking Improvements
+				_Body:Also fixed some other bugs
+
+				This CL fixes some infrastructure bugs
+
+				"This is a quote"
+
+				Bug: 123456
+				Bug: b/1234567
+				Fixes: 123123
+				Test: ./gradlew buildOnServer
+
+				Relnote: N/A
+
+				Change-Id: myChangeId
+
+				projectdir/a.java
+				projectdir/b.java
+				projectdir/androidTest/c.java
+				projectdir/api/some_api_file.txt
+				projectdir/api/current.txt
+				projectdir/api/restricted_current.txt
+			"""
+		commitWithApiChange = Commit(commitWithApiChangeString, "/projectdir/")
+		self.assertEqual("mySha", commitWithApiChange.sha)
+		self.assertEqual("anemail@google.com", commitWithApiChange.authorEmail)
+		self.assertEqual("myChangeId", commitWithApiChange.changeId)
+		self.assertEqual("API Tracking Improvements", commitWithApiChange.summary)
+		self.assertEqual(CommitType.API_CHANGE, commitWithApiChange.changeType)
+		self.assertEqual([123456, 1234567, 123123], commitWithApiChange.bugs)
+		self.assertEqual([
+				"projectdir/a.java",
+				"projectdir/b.java",
+				"projectdir/androidTest/c.java",
+				"projectdir/api/some_api_file.txt",
+				"projectdir/api/current.txt",
+				"projectdir/api/restricted_current.txt"
+			],
+			commitWithApiChange.files
+		)
+		self.assertEqual("", commitWithApiChange.releaseNote)
+
+	def test_parseAPICommitWithMalformattedNotApplicableRelnoteTag(self):
+		commitWithApiChangeString = """
+				_CommitStart
+				_CommitSHA:mySha
+				_Author:anemail@google.com
+				_Date:Tue Aug 6 15:05:55 2019 -0700
+				_Subject:API Tracking Improvements
+				_Body:Also fixed some other bugs
+
+				This CL fixes some infrastructure bugs
+
+				"This is a quote"
+
+				Bug: 123456
+				Bug: b/1234567
+				Fixes: 123123
+				Test: ./gradlew buildOnServer
+
+				Relnote: "N/A
+
+				Change-Id: myChangeId
+
+				projectdir/a.java
+				projectdir/b.java
+				projectdir/androidTest/c.java
+				projectdir/api/some_api_file.txt
+				projectdir/api/current.txt
+				projectdir/api/restricted_current.txt
+			"""
+		commitWithApiChange = Commit(commitWithApiChangeString, "/projectdir/")
+		self.assertEqual("mySha", commitWithApiChange.sha)
+		self.assertEqual("anemail@google.com", commitWithApiChange.authorEmail)
+		self.assertEqual("myChangeId", commitWithApiChange.changeId)
+		self.assertEqual("API Tracking Improvements", commitWithApiChange.summary)
+		self.assertEqual(CommitType.API_CHANGE, commitWithApiChange.changeType)
+		self.assertEqual([123456, 1234567, 123123], commitWithApiChange.bugs)
+		self.assertEqual([
+				"projectdir/a.java",
+				"projectdir/b.java",
+				"projectdir/androidTest/c.java",
+				"projectdir/api/some_api_file.txt",
+				"projectdir/api/current.txt",
+				"projectdir/api/restricted_current.txt"
+			],
+			commitWithApiChange.files
+		)
+		self.assertEqual("", commitWithApiChange.releaseNote)
+
+	def test_parseAPICommitWithNotApplicableWithoutSlashRelnoteTag(self):
+		commitWithApiChangeString = """
+				_CommitStart
+				_CommitSHA:mySha
+				_Author:anemail@google.com
+				_Date:Tue Aug 6 15:05:55 2019 -0700
+				_Subject:API Tracking Improvements
+				_Body:Also fixed some other bugs
+
+				This CL fixes some infrastructure bugs
+
+				"This is a quote"
+
+				Bug: 123456
+				Bug: b/1234567
+				Fixes: 123123
+				Test: ./gradlew buildOnServer
+
+				Relnote: na
+
+				Change-Id: myChangeId
+
+				projectdir/a.java
+				projectdir/b.java
+				projectdir/androidTest/c.java
+				projectdir/api/some_api_file.txt
+				projectdir/api/current.txt
+				projectdir/api/restricted_current.txt
+			"""
+		commitWithApiChange = Commit(commitWithApiChangeString, "/projectdir/")
+		self.assertEqual("mySha", commitWithApiChange.sha)
+		self.assertEqual("anemail@google.com", commitWithApiChange.authorEmail)
+		self.assertEqual("myChangeId", commitWithApiChange.changeId)
+		self.assertEqual("API Tracking Improvements", commitWithApiChange.summary)
+		self.assertEqual(CommitType.API_CHANGE, commitWithApiChange.changeType)
+		self.assertEqual([123456, 1234567, 123123], commitWithApiChange.bugs)
+		self.assertEqual([
+				"projectdir/a.java",
+				"projectdir/b.java",
+				"projectdir/androidTest/c.java",
+				"projectdir/api/some_api_file.txt",
+				"projectdir/api/current.txt",
+				"projectdir/api/restricted_current.txt"
+			],
+			commitWithApiChange.files
+		)
+		self.assertEqual("", commitWithApiChange.releaseNote)
+
 	def test_parseBugFixCommitWithCustomDelimiters(self):
 		commitSHADelimiter = "_MyCommitSHA:"
 		authorEmailDelimiter = "_MyAuthor:"
