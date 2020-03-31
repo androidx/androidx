@@ -119,8 +119,10 @@ public final class UseCaseGroup {
         }
     }
 
-    /** Clears all use cases from this group. */
-    public void clear() {
+    /**
+     * Called when lifecycle ends. Destroys all use cases in this group.
+     */
+    public void destroy() {
         List<UseCase> useCasesToClear = new ArrayList<>();
         synchronized (mUseCasesLock) {
             useCasesToClear.addAll(mUseCases);
@@ -128,8 +130,9 @@ public final class UseCaseGroup {
         }
 
         for (UseCase useCase : useCasesToClear) {
-            Log.d(TAG, "Clearing use case: " + useCase.getName());
+            Log.d(TAG, "Destroying use case: " + useCase.getName());
             useCase.onDetach();
+            useCase.onDestroy();
         }
     }
 
