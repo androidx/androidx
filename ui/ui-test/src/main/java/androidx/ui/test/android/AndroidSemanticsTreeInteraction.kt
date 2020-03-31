@@ -27,8 +27,10 @@ import androidx.ui.test.SemanticsPredicate
 import androidx.ui.test.SemanticsTreeInteraction
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.height
 import androidx.ui.unit.px
 import androidx.ui.unit.toRect
+import androidx.ui.unit.width
 
 /**
  * Android specific implementation of [SemanticsTreeInteraction].
@@ -48,6 +50,9 @@ internal class AndroidSemanticsTreeInteraction internal constructor(
     }
 
     override fun isInScreenBounds(rectangle: PxBounds): Boolean {
+        if (rectangle.width == 0.px && rectangle.height == 0.px) {
+            return false
+        }
         val displayMetrics = SynchronizedTreeCollector.collectOwners()
             .findActivity()
             .resources

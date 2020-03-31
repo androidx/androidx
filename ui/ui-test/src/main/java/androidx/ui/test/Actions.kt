@@ -66,7 +66,7 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
             "Semantic Node has no parent layout with a Scroll SemanticsAction"
         )
 
-    val globalRect = node.globalBounds
+    val globalPosition = node.globalPosition
 
     val layoutNode = scrollableSemanticsNode.componentNode.findLastLayoutChild { true }
         ?: throw AssertionError(
@@ -77,8 +77,8 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
 
     runOnUiThread {
         scrollableSemanticsNode.config[SemanticsActions.ScrollTo].action(
-            globalRect.left - position.x,
-            globalRect.top - position.y
+            globalPosition.x - position.x,
+            globalPosition.y - position.y
         )
     }
 

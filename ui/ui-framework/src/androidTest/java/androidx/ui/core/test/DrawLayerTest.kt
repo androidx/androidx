@@ -206,4 +206,30 @@ class DrawLayerTest {
             assertEquals(PxPosition(5.px, 10.px), layoutCoordinates.positionInRoot)
         }
     }
+
+    @Test
+    fun testTotalClip() {
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                Padding(10.ipx) {
+                    FixedSize(10.ipx, Modifier.drawLayer(clipToBounds = true)) {
+                        FixedSize(
+                            10.ipx,
+                            PaddingModifier(20.ipx) +
+                                    positioner
+                        ) {
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        activity.runOnUiThread {
+            val bounds = layoutCoordinates.boundsInRoot
+            // should be completely clipped out
+            assertEquals(0.px, bounds.width)
+            assertEquals(0.px, bounds.height)
+        }
+    }
 }
