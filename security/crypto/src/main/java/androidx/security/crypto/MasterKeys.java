@@ -20,6 +20,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -89,7 +90,8 @@ public final class MasterKeys {
         return keyGenParameterSpec.getKeystoreAlias();
     }
 
-    private static void validate(KeyGenParameterSpec spec) {
+    @VisibleForTesting
+    static void validate(KeyGenParameterSpec spec) {
         if (spec.getKeySize() != KEY_SIZE) {
             throw new IllegalArgumentException(
                     "invalid key size, want " + KEY_SIZE + " bits got " + spec.getKeySize()
@@ -110,6 +112,12 @@ public final class MasterKeys {
             throw new IllegalArgumentException(
                     "invalid padding mode, want " + KeyProperties.ENCRYPTION_PADDING_NONE + " got "
                             + Arrays.toString(spec.getEncryptionPaddings()));
+        }
+        if (spec.isUserAuthenticationRequired()
+                && spec.getUserAuthenticationValidityDurationSeconds() < 1) {
+            throw new IllegalArgumentException(
+                    "per-operation authentication is not supported "
+                            + "(UserAuthenticationValidityDurationSeconds must be >0)");
         }
     }
 
