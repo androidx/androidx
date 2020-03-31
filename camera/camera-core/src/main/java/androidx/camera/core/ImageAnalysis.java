@@ -426,6 +426,17 @@ public final class ImageAnalysis extends UseCase {
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void onDestroy() {
+        clearAnalyzer();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
