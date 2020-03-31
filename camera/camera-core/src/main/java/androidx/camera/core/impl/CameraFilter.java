@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,12 @@ import androidx.annotation.NonNull;
 import java.util.Set;
 
 /**
- * A filter that selects a certain type of camera ids from a camera id set.
+ * The base interface for filtering cameras.
  */
-public interface CameraIdFilter {
+public interface CameraFilter {
     /**
-     * Returns a set of camera ids with the same type.
-     *
-     * @param cameraIds the camera id set to be filtered.
-     * @return the available camera id set.
+     * Returns a set of cameras that match requirement.
      */
     @NonNull
-    Set<String> filter(@NonNull Set<String> cameraIds);
+    Set<CameraInternal> filterCameras(@NonNull Set<CameraInternal> cameras);
 }

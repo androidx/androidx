@@ -23,8 +23,6 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.LensFacingCameraIdFilter;
-import androidx.camera.core.impl.LensFacingConverter;
 import androidx.core.util.Pair;
 import androidx.core.util.Preconditions;
 
@@ -33,7 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 /**
@@ -49,8 +46,6 @@ public final class FakeCameraFactory implements CameraFactory {
 
     @Nullable
     private Set<String> mCachedCameraIds;
-    @Nullable
-    private Map<Integer, Set<String>> mCachedLensFacingToIdMap;
     private String mFrontCameraId = DEFAULT_FRONT_ID;
     private String mBackCameraId = DEFAULT_BACK_ID;
 
@@ -83,7 +78,6 @@ public final class FakeCameraFactory implements CameraFactory {
             @NonNull Callable<CameraInternal> cameraInternal) {
         // Invalidate caches
         mCachedCameraIds = null;
-        mCachedLensFacingToIdMap = null;
 
         mCameraMap.put(cameraId, Pair.create(lensFacing, cameraInternal));
     }
@@ -164,58 +158,6 @@ public final class FakeCameraFactory implements CameraFactory {
                 return mBackCameraId;
             default:
                 return null;
-        }
-    }
-
-    @Override
-    @NonNull
-    public LensFacingCameraIdFilter getLensFacingCameraIdFilter(
-            @CameraSelector.LensFacing int lensFacing) {
-        // Lazily cache the map of LensFacing to set of camera ids. This cache will be
-        // invalidated anytime a new camera is added.
-        if (mCachedLensFacingToIdMap == null) {
-            // Create empty sets of ids for all LensFacing types
-            HashMap<Integer, Set<String>> lensFacingToIdMap = new HashMap<>();
-            for (int l : LensFacingConverter.values()) {
-                // Use a TreeSet to ensure lexical ordering of ids
-                lensFacingToIdMap.put(l, new TreeSet<>());
-            }
-
-            // Populate the sets of ids
-            for (Map.Entry<String, Pair<Integer, Callable<CameraInternal>>> entry :
-                    mCameraMap.entrySet()) {
-                Preconditions.checkNotNull(lensFacingToIdMap.get(entry.getValue().first))
-                        .add(entry.getKey());
-            }
-
-            mCachedLensFacingToIdMap = Collections.unmodifiableMap(lensFacingToIdMap);
-        }
-
-        return new SettableLensFacingCameraIdFilter(lensFacing,
-                mCachedLensFacingToIdMap.get(lensFacing));
-    }
-
-    private static final class SettableLensFacingCameraIdFilter extends LensFacingCameraIdFilter {
-        @Nullable
-        private final Set<String> mIds;
-
-        SettableLensFacingCameraIdFilter(@CameraSelector.LensFacing int lensFacing,
-                @Nullable Set<String> ids) {
-            super(lensFacing);
-            mIds = ids;
-        }
-
-        @Override
-        @NonNull
-        public Set<String> filter(@NonNull Set<String> cameraIds) {
-            if (mIds == null) {
-                return cameraIds;
-            }
-
-            // Use a TreeSet to maintain lexical order of ids
-            Set<String> resultCameraIdSet = new TreeSet<>(cameraIds);
-            resultCameraIdSet.retainAll(mIds);
-            return resultCameraIdSet;
         }
     }
 }

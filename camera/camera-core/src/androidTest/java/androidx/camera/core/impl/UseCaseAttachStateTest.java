@@ -34,8 +34,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.testing.DeferrableSurfacesUtil;
 import androidx.camera.testing.fakes.FakeAppConfig;
-import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.core.util.Preconditions;
@@ -365,9 +363,7 @@ public class UseCaseAttachStateTest {
 
         TestUseCase(FakeUseCaseConfig config, CameraSelector selector, String cameraId) {
             super(config);
-            String selectedCameraId = CameraX.getCameraWithCameraSelector(selector);
-            onAttach(new FakeCamera(selectedCameraId, null,
-                    new FakeCameraInfoInternal(selectedCameraId, 0, selector.getLensFacing())));
+            onAttach(CameraX.getCameraWithCameraSelector(selector));
             updateSuggestedResolution(new Size(640, 480));
         }
 
