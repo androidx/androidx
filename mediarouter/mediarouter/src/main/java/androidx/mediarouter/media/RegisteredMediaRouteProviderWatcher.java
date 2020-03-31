@@ -44,6 +44,7 @@ final class RegisteredMediaRouteProviderWatcher {
     private final ArrayList<RegisteredMediaRouteProvider> mProviders =
             new ArrayList<RegisteredMediaRouteProvider>();
     private boolean mRunning;
+    private boolean mTransferEnabled;
 
     public RegisteredMediaRouteProviderWatcher(Context context, Callback callback) {
         mContext = context;
@@ -85,6 +86,13 @@ final class RegisteredMediaRouteProviderWatcher {
         }
     }
 
+    public void enableTransfer() {
+        mTransferEnabled = true;
+        for (int i = mProviders.size() - 1; i >= 0; i--) {
+            mProviders.get(i).enableTransfer(/* shouldUpdateBinding = */ true);
+        }
+    }
+
     void scanPackages() {
         if (!mRunning) {
             return;
@@ -102,11 +110,17 @@ final class RegisteredMediaRouteProviderWatcher {
                     RegisteredMediaRouteProvider provider =
                             new RegisteredMediaRouteProvider(mContext,
                             new ComponentName(serviceInfo.packageName, serviceInfo.name));
+                    if (mTransferEnabled) {
+                        provider.enableTransfer(/* shouldUpdateBinding = */ false);
+                    }
                     provider.start();
                     mProviders.add(targetIndex++, provider);
                     mCallback.addProvider(provider);
                 } else if (sourceIndex >= targetIndex) {
                     RegisteredMediaRouteProvider provider = mProviders.get(sourceIndex);
+                    if (mTransferEnabled) {
+                        provider.enableTransfer(/* shouldUpdateBinding = */ false);
+                    }
                     provider.start(); // restart the provider if needed
                     provider.rebindIfDisconnected();
                     Collections.swap(mProviders, sourceIndex, targetIndex++);
