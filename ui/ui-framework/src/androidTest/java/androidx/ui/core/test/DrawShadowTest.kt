@@ -132,7 +132,7 @@ class DrawShadowTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                ShadowContainer(elevation, modifier = Modifier.drawLayer())
+                ShadowContainer(elevation, modifier = Modifier.drawLayer(clipToBounds = true))
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
