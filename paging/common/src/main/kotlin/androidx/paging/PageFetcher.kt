@@ -112,11 +112,12 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 previousGeneration?.close()
 
                 Pager(
-                    initialKey,
-                    pagingSource,
-                    config,
-                    remoteMediatorAccessor,
-                    retryChannel.asFlow()
+                    initialKey = initialKey,
+                    pagingSource = pagingSource,
+                    config = config,
+                    remoteMediatorAccessor = remoteMediatorAccessor,
+                    retryFlow = retryChannel.asFlow(),
+                    invalidate = this@PageFetcher::refresh
                 )
             }
             .filterNotNull()

@@ -28,6 +28,7 @@ import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -51,6 +52,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.absoluteValue
 
 /**
  * Holds a generation of pageable data, a snapshot of data loaded by [PagingSource]. An instance
@@ -62,7 +64,8 @@ internal class Pager<Key : Any, Value : Any>(
     internal val pagingSource: PagingSource<Key, Value>,
     private val config: PagingConfig,
     private val remoteMediatorAccessor: RemoteMediatorAccessor<Key, Value>? = null,
-    private val retryFlow: Flow<Unit>
+    private val retryFlow: Flow<Unit>,
+    private val invalidate: () -> Unit = {}
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
@@ -169,8 +172,26 @@ internal class Pager<Key : Any, Value : Any>(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     private fun CoroutineScope.startConsumingHints() {
+        // Pseudo-tiling via invalidation on jumps.
+        if (config.jumpThreshold != COUNT_UNDEFINED) {
+            launch {
+                hintChannel.asFlow()
+                    .collect { hint ->
+                        stateLock.withLock {
+                            with(state) {
+                                hint.withCoercedHint { _, _, hintOffset ->
+                                    if (hintOffset.absoluteValue >= config.jumpThreshold) {
+                                        invalidate()
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }
+        }
+
         launch {
             state.consumePrependGenerationIdAsFlow()
                 .transformLatest { generationId ->
@@ -481,13 +502,13 @@ internal class Pager<Key : Any, Value : Any>(
             generationId,
             pageIndex,
             indexInPage,
-            config.prefetchDistance + hintOffset
+            config.prefetchDistance + hintOffset.absoluteValue
         )
         END -> nextAppendKey(
             generationId,
             pageIndex,
             indexInPage,
-            config.prefetchDistance + hintOffset
+            config.prefetchDistance + hintOffset.absoluteValue
         )
         REFRESH -> throw IllegalArgumentException("Just use initialKey directly")
     }

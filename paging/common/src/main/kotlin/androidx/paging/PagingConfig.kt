@@ -17,6 +17,9 @@
 package androidx.paging
 
 import androidx.annotation.IntRange
+import androidx.paging.PagingConfig.Builder
+import androidx.paging.PagingConfig.Companion.MAX_SIZE_UNBOUNDED
+import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 
 /**
  * Configures how to load content from a [PagingSource].
@@ -75,7 +78,15 @@ class PagingConfig(
      * @see Builder.setMaxSize
      */
     @JvmField
-    val maxSize: Int = MAX_SIZE_UNBOUNDED
+    val maxSize: Int = MAX_SIZE_UNBOUNDED,
+
+    /**
+     * Threshold for number of items scrolled outside the bounds of loaded items to trigger
+     * invalidate. Defaults to [COUNT_UNDEFINED], which disables invalidation due to scrolling
+     * large distances.
+     */
+    @JvmField
+    val jumpThreshold: Int = COUNT_UNDEFINED
 ) {
     init {
         if (!enablePlaceholders && prefetchDistance == 0) {
@@ -92,7 +103,12 @@ class PagingConfig(
                         ", maxSize=$maxSize"
             )
         }
+
+        require(jumpThreshold == COUNT_UNDEFINED || jumpThreshold > 0) {
+            "jumpThreshold must be positive to enable jumps or COUNT_UNDEFINED to disable jumping."
+        }
     }
+
     companion object {
         /**
          * When [maxSize] is set to [MAX_SIZE_UNBOUNDED], the maximum number of items loaded is
