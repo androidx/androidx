@@ -18,7 +18,7 @@ package androidx.ui.input
 
 import android.view.inputmethod.ExtractedText
 
-internal fun InputState.toExtractedText(): ExtractedText {
+internal fun EditorValue.toExtractedText(): ExtractedText {
     val res = ExtractedText()
     res.text = text
     res.partialEndOffset = text.length

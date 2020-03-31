@@ -21,7 +21,7 @@ import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.core.input.FocusManagerImpl
-import androidx.ui.input.InputState
+import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
@@ -44,7 +44,7 @@ class TextFieldFocusTest {
     @Composable
     private fun TextFieldApp(dataList: List<FocusTestData>) {
         for (data in dataList) {
-            val editor = state { InputState() }
+            val editor = state { EditorValue() }
             CoreTextField(
                 value = editor.value,
                 modifier = Modifier.None,

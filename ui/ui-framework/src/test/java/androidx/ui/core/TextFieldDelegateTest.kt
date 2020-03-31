@@ -24,7 +24,7 @@ import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.ImeAction
-import androidx.ui.input.InputState
+import androidx.ui.input.EditorValue
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.SetSelectionEditOp
@@ -67,7 +67,7 @@ class TextFieldDelegateTest {
     private lateinit var canvas: Canvas
     private lateinit var mDelegate: TextDelegate
     private lateinit var processor: EditProcessor
-    private lateinit var onValueChange: (InputState) -> Unit
+    private lateinit var onValueChange: (EditorValue) -> Unit
     private lateinit var onEditorActionPerformed: (Any) -> Unit
     private lateinit var textInputService: TextInputService
     private lateinit var layoutCoordinates: LayoutCoordinates
@@ -98,14 +98,14 @@ class TextFieldDelegateTest {
     @Test
     fun test_on_edit_command() {
         val ops = listOf(CommitTextEditOp("Hello, World", 1))
-        val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 1))
 
         whenever(processor.onEditCommands(ops)).thenReturn(dummyEditorState)
 
         TextFieldDelegate.onEditCommand(ops, processor, onValueChange)
 
         verify(onValueChange, times(1)).invoke(eq(
-            InputState(
+            EditorValue(
             text = dummyEditorState.text,
             selection = dummyEditorState.selection
         )
@@ -116,7 +116,7 @@ class TextFieldDelegateTest {
     fun test_on_release() {
         val position = PxPosition(100.px, 200.px)
         val offset = 10
-        val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
         whenever(textLayoutResult.getOffsetForPosition(position)).thenReturn(offset)
@@ -139,7 +139,7 @@ class TextFieldDelegateTest {
         assertEquals(1, captor.firstValue.size)
         assertTrue(captor.firstValue[0] is SetSelectionEditOp)
         verify(onValueChange, times(1)).invoke(eq(
-            InputState(
+            EditorValue(
                 text = dummyEditorState.text,
                 selection = dummyEditorState.selection
             )
@@ -170,12 +170,12 @@ class TextFieldDelegateTest {
 
     @Test
     fun on_focus() {
-        val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 1))
         TextFieldDelegate.onFocus(textInputService, dummyEditorState, processor,
             KeyboardType.Text, ImeAction.Unspecified, onValueChange, onEditorActionPerformed)
         verify(textInputService).startInput(
             eq(
-                InputState(
+                EditorValue(
                 text = dummyEditorState.text,
                 selection = dummyEditorState.selection
             )
@@ -192,7 +192,7 @@ class TextFieldDelegateTest {
         val captor = argumentCaptor<List<EditOperation>>()
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
-        whenever(processor.onEditCommands(captor.capture())).thenReturn(InputState())
+        whenever(processor.onEditCommands(captor.capture())).thenReturn(EditorValue())
 
         TextFieldDelegate.onBlur(
             textInputService,
@@ -213,7 +213,7 @@ class TextFieldDelegateTest {
         val captor = argumentCaptor<List<EditOperation>>()
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
-        whenever(processor.onEditCommands(captor.capture())).thenReturn(InputState())
+        whenever(processor.onEditCommands(captor.capture())).thenReturn(EditorValue())
 
         TextFieldDelegate.onBlur(
             textInputService,
@@ -235,7 +235,7 @@ class TextFieldDelegateTest {
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
         val dummyPoint = PxPosition(5.px, 6.px)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
-        val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
@@ -252,7 +252,7 @@ class TextFieldDelegateTest {
 
     @Test
     fun notify_focused_rect_without_focus() {
-        val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
@@ -273,7 +273,7 @@ class TextFieldDelegateTest {
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
         val dummyPoint = PxPosition(5.px, 6.px)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
-        val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(12, 12))
+        val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(12, 12))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
@@ -315,7 +315,7 @@ class TextFieldDelegateTest {
     fun check_notify_rect_uses_offset_map() {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
         val dummyPoint = PxPosition(5.px, 6.px)
-        val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 3))
+        val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 3))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
@@ -338,7 +338,7 @@ class TextFieldDelegateTest {
     fun check_on_release_uses_offset_map() {
         val position = PxPosition(100.px, 200.px)
         val offset = 10
-        val dummyEditorState = InputState(text = "Hello, World", selection = TextRange(1, 1))
+        val dummyEditorState = EditorValue(text = "Hello, World", selection = TextRange(1, 1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
 
         whenever(textLayoutResult.getOffsetForPosition(position)).thenReturn(offset)
@@ -365,7 +365,7 @@ class TextFieldDelegateTest {
         assertEquals(cursorOffsetInTransformedText, setSelectionEditOp.start)
         assertEquals(cursorOffsetInTransformedText, setSelectionEditOp.end)
         verify(onValueChange, times(1)).invoke(eq(
-            InputState(
+            EditorValue(
                 text = dummyEditorState.text,
                 selection = dummyEditorState.selection
             )
@@ -375,7 +375,7 @@ class TextFieldDelegateTest {
     @Test
     fun use_identity_mapping_if_visual_transformation_is_null() {
         val (visualText, offsetMap) = TextFieldDelegate.applyVisualFilter(
-            InputState(text = "Hello, World"),
+            EditorValue(text = "Hello, World"),
             null)
 
         assertEquals("Hello, World", visualText.text)

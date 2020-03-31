@@ -56,7 +56,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
      * Start text input session for given client.
      */
     open fun startInput(
-        initModel: InputState,
+        initModel: EditorValue,
         keyboardType: KeyboardType,
         imeAction: ImeAction,
         onEditCommand: (List<EditOperation>) -> Unit,
@@ -99,7 +99,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     /*
      * Notify the new editor model to IME.
      */
-    open fun onStateUpdated(token: InputSessionToken, model: InputState) = ignoreIfExpired(token) {
+    open fun onStateUpdated(token: InputSessionToken, model: EditorValue) = ignoreIfExpired(token) {
         platformTextInputService.onStateUpdated(model)
     }
 
@@ -119,7 +119,7 @@ interface PlatformTextInputService {
      * Start text input session for given client.
      */
     fun startInput(
-        initModel: InputState,
+        initModel: EditorValue,
         keyboardType: KeyboardType,
         imeAction: ImeAction,
         onEditCommand: (List<EditOperation>) -> Unit,
@@ -146,7 +146,7 @@ interface PlatformTextInputService {
     /*
      * Notify the new editor model to IME.
      */
-    fun onStateUpdated(model: InputState)
+    fun onStateUpdated(model: EditorValue)
 
     /**
      * Notify the focused rectangle to the system.
