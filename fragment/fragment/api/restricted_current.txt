@@ -272,7 +272,7 @@ package androidx.fragment.app {
     method public void onSupportInvalidateOptionsMenu();
   }
 
-  public abstract class FragmentManager {
+  public abstract class FragmentManager implements androidx.fragment.app.FragmentResultOwner {
     ctor public FragmentManager();
     method public void addOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public androidx.fragment.app.FragmentTransaction beginTransaction();
@@ -302,6 +302,8 @@ package androidx.fragment.app {
     method public void removeOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public androidx.fragment.app.Fragment.SavedState? saveFragmentInstanceState(androidx.fragment.app.Fragment);
     method public void setFragmentFactory(androidx.fragment.app.FragmentFactory);
+    method public final void setResult(String, android.os.Bundle?);
+    method public final void setResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener?);
     method public void unregisterFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks);
     field public static final int POP_BACK_STACK_INCLUSIVE = 1; // 0x1
   }
@@ -348,6 +350,15 @@ package androidx.fragment.app {
     method @Deprecated public boolean isViewFromObject(android.view.View, Object);
     field @Deprecated public static final int BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT = 1; // 0x1
     field @Deprecated public static final int BEHAVIOR_SET_USER_VISIBLE_HINT = 0; // 0x0
+  }
+
+  public interface FragmentResultListener {
+    method public void onFragmentResult(String, android.os.Bundle);
+  }
+
+  public interface FragmentResultOwner {
+    method public void setResult(String, android.os.Bundle?);
+    method public void setResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener?);
   }
 
   @Deprecated public abstract class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {
