@@ -38,8 +38,7 @@ class TextDelegateTest {
             text = AnnotatedString(text = ""),
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
 
         assertThat(textDelegate.maxLines).isEqualTo(Int.MAX_VALUE)
@@ -53,8 +52,7 @@ class TextDelegateTest {
             text = text,
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
 
         assertThat(textDelegate.text).isEqualTo(text)
@@ -69,8 +67,7 @@ class TextDelegateTest {
             style = TextStyle.Default,
             maxLines = maxLines,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
 
         assertThat(textDelegate.maxLines).isEqualTo(maxLines)
@@ -85,8 +82,7 @@ class TextDelegateTest {
             style = TextStyle.Default,
             overflow = overflow,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr
+            resourceLoader = resourceLoader
         )
 
         assertThat(textDelegate.overflow).isEqualTo(overflow)
@@ -98,8 +94,8 @@ class TextDelegateTest {
             text = AnnotatedString(text = ""),
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr)
+            resourceLoader = resourceLoader
+        )
 
         textDelegate.minIntrinsicWidth
     }
@@ -110,8 +106,8 @@ class TextDelegateTest {
             text = AnnotatedString(text = ""),
             style = TextStyle.Default,
             density = density,
-            resourceLoader = resourceLoader,
-            layoutDirection = LayoutDirection.Ltr)
+            resourceLoader = resourceLoader
+        )
 
         textDelegate.maxIntrinsicWidth
     }
