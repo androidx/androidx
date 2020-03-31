@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -44,7 +43,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageSaver.OnImageSavedCallback;
 import androidx.camera.core.ImageSaver.SaveError;
-import androidx.camera.testing.AndroidUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -271,17 +269,14 @@ public class ImageSaverTest {
     }
 
     @Test
-    public void saveToUriWithInvalidDataColumn_onErrorCalled() throws InterruptedException {
-        assumeFalse("Emulator does not throw error for invalid path.",
-                AndroidUtil.isEmulator());
-
+    public void saveToUriWithEmptyCollection_onErrorCalled() throws InterruptedException {
         // Arrange.
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
         contentValues.put(MediaStore.MediaColumns.DATA, INVALID_DATA_PATH);
         ImageSaver imageSaver = getDefaultImageSaver(mMockYuvImage,
                 new ImageCapture.OutputFileOptions.Builder(mContentResolver,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        Uri.EMPTY,
                         contentValues).build());
 
         // Act.
