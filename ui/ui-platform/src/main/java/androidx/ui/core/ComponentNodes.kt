@@ -255,6 +255,21 @@ sealed class ComponentNode {
         return false
     }
 
+    private val _zIndexSortedChildren = mutableListOf<ComponentNode>()
+
+    /**
+     * Returns the children list sorted by their [LayoutNode.zIndex].
+     * Note that the object is reused so you shouldn't save it for later.
+     */
+    @PublishedApi
+    internal val zIndexSortedChildren: List<ComponentNode>
+        get() {
+            _zIndexSortedChildren.clear()
+            _zIndexSortedChildren.addAll(children)
+            _zIndexSortedChildren.sortWith(ZIndexComparator)
+            return _zIndexSortedChildren
+        }
+
     override fun toString(): String {
         return "${simpleIdentityToString(this)} children: ${children.size}"
     }
@@ -281,6 +296,15 @@ sealed class ComponentNode {
         }
         return tree.toString()
     }
+}
+
+/**
+ * Comparator allowing to sort nodes by zIndex
+ */
+private val ZIndexComparator = Comparator<ComponentNode> { node1, node2 ->
+    val depth1 = if (node1 is LayoutNode) node1.zIndex else 0f
+    val depth2 = if (node2 is LayoutNode) node2.zIndex else 0f
+    if (depth1 > depth2) 1 else if (depth1 < depth2) -1 else 0
 }
 
 /**
@@ -977,10 +1001,19 @@ class LayoutNode : ComponentNode(), Measurable {
     internal var layoutNodeWrapper = innerLayoutNodeWrapper
 
     /**
+     * zIndex defines the drawing order of the LayoutNode. Children with larger zIndex are drawn
+     * after others (the original order is used for the nodes with the same zIndex).
+     * Default zIndex is 0. Current implementation is using the first(front) DrawLayerModifier's
+     * elevation as a zIndex. We will have a separate zIndex modifier later instead to decouple
+     * this features.
+     */
+    internal val zIndex: Float get() = outerLayerModifier?.elevation ?: 0f
+
+    /**
      * The outermost DrawLayerModifier in the modifier chain or `null` if there are no
      * DrawLayerModifiers in the modifier chain.
      */
-    internal var outerLayer: LayerWrapper? = null
+    private var outerLayerModifier: DrawLayerModifier? = null
 
     /**
      * The [Modifier] currently applied to this node.
@@ -995,7 +1028,7 @@ class LayoutNode : ComponentNode(), Measurable {
             val addedCallback = hasNewPositioningCallback()
             onPositionedCallbacks.clear()
             onChildPositionedCallbacks.clear()
-            outerLayer = null
+            outerLayerModifier = null
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 var wrapper = toWrap
                 // The order in which the following blocks occur matters.  For example, the
@@ -1013,7 +1046,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 if (mod is DrawLayerModifier) {
                     wrapper = LayerWrapper(wrapper, mod)
-                    outerLayer = wrapper
+                    outerLayerModifier = mod
                 }
                 if (mod is PointerInputModifier) {
                     wrapper = PointerInputDelegatingWrapper(wrapper, mod)
@@ -1679,13 +1712,3 @@ internal fun ComponentNode.requireFirstLayoutNodeInTree(): LayoutNode {
  * DataNodeKey for ParentData
  */
 val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
-
-/**
- * True when there is a DrawLayerModifier in the modifier chain
- */
-internal val LayoutNode.hasLayer: Boolean get() = outerLayer != null
-
-/**
- * True if the outermost layer has elevation > 0
- */
-internal val LayoutNode.hasElevation get() = outerLayer?.layer?.hasElevation ?: false

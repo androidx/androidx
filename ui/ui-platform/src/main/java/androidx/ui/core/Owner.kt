@@ -186,7 +186,8 @@ interface Owner {
      */
     fun createLayer(
         drawLayerModifier: DrawLayerModifier,
-        drawBlock: (Canvas, Density) -> Unit
+        drawBlock: (Canvas, Density) -> Unit,
+        invalidateParentLayer: () -> Unit
     ): OwnedLayer
 
     val measureIteration: Long
