@@ -70,10 +70,11 @@ import kotlin.math.sqrt
  * typically be an [IconButton] or [IconToggleButton].
  * @param actions The actions displayed at the end of the TopAppBar. This should typically be
  * [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
- * @param color The background color for the TopAppBar. Use [Color.Transparent] to have no color.
+ * @param backgroundColor The background color for the TopAppBar. Use [Color.Transparent] to have
+ * no color.
  * @param contentColor The preferred content color provided by this TopAppBar to its children.
- * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
- * the theme, this will keep the same value set above this TopAppBar.
+ * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor]
+ * is not a color from the theme, this will keep the same value set above this TopAppBar.
  * @param elevation the elevation of this TopAppBar.
  */
 @Composable
@@ -82,11 +83,11 @@ fun TopAppBar(
     modifier: Modifier = Modifier.None,
     navigationIcon: @Composable() (() -> Unit)? = null,
     actions: @Composable() RowScope.() -> Unit = {},
-    color: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = TopAppBarElevation
 ) {
-    AppBar(color, contentColor, elevation, RectangleShape, modifier) {
+    AppBar(backgroundColor, contentColor, elevation, RectangleShape, modifier) {
         val emphasisLevels = EmphasisAmbient.current
         if (navigationIcon == null) {
             Spacer(TitleInsetWithoutIcon)
@@ -129,10 +130,11 @@ fun TopAppBar(
  * This TopAppBar has no pre-defined slots for content, allowing you to customize the layout of
  * content inside.
  *
- * @param color The background color for the TopAppBar. Use [Color.Transparent] to have no color.
+ * @param backgroundColor The background color for the TopAppBar. Use [Color.Transparent] to have
+ * no color.
  * @param contentColor The preferred content color provided by this TopAppBar to its children.
- * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
- * the theme, this will keep the same value set above this TopAppBar.
+ * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor] is
+ * not a color from the theme, this will keep the same value set above this TopAppBar.
  * @param elevation the elevation of this TopAppBar.
  * @param content the content of this TopAppBar.The default layout here is a [Row],
  * so content inside will be placed horizontally.
@@ -140,12 +142,19 @@ fun TopAppBar(
 @Composable
 fun TopAppBar(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = TopAppBarElevation,
     content: @Composable() RowScope.() -> Unit
 ) {
-    AppBar(color, contentColor, elevation, RectangleShape, modifier = modifier, children = content)
+    AppBar(
+        backgroundColor,
+        contentColor,
+        elevation,
+        RectangleShape,
+        modifier = modifier,
+        children = content
+    )
 }
 
 object BottomAppBar {
@@ -208,10 +217,11 @@ object BottomAppBar {
  *
  * @sample androidx.ui.material.samples.SimpleBottomAppBar
  *
- * @param color The background color for the BottomAppBar. Use [Color.Transparent] to have no color.
+ * @param backgroundColor The background color for the BottomAppBar. Use [Color.Transparent] to
+ * have no color.
  * @param contentColor The preferred content color provided by this BottomAppBar to its children.
- * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
- * the theme, this will keep the same value set above this BottomAppBar.
+ * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor] is
+ * not a color from the theme, this will keep the same value set above this BottomAppBar.
  * @param fabConfiguration The [FabConfiguration] that controls where the [FloatingActionButton]
  * is placed inside the BottomAppBar. This is used both to determine the cutout position for
  * BottomAppBar (if cutoutShape is non-null) and to choose proper layout for BottomAppBar. If
@@ -225,8 +235,8 @@ object BottomAppBar {
 @Composable
 fun BottomAppBar(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
     fabConfiguration: FabConfiguration? = null,
     cutoutShape: Shape? = null,
     content: @Composable() RowScope.() -> Unit
@@ -240,7 +250,7 @@ fun BottomAppBar(
             fabConfiguration.fabSize.toPxSize()
         )
     }
-    AppBar(color, contentColor, BottomAppBarElevation, shape, modifier) {
+    AppBar(backgroundColor, contentColor, BottomAppBarElevation, shape, modifier) {
         // TODO: remove box and inline row's children after b/148014745 is fixed
         Box(Modifier.fillMaxSize(), gravity = ContentGravity.Center) {
             // TODO: b/150609566 clarify emphasis for children
@@ -485,7 +495,7 @@ internal fun calculateRoundedEdgeIntercept(
  */
 @Composable
 private fun AppBar(
-    color: Color,
+    backgroundColor: Color,
     contentColor: Color,
     elevation: Dp,
     shape: Shape,
@@ -493,7 +503,7 @@ private fun AppBar(
     children: @Composable() RowScope.() -> Unit
 ) {
     Surface(
-        color = color,
+        color = backgroundColor,
         contentColor = contentColor,
         elevation = elevation,
         shape = shape,

@@ -115,10 +115,11 @@ import androidx.ui.unit.toPx
  * @param items the list containing the items used to build this TabRow
  * @param selectedIndex the index of the currently selected tab
  * @param modifier optional [Modifier] for this TabRow
- * @param color The background color for the TabRow. Use [Color.Transparent] to have no color.
+ * @param backgroundColor The background color for the TabRow. Use [Color.Transparent] to have
+ * no color.
  * @param contentColor The preferred content color provided by this TabRow to its children.
- * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
- * the theme, this will keep the same value set above this TabRow.
+ * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor] is
+ * not a color from the theme, this will keep the same value set above this TabRow.
  * @param scrollable if the tabs should be scrollable. If `false` the tabs will take up an equal
  * amount of the space given to TabRow. If `true` the tabs will take up only as much space as they
  * need, with any excess tabs positioned off screen and able to be scrolled to.
@@ -134,8 +135,8 @@ fun <T> TabRow(
     items: List<T>,
     selectedIndex: Int,
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
     scrollable: Boolean = false,
     indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
         TabRow.IndicatorContainer(tabPositions, selectedIndex) {
@@ -147,7 +148,7 @@ fun <T> TabRow(
     },
     tab: @Composable() (Int, T) -> Unit
 ) {
-    Surface(modifier = modifier, color = color, contentColor = contentColor) {
+    Surface(modifier = modifier, color = backgroundColor, contentColor = contentColor) {
         WithConstraints { constraints, _ ->
             val width = constraints.maxWidth
             // TODO: force scrollable for tabs that will be too small if they take up equal space?
