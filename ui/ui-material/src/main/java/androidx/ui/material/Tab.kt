@@ -59,9 +59,9 @@ import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
+import androidx.ui.unit.coerceAtLeast
 import androidx.ui.unit.dp
 import androidx.ui.unit.max
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 
@@ -232,7 +232,7 @@ private fun ScrollableTabRow(
     }
 
     HorizontalScroller(
-        scrollerPosition = scrollableTabData.position,
+        scrollerPosition = scrollableTabData.scrollerPosition,
         modifier = Modifier.fillMaxWidth()
     ) {
         val indicatorTag = "indicator"
@@ -302,10 +302,10 @@ private fun ScrollableTabData(
     tabPositions: List<TabPosition>,
     visibleWidth: IntPx,
     edgeOffset: IntPx
-) = ScrollerPosition().let {
-    remember(it) {
+): ScrollableTabData = ScrollerPosition().let { scrollerPosition ->
+    remember(scrollerPosition) {
         ScrollableTabData(
-            position = it,
+            scrollerPosition = scrollerPosition,
             initialSelectedTab = initialSelectedTab,
             tabPositions = tabPositions,
             visibleWidth = visibleWidth,
@@ -318,7 +318,7 @@ private fun ScrollableTabData(
  * Class holding onto state needed for [ScrollableTabRow]
  */
 private class ScrollableTabData(
-    val position: ScrollerPosition,
+    val scrollerPosition: ScrollerPosition,
     initialSelectedTab: Int,
     var tabPositions: List<TabPosition>,
     var visibleWidth: IntPx,
@@ -326,32 +326,36 @@ private class ScrollableTabData(
 ) {
     var selectedTab: Int = initialSelectedTab
         set(value) {
-            if (field != value && !isTabFullyVisible(value)) {
-                val calculatedOffset = calculateTabOffset(value)
-                position.smoothScrollTo(calculatedOffset.value)
+            if (field != value) {
+                tabPositions.getOrNull(value)?.let { scrollToTab(it) }
+                field = value
             }
-            field = value
         }
 
-    private fun isTabFullyVisible(index: Int): Boolean {
-        val tabPosition = tabPositions[index]
-        val leftEdgeStart = position.value.px
-        val leftEdgeVisible = leftEdgeStart <= tabPosition.left.toPx()
-        val rightEdgeEnd = leftEdgeStart + visibleWidth
-        val rightEdgeVisible = rightEdgeEnd >= tabPosition.right.toPx()
-        return leftEdgeVisible && rightEdgeVisible
+    /**
+     * Scrolls to the tab with [tabPosition], trying to place it in the center of the screen or as
+     * close to the center as possible.
+     */
+    private fun scrollToTab(tabPosition: TabPosition) {
+        val calculatedOffset = tabPosition.calculateTabOffset()
+        scrollerPosition.smoothScrollTo(calculatedOffset)
     }
 
-    // TODO: this currently always centers the tab (if possible), should we support only scrolling
-    // until the tab just becomes visible?
-    private fun calculateTabOffset(index: Int): Px {
-        val tabPosition = tabPositions[index]
-        val tabOffset = tabPosition.left
+    /**
+     * @return the offset required to horizontally center the tab inside this TabRow.
+     * If the tab is at the start / end, and there is not enough space to fully centre the tab, this
+     * will just clamp to the min / max position given the max width.
+     */
+    private fun TabPosition.calculateTabOffset(): Float {
+        val tabOffset = left
         val scrollerCenter = visibleWidth / 2
-        val tabWidth = tabPosition.width
+        val tabWidth = width
         val centeredTabOffset = tabOffset - (scrollerCenter - tabWidth / 2)
         val totalTabRowWidth = tabPositions.last().right + edgeOffset
-        return centeredTabOffset.coerceIn(IntPx.Zero, totalTabRowWidth - visibleWidth).toPx()
+        // How much space we have to scroll. If the visible width is <= to the total width, then
+        // we have no space to scroll as everything is always visible.
+        val availableSpace = (totalTabRowWidth - visibleWidth).coerceAtLeast(IntPx.Zero)
+        return centeredTabOffset.coerceIn(IntPx.Zero, availableSpace).toPx().value
     }
 }
 
