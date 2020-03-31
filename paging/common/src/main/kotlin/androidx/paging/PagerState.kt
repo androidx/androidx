@@ -351,6 +351,6 @@ internal sealed class LoadError<Key : Any, Value : Any> {
 
     internal class Mediator<Key : Any, Value : Any>(
         val loadType: LoadType,
-        val state: PagingState<Key, Value>?
+        val state: PagingState<Key, Value>
     ) : LoadError<Key, Value>()
 }

@@ -70,8 +70,9 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
         return when (dataSource.type) {
             POSITIONAL -> state.anchorPosition as Key
             PAGE_KEYED -> null
-            ITEM_KEYED -> state.closestItemToPosition(state.anchorPosition)
-                .let { dataSource.getKeyInternal(it) }
+            ITEM_KEYED -> state.anchorPosition
+                ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition) }
+                ?.let { item -> dataSource.getKeyInternal(item) }
         }
     }
 }

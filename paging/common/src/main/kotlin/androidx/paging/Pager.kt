@@ -160,6 +160,7 @@ internal class Pager<Key : Any, Value : Any>(
         return stateLock.withLock {
             lastHint?.let { lastHint ->
                 if (state.pages.isEmpty()) {
+                    // Default to initialKey if no pages loaded.
                     null
                 } else {
                     state.currentPagingState(lastHint)
@@ -264,7 +265,7 @@ internal class Pager<Key : Any, Value : Any>(
                     } else {
                         state.loadStates[REFRESH] = Idle
                         if (result.prevKey == null || result.nextKey == null) {
-                            val pagingState = lastHint?.let { state.currentPagingState(it) }
+                            val pagingState = state.currentPagingState(lastHint)
 
                             if (result.prevKey == null) {
                                 state.setLoading(START)
@@ -382,7 +383,7 @@ internal class Pager<Key : Any, Value : Any>(
                         state.loadStates[loadType] = if (updateLoadStateToDone) Done else Idle
                     }
                 } else {
-                    val pagingState = lastHint?.let { state.currentPagingState(it) }
+                    val pagingState = state.currentPagingState(lastHint)
 
                     if (params.loadType == START && result.prevKey == null) {
                         state.setLoading(START)
@@ -407,7 +408,7 @@ internal class Pager<Key : Any, Value : Any>(
     private fun RemoteMediatorAccessor<Key, Value>.launchBoundaryCall(
         coroutineScope: CoroutineScope,
         loadType: LoadType,
-        pagingState: PagingState<Key, Value>?
+        pagingState: PagingState<Key, Value>
     ) {
         coroutineScope.launch {
             when (val boundaryResult = load(coroutineScope, loadType, pagingState)) {
@@ -463,8 +464,7 @@ internal class Pager<Key : Any, Value : Any>(
         }
 
         // Save the hint for retry on incoming retry signal, typically sent from user interaction.
-        val state = hint?.let { currentPagingState(it) }
-        failedHintsByLoadType[loadType] = LoadError.Mediator(loadType, state)
+        failedHintsByLoadType[loadType] = LoadError.Mediator(loadType, currentPagingState(hint))
     }
 
     /**
@@ -529,23 +529,29 @@ internal class Pager<Key : Any, Value : Any>(
     }
 
     private suspend fun PagerState<Key, Value>.currentPagingState(
-        lastHint: ViewportHint
+        lastHint: ViewportHint?
     ): PagingState<Key, Value> {
-        return lastHint.withCoercedHint { indexInPage, pageIndex, _ ->
-            var lastAccessedIndex = indexInPage
-            var i = 0
-            while (i < pageIndex) {
-                lastAccessedIndex += pages[i].data.size
-                i++
-            }
+        val anchorPosition = when {
+            state.pages.isEmpty() -> null
+            lastHint == null -> null
+            else -> lastHint.withCoercedHint { indexInPage, pageIndex, _ ->
+                var lastAccessedIndex = indexInPage
+                var i = 0
+                while (i < pageIndex) {
+                    lastAccessedIndex += pages[i].data.size
+                    i++
+                }
 
-            PagingState(
-                pages = state.pages.toList(),
-                anchorPosition = lastAccessedIndex + state.placeholdersStart,
-                config = config,
-                placeholdersStart = state.placeholdersStart
-            )
+                lastAccessedIndex + state.placeholdersStart
+            }
         }
+
+        return PagingState(
+            pages = state.pages.toList(),
+            anchorPosition = anchorPosition,
+            config = config,
+            placeholdersStart = state.placeholdersStart
+        )
     }
 }
 

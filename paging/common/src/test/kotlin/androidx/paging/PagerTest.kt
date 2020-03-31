@@ -1038,6 +1038,60 @@ class PagerTest {
             )
         }
     }
+
+    @Test
+    fun remoteMediator_initialLoadTriggersPrepend() = testScope.runBlockingTest {
+        val remoteMediator = RemoteMediatorMock()
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 1,
+            maxSize = 5
+        )
+        val pager = Pager(
+            initialKey = 0,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator),
+            retryFlow = retryCh.asFlow()
+        )
+
+        collectPagerData(pager) { _, _ ->
+            advanceUntilIdle()
+
+            assertEquals(1, remoteMediator.loadEvents.size)
+            assertEquals(START, remoteMediator.loadEvents[0].loaddType)
+            assertNotNull(remoteMediator.loadEvents[0].state)
+        }
+    }
+
+    @Test
+    fun remoteMediator_initialLoadTriggersAppend() = testScope.runBlockingTest {
+        val remoteMediator = RemoteMediatorMock()
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 1,
+            maxSize = 5
+        )
+        val pager = Pager(
+            initialKey = 99,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator),
+            retryFlow = retryCh.asFlow()
+        )
+
+        collectPagerData(pager) { _, _ ->
+            advanceUntilIdle()
+
+            assertEquals(1, remoteMediator.loadEvents.size)
+            assertEquals(END, remoteMediator.loadEvents[0].loaddType)
+            assertNotNull(remoteMediator.loadEvents[0].state)
+        }
+    }
 }
 
 @Suppress("SuspendFunctionOnCoroutineScope")
