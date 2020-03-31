@@ -22,7 +22,7 @@ import androidx.ui.core.CoreTextField
 import androidx.ui.core.Modifier
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.ImeAction
-import androidx.ui.input.InputState
+import androidx.ui.input.EditorValue
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
 import androidx.ui.text.TextLayoutResult
@@ -106,13 +106,13 @@ fun TextField(
     visualTransformation: VisualTransformation? = null,
     onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
-    val fullModel = state { InputState() }
+    val fullModel = state { EditorValue() }
     if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
         val newSelection = TextRange(
             value.selection.start.coerceIn(0, value.text.length),
             value.selection.end.coerceIn(0, value.text.length)
         )
-        fullModel.value = InputState(
+        fullModel.value = EditorValue(
             text = value.text,
             selection = newSelection
         )

@@ -27,7 +27,7 @@ import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.ImeAction
-import androidx.ui.input.InputState
+import androidx.ui.input.EditorValue
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
@@ -43,9 +43,9 @@ import androidx.ui.unit.PxPosition
  */
 @Composable
 fun CoreTextField(
-    value: InputState,
+    value: EditorValue,
     modifier: Modifier,
-    onValueChange: (InputState) -> Unit = { },
+    onValueChange: (EditorValue) -> Unit,
     textStyle: TextStyle = TextStyle.Default,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
@@ -62,7 +62,7 @@ fun CoreTextField(
     // the latest state.
     val generation = state { 0 }
     val Wrapper: @Composable() (Int, @Composable() () -> Unit) -> Unit = { _, child -> child() }
-    val onValueChangeWrapper: (InputState) -> Unit = { onValueChange(it); generation.value++ }
+    val onValueChangeWrapper: (EditorValue) -> Unit = { onValueChange(it); generation.value++ }
 
     Wrapper(generation.value) {
         // Ambients

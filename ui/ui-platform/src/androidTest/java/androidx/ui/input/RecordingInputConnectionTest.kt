@@ -43,7 +43,7 @@ class RecordingInputConnectionTest {
     fun setup() {
         listener = mock()
         ic = RecordingInputConnection(
-            InputState(
+            EditorValue(
                 "",
                 TextRange(0, 0)
             ), listener
@@ -56,7 +56,7 @@ class RecordingInputConnectionTest {
         assertEquals("", ic.getTextAfterCursor(100, 0))
 
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        ic.inputState = InputState(
+        ic.mEditorValue = EditorValue(
             text = "Hello, World",
             selection = TextRange(0, 0))
 
@@ -64,7 +64,7 @@ class RecordingInputConnectionTest {
         assertEquals("Hello, World", ic.getTextAfterCursor(100, 0))
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        ic.inputState = InputState(
+        ic.mEditorValue = EditorValue(
             text = "Hello, World",
             selection = TextRange(1, 1))
 
@@ -72,7 +72,7 @@ class RecordingInputConnectionTest {
         assertEquals("ello, World", ic.getTextAfterCursor(100, 0))
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        ic.inputState = InputState(
+        ic.mEditorValue = EditorValue(
             text = "Hello, World",
             selection = TextRange(12, 12))
 
@@ -83,7 +83,7 @@ class RecordingInputConnectionTest {
     @Test
     fun getTextBeforeAndAfterCursorTest_maxCharTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        ic.inputState = InputState(
+        ic.mEditorValue = EditorValue(
             text = "Hello, World",
             selection = TextRange(0, 0))
 
@@ -91,7 +91,7 @@ class RecordingInputConnectionTest {
         assertEquals("Hello", ic.getTextAfterCursor(5, 0))
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        ic.inputState = InputState(
+        ic.mEditorValue = EditorValue(
             text = "Hello, World",
             selection = TextRange(1, 1))
 
@@ -99,7 +99,7 @@ class RecordingInputConnectionTest {
         assertEquals("ello,", ic.getTextAfterCursor(5, 0))
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        ic.inputState = InputState(
+        ic.mEditorValue = EditorValue(
             text = "Hello, World",
             selection = TextRange(12, 12))
 
@@ -110,21 +110,21 @@ class RecordingInputConnectionTest {
     @Test
     fun getSelectedTextTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        ic.inputState = InputState(
+        ic.mEditorValue = EditorValue(
             text = "Hello, World",
             selection = TextRange(0, 0))
 
         assertEquals("", ic.getSelectedText(0))
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        ic.inputState = InputState(
+        ic.mEditorValue = EditorValue(
             text = "Hello, World",
             selection = TextRange(0, 1))
 
         assertEquals("H", ic.getSelectedText(0))
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        ic.inputState = InputState(
+        ic.mEditorValue = EditorValue(
             text = "Hello, World",
             selection = TextRange(0, 12))
 
@@ -135,7 +135,7 @@ class RecordingInputConnectionTest {
     fun commitTextTest() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "", selection = TextRange(0, 0))
 
         // Inserting "Hello, " into the empty text field.
         assertTrue(ic.commitText("Hello, ", 1))
@@ -150,7 +150,7 @@ class RecordingInputConnectionTest {
     fun commitTextTest_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "", selection = TextRange(0, 0))
 
         // IME set text "Hello, World." with two commitText API within the single batch session.
         // Do not callback to listener during batch session.
@@ -175,7 +175,7 @@ class RecordingInputConnectionTest {
     fun setComposingRegion() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "Hello, World.", selection = TextRange(0, 0))
 
         // Mark first "H" as composition.
         assertTrue(ic.setComposingRegion(0, 1))
@@ -190,7 +190,7 @@ class RecordingInputConnectionTest {
     fun setComposingRegion_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "Hello, World", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "Hello, World", selection = TextRange(0, 0))
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -214,7 +214,7 @@ class RecordingInputConnectionTest {
     fun setComposingTextTest() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "", selection = TextRange(0, 0))
 
         // Inserting "Hello, " into the empty text field.
         assertTrue(ic.setComposingText("Hello, ", 1))
@@ -229,7 +229,7 @@ class RecordingInputConnectionTest {
     fun setComposingTextTest_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "", selection = TextRange(0, 0))
 
         // IME set text "Hello, World." with two setComposingText API within the single batch
         // session. Do not callback to listener during batch session.
@@ -254,7 +254,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingText() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "Hello, World.", selection = TextRange(0, 0))
 
         // Delete first "Hello, " characters
         assertTrue(ic.deleteSurroundingText(0, 6))
@@ -269,7 +269,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingText_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "Hello, World", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "Hello, World", selection = TextRange(0, 0))
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -293,7 +293,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingTextInCodePoints() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "Hello, World.", selection = TextRange(0, 0))
 
         // Delete first "Hello, " characters
         assertTrue(ic.deleteSurroundingTextInCodePoints(0, 6))
@@ -308,7 +308,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingTextInCodePoints_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "Hello, World", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "Hello, World", selection = TextRange(0, 0))
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -332,7 +332,7 @@ class RecordingInputConnectionTest {
     fun setSelection() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "Hello, World.", selection = TextRange(0, 0))
 
         // Select "Hello, "
         assertTrue(ic.setSelection(0, 6))
@@ -347,7 +347,7 @@ class RecordingInputConnectionTest {
     fun setSelection_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "Hello, World", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "Hello, World", selection = TextRange(0, 0))
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -371,7 +371,7 @@ class RecordingInputConnectionTest {
     fun finishComposingText() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "Hello, World.", selection = TextRange(0, 0))
 
         // Cancel any ongoing composition. In this example, there is no composition range, but
         // should record the API call
@@ -387,7 +387,7 @@ class RecordingInputConnectionTest {
     fun finishComposingText_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "Hello, World", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "Hello, World", selection = TextRange(0, 0))
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -411,7 +411,7 @@ class RecordingInputConnectionTest {
     fun mixedAPICalls_batchSession() {
         val captor = argumentCaptor<List<EditOperation>>()
 
-        ic.inputState = InputState(text = "", selection = TextRange(0, 0))
+        ic.mEditorValue = EditorValue(text = "", selection = TextRange(0, 0))
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()

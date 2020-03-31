@@ -26,7 +26,7 @@ import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.INVALID_SESSION
 import androidx.ui.input.ImeAction
 import androidx.ui.input.InputSessionToken
-import androidx.ui.input.InputState
+import androidx.ui.input.EditorValue
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.SetSelectionEditOp
@@ -156,7 +156,7 @@ internal class TextFieldDelegate {
         @JvmStatic
         fun draw(
             canvas: Canvas,
-            value: InputState,
+            value: EditorValue,
             offsetMap: OffsetMap,
             textLayoutResult: TextLayoutResult,
             hasFocus: Boolean,
@@ -194,7 +194,7 @@ internal class TextFieldDelegate {
          */
         @JvmStatic
         fun notifyFocusedRect(
-            value: InputState,
+            value: EditorValue,
             textDelegate: TextDelegate,
             textLayoutResult: TextLayoutResult,
             layoutCoordinates: LayoutCoordinates,
@@ -245,7 +245,7 @@ internal class TextFieldDelegate {
         internal fun onEditCommand(
             ops: List<EditOperation>,
             editProcessor: EditProcessor,
-            onValueChange: (InputState) -> Unit
+            onValueChange: (EditorValue) -> Unit
         ) {
             onValueChange(editProcessor.onEditCommands(ops))
         }
@@ -268,7 +268,7 @@ internal class TextFieldDelegate {
             textLayoutResult: TextLayoutResult,
             editProcessor: EditProcessor,
             offsetMap: OffsetMap,
-            onValueChange: (InputState) -> Unit,
+            onValueChange: (EditorValue) -> Unit,
             textInputService: TextInputService?,
             token: InputSessionToken,
             hasFocus: Boolean
@@ -297,15 +297,15 @@ internal class TextFieldDelegate {
         @JvmStatic
         fun onFocus(
             textInputService: TextInputService?,
-            value: InputState,
+            value: EditorValue,
             editProcessor: EditProcessor,
             keyboardType: KeyboardType,
             imeAction: ImeAction,
-            onValueChange: (InputState) -> Unit,
+            onValueChange: (EditorValue) -> Unit,
             onImeActionPerformed: (ImeAction) -> Unit
         ): InputSessionToken {
             return textInputService?.startInput(
-                initModel = InputState(value.text, value.selection, value.composition),
+                initModel = EditorValue(value.text, value.selection, value.composition),
                 keyboardType = keyboardType,
                 imeAction = imeAction,
                 onEditCommand = { onEditCommand(it, editProcessor, onValueChange) },
@@ -326,7 +326,7 @@ internal class TextFieldDelegate {
             token: InputSessionToken,
             editProcessor: EditProcessor,
             hasNextClient: Boolean,
-            onValueChange: (InputState) -> Unit
+            onValueChange: (EditorValue) -> Unit
         ) {
             onEditCommand(listOf(FinishComposingTextEditOp()), editProcessor, onValueChange)
             textInputService?.stopInput(token)
@@ -343,7 +343,7 @@ internal class TextFieldDelegate {
          */
         @JvmStatic
         fun applyVisualFilter(
-            value: InputState,
+            value: EditorValue,
             visualTransformation: VisualTransformation?
         ): TransformedText {
             val annotatedString = AnnotatedString(value.text)

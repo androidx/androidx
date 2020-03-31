@@ -28,7 +28,7 @@ import kotlin.math.min
  * This class stores a snapshot of the input state of the edit buffer and provide utility functions
  * for answering these information retrieval requests.
  */
-data class InputState(
+data class EditorValue(
     /**
      * A text visible to IME
      */
