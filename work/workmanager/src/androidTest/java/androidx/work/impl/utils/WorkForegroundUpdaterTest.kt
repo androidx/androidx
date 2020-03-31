@@ -20,6 +20,7 @@ import android.app.Notification
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.work.ForegroundInfo
 import androidx.work.WorkInfo
 import androidx.work.impl.WorkDatabase
@@ -36,6 +37,8 @@ import org.mockito.Mockito.mock
 import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
+// Mockito tries to class load android.os.CancellationSignal which is only available on API >= 16
+@SdkSuppress(minSdkVersion = 16)
 class WorkForegroundUpdaterTest {
 
     private lateinit var mContext: Context
