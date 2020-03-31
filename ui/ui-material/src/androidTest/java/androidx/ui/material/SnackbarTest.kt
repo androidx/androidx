@@ -16,8 +16,10 @@
 
 package androidx.ui.material
 
+import android.os.Build
 import androidx.compose.Providers
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
@@ -320,6 +322,7 @@ class SnackbarTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun shapeAndColorFromThemeIsUsed() {
         val shape = CutCornerShape(8.dp)
