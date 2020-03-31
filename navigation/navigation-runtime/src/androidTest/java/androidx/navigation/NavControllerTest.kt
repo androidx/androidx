@@ -943,7 +943,9 @@ class NavControllerTest {
 
         val intent = taskStackBuilder.editIntentAt(0)
         assertNotNull(intent)
-        navController.handleDeepLink(intent)
+        assertWithMessage("NavController should handle deep links to its own graph")
+            .that(navController.handleDeepLink(intent))
+            .isTrue()
 
         // Verify that we navigated down to the deep link
         verify(onDestinationChangedListener, times(2)).onDestinationChanged(
@@ -972,6 +974,32 @@ class NavControllerTest {
         val taskStackBuilder = navController.createDeepLink()
             .setGraph(R.navigation.nav_nested_start_destination)
             .setDestination(R.id.nested_second_test)
+            .createTaskStackBuilder()
+
+        val intent = taskStackBuilder.editIntentAt(0)
+        assertNotNull(intent)
+        assertWithMessage("handleDeepLink should return false when passed an invalid deep link")
+            .that(navController.handleDeepLink(intent))
+            .isFalse()
+
+        verifyNoMoreInteractions(onDestinationChangedListener)
+    }
+
+    @Test
+    fun testHandleDeepLinkToRootInvalid() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val onDestinationChangedListener =
+            mock(NavController.OnDestinationChangedListener::class.java)
+        navController.addOnDestinationChangedListener(onDestinationChangedListener)
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(navController.findDestination(R.id.start_test)),
+            any())
+
+        val taskStackBuilder = navController.createDeepLink()
+            .setGraph(R.navigation.nav_nested_start_destination)
+            .setDestination(R.id.nested_test)
             .createTaskStackBuilder()
 
         val intent = taskStackBuilder.editIntentAt(0)
