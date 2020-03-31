@@ -2208,9 +2208,8 @@ class TextSelectionDelegateTest {
             text = annotatedString,
             style = TextStyle(),
             density = density,
-            layoutDirection = LayoutDirection.Ltr,
             resourceLoader = resourceLoader
-        ).layout(Constraints())
+        ).layout(Constraints(), LayoutDirection.Ltr)
     }
 }
 

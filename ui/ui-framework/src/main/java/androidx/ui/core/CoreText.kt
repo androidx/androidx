@@ -79,7 +79,6 @@ fun CoreText(
     val selectionRegistrar = SelectionRegistrarAmbient.current
     val density = DensityAmbient.current
     val resourceLoader = FontLoaderAmbient.current
-    val layoutDirection = LayoutDirectionAmbient.current
 
     val state = remember {
         TextState(
@@ -89,7 +88,6 @@ fun CoreText(
                 density = density,
                 softWrap = softWrap,
                 resourceLoader = resourceLoader,
-                layoutDirection = layoutDirection,
                 overflow = overflow,
                 maxLines = maxLines
             )
@@ -102,7 +100,6 @@ fun CoreText(
         density = density,
         softWrap = softWrap,
         resourceLoader = resourceLoader,
-        layoutDirection = layoutDirection,
         overflow = overflow,
         maxLines = maxLines
     )
@@ -112,7 +109,7 @@ fun CoreText(
         modifier = modifier.drawBehind { canvas, _ ->
             state.layoutResult?.let { layoutResult ->
                 state.selectionRange?.let {
-                    state.textDelegate.paintBackground(
+                    TextDelegate.paintBackground(
                         it.min,
                         it.max,
                         DefaultSelectionColor,
@@ -120,7 +117,7 @@ fun CoreText(
                         layoutResult
                     )
                 }
-                state.textDelegate.paint(canvas, layoutResult)
+                TextDelegate.paint(canvas, layoutResult)
             }
         }.onPositioned {
             // Get the layout coordinates of the text composable. This is for hit test of
@@ -145,11 +142,11 @@ fun CoreText(
                 }
             }
         },
-        minIntrinsicWidthMeasureBlock = { _, _, _ ->
-            state.textDelegate.layoutIntrinsics()
+        minIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
+            state.textDelegate.layoutIntrinsics(layoutDirection)
             state.textDelegate.minIntrinsicWidth
         },
-        minIntrinsicHeightMeasureBlock = { _, width, _ ->
+        minIntrinsicHeightMeasureBlock = { _, width, layoutDirection ->
             // given the width constraint, determine the min height
             state.textDelegate
                 .layout(
@@ -158,14 +155,15 @@ fun CoreText(
                         width,
                         0.ipx,
                         IntPx.Infinity
-                    )
+                    ),
+                    layoutDirection
                 ).size.height
         },
-        maxIntrinsicWidthMeasureBlock = { _, _, _ ->
-            state.textDelegate.layoutIntrinsics()
+        maxIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
+            state.textDelegate.layoutIntrinsics(layoutDirection)
             state.textDelegate.maxIntrinsicWidth
         },
-        maxIntrinsicHeightMeasureBlock = { _, width, _ ->
+        maxIntrinsicHeightMeasureBlock = { _, width, layoutDirection ->
             state.textDelegate
                 .layout(
                     Constraints(
@@ -173,11 +171,16 @@ fun CoreText(
                         width,
                         0.ipx,
                         IntPx.Infinity
-                    )
+                    ),
+                    layoutDirection
                 ).size.height
         }
-    ) { _, constraints, _ ->
-        val layoutResult = state.textDelegate.layout(constraints, state.layoutResult)
+    ) { _, constraints, layoutDirection ->
+        val layoutResult = state.textDelegate.layout(
+            constraints,
+            layoutDirection,
+            state.layoutResult
+        )
         if (state.layoutResult != layoutResult) {
             onTextLayout(layoutResult)
         }
@@ -258,7 +261,6 @@ internal fun updateTextDelegate(
     style: TextStyle,
     density: Density,
     resourceLoader: Font.ResourceLoader,
-    layoutDirection: LayoutDirection,
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE
@@ -268,8 +270,7 @@ internal fun updateTextDelegate(
         current.softWrap != softWrap ||
         current.overflow != overflow ||
         current.maxLines != maxLines ||
-        current.density != density ||
-        current.layoutDirection != layoutDirection
+        current.density != density
     ) {
         TextDelegate(
             text = text,
@@ -278,7 +279,6 @@ internal fun updateTextDelegate(
             overflow = overflow,
             maxLines = maxLines,
             density = density,
-            layoutDirection = layoutDirection,
             resourceLoader = resourceLoader
         )
     } else {
