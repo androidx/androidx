@@ -41,7 +41,7 @@ internal abstract class LayoutNodeWrapper(
     internal var wrappedBy: LayoutNodeWrapper? = null
     var position = IntPxPosition.Origin
 
-    private var dirtySize: Boolean = false
+    protected var dirtySize: Boolean = false
     fun hasDirtySize(): Boolean = dirtySize || (wrapped?.hasDirtySize() ?: false)
     // TODO(popam): avoid allocation here
     final override val measuredSize: IntPxSize

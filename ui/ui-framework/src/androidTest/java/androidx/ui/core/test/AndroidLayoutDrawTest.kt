@@ -39,7 +39,9 @@ import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.ContentDrawScope
@@ -71,11 +73,14 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
+import androidx.ui.layout.size
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
@@ -2181,6 +2186,30 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testInvalidateIntroducedLayer() {
+        val color = mutableStateOf(Color.Red)
+        activityTestRule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                FixedSize(size = 30.ipx) {
+                    FixedSize(
+                        10.ipx,
+                        PaddingModifier(10.ipx).drawLayer(elevation = 1f) +
+                                background(Color.White)
+                    )
+                    FixedSize(30.ipx, background(color.value) + drawLatchModifier())
+                }
+            }
+        }
+        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
+        drawLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread {
+            color.value = Color.Blue
+        }
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
+    }
+
     private fun composeSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
@@ -2442,8 +2471,9 @@ fun FixedSize(
 }
 
 @Composable
-fun Align(children: @Composable() () -> Unit) {
+fun Align(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
     Layout(
+        modifier = modifier,
         measureBlock = { measurables, constraints, _ ->
             val newConstraints = Constraints(
                 minWidth = IntPx.Zero,
