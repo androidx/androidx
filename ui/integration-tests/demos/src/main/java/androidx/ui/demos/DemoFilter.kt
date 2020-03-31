@@ -83,7 +83,7 @@ fun FilterAppBar(
             // surfaces in dark theme
             primary.copy(alpha = 0.08f).compositeOver(surface)
         }
-        TopAppBar(color = appBarColor, contentColor = onSurface) {
+        TopAppBar(backgroundColor = appBarColor, contentColor = onSurface) {
             IconButton(modifier = Modifier.gravity(RowAlign.Center), onClick = onClose) {
                 Icon(Icons.Filled.Close)
             }

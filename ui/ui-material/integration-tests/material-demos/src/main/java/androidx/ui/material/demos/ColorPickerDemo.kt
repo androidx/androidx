@@ -79,7 +79,7 @@ fun ColorPickerDemo() {
     var primary by state { Color(0xFF6200EE) }
     Surface(color = Color(0xFF121212)) {
         Column {
-            TopAppBar(title = { Text("Color Picker") }, color = primary)
+            TopAppBar(title = { Text("Color Picker") }, backgroundColor = primary)
             ColorPicker(onColorChange = { primary = it })
         }
     }
