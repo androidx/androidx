@@ -12,9 +12,7 @@ android {
     defaultConfig {
         minSdkVersion 16
     }
-    buildFeatures {
-        aidl = true
-    }
+
     testOptions.unitTests.includeAndroidResources = true
 }
 

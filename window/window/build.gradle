@@ -33,6 +33,8 @@ plugins {
 android {
     defaultConfig {
         minSdkVersion 16
+
+        buildConfigField "String", "WINDOW_LIB_VERSION", "\"${LibraryVersions.WINDOW}\""
     }
 }
 

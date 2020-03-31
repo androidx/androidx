@@ -21,12 +21,6 @@ plugins {
     id("com.android.library")
 }
 
-android {
-    buildFeatures {
-        aidl = true
-    }
-}
-
 dependencies {
     api(project(":annotation:annotation"))
     api(project(":versionedparcelable:versionedparcelable"))
