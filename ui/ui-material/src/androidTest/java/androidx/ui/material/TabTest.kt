@@ -24,10 +24,12 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
@@ -114,10 +116,11 @@ class TabTest {
 
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
                 TabRow.IndicatorContainer(tabPositions, state) {
-                    ColoredRect(
-                        Color.Red,
-                        Modifier.onPositioned { indicatorCoords = it },
-                        height = indicatorHeight
+                    Box(Modifier
+                        .onPositioned { indicatorCoords = it }
+                        .fillMaxWidth()
+                        .preferredHeight(indicatorHeight)
+                        .drawBackground(Color.Red)
                     )
                 }
             }
@@ -320,10 +323,11 @@ class TabTest {
 
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
                 TabRow.IndicatorContainer(tabPositions, state) {
-                    ColoredRect(
-                        Color.Red,
-                        Modifier.onPositioned { indicatorCoords = it },
-                        height = indicatorHeight
+                    Box(Modifier
+                        .onPositioned { indicatorCoords = it }
+                        .fillMaxWidth()
+                        .preferredHeight(indicatorHeight)
+                        .drawBackground(Color.Red)
                     )
                 }
             }

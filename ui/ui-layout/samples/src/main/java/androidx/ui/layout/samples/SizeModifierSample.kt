@@ -20,8 +20,8 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
 import androidx.ui.layout.aspectRatio
@@ -61,7 +61,7 @@ fun SimpleHeightModifier() {
 @Composable
 fun SimpleFillWidthModifier() {
     Box(Modifier.fillMaxWidth(), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
-        ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
+        Box(Modifier.preferredSize(100.dp).drawBackground(Color.Magenta))
     }
 }
 
@@ -69,7 +69,7 @@ fun SimpleFillWidthModifier() {
 @Composable
 fun SimpleFillHeightModifier() {
     Box(Modifier.fillMaxHeight(), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
-        ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
+        Box(Modifier.preferredSize(100.dp).drawBackground(Color.Magenta))
     }
 }
 
@@ -77,6 +77,6 @@ fun SimpleFillHeightModifier() {
 @Composable
 fun SimpleFillModifier() {
     Box(Modifier.fillMaxSize(), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
-        ColoredRect(color = Color.Magenta, width = 100.dp, height = 100.dp)
+        Box(Modifier.preferredSize(100.dp).drawBackground(Color.Magenta))
     }
 }

@@ -18,10 +18,12 @@ package androidx.ui.integration.test
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Table
 import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.createComposeRule
@@ -57,11 +59,11 @@ class TableRecompositionTest(private val numberOfCells: Int) {
                         tableDecoration(overlay = false) { }
                         repeat(numberOfCells) {
                             tableRow {
-                                ColoredRect(
-                                    color = Color.Black,
-                                    width = 100.dp,
-                                    height = 50.dp,
-                                    modifier = Modifier.padding(2.dp)
+                                Box(
+                                    Modifier
+                                        .padding(2.dp)
+                                        .preferredSize(100.dp, 50.dp)
+                                        .drawBackground(Color.Black)
                                 )
                             }
                         }

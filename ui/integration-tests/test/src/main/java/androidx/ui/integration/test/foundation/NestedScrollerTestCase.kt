@@ -20,11 +20,12 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
@@ -32,6 +33,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.RowAlign
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
@@ -80,11 +82,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                                 val blue = Random.nextInt(256)
                                 Color(red = red, green = green, blue = blue)
                             }
-                            ColoredRect(
-                                width = 350.px.toDp(),
-                                height = 350.px.toDp(),
-                                color = color
-                            )
+                            Box(Modifier.preferredSize(350.px.toDp()).drawBackground(color))
                             Text(
                                 text = "Some title",
                                 style = TextStyle(Color.Black, 60.px.toSp())
@@ -95,12 +93,10 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                                     style = TextStyle(fontSize = 40.px.toSp()),
                                     modifier = Modifier.gravity(RowAlign.Center)
                                 )
-                                ColoredRect(
-                                    width = 40.px.toDp(),
-                                    height = 40.px.toDp(),
-                                    color = playStoreColor,
-                                    modifier = Modifier.gravity(RowAlign.Center)
-                                )
+                                Box(Modifier
+                                    .gravity(RowAlign.Center)
+                                    .preferredSize(40.px.toDp())
+                                    .drawBackground(playStoreColor))
                             }
                         }
                     }
