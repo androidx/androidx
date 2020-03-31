@@ -18,27 +18,33 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * A filter selects camera id with specified lens facing from a camera id set.
+ * A filter that filters camera based on lens facing.
  */
-public class LensFacingCameraIdFilter implements CameraIdFilter {
+public class LensFacingCameraFilter implements CameraFilter {
     @CameraSelector.LensFacing
     private int mLensFacing;
 
-    public LensFacingCameraIdFilter(@CameraSelector.LensFacing int lensFacing) {
+    public LensFacingCameraFilter(@CameraSelector.LensFacing int lensFacing) {
         mLensFacing = lensFacing;
     }
 
-    @Override
     @NonNull
-    public Set<String> filter(@NonNull Set<String> cameraIds) {
-        LensFacingCameraIdFilter lensFacingCameraIdFilter =
-                CameraX.getCameraFactory().getLensFacingCameraIdFilter(mLensFacing);
-        return lensFacingCameraIdFilter.filter(cameraIds);
+    @Override
+    public Set<CameraInternal> filterCameras(@NonNull Set<CameraInternal> cameras) {
+        Set<CameraInternal> resultCameras = new LinkedHashSet<>();
+        for (CameraInternal camera : cameras) {
+            Integer lensFacing = camera.getCameraInfoInternal().getLensFacing();
+            if (lensFacing != null && lensFacing == mLensFacing) {
+                resultCameras.add(camera);
+            }
+        }
+
+        return resultCameras;
     }
 
     /** Returns the lens facing associated with this lens facing camera id filter. */

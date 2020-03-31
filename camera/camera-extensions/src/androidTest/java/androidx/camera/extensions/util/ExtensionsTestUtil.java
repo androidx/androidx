@@ -418,7 +418,8 @@ public class ExtensionsTestUtil {
     @Nullable
     private static String getCameraIdUnchecked(@NonNull CameraSelector cameraSelector) {
         try {
-            return CameraX.getCameraWithCameraSelector(cameraSelector);
+            return CameraX.getCameraWithCameraSelector(
+                    cameraSelector).getCameraInfoInternal().getCameraId();
         } catch (IllegalArgumentException e) {
             // Returns null if there's no camera id can be found.
             return null;

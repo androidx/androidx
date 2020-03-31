@@ -54,14 +54,14 @@ public abstract class PreviewExtender {
     private Preview.Builder mBuilder;
     private PreviewExtenderImpl mImpl;
     private EffectMode mEffectMode;
-    private ExtensionCameraIdFilter mExtensionCameraIdFilter;
+    private ExtensionCameraFilter mExtensionCameraFilter;
 
     void init(Preview.Builder builder, PreviewExtenderImpl implementation,
             EffectMode effectMode) {
         mBuilder = builder;
         mImpl = implementation;
         mEffectMode = effectMode;
-        mExtensionCameraIdFilter = new ExtensionCameraIdFilter(mImpl);
+        mExtensionCameraFilter = new ExtensionCameraFilter(mImpl);
     }
 
     /**
@@ -82,7 +82,7 @@ public abstract class PreviewExtender {
     private String getCameraWithExtension(@NonNull CameraSelector cameraSelector) {
         CameraSelector.Builder extensionCameraSelectorBuilder =
                 CameraSelector.Builder.fromSelector(cameraSelector);
-        extensionCameraSelectorBuilder.appendFilter(mExtensionCameraIdFilter);
+        extensionCameraSelectorBuilder.appendFilter(mExtensionCameraFilter);
 
         return CameraUtil.getCameraIdUnchecked(extensionCameraSelectorBuilder.build());
     }
@@ -116,10 +116,10 @@ public abstract class PreviewExtender {
         CameraSelector originalSelector = mBuilder.getUseCaseConfig().getCameraSelector(null);
         if (originalSelector == null) {
             mBuilder.setCameraSelector(
-                    new CameraSelector.Builder().appendFilter(mExtensionCameraIdFilter).build());
+                    new CameraSelector.Builder().appendFilter(mExtensionCameraFilter).build());
         } else {
             mBuilder.setCameraSelector(CameraSelector.Builder.fromSelector(
-                    originalSelector).appendFilter(mExtensionCameraIdFilter).build());
+                    originalSelector).appendFilter(mExtensionCameraFilter).build());
         }
 
         CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(cameraId);

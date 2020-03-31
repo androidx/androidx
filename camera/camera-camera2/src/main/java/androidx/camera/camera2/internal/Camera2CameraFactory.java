@@ -18,6 +18,8 @@ package androidx.camera.camera2.internal;
 
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraMetadata;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -30,7 +32,6 @@ import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraStateRegistry;
-import androidx.camera.core.impl.LensFacingCameraIdFilter;
 import androidx.core.os.HandlerCompat;
 
 import java.util.Arrays;
@@ -91,20 +92,35 @@ public final class Camera2CameraFactory implements CameraFactory {
     @Nullable
     public String cameraIdForLensFacing(@CameraSelector.LensFacing int lensFacing)
             throws CameraInfoUnavailableException {
-        Set<String> availableCameraIds = getLensFacingCameraIdFilter(
-                lensFacing).filter(getAvailableCameraIds());
+        Set<String> cameraIds = getAvailableCameraIds();
 
-        if (!availableCameraIds.isEmpty()) {
-            return availableCameraIds.iterator().next();
-        } else {
-            return null;
+        Integer lensFacingInteger = -1;
+        switch (lensFacing) {
+            case CameraSelector.LENS_FACING_BACK:
+                lensFacingInteger = CameraMetadata.LENS_FACING_BACK;
+                break;
+            case CameraSelector.LENS_FACING_FRONT:
+                lensFacingInteger = CameraMetadata.LENS_FACING_FRONT;
+                break;
         }
-    }
 
-    @Override
-    @NonNull
-    public LensFacingCameraIdFilter getLensFacingCameraIdFilter(
-            @CameraSelector.LensFacing int lensFacing) {
-        return new Camera2LensFacingCameraIdFilter(lensFacing, mCameraManager.unwrap());
+        for (String cameraId : cameraIds) {
+            CameraCharacteristics characteristics = null;
+            try {
+                characteristics = mCameraManager.unwrap().getCameraCharacteristics(cameraId);
+            } catch (CameraAccessException e) {
+                throw new CameraInfoUnavailableException(
+                        "Unable to retrieve info for camera with id " + cameraId + ".", e);
+            }
+            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cameraLensFacing == null) {
+                continue;
+            }
+            if (cameraLensFacing.equals(lensFacingInteger)) {
+                return cameraId;
+            }
+        }
+
+        return null;
     }
 }

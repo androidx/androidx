@@ -285,7 +285,8 @@ public class ImageCaptureExtenderTest {
         CameraSelector cameraSelector =
                 imageCaptureBuilder.getUseCaseConfig().getCameraSelector(null);
         assertThat(cameraSelector).isNotNull();
-        assertThat(CameraX.getCameraWithCameraSelector(cameraSelector)).isEqualTo(
+        assertThat(CameraX.getCameraWithCameraSelector(
+                cameraSelector).getCameraInfoInternal().getCameraId()).isEqualTo(
                 EXTENSION_AVAILABLE_CAMERA_ID);
     }
 
@@ -293,9 +294,8 @@ public class ImageCaptureExtenderTest {
             @CameraSelector.LensFacing int lensFacing)
             throws CameraInfoUnavailableException {
         List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
-        String cameraId =
-                androidx.camera.extensions.CameraUtil.getCameraIdSetWithLensFacing(
-                        lensFacing).iterator().next();
+        String cameraId = androidx.camera.extensions.CameraUtil.getCameraIdWithLensFacingUnchecked(
+                lensFacing);
 
         StreamConfigurationMap map =
                 androidx.camera.extensions.CameraUtil.getCameraCharacteristics(cameraId).get(

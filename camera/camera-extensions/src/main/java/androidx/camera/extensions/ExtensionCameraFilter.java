@@ -18,7 +18,8 @@ package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.impl.CameraIdFilter;
+import androidx.camera.core.impl.CameraFilter;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 
@@ -26,54 +27,55 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Filter camera id by extender implementation. If the implementation is null, all the camera ids
- * will be considered available.
+ * A filter that filters camera based on extender implementation. If the implementation is
+ * unavailable, the camera will be considered available.
  */
-public final class ExtensionCameraIdFilter implements CameraIdFilter {
+public final class ExtensionCameraFilter implements CameraFilter {
     private PreviewExtenderImpl mPreviewExtenderImpl;
     private ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
 
-    ExtensionCameraIdFilter(@Nullable PreviewExtenderImpl previewExtenderImpl) {
+    ExtensionCameraFilter(@Nullable PreviewExtenderImpl previewExtenderImpl) {
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = null;
     }
 
-    ExtensionCameraIdFilter(@Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
+    ExtensionCameraFilter(@Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
         mPreviewExtenderImpl = null;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
 
-    ExtensionCameraIdFilter(@Nullable PreviewExtenderImpl previewExtenderImpl,
+    ExtensionCameraFilter(@Nullable PreviewExtenderImpl previewExtenderImpl,
             @Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
 
-    @Override
     @NonNull
-    public Set<String> filter(@NonNull Set<String> cameraIdSet) {
-        Set<String> resultCameraIdSet = new LinkedHashSet<>();
-        for (String cameraId : cameraIdSet) {
+    @Override
+    public Set<CameraInternal> filterCameras(@NonNull Set<CameraInternal> cameras) {
+        Set<CameraInternal> resultCameras = new LinkedHashSet<>();
+        for (CameraInternal camera : cameras) {
+            String cameraId = camera.getCameraInfoInternal().getCameraId();
+
             boolean available = true;
 
             // If preview extender impl isn't null, check if the camera id is supported.
             if (mPreviewExtenderImpl != null) {
-                available = mPreviewExtenderImpl.isExtensionAvailable(cameraId,
-                        CameraUtil.getCameraCharacteristics(cameraId));
+                available =
+                        mPreviewExtenderImpl.isExtensionAvailable(cameraId,
+                                CameraUtil.getCameraCharacteristics(cameraId));
             }
-
             // If image capture extender impl isn't null, check if the camera id is supported.
             if (mImageCaptureExtenderImpl != null) {
                 available = mImageCaptureExtenderImpl.isExtensionAvailable(cameraId,
                         CameraUtil.getCameraCharacteristics(cameraId));
             }
 
-            // If the camera id is supported, add it to the result set.
             if (available) {
-                resultCameraIdSet.add(cameraId);
+                resultCameras.add(camera);
             }
         }
 
-        return resultCameraIdSet;
+        return resultCameras;
     }
 }

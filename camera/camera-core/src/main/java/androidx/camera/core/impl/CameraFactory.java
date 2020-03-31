@@ -73,13 +73,4 @@ public interface CameraFactory {
     @Nullable
     String cameraIdForLensFacing(@CameraSelector.LensFacing int lensFacing)
             throws CameraInfoUnavailableException;
-
-    /**
-     * Gets a {@link LensFacingCameraIdFilter} with given lens facing.
-     *
-     * @param lensFacing the lens facing to create camera id filter with
-     * @return the camera id filter that filters cameras with given lens facing
-     */
-    @NonNull
-    LensFacingCameraIdFilter getLensFacingCameraIdFilter(@CameraSelector.LensFacing int lensFacing);
 }
