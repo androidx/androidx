@@ -84,7 +84,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPostConnect_afterConnected() throws InterruptedException {
+    public void onPostConnect_afterConnected() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
@@ -102,7 +102,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPostConnect_afterConnectionRejected() throws InterruptedException {
+    public void onPostConnect_afterConnectionRejected() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
@@ -126,7 +126,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCommandRequest() throws InterruptedException {
+    public void onCommandRequest() throws InterruptedException {
         prepareLooper();
         mPlayer = new MockPlayer(1);
 
@@ -155,7 +155,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCreateMediaItem() throws InterruptedException {
+    public void onCreateMediaItem() throws InterruptedException {
         prepareLooper();
         mPlayer = new MockPlayer(1);
 
@@ -197,7 +197,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCustomCommand() throws InterruptedException {
+    public void onCustomCommand() throws InterruptedException {
         prepareLooper();
         // TODO(jaewan): Need to revisit with the permission.
         final SessionCommand testCommand = new SessionCommand("testCustomCommand", null);
@@ -239,7 +239,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnFastForward() throws InterruptedException {
+    public void onFastForward() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
@@ -260,7 +260,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnRewind() throws InterruptedException {
+    public void onRewind() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
@@ -281,7 +281,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnSkipForward() throws InterruptedException {
+    public void onSkipForward() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
@@ -302,7 +302,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnSkipBackward() throws InterruptedException {
+    public void onSkipBackward() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
@@ -323,7 +323,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPlayFromSearch() throws InterruptedException {
+    public void onPlayFromSearch() throws InterruptedException {
         prepareLooper();
         final String testQuery = "random query";
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -350,7 +350,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPlayFromUri() throws InterruptedException {
+    public void onPlayFromUri() throws InterruptedException {
         prepareLooper();
         final Uri testUri = Uri.parse("foo://boo");
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -378,7 +378,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPlayFromMediaId() throws InterruptedException {
+    public void onPlayFromMediaId() throws InterruptedException {
         prepareLooper();
         final String testMediaId = "media_id";
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -405,7 +405,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPrepareFromSearch() throws InterruptedException {
+    public void onPrepareFromSearch() throws InterruptedException {
         prepareLooper();
         final String testQuery = "random query";
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -432,7 +432,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPrepareFromUri() throws InterruptedException {
+    public void onPrepareFromUri() throws InterruptedException {
         prepareLooper();
         final Uri testUri = Uri.parse("foo://boo");
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -459,7 +459,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPrepareFromMediaId() throws InterruptedException {
+    public void onPrepareFromMediaId() throws InterruptedException {
         prepareLooper();
         final String testMediaId = "media_id";
         final Bundle testExtras = TestUtils.createTestBundle();
@@ -486,7 +486,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnSetRating() throws InterruptedException {
+    public void onSetRating() throws InterruptedException {
         prepareLooper();
         final float ratingValue = 3.5f;
         final Rating testRating = new StarRating(5, ratingValue);
@@ -516,7 +516,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnConnect() throws InterruptedException {
+    public void onConnect() throws InterruptedException {
         prepareLooper();
         final AtomicReference<Bundle> connectionHints = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -546,7 +546,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnDisconnected() throws InterruptedException {
+    public void onDisconnected() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)

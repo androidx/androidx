@@ -99,7 +99,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testBuilder() {
+    public void builder() {
         MediaSession.Builder builder;
         try {
             builder = new MediaSession.Builder(mContext, null);
@@ -133,7 +133,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetDuration() throws Exception {
+    public void getDuration() throws Exception {
         final long testDuration = 9999;
         mPlayer.mLastPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
         mPlayer.mDuration = testDuration;
@@ -141,7 +141,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetPlaybackSpeed() throws Exception {
+    public void getPlaybackSpeed() throws Exception {
         final float speed = 1.5f;
         mPlayer.mLastPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
         mPlayer.setPlaybackSpeed(speed);
@@ -149,21 +149,21 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetPlayerState() {
+    public void getPlayerState() {
         final int state = SessionPlayer.PLAYER_STATE_PLAYING;
         mPlayer.mLastPlayerState = state;
         assertEquals(state, mSession.getPlayer().getPlayerState());
     }
 
     @Test
-    public void testGetBufferingState() {
+    public void getBufferingState() {
         final int bufferingState = SessionPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         mPlayer.mLastBufferingState = bufferingState;
         assertEquals(bufferingState, mSession.getPlayer().getBufferingState());
     }
 
     @Test
-    public void testGetPosition() {
+    public void getPosition() {
         final long position = 150000;
         mPlayer.mCurrentPosition = position;
         mPlayer.mLastPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
@@ -171,7 +171,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetBufferedPosition() {
+    public void getBufferedPosition() {
         final long bufferedPosition = 900000;
         mPlayer.mBufferedPosition = bufferedPosition;
         mPlayer.mLastPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
@@ -179,42 +179,42 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetCurrentMediaItem() {
+    public void getCurrentMediaItem() {
         MediaItem item = MediaTestUtils.createMediaItemWithMetadata();
         mPlayer.mCurrentMediaItem = item;
         assertEquals(item, mSession.getPlayer().getCurrentMediaItem());
     }
 
     @Test
-    public void testGetPlaylist() {
+    public void getPlaylist() {
         final List<MediaItem> list = MediaTestUtils.createPlaylist(2);
         mPlayer.mPlaylist = list;
         assertEquals(list, mSession.getPlayer().getPlaylist());
     }
 
     @Test
-    public void testGetPlaylistMetadata() {
+    public void getPlaylistMetadata() {
         final MediaMetadata testMetadata = MediaTestUtils.createMetadata();
         mPlayer.mMetadata = testMetadata;
         assertEquals(testMetadata, mSession.getPlayer().getPlaylistMetadata());
     }
 
     @Test
-    public void testGetShuffleMode() throws InterruptedException {
+    public void getShuffleMode() throws InterruptedException {
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
         mPlayer.setShuffleMode(testShuffleMode);
         assertEquals(testShuffleMode, mSession.getPlayer().getShuffleMode());
     }
 
     @Test
-    public void testGetRepeatMode() throws InterruptedException {
+    public void getRepeatMode() throws InterruptedException {
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_GROUP;
         mPlayer.setRepeatMode(testRepeatMode);
         assertEquals(testRepeatMode, mSession.getPlayer().getRepeatMode());
     }
 
     @Test
-    public void testUpdatePlayer() throws Exception {
+    public void updatePlayer() throws Exception {
         MockPlayer player = new MockPlayer(0);
 
         // Test if setPlayer doesn't crash with various situations.
@@ -226,7 +226,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetCurrentMediaItem_withMetadata_returnsMediaItemWithDuration()
+    public void getCurrentMediaItem_withMetadata_returnsMediaItemWithDuration()
             throws InterruptedException {
         long testDuration = 1023;
         MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
@@ -242,7 +242,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetCurrentMediaItem_withoutMetadata_returnsMediaItemWithDuration()
+    public void getCurrentMediaItem_withoutMetadata_returnsMediaItemWithDuration()
             throws InterruptedException {
         long testDuration = 1055;
         MediaItem testMediaItem = MediaTestUtils.createMediaItem("testCurrentMediaItemChanged");
@@ -258,7 +258,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetCurrentMediaItem_withMetadataUpdated_returnsMediaItemWithDuration()
+    public void getCurrentMediaItem_withMetadataUpdated_returnsMediaItemWithDuration()
             throws InterruptedException {
         long testDuration = 1023;
         MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
@@ -285,7 +285,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
      */
     @Test
     @LargeTest
-    public void testDeadlock() throws InterruptedException {
+    public void deadlock() throws InterruptedException {
         sHandler.postAndSync(new Runnable() {
             @Override
             public void run() {
@@ -402,7 +402,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testCreatingTwoSessionWithSameId() {
+    public void creatingTwoSessionWithSameId() {
         final String sessionId = "testSessionId";
         MediaSession session = new MediaSession.Builder(mContext, new MockPlayer(0))
                 .setId(sessionId)

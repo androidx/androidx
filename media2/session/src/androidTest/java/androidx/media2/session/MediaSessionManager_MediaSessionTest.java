@@ -72,7 +72,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
     // TODO(jaewan): Make this host-side test to see per-user behavior.
     @Ignore
     @Test
-    public void testGetMediaSessionTokens_hasMediaController() throws InterruptedException {
+    public void getMediaSessionTokens_hasMediaController() throws InterruptedException {
         final MockPlayer player = (MockPlayer) mSession.getPlayer();
         player.notifyPlayerStateChanged(SessionPlayer.PLAYER_STATE_IDLE);
 
@@ -104,7 +104,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
      */
     @Test
     @Ignore
-    public void testGetSessionTokens_sessionRejected() throws InterruptedException {
+    public void getSessionTokens_sessionRejected() throws InterruptedException {
         mSession.close();
         mSession = new MediaSession.Builder(mContext, new MockPlayer(0))
                 .setId(TAG).setSessionCallback(sHandlerExecutor, new SessionCallback() {
@@ -132,7 +132,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     @Ignore
-    public void testGetMediaSessionTokens_sessionClosed() throws InterruptedException {
+    public void getMediaSessionTokens_sessionClosed() throws InterruptedException {
         mSession.close();
 
         // When a session is closed, it should lose binder connection between server immediately.
@@ -147,7 +147,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     @Ignore
-    public void testGetMediaSessionServiceToken() throws InterruptedException {
+    public void getMediaSessionServiceToken() throws InterruptedException {
         boolean foundTestSessionService = false;
         boolean foundTestLibraryService = false;
 //        List<SessionToken> tokens = mManager.getSessionServiceTokens();
@@ -171,7 +171,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     @Ignore
-    public void testGetAllSessionTokens() throws InterruptedException {
+    public void getAllSessionTokens() throws InterruptedException {
         boolean foundTestSession = false;
         boolean foundTestSessionService = false;
         boolean foundTestLibraryService = false;
@@ -207,7 +207,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     @Ignore
-    public void testAddOnSessionTokensChangedListener() throws InterruptedException {
+    public void addOnSessionTokensChangedListener() throws InterruptedException {
 //        TokensChangedListener listener = new TokensChangedListener();
 //        mManager.addOnSessionTokensChangedListener(sHandlerExecutor, listener);
 //
@@ -262,7 +262,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
 
     @Test
     @Ignore
-    public void testRemoveOnSessionTokensChangedListener() throws InterruptedException {
+    public void removeOnSessionTokensChangedListener() throws InterruptedException {
 //        TokensChangedListener listener = new TokensChangedListener();
 //        mManager.addOnSessionTokensChangedListener(sHandlerExecutor, listener);
 //
