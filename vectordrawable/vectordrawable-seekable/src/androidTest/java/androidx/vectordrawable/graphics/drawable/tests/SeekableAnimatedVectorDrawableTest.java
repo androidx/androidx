@@ -30,9 +30,9 @@ import android.util.AttributeSet;
 import android.util.Xml;
 import android.view.InflateException;
 
-import androidx.animator.AnimatorTestRule;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.core.animation.AnimatorTestRule;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
