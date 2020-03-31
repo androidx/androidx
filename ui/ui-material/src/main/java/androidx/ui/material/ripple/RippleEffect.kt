@@ -46,5 +46,5 @@ interface RippleEffect {
     /**
      * Free up the resources associated with this ripple.
      */
-    fun dispose()
+    fun dispose() {}
 }

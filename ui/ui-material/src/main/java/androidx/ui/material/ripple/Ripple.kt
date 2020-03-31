@@ -22,6 +22,7 @@ import androidx.animation.AnimationClockObservable
 import androidx.compose.Composable
 import androidx.compose.CompositionLifecycleObserver
 import androidx.compose.StructurallyEqual
+import androidx.compose.frames.modelListOf
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.ui.animation.asDisposableClock
@@ -95,11 +96,8 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
     var color: Color by mutableStateOf(Color.Transparent, StructurallyEqual)
 
     private var size: IntPxSize = IntPxSize(0.ipx, 0.ipx)
-    private var effects = mutableListOf<RippleEffect>()
+    private var effects = modelListOf<RippleEffect>()
     private var currentEffect: RippleEffect? = null
-
-    private var animationPulse by mutableStateOf(0L)
-    private val redraw: () -> Unit = { animationPulse++ }
 
     override fun Density.modifySize(
         constraints: Constraints,
@@ -132,13 +130,11 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
             radius,
             bounded,
             clock,
-            redraw,
             onAnimationFinished
         )
 
         effects.add(effect)
         currentEffect = effect
-        redraw()
     }
 
     fun handleFinish(canceled: Boolean) {
@@ -148,7 +144,6 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
 
     override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
         drawContent()
-        animationPulse // model read
         effects.forEach { it.draw(canvas, this.size, color) }
     }
 
