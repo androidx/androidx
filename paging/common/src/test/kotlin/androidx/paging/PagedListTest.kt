@@ -18,8 +18,6 @@ package androidx.paging
 
 import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.PagedList.Builder
-import androidx.paging.PagedList.LoadStateManager
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
@@ -54,7 +52,7 @@ class PagedListTest {
     @Test
     fun createLegacy() {
         @Suppress("DEPRECATION")
-        val pagedList = Builder(ListDataSource(ITEMS), 100)
+        val pagedList = PagedList.Builder(ListDataSource(ITEMS), 100)
             .setNotifyExecutor(TestExecutor())
             .setFetchExecutor(TestExecutor())
             .build()
@@ -71,6 +69,7 @@ class PagedListTest {
                 }
             }
             assertFailsWith<IllegalStateException> {
+                @Suppress("DEPRECATION")
                 PagedList.create(
                     pagingSource,
                     null,
@@ -98,6 +97,7 @@ class PagedListTest {
             // create doesn't differentiate between throw vs error runnable, which is why
             // PagedList.Builder without the initial page is deprecated
             assertFailsWith<IllegalStateException> {
+                @Suppress("DEPRECATION")
                 PagedList.create(
                     pagingSource,
                     null,
@@ -123,7 +123,9 @@ class PagedListTest {
                 pageSize = 10
             )
         ) as PagingSource.LoadResult.Page
-        val pagedList = Builder(pagingSource, initialPage, config)
+
+        @Suppress("DEPRECATION")
+        val pagedList = PagedList.Builder(pagingSource, initialPage, config)
             .setNotifyDispatcher(DirectDispatcher)
             .setFetchDispatcher(DirectDispatcher)
             .build()
@@ -135,7 +137,9 @@ class PagedListTest {
     @Test
     fun setState_Error() {
         var onStateChangeCalls = 0
-        val loadStateManager = object : LoadStateManager() {
+
+        @Suppress("DEPRECATION")
+        val loadStateManager = object : PagedList.LoadStateManager() {
             override fun onStateChanged(type: LoadType, state: LoadState) {
                 onStateChangeCalls++
             }

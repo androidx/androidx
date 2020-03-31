@@ -18,6 +18,7 @@ package androidx.paging
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -34,6 +35,7 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PagingDataDifferTest {
     private val testScope = TestCoroutineScope()
