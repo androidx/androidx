@@ -23,14 +23,20 @@ import androidx.paging.PagingSource
 import retrofit2.HttpException
 import java.io.IOException
 
-private class MyBackendService {
+internal class MyBackendService {
     data class RemoteResult(
         val items: List<Item>,
-        val prev: String,
-        val next: String
+        val prev: String?,
+        val next: String?
     )
+
     @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
-    suspend fun searchUsers(searchTerm: String, pageKey: String?): RemoteResult {
+    suspend fun searchItems(pageKey: String?): RemoteResult {
+        throw NotImplementedError()
+    }
+
+    @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER")
+    suspend fun itemsAfter(itemKey: String?): RemoteResult {
         throw NotImplementedError()
     }
 }
@@ -42,16 +48,17 @@ fun pagingSourceSample() {
      * service, which uses String tokens to load pages (each response has a next/previous token).
      */
     class MyPagingSource(
-        val myBackend: MyBackendService,
-        val searchTerm: String
+        val myBackend: MyBackendService
     ) : PagingSource<String, Item>() {
         override suspend fun load(params: LoadParams<String>): LoadResult<String, Item> {
             // Retrofit calls that return the body type throw either IOException for network
             // failures, or HttpException for any non-2xx HTTP status codes. This code reports all
             // errors to the UI, but you can inspect/wrap the exceptions to provide more context.
             return try {
-                // suspending network load, executes automatically on worker thread
-                val response = myBackend.searchUsers(searchTerm, params.key)
+                // Suspending network load via Retrofit. This doesn't need to be wrapped in a
+                // withContext(Dispatcher.IO) { ... } block since Retrofit's Coroutine
+                // CallAdapter dispatches on a worker thread.
+                val response = myBackend.searchItems(params.key)
                 LoadResult.Page(
                     data = response.items,
                     prevKey = response.prev,
