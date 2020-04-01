@@ -31,6 +31,7 @@ import androidx.ui.text.style.TextIndent
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.TextUnit
+import androidx.ui.unit.em
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
@@ -1260,6 +1261,187 @@ class MultiParagraphIntegrationTest {
         assertThat(paragraph.getParagraphDirection(1)).isEqualTo(TextDirection.Rtl)
     }
 
+    @Test
+    fun maxIntrinsicWidth_withPlaceholder_inEm() {
+        val text = AnnotatedString(text = "ab")
+        val fontSize = 20
+        val width = 2.em
+        val placeholders = listOf(
+            AnnotatedString.Item(
+                Placeholder(width, 1.em, PlaceholderVerticalAlign.AboveBaseline),
+                0,
+                1
+            )
+        )
+
+        val paragraph = MultiParagraph(
+            annotatedString = text,
+            style = TextStyle(
+                fontSize = fontSize.sp,
+                fontFamily = fontFamilyMeasureFont,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            ),
+            placeholders = placeholders,
+            constraints = ParagraphConstraints(Float.MAX_VALUE),
+            density = defaultDensity,
+            resourceLoader = TestFontResourceLoader(context)
+        )
+
+        // Rendered as below:
+        //   |  |b
+        // The placeholder takes the space of 2 characters
+        assertThat(paragraph.maxIntrinsicWidth).isEqualTo(fontSize * width.value + fontSize)
+    }
+
+    @Test
+    fun maxIntrinsicWidth_withPlaceholder_inSp() {
+        val text = AnnotatedString(text = "ab")
+        val fontSize = 20
+        val width = 30.sp
+        val placeholders = listOf(
+            AnnotatedString.Item(
+                Placeholder(width, 1.em, PlaceholderVerticalAlign.AboveBaseline),
+                0,
+                1
+            )
+        )
+
+        val paragraph = MultiParagraph(
+            annotatedString = text,
+            style = TextStyle(
+                fontSize = fontSize.sp,
+                fontFamily = fontFamilyMeasureFont,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            ),
+            placeholders = placeholders,
+            constraints = ParagraphConstraints(Float.MAX_VALUE),
+            density = defaultDensity,
+            resourceLoader = TestFontResourceLoader(context)
+        )
+
+        // Rendered as below:
+        //   |  |b
+        // The placeholder takes 30 sp. In default density, it will be 30 pixels
+        assertThat(paragraph.maxIntrinsicWidth).isEqualTo(fontSize + width.value)
+    }
+
+    @Test
+    fun placeholderRects_withSingleParagraph() {
+        val text = AnnotatedString(text = "ab")
+        val fontSize = 20
+        val width = 2.em
+        val height = 1.em
+        val placeholders = listOf(
+            AnnotatedString.Item(
+                Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline),
+                0,
+                1
+            )
+        )
+
+        val paragraph = MultiParagraph(
+            annotatedString = text,
+            style = TextStyle(
+                fontSize = fontSize.sp,
+                fontFamily = fontFamilyMeasureFont,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            ),
+            placeholders = placeholders,
+            constraints = ParagraphConstraints(Float.MAX_VALUE),
+            density = defaultDensity,
+            resourceLoader = TestFontResourceLoader(context)
+        )
+
+        assertThat(paragraph.placeholderRects).hasSize(1)
+        assertThat(paragraph.placeholderRects[0]).isEqualTo(
+            Rect(
+                left = 0f,
+                top = paragraph.firstBaseline - height.value * fontSize,
+                right = width.value * fontSize,
+                bottom = paragraph.firstBaseline
+            )
+        )
+    }
+
+    @Test
+    fun placeholderRects_withMultipleParagraphs() {
+        val text = createAnnotatedString("ab", "cd")
+        val fontSize = 20
+        val width = 2.em
+        val height = 1.em
+        val placeholders = listOf(
+            AnnotatedString.Item(
+                Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline),
+                0,
+                1
+            ),
+            AnnotatedString.Item(
+                Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline),
+                2,
+                3
+            )
+        )
+
+        val paragraph = MultiParagraph(
+            annotatedString = text,
+            style = TextStyle(
+                fontSize = fontSize.sp,
+                fontFamily = fontFamilyMeasureFont,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            ),
+            placeholders = placeholders,
+            constraints = ParagraphConstraints(Float.MAX_VALUE),
+            density = defaultDensity,
+            resourceLoader = TestFontResourceLoader(context)
+        )
+
+        assertThat(paragraph.placeholderRects).hasSize(2)
+        assertThat(paragraph.placeholderRects[0]).isEqualTo(
+            Rect(
+                left = 0f,
+                top = paragraph.firstBaseline - height.value * fontSize,
+                right = width.value * fontSize,
+                bottom = paragraph.firstBaseline
+            )
+        )
+        assertThat(paragraph.placeholderRects[1]).isEqualTo(
+            Rect(
+                left = 0f,
+                top = paragraph.lastBaseline - height.value * fontSize,
+                right = width.value * fontSize,
+                bottom = paragraph.lastBaseline
+            )
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun placeholderRects_overlapWithParagraph() {
+        val text = createAnnotatedString("ab", "cd")
+        val fontSize = 20
+        val width = 2.em
+        val height = 1.em
+        val placeholders = listOf(
+            AnnotatedString.Item(
+                Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline),
+                1,
+                3
+            )
+        )
+
+        MultiParagraph(
+            annotatedString = text,
+            style = TextStyle(
+                fontSize = fontSize.sp,
+                fontFamily = fontFamilyMeasureFont,
+                textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
+            ),
+            placeholders = placeholders,
+            constraints = ParagraphConstraints(Float.MAX_VALUE),
+            density = defaultDensity,
+            resourceLoader = TestFontResourceLoader(context)
+        )
+    }
+
     /**
      * Helper function which creates an AnnotatedString where each input string becomes a paragraph.
      */
@@ -1281,7 +1463,8 @@ class MultiParagraphIntegrationTest {
 
     private fun simpleMultiParagraphIntrinsics(
         text: AnnotatedString,
-        fontSize: TextUnit = TextUnit.Inherit
+        fontSize: TextUnit = TextUnit.Inherit,
+        placeholders: List<AnnotatedString.Item<Placeholder>> = listOf()
     ): MultiParagraphIntrinsics {
         return MultiParagraphIntrinsics(
             text,
@@ -1290,6 +1473,7 @@ class MultiParagraphIntegrationTest {
                 fontSize = fontSize,
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
             ),
+            placeholders = placeholders,
             density = defaultDensity,
             resourceLoader = TestFontResourceLoader(context)
         )

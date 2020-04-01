@@ -46,6 +46,7 @@ class TextLayoutHelperTest {
             TextLayoutInput(
                 text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
                 style = TextStyle(),
+                placeholders = listOf(),
                 maxLines = 1,
                 softWrap = true,
                 overflow = TextOverflow.Ellipsis,

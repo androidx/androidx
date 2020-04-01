@@ -67,6 +67,11 @@ import androidx.ui.unit.px
  * to the last line before the line truncated by [maxLines], if [maxLines] is non-null and that
  * line overflows the width constraint.
  *
+ * @param density The [Density] object that provides pixel density information of the device
+ *
+ * @param placeholders a list of [Placeholder]s that specify ranges of text where the original
+ * text is replaced empty spaces. It's typically used to embed images into text.
+ *
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -77,7 +82,8 @@ class TextDelegate(
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
-    val resourceLoader: Font.ResourceLoader
+    val resourceLoader: Font.ResourceLoader,
+    val placeholders: List<AnnotatedString.Item<Placeholder>> = listOf()
 ) {
     @VisibleForTesting
     internal var paragraphIntrinsics: MultiParagraphIntrinsics? = null
@@ -116,7 +122,8 @@ class TextDelegate(
                 annotatedString = text,
                 style = resolveDefaults(style, layoutDirection),
                 density = density,
-                resourceLoader = resourceLoader
+                resourceLoader = resourceLoader,
+                placeholders = placeholders
             )
         } else {
             paragraphIntrinsics
@@ -195,6 +202,7 @@ class TextDelegate(
             TextLayoutInput(
                 text,
                 style,
+                placeholders,
                 maxLines,
                 softWrap,
                 overflow,

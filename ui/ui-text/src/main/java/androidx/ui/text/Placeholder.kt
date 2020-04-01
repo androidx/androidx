@@ -19,7 +19,7 @@ package androidx.ui.text
 import androidx.ui.unit.TextUnit
 
 /**
- * A placeholder is a rectangle box inserted into text, which tells the text processor to left an
+ * A placeholder is a rectangle box inserted into text, which tells the text processor to leave an
  * empty space. It is typically used to insert inline image, custom emoji, etc into the text
  * paragraph.
  *
