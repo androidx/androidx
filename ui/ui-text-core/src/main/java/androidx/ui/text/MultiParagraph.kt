@@ -155,8 +155,10 @@ class MultiParagraph(
      * The bounding boxes reserved for the input placeholders in this MultiParagraph. Their
      * locations are relative to this MultiParagraph's coordinate. The order of this list
      * corresponds to that of input placeholders.
+     * Notice that [Rect] in [placeholderRects] is nullable. When [Rect] is null, it indicates
+     * that the corresponding [Placeholder] is ellipsized.
      */
-    val placeholderRects: List<Rect>
+    val placeholderRects: List<Rect?>
 
     /* This is internal for testing purpose. */
     internal val paragraphInfoList: List<ParagraphInfo>
@@ -210,7 +212,16 @@ class MultiParagraph(
         this.width = constraints.width
         this.placeholderRects = paragraphInfoList.flatMap { paragraphInfo ->
             with(paragraphInfo) {
-                paragraph.placeholderRects.map { it.toGlobal() }
+                paragraph.placeholderRects.map { it?.toGlobal() }
+            }
+        }.let {
+            // When paragraphs get ellipsized, the size of this list will be smaller than
+            // the input placeholders. In this case, fill this list with null so that it has the
+            // same size as the input placeholders.
+            if (it.size < intrinsics.placeholders.size) {
+                it + List(intrinsics.placeholders.size - it.size) { null }
+            } else {
+                it
             }
         }
     }

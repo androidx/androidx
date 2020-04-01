@@ -98,8 +98,10 @@ interface Paragraph {
      * The bounding boxes reserved for the input placeholders in this Paragraphs. Their locations
      * are relative to this Paragraph's coordinate. The order of this list corresponds to that of
      * input placeholders.
+     * Notice that [Rect] in [placeholderRects] is nullable. When [Rect] is null, it indicates
+     * that the corresponding [Placeholder] is ellipsized.
      */
-    val placeholderRects: List<Rect>
+    val placeholderRects: List<Rect?>
 
     /** Returns path that enclose the given text range. */
     fun getPathForRange(start: Int, end: Int): Path
