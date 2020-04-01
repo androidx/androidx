@@ -18,11 +18,12 @@ package androidx.ui.framework.demos.focus
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.focus.FocusModifier
 import androidx.ui.focus.FocusState.Focused
 import androidx.ui.focus.FocusState.NotFocusable
 import androidx.ui.focus.FocusState.NotFocused
-import androidx.ui.focus.Focusable
+import androidx.ui.focus.focusState
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
@@ -34,42 +35,41 @@ import androidx.ui.text.TextStyle
 
 @Composable
 fun FocusableDemo() {
-    Focusable {
-        Column(arrangement = Arrangement.SpaceEvenly) {
-            CenteredRow {
-                Text("Click on any focusable to bring it into focus:")
-            }
-            CenteredRow {
-                FocusableText("Focusable 1")
-            }
-            CenteredRow {
-                FocusableText("Focusable 2")
-            }
-            CenteredRow {
-                FocusableText("Focusable 3")
-            }
+    Column(
+        arrangement = Arrangement.SpaceEvenly
+    ) {
+        CenteredRow {
+            Text("Click on any focusable to bring it into focus:")
+        }
+        CenteredRow {
+            FocusableText("Focusable 1")
+        }
+        CenteredRow {
+            FocusableText("Focusable 2")
+        }
+        CenteredRow {
+            FocusableText("Focusable 3")
         }
     }
 }
 
 @Composable
 private fun FocusableText(text: String) {
-    Focusable { focus ->
-        Text(
-            modifier = PressIndicatorGestureDetector(onStart = { focus.requestFocus() }),
-            text = text,
-            style = TextStyle(
-                color = when (focus.focusState) {
-                    Focused -> Color.Green
-                    NotFocused -> Color.Black
-                    NotFocusable -> Color.Gray
-                }
-            )
+    val focusModifier = FocusModifier()
+    Text(
+        modifier = focusModifier + TapGestureDetector { focusModifier.requestFocus() },
+        text = text,
+        style = TextStyle(
+            color = when (focusModifier.focusState) {
+                Focused -> Color.Green
+                NotFocused -> Color.Black
+                NotFocusable -> Color.Gray
+            }
         )
-    }
+    )
 }
 
 @Composable
 private fun CenteredRow(children: @Composable() RowScope.() -> Unit) {
-    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.Center, children = children)
+    Row(modifier = Modifier.fillMaxWidth(), arrangement = Arrangement.Center, children = children)
 }
