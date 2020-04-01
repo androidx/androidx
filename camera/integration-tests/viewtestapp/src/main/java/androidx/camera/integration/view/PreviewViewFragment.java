@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -28,6 +29,7 @@ import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
@@ -41,6 +43,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.CountDownLatch;
 
 /** A Fragment that displays a {@link PreviewView}. */
 public class PreviewViewFragment extends Fragment {
@@ -197,4 +201,40 @@ public class PreviewViewFragment extends Fragment {
                 .requireLensFacing(mCurrentLensFacing)
                 .build();
     }
+
+    // region For preview updates testing
+    @Nullable
+    private CountDownLatch mPreviewUpdatingLatch;
+
+    // Here we use OnPreDrawListener in ViewTreeObserver to detect if view is being updating.
+    // If yes, preview should be working to update the view. We could use more precise approach
+    // like TextureView.SurfaceTextureListener#onSurfaceTextureUpdated but it will require to add
+    // API in PreviewView which is not a good idea. And we use OnPreDrawListener instead of
+    // OnDrawListener because OnDrawListener is not invoked on some low API level devices.
+    private ViewTreeObserver.OnPreDrawListener mOnPreDrawListener = () -> {
+        if (mPreviewUpdatingLatch != null) {
+            mPreviewUpdatingLatch.countDown();
+        }
+        return true;
+    };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        requireActivity().getWindow().getDecorView().getViewTreeObserver().addOnPreDrawListener(
+                mOnPreDrawListener);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        requireActivity().getWindow().getDecorView().getViewTreeObserver().removeOnPreDrawListener(
+                mOnPreDrawListener);
+    }
+
+    @VisibleForTesting
+    void setPreviewUpdatingLatch(@NonNull CountDownLatch previewUpdatingLatch) {
+        mPreviewUpdatingLatch = previewUpdatingLatch;
+    }
+    // end region
 }
