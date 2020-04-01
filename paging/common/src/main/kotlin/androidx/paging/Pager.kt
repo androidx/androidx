@@ -63,8 +63,8 @@ internal class Pager<Key : Any, Value : Any>(
     internal val initialKey: Key?,
     internal val pagingSource: PagingSource<Key, Value>,
     private val config: PagingConfig,
-    private val remoteMediatorAccessor: RemoteMediatorAccessor<Key, Value>? = null,
     private val retryFlow: Flow<Unit>,
+    private val remoteMediatorAccessor: RemoteMediatorAccessor<Key, Value>? = null,
     private val invalidate: () -> Unit = {}
 ) {
     init {

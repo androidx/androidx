@@ -1008,8 +1008,8 @@ class PagerTest {
             initialKey = 0,
             pagingSource = pagingSourceFactory(),
             config = config,
-            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator),
-            retryFlow = retryCh.asFlow()
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
         )
 
         collectPagerData(pager) { _, _ ->
@@ -1035,8 +1035,8 @@ class PagerTest {
             initialKey = 99,
             pagingSource = pagingSourceFactory(),
             config = config,
-            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator),
-            retryFlow = retryCh.asFlow()
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
         )
 
         collectPagerData(pager) { _, _ ->

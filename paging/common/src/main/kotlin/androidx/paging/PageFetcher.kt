@@ -115,8 +115,8 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     initialKey = initialKey,
                     pagingSource = pagingSource,
                     config = config,
-                    remoteMediatorAccessor = remoteMediatorAccessor,
                     retryFlow = retryChannel.asFlow(),
+                    remoteMediatorAccessor = remoteMediatorAccessor,
                     invalidate = this@PageFetcher::refresh
                 )
             }
