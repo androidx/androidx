@@ -166,6 +166,13 @@ sealed class ComponentNode {
         }
     }
 
+    /**
+     * Moves [count] elements starting at index [from] to index [to]. The [to] index is related to
+     * the position before the change, so, for example, to move an element at position 1 to after
+     * the element at position 2, [from] should be `1` and [to] should be `3`. If the elements
+     * were ComponentNodes A B C D E, calling `move(1, 3, 1)` would result in the ComponentNodes
+     * being reordered to A C B D E.
+     */
     fun move(from: Int, to: Int, count: Int) {
         if (from == to) {
             return // nothing to do
