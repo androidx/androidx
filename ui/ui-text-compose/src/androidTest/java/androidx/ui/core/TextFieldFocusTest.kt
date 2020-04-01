@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.LargeTest
-import androidx.ui.core.input.FocusManagerImpl
+import androidx.ui.core.input.FocusManager
 import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
@@ -62,7 +62,6 @@ class TextFieldFocusTest {
 
     @Test
     fun requestFocus() {
-        val focusManager = FocusManagerImpl()
         val inputSessionToken = 10
         val textInputService = mock<TextInputService>()
         whenever(textInputService.startInput(any(), any(), any(), any(), any()))
@@ -74,11 +73,12 @@ class TextFieldFocusTest {
             FocusTestData("ID3")
         )
 
+        lateinit var focusManager: FocusManager
         composeTestRule.setContent {
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides textInputService
             ) {
+                focusManager = FocusManagerAmbient.current
                 TestTag(tag = "textField") {
                     TextFieldApp(testDataList)
                 }

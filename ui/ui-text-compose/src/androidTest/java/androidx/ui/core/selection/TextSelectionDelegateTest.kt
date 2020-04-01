@@ -25,13 +25,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.LayoutDirection
-import androidx.ui.framework.test.R
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
+import androidx.ui.text.compose.test.R
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle

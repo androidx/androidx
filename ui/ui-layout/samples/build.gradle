@@ -37,6 +37,7 @@ dependencies {
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-text")
+    implementation project(":ui:ui-text-compose")
 }
 
 android {
