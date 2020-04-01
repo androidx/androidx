@@ -45,6 +45,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -1073,6 +1074,18 @@ class PagerTest {
             assertTrue { didJump }
 
             job.cancel()
+        }
+    }
+
+    @Test
+    fun jump_requiresPagingSourceOptIn() {
+        assertFailsWith<IllegalArgumentException> {
+            Pager(
+                initialKey = 50,
+                pagingSource = TestPagingSource(jumpingSupported = false),
+                config = PagingConfig(pageSize = 1, prefetchDistance = 1, jumpThreshold = 1),
+                retryFlow = retryCh.asFlow()
+            )
         }
     }
 }

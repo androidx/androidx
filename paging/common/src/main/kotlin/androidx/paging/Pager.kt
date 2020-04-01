@@ -67,6 +67,13 @@ internal class Pager<Key : Any, Value : Any>(
     private val retryFlow: Flow<Unit>,
     private val invalidate: () -> Unit = {}
 ) {
+    init {
+        require(config.jumpThreshold == COUNT_UNDEFINED || pagingSource.jumpingSupported) {
+            "PagingConfig.jumpThreshold was set, but the associated PagingSource has not marked " +
+                    "support for jumps by overriding PagingSource.jumpingSupported to true."
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val hintChannel = BroadcastChannel<ViewportHint>(CONFLATED)
     private var lastHint: ViewportHint? = null
