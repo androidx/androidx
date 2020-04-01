@@ -26,11 +26,5 @@ package="androidx.ui.androidview.test">
     android:requestLegacyExternalStorage="true"
     android:debuggable="false"
     tools:ignore="HardcodedDebugMode"
-    tools:replace="android:debuggable">
-
-    <activity
-        android:name="android.app.Activity"
-        android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
-
-</application>
+    tools:replace="android:debuggable" />
 </manifest>
