@@ -35,6 +35,8 @@ import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
+import androidx.ui.test.runOnIdleComposeInternal
+import androidx.ui.test.runOnUiThreadInternal
 import androidx.ui.unit.Density
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -88,21 +90,13 @@ class AndroidComposeTestRule<T : Activity>(
     }
 
     override fun <T> runOnUiThread(action: () -> T): T {
-        // Workaround for lambda bug in IR
-        var result: T? = null
-        activityTestRule.runOnUiThread(object : Runnable {
-            override fun run() {
-                result = action.invoke()
-            }
-        })
-        return result!!
+        // TODO: Rename to runOnUiThread and use it everywhere instead of this method
+        return runOnUiThreadInternal(action)
     }
 
     override fun <T> runOnIdleCompose(action: () -> T): T {
-        // Method below make sure that compose is idle.
-        SynchronizedTreeCollector.waitForIdle()
-        // Execute the action on ui thread in a blocking way.
-        return runOnUiThread(action)
+        // TODO: Rename to runOnIdleCompose and use it everywhere instead of this method
+        return runOnIdleComposeInternal(action)
     }
 
     /**

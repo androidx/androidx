@@ -16,13 +16,12 @@
 
 package androidx.ui.test.android
 
-import android.os.Handler
-import android.os.Looper
 import android.view.Choreographer
 import androidx.animation.AnimationClockObserver
 import androidx.animation.ManualAnimationClock
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.TestAnimationClock
+import androidx.ui.test.runOnUiThreadInternal
 
 /**
  * An animation clock driven by an external time source, that can be queried for idleness and has
@@ -39,15 +38,12 @@ import androidx.ui.test.TestAnimationClock
  */
 internal class AndroidTestAnimationClock : TestAnimationClock {
 
-    private val mainHandler = Handler(Looper.getMainLooper())
-    private val mainChoreographer: Choreographer
-
-    init {
-        /**
-         * If not initializing on the main thread, a message will be posted on the main thread to
-         * fetch the Choreographer, and initialization blocks until that fetch is completed.
-         */
-        mainChoreographer = mainHandler.runAndAwait { Choreographer.getInstance() }
+    /**
+     * If not initializing on the main thread, a message will be posted on the main thread to
+     * fetch the Choreographer, and initialization blocks until that fetch is completed.
+     */
+    private val mainChoreographer: Choreographer = runOnUiThreadInternal {
+        Choreographer.getInstance()
     }
 
     private val lock = Any()
@@ -94,7 +90,7 @@ internal class AndroidTestAnimationClock : TestAnimationClock {
     }
 
     override fun advanceClock(milliseconds: Long) {
-        mainHandler.runAndAwait {
+        runOnUiThreadInternal {
             advanceClockOnMainThread(milliseconds)
         }
     }
