@@ -725,8 +725,15 @@ package androidx.ui.text.font {
   }
 
   public static final class FontWeight.Companion {
+    method public androidx.ui.text.font.FontWeight getBlack();
     method public androidx.ui.text.font.FontWeight getBold();
+    method public androidx.ui.text.font.FontWeight getExtraBold();
+    method public androidx.ui.text.font.FontWeight getExtraLight();
+    method public androidx.ui.text.font.FontWeight getLight();
+    method public androidx.ui.text.font.FontWeight getMedium();
     method public androidx.ui.text.font.FontWeight getNormal();
+    method public androidx.ui.text.font.FontWeight getSemiBold();
+    method public androidx.ui.text.font.FontWeight getThin();
     method public androidx.ui.text.font.FontWeight getW100();
     method public androidx.ui.text.font.FontWeight getW200();
     method public androidx.ui.text.font.FontWeight getW300();
@@ -736,8 +743,15 @@ package androidx.ui.text.font {
     method public androidx.ui.text.font.FontWeight getW700();
     method public androidx.ui.text.font.FontWeight getW800();
     method public androidx.ui.text.font.FontWeight getW900();
+    property public final androidx.ui.text.font.FontWeight Black;
     property public final androidx.ui.text.font.FontWeight Bold;
+    property public final androidx.ui.text.font.FontWeight ExtraBold;
+    property public final androidx.ui.text.font.FontWeight ExtraLight;
+    property public final androidx.ui.text.font.FontWeight Light;
+    property public final androidx.ui.text.font.FontWeight Medium;
     property public final androidx.ui.text.font.FontWeight Normal;
+    property public final androidx.ui.text.font.FontWeight SemiBold;
+    property public final androidx.ui.text.font.FontWeight Thin;
     property public final androidx.ui.text.font.FontWeight W100;
     property public final androidx.ui.text.font.FontWeight W200;
     property public final androidx.ui.text.font.FontWeight W300;
