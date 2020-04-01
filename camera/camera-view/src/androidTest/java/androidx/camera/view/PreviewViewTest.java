@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 import android.Manifest;
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -39,6 +40,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
 import androidx.camera.testing.fakes.FakeActivity;
+import androidx.camera.view.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -140,10 +142,18 @@ public class PreviewViewTest {
 
     @Test
     @UiThreadTest
-    public void getsScaleType() {
+    public void getsScaleTypeProgrammatically() {
         final PreviewView previewView = new PreviewView(mContext);
         previewView.setScaleType(PreviewView.ScaleType.FIT_END);
 
+        assertThat(previewView.getScaleType()).isEqualTo(PreviewView.ScaleType.FIT_END);
+    }
+
+    @Test
+    @UiThreadTest
+    public void getsScaleTypeFromXMLLayout() {
+        final PreviewView previewView = (PreviewView) LayoutInflater.from(mContext).inflate(
+                R.layout.preview_view_scale_type_fit_end, null);
         assertThat(previewView.getScaleType()).isEqualTo(PreviewView.ScaleType.FIT_END);
     }
 

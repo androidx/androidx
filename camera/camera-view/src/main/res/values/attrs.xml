@@ -41,5 +41,9 @@ limitations under the License.
 
         <attr name="pinchToZoomEnabled" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="PreviewView">
+        <attr name="scaleType" />
+    </declare-styleable>
 </resources>
 
