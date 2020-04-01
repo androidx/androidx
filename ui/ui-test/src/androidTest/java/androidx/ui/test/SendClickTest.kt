@@ -21,7 +21,6 @@ import android.view.Gravity
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
-import androidx.compose.Composition
 import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerEventPass
@@ -62,7 +61,6 @@ private data class ClickData(
 // The presence of an ActionBar follows from the theme set in AndroidManifest.xml
 class ActivityWithActionBar : ComponentActivity() {
     private lateinit var composeHolder: FrameLayout
-    private var composition: Composition? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,13 +76,8 @@ class ActivityWithActionBar : ComponentActivity() {
         setContentView(root)
     }
 
-    override fun onDestroy() {
-        composition?.dispose()
-        super.onDestroy()
-    }
-
     fun setContent(composable: @Composable() () -> Unit) {
-        composition = composeHolder.setContent(composable)
+        composeHolder.setContent(composable)
     }
 }
 

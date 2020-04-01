@@ -108,9 +108,11 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<androidx.ui.text.font.Font.ResourceLoader> getFontLoaderAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.hapticfeedback.HapticFeedback> getHapticFeedBackAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.lifecycle.LifecycleOwner> getLifecycleOwnerAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.platform.UriHandler> getUriHandlerAmbient();
-    method public static androidx.compose.Composition setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static androidx.compose.Composition setContent(androidx.activity.ComponentActivity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @Deprecated public static androidx.compose.Composition setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.Composition setViewContent(android.view.ViewGroup, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public static androidx.compose.Composition setViewContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> composable);

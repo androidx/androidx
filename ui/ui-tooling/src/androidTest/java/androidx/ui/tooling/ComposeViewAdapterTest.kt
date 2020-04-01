@@ -22,7 +22,6 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.tooling.preview.ComposeViewAdapter
 import androidx.ui.tooling.preview.ViewInfo
 import androidx.ui.tooling.test.R
-import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -38,13 +37,6 @@ class ComposeViewAdapterTest {
     fun setup() {
         composeViewAdapter =
             activityTestRule.activity.findViewById(R.id.compose_view_adapter)
-    }
-
-    @After
-    fun tearDown() {
-        activityTestRule.runOnUiThread {
-            composeViewAdapter.dispose()
-        }
     }
 
     /**

@@ -21,7 +21,6 @@ import android.view.ViewGroup
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.tooling.preview.PreviewActivity
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -35,13 +34,6 @@ class PreviewActivityTest {
     @Before
     fun setup() {
         intent = Intent(activityTestRule.activity, PreviewActivity::class.java)
-    }
-
-    @After
-    fun tearDown() {
-        activityTestRule.runOnUiThread {
-            (activityTestRule.activity as PreviewActivity).composition?.dispose()
-        }
     }
 
     @Test
