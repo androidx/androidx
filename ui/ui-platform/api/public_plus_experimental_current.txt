@@ -79,14 +79,14 @@ package androidx.ui.core {
     ctor public DrawNode();
     method public boolean getNeedsPaint();
     method public kotlin.jvm.functions.Function3<androidx.ui.unit.Density,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? getOnPaint();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? getOnPaintWithChildren();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.ContentDrawScope,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? getOnPaintWithChildren();
     method public void invalidate();
     method public void setNeedsPaint(boolean p);
     method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit>? value);
-    method public void setOnPaintWithChildren(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit>? value);
+    method public void setOnPaintWithChildren(kotlin.jvm.functions.Function3<? super androidx.ui.core.ContentDrawScope,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit>? value);
     property public final boolean needsPaint;
     property public final kotlin.jvm.functions.Function3<androidx.ui.unit.Density,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaint;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaintWithChildren;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.ContentDrawScope,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaintWithChildren;
   }
 
   public final class FocusNode extends androidx.ui.core.ComponentNode {
@@ -109,7 +109,7 @@ package androidx.ui.core {
 
   public final class LayoutNode extends androidx.ui.core.ComponentNode implements androidx.ui.core.Measurable {
     ctor public LayoutNode();
-    method public void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.Density density);
+    method public void draw(androidx.ui.graphics.Canvas canvas);
     method public boolean getAffectsParentSize();
     method public androidx.ui.unit.IntPx? getAlignmentLine(androidx.ui.core.AlignmentLine line);
     method @Deprecated public boolean getCanMultiMeasure();
@@ -228,7 +228,7 @@ package androidx.ui.core {
   public interface Owner {
     method public androidx.ui.unit.IntPxPosition calculatePosition();
     method public void callDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.unit.PxSize parentSize);
-    method public androidx.ui.core.OwnedLayer createLayer(androidx.ui.core.DrawLayerModifier drawLayerModifier, kotlin.jvm.functions.Function2<? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.Density,kotlin.Unit> drawBlock, kotlin.jvm.functions.Function0<kotlin.Unit> invalidateParentLayer);
+    method public androidx.ui.core.OwnedLayer createLayer(androidx.ui.core.DrawLayerModifier drawLayerModifier, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Canvas,kotlin.Unit> drawBlock, kotlin.jvm.functions.Function0<kotlin.Unit> invalidateParentLayer);
     method public androidx.ui.autofill.Autofill? getAutofill();
     method public androidx.ui.autofill.AutofillTree getAutofillTree();
     method public androidx.ui.core.clipboard.ClipboardManager getClipboardManager();

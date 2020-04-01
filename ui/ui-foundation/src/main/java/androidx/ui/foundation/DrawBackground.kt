@@ -19,17 +19,16 @@ package androidx.ui.foundation
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DrawModifier
+import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Brush
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.drawOutline
-import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.toRect
 
@@ -125,14 +124,14 @@ data class DrawBackground internal constructor(
     private var lastSize: PxSize? = null
     private var lastOutline: Outline? = null
 
-    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
+    override fun ContentDrawScope.draw() {
         if (shape === RectangleShape) {
             // shortcut to avoid Outline calculation and allocation
-            canvas.drawRect(size.toRect(), paint)
+            drawRect(size.toRect(), paint)
         } else {
             val localOutline =
-                if (size == lastSize) lastOutline!! else shape.createOutline(size, density)
-            canvas.drawOutline(localOutline, paint)
+                if (size == lastSize) lastOutline!! else shape.createOutline(size, this)
+            drawOutline(localOutline, paint)
             lastOutline = localOutline
             lastSize = size
         }

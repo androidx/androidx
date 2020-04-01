@@ -192,7 +192,7 @@ interface Owner {
      */
     fun createLayer(
         drawLayerModifier: DrawLayerModifier,
-        drawBlock: (Canvas, Density) -> Unit,
+        drawBlock: (Canvas) -> Unit,
         invalidateParentLayer: () -> Unit
     ): OwnedLayer
 

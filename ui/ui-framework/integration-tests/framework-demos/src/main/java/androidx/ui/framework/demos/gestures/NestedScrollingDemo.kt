@@ -20,6 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Direction
 import androidx.ui.core.DrawModifier
+import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DoubleTapGestureDetector
@@ -32,16 +33,14 @@ import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorder
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.withSave
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
-import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -120,11 +119,11 @@ private fun Draggable(children: @Composable() () -> Unit) {
 }
 
 val ClipModifier = object : DrawModifier {
-    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
-        canvas.save()
-        canvas.clipRect(size.toRect())
-        drawContent()
-        canvas.restore()
+    override fun ContentDrawScope.draw() {
+        withSave {
+            clipRect(size.toRect())
+            drawContent()
+        }
     }
 }
 

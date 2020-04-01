@@ -24,9 +24,9 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
+import androidx.ui.core.DrawScope
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable
@@ -146,7 +146,7 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: M
     }
 }
 
-private fun CanvasScope.drawBox(
+private fun DrawScope.drawBox(
     color: Color,
     innerRadiusFraction: Float,
     paint: Paint
@@ -208,7 +208,7 @@ private fun CanvasScope.drawBox(
     }
 }
 
-private fun CanvasScope.drawCheck(
+private fun DrawScope.drawCheck(
     checkFraction: Float,
     crossCenterGravitation: Float,
     paint: Paint

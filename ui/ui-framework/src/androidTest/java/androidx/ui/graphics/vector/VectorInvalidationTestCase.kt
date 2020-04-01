@@ -61,8 +61,8 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
         }
     }
 
-    val WhiteBackground = Modifier.drawBehind { canvas, size ->
-        canvas.drawRect(
+    val WhiteBackground = Modifier.drawBehind {
+        drawRect(
             Rect.fromLTWH(
                 0.0f,
                 0.0f,

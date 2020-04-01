@@ -26,12 +26,7 @@ package androidx.ui.foundation {
   }
 
   public final class CanvasKt {
-    method public static void Canvas(androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.foundation.CanvasScope,kotlin.Unit> onCanvas);
-  }
-
-  public interface CanvasScope extends androidx.ui.graphics.Canvas androidx.ui.unit.Density {
-    method public androidx.ui.unit.PxSize getSize();
-    property public abstract androidx.ui.unit.PxSize size;
+    method public static void Canvas(androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.DrawScope,kotlin.Unit> onCanvas);
   }
 
   public final class ClickableKt {
@@ -66,7 +61,7 @@ package androidx.ui.foundation {
 
   public final class DrawBackground implements androidx.ui.core.DrawModifier {
     method public androidx.ui.foundation.DrawBackground copy(androidx.ui.graphics.Paint paint, androidx.ui.graphics.Shape shape);
-    method public void draw(androidx.ui.unit.Density density, kotlin.jvm.functions.Function0<kotlin.Unit> drawContent, androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize size);
+    method public void draw(androidx.ui.core.ContentDrawScope);
   }
 
   public final class DrawBackgroundKt {
@@ -78,7 +73,7 @@ package androidx.ui.foundation {
   }
 
   public final class DrawBorder implements androidx.ui.core.DrawModifier {
-    method public void draw(androidx.ui.unit.Density density, kotlin.jvm.functions.Function0<kotlin.Unit> drawContent, androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize size);
+    method public void draw(androidx.ui.core.ContentDrawScope);
   }
 
   public final class DrawBorderKt {

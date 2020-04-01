@@ -196,10 +196,10 @@ fun Modifier.drawVector(
     val vectorHeight = defaultHeight.value
     val vectorPxSize = PxSize(Px(vectorWidth), Px(vectorHeight))
 
-    return this.drawBehind { canvas, parentSize ->
-        val parentWidth = parentSize.width.value
-        val parentHeight = parentSize.height.value
-        val scale = scaleFit.scale(vectorPxSize, parentSize)
+    return this.drawBehind {
+        val parentWidth = size.width.value
+        val parentHeight = size.height.value
+        val scale = scaleFit.scale(vectorPxSize, size)
 
         val alignedPosition = alignment.align(
             IntPxSize(
@@ -215,9 +215,9 @@ fun Modifier.drawVector(
         vector.root.scaleX = (vectorWidth / viewportWidth) * scale
         vector.root.scaleY = (vectorHeight / viewportHeight) * scale
 
-        canvas.withSave {
-            canvas.translate(translateX, translateY)
-            vector.draw(canvas, DefaultAlpha, ColorFilter(tintColor, tintBlendMode))
+        withSave {
+            translate(translateX, translateY)
+            vector.draw(this, DefaultAlpha, ColorFilter(tintColor, tintBlendMode))
         }
     }
 }

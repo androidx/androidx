@@ -159,10 +159,10 @@ fun CoreTextField(
         ) {
             Layout(
                 emptyContent(),
-                modifier.drawBehind { canvas, _ ->
+                modifier.drawBehind {
                     state.layoutResult?.let { layoutResult ->
                         TextFieldDelegate.draw(
-                            canvas,
+                            this,
                             value,
                             offsetMap,
                             layoutResult,
