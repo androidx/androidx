@@ -22,17 +22,8 @@
         android:debuggable="false"
         tools:ignore="HardcodedDebugMode"
         tools:replace="android:debuggable">
-        <activity
-            android:name="android.app.Activity"
-            android:theme="@style/TestTheme"/>
-        <activity
-            android:name="androidx.ui.savedinstancestate.RecreationTest1Activity"
-            android:theme="@style/TestTheme"/>
-        <activity
-            android:name="androidx.ui.savedinstancestate.RecreationTest2Activity"
-            android:theme="@style/TestTheme"/>
-        <activity
-            android:name="androidx.ui.savedinstancestate.RecreationTest3Activity"
-            android:theme="@style/TestTheme"/>
+        <activity android:name="androidx.ui.savedinstancestate.RecreationTest1Activity" />
+        <activity android:name="androidx.ui.savedinstancestate.RecreationTest2Activity" />
+        <activity android:name="androidx.ui.savedinstancestate.RecreationTest3Activity" />
     </application>
 </manifest>
