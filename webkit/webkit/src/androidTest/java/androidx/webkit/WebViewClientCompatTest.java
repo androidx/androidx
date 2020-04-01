@@ -318,12 +318,12 @@ public class WebViewClientCompatTest {
         final SafeBrowsingBackToSafetyClient backToSafetyWebViewClient =
                 new SafeBrowsingBackToSafetyClient();
         mWebViewOnUiThread.setWebViewClient(backToSafetyWebViewClient);
-        mWebViewOnUiThread.getSettings().setSafeBrowsingEnabled(true);
+        WebSettingsCompat.setSafeBrowsingEnabled(mWebViewOnUiThread.getSettings(), true);
 
         // Note: Safe Browsing depends on user opt-in as well, so we can't assume it's actually
         // enabled. #getSafeBrowsingEnabled will tell us the true state of whether Safe Browsing is
         // enabled.
-        if (mWebViewOnUiThread.getSettings().getSafeBrowsingEnabled()) {
+        if (WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings())) {
             mWebViewOnUiThread.loadUrlAndWaitForCompletion(expectedUrl);
 
             Assert.assertEquals("Safe Browsing hit is for unexpected URL",
