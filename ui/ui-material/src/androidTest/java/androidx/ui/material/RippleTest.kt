@@ -20,7 +20,9 @@ import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationClockObserver
 import androidx.compose.Composable
 import androidx.compose.Providers
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier

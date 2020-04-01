@@ -19,6 +19,8 @@ package androidx.ui.material
 import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.Providers
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress

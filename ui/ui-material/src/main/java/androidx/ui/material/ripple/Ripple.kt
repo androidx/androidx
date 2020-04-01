@@ -23,8 +23,10 @@ import androidx.compose.Composable
 import androidx.compose.CompositionLifecycleObserver
 import androidx.compose.StructurallyEqual
 import androidx.compose.frames.modelListOf
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.AnimationClockAmbient

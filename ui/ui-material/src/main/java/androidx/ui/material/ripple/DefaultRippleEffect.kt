@@ -25,7 +25,9 @@ import androidx.animation.TransitionAnimation
 import androidx.animation.TweenBuilder
 import androidx.animation.createAnimation
 import androidx.animation.transitionDefinition
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.ui.animation.PxPositionPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.graphics.Canvas

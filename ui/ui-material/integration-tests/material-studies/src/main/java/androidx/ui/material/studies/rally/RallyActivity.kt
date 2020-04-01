@@ -19,6 +19,8 @@ package androidx.ui.material.studies.rally
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.setContent
 import androidx.ui.material.Scaffold

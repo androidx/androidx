@@ -18,7 +18,9 @@ package androidx.ui.savedinstancestate
 
 import androidx.compose.Composable
 import androidx.compose.Providers
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.createComposeRule
