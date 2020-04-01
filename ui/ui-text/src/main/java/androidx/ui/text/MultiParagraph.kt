@@ -49,17 +49,24 @@ class MultiParagraph(
      *
      * @param annotatedString the text to be laid out
      * @param style the [TextStyle] to be applied to the whole text
+     * @param placeholders a list of [Placeholder]s that specify ranges of text which will be
+     * skipped during layout and replaced with [Placeholder]. It's required that the range of each
+     * [Placeholder] doesn't cross paragraph boundary, otherwise [IllegalArgumentException] is
+     * thrown.
      * @param maxLines the maximum number of lines that the text can have
      * @param ellipsis whether to ellipsize text, applied only when [maxLines] is set
      * @param constraints how wide the text is allowed to be
      * @param density density of the device
      * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [SpanStyle]s
      *
-     * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
+     * @see Placeholder
+     * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set, or
+     * any of the [placeholders] crosses paragraph boundary.
      */
     constructor(
         annotatedString: AnnotatedString,
         style: TextStyle,
+        placeholders: List<AnnotatedString.Item<Placeholder>> = listOf(),
         maxLines: Int = Int.MAX_VALUE,
         ellipsis: Boolean = false,
         constraints: ParagraphConstraints,
@@ -69,6 +76,7 @@ class MultiParagraph(
         intrinsics = MultiParagraphIntrinsics(
             annotatedString = annotatedString,
             style = style,
+            placeholders = placeholders,
             density = density,
             resourceLoader = resourceLoader
         ),
@@ -134,12 +142,21 @@ class MultiParagraph(
             return if (paragraphInfoList.isEmpty()) {
                 0f
             } else {
-                paragraphInfoList.last().paragraph.lastBaseline
+                with(paragraphInfoList.last()) {
+                    paragraph.lastBaseline.toGlobalYPosition()
+                }
             }
         }
 
     /** The total number of lines in the text. */
     val lineCount: Int
+
+    /**
+     * The bounding boxes reserved for the input placeholders in this MultiParagraph. Their
+     * locations are relative to this MultiParagraph's coordinate. The order of this list
+     * corresponds to that of input placeholders.
+     */
+    val placeholderRects: List<Rect>
 
     /* This is internal for testing purpose. */
     internal val paragraphInfoList: List<ParagraphInfo>
@@ -191,6 +208,11 @@ class MultiParagraph(
         this.didExceedMaxLines = didExceedMaxLines
         this.paragraphInfoList = paragraphInfoList
         this.width = constraints.width
+        this.placeholderRects = paragraphInfoList.flatMap { paragraphInfo ->
+            with(paragraphInfo) {
+                paragraph.placeholderRects.map { it.toGlobal() }
+            }
+        }
     }
 
     /** Paint the paragraphs to canvas. */

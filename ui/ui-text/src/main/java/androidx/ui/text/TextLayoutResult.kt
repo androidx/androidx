@@ -44,6 +44,17 @@ data class TextLayoutInput(
     val style: TextStyle,
 
     /**
+     * A list of [Placeholder]s inserted into text layout that reserves space to embed icons or
+     * custom emojis. A list of bounding boxes will be returned in
+     * [TextLayoutResult.placeholderRects] that corresponds to this input.
+     *
+     * @see TextLayoutResult.placeholderRects
+     * @see MultiParagraph
+     * @see MultiParagraphIntrinsics
+     */
+    val placeholders: List<AnnotatedString.Item<Placeholder>>,
+
+    /**
      * The maxLines param used for computing this text layout.
      */
     val maxLines: Int,
@@ -125,6 +136,18 @@ data class TextLayoutResult internal constructor(
      * Returns true if either vertical overflow or horizontal overflow happens.
      */
     val hasVisualOverflow: Boolean get() = didOverflowWidth || didOverflowHeight
+
+    /**
+     * Returns a list of bounding boxes that is reserved for [TextLayoutInput.placeholders].
+     * Each [Rect] in this list corresponds to the [Placeholder] passed to
+     * [TextLayoutInput.placeholders] and it will have the height and width specified in the
+     * [Placeholder]. It's guaranteed that [TextLayoutInput.placeholders] and
+     * [TextLayoutResult.placeholderRects] will have same length and order.
+     *
+     * @see TextLayoutInput.placeholders
+     * @see Placeholder
+     */
+    val placeholderRects: List<Rect> = multiParagraph.placeholderRects
 
     /**
      * Returns the bottom y coordinate of the given line.

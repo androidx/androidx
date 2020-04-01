@@ -297,7 +297,7 @@ package androidx.ui.text {
 
   public final class MultiParagraph {
     ctor public MultiParagraph(androidx.ui.text.MultiParagraphIntrinsics intrinsics, int maxLines, boolean ellipsis, androidx.ui.text.ParagraphConstraints constraints);
-    ctor public MultiParagraph(androidx.ui.text.AnnotatedString annotatedString, androidx.ui.text.TextStyle style, int maxLines, boolean ellipsis, androidx.ui.text.ParagraphConstraints constraints, androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    ctor public MultiParagraph(androidx.ui.text.AnnotatedString annotatedString, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> placeholders, int maxLines, boolean ellipsis, androidx.ui.text.ParagraphConstraints constraints, androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
     method public androidx.ui.text.style.TextDirection getBidiRunDirection(int offset);
     method public androidx.ui.geometry.Rect getBoundingBox(int offset);
     method public androidx.ui.geometry.Rect getCursorRect(int offset);
@@ -321,6 +321,7 @@ package androidx.ui.text {
     method public int getOffsetForPosition(androidx.ui.unit.PxPosition position);
     method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
+    method public java.util.List<androidx.ui.geometry.Rect> getPlaceholderRects();
     method public float getWidth();
     method public androidx.ui.text.TextRange getWordBoundary(int offset);
     method public void paint(androidx.ui.graphics.Canvas canvas);
@@ -331,16 +332,21 @@ package androidx.ui.text {
     property public final int lineCount;
     property public final float maxIntrinsicWidth;
     property public final float minIntrinsicWidth;
+    property public final java.util.List<androidx.ui.geometry.Rect> placeholderRects;
     property public final float width;
   }
 
   public final class MultiParagraphIntrinsics implements androidx.ui.text.ParagraphIntrinsics {
-    ctor public MultiParagraphIntrinsics(androidx.ui.text.AnnotatedString annotatedString, androidx.ui.text.TextStyle style, androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    ctor public MultiParagraphIntrinsics(androidx.ui.text.AnnotatedString annotatedString, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> placeholders, androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
     method public androidx.ui.text.AnnotatedString getAnnotatedString();
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
+    method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> getPlaceholders();
     property public float maxIntrinsicWidth;
     property public float minIntrinsicWidth;
+  }
+
+  public final class MultiParagraphIntrinsicsKt {
   }
 
   public final class MultiParagraphKt {
@@ -497,13 +503,14 @@ package androidx.ui.text {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TextDelegate {
-    ctor public TextDelegate(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.unit.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    ctor public TextDelegate(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.unit.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> placeholders);
     method public androidx.ui.unit.Density getDensity();
     method public androidx.ui.core.LayoutDirection getLayoutDirection();
     method public androidx.ui.unit.IntPx getMaxIntrinsicWidth();
     method public int getMaxLines();
     method public androidx.ui.unit.IntPx getMinIntrinsicWidth();
     method public androidx.ui.text.style.TextOverflow getOverflow();
+    method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> getPlaceholders();
     method public androidx.ui.text.font.Font.ResourceLoader getResourceLoader();
     method public boolean getSoftWrap();
     method public androidx.ui.text.TextStyle getStyle();
@@ -531,22 +538,24 @@ package androidx.ui.text {
   }
 
   public final class TextLayoutInput {
-    ctor public TextLayoutInput(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.unit.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader, androidx.ui.core.Constraints constraints);
+    ctor public TextLayoutInput(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> placeholders, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.unit.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader, androidx.ui.core.Constraints constraints);
     method public androidx.ui.text.AnnotatedString component1();
+    method public androidx.ui.core.Constraints component10();
     method public androidx.ui.text.TextStyle component2();
-    method public int component3();
-    method public boolean component4();
-    method public androidx.ui.text.style.TextOverflow component5();
-    method public androidx.ui.unit.Density component6();
-    method public androidx.ui.core.LayoutDirection component7();
-    method public androidx.ui.text.font.Font.ResourceLoader component8();
-    method public androidx.ui.core.Constraints component9();
-    method public androidx.ui.text.TextLayoutInput copy(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.unit.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader, androidx.ui.core.Constraints constraints);
+    method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> component3();
+    method public int component4();
+    method public boolean component5();
+    method public androidx.ui.text.style.TextOverflow component6();
+    method public androidx.ui.unit.Density component7();
+    method public androidx.ui.core.LayoutDirection component8();
+    method public androidx.ui.text.font.Font.ResourceLoader component9();
+    method public androidx.ui.text.TextLayoutInput copy(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> placeholders, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.unit.Density density, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.font.Font.ResourceLoader resourceLoader, androidx.ui.core.Constraints constraints);
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.unit.Density getDensity();
     method public androidx.ui.core.LayoutDirection getLayoutDirection();
     method public int getMaxLines();
     method public androidx.ui.text.style.TextOverflow getOverflow();
+    method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> getPlaceholders();
     method public androidx.ui.text.font.Font.ResourceLoader getResourceLoader();
     method public boolean getSoftWrap();
     method public androidx.ui.text.TextStyle getStyle();
@@ -572,6 +581,7 @@ package androidx.ui.text {
     method public int getOffsetForPosition(androidx.ui.unit.PxPosition position);
     method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
+    method public java.util.List<androidx.ui.geometry.Rect> getPlaceholderRects();
     method public androidx.ui.unit.IntPxSize getSize();
     method public androidx.ui.text.TextRange getWordBoundary(int offset);
     property public final boolean didOverflowHeight;
@@ -579,6 +589,7 @@ package androidx.ui.text {
     property public final androidx.ui.unit.Px firstBaseline;
     property public final boolean hasVisualOverflow;
     property public final androidx.ui.unit.Px lastBaseline;
+    property public final java.util.List<androidx.ui.geometry.Rect> placeholderRects;
   }
 
   public final class TextPainter {
