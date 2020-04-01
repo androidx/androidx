@@ -24,7 +24,7 @@ import androidx.compose.state
 import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.core.input.FocusManager
+import androidx.ui.core.input.FocusNode
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.ImeAction
 import androidx.ui.input.EditorValue
@@ -234,22 +234,19 @@ private fun TextInputEventObserver(
     val focusManager = FocusManagerAmbient.current
 
     val focusNode = remember {
-        val node = object : FocusManager.FocusNode {
-            override fun onFocus() {
-                onFocus()
-                focused.value = true
+        FocusNode().also {
+            focusManager.registerObserver(it) { fromNode, toNode ->
+                if (fromNode == it) { // Focus lost
+                    onBlur(toNode != null)
+                    focused.value = false
+                } else { // Focus gain
+                    onFocus()
+                    focused.value = true
+                }
             }
-
-            override fun onBlur(hasNextClient: Boolean) {
-                onBlur(hasNextClient)
-                focused.value = false
-            }
+            if (focusIdentifier != null)
+                focusManager.registerFocusNode(focusIdentifier, it)
         }
-
-        if (focusIdentifier != null)
-            focusManager.registerFocusNode(focusIdentifier, node)
-
-        node
     }
 
     onDispose {
