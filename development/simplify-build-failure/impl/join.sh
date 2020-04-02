@@ -18,19 +18,18 @@
 set -e
 
 function usage() {
-  echo "usage: $0 <exploded dir> <source dir>"
-  echo "This script concatenates files in <exploded dir> and puts the results in <source dir>"
+  echo "usage: $0 <exploded dir> <source path>"
+  echo "This script concatenates files in <exploded dir> and puts the results in <source path>"
   exit 1
 }
 
 explodedDir="$1"
-sourceDir="$2"
+sourcePath="$2"
 
-if [ "$sourceDir" == "" ]; then
+if [ "$sourcePath" == "" ]; then
   usage
 fi
-mkdir -p "$sourceDir"
-sourceDir="$(cd $sourceDir && pwd)"
+sourcePath="$(readlink -f $sourcePath)"
 
 if [ "$explodedDir" == "" ]; then
   usage
@@ -40,27 +39,29 @@ explodedDir="$(cd $explodedDir && pwd)"
 
 function joinPath() {
   explodedPath="$1"
-  sourcePath="$2"
+  sourceFile="$2"
 
-  mkdir -p "$(dirname $sourcePath)"
+  # replace ending '/.' with nothing
+  sourceFile="$(echo $sourceFile | sed 's|/\.$||')"
+
+  mkdir -p "$(dirname $sourceFile)"
 
   cd $explodedPath
-  find -type f | sort | xargs cat > "$sourcePath"
+  find -type f | sort | xargs cat > "$sourceFile"
 }
 
 
 function main() {
-  rm "$sourceDir" -rf
-  mkdir -p "$sourceDir"
+  rm "$sourcePath" -rf
 
   cd $explodedDir
   echo finding everything in $explodedDir
   filePaths="$(find -type f -name file | sed 's|/[^/]*$||' | sort | uniq)"
-  echo joining all file paths under $explodedDir into $sourceDir
+  echo joining all file paths under $explodedDir into $sourcePath
   for filePath in $filePaths; do
-    joinPath "$explodedDir/$filePath" "$sourceDir/$filePath"
+    joinPath "$explodedDir/$filePath" "$sourcePath/$filePath"
   done
-  echo done joining all file paths under $explodedDir into $sourceDir
+  echo done joining all file paths under $explodedDir into $sourcePath
 }
 
 
