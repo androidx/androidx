@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
+import androidx.camera.view.PreviewView;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -70,8 +71,7 @@ public final class PreviewViewFragmentTest {
 
     @Test
     public void checkPreviewUpdatedAfterDestroyRecreate() {
-        final FragmentScenario<PreviewViewFragment> scenario = FragmentScenario.launchInContainer(
-                PreviewViewFragment.class, null, R.style.AppTheme, null);
+        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
 
         // Recreate fragment
@@ -81,8 +81,7 @@ public final class PreviewViewFragmentTest {
 
     @Test
     public void checkPreviewUpdatedAfterStopResume_3Times() {
-        final FragmentScenario<PreviewViewFragment> scenario = FragmentScenario.launchInContainer(
-                PreviewViewFragment.class, null, R.style.AppTheme, null);
+        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
 
         // Stop the fragment
@@ -109,8 +108,7 @@ public final class PreviewViewFragmentTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
 
-        final FragmentScenario<PreviewViewFragment> scenario = FragmentScenario.launchInContainer(
-                PreviewViewFragment.class, null, R.style.AppTheme, null);
+        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
 
         // Toggle camera
@@ -123,11 +121,79 @@ public final class PreviewViewFragmentTest {
         assertPreviewUpdating(scenario);
     }
 
-    /**
-     * Waits for the preview to update at least {@link #PREVIEW_UPDATE_COUNT} times, if it does,
-     * the assertion succeeds, otherwise it fails after the timeout {@link #WAIT_TIMEOUT}.
-     */
+    @Test
+    public void checkPreviewNotUpdatedAfterPreviewUnbound() {
+        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
+        assertPreviewUpdating(scenario);
+
+        // Toggle visibility to unbind preview
+        onView(withId(R.id.toggle_visibility)).perform(click());
+        assertPreviewNotUpdating(scenario);
+    }
+
+    @Test
+    public void checkPreviewUpdatedWhenSamePreviewViewAttachedToMultiplePreviewUseCases() {
+        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
+        assertPreviewUpdating(scenario);
+
+        // Toggle visibility to unbind preview
+        onView(withId(R.id.toggle_visibility)).perform(click());
+        // Toggle visibility to bind new preview
+        onView(withId(R.id.toggle_visibility)).perform(click());
+        assertPreviewUpdating(scenario);
+    }
+
+    @Test
+    public void checkSameScaleTypeAfterStopResume() {
+        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
+        assertPreviewUpdating(scenario);
+
+        getPreviewView(scenario).setScaleType(PreviewView.ScaleType.FIT_END);
+
+        // Stop the fragment
+        scenario.moveToState(Lifecycle.State.CREATED);
+        // Resume the fragment
+        scenario.moveToState(Lifecycle.State.RESUMED);
+        assertThat(getPreviewView(scenario).getScaleType()).isEqualTo(
+                PreviewView.ScaleType.FIT_END);
+    }
+
+    @Test
+    public void checkSameImplementationModeAfterStopResume() {
+        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
+        assertPreviewUpdating(scenario);
+
+        getPreviewView(scenario).setPreferredImplementationMode(
+                PreviewView.ImplementationMode.TEXTURE_VIEW);
+
+        // Stop the fragment
+        scenario.moveToState(Lifecycle.State.CREATED);
+        // Resume the fragment
+        scenario.moveToState(Lifecycle.State.RESUMED);
+        assertThat(getPreviewView(scenario).getPreferredImplementationMode()).isEqualTo(
+                PreviewView.ImplementationMode.TEXTURE_VIEW);
+    }
+
+    @NonNull
+    private FragmentScenario<PreviewViewFragment> createScenario() {
+        return FragmentScenario.launchInContainer(PreviewViewFragment.class, null, R.style.AppTheme,
+                null);
+    }
+
     private void assertPreviewUpdating(@NonNull FragmentScenario<PreviewViewFragment> scenario) {
+        assertPreviewUpdateState(scenario, true);
+    }
+
+    private void assertPreviewNotUpdating(@NonNull FragmentScenario<PreviewViewFragment> scenario) {
+        assertPreviewUpdateState(scenario, false);
+    }
+
+    /**
+     * Waits at most for the duration {@link #WAIT_TIMEOUT} for the preview to update at least
+     * {@link #PREVIEW_UPDATE_COUNT} times.
+     */
+    private void assertPreviewUpdateState(@NonNull FragmentScenario<PreviewViewFragment> scenario,
+            boolean shouldPreviewUpdate) {
         AtomicReference<PreviewViewFragment> fragment = new AtomicReference<>();
         scenario.onFragment(fragment::set);
 
@@ -140,6 +206,21 @@ public final class PreviewViewFragmentTest {
         } catch (InterruptedException e) {
             isPreviewUpdating = false;
         }
-        assertThat(isPreviewUpdating).isTrue();
+
+        if (shouldPreviewUpdate) {
+            assertThat(isPreviewUpdating).isTrue();
+        } else {
+            assertThat(isPreviewUpdating).isFalse();
+        }
+    }
+
+    @NonNull
+    private PreviewView getPreviewView(@NonNull FragmentScenario<PreviewViewFragment> scenario) {
+        final AtomicReference<PreviewView> previewView = new AtomicReference<>();
+        scenario.onFragment(fragment -> {
+            previewView.set(
+                    (PreviewView) fragment.requireActivity().findViewById(R.id.preview_view));
+        });
+        return previewView.get();
     }
 }
