@@ -16,8 +16,7 @@
 
 package androidx.mediarouter.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -457,7 +456,7 @@ public final class MediaRouter {
      * Adds the specified route as a member to the current dynamic group.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY)
     public void addMemberToDynamicGroup(RouteInfo route) {
         checkCallingThread();
         sGlobal.addMemberToDynamicGroup(route);
@@ -467,7 +466,7 @@ public final class MediaRouter {
      * Removes the specified route from the current dynamic group.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY)
     public void removeMemberFromDynamicGroup(RouteInfo route) {
         checkCallingThread();
         sGlobal.removeMemberFromDynamicGroup(route);
@@ -939,7 +938,7 @@ public final class MediaRouter {
          * @see #getDeviceType
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public static final int DEVICE_TYPE_UNKNOWN = 0;
 
         /**
@@ -965,7 +964,7 @@ public final class MediaRouter {
          * @see #getDeviceType
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public static final int DEVICE_TYPE_BLUETOOTH = 3;
 
         @IntDef({PLAYBACK_VOLUME_FIXED,PLAYBACK_VOLUME_VARIABLE})
@@ -995,7 +994,7 @@ public final class MediaRouter {
          * with the route.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public static final int PRESENTATION_DISPLAY_ID_NONE = -1;
 
         static final int CHANGE_GENERAL = 1 << 0;
@@ -1352,7 +1351,7 @@ public final class MediaRouter {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public boolean isDefaultOrBluetooth() {
             if (isDefault() || mDeviceType == DEVICE_TYPE_BLUETOOTH) {
                 return true;
@@ -1492,7 +1491,7 @@ public final class MediaRouter {
          * Gets the route's presentation display id, or -1 if none.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public int getPresentationDisplayId() {
             return mPresentationDisplayId;
         }
@@ -1527,7 +1526,7 @@ public final class MediaRouter {
          * Returns true if the route has one or more members
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public boolean isGroup() {
             return getMemberRoutes().size() >= 1;
         }
@@ -1537,7 +1536,7 @@ public final class MediaRouter {
          * @hide
          */
         @Nullable
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY)
         public DynamicGroupState getDynamicGroupState() {
             if (mDynamicGroupState == null) {
                 if (mDynamicDescriptor != null) {
@@ -1553,7 +1552,7 @@ public final class MediaRouter {
          * @hide
          * @return The list of the routes in this group
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         @NonNull
         public List<RouteInfo> getMemberRoutes() {
             return Collections.unmodifiableList(mMemberRoutes);
@@ -1563,7 +1562,7 @@ public final class MediaRouter {
          *
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         @Nullable
         public DynamicGroupRouteController getDynamicGroupController() {
             //TODO: handle multiple controllers case
@@ -1769,7 +1768,7 @@ public final class MediaRouter {
         }
 
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public MediaRouteProvider getProviderInstance() {
             return mProvider.getProviderInstance();
         }
@@ -1804,7 +1803,7 @@ public final class MediaRouter {
          * Represents the dynamic group state of the {@link RouteInfo}.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY)
         public class DynamicGroupState {
             /**
              * Gets the selection state of the route when the {@link MediaRouteProvider} of the
@@ -1815,7 +1814,7 @@ public final class MediaRouter {
              * {@link DynamicRouteDescriptor#SELECTING}, or {@link DynamicRouteDescriptor#SELECTED}.
              * @hide
              */
-            @RestrictTo(LIBRARY_GROUP)
+            @RestrictTo(LIBRARY)
             public int getSelectionState() {
                 return (mDynamicDescriptor != null) ? mDynamicDescriptor.getSelectionState()
                         : DynamicRouteDescriptor.UNSELECTED;
@@ -1824,7 +1823,7 @@ public final class MediaRouter {
             /**
              * @hide
              */
-            @RestrictTo(LIBRARY_GROUP)
+            @RestrictTo(LIBRARY)
             public boolean isUnselectable() {
                 return mDynamicDescriptor == null || mDynamicDescriptor.isUnselectable();
             }
@@ -1832,7 +1831,7 @@ public final class MediaRouter {
             /**
              * @hide
              */
-            @RestrictTo(LIBRARY_GROUP)
+            @RestrictTo(LIBRARY)
             public boolean isGroupable() {
                 return mDynamicDescriptor != null && mDynamicDescriptor.isGroupable();
             }
@@ -1840,7 +1839,7 @@ public final class MediaRouter {
             /**
              * @hide
              */
-            @RestrictTo(LIBRARY_GROUP)
+            @RestrictTo(LIBRARY)
             public boolean isTransferable() {
                 return mDynamicDescriptor != null && mDynamicDescriptor.isTransferable();
             }
