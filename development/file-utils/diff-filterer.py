@@ -795,23 +795,40 @@ class DiffRunner(object):
     boxesById = {}
     pendingBoxes = self.targetState.splitOnce(max(self.maxNumJobsAtOnce, 2))
     numConsecutiveFailures = 0
+    numFailuresSinceLastSplitOrSuccess = 0
     invalidatedIds = set()
     probablyAcceptableStates = []
+    numCompletedTests = 2 # Already tested initial passing state and initial failing state
     # continue until all files fail and no jobs are running
-    while numConsecutiveFailures < self.resetTo_state.size() or len(activeJobs) > 0:
+    while numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size() or len(activeJobs) > 0:
       if self.maxNumJobsAtOnce > self.resetTo_state.size():
         self.maxNumJobsAtOnce = self.resetTo_state.size()
-      # wait for a response from a worker
+
+      # display status message
       now = datetime.datetime.now()
-      message = "Elapsed duration: " + str(now - start) + ". Waiting for " + str(len(activeJobs)) + " active subprocesses (" + str(len(pendingBoxes) + len(activeJobs)) + " total available jobs). " + str(self.resetTo_state.size()) + " changes left to test at " + str(now)
+      elapsedDuration = now - start
+      minNumTestsRemaining = sum([math.log(box.size(), 2) + 1 for box in pendingBoxes + boxesById.values()]) - numFailuresSinceLastSplitOrSuccess
+      estimatedNumTestsRemaining = max(minNumTestsRemaining, 1)
+      if numConsecutiveFailures >= 4 and numFailuresSinceLastSplitOrSuccess < 1:
+        # If we are splitting often and failing often, then we probably haven't yet
+        # shrunken the individual boxes down to each contain only one failing file
+        # During this phase, on average we've completed half of the work
+        # So, we estimate that the total work remaining is double what we've completed
+        estimatedNumTestsRemaining *= 2
+      estimatedRemainingDuration = datetime.timedelta(seconds = elapsedDuration.total_seconds() * float(estimatedNumTestsRemaining) / float(numCompletedTests))
+      message = "Elapsed duration: " + str(elapsedDuration) + ". Waiting for " + str(len(activeJobs)) + " active subprocesses (" + str(len(pendingBoxes) + len(activeJobs)) + " total available jobs). " + str(self.resetTo_state.size()) + " changes left to test, should take about " + str(estimatedNumTestsRemaining) + " tests, about " + str(estimatedRemainingDuration)
       print(message)
+
       if len(activeJobs) > 0:
+        # wait for a response from a worker
         response = queue.get()
         identifier = response[0]
         box = boxesById[identifier]
         didAcceptState = response[1]
+        numCompletedTests += 1
         if didAcceptState:
           numConsecutiveFailures = 0
+          numFailuresSinceLastSplitOrSuccess = 0
           acceptedState = box #.getAllFiles()
           #print("Succeeded : " + acceptedState.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()))
           maxRunningSize = max([state.size() for state in boxesById.values()])
@@ -846,6 +863,7 @@ class DiffRunner(object):
           #print("Failed : " + box.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()))
           # count failures
           numConsecutiveFailures += 1
+          numFailuresSinceLastSplitOrSuccess += 1
           # find any children that failed and queue a re-test of those children
           updatedChild = box.withoutDuplicatesFrom(box.withConflictsFrom(self.resetTo_state))
           if updatedChild.size() > 0:
@@ -864,7 +882,8 @@ class DiffRunner(object):
               # And we can increase block sizes more slowly
               splitFactor = 2
             split = updatedChild.splitOnce(splitFactor)
-            #print("Split box " + str(updatedChild.summarize()) + " into " + str(len(split)) + " children")
+            if len(split) > 1:
+              numFailuresSinceLastSplitOrSuccess = 0
             pendingBoxes += split
         # clear invalidation status
         if identifier in invalidatedIds:
@@ -872,22 +891,22 @@ class DiffRunner(object):
         del activeJobs[identifier]
         del boxesById[identifier]
 
+      # if probablyAcceptableStates has become large enough, then retest its contents too
+      if len(probablyAcceptableStates) > 0 and (len(probablyAcceptableStates) >= self.maxNumJobsAtOnce + 1 or numConsecutiveFailures >= self.maxNumJobsAtOnce or len(activeJobs) < 1):
+        probablyAcceptableState = FilesState()
+        for state in probablyAcceptableStates:
+          probablyAcceptableState = probablyAcceptableState.expandedWithEmptyEntriesFor(state).withConflictsFrom(state)
+        probablyAcceptableState = probablyAcceptableState.withoutDuplicatesFrom(self.resetTo_state)
+        if probablyAcceptableState.size() > 0:
+          print("Retesting " + str(len(probablyAcceptableStates)) + " previous likely successful states as a single test: " + probablyAcceptableState.summarize())
+          pendingBoxes = [probablyAcceptableState] + pendingBoxes
+        probablyAcceptableStates = []
+      if len(pendingBoxes) < 1 and len(activeJobs) < 1:
+        print("Error: no changes remain left to test. It was expected that applying all changes would fail")
+        break
+
       # if we haven't checked everything yet, then try to queue more jobs
-      if numConsecutiveFailures < self.resetTo_state.size():
-        # if probablyAcceptableStates has become large enough, then retest its contents too
-        if len(probablyAcceptableStates) > 0 and (len(probablyAcceptableStates) >= self.maxNumJobsAtOnce + 1 or numConsecutiveFailures >= self.maxNumJobsAtOnce or len(activeJobs) < 1):
-          numConsecutiveFailures = 0
-          probablyAcceptableState = FilesState()
-          for state in probablyAcceptableStates:
-            probablyAcceptableState = probablyAcceptableState.expandedWithEmptyEntriesFor(state).withConflictsFrom(state)
-          probablyAcceptableState = probablyAcceptableState.withoutDuplicatesFrom(self.resetTo_state)
-          if probablyAcceptableState.size() > 0:
-            print("Retesting " + str(len(probablyAcceptableStates)) + " previous likely successful states as a single test: " + probablyAcceptableState.summarize())
-            pendingBoxes = [probablyAcceptableState] + pendingBoxes
-          probablyAcceptableStates = []
-        if len(pendingBoxes) < 1 and len(activeJobs) < 1:
-          print("Error: no changes remain left to test. It was expected that applying all changes would fail")
-          break
+      if numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size():
         pendingBoxes.sort(reverse=True, key=FilesState.size)
         while len(activeJobs) < self.maxNumJobsAtOnce and len(activeJobs) < self.resetTo_state.size() and len(pendingBoxes) > 0:
           # find next pending job
