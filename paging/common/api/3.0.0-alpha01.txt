@@ -222,11 +222,12 @@ package androidx.paging {
   }
 
   public final class PagingConfig {
-    ctor public PagingConfig(int pageSize, int prefetchDistance, boolean enablePlaceholders, int initialLoadSize, int maxSize);
+    ctor public PagingConfig(int pageSize, int prefetchDistance, boolean enablePlaceholders, int initialLoadSize, int maxSize, int jumpThreshold);
     field public static final androidx.paging.PagingConfig.Companion! Companion;
     field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
     field public final boolean enablePlaceholders;
     field public final int initialLoadSize;
+    field public final int jumpThreshold;
     field public final int maxSize;
     field public final int pageSize;
     field public final int prefetchDistance;
@@ -273,12 +274,14 @@ package androidx.paging {
   public abstract class PagingSource<Key, Value> {
     ctor public PagingSource();
     method public final boolean getInvalid();
+    method public boolean getJumpingSupported();
     method public Key? getRefreshKey(androidx.paging.PagingState<Key,Value> state);
     method public void invalidate();
     method public abstract suspend Object load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
     method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     method public final void unregisterInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     property public final boolean invalid;
+    property public boolean jumpingSupported;
   }
 
   public static final class PagingSource.LoadParams<Key> {

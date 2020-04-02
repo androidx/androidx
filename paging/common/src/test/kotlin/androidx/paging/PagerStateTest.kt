@@ -55,7 +55,7 @@ class PagerStateTest {
 
     @Test
     fun coerceWithHint_coerceOnlyIndexInPage() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(2, 6)
+        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6)
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -65,6 +65,9 @@ class PagerStateTest {
         advanceUntilIdle()
 
         with(pagerState) {
+            // Hint references element marked below:
+            // [2, 3], [4, 5], [6, 7]
+            //          ^
             ViewportHint(-1, 2).withCoercedHint { indexInPage, pageIndex, hintOffset ->
                 assertEquals(0, indexInPage)
                 assertEquals(1, pageIndex)
@@ -75,7 +78,7 @@ class PagerStateTest {
 
     @Test
     fun coerceWithHint_coerceStart() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(2, 6)
+        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6)
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -85,17 +88,20 @@ class PagerStateTest {
         advanceUntilIdle()
 
         with(pagerState) {
+            // Hint references element marked below:
+            // [_, _], [2, 3], [4, 5], [6, 7]
+            //  ^
             ViewportHint(-2, 0).withCoercedHint { indexInPage, pageIndex, hintOffset ->
                 assertEquals(0, indexInPage)
                 assertEquals(0, pageIndex)
-                assertEquals(0, hintOffset)
+                assertEquals(-2, hintOffset)
             }
         }
     }
 
     @Test
     fun coerceWithHint_coerceStartMultiplePages() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(2, 6)
+        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6)
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -105,17 +111,20 @@ class PagerStateTest {
         advanceUntilIdle()
 
         with(pagerState) {
+            // Hint references element marked below:
+            // [_, _], [_, _], [2, 3], [4, 5], [6, 7]
+            //  ^
             ViewportHint(-3, 0).withCoercedHint { indexInPage, pageIndex, hintOffset ->
                 assertEquals(0, indexInPage)
                 assertEquals(0, pageIndex)
-                assertEquals(2, hintOffset)
+                assertEquals(-4, hintOffset)
             }
         }
     }
 
     @Test
     fun coerceWithHint_coerceStartWithIndexInPage() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(2, 6)
+        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6)
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -125,6 +134,27 @@ class PagerStateTest {
         advanceUntilIdle()
 
         with(pagerState) {
+            // Hint references element marked below:
+            // [_, _], [2, 3], [4, 5], [6, 7]
+            //     ^
+            ViewportHint(-2, 1).withCoercedHint { indexInPage, pageIndex, hintOffset ->
+                assertEquals(0, indexInPage)
+                assertEquals(0, pageIndex)
+                assertEquals(-1, hintOffset)
+            }
+
+            // Hint references element marked below:
+            // [_, _], [_, _], [2, 3], [4, 5], [6, 7]
+            //     ^
+            ViewportHint(-2, -1).withCoercedHint { indexInPage, pageIndex, hintOffset ->
+                assertEquals(0, indexInPage)
+                assertEquals(0, pageIndex)
+                assertEquals(-3, hintOffset)
+            }
+
+            // Hint references element marked below:
+            // [_, _], [2, 3], [4, 5], [6, 7]
+            //          ^
             ViewportHint(-2, 2).withCoercedHint { indexInPage, pageIndex, hintOffset ->
                 assertEquals(0, indexInPage)
                 assertEquals(0, pageIndex)
@@ -135,7 +165,7 @@ class PagerStateTest {
 
     @Test
     fun coerceWithHint_coerceEnd() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(2, 6)
+        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6)
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -145,6 +175,9 @@ class PagerStateTest {
         advanceUntilIdle()
 
         with(pagerState) {
+            // Hint references element marked below:
+            // [2, 3], [4, 5], [6, 7], [_, _]
+            //                          ^
             ViewportHint(2, 0).withCoercedHint { indexInPage, pageIndex, hintOffset ->
                 assertEquals(1, indexInPage)
                 assertEquals(2, pageIndex)
@@ -155,7 +188,7 @@ class PagerStateTest {
 
     @Test
     fun coerceWithHint_coerceEndMultiplePages() = testScope.runBlockingTest {
-        val pagerState = PagerState<Int, Int>(2, 6)
+        val pagerState = PagerState<Int, Int>(pageSize = 2, maxSize = 6)
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
@@ -165,10 +198,31 @@ class PagerStateTest {
         advanceUntilIdle()
 
         with(pagerState) {
+            // Hint references element marked below:
+            // [2, 3], [4, 5], [6, 7], [_, _]
+            //                             ^
+            ViewportHint(2, 1).withCoercedHint { indexInPage, pageIndex, hintOffset ->
+                assertEquals(1, indexInPage)
+                assertEquals(2, pageIndex)
+                assertEquals(2, hintOffset)
+            }
+
+            // Hint references element marked below:
+            // [2, 3], [4, 5], [6, 7], [_, _], [_, _]
+            //                                  ^
             ViewportHint(3, 0).withCoercedHint { indexInPage, pageIndex, hintOffset ->
                 assertEquals(1, indexInPage)
                 assertEquals(2, pageIndex)
                 assertEquals(3, hintOffset)
+            }
+
+            // Hint references element marked below:
+            // [2, 3], [4, 5], [6, 7], [_, _]
+            //                     ^
+            ViewportHint(2, -1).withCoercedHint { indexInPage, pageIndex, hintOffset ->
+                assertEquals(1, indexInPage)
+                assertEquals(2, pageIndex)
+                assertEquals(0, hintOffset)
             }
         }
     }
@@ -185,6 +239,9 @@ class PagerStateTest {
         advanceUntilIdle()
 
         with(pagerState) {
+            // Hint references element marked below:
+            // [2, 3], [4, 5], [6, 7], [_, _], [_, _]
+            //                                  ^
             ViewportHint(2, 2).withCoercedHint { indexInPage, pageIndex, hintOffset ->
                 assertEquals(1, indexInPage)
                 assertEquals(2, pageIndex)

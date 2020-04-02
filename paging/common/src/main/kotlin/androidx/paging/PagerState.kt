@@ -31,7 +31,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onStart
-import kotlin.math.absoluteValue
 
 /**
  * Internal state of [Pager] whose updates can be consumed as a [Flow]<[PageEvent]<[Value]>>.
@@ -297,39 +296,42 @@ internal class PagerState<Key : Any, Value : Any>(
      *
      * Note: If an invalid / out-of-date sourcePageIndex is passed, it will be coerced to the
      * closest pageIndex within the range of [pages]
-     *
-     * TODO: Handle pages.isEmpty (lastIndex returns -1)
      */
     internal suspend fun <T> ViewportHint.withCoercedHint(
         block: suspend (indexInPage: Int, pageIndex: Int, hintOffset: Int) -> T
     ): T {
+        if (pages.isEmpty()) {
+            throw IllegalStateException("Cannot coerce hint when no pages have loaded")
+        }
+
         var indexInPage = indexInPage
         var pageIndex = sourcePageIndex + initialPageIndex
         var hintOffset = 0
 
         // Coerce pageIndex to >= 0, snap indexInPage to 0 if pageIndex is coerced.
         if (pageIndex < 0) {
-            hintOffset = (pageIndex.absoluteValue - 1) * pageSize
+            hintOffset = pageIndex * pageSize + indexInPage
 
             pageIndex = 0
             indexInPage = 0
-        }
-
-        // Reduce indexInPage by incrementing pageIndex while indexInPage is outside the bounds of
-        // the page referenced by pageIndex.
-        while (pageIndex < pages.lastIndex && indexInPage > pages[pageIndex].data.lastIndex) {
-            indexInPage -= pages[pageIndex].data.size
-            pageIndex++
-        }
-
-        // Coerce pageIndex to <= pages.lastIndex, snap indexInPage to last index if pageIndex is
-        // coerced.
-        if (pageIndex > pages.lastIndex) {
-            val itemsInSkippedPages = (pageIndex - pages.lastIndex - 1) * pageSize
-            hintOffset = itemsInSkippedPages + indexInPage + 1
+        } else if (pageIndex > pages.lastIndex) {
+            // Number of items after last loaded item that this hint refers to.
+            hintOffset = (pageIndex - pages.lastIndex - 1) * pageSize + indexInPage + 1
 
             pageIndex = pages.lastIndex
-            indexInPage = pages.lastOrNull()?.data?.lastIndex ?: 0
+            indexInPage = pages.last().data.lastIndex
+        } else {
+            if (indexInPage !in pages[pageIndex].data.indices) {
+                hintOffset = indexInPage
+            }
+
+            // Reduce indexInPage by incrementing pageIndex while indexInPage is outside the bounds
+            // of the page referenced by pageIndex.
+            while (pageIndex < pages.lastIndex && indexInPage > pages[pageIndex].data.lastIndex) {
+                hintOffset -= pages[pageIndex].data.size
+                indexInPage -= pages[pageIndex].data.size
+                pageIndex++
+            }
         }
 
         return block(indexInPage, pageIndex, hintOffset)
