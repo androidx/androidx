@@ -23,9 +23,9 @@ import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.core.gesture.dragGestureFilter
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.input.FocusNode
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.ImeAction
@@ -113,7 +113,8 @@ fun CoreTextField(
                     keyboardType,
                     imeAction,
                     onValueChangeWrapper,
-                    onImeActionPerformed)
+                    onImeActionPerformed
+                )
                 state.layoutCoordinates?.let { coords ->
                     textInputService?.let { textInputService ->
                         state.layoutResult?.let { layoutResult ->
@@ -139,7 +140,8 @@ fun CoreTextField(
                     state.inputSession,
                     state.processor,
                     hasNextClient,
-                    onValueChangeWrapper)
+                    onValueChangeWrapper
+                )
                 onBlur()
             },
             onRelease = {
@@ -278,7 +280,7 @@ private fun TextInputEventObserver(
             onClick(action = doFocusIn)
         }
     ) {
-        val drag = DragPositionGestureDetector(
+        val drag = Modifier.dragPositionGestureFilter(
             onPress = {
                 if (focused.value) {
                     onPress(it)
@@ -335,7 +337,7 @@ internal class DragEventTracker {
  * Helper composable for tracking drag position.
  */
 @Composable
-private fun DragPositionGestureDetector(
+private fun Modifier.dragPositionGestureFilter(
     onPress: (PxPosition) -> Unit,
     onRelease: (PxPosition) -> Unit
 ): Modifier {
@@ -344,23 +346,19 @@ private fun DragPositionGestureDetector(
     //  actually may be functionally correct, but might mostly suggest that it should not
     //  actually be called PressIndicator, but instead something else.
 
-    val pressIndicator =
-        PressIndicatorGestureDetector(
+    return this
+        .pressIndicatorGestureFilter(
             onStart = {
                 tracker.value.init(it)
                 onPress(it)
             }, onStop = {
                 onRelease(tracker.value.getPosition())
             })
-
-    val drag =
-        DragGestureDetector(dragObserver = object :
+        .dragGestureFilter(dragObserver = object :
             DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
                 tracker.value.onDrag(dragDistance)
                 return tracker.value.getPosition()
             }
         })
-
-    return pressIndicator + drag
 }

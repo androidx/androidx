@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.layout.fillMaxSize
@@ -42,7 +42,7 @@ fun PressReleasedGestureDetectorDemo() {
     Box(
         Modifier.fillMaxSize()
             .wrapContentSize(Alignment.Center)
-            .plus(TapGestureDetector(onTap))
+            .tapGestureFilter(onTap)
             .preferredSize(192.dp),
         backgroundColor = color.value,
         border = Border(2.dp, BorderColor)

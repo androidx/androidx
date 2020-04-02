@@ -22,7 +22,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
-import androidx.ui.core.gesture.LongPressGestureDetector
+import androidx.ui.core.gesture.longPressGestureFilter
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
@@ -58,7 +58,7 @@ private fun Ui(recorder: PointerInputRecorder, onLongPress: (PxPosition) -> Unit
             Semantics(container = true) {
                 with(DensityAmbient.current) {
                     Box(
-                        LongPressGestureDetector(onLongPress)
+                        Modifier.longPressGestureFilter(onLongPress)
                             .plus(recorder)
                             .preferredSize(width.toDp(), height.toDp()),
                         backgroundColor = Color.Yellow

@@ -19,7 +19,7 @@ package androidx.ui.foundation.selection
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.PassThroughLayout
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Strings
 import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.ui.foundation.semantics.selected
@@ -59,6 +59,6 @@ fun MutuallyExclusiveSetItem(
         // TODO(b/150706555): This layout is temporary and should be removed once Semantics
         //  is implemented with modifiers.
         @Suppress("DEPRECATION")
-        PassThroughLayout(modifier + TapGestureDetector(onClick), children)
+        PassThroughLayout(modifier.tapGestureFilter(onClick), children)
     }
 }

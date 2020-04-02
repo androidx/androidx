@@ -19,7 +19,7 @@ package androidx.ui.framework.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
@@ -145,7 +145,7 @@ fun PressGestureDetectorWithActions(
     onPress: SemanticAction<PxPosition> = SemanticAction(defaultParam = PxPosition.Origin) { },
     onRelease: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { },
     onCancel: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { }
-) = PressIndicatorGestureDetector(
+) = Modifier.pressIndicatorGestureFilter(
         onStart = { onPress.action(ActionParam(ActionCaller.PointerInput, it)) },
         onStop = { onRelease.action(ActionParam(ActionCaller.PointerInput, Unit)) },
         onCancel = { onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) }

@@ -23,12 +23,12 @@ import androidx.ui.core.DrawModifier
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.DoubleTapGestureDetector
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.doubleTapGestureFilter
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.LongPressGestureDetector
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.longPressGestureFilter
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.core.gesture.tapGestureFilter
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
@@ -104,7 +104,7 @@ private fun Draggable(children: @Composable() () -> Unit) {
 
     Layout(
         children = children,
-        modifier = DragGestureDetector(dragObserver, canDrag) + ClipModifier,
+        modifier = Modifier.dragGestureFilter(dragObserver, canDrag) + ClipModifier,
         measureBlock = { measurables, constraints, _ ->
             val placeable =
                 measurables.first()
@@ -162,13 +162,12 @@ private fun Pressable(
         showPressed.value = false
     }
 
-    val gestureDetectors = PressIndicatorGestureDetector(
-        onPress,
-        onRelease,
-        onRelease
-    ) + TapGestureDetector(onTap) +
-            DoubleTapGestureDetector(onDoubleTap) +
-            LongPressGestureDetector(onLongPress)
+    val gestureDetectors =
+        Modifier
+            .pressIndicatorGestureFilter(onPress, onRelease, onRelease)
+            .tapGestureFilter(onTap)
+            .doubleTapGestureFilter(onDoubleTap)
+            .longPressGestureFilter(onLongPress)
 
     val layout = Modifier.fillMaxWidth().preferredHeight(height)
 

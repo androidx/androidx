@@ -118,19 +118,19 @@ interface LongPressDragObserver {
  * @see LongPressDragObserver
  */
 @Composable
-fun LongPressDragGestureDetector(
+fun Modifier.longPressDragGestureFilter(
     longPressDragObserver: LongPressDragObserver
 ): Modifier {
     val glue = remember { LongPressDragGestureDetectorGlue() }
     glue.longPressDragObserver = longPressDragObserver
 
-    return RawDragGestureDetector(glue.dragObserver, glue::dragEnabled) +
-            PointerInputModifierImpl(glue) +
-            LongPressGestureDetector(glue.onLongPress)
+    return rawDragGestureFilter(glue.dragObserver, glue::dragEnabled)
+        .plus(PointerInputModifierImpl(glue))
+        .longPressGestureFilter(glue.onLongPress)
 }
 
 /**
- * Glues together the logic of [RawDragGestureDetector], [LongPressGestureDetector],
+ * Glues together the logic of [rawDragGestureFilter], [longPressGestureFilter],
  * and a custom [PointerInputHandler] to make LongPressDragGestureDetector work.
  */
 private class LongPressDragGestureDetectorGlue : PointerInputFilter() {

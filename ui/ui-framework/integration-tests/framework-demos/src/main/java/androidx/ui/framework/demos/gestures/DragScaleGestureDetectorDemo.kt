@@ -21,11 +21,11 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.ScaleGestureDetector
+import androidx.ui.core.gesture.scaleGestureFilter
 import androidx.ui.core.gesture.ScaleObserver
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.tapGestureFilter
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
@@ -64,13 +64,15 @@ fun DragScaleGestureDetectorDemo() {
 
     val gestures =
         if (dragInScale.value) {
-            ScaleGestureDetector(scaleObserver) +
-                    DragGestureDetector(dragObserver) +
-                    TapGestureDetector(onRelease)
+            Modifier
+                .scaleGestureFilter(scaleObserver)
+                .dragGestureFilter(dragObserver)
+                .tapGestureFilter(onRelease)
         } else {
-            DragGestureDetector(dragObserver) +
-                    ScaleGestureDetector(scaleObserver) +
-                    TapGestureDetector(onRelease)
+            Modifier
+                .dragGestureFilter(dragObserver)
+                .scaleGestureFilter(scaleObserver)
+                .tapGestureFilter(onRelease)
         }
 
     val (offsetX, offsetY) =

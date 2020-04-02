@@ -22,7 +22,7 @@ import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
@@ -204,8 +204,8 @@ private fun Text(text: String, textStyle: TextStyle) {
         color.value = releasedColor
     }
 
-    val gestureModifier =
-        PressIndicatorGestureDetector(onStart = onPress, onStop = onRelease, onCancel = onRelease)
+    val gestureModifier = Modifier
+        .pressIndicatorGestureFilter(onStart = onPress, onStop = onRelease, onCancel = onRelease)
 
     Text(text, gestureModifier.drawBackground(color.value, RectangleShape), style = textStyle)
 }

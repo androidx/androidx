@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.ScaleGestureDetector
+import androidx.ui.core.gesture.scaleGestureFilter
 import androidx.ui.core.gesture.ScaleObserver
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
@@ -45,7 +45,7 @@ fun ScaleGestureDetectorDemo() {
     Box(
         Modifier.fillMaxSize()
             .wrapContentSize(Alignment.Center)
-            .plus(ScaleGestureDetector(scaleObserver))
+            .scaleGestureFilter(scaleObserver)
             .preferredSize(size.value),
         backgroundColor = Color(0xFF9e9e9e.toInt())
     )

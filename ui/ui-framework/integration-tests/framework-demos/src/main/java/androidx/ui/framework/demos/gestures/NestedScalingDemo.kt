@@ -21,7 +21,7 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.RawScaleGestureDetector
+import androidx.ui.core.gesture.rawScaleGestureFilter
 import androidx.ui.core.gesture.RawScaleObserver
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
@@ -75,7 +75,7 @@ private fun Scalable(
     Layout(
         children = children,
         modifier = Modifier.wrapContentSize(Alignment.Center)
-            .plus(RawScaleGestureDetector(outerScaleObserver))
+            .rawScaleGestureFilter(outerScaleObserver)
             .drawBackground(color = color),
         measureBlock = { measurables, constraints, _ ->
             val newConstraints =

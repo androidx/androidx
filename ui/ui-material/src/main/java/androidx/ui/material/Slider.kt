@@ -31,7 +31,7 @@ import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.animation.FlingConfig
@@ -210,7 +210,7 @@ fun Slider(
                     }
                 }
                 val pressed = state { false }
-                val press = PressIndicatorGestureDetector(
+                val press = Modifier.pressIndicatorGestureFilter(
                     onStart = { pos ->
                         onValueChange(pos.x.value.toSliderPosition())
                         pressed.value = true

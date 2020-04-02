@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.DoubleTapGestureDetector
+import androidx.ui.core.gesture.doubleTapGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.layout.fillMaxSize
@@ -43,7 +43,7 @@ fun DoubleTapGestureDetectorDemo() {
     Box(
         Modifier.fillMaxSize()
             .wrapContentSize(Alignment.Center)
-            .plus(DoubleTapGestureDetector(onDoubleTap))
+            .doubleTapGestureFilter(onDoubleTap)
             .preferredSize(192.dp),
         backgroundColor = color.value,
         border = Border(2.dp, BorderColor)

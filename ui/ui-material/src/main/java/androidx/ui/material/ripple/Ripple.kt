@@ -37,7 +37,7 @@ import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.graphics.Color
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -81,7 +81,7 @@ fun Modifier.ripple(
     val theme = RippleThemeAmbient.current
     rippleModifier.color = (color ?: theme.defaultColor()).copy(alpha = theme.opacity())
 
-    val pressIndicator = PressIndicatorGestureDetector(
+    val pressIndicator = Modifier.pressIndicatorGestureFilter(
         onStart = { position ->
             if (enabled && transitionsEnabled) {
                 rippleModifier.handleStart(position, theme.factory, density, bounded, radius, clock)
