@@ -182,7 +182,7 @@ else
   if [ "$subfilePath" == "." ]; then
     subfilePath=""
   fi
-  if echo "$resume" | grep true && stat $fewestFilesOutputPath >/dev/null 2>/dev/null; then
+  if echo "$resume" | grep true >/dev/null && stat $fewestFilesOutputPath >/dev/null 2>/dev/null; then
     echo "Skipping recopying $filtererStep1Output to $fewestFilesOutputPath"
   else
     echo Copying minimal set of files into $fewestFilesOutputPath
@@ -213,7 +213,7 @@ else
     fi
   fi
 
-  if echo "$resume" | grep true && stat "$noFunctionBodies_output" >/dev/null 2>/dev/null; then
+  if echo "$resume" | grep true >/dev/null && stat "$noFunctionBodies_output" >/dev/null 2>/dev/null; then
     echo "Skipping asking diff-filterer to remove function bodies because $noFunctionBodies_output already exists"
   else
     echo Splitting files into smaller pieces
