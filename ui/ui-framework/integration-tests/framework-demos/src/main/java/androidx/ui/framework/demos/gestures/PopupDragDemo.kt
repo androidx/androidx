@@ -39,6 +39,7 @@ import androidx.ui.unit.round
 
 @Composable
 fun PopupDragDemo() {
+    // TODO fix this demo in RTL (check when draggable handles RTL)
     val offset = state {
         PxPosition.Origin
     }
