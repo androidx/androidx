@@ -283,10 +283,9 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
          * used in applications with very specific threading requirements. If not set, CameraX
          * will create and use an optimized default internal handler.
          *
-         * @hide
          * @see #setCameraExecutor(Executor)
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @ExperimentalCustomizableThreads
         @NonNull
         public Builder setSchedulerHandler(@NonNull Handler handler) {
             getMutableConfig().insertOption(OPTION_SCHEDULER_HANDLER, handler);
