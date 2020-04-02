@@ -17,6 +17,7 @@
 package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.core.hapticfeedback.HapticFeedback
@@ -47,6 +48,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * [HapticFeedback] handle to perform haptic feedback.
      */
     var hapticFeedBack: HapticFeedback? = null
+
+    /**
+     * [ClipboardManager] to perform clipboard features.
+     */
+    var clipboardManager: ClipboardManager? = null
 
     /**
      * Layout Coordinates of the selection container.
@@ -139,6 +145,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
             }
         }
         return selectedText
+    }
+
+    internal fun copy() {
+        val selectedText = getSelectedText()
+        selectedText?.let { clipboardManager?.setText(it) }
     }
 
     // This is for PressGestureDetector to cancel the selection.

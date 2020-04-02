@@ -39,6 +39,8 @@ import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
 import androidx.ui.core.Owner.Companion.enableExtraAssertions
+import androidx.ui.core.clipboard.AndroidClipboardManager
+import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.focus.FocusModifierImpl
 import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
@@ -630,6 +632,11 @@ internal class AndroidComposeView constructor(context: Context) :
      */
     override val hapticFeedBack: HapticFeedback =
         AndroidHapticFeedback(this)
+
+    /**
+     * Provide clipboard manager to the user. Use the Android version of clipboard manager.
+     */
+    override val clipboardManager: ClipboardManager = AndroidClipboardManager(context)
 
     override fun onCheckIsTextEditor(): Boolean = textInputServiceAndroid.isEditorFocused()
 

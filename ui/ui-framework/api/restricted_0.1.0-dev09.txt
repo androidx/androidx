@@ -113,6 +113,7 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<androidx.animation.AnimationClockObservable> getAnimationClockAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.Autofill> getAutofillAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.autofill.AutofillTree> getAutofillTreeAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.clipboard.ClipboardManager> getClipboardManagerAmbient();
     method public static androidx.compose.ProvidableAmbient<android.content.res.Configuration> getConfigurationAmbient();
     method public static androidx.compose.ProvidableAmbient<android.content.Context> getContextAmbient();
     method public static androidx.compose.ProvidableAmbient<kotlin.coroutines.CoroutineContext> getCoroutineContextAmbient();
