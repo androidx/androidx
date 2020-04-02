@@ -31,6 +31,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import kotlin.test.assertFailsWith
 
+@Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
 class ItemKeyedDataSourceTest {
 

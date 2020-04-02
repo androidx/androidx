@@ -28,6 +28,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import java.util.concurrent.Executor
 
+@Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
 class PositionalDataSourceTest {
     private fun computeInitialLoadPos(
