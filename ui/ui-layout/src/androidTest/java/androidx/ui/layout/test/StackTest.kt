@@ -76,7 +76,7 @@ class StackTest : LayoutTest() {
                     }
 
                     Container(
-                        Modifier.matchParent()
+                        Modifier.matchParentSize()
                             .padding(10.dp)
                             .saveLayoutInfo(
                                 positionedChildSize,
@@ -178,7 +178,7 @@ class StackTest : LayoutTest() {
                     ) {
                     }
                     Container(
-                        Modifier.matchParent()
+                        Modifier.matchParentSize()
                             .padding(start = insetDp, top = insetDp)
                             .saveLayoutInfo(childSize[1], childPosition[1], positionedLatch),
                         width = halfSizeDp,
@@ -186,7 +186,7 @@ class StackTest : LayoutTest() {
                     ) {
                     }
                     Container(
-                        Modifier.matchParent()
+                        Modifier.matchParentSize()
                             .padding(end = insetDp, bottom = insetDp)
                             .saveLayoutInfo(childSize[2], childPosition[2], positionedLatch),
                         width = halfSizeDp,
@@ -194,14 +194,14 @@ class StackTest : LayoutTest() {
                     ) {
                     }
                     Container(
-                        Modifier.matchParent()
+                        Modifier.matchParentSize()
                             .padding(start = insetDp, end = insetDp)
                             .saveLayoutInfo(childSize[3], childPosition[3], positionedLatch),
                         width = halfSizeDp,
                         height = halfSizeDp) {
                     }
                     Container(
-                        Modifier.matchParent()
+                        Modifier.matchParentSize()
                             .padding(top = insetDp, bottom = insetDp)
                             .saveLayoutInfo(childSize[4], childPosition[4], positionedLatch),
                         width = halfSizeDp,
@@ -385,7 +385,7 @@ class StackTest : LayoutTest() {
                 ) { }
                 ConstrainedBox(
                     DpConstraints.fixed(200.dp, 200.dp),
-                    Modifier.matchParent().padding(10.dp)
+                    Modifier.matchParentSize().padding(10.dp)
                 ) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -413,7 +413,7 @@ class StackTest : LayoutTest() {
         testIntrinsics(@Composable {
             Stack {
                 ConstrainedBox(
-                    modifier = Modifier.matchParent().padding(10.dp),
+                    modifier = Modifier.matchParentSize().padding(10.dp),
                     constraints = DpConstraints.fixed(200.dp, 200.dp)
                 ) { }
             }
