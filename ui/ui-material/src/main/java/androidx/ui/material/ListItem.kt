@@ -57,23 +57,25 @@ import androidx.ui.unit.max
  * @sample androidx.ui.material.samples.ThreeLineListItems
  *
  * @param text The primary text of the list item
+ * @param modifier Modifier to be applied to the list item
+ * @param onClick Callback to be invoked when the list item is clicked
  * @param icon The leading supporting visual of the list item
  * @param secondaryText The secondary text of the list item
  * @param singleLineSecondaryText Whether the secondary text is single line
  * @param overlineText The text displayed above the primary text
  * @param metaText The meta text to be displayed in the trailing position
- * @param onClick Callback to be invoked when the list item is clicked
  */
 @Composable
 fun ListItem(
     text: String,
+    modifier: Modifier = Modifier.None,
+    onClick: (() -> Unit)? = null,
     icon: ImageAsset? = null,
     secondaryText: String? = null,
     // TODO(popam): find a way to remove this
     singleLineSecondaryText: Boolean = true,
     overlineText: String? = null,
-    metaText: String? = null,
-    onClick: (() -> Unit)? = null
+    metaText: String? = null
 ) {
     val iconComposable: @Composable() (() -> Unit)? = icon?.let {
         { Image(it) }
@@ -94,13 +96,14 @@ fun ListItem(
         { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
     }
     ListItem(
-        textComposable,
+        modifier,
+        onClick,
         iconComposable,
         secondaryTextComposable,
         singleLineSecondaryText,
         overlineTextComposable,
         metaTextComposable,
-        onClick
+        textComposable
     )
 }
 
@@ -115,23 +118,25 @@ fun ListItem(
  * - three-line items
  * @sample androidx.ui.material.samples.ThreeLineListItems
  *
- * @param text The primary text of the list item
+ * @param modifier Modifier to be applied to the list item
+ * @param onClick Callback to be invoked when the list item is clicked
  * @param icon The leading supporting visual of the list item
  * @param secondaryText The secondary text of the list item
  * @param singleLineSecondaryText Whether the secondary text is single line
  * @param overlineText The text displayed above the primary text
  * @param trailing The trailing meta text or meta icon of the list item
- * @param onClick Callback to be invoked when the list item is clicked
+ * @param text The primary text of the list item
  */
 @Composable
 fun ListItem(
-    text: @Composable() (() -> Unit),
+    modifier: Modifier = Modifier.None,
+    onClick: (() -> Unit)? = null,
     icon: @Composable() (() -> Unit)? = null,
     secondaryText: @Composable() (() -> Unit)? = null,
     singleLineSecondaryText: Boolean = true,
     overlineText: @Composable() (() -> Unit)? = null,
     trailing: @Composable() (() -> Unit)? = null,
-    onClick: (() -> Unit)? = null
+    text: @Composable() (() -> Unit)
 ) {
     val emphasisLevels = EmphasisAmbient.current
     val typography = MaterialTheme.typography
@@ -148,6 +153,7 @@ fun ListItem(
             styledSecondaryText == null
         ) {
             TwoLine.ListItem(
+                modifier,
                 icon,
                 styledText,
                 styledSecondaryText,
@@ -156,6 +162,7 @@ fun ListItem(
             )
         } else {
             ThreeLine.ListItem(
+                modifier,
                 icon,
                 styledText,
                 styledSecondaryText,
@@ -252,6 +259,7 @@ private object TwoLine {
 
     @Composable
     fun ListItem(
+        modifier: Modifier = Modifier.None,
         icon: @Composable() (() -> Unit)?,
         text: @Composable() (() -> Unit),
         secondaryText: @Composable() (() -> Unit)?,
@@ -259,8 +267,8 @@ private object TwoLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
-        Row(Modifier.preferredHeightIn(minHeight = minHeight)) {
-            val modifier = Modifier.weight(1f)
+        Row(modifier.preferredHeightIn(minHeight = minHeight)) {
+            val columnModifier = Modifier.weight(1f)
                 .padding(start = ContentLeftPadding, end = ContentRightPadding)
 
             if (icon != null) {
@@ -280,7 +288,7 @@ private object TwoLine {
             if (overlineText != null) {
                 BaselinesOffsetColumn(
                     listOf(OverlineBaselineOffset, OverlineToPrimaryBaselineOffset),
-                    modifier
+                    columnModifier
                 ) {
                     overlineText()
                     text()
@@ -299,7 +307,7 @@ private object TwoLine {
                             PrimaryToSecondaryBaselineOffsetNoIcon
                         }
                     ),
-                    modifier
+                    columnModifier
                 ) {
                     text()
                     secondaryText!!()
@@ -345,13 +353,14 @@ private object ThreeLine {
 
     @Composable
     fun ListItem(
+        modifier: Modifier = Modifier.None,
         icon: @Composable() (() -> Unit)?,
         text: @Composable() (() -> Unit),
         secondaryText: @Composable() (() -> Unit),
         overlineText: @Composable() (() -> Unit)?,
         trailing: @Composable() (() -> Unit)?
     ) {
-        Row(Modifier.preferredHeightIn(minHeight = MinHeight)) {
+        Row(modifier.preferredHeightIn(minHeight = MinHeight)) {
             if (icon != null) {
                 val minSize = IconLeftPadding + IconMinPaddedWidth
                 Box(
