@@ -20,6 +20,7 @@ import androidx.test.filters.LargeTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInParent
 import androidx.ui.foundation.Box
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.samples.IconButtonSample
@@ -30,7 +31,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.find
 import androidx.ui.test.isToggleable
-import androidx.ui.test.positionInParent
 import androidx.ui.unit.dp
 import androidx.ui.unit.toPx
 import com.google.common.truth.Truth

@@ -27,6 +27,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInParent
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
@@ -40,7 +41,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
-import androidx.ui.test.positionInParent
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp

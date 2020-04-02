@@ -20,6 +20,8 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
+import androidx.ui.unit.toPx
 
 /**
  * A holder of the measured bounds for the layout (MeasureBox).
@@ -95,6 +97,23 @@ val LayoutCoordinates.boundsInRoot: PxBounds
     get() {
         return findRoot(this).childBoundingBox(this)
     }
+
+/**
+ * Returns the position of the top-left in the parent's content area or (0, 0)
+ * for the root.
+ */
+val LayoutCoordinates.positionInParent: PxPosition
+    get() = parentCoordinates?.childToLocal(this, PxPosition.Origin) ?: PxPosition.Origin
+
+/**
+ * Returns the bounding box of the child in the parent's content area, including any clipping
+ * done with respect to the parent. For the root, the bounds is positioned at (0, 0) and sized
+ * to the size of the root.
+ */
+val LayoutCoordinates.boundsInParent: PxBounds
+    get() = parentCoordinates?.childBoundingBox(this)
+        ?: PxBounds(0.px, 0.px, size.width.toPx(), size.height.toPx())
+
 /**
  * The global boundaries of this layout inside.
  */
