@@ -778,7 +778,7 @@ class ComponentNodeTest {
     @Test
     fun coordinatesAttachedWhenLayoutNodeAttached() {
         val layoutNode = LayoutNode()
-        val drawModifier = draw { _, _ -> }
+        val drawModifier = Modifier.drawBehind { }
         layoutNode.modifier = drawModifier
         assertFalse(layoutNode.coordinates.isAttached)
         assertFalse(layoutNode.coordinates.isAttached)
@@ -794,13 +794,13 @@ class ComponentNodeTest {
     @Test
     fun layoutNodeWrapperAttachedWhenLayoutNodeAttached() {
         val layoutNode = LayoutNode()
-        val drawModifier = draw { _, _ -> }
+        val drawModifier = Modifier.drawBehind { }
         layoutNode.modifier = drawModifier
         val layoutNodeWrapper = layoutNode.layoutNodeWrapper
         assertFalse(layoutNodeWrapper.isAttached)
         layoutNode.attach(mockOwner())
         assertTrue(layoutNodeWrapper.isAttached)
-        layoutNode.modifier = draw { _, _ -> }
+        layoutNode.modifier = Modifier.drawBehind { }
         assertFalse(layoutNodeWrapper.isAttached)
         assertTrue(layoutNode.coordinates.isAttached)
         assertTrue(layoutNode.coordinates.isAttached)
@@ -810,7 +810,7 @@ class ComponentNodeTest {
     fun layoutNodeWrapperParentCoordinates() {
         val layoutNode = LayoutNode()
         val layoutNode2 = LayoutNode()
-        val drawModifier = draw { _, _ -> }
+        val drawModifier = Modifier.drawBehind { }
         layoutNode.modifier = drawModifier
         layoutNode2.insertAt(0, layoutNode)
         layoutNode2.attach(mockOwner())

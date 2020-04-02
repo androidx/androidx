@@ -21,8 +21,8 @@ import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.DrawScope
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.geometry.Offset
@@ -116,7 +116,7 @@ private fun DrawSwitch(
     }
 }
 
-private fun CanvasScope.drawTrack(trackColor: Color) {
+private fun DrawScope.drawTrack(trackColor: Color) {
     val paint = Paint().apply {
         isAntiAlias = true
         color = trackColor
@@ -134,7 +134,7 @@ private fun CanvasScope.drawTrack(trackColor: Color) {
     )
 }
 
-private fun CanvasScope.drawThumb(position: Float, thumbColor: Color) {
+private fun DrawScope.drawThumb(position: Float, thumbColor: Color) {
     val paint = Paint().apply {
         isAntiAlias = true
         color = thumbColor

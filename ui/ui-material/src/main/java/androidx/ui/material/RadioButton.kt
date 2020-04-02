@@ -24,9 +24,9 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
+import androidx.ui.core.DrawScope
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.geometry.Offset
@@ -220,7 +220,7 @@ fun RadioButton(
     }
 }
 
-private fun CanvasScope.drawRadio(
+private fun DrawScope.drawRadio(
     color: Color,
     outerRadius: Dp,
     innerRadius: Dp,

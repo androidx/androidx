@@ -97,7 +97,7 @@ class WithConstraintsTest {
                 WithConstraints { constraints, _ ->
                     topConstraints.value = constraints
                     Padding(size = size) {
-                        val drawModifier = Modifier.drawBehind { _, _ ->
+                        val drawModifier = Modifier.drawBehind {
                             countDownLatch.countDown()
                         }
                         WithConstraints(drawModifier) { constraints, _ ->
@@ -139,17 +139,17 @@ class WithConstraintsTest {
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 WithConstraints { constraints, _ ->
-                    val outerModifier = Modifier.drawBehind { canvas, size ->
+                    val outerModifier = Modifier.drawBehind {
                         val paint = Paint()
                         paint.color = model.outerColor
-                        canvas.drawRect(size.toRect(), paint)
+                        drawRect(size.toRect(), paint)
                     }
                     Layout(children = {
-                        val innerModifier = Modifier.drawBehind { canvas, size ->
+                        val innerModifier = Modifier.drawBehind {
                             drawLatch.countDown()
                             val paint = Paint()
                             paint.color = model.innerColor
-                            canvas.drawRect(size.toRect(), paint)
+                            drawRect(size.toRect(), paint)
                         }
                         Layout(
                             children = {},
@@ -491,7 +491,7 @@ class WithConstraintsTest {
             activity.setContent {
                 val state = state { false }
                 var lastLayoutValue: Boolean = false
-                val drawModifier = Modifier.drawBehind { _, _ ->
+                val drawModifier = Modifier.drawBehind {
                     // this verifies the layout was remeasured before being drawn
                     assertTrue(lastLayoutValue)
                     drawlatch.countDown()
@@ -695,10 +695,10 @@ class WithConstraintsTest {
     }
 
     private fun countdownLatchBackgroundModifier(color: Color) =
-        Modifier.drawBehind { canvas, size ->
+        Modifier.drawBehind {
             val paint = Paint()
             paint.color = color
-            canvas.drawRect(size.toRect(), paint)
+            drawRect(size.toRect(), paint)
             drawLatch.countDown()
         }
 
@@ -789,8 +789,8 @@ private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Compos
     }
 }
 
-fun backgroundModifier(color: Color) = Modifier.drawBehind { canvas, size ->
+fun backgroundModifier(color: Color) = Modifier.drawBehind {
     val paint = Paint()
     paint.color = color
-    canvas.drawRect(size.toRect(), paint)
+    drawRect(size.toRect(), paint)
 }

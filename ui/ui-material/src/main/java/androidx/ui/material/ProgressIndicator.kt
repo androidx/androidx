@@ -28,8 +28,8 @@ import androidx.compose.remember
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.DrawScope
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.DeterminateProgressIndicator
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
@@ -107,7 +107,7 @@ fun LinearProgressIndicator(
     }
 }
 
-private fun CanvasScope.drawLinearIndicator(
+private fun DrawScope.drawLinearIndicator(
     startFraction: Float,
     endFraction: Float,
     paint: Paint
@@ -124,7 +124,7 @@ private fun CanvasScope.drawLinearIndicator(
     drawLine(Offset(barStart, yOffset), Offset(barEnd, yOffset), paint)
 }
 
-private fun CanvasScope.drawLinearIndicatorBackground(paint: Paint) =
+private fun DrawScope.drawLinearIndicatorBackground(paint: Paint) =
     drawLinearIndicator(0f, 1f, paint)
 
 /**
@@ -195,7 +195,7 @@ fun CircularProgressIndicator(
     }
 }
 
-private fun CanvasScope.drawCircularIndicator(startAngle: Float, sweep: Float, paint: Paint) {
+private fun DrawScope.drawCircularIndicator(startAngle: Float, sweep: Float, paint: Paint) {
     val diameter = size.width.value
     // To draw this circle we need a rect with edges that line up with the midpoint of the stroke.
     // To do this we need to remove half the stroke width from the total diameter for both sides.
@@ -211,13 +211,13 @@ private fun CanvasScope.drawCircularIndicator(startAngle: Float, sweep: Float, p
     drawArc(rect, startAngle, sweep, false, paint)
 }
 
-private fun CanvasScope.drawDeterminateCircularIndicator(
+private fun DrawScope.drawDeterminateCircularIndicator(
     startAngle: Float,
     sweep: Float,
     paint: Paint
 ) = drawCircularIndicator(startAngle, sweep, paint)
 
-private fun CanvasScope.drawIndeterminateCircularIndicator(
+private fun DrawScope.drawIndeterminateCircularIndicator(
     startAngle: Float,
     sweep: Float,
     paint: Paint

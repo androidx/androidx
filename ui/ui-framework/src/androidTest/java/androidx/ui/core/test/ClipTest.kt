@@ -23,6 +23,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Modifier
+import androidx.ui.core.DrawScope
 import androidx.ui.core.clip
 import androidx.ui.core.clipToBounds
 import androidx.ui.core.drawBehind
@@ -31,7 +32,6 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Paint
@@ -367,8 +367,8 @@ class ClipTest {
         val model = ValueModel<Shape>(triangleShape)
         // to be replaced with a DrawModifier wrapped into remember, so the recomposition
         // is not causing invalidation as the DrawModifier didn't change
-        val drawCallback: Density.(canvas: Canvas, parentSize: PxSize) -> Unit = { canvas, size ->
-            canvas.drawRect(
+        val drawCallback: DrawScope.() -> Unit = {
+            drawRect(
                 Rect(
                     -100f,
                     -100f,
@@ -443,13 +443,13 @@ class ClipTest {
     }
 
     private fun FillColor(color: Color): Modifier {
-        return Modifier.drawBehind { canvas, parentSize ->
-            canvas.drawRect(
+        return Modifier.drawBehind {
+            drawRect(
                 Rect(
                     -100f,
                     -100f,
-                    parentSize.width.value + 100f,
-                    parentSize.height.value + 100f
+                    size.width.value + 100f,
+                    size.height.value + 100f
                 ), Paint().apply {
                     this.color = color
                 })

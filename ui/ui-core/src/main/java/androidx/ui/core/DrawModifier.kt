@@ -17,26 +17,19 @@
 package androidx.ui.core
 
 import androidx.ui.graphics.Canvas
-import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
 
 /**
  * A [Modifier.Element] that draws into the space of the layout.
  */
 interface DrawModifier : Modifier.Element {
-    fun draw(
-        density: Density,
-        drawContent: () -> Unit,
-        canvas: Canvas,
-        size: PxSize
-    )
+    fun ContentDrawScope.draw()
 }
 
 /**
  * Draw into a [Canvas] behind the modified content.
  */
 fun Modifier.drawBehind(
-    onDraw: Density.(canvas: Canvas, size: PxSize) -> Unit
+    onDraw: DrawScope.() -> Unit
 ) = this + DrawBackgroundModifier(onDraw)
 
 /**
@@ -51,24 +44,15 @@ fun Modifier.drawBehind(
     )
 )
 fun draw(
-    onDraw: Density.(canvas: Canvas, size: PxSize) -> Unit
+    onDraw: DrawScope.() -> Unit
 ): DrawModifier = DrawBackgroundModifier(onDraw)
 
 private class DrawBackgroundModifier(
-    val onDraw: Density.(canvas: Canvas, size: PxSize) -> Unit
+    val onDraw: DrawScope.() -> Unit
 ) : DrawModifier {
-
-    override fun draw(
-        density: Density,
-        drawContent: () -> Unit,
-        canvas: Canvas,
-        size: PxSize
-    ) {
-        try {
-            density.onDraw(canvas, size)
-        } finally {
-            drawContent()
-        }
+    override fun ContentDrawScope.draw() {
+        onDraw()
+        drawContent()
     }
 }
 
@@ -76,34 +60,11 @@ private class DrawBackgroundModifier(
  * Creates a [DrawModifier] that allows the developer to draw before or after the layout's
  * contents. It also allows the modifier to adjust the layout's canvas.
  */
-// TODO(mount): DrawReceiver should accept a Canvas for drawChildren()
-// TODO(mount): drawChildren() should be drawContent()
-// TODO Current implementation is not thread-safe
-fun drawWithContent(
-    onDraw: DrawReceiver.(canvas: Canvas, size: PxSize) -> Unit
-): DrawModifier = object : DrawModifier, DrawReceiver {
-    private var _density: Density? = null
-    override val density: Float get() = _density!!.density
-    override val fontScale: Float get() = _density!!.fontScale
-    private var drawContentFunction: (() -> Unit)? = null
-
-    override fun draw(
-        density: Density,
-        drawContent: () -> Unit,
-        canvas: Canvas,
-        size: PxSize
-    ) {
-        drawContentFunction = drawContent
-        _density = density
-        try {
-            this.onDraw(canvas, size)
-        } finally {
-            _density = null
-            drawContentFunction = null
-        }
-    }
-
-    override fun drawChildren() {
-        drawContentFunction!!.invoke()
+// TODO: Inline this function -- it breaks with current compiler
+/*inline*/ fun drawWithContent(
+    onDraw: ContentDrawScope.() -> Unit
+): DrawModifier = object : DrawModifier {
+    override fun ContentDrawScope.draw() {
+        onDraw()
     }
 }

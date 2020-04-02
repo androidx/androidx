@@ -108,18 +108,18 @@ fun CoreText(
 
     Layout(
         children = emptyContent(),
-        modifier = modifier.drawBehind { canvas, _ ->
+        modifier = modifier.drawBehind {
             state.layoutResult?.let { layoutResult ->
                 state.selectionRange?.let {
                     TextDelegate.paintBackground(
                         it.min,
                         it.max,
                         DefaultSelectionColor,
-                        canvas,
+                        this,
                         layoutResult
                     )
                 }
-                TextDelegate.paint(canvas, layoutResult)
+                TextDelegate.paint(this, layoutResult)
             }
         }.onPositioned {
             // Get the layout coordinates of the text composable. This is for hit test of

@@ -22,17 +22,29 @@ import android.graphics.RectF
 import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
+import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.ClipOp
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.ImageAsset
+import androidx.ui.graphics.NativeCanvas
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
+import androidx.ui.graphics.Path
+import androidx.ui.graphics.Picture
+import androidx.ui.graphics.PointMode
+import androidx.ui.graphics.Vertices
+import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.px
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
@@ -105,7 +117,7 @@ internal sealed class LayoutNodeWrapper(
     /**
      * Draws the content of the LayoutNode
      */
-    abstract fun draw(canvas: Canvas, density: Density)
+    abstract fun draw(canvas: Canvas)
 
     /**
      * Executes a hit test on any appropriate type associated with this [LayoutNodeWrapper].
@@ -315,9 +327,9 @@ internal open class DelegatingLayoutNodeWrapper(
         wrapped.wrappedBy = this
     }
 
-    override fun draw(canvas: Canvas, density: Density) {
+    override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {
-            wrapped.draw(canvas, density)
+            wrapped.draw(canvas)
         }
     }
 
@@ -483,7 +495,7 @@ internal class InnerPlaceable(
         return layoutNode.calculateAlignmentLines()[line]
     }
 
-    override fun draw(canvas: Canvas, density: Density) {
+    override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {
             val owner = layoutNode.requireOwner()
             val sizePx = size.toPxSize()
@@ -591,9 +603,9 @@ internal class ModifiedLayoutNode2(
     override operator fun get(line: AlignmentLine): IntPx? =
         measureResult.alignmentLines.getOrElse(line, { wrapped[line] })
 
-    override fun draw(canvas: Canvas, density: Density) {
+    override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {
-            wrapped.draw(canvas, density)
+            wrapped.draw(canvas)
             if (layoutNode.requireOwner().showLayoutBounds) {
                 drawBorder(canvas, modifierBoundsPaint)
             }
@@ -674,9 +686,9 @@ internal class ModifiedLayoutNode(
         )
     }
 
-    override fun draw(canvas: Canvas, density: Density) {
+    override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {
-            wrapped.draw(canvas, density)
+            wrapped.draw(canvas)
             if (layoutNode.requireOwner().showLayoutBounds) {
                 drawBorder(canvas, modifierBoundsPaint)
             }
@@ -700,25 +712,111 @@ internal class ModifiedLayoutNode(
 
 internal class ModifiedDrawNode(
     wrapped: LayoutNodeWrapper,
-    val drawModifier: DrawModifier
-) : DelegatingLayoutNodeWrapper(wrapped), () -> Unit {
-    private var density: Density? = null
+    private val drawModifier: DrawModifier
+) : DelegatingLayoutNodeWrapper(wrapped) {
+    private val drawScope = DrawScopeImpl()
     private var canvas: Canvas? = null
 
-    override fun draw(canvas: Canvas, density: Density) {
+    // This is not thread safe
+    override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {
-            this.density = density
             this.canvas = canvas
-            val pxSize = size.toPxSize()
-            drawModifier.draw(density, this, canvas, pxSize)
-            this.density = null
+            with(drawScope) {
+                with(drawModifier) { draw() }
+            }
             this.canvas = null
         }
     }
 
-    // This is the implementation of drawContent()
-    override fun invoke() {
-        wrapped.draw(canvas!!, density!!)
+    inner class DrawScopeImpl() : ContentDrawScope {
+        override fun drawContent() {
+            wrapped.draw(canvas!!)
+        }
+
+        override val density: Float
+            get() = layoutNode.requireOwner().density.density
+
+        override val fontScale: Float
+            get() = layoutNode.requireOwner().density.fontScale
+
+        override val size: PxSize
+            get() = this@ModifiedDrawNode.size.toPxSize()
+
+        override val nativeCanvas: NativeCanvas
+            get() = canvas!!.nativeCanvas
+
+        override fun save() = canvas!!.save()
+
+        override fun restore() = canvas!!.restore()
+
+        override fun saveLayer(bounds: Rect, paint: Paint) = canvas!!.saveLayer(bounds, paint)
+
+        override fun translate(dx: Float, dy: Float) = canvas!!.translate(dx, dy)
+
+        override fun scale(sx: Float, sy: Float) = canvas!!.scale(sx, sy)
+
+        override fun rotate(degrees: Float) = canvas!!.rotate(degrees)
+
+        override fun skew(sx: Float, sy: Float) = canvas!!.skew(sx, sy)
+
+        override fun concat(matrix4: Matrix4) = canvas!!.concat(matrix4)
+
+        override fun clipRect(rect: Rect, clipOp: ClipOp) = canvas!!.clipRect(rect, clipOp)
+
+        override fun clipRRect(rrect: RRect) = canvas!!.clipRRect(rrect)
+
+        override fun clipPath(path: Path) = canvas!!.clipPath(path)
+
+        override fun drawLine(p1: Offset, p2: Offset, paint: Paint) =
+            canvas!!.drawLine(p1, p2, paint)
+
+        override fun drawRect(rect: Rect, paint: Paint) = canvas!!.drawRect(rect, paint)
+
+        override fun drawRoundRect(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            radiusX: Float,
+            radiusY: Float,
+            paint: Paint
+        ) = canvas!!.drawRoundRect(left, top, right, bottom, radiusX, radiusY, paint)
+
+        override fun drawOval(rect: Rect, paint: Paint) = canvas!!.drawOval(rect, paint)
+
+        override fun drawCircle(center: Offset, radius: Float, paint: Paint) =
+            canvas!!.drawCircle(center, radius, paint)
+
+        override fun drawArc(
+            rect: Rect,
+            startAngle: Float,
+            sweepAngle: Float,
+            useCenter: Boolean,
+            paint: Paint
+        ) = canvas!!.drawArc(rect, startAngle, sweepAngle, useCenter, paint)
+
+        override fun drawPath(path: Path, paint: Paint) = canvas!!.drawPath(path, paint)
+
+        override fun drawImage(image: ImageAsset, topLeftOffset: Offset, paint: Paint) =
+            canvas!!.drawImage(image, topLeftOffset, paint)
+
+        override fun drawImageRect(image: ImageAsset, src: Rect, dst: Rect, paint: Paint) =
+            canvas!!.drawImageRect(image, src, dst, paint)
+
+        override fun drawPicture(picture: Picture) = canvas!!.drawPicture(picture)
+
+        override fun drawPoints(pointMode: PointMode, points: List<Offset>, paint: Paint) =
+            canvas!!.drawPoints(pointMode, points, paint)
+
+        override fun drawRawPoints(pointMode: PointMode, points: FloatArray, paint: Paint) =
+            canvas!!.drawRawPoints(pointMode, points, paint)
+
+        override fun drawVertices(vertices: Vertices, blendMode: BlendMode, paint: Paint) =
+            canvas!!.drawVertices(vertices, blendMode, paint)
+
+        override fun enableZ() = canvas!!.enableZ()
+
+        override fun disableZ() = canvas!!.disableZ()
     }
 }
 
@@ -785,7 +883,7 @@ internal class LayerWrapper(
         layer.move(position)
     }
 
-    override fun draw(canvas: Canvas, density: Density) {
+    override fun draw(canvas: Canvas) {
         layer.drawLayer(canvas)
     }
 

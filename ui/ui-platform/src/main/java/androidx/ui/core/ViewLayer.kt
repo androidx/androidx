@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.toPxSize
@@ -35,7 +34,7 @@ internal class ViewLayer(
     val ownerView: AndroidComposeView,
     val container: ViewLayerContainer,
     val drawLayerModifier: DrawLayerModifier,
-    val drawBlock: (Canvas, Density) -> Unit,
+    val drawBlock: (Canvas) -> Unit,
     val invalidateParentLayer: () -> Unit
 ) : View(ownerView.context), OwnedLayer {
     private val outlineResolver = OutlineResolver(ownerView.density)
@@ -153,7 +152,7 @@ internal class ViewLayer(
             uiCanvas.clipPath(clipPath)
         }
         ownerView.observeLayerModelReads(this) {
-            drawBlock(uiCanvas, ownerView.density)
+            drawBlock(uiCanvas)
         }
         if (clipPath != null) {
             uiCanvas.restore()
