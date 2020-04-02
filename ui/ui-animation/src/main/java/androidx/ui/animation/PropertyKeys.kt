@@ -22,13 +22,25 @@ import androidx.animation.AnimationVector4D
 import androidx.animation.PropKey
 import androidx.animation.TwoWayConverter
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.colorspace.ColorSpace
 import androidx.ui.graphics.colorspace.ColorSpaces
+import androidx.ui.unit.Bounds
 import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxBounds
+import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Position
 import androidx.ui.unit.Px
+import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import androidx.ui.unit.px
+import kotlin.math.roundToInt
 
 /**
  * Built-in property key for [Px] properties.
@@ -106,6 +118,50 @@ val RectToVectorConverter: TwoWayConverter<Rect, AnimationVector4D> =
     )
 
 /**
+ * A type converter that converts a [Dp] to a [AnimationVector1D], and vice versa.
+ */
+val DpToVectorConverter: TwoWayConverter<Dp, AnimationVector1D> = TwoWayConverter(
+    convertToVector = { AnimationVector1D(it.value) },
+    convertFromVector = { Dp(it.value) }
+)
+
+/**
+ * A type converter that converts a [Position] to a [AnimationVector2D], and vice versa.
+ */
+val PositionToVectorConverter: TwoWayConverter<Position, AnimationVector2D> =
+    TwoWayConverter(
+        convertToVector = { AnimationVector2D(it.x.value, it.y.value) },
+        convertFromVector = { Position(it.v1.dp, it.v2.dp) }
+    )
+
+/**
+ * A type converter that converts a [Size] to a [AnimationVector2D], and vice versa.
+ */
+val SizeToVectorConverter: TwoWayConverter<Size, AnimationVector2D> =
+    TwoWayConverter(
+        convertToVector = { AnimationVector2D(it.width, it.height) },
+        convertFromVector = { Size(it.v1, it.v2) }
+    )
+
+/**
+ * A type converter that converts a [Bounds] to a [AnimationVector4D], and vice versa.
+ */
+val BoundsToVectorConverter: TwoWayConverter<Bounds, AnimationVector4D> =
+    TwoWayConverter(
+        convertToVector = {
+            AnimationVector4D(it.left.value, it.top.value, it.right.value, it.bottom.value) },
+        convertFromVector = { Bounds(it.v1.dp, it.v2.dp, it.v3.dp, it.v4.dp) }
+    )
+
+/**
+ * A type converter that converts a [Px] to a [AnimationVector1D], and vice versa.
+ */
+val PxToVectorConverter: TwoWayConverter<Px, AnimationVector1D> = TwoWayConverter(
+    convertToVector = { AnimationVector1D(it.value) },
+    convertFromVector = { Px(it.value) }
+)
+
+/**
  * A type converter that converts a [PxPosition] to a [AnimationVector2D], and vice versa.
  */
 val PxPositionToVectorConverter: TwoWayConverter<PxPosition, AnimationVector2D> =
@@ -115,17 +171,60 @@ val PxPositionToVectorConverter: TwoWayConverter<PxPosition, AnimationVector2D> 
     )
 
 /**
- * A type converter that converts a [Dp] to a [AnimationVector1D], and vice versa.
+ * A type converter that converts a [PxSize] to a [AnimationVector2D], and vice versa.
  */
-val DpToVectorConverter: TwoWayConverter<Dp, AnimationVector1D> = TwoWayConverter(
-    convertToVector = { AnimationVector1D(it.value) },
-    convertFromVector = { Dp(it.value) }
-)
+val PxSizeToVectorConverter: TwoWayConverter<PxSize, AnimationVector2D> =
+    TwoWayConverter(
+        convertToVector = { AnimationVector2D(it.width.value, it.height.value) },
+        convertFromVector = { PxSize(it.v1.px, it.v2.px) }
+    )
+
+/**
+ * A type converter that converts a [PxBounds] to a [AnimationVector4D], and vice versa.
+ */
+val PxBoundsToVectorConverter: TwoWayConverter<PxBounds, AnimationVector4D> =
+    TwoWayConverter(
+        convertToVector = {
+            AnimationVector4D(it.left.value, it.top.value, it.right.value, it.bottom.value) },
+        convertFromVector = { PxBounds(it.v1.px, it.v2.px, it.v3.px, it.v4.px) }
+    )
 
 /**
  * A type converter that converts a [Px] to a [AnimationVector1D], and vice versa.
  */
-val PxToVectorConverter: TwoWayConverter<Px, AnimationVector1D> = TwoWayConverter(
-    convertToVector = { AnimationVector1D(it.value) },
-    convertFromVector = { Px(it.value) }
+val IntPxToVectorConverter: TwoWayConverter<IntPx, AnimationVector1D> = TwoWayConverter(
+    convertToVector = { AnimationVector1D(it.value.toFloat()) },
+    convertFromVector = { it.value.roundToInt().ipx }
 )
+
+/**
+ * A type converter that converts a [IntPxPosition] to a [AnimationVector2D], and vice versa.
+ */
+val IntPxPositionToVectorConverter: TwoWayConverter<IntPxPosition, AnimationVector2D> =
+    TwoWayConverter(
+        convertToVector = { AnimationVector2D(it.x.value.toFloat(), it.y.value.toFloat()) },
+        convertFromVector = { IntPxPosition(it.v1.roundToInt().ipx, it.v2.roundToInt().ipx) }
+    )
+
+/**
+ * A type converter that converts a [IntPxSize] to a [AnimationVector2D], and vice versa.
+ */
+val IntPxSizeToVectorConverter: TwoWayConverter<IntPxSize, AnimationVector2D> =
+    TwoWayConverter(
+        { AnimationVector2D(it.width.value.toFloat(), it.height.value.toFloat()) },
+        { IntPxSize(it.v1.roundToInt().ipx, it.v2.roundToInt().ipx) }
+    )
+
+/**
+ * A type converter that converts a [IntPxBounds] to a [AnimationVector4D], and vice versa.
+ */
+val IntPxBoundsToVectorConverter: TwoWayConverter<IntPxBounds, AnimationVector4D> =
+    TwoWayConverter(
+        convertToVector = {
+            AnimationVector4D(it.left.value.toFloat(), it.top.value.toFloat(),
+                it.right.value.toFloat(), it.bottom.value.toFloat()) },
+        convertFromVector = { IntPxBounds(it.v1.roundToInt().ipx, it.v2.roundToInt().ipx,
+            it.v3.roundToInt().ipx, it.v4.roundToInt().ipx) }
+    )
+
+// TODO: Figure out a better API to expose these converters. These may not be easy to remember.
