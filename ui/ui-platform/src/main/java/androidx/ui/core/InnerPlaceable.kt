@@ -60,6 +60,9 @@ internal class InnerPlaceable(
                     .firstOrNull { it.layoutNodeWrapper.parentData != null }?.parentData
         }
 
+    override val layoutDirection: LayoutDirection
+        get() = layoutNode.layoutDirection!!
+
     override fun findLayer(): OwnedLayer? {
         return wrappedBy?.findLayer()
     }
