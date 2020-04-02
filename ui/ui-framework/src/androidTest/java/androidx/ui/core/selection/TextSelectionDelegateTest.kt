@@ -16,9 +16,9 @@
 
 package androidx.ui.core.selection
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
+import androidx.activity.ComponentActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -62,7 +62,7 @@ val BASIC_MEASURE_FONT = font(
 @SmallTest
 class TextSelectionDelegateTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<Activity>()
+    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
 
     private val fontFamily = BASIC_MEASURE_FONT.asFontFamily()
     private val context = InstrumentationRegistry.getInstrumentation().context

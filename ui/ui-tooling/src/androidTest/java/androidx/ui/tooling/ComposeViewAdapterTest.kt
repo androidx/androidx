@@ -16,8 +16,8 @@
 
 package androidx.ui.tooling
 
-import android.app.Activity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.tooling.preview.ComposeViewAdapter
 import androidx.ui.tooling.preview.ViewInfo
@@ -37,7 +37,7 @@ class ComposeViewAdapterTest {
     @Before
     fun setup() {
         composeViewAdapter =
-            activityTestRule.activity.findViewById<ComposeViewAdapter>(R.id.compose_view_adapter)
+            activityTestRule.activity.findViewById(R.id.compose_view_adapter)
     }
 
     @After
@@ -123,7 +123,7 @@ class ComposeViewAdapterTest {
     }
 
     companion object {
-        class TestActivity : Activity() {
+        class TestActivity : ComponentActivity() {
             override fun onCreate(savedInstanceState: Bundle?) {
                 super.onCreate(savedInstanceState)
                 setContentView(R.layout.compose_adapter_test)

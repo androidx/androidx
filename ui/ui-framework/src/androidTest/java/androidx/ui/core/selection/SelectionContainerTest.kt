@@ -17,10 +17,10 @@
 package androidx.ui.core.selection
 
 import android.R
-import android.app.Activity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.ComponentActivity
 import androidx.compose.Providers
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
@@ -58,7 +58,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class SelectionContainerTest {
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule<Activity>()
+    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
 
     private val activity
         get() = composeTestRule.activityTestRule.activity

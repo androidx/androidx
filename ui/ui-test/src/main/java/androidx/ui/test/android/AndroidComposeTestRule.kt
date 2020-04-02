@@ -16,7 +16,6 @@
 
 package androidx.ui.test.android
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
@@ -26,6 +25,7 @@ import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit
  * If you don't care about specific activity and just want to test composables in general, see
  * [AndroidComposeTestRule].
  */
-inline fun <reified T : Activity> AndroidComposeTestRule(
+inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
     disableTransitions: Boolean = false
 ): AndroidComposeTestRule<T> {
     // TODO(b/138993381): By launching custom activities we are losing control over what content is
@@ -68,7 +68,7 @@ inline fun <reified T : Activity> AndroidComposeTestRule(
 /**
  * Android specific implementation of [ComposeTestRule].
  */
-class AndroidComposeTestRule<T : Activity>(
+class AndroidComposeTestRule<T : ComponentActivity>(
     activityClass: Class<T>,
     private val disableTransitions: Boolean = false
 ) : ComposeTestRule {

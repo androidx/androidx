@@ -19,6 +19,7 @@ package androidx.ui.test
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import androidx.ui.core.setContent
@@ -62,7 +63,7 @@ class MultipleActivitiesClickTest {
     class Activity1 : ClickRecordingActivity("activity1")
     class Activity2 : ClickRecordingActivity("activity2")
 
-    open class ClickRecordingActivity(private val tag: String) : Activity() {
+    open class ClickRecordingActivity(private val tag: String) : ComponentActivity() {
         val recorder = PointerInputRecorder()
 
         override fun onCreate(savedInstanceState: Bundle?) {
