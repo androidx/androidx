@@ -156,6 +156,7 @@ private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
 fun ViewGroup.setContent(
     content: @Composable() () -> Unit
 ): Composition {
+    FrameManager.ensureStarted()
     val composeView =
         if (childCount > 0) {
             getChildAt(0) as? Owner
