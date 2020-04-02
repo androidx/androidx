@@ -23,8 +23,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.Activity;
 import android.graphics.Rect;
-import android.os.IBinder;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -53,11 +53,14 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
         implements CompatTestInterface {
 
     private ExtensionInterface mMockExtensionInterface;
+    private Activity mActivity;
 
     @Before
     public void setUp() {
         mMockExtensionInterface = mock(ExtensionInterface.class);
         mExtensionCompat = new ExtensionCompat(mMockExtensionInterface);
+
+        mActivity = mock(Activity.class);
 
         // Setup mocked extension responses
         ExtensionDeviceState defaultDeviceState =
@@ -87,8 +90,7 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
                 .thenReturn(infoWithEmptyRect);
 
         // Verify that this feature is skipped.
-        WindowLayoutInfo windowLayoutInfo =
-                mExtensionCompat.getWindowLayoutInfo(mock(IBinder.class));
+        WindowLayoutInfo windowLayoutInfo = mExtensionCompat.getWindowLayoutInfo(mActivity);
 
         assertEquals(features.size() - 1,
                 windowLayoutInfo.getDisplayFeatures().size());
@@ -117,7 +119,9 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
         verify(callback).onDeviceStateChanged(deviceStateCaptor.capture());
         assertEquals(DeviceState.POSTURE_HALF_OPENED, deviceStateCaptor.getValue().getPosture());
 
-        // Verify that the callback set for extension propagates the window layout callback
+        // Verify that the callback set for extension propagates the window layout callback when
+        // a listener has been registered.
+        mExtensionCompat.onWindowLayoutChangeListenerAdded(mActivity);
         Rect bounds = new Rect(1, 2, 3, 4);
         ExtensionDisplayFeature extensionDisplayFeature =
                 new ExtensionDisplayFeature(bounds, ExtensionDisplayFeature.TYPE_HINGE);
@@ -125,13 +129,12 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
         displayFeatures.add(extensionDisplayFeature);
         ExtensionWindowLayoutInfo extensionWindowLayoutInfo =
                 new ExtensionWindowLayoutInfo(displayFeatures);
-        IBinder windowToken = mock(IBinder.class);
 
-        extensionCallbackCaptor.getValue().onWindowLayoutChanged(windowToken,
+        extensionCallbackCaptor.getValue().onWindowLayoutChanged(mActivity,
                 extensionWindowLayoutInfo);
         ArgumentCaptor<WindowLayoutInfo> windowLayoutInfoCaptor =
                 ArgumentCaptor.forClass(WindowLayoutInfo.class);
-        verify(callback).onWindowLayoutChanged(eq(windowToken), windowLayoutInfoCaptor.capture());
+        verify(callback).onWindowLayoutChanged(eq(mActivity), windowLayoutInfoCaptor.capture());
 
         WindowLayoutInfo capturedLayout = windowLayoutInfoCaptor.getValue();
         assertEquals(1, capturedLayout.getDisplayFeatures().size());
@@ -143,19 +146,16 @@ public final class ExtensionCompatTest extends ExtensionCompatDeviceTest
     @Test
     @Override
     public void testOnWindowLayoutChangeListenerAdded() {
-        IBinder windowToken = mock(IBinder.class);
-        mExtensionCompat.onWindowLayoutChangeListenerAdded(windowToken);
-        verify(mExtensionCompat.mWindowExtension)
-                .onWindowLayoutChangeListenerAdded(eq(windowToken));
+        mExtensionCompat.onWindowLayoutChangeListenerAdded(mActivity);
+        verify(mExtensionCompat.mWindowExtension).onWindowLayoutChangeListenerAdded(eq(mActivity));
     }
 
     @Test
     @Override
     public void testOnWindowLayoutChangeListenerRemoved() {
-        IBinder windowToken = mock(IBinder.class);
-        mExtensionCompat.onWindowLayoutChangeListenerRemoved(windowToken);
+        mExtensionCompat.onWindowLayoutChangeListenerRemoved(mActivity);
         verify(mExtensionCompat.mWindowExtension)
-                .onWindowLayoutChangeListenerRemoved(eq(windowToken));
+                .onWindowLayoutChangeListenerRemoved(eq(mActivity));
     }
 
     @Test

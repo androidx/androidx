@@ -22,7 +22,6 @@ import static androidx.window.WindowManager.getActivityFromContext;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -74,7 +73,7 @@ public final class ExtensionWindowBackend implements WindowBackend {
     /** Window layouts that were last reported through callbacks, used to filter out duplicates. */
     @GuardedBy("sLock")
     @VisibleForTesting
-    final HashMap<IBinder, WindowLayoutInfo> mLastReportedWindowLayouts = new HashMap<>();
+    final HashMap<Context, WindowLayoutInfo> mLastReportedWindowLayouts = new HashMap<>();
 
     private static final String TAG = "WindowServer";
 
@@ -113,14 +112,11 @@ public final class ExtensionWindowBackend implements WindowBackend {
     @Override
     public WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context) {
         Activity activity = assertActivityContext(context);
-        IBinder windowToken = getActivityWindowToken(activity);
-        if (windowToken == null) {
-            throw new IllegalStateException("Activity does not have a window attached.");
-        }
+        assertWindowAttached(activity);
 
         synchronized (sLock) {
             WindowLayoutInfo windowLayoutInfo = mWindowExtension != null
-                    ? mWindowExtension.getWindowLayoutInfo(windowToken) : null;
+                    ? mWindowExtension.getWindowLayoutInfo(activity) : null;
             return windowLayoutInfo != null
                     ? windowLayoutInfo : new WindowLayoutInfo(new ArrayList<>());
         }
@@ -148,27 +144,24 @@ public final class ExtensionWindowBackend implements WindowBackend {
             }
 
             Activity activity = assertActivityContext(context);
-            IBinder windowToken = getActivityWindowToken(activity);
-            if (windowToken == null) {
-                throw new IllegalStateException("Activity does not have a window attached.");
-            }
+            assertWindowAttached(activity);
 
             // Check if the token was already registered, in case we need to report tracking of a
             // new token to the extension.
             boolean registeredToken = false;
             for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
-                if (callbackWrapper.mToken.equals(windowToken)) {
+                if (callbackWrapper.mContext.equals(activity)) {
                     registeredToken = true;
                     break;
                 }
             }
 
             final WindowLayoutChangeCallbackWrapper callbackWrapper =
-                    new WindowLayoutChangeCallbackWrapper(windowToken, executor, callback);
+                    new WindowLayoutChangeCallbackWrapper(activity, executor, callback);
             mWindowLayoutChangeCallbacks.add(callbackWrapper);
             if (!registeredToken) {
-                // Added the first callback for the token.
-                mWindowExtension.onWindowLayoutChangeListenerAdded(windowToken);
+                // Added the first callback for the context.
+                mWindowExtension.onWindowLayoutChangeListenerAdded(activity);
             }
         }
     }
@@ -195,25 +188,25 @@ public final class ExtensionWindowBackend implements WindowBackend {
             // Remove the items from the list and notify extension if needed.
             mWindowLayoutChangeCallbacks.removeAll(itemsToRemove);
             for (WindowLayoutChangeCallbackWrapper callbackWrapper : itemsToRemove) {
-                callbackRemovedForToken(callbackWrapper.mToken);
+                callbackRemovedForContext(callbackWrapper.mContext);
             }
         }
     }
 
     /**
-     * Checks if there are no more registered callbacks left for the token and inform extension if
+     * Checks if there are no more registered callbacks left for the context and inform extension if
      * needed.
      */
     @GuardedBy("sLock")
-    private void callbackRemovedForToken(IBinder token) {
+    private void callbackRemovedForContext(Context context) {
         for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
-            if (callbackWrapper.mToken.equals(token)) {
+            if (callbackWrapper.mContext.equals(context)) {
                 // Found a registered callback for token.
                 return;
             }
         }
-        // No registered callbacks left for token - report to extension.
-        mWindowExtension.onWindowLayoutChangeListenerRemoved(token);
+        // No registered callbacks left for context - report to extension.
+        mWindowExtension.onWindowLayoutChangeListenerRemoved(context);
     }
 
     @Override
@@ -287,10 +280,10 @@ public final class ExtensionWindowBackend implements WindowBackend {
 
         @Override
         @SuppressLint("SyntheticAccessor")
-        public void onWindowLayoutChanged(@NonNull IBinder windowToken,
+        public void onWindowLayoutChanged(@NonNull Context context,
                 @NonNull WindowLayoutInfo newLayout) {
             synchronized (sLock) {
-                WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(windowToken);
+                WindowLayoutInfo lastReportedValue = mLastReportedWindowLayouts.get(context);
                 if (newLayout.equals(lastReportedValue)) {
                     // Skipping, value already reported
                     if (DEBUG) {
@@ -298,11 +291,11 @@ public final class ExtensionWindowBackend implements WindowBackend {
                     }
                     return;
                 }
-                mLastReportedWindowLayouts.put(windowToken, newLayout);
+                mLastReportedWindowLayouts.put(context, newLayout);
             }
 
             for (WindowLayoutChangeCallbackWrapper callbackWrapper : mWindowLayoutChangeCallbacks) {
-                if (!callbackWrapper.mToken.equals(windowToken)) {
+                if (!callbackWrapper.mContext.equals(context)) {
                     continue;
                 }
 
@@ -325,23 +318,24 @@ public final class ExtensionWindowBackend implements WindowBackend {
         return activity;
     }
 
-    @Nullable
-    private IBinder getActivityWindowToken(Activity activity) {
-        return activity.getWindow() != null ? activity.getWindow().getAttributes().token : null;
+    private static void assertWindowAttached(Activity activity) {
+        if (activity.getWindow() == null || activity.getWindow().getAttributes().token == null) {
+            throw new IllegalStateException("Activity does not have a window attached.");
+        }
     }
 
     /**
      * Wrapper around {@link Consumer<WindowLayoutInfo>} that also includes the {@link Executor}
-     * on which the callback should run and the associated token.
+     * on which the callback should run and the visual context.
      */
     private static class WindowLayoutChangeCallbackWrapper {
         final Executor mExecutor;
         final Consumer<WindowLayoutInfo> mCallback;
-        final IBinder mToken;
+        final Context mContext;
 
-        WindowLayoutChangeCallbackWrapper(@NonNull IBinder token, @NonNull Executor executor,
+        WindowLayoutChangeCallbackWrapper(@NonNull Context context, @NonNull Executor executor,
                 @NonNull Consumer<WindowLayoutInfo> callback) {
-            mToken = token;
+            mContext = context;
             mExecutor = executor;
             mCallback = callback;
         }
