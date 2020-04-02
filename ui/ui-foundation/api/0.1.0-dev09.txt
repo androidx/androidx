@@ -43,8 +43,8 @@ package androidx.ui.foundation {
   }
 
   public final class ContentColorKt {
-    method public static void ProvideContentColor(androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.graphics.Color contentColor();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.graphics.Color> getContentColorAmbient();
   }
 
   public final class DarkThemeKt {

@@ -17,10 +17,8 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
-import androidx.compose.Providers
 import androidx.compose.ambientOf
 import androidx.ui.graphics.Color
-import androidx.ui.text.TextStyle
 
 /**
  * Returns the preferred content color at the call site's position in the hierarchy.
@@ -36,17 +34,8 @@ import androidx.ui.text.TextStyle
 fun contentColor() = ContentColorAmbient.current
 
 /**
- * Sets [color] as the preferred content color for [children].
- * This color can then be retrieved inside children by using [contentColor]. Typography and
- * iconography should use this value as their default color.
+ * Ambient containing the preferred content color for a given position in the hierarchy.
+ *
+ * See [contentColor] for a more descriptive alias to consume the value from this ambient.
  */
-@Composable
-fun ProvideContentColor(color: Color, children: @Composable() () -> Unit) {
-    Providers(ContentColorAmbient provides color) {
-        // TODO: we probably want to instead provide a Text component that queries contentColor()
-        // instead of needing to manually merge this style.
-        ProvideTextStyle(value = TextStyle(color = color), children = children)
-    }
-}
-
-private val ContentColorAmbient = ambientOf { Color.Black }
+val ContentColorAmbient = ambientOf { Color.Black }

@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.test.filters.MediumTest
 import androidx.ui.foundation.contentColor
-import androidx.ui.foundation.currentTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
@@ -59,7 +58,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                     val onSurface = MaterialTheme.colors.onSurface
 
                     assertThat(contentColor()).isEqualTo(onSurface)
-                    assertThat(currentTextStyle().color).isEqualTo(onSurface)
                 }
             }
         }
@@ -77,7 +75,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnSurface)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedOnSurface)
                     }
                 }
             }
@@ -96,7 +93,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnSurface)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedOnSurface)
                     }
                 }
             }
@@ -115,7 +111,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnSurface)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedOnSurface)
                     }
                 }
             }
@@ -130,7 +125,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                     val onPrimary = MaterialTheme.colors.onPrimary
 
                     assertThat(contentColor()).isEqualTo(onPrimary)
-                    assertThat(currentTextStyle().color).isEqualTo(onPrimary)
                 }
             }
         }
@@ -148,7 +142,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnPrimary)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedOnPrimary)
                     }
                 }
             }
@@ -167,7 +160,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnPrimary)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedOnPrimary)
                     }
                 }
             }
@@ -186,7 +178,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         )
 
                         assertThat(contentColor()).isEqualTo(modifiedOnPrimary)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedOnPrimary)
                     }
                 }
             }
@@ -199,7 +190,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
             MaterialTheme(colors) {
                 Surface(contentColor = Color.Yellow) {
                     assertThat(contentColor()).isEqualTo(Color.Yellow)
-                    assertThat(currentTextStyle().color).isEqualTo(Color.Yellow)
                 }
             }
         }
@@ -220,7 +210,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         val modifiedColor = contentColor.copy(alpha = expectedAlpha)
 
                         assertThat(contentColor()).isEqualTo(modifiedColor)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
                     }
                 }
             }
@@ -242,7 +231,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         val modifiedColor = contentColor.copy(alpha = expectedAlpha)
 
                         assertThat(contentColor()).isEqualTo(modifiedColor)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
                     }
                 }
             }
@@ -264,7 +252,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         val modifiedColor = contentColor.copy(alpha = expectedAlpha)
 
                         assertThat(contentColor()).isEqualTo(modifiedColor)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
                     }
                 }
             }
@@ -286,7 +273,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         val modifiedColor = contentColor.copy(alpha = expectedAlpha)
 
                         assertThat(contentColor()).isEqualTo(modifiedColor)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
                     }
                 }
             }
@@ -308,7 +294,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         val modifiedColor = contentColor.copy(alpha = expectedAlpha)
 
                         assertThat(contentColor()).isEqualTo(modifiedColor)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
                     }
                 }
             }
@@ -330,7 +315,6 @@ class EmphasisTest(private val colors: ColorPalette, private val debugParameterN
                         val modifiedColor = contentColor.copy(alpha = expectedAlpha)
 
                         assertThat(contentColor()).isEqualTo(modifiedColor)
-                        assertThat(currentTextStyle().color).isEqualTo(modifiedColor)
                     }
                 }
             }

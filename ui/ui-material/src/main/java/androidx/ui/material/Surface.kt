@@ -17,12 +17,13 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clip
 import androidx.ui.core.drawShadow
 import androidx.ui.foundation.Border
-import androidx.ui.foundation.ProvideContentColor
+import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
@@ -95,7 +96,7 @@ fun Surface(
             )
             .clip(shape)
     ) {
-        ProvideContentColor(contentColor, content)
+        Providers(ContentColorAmbient provides contentColor, children = content)
     }
 }
 
