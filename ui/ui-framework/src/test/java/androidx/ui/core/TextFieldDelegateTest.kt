@@ -39,7 +39,6 @@ import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
@@ -294,7 +293,7 @@ class TextFieldDelegateTest {
     fun layout() {
         val constraints = Constraints(
             minWidth = 0.px.round(),
-            maxWidth = 1024.px.round(),
+            maxWidth = 1280.px.round(),
             minHeight = 0.px.round(),
             maxHeight = 2048.px.round()
         )
@@ -416,39 +415,6 @@ class TextFieldDelegateTest {
         assertThat(result.transformedText.spanStyles.size).isEqualTo(2)
         assertThat(result.transformedText.spanStyles).contains(
             AnnotatedString.Item(SpanStyle(textDecoration = TextDecoration.Underline), 3, 6)
-        )
-    }
-
-    @Test
-    fun infinte_constraints() {
-        val constraints = Constraints(
-            minWidth = 0.px.round(),
-            maxWidth = IntPx.Infinity,
-            minHeight = 0.px.round(),
-            maxHeight = 2048.px.round()
-        )
-
-        val dummyText = AnnotatedString(text = "Hello, World")
-        whenever(mDelegate.text).thenReturn(dummyText)
-        whenever(mDelegate.style).thenReturn(TextStyle())
-        whenever(mDelegate.density).thenReturn(Density(1.0f))
-        whenever(mDelegate.resourceLoader).thenReturn(mock())
-        whenever(mDelegate.layout(any(), any(), eq(null))).thenReturn(textLayoutResult)
-        whenever(textLayoutResult.size).thenReturn(IntPxSize(123.ipx, 512.ipx))
-        whenever(mDelegate.maxIntrinsicWidth).thenReturn(123.ipx)
-
-        val res = TextFieldDelegate.layout(mDelegate, constraints, layoutDirection)
-        assertThat(res.first).isEqualTo(123.ipx)
-        assertEquals(512.ipx, res.second)
-
-        verify(mDelegate, times(1)).layout(
-            Constraints(
-                123.ipx,
-                123.ipx,
-                0.ipx,
-                2048.ipx
-            ),
-            layoutDirection
         )
     }
 }
