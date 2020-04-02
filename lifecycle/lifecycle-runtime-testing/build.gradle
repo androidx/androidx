@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
@@ -55,4 +58,11 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2019"
     description = "Testing utilities for 'lifecycle' artifact"
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+    }
 }

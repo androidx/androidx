@@ -28,6 +28,7 @@ class TransformationsTest {
     @get:Rule
     val mInstantTaskExecutorRule = InstantTaskExecutorRule()
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private val lifecycleOwner = TestLifecycleOwner(
         coroutineDispatcher = TestCoroutineDispatcher())
 
