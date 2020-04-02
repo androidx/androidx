@@ -382,7 +382,6 @@ public final class HeifEncoder implements AutoCloseable,
 
     private String findHevcFallback() {
         String hevc = null; // first HEVC encoder
-        String hevcCq = null; // first non-hw HEVC encoder with CQ support
         for (MediaCodecInfo info : sMCL.getCodecInfos()) {
             if (!info.isEncoder()) {
                 continue;
@@ -398,19 +397,18 @@ public final class HeifEncoder implements AutoCloseable,
             }
             if (caps.getEncoderCapabilities().isBitrateModeSupported(
                     MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CQ)) {
-                if (info.isHardwareAccelerated()) {
-                    // the ideal one we're looking for, can return now.
-                    return info.getName();
-                }
-                if (hevcCq == null) {
-                    hevcCq = info.getName();
-                }
+                // Encoder that supports CQ mode is preferred over others,
+                // return the first encoder that supports CQ mode.
+                // (No need to check if it's hw based, it's already listed in
+                // order of preference.)
+                return info.getName();
             }
             if (hevc == null) {
                 hevc = info.getName();
             }
         }
-        return (hevcCq != null) ? hevcCq : hevc;
+        // If no encoders support CQ, return the first HEVC encoder.
+        return hevc;
     }
     /**
      * Copies from source frame to encoder inputs using GL. The source could be either
