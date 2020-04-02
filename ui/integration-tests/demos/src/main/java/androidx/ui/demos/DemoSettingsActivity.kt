@@ -60,7 +60,7 @@ class DemoSettingsActivity : AppCompatActivity() {
                 title = "Shuffle all colors"
                 onPreferenceClickListener = Preference.OnPreferenceClickListener {
                     generateRandomPalette().saveColors(context)
-                    activity!!.finish()
+                    requireActivity().finish()
                     true
                 }
             }
@@ -70,7 +70,7 @@ class DemoSettingsActivity : AppCompatActivity() {
                 onPreferenceClickListener = Preference.OnPreferenceClickListener {
                     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
                     sharedPreferences.edit().clear().apply()
-                    activity!!.finish()
+                    requireActivity().finish()
                     true
                 }
             }

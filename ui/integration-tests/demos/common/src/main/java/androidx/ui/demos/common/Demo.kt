@@ -17,6 +17,7 @@
 package androidx.ui.demos.common
 
 import android.app.Activity
+import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import kotlin.reflect.KClass
 
@@ -34,7 +35,7 @@ sealed class Demo(val title: String)
  * @property activityClass the KClass (Foo::class) of the activity that will be launched when
  * this demo is selected.
  */
-class ActivityDemo <T : Activity> (title: String, val activityClass: KClass<T>) : Demo(title)
+class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) : Demo(title)
 
 /**
  * Demo that displays [Composable] [content] when selected.
