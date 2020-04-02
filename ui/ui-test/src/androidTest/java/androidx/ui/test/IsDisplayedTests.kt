@@ -157,7 +157,7 @@ class IsDisplayedTests {
         findByText("Foo")
             .assertIsDisplayed()
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             model.value = false
         }
 
@@ -217,14 +217,14 @@ class IsDisplayedTests {
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             Assert.assertTrue(!wasScrollToCalled)
         }
 
         findByTag(tag)
             .doScrollTo()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             Assert.assertTrue(wasScrollToCalled)
         }
     }
@@ -272,7 +272,7 @@ class IsDisplayedTests {
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(currentScrollPositionY).isEqualTo(0.px)
             assertThat(currentScrollPositionX).isEqualTo(0.px)
         }
@@ -280,7 +280,7 @@ class IsDisplayedTests {
         findByTag(tag)
             .doScrollTo() // scroll to third element
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             val expected = elementHeight * 2
             assertThat(currentScrollPositionY).isEqualTo(expected)
             assertThat(currentScrollPositionX).isEqualTo(0.px)

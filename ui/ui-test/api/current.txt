@@ -120,8 +120,6 @@ package androidx.ui.test {
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
-    method public <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
-    method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public abstract androidx.ui.test.AnimationClockTestRule clockTestRule;
     property public abstract androidx.ui.unit.Density density;
@@ -256,6 +254,8 @@ package androidx.ui.test {
   }
 
   public final class SynchronizationKt {
+    method public static <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
+    method public static <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
   }
 
   public interface TestAnimationClock extends androidx.animation.AnimationClockObservable {
@@ -277,7 +277,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestCaseSetup implements androidx.ui.test.ComposeTestCaseSetup {
-    ctor public AndroidComposeTestCaseSetup(androidx.ui.test.ComposeTestRule testRule, androidx.ui.test.ComposeTestCase testCase, androidx.activity.ComponentActivity activity);
+    ctor public AndroidComposeTestCaseSetup(androidx.ui.test.ComposeTestCase testCase, androidx.activity.ComponentActivity activity);
     method public void performTestWithEventsControl(kotlin.jvm.functions.Function1<? super androidx.ui.test.ComposeExecutionControl,kotlin.Unit> block);
   }
 
@@ -291,8 +291,6 @@ package androidx.ui.test.android {
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
-    method public <T> T! runOnIdleCompose(kotlin.jvm.functions.Function0<? extends T> action);
-    method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public final androidx.test.rule.ActivityTestRule<T> activityTestRule;
     property public androidx.ui.test.AnimationClockTestRule clockTestRule;

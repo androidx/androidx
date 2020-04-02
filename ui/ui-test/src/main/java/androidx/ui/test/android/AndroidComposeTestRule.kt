@@ -37,8 +37,7 @@ import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
-import androidx.ui.test.runOnIdleComposeInternal
-import androidx.ui.test.runOnUiThreadInternal
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.Density
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -90,16 +89,6 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         return clockTestRule.apply(composeTestRuleStatement, description)
     }
 
-    override fun <T> runOnUiThread(action: () -> T): T {
-        // TODO: Rename to runOnUiThread and use it everywhere instead of this method
-        return runOnUiThreadInternal(action)
-    }
-
-    override fun <T> runOnIdleCompose(action: () -> T): T {
-        // TODO: Rename to runOnIdleCompose and use it everywhere instead of this method
-        return runOnIdleComposeInternal(action)
-    }
-
     /**
      * @throws IllegalStateException if called more than once per test.
      */
@@ -144,7 +133,6 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             }
         }
         return AndroidComposeTestCaseSetup(
-            this,
             testCase,
             activityTestRule.activity
         )
@@ -152,7 +140,6 @@ class AndroidComposeTestRule<T : ComponentActivity>(
 
     override fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup {
         return AndroidComposeTestCaseSetup(
-            this,
             testCase,
             activityTestRule.activity
         )

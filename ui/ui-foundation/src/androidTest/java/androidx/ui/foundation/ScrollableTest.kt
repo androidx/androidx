@@ -38,6 +38,8 @@ import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendSwipe
 import androidx.ui.test.sendSwipeWithVelocity
 import androidx.ui.unit.PxPosition
@@ -89,7 +91,7 @@ class ScrollableTest {
         }
         advanceClockAndAwaitAnimation(state, clocks)
 
-        val lastTotal = composeTestRule.runOnIdleCompose {
+        val lastTotal = runOnIdleCompose {
             assertThat(total).isGreaterThan(0)
             total
         }
@@ -102,7 +104,7 @@ class ScrollableTest {
         }
         advanceClockAndAwaitAnimation(state, clocks)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(lastTotal)
         }
         findByTag(scrollableBoxTag).doGesture {
@@ -113,7 +115,7 @@ class ScrollableTest {
             )
         }
         advanceClockAndAwaitAnimation(state, clocks)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isLessThan(0.01f)
         }
     }
@@ -145,7 +147,7 @@ class ScrollableTest {
         }
         advanceClockAndAwaitAnimation(state, clocks)
 
-        val lastTotal = composeTestRule.runOnIdleCompose {
+        val lastTotal = runOnIdleCompose {
             assertThat(total).isGreaterThan(0)
             total
         }
@@ -158,7 +160,7 @@ class ScrollableTest {
         }
         advanceClockAndAwaitAnimation(state, clocks)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(lastTotal)
         }
         findByTag(scrollableBoxTag).doGesture {
@@ -169,7 +171,7 @@ class ScrollableTest {
             )
         }
         advanceClockAndAwaitAnimation(state, clocks)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isLessThan(0.01f)
         }
     }
@@ -196,7 +198,7 @@ class ScrollableTest {
                 onScrollStopped = { stopTrigger++ }
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(startTrigger).isEqualTo(0)
             assertThat(stopTrigger).isEqualTo(0)
         }
@@ -208,13 +210,13 @@ class ScrollableTest {
             )
         }
         // don't wait for animation so stop is 0, as we flinging still
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(startTrigger).isEqualTo(1)
             assertThat(stopTrigger).isEqualTo(0)
         }
         advanceClockAndAwaitAnimation(state, clocks)
         // after wait we expect stop to trigger
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(startTrigger).isEqualTo(1)
             assertThat(stopTrigger).isEqualTo(1)
         }
@@ -248,7 +250,7 @@ class ScrollableTest {
             )
         }
         advanceClockAndAwaitAnimation(state, clocks)
-        val prevTotal = composeTestRule.runOnIdleCompose {
+        val prevTotal = runOnIdleCompose {
             assertThat(total).isGreaterThan(0f)
             enabled.value = false
             total
@@ -261,7 +263,7 @@ class ScrollableTest {
             )
         }
         advanceClockAndAwaitAnimation(state, clocks)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(prevTotal)
         }
     }
@@ -308,7 +310,7 @@ class ScrollableTest {
 
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // should be first velocity, as fling was disrupted
             assertThat(velocityTriggered - 112f).isLessThan(0.1f)
         }
@@ -340,7 +342,7 @@ class ScrollableTest {
             )
         }
         // don't advance clocks
-        val prevTotal = composeTestRule.runOnUiThread {
+        val prevTotal = runOnUiThread {
             Truth.assertThat(total).isGreaterThan(0f)
             total
         }
@@ -351,7 +353,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // last swipe should add exactly 114 as we don't advance clocks and already flinging
             val expected = prevTotal + 114
             assertThat(total - expected).isLessThan(0.1f)
@@ -391,7 +393,7 @@ class ScrollableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isGreaterThan(0f)
             assertThat(dragStopped).isEqualTo(1f)
         }
@@ -412,21 +414,21 @@ class ScrollableTest {
         setScrollableContent {
             Modifier.scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(0f)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             state.smoothScrollBy(1000f)
         }
         advanceClockAndAwaitAnimation(state, clocks)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(1000f)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             state.smoothScrollBy(-200f)
         }
         advanceClockAndAwaitAnimation(state, clocks)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(800f)
         }
     }
@@ -452,12 +454,12 @@ class ScrollableTest {
                 Modifier.None
             }
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             state.smoothScrollBy(1000f)
             disposed.value = true
         }
         advanceClockAndAwaitAnimation(state, clocks)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(0f)
         }
     }
@@ -483,23 +485,23 @@ class ScrollableTest {
                 Modifier.None
             }
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             state.smoothScrollBy(300f)
         }
         advanceClockAndAwaitAnimation(state, clocks)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(300f)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             state.smoothScrollBy(200f)
         }
         // don't advance clocks yet, toggle disposed value
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             disposed.value = true
         }
         advanceClockAndAwaitAnimation(state, clocks)
         // still 300 and didn't fail in onScrollConsumptionRequested.. lambda
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(300f)
         }
     }
@@ -555,7 +557,7 @@ class ScrollableTest {
                 duration = 300.milliseconds
             )
         }
-        val lastEqualDrag = composeTestRule.runOnIdleCompose {
+        val lastEqualDrag = runOnIdleCompose {
             assertThat(innerDrag).isGreaterThan(0f)
             assertThat(outerDrag).isGreaterThan(0f)
             // we consumed half delta in child, so exactly half should go to the parent
@@ -565,7 +567,7 @@ class ScrollableTest {
         advanceClockAndAwaitAnimation(innerState, clocks)
         advanceClockAndAwaitAnimation(outerState, clocks)
         // and nothing should change as we don't do nested fling
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(outerDrag).isEqualTo(lastEqualDrag)
         }
     }
@@ -601,7 +603,7 @@ class ScrollableTest {
     }
 
     private fun advanceClockAndAwaitAnimation(state: ScrollableState, clock: ManualAnimationClock) {
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clock.clockTimeMillis += 5000
         }
         awaitScrollAnimation(state)

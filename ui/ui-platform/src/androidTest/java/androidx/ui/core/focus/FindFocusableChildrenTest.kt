@@ -23,6 +23,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color.Companion.Red
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.runOnUiThread
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -37,7 +38,7 @@ class FindFocusableChildrenTest {
 
     @Test
     fun returnsFirstFocusNodeInModifierChain() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             // layoutNode--focusNode1--focusNode2--focusNode3
             val focusModifier1 = createFocusModifier(FocusDetailedState.Inactive)
@@ -57,7 +58,7 @@ class FindFocusableChildrenTest {
 
     @Test
     fun skipsNonFocusNodesAndReturnsFirstFocusNodeInModifierChain() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             // layoutNode--focusNode1--nonFocusNode--focusNode2
             val focusModifier1 = createFocusModifier(FocusDetailedState.Inactive)
@@ -76,7 +77,7 @@ class FindFocusableChildrenTest {
 
     @Test
     fun returnsFirstFocusChildOfEachChildLayoutNode() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             // parentLayoutNode--parentFocusNode
             //       |___________________________________

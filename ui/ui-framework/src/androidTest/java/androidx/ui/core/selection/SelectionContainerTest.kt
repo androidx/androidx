@@ -33,6 +33,7 @@ import androidx.ui.core.gesture.PointerProperties
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
@@ -113,7 +114,7 @@ class SelectionContainerTest {
         // A reasonable number.
         val position = 50.px
         longPress(x = position.value, y = position.value)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(selection.value).isNotNull()
         }
 
@@ -121,7 +122,7 @@ class SelectionContainerTest {
         press(x = position.value, y = position.value)
 
         // Assert.
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(selection.value).isNull()
             verify(
                 hapticFeedback,
@@ -142,7 +143,7 @@ class SelectionContainerTest {
         )
 
         // Assert. Should select "Demo".
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(selection.value!!.start.offset).isEqualTo(textContent.indexOf('D'))
             assertThat(selection.value!!.end.offset).isEqualTo(textContent.indexOf('o') + 1)
             verify(
@@ -169,7 +170,7 @@ class SelectionContainerTest {
         )
 
         // Assert.
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(selection.value!!.start.offset).isEqualTo(startOffset)
             assertThat(selection.value!!.end.offset).isEqualTo("Text Demo".length)
             verify(
@@ -241,11 +242,11 @@ class SelectionContainerTest {
 
     private fun waitForLongPress(block: () -> Unit) {
         gestureCountDownLatch = CountDownLatch(1)
-        composeTestRule.runOnIdleCompose(block)
+        runOnIdleCompose(block)
         gestureCountDownLatch.await(750, TimeUnit.MILLISECONDS)
     }
 
     private fun waitForOtherGesture(block: () -> Unit) {
-        composeTestRule.runOnIdleCompose(block)
+        runOnIdleCompose(block)
     }
 }

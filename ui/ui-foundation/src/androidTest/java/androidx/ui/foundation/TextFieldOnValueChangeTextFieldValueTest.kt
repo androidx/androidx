@@ -33,6 +33,8 @@ import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
 import androidx.ui.text.TextRange
 import androidx.ui.unit.PxPosition
@@ -98,7 +100,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
         findByTag("textField")
             .doGesture { sendClick(PxPosition(1.px, 1.px)) }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // Verify startInput is called and capture the callback.
             val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
             verify(textInputService, times(1)).startInput(
@@ -117,7 +119,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
 
     private fun performEditOperation(op: EditOperation) {
         arrayOf(listOf(op)).forEach {
-            composeTestRule.runOnUiThread {
+            runOnUiThread {
                 onEditCommandCallback(it)
             }
         }
@@ -127,7 +129,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     fun commitText_onValueChange_call_once() {
         // Committing text should be reported as value change
         performEditOperation(CommitTextEditOp("ABCDE", 1))
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             verify(onValueChange, times(1))
                 .invoke(eq(
                     TextFieldValue(
@@ -142,7 +144,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     fun setComposingRegion_onValueChange_never_call() {
         // Composition conversion is not counted as a value change in EditorModel text field.
         performEditOperation(SetComposingRegionEditOp(0, 5))
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             verify(onValueChange, never()).invoke(any())
         }
     }
@@ -150,7 +152,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     @Test
     fun setComposingText_onValueChange_call_once() {
         performEditOperation(SetComposingTextEditOp("ABCDE", 1))
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             verify(onValueChange, times(1))
                 .invoke(eq(
                     TextFieldValue(
@@ -165,7 +167,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     fun setSelection_onValueChange_call_once() {
         // Selection change is a part of value-change in EditorModel text field
         performEditOperation(SetSelectionEditOp(1, 1))
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             verify(onValueChange, times(1)).invoke(eq(
                 TextFieldValue(
                     "abcde",
@@ -178,7 +180,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     @Test
     fun clearComposition_onValueChange_call_once() {
         performEditOperation(SetComposingTextEditOp("ABCDE", 1))
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             verify(onValueChange, times(1))
                 .invoke(eq(
                     TextFieldValue(
@@ -191,13 +193,13 @@ class TextFieldOnValueChangeTextFieldValueTest {
         // Finishing composition change is not counted as a value change in EditorModel text field.
         clearInvocations(onValueChange)
         performEditOperation(FinishComposingTextEditOp())
-        composeTestRule.runOnIdleCompose { verify(onValueChange, never()).invoke(any()) }
+        runOnIdleCompose { verify(onValueChange, never()).invoke(any()) }
     }
 
     @Test
     fun deleteSurroundingText_onValueChange_call_once() {
         performEditOperation(DeleteSurroundingTextEditOp(0, 1))
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             verify(onValueChange, times(1)).invoke(eq(
                 TextFieldValue(
                     "bcde",

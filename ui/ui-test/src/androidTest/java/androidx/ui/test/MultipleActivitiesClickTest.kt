@@ -53,7 +53,7 @@ class MultipleActivitiesClickTest {
     // instrumentation we use in our test setup supports this though, so it is safe to do here.
     private fun getCurrentActivity(): Activity {
         var currentActivity: Activity? = null
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             currentActivity = ActivityLifecycleMonitorRegistry.getInstance()
                 .getActivitiesInStage(Stage.RESUMED).first()
         }

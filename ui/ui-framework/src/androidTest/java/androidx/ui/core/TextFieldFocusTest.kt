@@ -24,6 +24,8 @@ import androidx.ui.core.input.FocusManagerImpl
 import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -83,22 +85,22 @@ class TextFieldFocusTest {
             }
         }
 
-        composeTestRule.runOnUiThread { focusManager.requestFocusById(testDataList[0].id) }
-        composeTestRule.runOnIdleCompose {
+        runOnUiThread { focusManager.requestFocusById(testDataList[0].id) }
+        runOnIdleCompose {
             assertThat(testDataList[0].focused).isTrue()
             assertThat(testDataList[1].focused).isFalse()
             assertThat(testDataList[2].focused).isFalse()
         }
 
-        composeTestRule.runOnUiThread { focusManager.requestFocusById(testDataList[1].id) }
-        composeTestRule.runOnIdleCompose {
+        runOnUiThread { focusManager.requestFocusById(testDataList[1].id) }
+        runOnIdleCompose {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isTrue()
             assertThat(testDataList[2].focused).isFalse()
         }
 
-        composeTestRule.runOnUiThread { focusManager.requestFocusById(testDataList[2].id) }
-        composeTestRule.runOnIdleCompose {
+        runOnUiThread { focusManager.requestFocusById(testDataList[2].id) }
+        runOnIdleCompose {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isFalse()
             assertThat(testDataList[2].focused).isTrue()

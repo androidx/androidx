@@ -36,6 +36,7 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
 import androidx.ui.unit.IntPxSize
@@ -196,7 +197,7 @@ class ScaffoldTest {
         }
         assertThat(drawerChildPosition.x).isLessThan(0.px)
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scaffoldState.isDrawerGesturesEnabled = true
         }
 
@@ -242,11 +243,11 @@ class ScaffoldTest {
             }
         }
         assertThat(drawerChildPosition.x).isLessThan(0.px)
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scaffoldState.drawerState = DrawerState.Opened
         }
         assertThat(drawerChildPosition.x).isLessThan(0.px)
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scaffoldState.drawerState = DrawerState.Closed
         }
         assertThat(drawerChildPosition.x).isLessThan(0.px)

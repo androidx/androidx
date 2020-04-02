@@ -22,6 +22,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.test.BigTestConstraints
 import androidx.ui.test.CollectedSizes
 import androidx.ui.test.ComposeTestRule
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.setContentAndGetPixelSize
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize

@@ -24,6 +24,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.foundation.Text
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByText
+import androidx.ui.test.runOnIdleCompose
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,7 +67,7 @@ class CrossfadeUiTest {
         }
         composeTestRule.clockTestRule.advanceClock(300)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             showFirst = false
         }
         composeTestRule.clockTestRule.advanceClock(300)

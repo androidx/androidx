@@ -21,6 +21,7 @@ import androidx.ui.core.TestTag
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.AnnotatedString
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -51,7 +52,7 @@ class ClickableTextTest {
 
         findByTag("clickableText").doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             verify(onClick, times(1)).invoke(any())
         }
     }
