@@ -40,51 +40,65 @@ fun RallyTheme(content: @Composable() () -> Unit) {
     )
     // TODO: Bundle Roboto Condensed and Eczar font files.
     val typography = Typography(
+        defaultFontFamily = FontFamily.Default,
         // Unused
-        h1 = TextStyle(fontFamily = FontFamily.Default,
+        h1 = TextStyle(
             fontWeight = FontWeight.W100,
-            fontSize = 96.sp),
-        h2 = TextStyle(fontFamily = FontFamily.Default,
+            fontSize = 96.sp
+        ),
+        h2 = TextStyle(
             fontWeight = FontWeight.W600,
-            fontSize = 44.sp),
-        h3 = TextStyle(fontFamily = FontFamily.Default,
+            fontSize = 44.sp
+        ),
+        h3 = TextStyle(
             fontWeight = FontWeight.W400,
-            fontSize = 14.sp),
+            fontSize = 14.sp
+        ),
         // Unused
-        h4 = TextStyle(fontFamily = FontFamily.Default,
+        h4 = TextStyle(
             fontWeight = FontWeight.W700,
-            fontSize = 34.sp),
+            fontSize = 34.sp
+        ),
         // Unused
-        h5 = TextStyle(fontFamily = FontFamily.Default,
+        h5 = TextStyle(
             fontWeight = FontWeight.W700,
-            fontSize = 24.sp),
-        h6 = TextStyle(fontFamily = FontFamily.Default, // Eczar
+            fontSize = 24.sp
+        ),
+        // Eczar
+        h6 = TextStyle(
             fontWeight = FontWeight.Normal,
-            fontSize = 18.sp),
-        subtitle1 = TextStyle(fontFamily = FontFamily.Default,
+            fontSize = 18.sp
+        ),
+        subtitle1 = TextStyle(
             fontWeight = FontWeight.W300,
-            fontSize = 14.sp),
-        subtitle2 = TextStyle(fontFamily = FontFamily.Default,
+            fontSize = 14.sp
+        ),
+        subtitle2 = TextStyle(
             fontWeight = FontWeight.W400,
-            fontSize = 14.sp),
-        body1 = TextStyle(fontFamily = FontFamily.Default,
+            fontSize = 14.sp
+        ),
+        body1 = TextStyle(
             fontWeight = FontWeight.Normal,
-            fontSize = 16.sp),
-        body2 = TextStyle(fontFamily = FontFamily.Default,
+            fontSize = 16.sp
+        ),
+        body2 = TextStyle(
             fontWeight = FontWeight.W200,
-            fontSize = 14.sp),
-        button = TextStyle(fontFamily = FontFamily.Default,
+            fontSize = 14.sp
+        ),
+        button = TextStyle(
             fontWeight = FontWeight.W700,
-            fontSize = 14.sp),
+            fontSize = 14.sp
+        ),
         // Unused
-        caption = TextStyle(fontFamily = FontFamily.Default,
+        caption = TextStyle(
             fontWeight = FontWeight.W500,
-            fontSize = 12.sp),
+            fontSize = 12.sp
+        ),
         // Unused
-        overline = TextStyle(fontFamily = FontFamily.Default,
+        overline = TextStyle(
             fontWeight = FontWeight.W500,
-            fontSize = 10.sp)
-
+            fontSize = 10.sp
+        )
     )
     MaterialTheme(colors = colors, typography = typography, content = content)
 }
@@ -99,7 +113,6 @@ fun RallyDialogThemeOverlay(content: @Composable() () -> Unit) {
     val currentTypography = MaterialTheme.typography
     val dialogTypography = currentTypography.copy(
         body1 = currentTypography.body1.copy(
-            fontFamily = FontFamily.Default,
             fontWeight = FontWeight.Normal,
             fontSize = 20.sp
         ),
