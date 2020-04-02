@@ -273,15 +273,15 @@ package androidx.ui.test {
 package androidx.ui.test.android {
 
   public final class AndroidComposeTestCaseRunnerKt {
-    method public static <T extends androidx.ui.test.ComposeTestCase> androidx.ui.test.ComposeBenchmarkScope<T> createAndroidComposeBenchmarkRunner(kotlin.jvm.functions.Function0<? extends T> testCaseFactory, android.app.Activity activity);
+    method public static <T extends androidx.ui.test.ComposeTestCase> androidx.ui.test.ComposeBenchmarkScope<T> createAndroidComposeBenchmarkRunner(kotlin.jvm.functions.Function0<? extends T> testCaseFactory, androidx.activity.ComponentActivity activity);
   }
 
   public final class AndroidComposeTestCaseSetup implements androidx.ui.test.ComposeTestCaseSetup {
-    ctor public AndroidComposeTestCaseSetup(androidx.ui.test.ComposeTestRule testRule, androidx.ui.test.ComposeTestCase testCase, android.app.Activity activity);
+    ctor public AndroidComposeTestCaseSetup(androidx.ui.test.ComposeTestRule testRule, androidx.ui.test.ComposeTestCase testCase, androidx.activity.ComponentActivity activity);
     method public void performTestWithEventsControl(kotlin.jvm.functions.Function1<? super androidx.ui.test.ComposeExecutionControl,kotlin.Unit> block);
   }
 
-  public final class AndroidComposeTestRule<T extends android.app.Activity> implements androidx.ui.test.ComposeTestRule {
+  public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
     ctor public AndroidComposeTestRule(Class<T> activityClass, boolean disableTransitions);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
@@ -306,7 +306,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static inline <reified T extends android.app.Activity> androidx.ui.test.android.AndroidComposeTestRule<T> AndroidComposeTestRule(boolean disableTransitions = false);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T> AndroidComposeTestRule(boolean disableTransitions = false);
   }
 
   public final class ComposeIdlingResourceKt {

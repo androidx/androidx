@@ -16,10 +16,10 @@
 
 package androidx.ui.test
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
 import android.util.DisplayMetrics
+import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.ui.unit.Density
@@ -127,5 +127,5 @@ interface ComposeTestCaseSetup {
  * androidTest/AndroidManifest.xml).
  */
 fun createComposeRule(disableTransitions: Boolean = false): ComposeTestRule {
-    return AndroidComposeTestRule(Activity::class.java, disableTransitions)
+    return AndroidComposeTestRule(ComponentActivity::class.java, disableTransitions)
 }

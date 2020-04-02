@@ -29,6 +29,7 @@ import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.activity.ComponentActivity
 import androidx.compose.Composition
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
@@ -48,14 +49,14 @@ import androidx.ui.test.setupContent
  */
 fun <T : ComposeTestCase> createAndroidComposeBenchmarkRunner(
     testCaseFactory: () -> T,
-    activity: Activity
+    activity: ComponentActivity
 ): ComposeBenchmarkScope<T> {
     return AndroidComposeTestCaseRunner(testCaseFactory, activity)
 }
 
 internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     private val testCaseFactory: () -> T,
-    private val activity: Activity
+    private val activity: ComponentActivity
 ) : ComposeBenchmarkScope<T> {
 
     override val measuredWidth: Int

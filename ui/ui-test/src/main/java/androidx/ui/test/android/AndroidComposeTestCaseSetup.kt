@@ -16,7 +16,7 @@
 
 package androidx.ui.test.android
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeExecutionControl
 import androidx.ui.test.ComposeTestCaseSetup
@@ -26,7 +26,7 @@ import androidx.ui.test.setupContent
 class AndroidComposeTestCaseSetup(
     private val testRule: ComposeTestRule,
     private val testCase: ComposeTestCase,
-    private val activity: Activity
+    private val activity: ComponentActivity
 ) : ComposeTestCaseSetup {
     override fun performTestWithEventsControl(block: ComposeExecutionControl.() -> Unit) {
         testRule.runOnUiThread {

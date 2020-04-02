@@ -16,11 +16,11 @@
 
 package androidx.ui.savedinstancestate
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.activity.ComponentActivity
 import androidx.compose.remember
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
@@ -100,7 +100,7 @@ class ActivityRecreationTest {
     }
 }
 
-class RecreationTest1Activity : Activity() {
+class RecreationTest1Activity : ComponentActivity() {
 
     lateinit var array: IntArray
 
@@ -112,7 +112,7 @@ class RecreationTest1Activity : Activity() {
     }
 }
 
-class RecreationTest2Activity : Activity() {
+class RecreationTest2Activity : ComponentActivity() {
 
     lateinit var array: IntArray
 
@@ -124,7 +124,7 @@ class RecreationTest2Activity : Activity() {
     }
 }
 
-class RecreationTest3Activity : Activity() {
+class RecreationTest3Activity : ComponentActivity() {
 
     lateinit var array1: IntArray
     lateinit var array2: IntArray
