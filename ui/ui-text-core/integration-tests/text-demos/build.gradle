@@ -20,8 +20,8 @@ dependencies {
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-layout")
-    implementation project(":ui:ui-text")
-    implementation project(":ui:ui-text:samples")
+    implementation project(":ui:ui-text-core")
+    implementation project(":ui:ui-text-core:samples")
 }
 
 android {

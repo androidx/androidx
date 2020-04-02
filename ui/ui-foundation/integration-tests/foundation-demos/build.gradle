@@ -41,7 +41,7 @@ dependencies {
     implementation project(":ui:ui-animation")
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-foundation:samples")
-    implementation project(":ui:ui-text")
+    implementation project(":ui:ui-text-core")
 }
 
 android {
