@@ -21,7 +21,7 @@ import androidx.animation.AnimationClockObserver
 import androidx.animation.ManualAnimationClock
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.TestAnimationClock
-import androidx.ui.test.runOnUiThreadInternal
+import androidx.ui.test.runOnUiThread
 
 /**
  * An animation clock driven by an external time source, that can be queried for idleness and has
@@ -42,7 +42,7 @@ internal class AndroidTestAnimationClock : TestAnimationClock {
      * If not initializing on the main thread, a message will be posted on the main thread to
      * fetch the Choreographer, and initialization blocks until that fetch is completed.
      */
-    private val mainChoreographer: Choreographer = runOnUiThreadInternal {
+    private val mainChoreographer: Choreographer = runOnUiThread {
         Choreographer.getInstance()
     }
 
@@ -90,7 +90,7 @@ internal class AndroidTestAnimationClock : TestAnimationClock {
     }
 
     override fun advanceClock(milliseconds: Long) {
-        runOnUiThreadInternal {
+        runOnUiThread {
             advanceClockOnMainThread(milliseconds)
         }
     }

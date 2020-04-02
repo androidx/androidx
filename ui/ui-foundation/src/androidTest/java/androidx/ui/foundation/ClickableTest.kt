@@ -26,6 +26,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -99,14 +100,14 @@ class ClickableTest {
         findByTag("myClickable")
             .doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(counter).isEqualTo(1)
         }
 
         findByTag("myClickable")
             .doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(counter).isEqualTo(2)
         }
     }

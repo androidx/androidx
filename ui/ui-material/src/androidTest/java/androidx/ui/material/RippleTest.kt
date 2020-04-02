@@ -49,6 +49,8 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
@@ -248,7 +250,7 @@ class RippleTest {
         // wait for drawEffect to be called
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        composeTestRule.runOnUiThread { emit = false }
+        runOnUiThread { emit = false }
 
         // wait for dispose to be called
         assertTrue(disposeLatch.await(1, TimeUnit.SECONDS))
@@ -321,11 +323,11 @@ class RippleTest {
         assertThat(rippleAnimationTime).isGreaterThan(prevValue)
         prevValue = rippleAnimationTime
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             emit = false
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // wait for the dispose to be applied
         }
 
@@ -437,7 +439,7 @@ class RippleTest {
         assertEquals(Color.Yellow, actualColor)
 
         drawLatch = CountDownLatch(1)
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             colorState = Color.Green
         }
 

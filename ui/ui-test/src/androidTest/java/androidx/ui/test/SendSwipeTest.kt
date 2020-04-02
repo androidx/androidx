@@ -72,7 +72,7 @@ class SendSwipeTest {
     fun swipeUp() {
         composeTestRule.setContent { Ui(Modifier.wrapContentSize(Alignment.TopStart)) }
         findByTag(tag).doGesture { sendSwipeUp() }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -85,7 +85,7 @@ class SendSwipeTest {
     fun swipeDown() {
         composeTestRule.setContent { Ui(Modifier.wrapContentSize(Alignment.TopEnd)) }
         findByTag(tag).doGesture { sendSwipeDown() }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -98,7 +98,7 @@ class SendSwipeTest {
     fun swipeLeft() {
         composeTestRule.setContent { Ui(Modifier.wrapContentSize(Alignment.BottomEnd)) }
         findByTag(tag).doGesture { sendSwipeLeft() }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -111,7 +111,7 @@ class SendSwipeTest {
     fun swipeRight() {
         composeTestRule.setContent { Ui(Modifier.wrapContentSize(Alignment.BottomStart)) }
         findByTag(tag).doGesture { sendSwipeRight() }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()

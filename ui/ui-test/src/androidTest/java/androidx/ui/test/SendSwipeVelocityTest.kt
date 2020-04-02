@@ -167,7 +167,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     fun swipeWithVelocity() {
         composeTestRule.setContent { Ui() }
         findByTag(tag).doGesture { sendSwipeWithVelocity(start, end, velocity, duration) }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             recorder.run {
                 val durationMs = duration.inMilliseconds()
                 val minimumEventSize = max(2, (durationMs / eventPeriod).toInt())

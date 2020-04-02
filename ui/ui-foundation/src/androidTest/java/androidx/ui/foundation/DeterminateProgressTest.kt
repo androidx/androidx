@@ -25,6 +25,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -60,7 +61,7 @@ class DeterminateProgressTest {
         findByTag(tag)
             .assertValueEquals("0.0")
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             state.progress = 0.5f
         }
 

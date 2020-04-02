@@ -24,6 +24,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color.Companion.Red
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.runOnUiThread
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -38,7 +39,7 @@ class FindParentFocusNodeTest {
 
     @Test
     fun noParentReturnsNull() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(FocusDetailedState.Inactive).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -55,7 +56,7 @@ class FindParentFocusNodeTest {
 
     @Test
     fun returnsImmediateParentFromModifierChain() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             // focusNode1--focusNode2--focusNode3--focusNode4--focusNode5
             val modifier1 = createFocusModifier(Inactive)
@@ -77,7 +78,7 @@ class FindParentFocusNodeTest {
 
     @Test
     fun returnsImmediateParentFromModifierChain_ignoresNonFocusModifiers() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             // focusNode1--focusNode2--nonFocusNode--focusNode3
             val modifier1 = createFocusModifier(Inactive)
@@ -97,7 +98,7 @@ class FindParentFocusNodeTest {
 
     @Test
     fun returnsLastFocusParentFromParentLayoutNode() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             // parentLayoutNode--parentFocusNode1--parentFocusNode2
             //       |
@@ -121,7 +122,7 @@ class FindParentFocusNodeTest {
 
     @Test
     fun returnsImmediateParent() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             // grandparentLayoutNode--grandparentFocusNode
             //       |
@@ -149,7 +150,7 @@ class FindParentFocusNodeTest {
 
     @Test
     fun ignoresIntermediateLayoutNodesThatDontHaveFocusNodes() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             // grandparentLayoutNode--grandparentFocusNode
             //       |

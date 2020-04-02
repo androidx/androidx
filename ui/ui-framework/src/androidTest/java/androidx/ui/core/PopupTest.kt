@@ -30,6 +30,7 @@ import androidx.ui.core.selection.SimpleContainer
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.rtl
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -117,7 +118,7 @@ class PopupTest {
     // TODO(b/139861182): Remove all of this and provide helpers on ComposeTestRule
     private fun popupMatches(viewMatcher: Matcher<in View>) {
         // Make sure that current measurement/drawing is finished
-        composeTestRule.runOnIdleCompose { }
+        runOnIdleCompose { }
         Espresso.onView(instanceOf(Owner::class.java))
             .inRoot(PopupLayoutMatcher())
             .check(matches(viewMatcher))

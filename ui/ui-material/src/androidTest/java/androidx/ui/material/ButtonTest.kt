@@ -47,6 +47,7 @@ import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Dp
 import androidx.ui.unit.PxPosition
@@ -126,7 +127,7 @@ class ButtonTest {
         findByText(text)
             .doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(counter).isEqualTo(1)
         }
     }
@@ -194,7 +195,7 @@ class ButtonTest {
         findByTag(button1Tag)
             .doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(button1Counter).isEqualTo(1)
             assertThat(button2Counter).isEqualTo(0)
         }
@@ -202,7 +203,7 @@ class ButtonTest {
         findByTag(button2Tag)
             .doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(button1Counter).isEqualTo(1)
             assertThat(button2Counter).isEqualTo(1)
         }
@@ -342,7 +343,7 @@ class ButtonTest {
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             val topLeft = childCoordinates!!.localToGlobal(PxPosition.Origin).x -
                     parentCoordinates!!.localToGlobal(PxPosition.Origin).x
             val currentPadding = with(composeTestRule.density) {
