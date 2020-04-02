@@ -80,7 +80,7 @@ import androidx.ui.unit.max
  */
 @Composable
 fun BottomNavigation(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = BottomNavigationElevation,
@@ -131,7 +131,7 @@ fun BottomNavigationItem(
     text: @Composable() () -> Unit = emptyContent(),
     selected: Boolean,
     onSelected: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     alwaysShowLabels: Boolean = true,
     activeColor: Color = contentColor(),
     inactiveColor: Color = EmphasisAmbient.current.medium.emphasize(activeColor)

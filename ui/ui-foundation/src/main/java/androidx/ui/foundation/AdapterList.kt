@@ -465,7 +465,7 @@ private class ListState<T>(
 @Composable
 fun <T> AdapterList(
     data: List<T>,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     itemCallback: @Composable() (T) -> Unit
 ) {
     val state = remember { ListState(data = data, itemCallback = itemCallback) }

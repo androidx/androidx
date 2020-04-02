@@ -65,7 +65,7 @@ import androidx.ui.unit.max
  */
 @Composable
 fun Box(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
     backgroundColor: Color = Color.Transparent,
     border: Border? = null,
@@ -78,10 +78,10 @@ fun Box(
     children: @Composable() () -> Unit = emptyContent()
 ) {
     val borderModifier =
-        if (border != null) Modifier.drawBorder(border, shape) else Modifier.None
+        if (border != null) Modifier.drawBorder(border, shape) else Modifier
     val backgroundModifier =
         if (backgroundColor == Color.Transparent) {
-            Modifier.None
+            Modifier
         } else {
             Modifier.drawBackground(backgroundColor, shape)
         }

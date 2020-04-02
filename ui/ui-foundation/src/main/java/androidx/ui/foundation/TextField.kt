@@ -94,7 +94,7 @@ data class TextFieldValue(
 @Composable
 fun TextField(
     value: TextFieldValue,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     onValueChange: (TextFieldValue) -> Unit,
     textStyle: TextStyle = currentTextStyle(),
     keyboardType: KeyboardType = KeyboardType.Text,

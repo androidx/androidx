@@ -60,7 +60,7 @@ import androidx.ui.unit.ipx
 @Composable
 fun ConstraintLayout(
     constraintSet: ConstraintSet,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit
 ) {
     val measurer = remember { Measurer() }

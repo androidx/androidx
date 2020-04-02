@@ -33,7 +33,7 @@ import androidx.ui.unit.min
 // TODO (popam): remove this and make FlexSamples where it's being used copy-pastable
 @Composable
 fun SizedRectangleWithLines(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     color: Color,
     width: Dp? = null,
     height: Dp? = null

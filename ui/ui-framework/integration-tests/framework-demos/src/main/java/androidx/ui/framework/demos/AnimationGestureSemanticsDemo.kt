@@ -193,7 +193,7 @@ private fun Level3ApiExtras() {
 }
 
 @Composable
-private fun Animation(modifier: Modifier = Modifier.None, animationEndState: ComponentState) {
+private fun Animation(modifier: Modifier = Modifier, animationEndState: ComponentState) {
     Transition(definition = transitionDefinition, toState = animationEndState) { state ->
         val color = state[colorKey]
         val sizeRatio = state[sizeKey]

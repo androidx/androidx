@@ -62,7 +62,7 @@ class CanvasTest {
     @Test
     fun canvas_noSize_emptyCanvas() {
         composeTestRule.setContentAndCollectSizes {
-            Canvas(modifier = Modifier.None) {
+            Canvas(modifier = Modifier) {
                 drawRect(size.toRect(), Paint())
             }
         }

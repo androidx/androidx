@@ -57,7 +57,7 @@ fun ModifierFactorySample() {
 @Composable
 fun ModifierParameterSample() {
     @Composable
-    fun PaddedColumn(modifier: Modifier = Modifier.None) {
+    fun PaddedColumn(modifier: Modifier = Modifier) {
         Column(modifier.padding(10.dp)) {
             // ...
         }
@@ -71,8 +71,8 @@ fun SubcomponentModifierSample() {
     fun ButtonBar(
         onOk: () -> Unit,
         onCancel: () -> Unit,
-        modifier: Modifier = Modifier.None,
-        buttonModifier: Modifier = Modifier.None
+        modifier: Modifier = Modifier,
+        buttonModifier: Modifier = Modifier
     ) {
         Row(modifier) {
             Button(onCancel, buttonModifier) {

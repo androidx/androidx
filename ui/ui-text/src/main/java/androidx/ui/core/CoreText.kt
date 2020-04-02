@@ -67,7 +67,7 @@ internal val DefaultSelectionColor = Color(0x6633B5E5)
 @Composable
 fun CoreText(
     text: AnnotatedString,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     style: TextStyle,
     softWrap: Boolean,
     overflow: TextOverflow,

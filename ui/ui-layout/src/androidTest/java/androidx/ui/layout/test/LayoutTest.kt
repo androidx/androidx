@@ -205,7 +205,7 @@ open class LayoutTest {
     @Composable
     internal fun ConstrainedBox(
         constraints: DpConstraints,
-        modifier: Modifier = Modifier.None,
+        modifier: Modifier = Modifier,
         children: @Composable() () -> Unit
     ) {
         Layout(
@@ -356,7 +356,7 @@ open class LayoutTest {
 
     @Composable
     internal fun Container(
-        modifier: Modifier = Modifier.None,
+        modifier: Modifier = Modifier,
         padding: EdgeInsets = EdgeInsets(0.dp),
         alignment: Alignment = Alignment.Center,
         expanded: Boolean = false,

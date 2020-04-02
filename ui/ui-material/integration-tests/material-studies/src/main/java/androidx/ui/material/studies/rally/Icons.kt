@@ -40,7 +40,7 @@ import androidx.ui.unit.dp
 fun Icon(
     vectorImage: VectorAsset,
     tintColor: Color = Color.White,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     size: Dp = 24.dp
 ) {
     Box(

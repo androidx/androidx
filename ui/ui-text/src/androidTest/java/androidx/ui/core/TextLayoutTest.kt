@@ -222,7 +222,7 @@ class TextLayoutTest {
 @Composable
 private fun TestingText(
     text: String,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
     val textStyle = remember {

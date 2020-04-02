@@ -193,7 +193,7 @@ private sealed class PaddingTestCase : ComposeTestCase,
 }
 
 @Composable
-fun FillerContainer(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+fun FillerContainer(modifier: Modifier = Modifier, children: @Composable() () -> Unit) {
     Layout(children, modifier) { measurable, constraints, _ ->
         val childConstraints = constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
         val placeable = measurable.firstOrNull()?.measure(childConstraints)

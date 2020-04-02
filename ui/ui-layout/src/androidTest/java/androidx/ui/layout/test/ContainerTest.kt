@@ -467,7 +467,7 @@ class ContainerTest : LayoutTest() {
     }
 
     @Composable
-    fun EmptyBox(width: Dp, height: Dp, modifier: Modifier = Modifier.None) {
+    fun EmptyBox(width: Dp, height: Dp, modifier: Modifier = Modifier) {
         Layout(modifier = modifier, children = { }) { _, constraints, _ ->
             layout(
                 width.toIntPx().coerceIn(constraints.minWidth, constraints.maxWidth),
