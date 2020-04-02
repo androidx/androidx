@@ -39,14 +39,14 @@ public class ConfirmationActivityTest {
 
     // Number of milliseconds before the end of the duration period that we should check that the
     // ConfirmationActivity still has focus
-    private static final int MILLIS_BEFORE_END_OF_DURATION = 150;
+    private static final int MILLIS_BEFORE_END_OF_DURATION = 250;
 
     // Number of milliseconds after the end of the duration period that we should wait before the
     // ConfirmationActivity still lost focus
-    private static final int MILLIS_AFTER_END_OF_DURATION = 150;
+    private static final int MILLIS_AFTER_END_OF_DURATION = 500;
 
     // Number of milliseconds to wait for the confirmation activity to display initially
-    private static final int MILLIS_TO_WAIT_FOR_ACTIVITY_TO_BE_DRAWN = 100;
+    private static final int MILLIS_TO_WAIT_FOR_ACTIVITY_TO_BE_DRAWN = 500;
 
     @Rule
     public final WakeLockRule wakeLock = new WakeLockRule();
@@ -57,18 +57,12 @@ public class ConfirmationActivityTest {
 
     @Test
     public void testConfirmationDialogShownForDefaultDuration() throws Throwable {
-        testConfirmationDialogShownForConfiguredDuration(
-                ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MS);
-    }
-
-    @Test
-    public void testConfirmationDialogShownForShortDuration() throws Throwable {
-        int testDuration = ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MS / 2;
+        int testDuration = ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MS;
         // Check that the structure of the test is still valid
         assertTrue(testDuration
                 > (MILLIS_BEFORE_END_OF_DURATION + MILLIS_TO_WAIT_FOR_ACTIVITY_TO_BE_DRAWN));
-
-        testConfirmationDialogShownForConfiguredDuration(testDuration);
+        testConfirmationDialogShownForConfiguredDuration(
+                ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MS);
     }
 
     @Test
@@ -80,6 +74,7 @@ public class ConfirmationActivityTest {
     private void testConfirmationDialogShownForConfiguredDuration(int duration) throws Throwable {
         // Wait for the test activity to be visible
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        Thread.sleep(MILLIS_TO_WAIT_FOR_ACTIVITY_TO_BE_DRAWN);
 
         // Check that the test activity currently hasWindowFocus()
         assertTrue(mActivityRule.getActivity().hasWindowFocus());
