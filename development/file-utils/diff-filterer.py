@@ -145,6 +145,7 @@ class FileBacked_FileContent(FileContent):
   def __init__(self, referencePath):
     super(FileBacked_FileContent, self).__init__()
     self.referencePath = referencePath
+    self.isLink = os.path.islink(self.referencePath)
 
   def apply(self, filePath):
     fileIo.copyFile(self.referencePath, filePath)
@@ -154,6 +155,10 @@ class FileBacked_FileContent(FileContent):
       return False
     if self.referencePath == other.referencePath:
       return True
+    if self.isLink and other.isLink:
+      return os.readlink(self.referencePath) == os.readlink(other.referencePath)
+    if self.isLink != other.isLink:
+      return False # symlink not equal to non-symlink
     return filecmp.cmp(self.referencePath, other.referencePath)
 
   def __str__(self):
