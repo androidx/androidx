@@ -46,10 +46,6 @@ public final class UseCaseOccupancy {
         int imageCaptureCount = 0;
         int videoCaptureCount = 0;
 
-        if (newUseCases.isEmpty()) {
-            throw new IllegalArgumentException("No new use cases to be bound.");
-        }
-
         for (UseCase useCase : originalUseCases) {
             if (useCase instanceof ImageCapture) {
                 imageCaptureCount++;
