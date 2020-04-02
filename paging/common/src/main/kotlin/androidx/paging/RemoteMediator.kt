@@ -61,7 +61,7 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
      * @return [MediatorResult] signifying what [LoadState] to be passed to the UI, and whether
      * there's more data available.
      */
-    abstract suspend fun load(loadType: LoadType, state: PagingState<Key, Value>?): MediatorResult
+    abstract suspend fun load(loadType: LoadType, state: PagingState<Key, Value>): MediatorResult
 
     /**
      * Callback fired during initialization of a [PagingData] stream, before initial load.

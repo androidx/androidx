@@ -26,7 +26,7 @@ open class RemoteMediatorMock : RemoteMediator<Int, Int>() {
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, Int>?
+        state: PagingState<Int, Int>
     ): MediatorResult {
         loadEvents.add(LoadEvent(loadType, state))
         return MediatorResult.Success(false)

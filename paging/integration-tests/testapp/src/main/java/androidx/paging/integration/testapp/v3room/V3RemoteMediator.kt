@@ -32,7 +32,7 @@ internal class V3RemoteMediator(
 ) : RemoteMediator<Int, Customer>() {
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, Customer>?
+        state: PagingState<Int, Customer>
     ): MediatorResult {
         if (loadType == LoadType.START) return MediatorResult.Success(false)
 
@@ -41,7 +41,7 @@ internal class V3RemoteMediator(
         val key = when (loadType) {
             LoadType.REFRESH -> 0
             LoadType.START -> throw IllegalStateException()
-            LoadType.END -> state?.pages?.last()?.nextKey ?: 0
+            LoadType.END -> state.pages.lastOrNull()?.nextKey ?: 0
         }
         val result = networkSource.load(
             PagingSource.LoadParams(
