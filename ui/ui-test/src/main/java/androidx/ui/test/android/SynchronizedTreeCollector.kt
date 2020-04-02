@@ -49,7 +49,7 @@ internal object SynchronizedTreeCollector {
      * surfaces only in incorrect tests.
      */
     internal fun collectOwners(): CollectedOwners {
-        ComposeIdlingResource.registerSelfIntoEspresso()
+        registerComposeWithEspresso()
         val rootSearcher = RootSearcher()
 
         // Use Espresso to iterate over all roots and find all SemanticsTreeProviders
@@ -74,7 +74,7 @@ internal object SynchronizedTreeCollector {
      * surfaces only in incorrect tests.
      */
     internal fun waitForIdle() {
-        ComposeIdlingResource.registerSelfIntoEspresso()
+        registerComposeWithEspresso()
         Espresso.onIdle()
     }
 
