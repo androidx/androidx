@@ -30,7 +30,6 @@ import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
-import androidx.paging.TestPagingSource.Companion.items
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -46,6 +45,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -63,51 +63,6 @@ class PagerTest {
         enablePlaceholders = true,
         initialLoadSize = 2,
         maxSize = 3
-    )
-
-    private fun pages(
-        pageOffset: Int,
-        range: IntRange
-    ) = listOf(
-        TransformablePage(
-            originalPageOffset = pageOffset,
-            data = items.slice(range),
-            originalPageSize = range.count(),
-            originalIndices = null
-        )
-    )
-
-    private fun createRefresh(
-        range: IntRange,
-        startState: LoadState = Idle,
-        endState: LoadState = Idle
-    ) = Refresh(
-        pages = pages(0, range),
-        placeholdersStart = range.first.coerceAtLeast(0),
-        placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0),
-        loadStates = mapOf(REFRESH to Idle, START to startState, END to endState)
-    )
-
-    private fun createPrepend(
-        pageOffset: Int,
-        range: IntRange,
-        startState: LoadState = Idle,
-        endState: LoadState = Idle
-    ) = Start(
-        pages = pages(pageOffset, range),
-        placeholdersStart = range.first.coerceAtLeast(0),
-        loadStates = mapOf(REFRESH to Idle, START to startState, END to endState)
-    )
-
-    private fun createAppend(
-        pageOffset: Int,
-        range: IntRange,
-        startState: LoadState = Idle,
-        endState: LoadState = Idle
-    ) = End(
-        pages = pages(pageOffset, range),
-        placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0),
-        loadStates = mapOf(REFRESH to Idle, START to startState, END to endState)
     )
 
     @Test
@@ -1053,8 +1008,8 @@ class PagerTest {
             initialKey = 0,
             pagingSource = pagingSourceFactory(),
             config = config,
-            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator),
-            retryFlow = retryCh.asFlow()
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
         )
 
         collectPagerData(pager) { _, _ ->
@@ -1080,8 +1035,8 @@ class PagerTest {
             initialKey = 99,
             pagingSource = pagingSourceFactory(),
             config = config,
-            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator),
-            retryFlow = retryCh.asFlow()
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
         )
 
         collectPagerData(pager) { _, _ ->
@@ -1090,6 +1045,47 @@ class PagerTest {
             assertEquals(1, remoteMediator.loadEvents.size)
             assertEquals(END, remoteMediator.loadEvents[0].loaddType)
             assertNotNull(remoteMediator.loadEvents[0].state)
+        }
+    }
+
+    @Test
+    fun jump() = testScope.runBlockingTest {
+        pauseDispatcher {
+            val config = PagingConfig(
+                pageSize = 1,
+                prefetchDistance = 1,
+                enablePlaceholders = true,
+                initialLoadSize = 2,
+                maxSize = 3,
+                jumpThreshold = 10
+            )
+            var didJump = false
+            val pager = Pager(50, pagingSourceFactory(), config, retryFlow = retryCh.asFlow()) {
+                didJump = true
+            }
+            // Trigger collection on flow to init jump detection job.
+            val job = launch { pager.pageEventFlow.collect { } }
+
+            advanceUntilIdle()
+
+            pager.addHint(ViewportHint(0, -50))
+            advanceUntilIdle()
+
+            assertTrue { didJump }
+
+            job.cancel()
+        }
+    }
+
+    @Test
+    fun jump_requiresPagingSourceOptIn() {
+        assertFailsWith<IllegalArgumentException> {
+            Pager(
+                initialKey = 50,
+                pagingSource = TestPagingSource(jumpingSupported = false),
+                config = PagingConfig(pageSize = 1, prefetchDistance = 1, jumpThreshold = 1),
+                retryFlow = retryCh.asFlow()
+            )
         }
     }
 }

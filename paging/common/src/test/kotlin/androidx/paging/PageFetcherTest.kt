@@ -277,6 +277,38 @@ class PageFetcherTest {
 
         fetcherState.job.cancel()
     }
+
+    @Test
+    fun jump() = testScope.runBlockingTest {
+        pauseDispatcher {
+            var pagingSources = mutableListOf<PagingSource<Int, Int>>()
+            val pagingSourceFactory = { TestPagingSource().also { pagingSources.add(it) } }
+            val config = PagingConfig(
+                pageSize = 1,
+                prefetchDistance = 1,
+                enablePlaceholders = true,
+                initialLoadSize = 2,
+                maxSize = 3,
+                jumpThreshold = 10
+            )
+            val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+            val fetcherState = collectFetcherState(pageFetcher)
+
+            advanceUntilIdle()
+
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, -50))
+            advanceUntilIdle()
+
+            val expected: List<PageEvent<Int>> = listOf(
+                PageEvent.LoadStateUpdate(LoadType.REFRESH, LoadState.Loading),
+                createRefresh(range = 50..51)
+            )
+            assertEvents(expected, fetcherState.pageEventLists[0])
+            assertTrue { pagingSources[0].invalid }
+
+            fetcherState.job.cancel()
+        }
+    }
 }
 
 internal class FetcherState<T : Any>(
