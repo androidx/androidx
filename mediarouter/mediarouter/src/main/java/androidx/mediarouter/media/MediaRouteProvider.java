@@ -649,6 +649,8 @@ public abstract class MediaRouteProvider {
              */
             public static final int SELECTED = 3;
 
+            //TODO: mMediaRouteDescriptor could have an old info. We should provide a way to
+            // update it or use only the route ID.
             final MediaRouteDescriptor mMediaRouteDescriptor;
             @SelectionState
             final int mSelectionState;

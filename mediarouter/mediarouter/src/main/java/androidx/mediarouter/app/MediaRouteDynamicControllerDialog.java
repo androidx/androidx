@@ -1313,8 +1313,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
                 mItemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mIsSelectingRoute = true;
-                        mRoute.select();
+                        mRouter.transferToRoute(mRoute);
                         mImageView.setVisibility(View.INVISIBLE);
                         mProgressBar.setVisibility(View.VISIBLE);
                     }
