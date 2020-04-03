@@ -31,6 +31,7 @@ import android.view.ViewStructure
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.annotation.RestrictTo
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -39,13 +40,17 @@ import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
 import androidx.ui.core.Owner.Companion.enableExtraAssertions
+import androidx.ui.core.clipboard.AndroidClipboardManager
+import androidx.ui.core.clipboard.ClipboardManager
+import androidx.ui.core.focus.FocusModifierImpl
 import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
-import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
+import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.focus.FocusDetailedState.Active
 import androidx.ui.graphics.Canvas
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
@@ -58,24 +63,31 @@ import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.util.trace
+import org.jetbrains.annotations.TestOnly
 import java.lang.reflect.Method
 
 /***
- * This function creates an instance of Owner.
+ * This function creates an instance of [AndroidOwner]
  */
-fun createOwner(context: Context): Owner = AndroidComposeView(context)
+fun createOwner(context: Context): AndroidOwner = AndroidComposeView(context).also {
+    AndroidOwner.onAndroidOwnerCreatedCallback?.invoke(it)
+}
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 internal class AndroidComposeView constructor(context: Context) :
-    ViewGroup(context), AndroidOwner, SemanticsTreeProvider {
+    ViewGroup(context), AndroidOwner {
+
+    override val view: View = this
 
     override var density = Density(context)
         private set
 
+    private val focusModifier: FocusModifierImpl = FocusModifierImpl(Inactive)
+
     override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
         it.layoutDirection = context.getLayoutDirection()
-        it.modifier = drawLayer(clipToBounds = false)
+        it.modifier = Modifier.drawLayer(clipToBounds = false) + focusModifier
     }
 
     // LayoutNodes that need measure and layout
@@ -125,6 +137,21 @@ internal class AndroidComposeView constructor(context: Context) :
             return field
         }
         private set
+
+    override fun dispatchWindowFocusChanged(hasFocus: Boolean) {
+        if (hasFocus) {
+            focusModifier.focusDetailedState = Active
+            // TODO(b/152535715): propagate focus to children based on child focusability.
+        } else {
+            // If this view lost focus, clear focus from the children. For now we clear focus
+            // from the children by requesting focus on the parent.
+            // TODO(b/151335411): use clearFocus() instead.
+            focusModifier.apply {
+                requestFocus()
+                focusDetailedState = Inactive
+            }
+        }
+    }
 
     /**
      * Flag to indicate that we're currently measuring.
@@ -355,6 +382,9 @@ internal class AndroidComposeView constructor(context: Context) :
     private val androidViewsHandler by lazy(LazyThreadSafetyMode.NONE) {
         AndroidViewsHandler(context).also { addView(it) }
     }
+    private val viewLayersContainer by lazy(LazyThreadSafetyMode.NONE) {
+        ViewLayerContainer(context).also { addView(it) }
+    }
 
     override fun addAndroidView(view: View, layoutNode: LayoutNode) {
         androidViewsHandler.addView(view)
@@ -460,20 +490,24 @@ internal class AndroidComposeView constructor(context: Context) :
                     val onPaintWithChildren = node.onPaintWithChildren
                     if (onPaintWithChildren != null) {
                         val ownerData = node.ownerData
-                        val receiver: DrawReceiverImpl
+                        val receiver: DrawScopeImpl
                         if (ownerData == null) {
-                            receiver = DrawReceiverImpl(node, canvas, parentSize, density)
+                            receiver = DrawScopeImpl(node, canvas, parentSize, density)
                             node.ownerData = receiver
                         } else {
-                            receiver = ownerData as DrawReceiverImpl
+                            receiver = ownerData as DrawScopeImpl
                             receiver.childDrawn = false
                             receiver.canvas = canvas
-                            receiver.parentSize = parentSize
+                            receiver.size = parentSize
                             receiver.currentDensity = density
                         }
                         onPaintWithChildren(receiver, canvas, parentSize)
                         if (!receiver.childDrawn) {
-                            receiver.drawChildren()
+                            with(receiver) {
+                                with(density) {
+                                    drawContent()
+                                }
+                            }
                         }
                     } else {
                         val onPaint = node.onPaint!!
@@ -485,7 +519,7 @@ internal class AndroidComposeView constructor(context: Context) :
                     if (node.isPlaced) {
                         require(!node.needsRemeasure) { "$node is not measured, draw requested" }
                         require(!node.needsRelayout) { "$node is not laid out, draw requested" }
-                        node.draw(canvas, density)
+                        node.draw(canvas)
                     }
                 }
                 else -> node.visitChildren {
@@ -497,12 +531,16 @@ internal class AndroidComposeView constructor(context: Context) :
 
     override fun createLayer(
         drawLayerModifier: DrawLayerModifier,
-        drawBlock: (Canvas, Density) -> Unit
+        drawBlock: (Canvas) -> Unit,
+        invalidateParentLayer: () -> Unit
     ): OwnedLayer {
         val layer = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P || isInEditMode()) {
-            ViewLayer(this, drawLayerModifier, drawBlock)
+            ViewLayer(
+                this, viewLayersContainer, drawLayerModifier, drawBlock,
+                invalidateParentLayer
+            )
         } else {
-            RenderNodeLayer(this, drawLayerModifier, drawBlock)
+            RenderNodeLayer(this, drawLayerModifier, drawBlock, invalidateParentLayer)
         }
 
         updateLayerProperties(layer)
@@ -516,17 +554,13 @@ internal class AndroidComposeView constructor(context: Context) :
         }
     }
 
-    internal fun drawChild(canvas: Canvas, view: View, drawingTime: Long) {
-        super.drawChild(canvas.nativeCanvas, view, drawingTime)
-    }
-
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         measureAndLayout()
         val uiCanvas = Canvas(canvas)
         // we don't have to observe here because the root has a layer modifier
         // that will observe all children. The AndroidComposeView has only the
         // root, so it doesn't have to invalidate itself based on model changes.
-        root.draw(uiCanvas, density)
+        root.draw(uiCanvas)
 
         if (dirtyLayers.isNotEmpty()) {
             for (i in 0 until dirtyLayers.size) {
@@ -586,14 +620,6 @@ internal class AndroidComposeView constructor(context: Context) :
         }
     }
 
-    override fun getAllSemanticNodes(): List<SemanticsNode> {
-        return findAllSemanticNodesIn(semanticsOwner.rootSemanticsNode)
-    }
-
-    override fun sendEvent(event: MotionEvent) {
-        dispatchTouchEvent(event)
-    }
-
     private fun Context.getLayoutDirection() =
         when (applicationContext.resources.configuration.layoutDirection) {
             android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
@@ -614,6 +640,11 @@ internal class AndroidComposeView constructor(context: Context) :
      */
     override val hapticFeedBack: HapticFeedback =
         AndroidHapticFeedback(this)
+
+    /**
+     * Provide clipboard manager to the user. Use the Android version of clipboard manager.
+     */
+    override val clipboardManager: ClipboardManager = AndroidClipboardManager(context)
 
     override fun onCheckIsTextEditor(): Boolean = textInputServiceAndroid.isEditorFocused()
 
@@ -665,24 +696,21 @@ internal class AndroidComposeView constructor(context: Context) :
         onRestoreInstanceState(superState)
     }
 
-    private inner class DrawReceiverImpl(
+    private inner class DrawScopeImpl(
         private val drawNode: DrawNode,
         var canvas: Canvas,
-        var parentSize: PxSize,
+        override var size: PxSize,
         var currentDensity: Density
-    ) : DrawReceiver {
+    ) : Canvas by canvas, Density by currentDensity, ContentDrawScope {
         internal var childDrawn = false
 
-        override val density: Float get() = currentDensity.density
-        override val fontScale: Float get() = currentDensity.fontScale
-
-        override fun drawChildren() {
+        override fun drawContent() {
             if (childDrawn) {
-                throw IllegalStateException("Cannot call drawChildren() twice within Draw element")
+                throw IllegalStateException("Cannot call drawContent() twice within Draw element")
             }
             childDrawn = true
             drawNode.visitChildren { child ->
-                callDraw(canvas, child, parentSize)
+                callDraw(canvas, child, size)
             }
         }
     }
@@ -718,7 +746,7 @@ internal class AndroidComposeView constructor(context: Context) :
                 measurables: List<Measurable>,
                 constraints: Constraints,
                 layoutDirection: LayoutDirection
-            ): MeasureScope.LayoutResult {
+            ): MeasureScope.MeasureResult {
                 return when {
                     measurables.isEmpty() -> measureScope.layout(IntPx.Zero, IntPx.Zero) {}
                     measurables.size == 1 -> {
@@ -776,10 +804,15 @@ internal class AndroidComposeView constructor(context: Context) :
 }
 
 /**
- * Interface to be implemented by [Owner]s able to handle Android [View]s as part of
- * their hierarchy.
+ * Interface to be implemented by [Owner]s able to handle Android View specific functionality.
  */
 interface AndroidOwner : Owner {
+
+    /**
+     * The view backing this Owner.
+     */
+    val view: View
+
     /**
      * Called to inform the owner that a new Android [View] was [attached][Owner.onAttach]
      * to the hierarchy.
@@ -791,6 +824,19 @@ interface AndroidOwner : Owner {
      * from the hierarchy.
      */
     fun removeAndroidView(view: View)
+
+    /** @suppress */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    companion object {
+        /**
+         * Called after an [AndroidOwner] is created. Used by AndroidComposeTestRule to keep
+         * track of all attached [AndroidComposeView]s. Not to be set or used by any other
+         * component.
+         */
+        var onAndroidOwnerCreatedCallback: ((AndroidOwner) -> Unit)? = null
+            @TestOnly
+            set
+    }
 }
 
 private class ConstraintRange(val min: IntPx, val max: IntPx)

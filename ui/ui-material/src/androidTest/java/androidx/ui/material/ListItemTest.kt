@@ -18,6 +18,7 @@ package androidx.ui.material
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.FirstBaseline
+import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
@@ -633,7 +634,7 @@ class ListItemTest {
         coords: Ref<PxPosition>,
         size: Ref<IntPxSize>,
         baseline: Ref<Px> = Ref()
-    ): Modifier = onPositioned { coordinates ->
+    ): Modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
         coords.value = coordinates.localToGlobal(PxPosition.Origin)
         baseline.value = coordinates[FirstBaseline]?.toPx()?.let {
             it + coords.value!!.y

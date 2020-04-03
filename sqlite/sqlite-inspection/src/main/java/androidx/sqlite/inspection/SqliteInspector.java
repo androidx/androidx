@@ -16,6 +16,8 @@
 
 package androidx.sqlite.inspection;
 
+import static androidx.sqlite.inspection.SqliteInspectionExecutors.directExecutor;
+
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
@@ -23,7 +25,6 @@ import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQuery;
-import android.os.Build;
 import android.os.CancellationSignal;
 
 import androidx.annotation.GuardedBy;
@@ -39,6 +40,7 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredResponse;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorRecoverability;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaResponse;
@@ -62,11 +64,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
 /**
  * Inspector to work with SQLite databases
  */
 @SuppressWarnings({"TryFinallyCanBeTryWithResources", "SameParameterValue"})
+@SuppressLint("SyntheticAccessor")
 final class SqliteInspector extends Inspector {
     // TODO: identify all SQLiteDatabase openDatabase methods
     private static final String sOpenDatabaseCommandSignature = "openDatabase"
@@ -117,10 +122,13 @@ final class SqliteInspector extends Inspector {
 
     private final DatabaseRegistry mDatabaseRegistry = new DatabaseRegistry();
     private final InspectorEnvironment mEnvironment;
+    private final Executor mIOExecutor;
 
-    SqliteInspector(@NonNull Connection connection, InspectorEnvironment environment) {
+    SqliteInspector(@NonNull Connection connection, InspectorEnvironment environment,
+            Executor ioExecutor) {
         super(connection);
         mEnvironment = environment;
+        mIOExecutor = ioExecutor;
     }
 
     @Override
@@ -147,7 +155,7 @@ final class SqliteInspector extends Inspector {
                             "Unhandled Exception while processing the command: "
                                     + exception.getMessage(),
                             stackTraceFromException(exception),
-                            false
+                            null
                     ).toByteArray()
             );
         }
@@ -173,7 +181,7 @@ final class SqliteInspector extends Inspector {
                                     "Unhandled Exception while processing an onDatabaseAdded "
                                             + "event: "
                                             + exception.getMessage(),
-                                    stackTraceFromException(exception), false)
+                                    stackTraceFromException(exception), null)
                                     .toByteArray());
                         }
                         return database;
@@ -193,34 +201,48 @@ final class SqliteInspector extends Inspector {
         callback.reply(querySchema(database).toByteArray());
     }
 
-    private void handleQuery(QueryCommand command, CommandCallback callback) {
-        SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
-        if (database == null) return;
+    private void handleQuery(final QueryCommand command, final CommandCallback callback) {
+        final SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
+        final CancellationSignal cancellationSignal = new CancellationSignal();
 
-        String[] params = parseQueryParameterValues(command);
-        Cursor cursor = null;
-        try {
-            cursor = rawQuery(database, command.getQuery(), params, null);
-            List<String> columnNames = Arrays.asList(cursor.getColumnNames());
-            callback.reply(Response.newBuilder()
-                    .setQuery(QueryResponse.newBuilder()
-                            .addAllRows(convert(cursor))
-                            .addAllColumnNames(columnNames)
-                            .build())
-                    .build()
-                    .toByteArray()
-            );
-        } catch (SQLiteException | IllegalArgumentException exception) {
-            callback.reply(createErrorOccurredResponse(exception, true).toByteArray());
-        } finally {
-            if (cursor != null) {
-                cursor.close();
+        if (database == null) return;
+        final Future<?> future = SqliteInspectionExecutors.submit(mIOExecutor, new Runnable() {
+            @Override
+            public void run() {
+                String[] params = parseQueryParameterValues(command);
+                Cursor cursor = null;
+                try {
+                    cursor = rawQuery(database, command.getQuery(), params, cancellationSignal);
+                    List<String> columnNames = Arrays.asList(cursor.getColumnNames());
+                    callback.reply(Response.newBuilder()
+                            .setQuery(QueryResponse.newBuilder()
+                                    .addAllRows(convert(cursor))
+                                    .addAllColumnNames(columnNames)
+                                    .build())
+                            .build()
+                            .toByteArray()
+                    );
+                } catch (SQLiteException | IllegalArgumentException exception) {
+                    callback.reply(createErrorOccurredResponse(exception, true).toByteArray());
+                } finally {
+                    if (cursor != null) {
+                        cursor.close();
+                    }
+                }
+
             }
-        }
+        });
+        callback.addCancellationListener(directExecutor(), new Runnable() {
+            @Override
+            public void run() {
+                cancellationSignal.cancel();
+                future.cancel(true);
+            }
+        });
     }
 
     @SuppressLint("Recycle") // For: "The cursor should be freed up after use with #close"
-    private Cursor rawQuery(@NonNull SQLiteDatabase database, @NonNull String queryText,
+    private static Cursor rawQuery(@NonNull SQLiteDatabase database, @NonNull String queryText,
             @NonNull final String[] params, @Nullable CancellationSignal cancellationSignal) {
         SQLiteDatabase.CursorFactory cursorFactory = new SQLiteDatabase.CursorFactory() {
             @Override
@@ -239,14 +261,12 @@ final class SqliteInspector extends Inspector {
             }
         };
 
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                ? database.rawQueryWithFactory(cursorFactory, queryText, null, null,
-                cancellationSignal)
-                : database.rawQueryWithFactory(cursorFactory, queryText, null, null);
+        return database.rawQueryWithFactory(cursorFactory, queryText, null, null,
+                cancellationSignal);
     }
 
     @NonNull
-    private String[] parseQueryParameterValues(QueryCommand command) {
+    private static String[] parseQueryParameterValues(QueryCommand command) {
         String[] params = new String[command.getQueryParameterValuesCount()];
         for (int i = 0; i < command.getQueryParameterValuesCount(); i++) {
             QueryParameterValue param = command.getQueryParameterValues(i);
@@ -389,7 +409,7 @@ final class SqliteInspector extends Inspector {
             String message = exception.getMessage();
             // TODO: clean up, e.g. replace Exception message check with a custom Exception class
             if (message != null && message.contains("Database is already tracked")) {
-                response = createErrorOccurredEvent(exception, false);
+                response = createErrorOccurredEvent(exception, null);
             } else {
                 throw exception;
             }
@@ -405,7 +425,7 @@ final class SqliteInspector extends Inspector {
     }
 
     private Event createErrorOccurredEvent(@Nullable String message, @Nullable String stackTrace,
-            boolean isRecoverable) {
+            Boolean isRecoverable) {
         return Event.newBuilder().setErrorOccurred(
                 ErrorOccurredEvent.newBuilder()
                         .setContent(
@@ -416,13 +436,13 @@ final class SqliteInspector extends Inspector {
                 .build();
     }
 
-    private Event createErrorOccurredEvent(@NonNull Exception exception, boolean isRecoverable) {
+    private Event createErrorOccurredEvent(@NonNull Exception exception, Boolean isRecoverable) {
         return createErrorOccurredEvent(exception.getMessage(), stackTraceFromException(exception),
                 isRecoverable);
     }
 
-    private ErrorContent createErrorContentMessage(@Nullable String message,
-            @Nullable String stackTrace, boolean isRecoverable) {
+    private static ErrorContent createErrorContentMessage(@Nullable String message,
+            @Nullable String stackTrace, Boolean isRecoverable) {
         ErrorContent.Builder builder = ErrorContent.newBuilder();
         if (message != null) {
             builder.setMessage(message);
@@ -430,18 +450,22 @@ final class SqliteInspector extends Inspector {
         if (stackTrace != null) {
             builder.setStackTrace(stackTrace);
         }
-        builder.setIsRecoverable(isRecoverable);
+        ErrorRecoverability.Builder recoverability = ErrorRecoverability.newBuilder();
+        if (isRecoverable != null) { // leave unset otherwise, which translates to 'unknown'
+            recoverability.setIsRecoverable(isRecoverable);
+        }
+        builder.setRecoverability(recoverability.build());
         return builder.build();
     }
 
-    private Response createErrorOccurredResponse(@NonNull Exception exception,
-            boolean isRecoverable) {
+    private static Response createErrorOccurredResponse(@NonNull Exception exception,
+            Boolean isRecoverable) {
         return createErrorOccurredResponse(exception.getMessage(),
                 stackTraceFromException(exception), isRecoverable);
     }
 
-    private Response createErrorOccurredResponse(@Nullable String message,
-            @Nullable String stackTrace, boolean isRecoverable) {
+    private static Response createErrorOccurredResponse(@Nullable String message,
+            @Nullable String stackTrace, Boolean isRecoverable) {
         return Response.newBuilder()
                 .setErrorOccurred(
                         ErrorOccurredResponse.newBuilder()
@@ -451,7 +475,7 @@ final class SqliteInspector extends Inspector {
     }
 
     @NonNull
-    private String stackTraceFromException(Exception exception) {
+    private static String stackTraceFromException(Exception exception) {
         StringWriter writer = new StringWriter();
         exception.printStackTrace(new PrintWriter(writer));
         return writer.toString();

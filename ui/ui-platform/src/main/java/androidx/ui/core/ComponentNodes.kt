@@ -15,6 +15,8 @@
  */
 package androidx.ui.core
 
+import androidx.ui.core.focus.FocusModifierImpl
+import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.focus.findParentFocusNode
 import androidx.ui.core.focus.ownerHasFocus
 import androidx.ui.core.focus.requestFocusForOwner
@@ -28,14 +30,14 @@ import androidx.ui.focus.FocusDetailedState.ActiveParent
 import androidx.ui.focus.FocusDetailedState.Captured
 import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.focus.FocusModifier
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
-import androidx.ui.unit.ipx
 import androidx.ui.unit.round
+import androidx.ui.util.fastForEach
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -167,6 +169,13 @@ sealed class ComponentNode {
         }
     }
 
+    /**
+     * Moves [count] elements starting at index [from] to index [to]. The [to] index is related to
+     * the position before the change, so, for example, to move an element at position 1 to after
+     * the element at position 2, [from] should be `1` and [to] should be `3`. If the elements
+     * were ComponentNodes A B C D E, calling `move(1, 3, 1)` would result in the ComponentNodes
+     * being reordered to A C B D E.
+     */
     fun move(from: Int, to: Int, count: Int) {
         if (from == to) {
             return // nothing to do
@@ -256,6 +265,21 @@ sealed class ComponentNode {
         return false
     }
 
+    private val _zIndexSortedChildren = mutableListOf<ComponentNode>()
+
+    /**
+     * Returns the children list sorted by their [LayoutNode.zIndex].
+     * Note that the object is reused so you shouldn't save it for later.
+     */
+    @PublishedApi
+    internal val zIndexSortedChildren: List<ComponentNode>
+        get() {
+            _zIndexSortedChildren.clear()
+            _zIndexSortedChildren.addAll(children)
+            _zIndexSortedChildren.sortWith(ZIndexComparator)
+            return _zIndexSortedChildren
+        }
+
     override fun toString(): String {
         return "${simpleIdentityToString(this)} children: ${children.size}"
     }
@@ -282,6 +306,15 @@ sealed class ComponentNode {
         }
         return tree.toString()
     }
+}
+
+/**
+ * Comparator allowing to sort nodes by zIndex
+ */
+private val ZIndexComparator = Comparator<ComponentNode> { node1, node2 ->
+    val depth1 = if (node1 is LayoutNode) node1.zIndex else 0f
+    val depth2 = if (node2 is LayoutNode) node2.zIndex else 0f
+    if (depth1 > depth2) 1 else if (depth1 < depth2) -1 else 0
 }
 
 /**
@@ -622,7 +655,7 @@ class FocusNode : ComponentNode() {
  * Backing node for the Draw component.
  */
 class DrawNode : ComponentNode() {
-    var onPaintWithChildren: (DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
+    var onPaintWithChildren: (ContentDrawScope.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
         set(value) {
             field = value
             invalidate()
@@ -673,7 +706,7 @@ class LayoutNode : ComponentNode(), Measurable {
             measurables: List<Measurable>,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): MeasureScope.LayoutResult
+        ): MeasureScope.MeasureResult
 
         /**
          * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
@@ -909,23 +942,20 @@ class LayoutNode : ComponentNode(), Measurable {
         get() = this
 
     /**
-     * The [MeasureScope.LayoutResult] obtained from the last measurement.
-     * It should only be used for running the positioning block of the layout.
-     */
-    private var lastLayoutResult: MeasureScope.LayoutResult = measureScope.layout(0.ipx, 0.ipx) {}
-
-    /**
      * A local version of [Owner.measureIteration] to ensure that [MeasureBlocks.measure]
      * is not called multiple times within a measure pass.
      */
     internal var measureIteration = 0L
         private set
 
+    @Deprecated("Temporary API to support ConstraintLayout prototyping.")
+    var canMultiMeasure: Boolean = false
+
     /**
      * Identifies when [layoutChildren] needs to be recalculated or if it can use
      * the cached value.
      */
-    internal var layoutChildrenDirty = false
+    internal var layoutChildrenDirty = true
 
     /**
      * The cached value of [layoutChildren]
@@ -981,10 +1011,19 @@ class LayoutNode : ComponentNode(), Measurable {
     internal var layoutNodeWrapper = innerLayoutNodeWrapper
 
     /**
+     * zIndex defines the drawing order of the LayoutNode. Children with larger zIndex are drawn
+     * after others (the original order is used for the nodes with the same zIndex).
+     * Default zIndex is 0. Current implementation is using the first(front) DrawLayerModifier's
+     * elevation as a zIndex. We will have a separate zIndex modifier later instead to decouple
+     * this features.
+     */
+    internal val zIndex: Float get() = outerLayerModifier?.elevation ?: 0f
+
+    /**
      * The outermost DrawLayerModifier in the modifier chain or `null` if there are no
      * DrawLayerModifiers in the modifier chain.
      */
-    internal var outerLayer: LayerWrapper? = null
+    private var outerLayerModifier: DrawLayerModifier? = null
 
     /**
      * The [Modifier] currently applied to this node.
@@ -999,7 +1038,7 @@ class LayoutNode : ComponentNode(), Measurable {
             val addedCallback = hasNewPositioningCallback()
             onPositionedCallbacks.clear()
             onChildPositionedCallbacks.clear()
-            outerLayer = null
+            outerLayerModifier = null
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 var wrapper = toWrap
                 // The order in which the following blocks occur matters.  For example, the
@@ -1007,23 +1046,31 @@ class LayoutNode : ComponentNode(), Measurable {
                 // that implements both DrawModifier and LayoutModifier will have it's draw bounds
                 // reflect the dimensions defined by the LayoutModifier.
                 if (mod is OnPositionedModifier) {
-                    onPositionedCallbacks += mod.onPositioned
+                    onPositionedCallbacks += mod
                 }
                 if (mod is OnChildPositionedModifier) {
-                    onChildPositionedCallbacks += mod.onChildPositioned
+                    onChildPositionedCallbacks += mod
                 }
                 if (mod is DrawModifier) {
                     wrapper = ModifiedDrawNode(wrapper, mod)
                 }
                 if (mod is DrawLayerModifier) {
                     wrapper = LayerWrapper(wrapper, mod)
-                    outerLayer = wrapper
+                    outerLayerModifier = mod
+                }
+                if (mod is FocusModifier) {
+                    require(mod is FocusModifierImpl)
+                    wrapper = ModifiedFocusNode(wrapper, mod).also { mod.focusNode = it }
                 }
                 if (mod is PointerInputModifier) {
                     wrapper = PointerInputDelegatingWrapper(wrapper, mod)
                 }
+                @Suppress("Deprecation")
                 if (mod is LayoutModifier) {
                     wrapper = ModifiedLayoutNode(wrapper, mod)
+                }
+                if (mod is LayoutModifier2) {
+                    wrapper = ModifiedLayoutNode2(wrapper, mod)
                 }
                 if (mod is ParentDataModifier) {
                     wrapper = ModifiedParentDataNode(wrapper, mod)
@@ -1097,17 +1144,21 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * List of all OnPositioned callbacks in the modifier chain.
      */
-    private val onPositionedCallbacks = mutableListOf<(LayoutCoordinates) -> Unit>()
+    private val onPositionedCallbacks = mutableListOf<OnPositionedModifier>()
 
     /**
      * List of all OnChildPositioned callbacks in the modifier chain.
      */
-    private val onChildPositionedCallbacks = mutableListOf<(LayoutCoordinates) -> Unit>()
+    private val onChildPositionedCallbacks = mutableListOf<OnChildPositionedModifier>()
 
     override fun measure(constraints: Constraints): Placeable {
         val owner = requireOwner()
         val iteration = owner.measureIteration
-        check(measureIteration != iteration) {
+        @Suppress("Deprecation")
+        canMultiMeasure = canMultiMeasure ||
+                (parentLayoutNode != null && parentLayoutNode!!.canMultiMeasure)
+        @Suppress("Deprecation")
+        check(measureIteration != iteration || canMultiMeasure) {
             "measure() may not be called multiple times on the same Measurable"
         }
         measureIteration = iteration
@@ -1148,7 +1199,7 @@ class LayoutNode : ComponentNode(), Measurable {
         }
     }
 
-    fun draw(canvas: Canvas, density: Density) = layoutNodeWrapper.draw(canvas, density)
+    fun draw(canvas: Canvas) = layoutNodeWrapper.draw(canvas)
 
     /**
      * Carries out a hit test on the [PointerInputModifier]s associated with this [LayoutNode] and
@@ -1195,16 +1246,11 @@ class LayoutNode : ComponentNode(), Measurable {
      */
     private fun hasNewPositioningCallback(): Boolean {
         return modifier.foldOut(false) { mod, hasNewCallback ->
-            var ret = hasNewCallback
-            if (!hasNewCallback) {
-                when (mod) {
-                    is OnPositionedModifier ->
-                        ret = !onPositionedCallbacks.contains(mod.onPositioned)
-                    is OnChildPositionedModifier ->
-                        ret = !onChildPositionedCallbacks.contains(mod.onChildPositioned)
-                }
+            hasNewCallback || when (mod) {
+                is OnPositionedModifier -> mod !in onPositionedCallbacks
+                is OnChildPositionedModifier -> mod !in onChildPositionedCallbacks
+                else -> false
             }
-            ret
         }
     }
 
@@ -1216,8 +1262,9 @@ class LayoutNode : ComponentNode(), Measurable {
             owner.observeLayoutModelReads(this) {
                 layoutChildren.forEach { child ->
                     child.isPlaced = false
-                    if (alignmentLinesRequired && child.dirtyAlignmentLines) child.needsRelayout =
-                        true
+                    if (alignmentLinesRequired && child.dirtyAlignmentLines) {
+                        child.needsRelayout = true
+                    }
                     if (!child.alignmentLinesRequired) {
                         child.alignmentLinesQueryOwner = alignmentLinesQueryOwner
                     }
@@ -1225,7 +1272,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
                         parentLayoutNode?.positionedDuringMeasurePass ?: false
-                lastLayoutResult.placeChildren(layoutDirection!!)
+                innerLayoutNodeWrapper.measureResult.placeChildren(layoutDirection!!)
                 layoutChildren.forEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
@@ -1266,17 +1313,13 @@ class LayoutNode : ComponentNode(), Measurable {
         return alignmentLines
     }
 
-    internal fun handleLayoutResult(layoutResult: MeasureScope.LayoutResult) {
-        layoutNodeWrapper.layoutSize(
-            IntPxSize(layoutResult.width, layoutResult.height)
-        )
-
+    internal fun handleMeasureResult(measureResult: MeasureScope.MeasureResult) {
+        innerLayoutNodeWrapper.measureResult = measureResult
         if (layoutNodeWrapper.hasDirtySize()) {
             owner?.onSizeChange(this@LayoutNode)
         }
         this.providedAlignmentLines.clear()
-        this.providedAlignmentLines += layoutResult.alignmentLines
-        this.lastLayoutResult = layoutResult
+        this.providedAlignmentLines += measureResult.alignmentLines
     }
 
     /**
@@ -1302,12 +1345,21 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     internal fun dispatchOnPositionedCallbacks() {
+        if (needsRelayout) {
+            return // it hasn't been properly positioned, so don't make a call
+        }
+        if (!isPlaced) {
+            return // it hasn't been placed, so don't make a call
+        }
         // There are two types of callbacks:
         // a) when the Layout is positioned - `onPositioned`
         // b) when the child of the Layout is positioned - `onChildPositioned`
-        walkPositionModifiers(this)
-        walkOnPosition(this, this.coordinates)
-        walkOnChildPositioned(this, this.coordinates)
+        onPositionedCallbacks.fastForEach { it.onPositioned(coordinates) }
+        parentLayoutNode?.onChildPositionedCallbacks?.fastForEach {
+            it.onChildPositioned(coordinates)
+        }
+        // iterate through the subtree
+        layoutChildren.fastForEach { it.dispatchOnPositionedCallbacks() }
     }
 
     override fun toString(): String {
@@ -1315,49 +1367,6 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     internal companion object {
-        @Suppress("UNCHECKED_CAST")
-        private fun walkOnPosition(node: ComponentNode, coordinates: LayoutCoordinates) {
-            node.visitChildren { child ->
-                if (child !is LayoutNode) {
-                    walkOnPosition(child, coordinates)
-                } else {
-                    if (!child.needsRelayout) {
-                        child.dispatchOnPositionedCallbacks()
-                    }
-                }
-            }
-        }
-
-        private fun walkPositionModifiers(layoutNode: LayoutNode) {
-            if (layoutNode.needsRelayout) {
-                return // it hasn't been properly positioned, so don't make a call
-            }
-            val onPositioned = layoutNode.onPositionedCallbacks
-            for (i in 0..onPositioned.lastIndex) {
-                val callback = onPositioned[i]
-                callback(layoutNode.coordinates)
-            }
-            val onChildPositioned = layoutNode.parentLayoutNode?.onChildPositionedCallbacks
-            if (onChildPositioned != null) {
-                for (i in 0..onChildPositioned.lastIndex) {
-                    val callback = onChildPositioned[i]
-                    callback(layoutNode.coordinates)
-                }
-            }
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        private fun walkOnChildPositioned(layoutNode: LayoutNode, coordinates: LayoutCoordinates) {
-            var node = layoutNode.parent
-            while (node != null && node !is LayoutNode) {
-                if (node is DataNode<*> && node.key === OnChildPositionedKey) {
-                    val method = node.value as (LayoutCoordinates) -> Unit
-                    method(coordinates)
-                }
-                node = node.parent
-            }
-        }
-
         private val ErrorMeasureBlocks = object : NoIntrinsicsMeasureBlocks(
             error = "Undefined intrinsics block and it is required"
         ) {
@@ -1720,19 +1729,3 @@ internal fun ComponentNode.requireFirstLayoutNodeInTree(): LayoutNode {
  * DataNodeKey for ParentData
  */
 val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
-
-/**
- * DataNodeKey for OnChildPositioned callback
- */
-val OnChildPositionedKey =
-    DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnChildPositioned")
-
-/**
- * True when there is a DrawLayerModifier in the modifier chain
- */
-internal val LayoutNode.hasLayer: Boolean get() = outerLayer != null
-
-/**
- * True if the outermost layer has elevation > 0
- */
-internal val LayoutNode.hasElevation get() = outerLayer?.layer?.hasElevation ?: false

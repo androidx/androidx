@@ -89,16 +89,11 @@ fun AlignmentLineOffset(
  * add the least possible amount of padding such that the centering will work, assuming that
  * the child provides the alignment line. The layout will wrap the child in the axis opposite
  * to the alignment line axis. If the child does not provide the specified alignment line, the
- * child will be centered in the parent (same behavior as [Center]). Similarly, if the child
- * decides to be smaller than the min constraints of the layout in the axis opposite to the
- * alignment line axis, the child will be centered with respect to that axis. To make the
- * layout expand to fill the available space in the axis opposite to the alignment line,
- * consider wrapping this composable in an [Align].
+ * child will be centered in the parent. Similarly, if the child decides to be smaller than the
+ * min constraints of the layout in the axis opposite to the alignment line axis, the child will
+ * be centered with respect to that axis.
  *
  * @param alignmentLine the alignment line to be centered in the container
- *
- * @see Center
- * @see Align
  */
 @Composable
 fun CenterAlignmentLine(

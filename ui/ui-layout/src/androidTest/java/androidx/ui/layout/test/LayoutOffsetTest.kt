@@ -18,16 +18,20 @@ package androidx.ui.layout.test
 
 import android.os.Build
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Alignment
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutDirectionModifier
-import androidx.ui.layout.LayoutOffset
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Stack
+import androidx.ui.layout.offset
+import androidx.ui.layout.preferredWidth
+import androidx.ui.layout.rtl
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.round
@@ -60,8 +64,10 @@ class LayoutOffsetTest : LayoutTest() {
         var positionY = 0.ipx
         composeTestRule.setContent {
             TestTag("stack") {
-                Stack(LayoutAlign.TopStart + LayoutOffset(offsetX, offsetY) +
-                        onPositioned { coordinates ->
+                Stack(
+                    Modifier.wrapContentSize(Alignment.TopStart)
+                        .offset(offsetX, offsetY)
+                        .onPositioned { coordinates: LayoutCoordinates ->
                             positionX = coordinates.globalPosition.x.round()
                             positionY = coordinates.globalPosition.y.round()
                         }
@@ -71,7 +77,7 @@ class LayoutOffsetTest : LayoutTest() {
         }
 
         findByTag("stack").assertExists()
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertEquals(offsetX.toIntPx(), positionX)
             assertEquals(offsetY.toIntPx(), positionY)
         }
@@ -87,22 +93,22 @@ class LayoutOffsetTest : LayoutTest() {
         composeTestRule.setContent {
             TestTag("stack") {
                 Stack(
-                    LayoutDirectionModifier.Rtl +
-                            LayoutAlign.TopEnd +
-                            LayoutWidth(containerWidth) +
-                            LayoutAlign.TopStart +
-                            LayoutOffset(offsetX, offsetY) +
-                            onPositioned { coordinates ->
-                                positionX = coordinates.globalPosition.x.round()
-                                positionY = coordinates.globalPosition.y.round()
-                            }
+                    Modifier.rtl
+                        .wrapContentSize(Alignment.TopEnd)
+                        .preferredWidth(containerWidth)
+                        .wrapContentSize(Alignment.TopStart)
+                        .offset(offsetX, offsetY)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            positionX = coordinates.globalPosition.x.round()
+                            positionY = coordinates.globalPosition.y.round()
+                        }
                 ) {
                 }
             }
         }
 
         findByTag("stack").assertExists()
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertEquals(containerWidth.toIntPx() - offsetX.toIntPx(), positionX)
             assertEquals(offsetY.toIntPx(), positionY)
         }

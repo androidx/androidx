@@ -161,6 +161,20 @@ import androidx.ui.unit.min
 }
 
 @Composable
+@Deprecated("This composable is temporary to enable quicker prototyping in ConstraintLayout. " +
+        "It should not be used in app code directly.")
+fun MultiMeasureLayout(
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit,
+    measureBlock: MeasureBlock
+) {
+    val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
+    LayoutNode(modifier = modifier, measureBlocks = measureBlocks, canMultiMeasure = true) {
+        children()
+    }
+}
+
+@Composable
 @Deprecated("This composable supports our transition from single child composables to modifiers. " +
         "It should not be used in app code directly.")
 fun PassThroughLayout(
@@ -263,9 +277,7 @@ internal class DefaultIntrinsicMeasurable(
 @PublishedApi
 internal class IntrinsicsMeasureScope(
     density: Density
-) : MeasureScope(), Density by density {
-    // TODO(popam): clean this up and prevent measuring inside intrinsics
-}
+) : MeasureScope(), Density by density
 
 /**
  * Default [LayoutNode.MeasureBlocks] object implementation, providing intrinsic measurements
@@ -319,7 +331,7 @@ fun MeasuringIntrinsicsMeasureBlocks(measureBlock: MeasureBlock) =
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
 private inline fun Density.MeasuringMinIntrinsicWidth(
-    measureBlock: MeasureBlock,
+    measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
     h: IntPx,
     layoutDirection: LayoutDirection
@@ -338,7 +350,7 @@ private inline fun Density.MeasuringMinIntrinsicWidth(
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
 private inline fun Density.MeasuringMinIntrinsicHeight(
-    measureBlock: MeasureBlock,
+    measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
     w: IntPx,
     layoutDirection: LayoutDirection
@@ -357,7 +369,7 @@ private inline fun Density.MeasuringMinIntrinsicHeight(
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
 private inline fun Density.MeasuringMaxIntrinsicWidth(
-    measureBlock: MeasureBlock,
+    measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
     h: IntPx,
     layoutDirection: LayoutDirection
@@ -376,7 +388,7 @@ private inline fun Density.MeasuringMaxIntrinsicWidth(
  * measure block with measure calls replaced with intrinsic measurement calls.
  */
 private inline fun Density.MeasuringMaxIntrinsicHeight(
-    measureBlock: MeasureBlock,
+    measureBlock: MeasureBlock /*TODO: crossinline*/,
     measurables: List<IntrinsicMeasurable>,
     w: IntPx,
     layoutDirection: LayoutDirection
@@ -443,7 +455,7 @@ private class WithConstrainsState {
             measurables: List<Measurable>,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): MeasureScope.LayoutResult {
+        ): MeasureScope.MeasureResult {
             val root = nodeRef.value!!
             if (lastConstraints != constraints || forceRecompose) {
                 lastConstraints = constraints
@@ -481,23 +493,5 @@ private class WithConstrainsState {
             children(constraints, node.layoutDirection!!)
         }
         forceRecompose = false
-    }
-}
-
-/**
- * [onPositioned] callback will be called with the final LayoutCoordinates of the children
- * MeasureBox(es) after measuring.
- * Note that it will be called after a composition when the coordinates are finalized.
- *
- * Usage example:
- * @sample androidx.ui.framework.samples.OnChildPositionedSample
- */
-@Composable
-inline fun OnChildPositioned(
-    noinline onPositioned: (coordinates: LayoutCoordinates) -> Unit,
-    crossinline children: @Composable() () -> Unit
-) {
-    DataNode(key = OnChildPositionedKey, value = onPositioned) {
-        children()
     }
 }

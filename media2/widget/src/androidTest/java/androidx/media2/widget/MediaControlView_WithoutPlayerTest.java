@@ -66,14 +66,14 @@ public class MediaControlView_WithoutPlayerTest extends MediaWidgetTestBase {
 
     @UiThreadTest
     @Test
-    public void testConstructor() {
+    public void constructor() {
         new MediaControlView(mActivity);
         new MediaControlView(mActivity, null);
         new MediaControlView(mActivity, null, 0);
     }
 
     @Test
-    public void testFullScreenListener() throws Throwable {
+    public void fullScreenListener() throws Throwable {
         onView(withId(R.id.fullscreen)).check(matches(not(isDisplayed())));
 
         final CountDownLatch latchOn = new CountDownLatch(1);

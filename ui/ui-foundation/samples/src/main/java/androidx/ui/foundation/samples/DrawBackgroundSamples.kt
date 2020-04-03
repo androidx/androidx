@@ -18,12 +18,14 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.foundation.DrawBackground
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
-import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.padding
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
 
@@ -32,7 +34,7 @@ import androidx.ui.unit.px
 fun DrawBackgroundColor() {
     Text(
         "Text with background",
-        modifier = DrawBackground(color = Color.Magenta) + LayoutPadding(10.dp)
+        Modifier.drawBackground(Color.Magenta, RectangleShape).padding(10.dp)
     )
 }
 
@@ -46,7 +48,7 @@ fun DrawBackgroundShapedBrush() {
     )
     Text(
         "Text with gradient back",
-        modifier = DrawBackground(shape = CutCornerShape(8.dp), brush = gradientBrush) +
-                LayoutPadding(10.dp)
+        Modifier.drawBackground(brush = gradientBrush, shape = CutCornerShape(8.dp))
+            .padding(10.dp)
     )
 }

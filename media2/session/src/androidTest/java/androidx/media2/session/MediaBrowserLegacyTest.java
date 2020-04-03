@@ -117,13 +117,13 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testConnect() throws InterruptedException {
+    public void connect() throws InterruptedException {
         MediaBrowser browser = createBrowser(new MediaBrowser.BrowserCallback() { });
         // If connection failed, exception will be thrown inside of #createBrowser().
     }
 
     @Test
-    public void testConnect_rejected() throws InterruptedException {
+    public void connect_rejected() throws InterruptedException {
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
             @Override
             public BrowserRoot onGetRoot(String clientPackageName, int clientUid,
@@ -151,7 +151,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetLibraryRoot() throws Exception {
+    public void getLibraryRoot() throws Exception {
         final String testMediaId = "testGetLibraryRoot";
         final Bundle testExtra = new Bundle();
         testExtra.putString(testMediaId, testMediaId);
@@ -196,7 +196,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetItem() throws Exception {
+    public void getItem() throws Exception {
         final String testMediaId = "test_media_item";
         final MediaBrowserCompat.MediaItem testItem = createMediaItem(testMediaId);
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
@@ -215,7 +215,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetItem_nullResult() throws Exception {
+    public void getItem_nullResult() throws Exception {
         final String testMediaId = "test_media_item";
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
             @Override
@@ -231,7 +231,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetChildren_onLoadChildrenWithoutOptions() throws Exception {
+    public void getChildren_onLoadChildrenWithoutOptions() throws Exception {
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -256,7 +256,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetChildren_withoutOption() throws Exception {
+    public void getChildren_withoutOption() throws Exception {
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -288,7 +288,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetChildren_withOption() throws Exception {
+    public void getChildren_withOption() throws Exception {
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -315,7 +315,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetChildren_nullResult() throws Exception {
+    public void getChildren_nullResult() throws Exception {
         final String testParentId = "test_media_parent";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -338,7 +338,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testSearch() throws Exception {
+    public void search() throws Exception {
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -389,7 +389,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testSearch_nullResult() throws Exception {
+    public void search_nullResult() throws Exception {
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;
@@ -433,7 +433,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
      * @throws InterruptedException
      */
     @Test
-    public void testSubscribeAndUnsubscribe() throws Exception {
+    public void subscribeAndUnsubscribe() throws Exception {
         final String testParentId = "testSubscribe";
         final LibraryParams testParams = TestUtils.createLibraryParams();
         final List<MediaBrowserCompat.MediaItem> testFullMediaItemList = createMediaItems(4);
@@ -487,7 +487,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testSubscribe_failed() throws Exception {
+    public void subscribe_failed() throws Exception {
         final String testParentId = "testSubscribe_failed";
         final CountDownLatch subscribeLatch = new CountDownLatch(1);
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {

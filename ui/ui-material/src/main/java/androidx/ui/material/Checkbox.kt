@@ -24,9 +24,9 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
+import androidx.ui.core.DrawScope
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable
@@ -40,8 +40,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.dp
@@ -111,12 +111,12 @@ fun TriStateCheckbox(
                 state = state,
                 onClick = onClick,
                 enabled = enabled,
-                modifier = ripple(bounded = false, enabled = enabled)
+                modifier = Modifier.ripple(bounded = false, enabled = enabled)
             ) {
                 DrawCheckbox(
                     value = state,
                     activeColor = color,
-                    modifier = LayoutPadding(CheckboxDefaultPadding)
+                    modifier = CheckboxDefaultPadding
                 )
             }
         }
@@ -131,7 +131,7 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: M
     }
     val checkboxPaint = remember { Paint() }
     Transition(definition = definition, toState = value) { state ->
-        Canvas(modifier = modifier + LayoutSize(CheckboxSize)) {
+        Canvas(modifier.preferredSize(CheckboxSize)) {
             drawBox(
                 color = state[BoxColorProp],
                 innerRadiusFraction = state[InnerRadiusFractionProp],
@@ -146,7 +146,7 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: M
     }
 }
 
-private fun CanvasScope.drawBox(
+private fun DrawScope.drawBox(
     color: Color,
     innerRadiusFraction: Float,
     paint: Paint
@@ -208,7 +208,7 @@ private fun CanvasScope.drawBox(
     }
 }
 
-private fun CanvasScope.drawCheck(
+private fun DrawScope.drawCheck(
     checkFraction: Float,
     crossCenterGravitation: Float,
     paint: Paint
@@ -329,7 +329,7 @@ private fun TransitionSpec<ToggleableState>.boxTransitionToUnchecked() {
     }
 }
 
-private val CheckboxDefaultPadding = 2.dp
+private val CheckboxDefaultPadding = Modifier.padding(2.dp)
 private val CheckboxSize = 20.dp
 private val StrokeWidth = 2.dp
 private val RadiusSize = 2.dp

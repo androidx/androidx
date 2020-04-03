@@ -27,18 +27,22 @@ import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.util.Map;
 
+import javax.inject.Provider;
+
 /**
  * View Model Provider Factory for the Hilt Extension.
  */
 public final class ViewModelFactory extends AbstractSavedStateViewModelFactory {
 
-    private final Map<Class<? extends ViewModel>, ViewModelAssistedFactory<?>> mViewModelFactories;
+    private final Map<
+            Class<? extends ViewModel>,
+            Provider<ViewModelAssistedFactory<? extends ViewModel>>> mViewModelFactories;
 
     ViewModelFactory(
             @NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs,
             @NonNull Map<Class<? extends ViewModel>,
-                    ViewModelAssistedFactory<?>> viewModelFactories) {
+                    Provider<ViewModelAssistedFactory<? extends ViewModel>>> viewModelFactories) {
         super(owner, defaultArgs);
         this.mViewModelFactories = viewModelFactories;
     }
@@ -50,6 +54,6 @@ public final class ViewModelFactory extends AbstractSavedStateViewModelFactory {
             @NonNull SavedStateHandle handle) {
         // TODO(danysantiago): What to do with 'key' ???
         // TODO(danysantiago): Better exception for missing class
-        return (T) mViewModelFactories.get(modelClass).create(handle);
+        return (T) mViewModelFactories.get(modelClass).get().create(handle);
     }
 }

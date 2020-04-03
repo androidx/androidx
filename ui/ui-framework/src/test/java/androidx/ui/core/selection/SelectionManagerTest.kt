@@ -20,6 +20,7 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.style.TextDirection
@@ -69,12 +70,14 @@ class SelectionManagerTest {
         )
 
     private val hapticFeedback = mock<HapticFeedback>()
+    private val clipboardManager = mock<ClipboardManager>()
 
     @Before
     fun setup() {
         selectionRegistrar.subscribe(selectable)
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.hapticFeedBack = hapticFeedback
+        selectionManager.clipboardManager = clipboardManager
     }
 
     @Test
@@ -302,6 +305,45 @@ class SelectionManagerTest {
         verify(middleSelectable, times(1)).getText()
         verify(endSelectable, times(1)).getText()
         verify(lastSelectable, times(0)).getText()
+    }
+
+    @Test
+    fun copy_selection_null_not_trigger_clipboardmanager() {
+        selectionManager.selection = null
+
+        selectionManager.copy()
+
+        verify(clipboardManager, times(0)).setText(any())
+    }
+
+    @Test
+    fun copy_selection_not_null_trigger_clipboardmanager_setText() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text = text)
+        val startOffset = text.indexOf('m')
+        val endOffset = text.indexOf('x')
+        whenever(selectable.getText()).thenReturn(annotatedString)
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = startOffset,
+                selectable = selectable),
+            end = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = endOffset,
+                selectable = selectable
+            ),
+            handlesCrossed = true
+        )
+
+        selectionManager.copy()
+
+        verify(clipboardManager, times(1)).setText(
+            annotatedString.subSequence(
+                endOffset,
+                startOffset
+            )
+        )
     }
 
     @Test

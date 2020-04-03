@@ -17,16 +17,18 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.Card
 import androidx.ui.material.MaterialTheme
 import androidx.ui.unit.dp
@@ -38,31 +40,31 @@ import androidx.ui.unit.dp
 fun AccountsBody() {
     VerticalScroller {
         Column {
-            Stack(LayoutPadding(16.dp)) {
+            Stack(Modifier.padding(16.dp)) {
                 val accountsProportion = listOf(0.595f, 0.045f, 0.095f, 0.195f, 0.045f)
                 val colors = listOf(0xFF1EB980, 0xFF005D57, 0xFF04B97F, 0xFF37EFBA, 0xFFFAFFBF)
                     .map { Color(it) }
                 AnimatedCircle(
-                    LayoutHeight(300.dp) + LayoutGravity.Center + LayoutWidth.Fill,
+                    Modifier.preferredHeight(300.dp).gravity(Alignment.Center).fillMaxWidth(),
                     accountsProportion,
                     colors
                 )
-                Column(modifier = LayoutGravity.Center) {
+                Column(modifier = Modifier.gravity(Alignment.Center)) {
                     Text(
                         text = "Total",
                         style = MaterialTheme.typography.body1,
-                        modifier = LayoutGravity.Center
+                        modifier = Modifier.gravity(ColumnAlign.Center)
                     )
                     Text(
                         text = "$12,132.49",
                         style = MaterialTheme.typography.h2,
-                        modifier = LayoutGravity.Center
+                        modifier = Modifier.gravity(ColumnAlign.Center)
                     )
                 }
             }
-            Spacer(LayoutHeight(10.dp))
+            Spacer(Modifier.preferredHeight(10.dp))
             Card {
-                Column(modifier = LayoutPadding(12.dp)) {
+                Column(modifier = Modifier.padding(12.dp)) {
                     UserData.accounts.forEach { account ->
                         AccountRow(
                             name = account.name,

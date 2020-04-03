@@ -19,20 +19,20 @@ package androidx.ui.test.android
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Root
 import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
-import androidx.ui.core.SemanticsTreeProvider
+import androidx.ui.core.AndroidOwner
 import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.core.semantics.getAllSemanticsNodes
 import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
 
 /**
- * Collects all [SemanticsTreeProvider]s that are part of the currently visible window.
+ * Collects all [AndroidOwner]s that are part of the currently visible window.
  *
  * This operation is performed only after compose is idle via Espresso.
  */
@@ -41,15 +41,15 @@ internal object SynchronizedTreeCollector {
     private val noChecks = ViewAssertion { _, _ -> }
 
     /**
-     * Collects all [SemanticsTreeProvider]s that are part of the currently visible window.
+     * Collects all [AndroidOwner]s that are part of the currently visible window.
      *
      * This is a blocking call. Returns only after compose is idle.
      *
      * Can crash in case Espresso hits time out. This is not supposed to be handled as it
      * surfaces only in incorrect tests.
      */
-    internal fun collectSemanticsProviders(): CollectedProviders {
-        ComposeIdlingResource.registerSelfIntoEspresso()
+    internal fun collectOwners(): CollectedOwners {
+        registerComposeWithEspresso()
         val rootSearcher = RootSearcher()
 
         // Use Espresso to iterate over all roots and find all SemanticsTreeProviders
@@ -59,10 +59,10 @@ internal object SynchronizedTreeCollector {
             .inRoot(rootSearcher)
             .check(noChecks)
 
-        require(rootSearcher.foundSemanticsTreeProviders) {
+        require(rootSearcher.owners.isNotEmpty()) {
             "No SemanticsTreeProviders found. Is your Activity resumed?"
         }
-        return CollectedProviders(rootSearcher.semanticsTreeProviders)
+        return CollectedOwners(rootSearcher.owners)
     }
 
     /**
@@ -74,21 +74,19 @@ internal object SynchronizedTreeCollector {
      * surfaces only in incorrect tests.
      */
     internal fun waitForIdle() {
-        ComposeIdlingResource.registerSelfIntoEspresso()
+        registerComposeWithEspresso()
         Espresso.onIdle()
     }
 
     /**
      * Root matcher that can be used in [inRoot][androidx.test.espresso.ViewInteraction.inRoot]
-     * to search all [SemanticsTreeProvider]s that are ultimately attached to the window.
+     * to search all [AndroidOwner]s that are ultimately attached to the window.
      */
     private class RootSearcher : BaseMatcher<Root>() {
         private var isFirstRoot = true
         private var resumedActivity: Activity? = null
-        private val treeProviders = mutableSetOf<SemanticsTreeProvider>()
 
-        val semanticsTreeProviders: Set<SemanticsTreeProvider> get() = treeProviders
-        val foundSemanticsTreeProviders get() = treeProviders.isNotEmpty()
+        val owners = mutableSetOf<AndroidOwner>()
 
         override fun describeTo(description: Description?) {
             description?.appendText("Root iterator")
@@ -114,7 +112,7 @@ internal object SynchronizedTreeCollector {
                 }
 
                 if (hostActivity == resumedActivity) {
-                    treeProviders.addAll(getTreeProviders(view))
+                    owners.addAll(getOwners(view))
                     if (isFirstRoot) {
                         useRoot = true
                         isFirstRoot = false
@@ -124,12 +122,12 @@ internal object SynchronizedTreeCollector {
             return useRoot
         }
 
-        private fun getTreeProviders(view: View): Set<SemanticsTreeProvider> {
-            val treeProviders = mutableSetOf<SemanticsTreeProvider>()
+        private fun getOwners(view: View): Set<AndroidOwner> {
+            val owners = mutableSetOf<AndroidOwner>()
 
             fun getOwnersRecursive(view: View) {
                 when (view) {
-                    is SemanticsTreeProvider -> treeProviders.add(view)
+                    is AndroidOwner -> owners.add(view)
                     is ViewGroup -> {
                         repeat(view.childCount) { i ->
                             getOwnersRecursive(view.getChildAt(i))
@@ -139,7 +137,7 @@ internal object SynchronizedTreeCollector {
             }
 
             getOwnersRecursive(view)
-            return treeProviders
+            return owners
         }
     }
 }
@@ -154,34 +152,25 @@ private fun Context.getActivity(): Activity? {
 }
 
 /**
- * There can be multiple Compose views in Android hierarchy and we want to interact with all of
- * them. This class merges all the semantics trees into one, hiding the fact that the API might
- * be interacting with several Compose roots.
+ * There can be multiple Compose views in the Android hierarchy and we want to interact with all
+ * of them. This class merges all the [AndroidOwner]s into one, hiding the fact that the API
+ * might be interacting with several Compose roots.
  */
-internal data class CollectedProviders(val treeProviders: Set<SemanticsTreeProvider>) {
+internal data class CollectedOwners(val owners: Set<AndroidOwner>) {
     fun findActivity(): Activity {
-        treeProviders.forEach {
-            if (it is View) {
-                val activity = it.context.getActivity()
-                if (activity != null) {
-                    return activity
-                }
+        owners.forEach {
+            val activity = it.view.context.getActivity()
+            if (activity != null) {
+                return activity
             }
         }
         throw AssertionError(
-            "Out of ${treeProviders.size} SemanticsTreeProviders, none were attached to an Activity"
+            "Out of ${owners.size} Owners, none were attached to an Activity"
         )
     }
 
     fun getAllSemanticNodes(): List<SemanticsNode> {
         // TODO(pavlis): Once we have a tree support we will just add a fake root parent here
-        return treeProviders.flatMap { it.getAllSemanticNodes() }
-    }
-
-    fun sendEvent(event: MotionEvent) {
-        // TODO: This seems wrong. Optimally this should be any { }. As any view that does not
-        // handle the event should return false. However our AndroidComposeViews all return true
-        // If we put any {} here it breaks MultipleComposeRootsTest.
-        treeProviders.forEach { it.sendEvent(event) }
+        return owners.flatMap { it.semanticsOwner.getAllSemanticsNodes() }
     }
 }

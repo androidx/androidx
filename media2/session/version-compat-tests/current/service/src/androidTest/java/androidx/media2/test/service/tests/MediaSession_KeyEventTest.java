@@ -151,35 +151,35 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testPlayKeyEvent() throws Exception {
+    public void playKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPlayCalled);
     }
 
     @Test
-    public void testPauseKeyEvent() throws Exception {
+    public void pauseKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPauseCalled);
     }
 
     @Test
-    public void testNextKeyEvent() throws Exception {
+    public void nextKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToNextItemCalled);
     }
 
     @Test
-    public void testPreviousKeyEvent() throws Exception {
+    public void previousKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToPreviousItemCalled);
     }
 
     @Test
-    public void testStopKeyEvent() throws Exception {
+    public void stopKeyEvent() throws Exception {
         mPlayer = new MockPlayer(2);
         mSession.updatePlayer(mPlayer);
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_STOP, false);
@@ -189,21 +189,21 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testFastForwardKeyEvent() throws Exception {
+    public void fastForwardKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_FAST_FORWARD, false);
         assertTrue(mSessionCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mSessionCallback.mFastForwardCalled);
     }
 
     @Test
-    public void testRewindKeyEvent() throws Exception {
+    public void rewindKeyEvent() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_REWIND, false);
         assertTrue(mSessionCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mSessionCallback.mRewindCalled);
     }
 
     @Test
-    public void testPlayPauseKeyEvent_play() throws Exception {
+    public void playPauseKeyEvent_play() throws Exception {
         mPlayer.notifyPlayerStateChanged(SessionPlayer.PLAYER_STATE_PAUSED);
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -211,14 +211,14 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testPlayPauseKeyEvent_pause() throws Exception {
+    public void playPauseKeyEvent_pause() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, false);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPauseCalled);
     }
 
     @Test
-    public void testPlayPauseKeyEvent_doubleTapIsTranslatedToSkipToNext() throws Exception {
+    public void playPauseKeyEvent_doubleTapIsTranslatedToSkipToNext() throws Exception {
         dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, true);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToNextItemCalled);

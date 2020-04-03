@@ -18,12 +18,15 @@ package androidx.ui.framework.demos.gestures
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.Direction
-import androidx.ui.core.gesture.TouchSlopExceededGestureDetector
+import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.touchSlopExceededGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.dp
 
 /**
@@ -74,10 +77,10 @@ fun TouchSlopExceededGestureDetectorDemo() {
         }
 
     Box(
-        LayoutSize.Fill +
-                LayoutAlign.Center +
-                TouchSlopExceededGestureDetector(onTouchSlopExceeded, canDrag) +
-                LayoutSize(96.dp),
+        Modifier.fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+            .touchSlopExceededGestureFilter(onTouchSlopExceeded, canDrag)
+            .preferredSize(96.dp),
         backgroundColor = color
     )
 }

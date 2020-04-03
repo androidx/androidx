@@ -14,14 +14,25 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.layout
 
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Modifier
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+
+/**
+ * Offset the content by ([x]dp, [y]dp).
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.LayoutOffsetModifier
+ */
+fun Modifier.offset(x: Dp, y: Dp) = this + LayoutOffset(x = x, y = y)
 
 /**
  * A [LayoutModifier] that offsets the position of the wrapped layout with the given
@@ -40,7 +51,16 @@ import androidx.ui.unit.IntPxSize
  * @param x The horizontal offset added to the position of the wrapped layout
  * @param y The vertical offset added to the position of the wrapped layout
  */
-data class LayoutOffset(val x: Dp, val y: Dp) : LayoutModifier {
+data class LayoutOffset
+@Deprecated(
+    "Use Modifier.offset",
+    replaceWith = ReplaceWith(
+        "Modifier.offset(x, y)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.layout.offset"
+    )
+)
+constructor(val x: Dp, val y: Dp) : LayoutModifier {
     override fun Density.modifyPosition(
         childSize: IntPxSize,
         containerSize: IntPxSize,

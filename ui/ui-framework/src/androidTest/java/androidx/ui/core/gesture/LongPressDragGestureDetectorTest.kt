@@ -22,6 +22,7 @@ import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.PxPosition
@@ -67,7 +68,7 @@ class LongPressDragGestureDetectorTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Layout(
-                    modifier = LongPressDragGestureDetector(longPressDragObserver),
+                    modifier = Modifier.longPressDragGestureFilter(longPressDragObserver),
                     measureBlock = { _, _, _ ->
                         layout(100.ipx, 100.ipx) {
                             setupLatch.countDown()

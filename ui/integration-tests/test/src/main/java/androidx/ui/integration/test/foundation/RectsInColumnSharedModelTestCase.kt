@@ -18,13 +18,16 @@ package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
 import androidx.compose.Model
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Box
 import androidx.ui.unit.dp
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.layout.preferredSize
 
 @Model
 private class RectanglesInColumnTestCaseColorModel(var color: Color)
@@ -48,9 +51,9 @@ class RectsInColumnSharedModelTestCase(
             Column {
                 repeat(amountOfRectangles) { i ->
                     if (i == 0) {
-                        ColoredRect(color = model.color, width = 100.dp, height = 50.dp)
+                        Box(Modifier.preferredSize(100.dp, 50.dp).drawBackground(model.color))
                     } else {
-                        ColoredRect(color = Color.Green, width = 100.dp, height = 50.dp)
+                        Box(Modifier.preferredSize(100.dp, 50.dp).drawBackground(Color.Green))
                     }
                 }
             }

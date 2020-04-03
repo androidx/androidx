@@ -18,9 +18,12 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.DeterminateProgressIndicator
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
 @Sampled
@@ -28,6 +31,6 @@ import androidx.ui.unit.dp
 fun DeterminateProgressSample() {
     val progress = 0.5f // emulate progress from some state
     DeterminateProgressIndicator(progress) {
-        ColoredRect(Color.Cyan, height = 4.dp, width = (progress * 100).dp)
+        Box(Modifier.preferredSize((progress * 100).dp, 4.dp).drawBackground(Color.Cyan))
     }
 }

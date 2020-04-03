@@ -21,13 +21,14 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -55,10 +56,10 @@ class DrawBackgroundTest {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    LayoutSize(40.px.toDp()) + DrawBackground(Color.Magenta),
+                    Modifier.preferredSize(40.px.toDp()).drawBackground(Color.Magenta),
                     gravity = ContentGravity.Center
                 ) {
-                    Box(LayoutSize(20.px.toDp()) + DrawBackground(Color.White))
+                    Box(Modifier.preferredSize(20.px.toDp()).drawBackground(Color.White))
                 }
             }
         }
@@ -78,10 +79,13 @@ class DrawBackgroundTest {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    LayoutSize(40.px.toDp()) + DrawBackground(Color.Magenta),
+                    Modifier.preferredSize(40.px.toDp()).drawBackground(Color.Magenta),
                     gravity = ContentGravity.Center
                 ) {
-                    Box(LayoutSize(20.px.toDp()) + DrawBackground(SolidColor(Color.White)))
+                    Box(
+                        Modifier.preferredSize(20.px.toDp())
+                            .drawBackground(SolidColor(Color.White))
+                    )
                 }
             }
         }
@@ -101,9 +105,9 @@ class DrawBackgroundTest {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    LayoutSize(40.px.toDp()) +
-                            DrawBackground(Color.Magenta) +
-                            DrawBackground(shape = CircleShape, color = Color.White)
+                    Modifier.preferredSize(40.px.toDp())
+                        .drawBackground(Color.Magenta)
+                        .drawBackground(color = Color.White, shape = CircleShape)
                 )
             }
         }
@@ -122,12 +126,12 @@ class DrawBackgroundTest {
         composeTestRule.setContent {
             SemanticParent {
                 Box(
-                    LayoutSize(40.px.toDp()) +
-                            DrawBackground(Color.Magenta) +
-                            DrawBackground(
-                                shape = CircleShape,
-                                brush = SolidColor(Color.White)
-                            )
+                    Modifier.preferredSize(40.px.toDp())
+                        .drawBackground(Color.Magenta)
+                        .drawBackground(
+                            brush = SolidColor(Color.White),
+                            shape = CircleShape
+                        )
                 )
             }
         }

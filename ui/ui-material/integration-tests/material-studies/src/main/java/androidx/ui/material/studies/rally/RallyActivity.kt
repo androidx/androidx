@@ -16,9 +16,11 @@
 
 package androidx.ui.material.studies.rally
 
-import android.app.Activity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.setContent
 import androidx.ui.material.Scaffold
@@ -27,7 +29,7 @@ import androidx.ui.material.Scaffold
  * This Activity recreates the Rally Material Study from
  * https://material.io/design/material-studies/rally.html
  */
-class RallyActivity : Activity() {
+class RallyActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

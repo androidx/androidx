@@ -66,6 +66,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
+/**
+ *  Instrument tests for {@link ImageSaver}.
+ */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class ImageSaverTest {
@@ -99,7 +102,7 @@ public class ImageSaverTest {
     // The image used here has a YUV_420_888 format.
 
     private static final String TAG = "ImageSaverTest";
-    private static final String INVALID_DATA_PATH = "/";
+    private static final String INVALID_DATA_PATH = "/invalid_path";
 
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
@@ -266,14 +269,14 @@ public class ImageSaverTest {
     }
 
     @Test
-    public void saveToUriWithInvalidDataColumn_onErrorCalled() throws InterruptedException {
+    public void saveToUriWithEmptyCollection_onErrorCalled() throws InterruptedException {
         // Arrange.
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
         contentValues.put(MediaStore.MediaColumns.DATA, INVALID_DATA_PATH);
         ImageSaver imageSaver = getDefaultImageSaver(mMockYuvImage,
                 new ImageCapture.OutputFileOptions.Builder(mContentResolver,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        Uri.EMPTY,
                         contentValues).build());
 
         // Act.

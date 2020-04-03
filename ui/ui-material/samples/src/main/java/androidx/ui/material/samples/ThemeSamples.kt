@@ -18,18 +18,20 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutAspectRatio
+import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Typography
 import androidx.ui.material.darkColorPalette
 import androidx.ui.material.lightColorPalette
 import androidx.ui.text.TextStyle
-import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontWeight
 import androidx.ui.unit.sp
 
@@ -47,12 +49,14 @@ fun MaterialThemeSample() {
     val colors = if (isSystemInDarkTheme()) darkColors else lightColors
 
     val typography = Typography(
-        h1 = TextStyle(fontFamily = FontFamily.Default,
+        h1 = TextStyle(
             fontWeight = FontWeight.W100,
-            fontSize = 96.sp),
-        button = TextStyle(fontFamily = FontFamily.Default,
+            fontSize = 96.sp
+        ),
+        button = TextStyle(
             fontWeight = FontWeight.W600,
-            fontSize = 14.sp)
+            fontSize = 14.sp
+        )
     )
 
     MaterialTheme(colors = colors, typography = typography) {
@@ -68,7 +72,7 @@ fun MaterialThemeSample() {
 @Composable
 fun ThemeColorSample() {
     val colors = MaterialTheme.colors
-    ColoredRect(color = colors.primary, modifier = LayoutAspectRatio(1f))
+    Box(Modifier.aspectRatio(1f).fillMaxSize().drawBackground(colors.primary))
 }
 
 @Sampled

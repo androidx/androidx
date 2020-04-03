@@ -18,18 +18,21 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutOffset
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.offset
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.dp
 
 @Sampled
@@ -46,21 +49,21 @@ fun DraggableSample() {
     // this is the  state we will update while dragging
     var position by state { 0f }
 
-    val draggable = draggable(dragDirection = DragDirection.Horizontal) { delta ->
-        // consume only delta that needed if we hit bounds
-        val old = position
-        position = (position + delta).coerceIn(minPx, maxPx)
-        position - old
-    }
-
     // seekbar itself
     Box(
-        modifier = LayoutWidth(max + squareSize) + draggable,
+        modifier = Modifier
+            .preferredWidth(max + squareSize)
+            .draggable(dragDirection = DragDirection.Horizontal) { delta ->
+                // consume only delta that needed if we hit bounds
+                val old = position
+                position = (position + delta).coerceIn(minPx, maxPx)
+                position - old
+            },
         backgroundColor = Color.Black
     ) {
         val xOffset = with(DensityAmbient.current) { position.toDp() }
         Box(
-            LayoutOffset(x = xOffset, y = 0.dp) + LayoutSize(squareSize),
+            Modifier.offset(x = xOffset, y = 0.dp).preferredSize(squareSize),
             backgroundColor = Color.Red
         )
     }
@@ -85,25 +88,22 @@ fun AnchoredDraggableSample() {
     val position = animatedFloat(0f)
     position.setBounds(minPx, maxPx)
 
-    val draggable = draggable(
-        startDragImmediately = position.isRunning,
-        dragDirection = DragDirection.Horizontal,
-        onDragStopped = {
-            // launch fling with velocity to animate to the closes anchor
-            position.fling(flingConfig, it)
-        }
-    ) { delta ->
-        position.snapTo(position.value + delta)
-        delta // consume all delta no matter the bounds to avoid nested dragging (as example)
-    }
     // seekbar itself
     Box(
-        modifier = LayoutWidth(max + squareSize) + draggable,
+        modifier = Modifier.preferredWidth(max + squareSize).draggable(
+            startDragImmediately = position.isRunning,
+            dragDirection = DragDirection.Horizontal,
+            // launch fling with velocity to animate to the closes anchor
+            onDragStopped = { position.fling(flingConfig, it) }
+        ) { delta ->
+            position.snapTo(position.value + delta)
+            delta // consume all delta no matter the bounds to avoid nested dragging (as example)
+        },
         backgroundColor = Color.Black
     ) {
         val xOffset = with(DensityAmbient.current) { position.value.toDp() }
         Box(
-            LayoutOffset(x = xOffset, y = 0.dp) + LayoutSize(squareSize),
+            Modifier.offset(x = xOffset, y = 0.dp).preferredSize(squareSize),
             backgroundColor = Color.Red
         )
     }

@@ -21,7 +21,8 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.animatedFloat
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
@@ -30,6 +31,8 @@ import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.BottomAppBar
 import androidx.ui.material.DrawerState
 import androidx.ui.material.ExtendedFloatingActionButton
@@ -82,7 +85,10 @@ fun SimpleScaffoldWithTopBar() {
             VerticalScroller {
                 Column(modifier) {
                     repeat(100) {
-                        ColoredRect(color = colors[it % colors.size], height = 50.dp)
+                        Box(
+                            Modifier.fillMaxWidth().preferredHeight(50.dp),
+                            backgroundColor = colors[it % colors.size]
+                        )
                     }
                 }
             }
@@ -148,7 +154,10 @@ fun ScaffoldWithBottomBarAndCutout() {
             VerticalScroller {
                 Column(modifier) {
                     repeat(100) {
-                        ColoredRect(color = colors[it % colors.size], height = 50.dp)
+                        Box(
+                            Modifier.fillMaxWidth().preferredHeight(50.dp),
+                            backgroundColor = colors[it % colors.size]
+                        )
                     }
                 }
             }

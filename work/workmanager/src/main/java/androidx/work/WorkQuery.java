@@ -77,7 +77,7 @@ public final class WorkQuery {
     /**
      * A builder for {@link WorkQuery}.
      */
-    public static class Builder {
+    public static final class Builder {
         // Synthetic access
         List<String> mUniqueWorkNames;
         // Synthetic access

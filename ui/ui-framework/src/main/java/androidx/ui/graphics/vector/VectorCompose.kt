@@ -23,7 +23,7 @@ import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.draw
+import androidx.ui.core.drawBehind
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
@@ -90,7 +90,7 @@ fun drawVector(
 
     val vpWidth = if (viewportWidth == unset) widthPx.value else viewportWidth
     val vpHeight = if (viewportHeight == unset) heightPx.value else viewportHeight
-    return drawVector(
+    return Modifier.drawVector(
         defaultWidth = widthPx,
         defaultHeight = heightPx,
         viewportWidth = vpWidth,
@@ -119,8 +119,49 @@ fun drawVector(
  * @param[alignment] Specifies the placement of the vector within the drawing bounds
  * @param[scaleFit] Specifies how the vector is to be scaled within the parent bounds
  */
+@Deprecated("use Modifier.drawVector")
 @Composable
 fun drawVector(
+    defaultWidth: Px,
+    defaultHeight: Px,
+    viewportWidth: Float = defaultWidth.value,
+    viewportHeight: Float = defaultHeight.value,
+    tintColor: Color = DefaultTintColor,
+    tintBlendMode: BlendMode = DefaultTintBlendMode,
+    alignment: Alignment = DefaultAlignment,
+    scaleFit: ScaleFit = ScaleFit.Fit,
+    name: String = "",
+    children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+): Modifier = Modifier.drawVector(
+    defaultWidth = defaultWidth,
+    defaultHeight = defaultHeight,
+    viewportWidth = viewportWidth,
+    viewportHeight = viewportHeight,
+    tintColor = tintColor,
+    tintBlendMode = tintBlendMode,
+    alignment = alignment,
+    scaleFit = scaleFit,
+    name = name,
+    children = children
+)
+
+/**
+ * Modifier to draw a vector graphic with the provided width, height and viewport dimensions
+ * @param[defaultWidth] Intrinsic width of the Vector in [Px]
+ * @param[defaultHeight] Intrinsic height of hte Vector in [Px]
+ * @param[viewportWidth] Width of the viewport space. The viewport is the virtual canvas
+ *  where paths are drawn on. This parameter is optional. Not providing it will use the
+ *  [defaultWidth]
+ * @param[viewportHeight] Height of hte viewport space. The viewport is the virtual canvas
+ *  where paths are drawn on. This parameter is optional. Not providing it will use the
+ *  [defaultHeight]
+ * @param[tintColor] Optional color used to tint this vector graphic
+ * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
+ * @param[alignment] Specifies the placement of the vector within the drawing bounds
+ * @param[scaleFit] Specifies how the vector is to be scaled within the parent bounds
+ */
+@Composable
+fun Modifier.drawVector(
     defaultWidth: Px,
     defaultHeight: Px,
     viewportWidth: Float = defaultWidth.value,
@@ -155,10 +196,10 @@ fun drawVector(
     val vectorHeight = defaultHeight.value
     val vectorPxSize = PxSize(Px(vectorWidth), Px(vectorHeight))
 
-    return draw { canvas, parentSize ->
-        val parentWidth = parentSize.width.value
-        val parentHeight = parentSize.height.value
-        val scale = scaleFit.scale(vectorPxSize, parentSize)
+    return this.drawBehind {
+        val parentWidth = size.width.value
+        val parentHeight = size.height.value
+        val scale = scaleFit.scale(vectorPxSize, size)
 
         val alignedPosition = alignment.align(
             IntPxSize(
@@ -174,9 +215,9 @@ fun drawVector(
         vector.root.scaleX = (vectorWidth / viewportWidth) * scale
         vector.root.scaleY = (vectorHeight / viewportHeight) * scale
 
-        canvas.withSave {
-            canvas.translate(translateX, translateY)
-            vector.draw(canvas, DefaultAlpha, ColorFilter(tintColor, tintBlendMode))
+        withSave {
+            translate(translateX, translateY)
+            vector.draw(this, DefaultAlpha, ColorFilter(tintColor, tintBlendMode))
         }
     }
 }

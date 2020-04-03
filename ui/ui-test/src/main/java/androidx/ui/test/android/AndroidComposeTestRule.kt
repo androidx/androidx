@@ -16,25 +16,28 @@
 
 package androidx.ui.test.android
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.SparseArray
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
+import androidx.ui.core.AndroidOwner
 import androidx.ui.core.setContent
 import androidx.ui.geometry.Rect
 import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.Density
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -51,7 +54,7 @@ import java.util.concurrent.TimeUnit
  * If you don't care about specific activity and just want to test composables in general, see
  * [AndroidComposeTestRule].
  */
-inline fun <reified T : Activity> AndroidComposeTestRule(
+inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
     disableTransitions: Boolean = false
 ): AndroidComposeTestRule<T> {
     // TODO(b/138993381): By launching custom activities we are losing control over what content is
@@ -64,7 +67,7 @@ inline fun <reified T : Activity> AndroidComposeTestRule(
 /**
  * Android specific implementation of [ComposeTestRule].
  */
-class AndroidComposeTestRule<T : Activity>(
+class AndroidComposeTestRule<T : ComponentActivity>(
     activityClass: Class<T>,
     private val disableTransitions: Boolean = false
 ) : ComposeTestRule {
@@ -81,28 +84,9 @@ class AndroidComposeTestRule<T : Activity>(
         activityTestRule.activity.resources.displayMetrics
 
     override fun apply(base: Statement, description: Description?): Statement {
-        return clockTestRule.apply(
-            activityTestRule.apply(AndroidComposeStatement(base), description),
-            description
-        )
-    }
-
-    override fun <T> runOnUiThread(action: () -> T): T {
-        // Workaround for lambda bug in IR
-        var result: T? = null
-        activityTestRule.runOnUiThread(object : Runnable {
-            override fun run() {
-                result = action.invoke()
-            }
-        })
-        return result!!
-    }
-
-    override fun <T> runOnIdleCompose(action: () -> T): T {
-        // Method below make sure that compose is idle.
-        SynchronizedTreeCollector.waitForIdle()
-        // Execute the action on ui thread in a blocking way.
-        return runOnUiThread(action)
+        val activityTestRuleStatement = activityTestRule.apply(base, description)
+        val composeTestRuleStatement = AndroidComposeStatement(activityTestRuleStatement)
+        return clockTestRule.apply(composeTestRuleStatement, description)
     }
 
     /**
@@ -149,7 +133,6 @@ class AndroidComposeTestRule<T : Activity>(
             }
         }
         return AndroidComposeTestCaseSetup(
-            this,
             testCase,
             activityTestRule.activity
         )
@@ -157,7 +140,6 @@ class AndroidComposeTestRule<T : Activity>(
 
     override fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup {
         return AndroidComposeTestCaseSetup(
-            this,
             testCase,
             activityTestRule.activity
         )
@@ -177,34 +159,64 @@ class AndroidComposeTestRule<T : Activity>(
         return captureRegionToBitmap(screenRect, handler, activityTestRule.activity.window)
     }
 
+    private fun onAndroidOwnerCreated(owner: AndroidOwner) {
+        owner.view.addOnAttachStateChangeListener(OwnerAttachedListener(owner))
+    }
+
     inner class AndroidComposeStatement(
         private val base: Statement
     ) : Statement() {
         override fun evaluate() {
-            transitionsEnabled = !disableTransitions
-            ComposeIdlingResource.registerSelfIntoEspresso()
+            beforeEvaluate()
             try {
                 base.evaluate()
             } finally {
-                transitionsEnabled = true
-                // Dispose the content
-                if (disposeContentHook != null) {
-                    runOnUiThread {
-                        // NOTE: currently, calling dispose after an exception that happened during
-                        // composition is not a safe call. Compose runtime should fix this, and then
-                        // this call will be okay. At the moment, however, calling this could
-                        // itself produce an exception which will then obscure the original
-                        // exception. To fix this, we will just wrap this call in a try/catch of
-                        // its own
-                        try {
-                            disposeContentHook!!()
-                        } catch (e: Exception) {
-                            // ignore
-                        }
-                        disposeContentHook = null
+                afterEvaluate()
+            }
+        }
+
+        private fun beforeEvaluate() {
+            transitionsEnabled = !disableTransitions
+            AndroidOwner.onAndroidOwnerCreatedCallback = ::onAndroidOwnerCreated
+            registerComposeWithEspresso()
+        }
+
+        private fun afterEvaluate() {
+            transitionsEnabled = true
+            AndroidOwner.onAndroidOwnerCreatedCallback = null
+            // Dispose the content
+            if (disposeContentHook != null) {
+                runOnUiThread {
+                    // NOTE: currently, calling dispose after an exception that happened during
+                    // composition is not a safe call. Compose runtime should fix this, and then
+                    // this call will be okay. At the moment, however, calling this could
+                    // itself produce an exception which will then obscure the original
+                    // exception. To fix this, we will just wrap this call in a try/catch of
+                    // its own
+                    try {
+                        disposeContentHook!!()
+                    } catch (e: Exception) {
+                        // ignore
                     }
+                    disposeContentHook = null
                 }
             }
+        }
+    }
+
+    private class OwnerAttachedListener(
+        private val owner: AndroidOwner
+    ) : View.OnAttachStateChangeListener {
+
+        // Note: owner.view === view, because the owner _is_ the view,
+        // and this listener is only referenced from within the view.
+
+        override fun onViewAttachedToWindow(view: View) {
+            AndroidOwnerRegistry.registerOwner(owner)
+        }
+
+        override fun onViewDetachedFromWindow(view: View) {
+            AndroidOwnerRegistry.unregisterOwner(owner)
         }
     }
 }

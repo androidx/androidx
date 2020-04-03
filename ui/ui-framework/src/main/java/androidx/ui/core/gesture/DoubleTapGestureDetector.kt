@@ -30,6 +30,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.util.fastAny
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
@@ -49,18 +50,18 @@ import kotlin.coroutines.CoroutineContext
  * Also, given that this gesture detector is so temporary, opting to not write substantial tests.
  */
 @Composable
-fun DoubleTapGestureDetector(
+fun Modifier.doubleTapGestureFilter(
     onDoubleTap: (PxPosition) -> Unit
 ): Modifier {
     val coroutineContext = CoroutineContextAmbient.current
     // TODO(shepshapard): coroutineContext should be a field
     val recognizer = remember { DoubleTapGestureRecognizer(coroutineContext) }
     recognizer.onDoubleTap = onDoubleTap
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class DoubleTapGestureRecognizer(
-    coroutineContext: CoroutineContext
+    val coroutineContext: CoroutineContext
 ) : PointerInputFilter() {
     lateinit var onDoubleTap: (PxPosition) -> Unit
 
@@ -72,45 +73,48 @@ internal class DoubleTapGestureRecognizer(
     private var state = State.Idle
     private var job: Job? = null
 
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
 
-            var changesToReturn = changes
+        var changesToReturn = changes
 
-            if (pass == PointerEventPass.PostUp) {
-                if (state == State.Idle && changesToReturn.all { it.changedToDown() }) {
-                    state = State.Down
-                } else if (state == State.Down && changesToReturn.all { it.changedToUp() }) {
-                    state = State.Up
-                    job = delay(doubleTapTimeout, coroutineContext) {
-                        state = State.Idle
-                    }
-                } else if (state == State.Up && changesToReturn.all { it.changedToDown() }) {
-                    job?.cancel()
-                    state = State.SecondDown
-                } else if (state == State.SecondDown && changesToReturn.all { it.changedToUp() }) {
-                    changesToReturn = changesToReturn.map { it.consumeDownChange() }
-                    state = State.Idle
-                    onDoubleTap.invoke(changes[0].previous.position!!)
-                } else if ((state == State.Down || state == State.SecondDown) &&
-                    !changesToReturn.anyPointersInBounds(bounds)
-                ) {
-                    // If we are in one of the down states, and none of pointers are in our bounds,
-                    // then we should cancel and wait till we can be Idle again.
+        if (pass == PointerEventPass.PostUp) {
+            if (state == State.Idle && changesToReturn.all { it.changedToDown() }) {
+                state = State.Down
+            } else if (state == State.Down && changesToReturn.all { it.changedToUp() }) {
+                state = State.Up
+                job = delay(doubleTapTimeout, coroutineContext) {
                     state = State.Idle
                 }
-            }
-
-            if (pass == PointerEventPass.PostDown &&
-                changesToReturn.any { it.anyPositionChangeConsumed() }
+            } else if (state == State.Up && changesToReturn.all { it.changedToDown() }) {
+                job?.cancel()
+                state = State.SecondDown
+            } else if (state == State.SecondDown && changesToReturn.all { it.changedToUp() }) {
+                changesToReturn = changesToReturn.map { it.consumeDownChange() }
+                state = State.Idle
+                onDoubleTap.invoke(changes[0].previous.position!!)
+            } else if ((state == State.Down || state == State.SecondDown) &&
+                !changesToReturn.anyPointersInBounds(bounds)
             ) {
+                // If we are in one of the down states, and none of pointers are in our bounds,
+                // then we should cancel and wait till we can be Idle again.
                 state = State.Idle
             }
-
-            changesToReturn
         }
 
-    override var cancelHandler = {
+        if (pass == PointerEventPass.PostDown &&
+            changesToReturn.fastAny { it.anyPositionChangeConsumed() }
+        ) {
+            state = State.Idle
+        }
+
+        return changesToReturn
+    }
+
+    override fun onCancel() {
         job?.cancel()
         state = State.Idle
     }

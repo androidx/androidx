@@ -29,6 +29,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.util.fastAny
 
 /**
  * This gesture detector has callbacks for when a press gesture starts and ends for the purposes of
@@ -48,7 +49,7 @@ import androidx.ui.unit.PxPosition
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 @Composable
-fun PressIndicatorGestureDetector(
+fun Modifier.pressIndicatorGestureFilter(
     onStart: ((PxPosition) -> Unit)? = null,
     onStop: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
@@ -59,7 +60,7 @@ fun PressIndicatorGestureDetector(
     recognizer.onStop = onStop
     recognizer.onCancel = onCancel
     recognizer.setEnabled(enabled)
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
@@ -132,8 +133,11 @@ internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
         }
     }
 
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
 
             var internalChanges = changes
 
@@ -176,7 +180,7 @@ internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
             if (
                 pass == PointerEventPass.PostDown &&
                 state == State.Started &&
-                internalChanges.any { it.anyPositionChangeConsumed() }
+                internalChanges.fastAny { it.anyPositionChangeConsumed() }
             ) {
                 // On the final pass, if we have started and any of the changes had consumed
                 // position changes, we cancel.
@@ -184,10 +188,10 @@ internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
                 onCancel?.invoke()
             }
 
-            internalChanges
+            return internalChanges
         }
 
-    override val cancelHandler = {
+    override fun onCancel() {
         if (state == State.Started) {
             state = State.Idle
             onCancel?.invoke()

@@ -242,7 +242,7 @@ public final class Preview extends UseCase {
                     SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
                             resolution);
 
-                    attachToCamera(sessionConfigBuilder.build());
+                    updateSessionConfig(sessionConfigBuilder.build());
                     notifyReset();
                 }
             }
@@ -347,7 +347,7 @@ public final class Preview extends UseCase {
 
     private void updateConfigAndOutput(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull Size resolution) {
-        attachToCamera(createPipeline(cameraId, config, resolution).build());
+        updateSessionConfig(createPipeline(cameraId, config, resolution).build());
     }
 
     /**
@@ -445,6 +445,17 @@ public final class Preview extends UseCase {
             mSurfaceProviderCompleter.setCancelled();
             mSurfaceProviderCompleter = null;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void onDestroy() {
+        mSurfaceProvider = null;
     }
 
     /**

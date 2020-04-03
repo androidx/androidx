@@ -21,6 +21,7 @@ import android.graphics.ImageFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,6 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 final class ImageSaver implements Runnable {
     private static final String TAG = "ImageSaver";
@@ -149,9 +151,7 @@ final class ImageSaver implements Runnable {
             } else if (isSaveToOutputStream()) {
                 copyTempFileToOutputStream(file, mOutputFileOptions.getOutputStream());
             }
-
-            // Write temp file to Uri
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write or close the file";
             exception = e;
@@ -247,13 +247,23 @@ final class ImageSaver implements Runnable {
     }
 
     private void postSuccess(@Nullable Uri outputUri) {
-        mExecutor.execute(
-                () -> mCallback.onImageSaved(new ImageCapture.OutputFileResults(outputUri)));
+        try {
+            mExecutor.execute(
+                    () -> mCallback.onImageSaved(new ImageCapture.OutputFileResults(outputUri)));
+        } catch (RejectedExecutionException e) {
+            Log.e(TAG, "Application executor rejected executing OnImageSavedCallback.onImageSaved "
+                    + "callback. Skipping.");
+        }
     }
 
     private void postError(SaveError saveError, final String message,
             @Nullable final Throwable cause) {
-        mExecutor.execute(() -> mCallback.onError(saveError, message, cause));
+        try {
+            mExecutor.execute(() -> mCallback.onError(saveError, message, cause));
+        } catch (RejectedExecutionException e) {
+            Log.e(TAG, "Application executor rejected executing OnImageSavedCallback.onError "
+                    + "callback. Skipping.");
+        }
     }
 
     /** Type of error that occurred during save */

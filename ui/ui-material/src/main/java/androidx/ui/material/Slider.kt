@@ -26,11 +26,12 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.AnimatedFloatModel
 import androidx.ui.animation.asDisposableClock
+import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.animation.FlingConfig
@@ -44,13 +45,13 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeightIn
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidthIn
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
@@ -209,7 +210,7 @@ fun Slider(
                     }
                 }
                 val pressed = state { false }
-                val press = PressIndicatorGestureDetector(
+                val press = Modifier.pressIndicatorGestureFilter(
                     onStart = { pos ->
                         onValueChange(pos.x.value.toSliderPosition())
                         pressed.value = true
@@ -219,7 +220,7 @@ fun Slider(
                         gestureEndAction(0f)
                     })
 
-                val drag = draggable(
+                val drag = Modifier.draggable(
                     dragDirection = DragDirection.Horizontal,
                     onDragDeltaConsumptionRequested = { delta ->
                         val old = position.holder.value
@@ -255,15 +256,16 @@ private fun SliderImpl(
             val thumbSize = ThumbRadius * 2
             val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
             val offset = (widthDp - thumbSize) * fraction
-            Track(LayoutGravity.CenterStart + LayoutSize.Fill, color, position)
-            Box(LayoutGravity.CenterStart + LayoutPadding(start = offset)) {
+            val center = Modifier.gravity(Alignment.CenterStart)
+            Track(center.fillMaxSize(), color, position)
+            Box(center.padding(start = offset)) {
                 Surface(
                     shape = CircleShape,
                     color = color,
                     elevation = if (pressed) 6.dp else 1.dp,
-                    modifier = ripple(bounded = false)
+                    modifier = Modifier.ripple(bounded = false)
                 ) {
-                    Spacer(LayoutSize(thumbSize, thumbSize))
+                    Spacer(Modifier.preferredSize(thumbSize, thumbSize))
                 }
             }
         }
@@ -346,7 +348,8 @@ private val TrackHeight = 4.dp
 private val SliderHeight = 48.dp
 private val SliderMinWidth = 144.dp // TODO: clarify min width
 private val DefaultSliderConstraints =
-    LayoutWidth.Min(SliderMinWidth) + LayoutHeight.Max(SliderHeight)
+    Modifier.preferredWidthIn(minWidth = SliderMinWidth)
+        .preferredHeightIn(maxHeight = SliderHeight)
 private val InactiveTrackColorAlpha = 0.24f
 private val TickColorAlpha = 0.54f
 private val SliderToTickAnimation = TweenBuilder<Float>().apply { duration = 100 }

@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.toPxSize
@@ -33,8 +32,10 @@ import java.lang.reflect.Method
  */
 internal class ViewLayer(
     val ownerView: AndroidComposeView,
+    val container: ViewLayerContainer,
     val drawLayerModifier: DrawLayerModifier,
-    val drawBlock: (Canvas, Density) -> Unit
+    val drawBlock: (Canvas) -> Unit,
+    val invalidateParentLayer: () -> Unit
 ) : View(ownerView.context), OwnedLayer {
     private val outlineResolver = OutlineResolver(ownerView.density)
     // Value of the layerModifier's clipToBounds property
@@ -43,7 +44,7 @@ internal class ViewLayer(
     private val manualClipPath: Path? get() =
         if (!clipToOutline) null else outlineResolver.clipPath
     private var isInvalidated = false
-    private var elevationRiseListener: (() -> Unit)? = null
+    private var drawnWithZ = false
 
     /**
      * Local copy of the transform origin as DrawLayerModifier can be implemented
@@ -55,18 +56,16 @@ internal class ViewLayer(
     init {
         setWillNotDraw(false) // we WILL draw
         id = generateViewId()
-        ownerView.addView(this)
+        container.addView(this)
     }
 
-    override val hasElevation: Boolean
-        get() = elevation > 0f
-
     override fun updateLayerProperties() {
-        val hadElevation = hasElevation
         this.mTransformOrigin = drawLayerModifier.transformOrigin
         this.scaleX = drawLayerModifier.scaleX
         this.scaleY = drawLayerModifier.scaleY
         this.alpha = drawLayerModifier.alpha
+        this.translationX = drawLayerModifier.translationX
+        this.translationY = drawLayerModifier.translationY
         this.elevation = drawLayerModifier.elevation
         this.rotation = drawLayerModifier.rotationZ
         this.rotationX = drawLayerModifier.rotationX
@@ -83,8 +82,8 @@ internal class ViewLayer(
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate() // have to redraw the content
         }
-        if (!hadElevation && hasElevation) {
-            elevationRiseListener?.invoke()
+        if (!drawnWithZ && elevation > 0) {
+            invalidateParentLayer()
         }
     }
 
@@ -135,7 +134,14 @@ internal class ViewLayer(
     }
 
     override fun drawLayer(canvas: Canvas) {
-        ownerView.drawChild(canvas, this, drawingTime)
+        drawnWithZ = elevation > 0f
+        if (drawnWithZ) {
+            canvas.enableZ()
+        }
+        container.drawChild(canvas, this, drawingTime)
+        if (drawnWithZ) {
+            canvas.disableZ()
+        }
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
@@ -145,11 +151,9 @@ internal class ViewLayer(
             uiCanvas.save()
             uiCanvas.clipPath(clipPath)
         }
-        uiCanvas.enableZ()
         ownerView.observeLayerModelReads(this) {
-            drawBlock(uiCanvas, ownerView.density)
+            drawBlock(uiCanvas)
         }
-        uiCanvas.disableZ()
         if (clipPath != null) {
             uiCanvas.restore()
         }
@@ -169,9 +173,8 @@ internal class ViewLayer(
     }
 
     override fun destroy() {
-        ownerView.removeView(this)
+        container.removeView(this)
         ownerView.dirtyLayers -= this
-        elevationRiseListener = null
     }
 
     override fun updateDisplayList() {
@@ -184,10 +187,6 @@ internal class ViewLayer(
     override fun forceLayout() {
         // Don't do anything. These Views are treated as RenderNodes, so a forced layout
         // should not do anything. If we keep this, we get more redrawing than is necessary.
-    }
-
-    override fun setElevationRiseListener(block: (() -> Unit)?) {
-        elevationRiseListener = block
     }
 
     companion object {

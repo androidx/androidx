@@ -44,17 +44,20 @@ import kotlin.coroutines.resume
  * Instantiate an inspector with the given [inspectorId] and all operations such as instantition,
  * command dispatching are happening in the context of the given [dispatcher].
  *
- * if [InspectorFactory] for the given [inspectorId] can't be found in classpath
- * an [java.lang.AssertionError] is thrown.
+ * You can pass [factoryOverride] to construct your inspector. This allows you to inject test
+ * dependencies into the inspector, otherwise a factory for the given [inspectorId] will be looked
+ * up in classpath and  [java.lang.AssertionError] will be thrown if it couldn't be found.
  */
 suspend fun InspectorTester(
     inspectorId: String,
     environment: InspectorEnvironment = FakeInspectorEnvironment(),
-    dispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    dispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher(),
+    factoryOverride: InspectorFactory<*>? = null
 ): InspectorTester {
     return withContext(dispatcher) {
         val loader = ServiceLoader.load(InspectorFactory::class.java)
-        val factory = loader.iterator().asSequence().find { it.inspectorId == inspectorId }
+        val factory =
+            factoryOverride ?: loader.iterator().asSequence().find { it.inspectorId == inspectorId }
             ?: throw AssertionError("Failed to find with inspector with $inspectorId")
         val channel = Channel<ByteArray>(Channel.UNLIMITED)
         val scope = CoroutineScope(dispatcher)

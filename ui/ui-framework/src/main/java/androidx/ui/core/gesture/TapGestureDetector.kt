@@ -27,6 +27,7 @@ import androidx.ui.core.changedToUp
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
+import androidx.ui.util.fastAny
 
 /**
  * This gesture detector fires a callback when a traditional press is being released.  This is
@@ -46,13 +47,13 @@ import androidx.ui.unit.IntPxSize
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 @Composable
-fun TapGestureDetector(
+fun Modifier.tapGestureFilter(
     onTap: () -> Unit
 ): Modifier {
     val recognizer = remember { TapGestureRecognizer() }
     recognizer.onTap = onTap
     recognizer.consumeDownOnStart = false
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class TapGestureRecognizer : PointerInputFilter() {
@@ -73,46 +74,53 @@ internal class TapGestureRecognizer : PointerInputFilter() {
      */
     private var active = false
 
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
 
-            var internalChanges = changes
+        var internalChanges = changes
 
-            if (pass == PointerEventPass.PostUp) {
+        if (pass == PointerEventPass.PostUp) {
 
-                if (internalChanges.all { it.changedToDown() }) {
-                    // If we have not yet started and all of the changes changed to down, we are
-                    // starting.
-                    active = true
-                } else if (active && internalChanges.all { it.changedToUp() }) {
-                    // If we have started and all of the changes changed to up, we are stopping.
-                    active = false
-                    internalChanges = internalChanges.map { it.consumeDownChange() }
-                    onTap.invoke()
-                } else if (!internalChanges.anyPointersInBounds(bounds)) {
-                    // If none of the pointers are in bounds of our bounds, we should reset and wait
-                    // till all pointers are changing to down.
-                    cancelHandler()
-                }
-
-                if (active && consumeDownOnStart) {
-                    // If we have started, we should consume the down change on all changes.
-                    internalChanges = internalChanges.map { it.consumeDownChange() }
-                }
+            if (internalChanges.all { it.changedToDown() }) {
+                // If we have not yet started and all of the changes changed to down, we are
+                // starting.
+                active = true
+            } else if (active && internalChanges.all { it.changedToUp() }) {
+                // If we have started and all of the changes changed to up, we are stopping.
+                active = false
+                internalChanges = internalChanges.map { it.consumeDownChange() }
+                onTap.invoke()
+            } else if (!internalChanges.anyPointersInBounds(bounds)) {
+                // If none of the pointers are in bounds of our bounds, we should reset and wait
+                // till all pointers are changing to down.
+                reset()
             }
 
-            if (pass == PointerEventPass.PostDown && active &&
-                internalChanges.any { it.anyPositionChangeConsumed() }
-            ) {
-                // On the final pass, if we have started and any of the changes had consumed
-                // position changes, we cancel.
-                cancelHandler()
+            if (active && consumeDownOnStart) {
+                // If we have started, we should consume the down change on all changes.
+                internalChanges = internalChanges.map { it.consumeDownChange() }
             }
-
-            internalChanges
         }
 
-    override val cancelHandler = {
+        if (pass == PointerEventPass.PostDown && active &&
+            internalChanges.fastAny { it.anyPositionChangeConsumed() }
+        ) {
+            // On the final pass, if we have started and any of the changes had consumed
+            // position changes, we cancel.
+            reset()
+        }
+
+        return internalChanges
+    }
+
+    override fun onCancel() {
+        reset()
+    }
+
+    private fun reset() {
         active = false
     }
 }

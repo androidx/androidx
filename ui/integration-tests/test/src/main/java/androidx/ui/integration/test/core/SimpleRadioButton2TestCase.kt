@@ -17,10 +17,11 @@
 package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.DrawBackground
-import androidx.ui.foundation.DrawBorder
+import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.drawBorder
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.shift
@@ -28,7 +29,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
@@ -40,11 +41,12 @@ class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
     override fun emitContent() {
         val padding = (48.dp - getInnerSize().value) / 2
         Box(
-            LayoutSize(48.dp) + DrawBorder(Border(1.dp, Color.Cyan), CircleShape) +
-                    DrawBackground(
-                        color = Color.Cyan,
-                        shape = (PaddingShape(padding, CircleShape))
-                    )
+            Modifier.preferredSize(48.dp)
+                .drawBorder(Border(1.dp, Color.Cyan), CircleShape)
+                .drawBackground(
+                    color = Color.Cyan,
+                    shape = (PaddingShape(padding, CircleShape))
+                )
         )
     }
 }

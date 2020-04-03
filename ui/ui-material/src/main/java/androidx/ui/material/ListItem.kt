@@ -29,12 +29,12 @@ import androidx.ui.foundation.Image
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.ImageAsset
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeightIn
+import androidx.ui.layout.preferredSizeIn
+import androidx.ui.layout.preferredWidthIn
 import androidx.ui.material.ripple.ripple
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextOverflow
@@ -57,23 +57,25 @@ import androidx.ui.unit.max
  * @sample androidx.ui.material.samples.ThreeLineListItems
  *
  * @param text The primary text of the list item
+ * @param modifier Modifier to be applied to the list item
+ * @param onClick Callback to be invoked when the list item is clicked
  * @param icon The leading supporting visual of the list item
  * @param secondaryText The secondary text of the list item
  * @param singleLineSecondaryText Whether the secondary text is single line
  * @param overlineText The text displayed above the primary text
  * @param metaText The meta text to be displayed in the trailing position
- * @param onClick Callback to be invoked when the list item is clicked
  */
 @Composable
 fun ListItem(
     text: String,
+    modifier: Modifier = Modifier.None,
+    onClick: (() -> Unit)? = null,
     icon: ImageAsset? = null,
     secondaryText: String? = null,
     // TODO(popam): find a way to remove this
     singleLineSecondaryText: Boolean = true,
     overlineText: String? = null,
-    metaText: String? = null,
-    onClick: (() -> Unit)? = null
+    metaText: String? = null
 ) {
     val iconComposable: @Composable() (() -> Unit)? = icon?.let {
         { Image(it) }
@@ -94,13 +96,14 @@ fun ListItem(
         { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
     }
     ListItem(
-        textComposable,
+        modifier,
+        onClick,
         iconComposable,
         secondaryTextComposable,
         singleLineSecondaryText,
         overlineTextComposable,
         metaTextComposable,
-        onClick
+        textComposable
     )
 }
 
@@ -115,25 +118,27 @@ fun ListItem(
  * - three-line items
  * @sample androidx.ui.material.samples.ThreeLineListItems
  *
- * @param text The primary text of the list item
+ * @param modifier Modifier to be applied to the list item
+ * @param onClick Callback to be invoked when the list item is clicked
  * @param icon The leading supporting visual of the list item
  * @param secondaryText The secondary text of the list item
  * @param singleLineSecondaryText Whether the secondary text is single line
  * @param overlineText The text displayed above the primary text
  * @param trailing The trailing meta text or meta icon of the list item
- * @param onClick Callback to be invoked when the list item is clicked
+ * @param text The primary text of the list item
  */
 @Composable
 fun ListItem(
-    text: @Composable() (() -> Unit),
+    modifier: Modifier = Modifier.None,
+    onClick: (() -> Unit)? = null,
     icon: @Composable() (() -> Unit)? = null,
     secondaryText: @Composable() (() -> Unit)? = null,
     singleLineSecondaryText: Boolean = true,
     overlineText: @Composable() (() -> Unit)? = null,
     trailing: @Composable() (() -> Unit)? = null,
-    onClick: (() -> Unit)? = null
+    text: @Composable() (() -> Unit)
 ) {
-    val emphasisLevels = MaterialTheme.emphasisLevels
+    val emphasisLevels = EmphasisAmbient.current
     val typography = MaterialTheme.typography
 
     val styledText = applyTextStyle(typography.subtitle1, emphasisLevels.high, text)!!
@@ -148,6 +153,7 @@ fun ListItem(
             styledSecondaryText == null
         ) {
             TwoLine.ListItem(
+                modifier,
                 icon,
                 styledText,
                 styledSecondaryText,
@@ -156,6 +162,7 @@ fun ListItem(
             )
         } else {
             ThreeLine.ListItem(
+                modifier,
                 icon,
                 styledText,
                 styledSecondaryText,
@@ -167,7 +174,11 @@ fun ListItem(
 
     if (onClick != null) {
         val rippleColor = MaterialTheme.colors.onSurface.copy(alpha = RippleOpacity)
-        Clickable(onClick = onClick, children = item, modifier = ripple(color = rippleColor))
+        Clickable(
+            onClick = onClick,
+            modifier = Modifier.ripple(color = rippleColor),
+            children = item
+        )
     } else {
         item()
     }
@@ -196,11 +207,11 @@ private object OneLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
-        Row(LayoutHeight.Min(minHeight)) {
+        Row(Modifier.preferredHeightIn(minHeight = minHeight)) {
             if (icon != null) {
                 Box(
-                    modifier = LayoutGravity.Center +
-                            LayoutWidth.Min(IconLeftPadding + IconMinPaddedWidth),
+                    Modifier.gravity(RowAlign.Center)
+                        .preferredWidthIn(minWidth = IconLeftPadding + IconMinPaddedWidth),
                     gravity = ContentGravity.CenterStart,
                     paddingStart = IconLeftPadding,
                     paddingTop = IconVerticalPadding,
@@ -209,14 +220,15 @@ private object OneLine {
                 )
             }
             Box(
-                modifier = LayoutWeight(1f) + LayoutGravity.Center +
-                        LayoutPadding(start = ContentLeftPadding, end = ContentRightPadding),
+                Modifier.weight(1f)
+                    .gravity(RowAlign.Center)
+                    .padding(start = ContentLeftPadding, end = ContentRightPadding),
                 gravity = ContentGravity.CenterStart,
                 children = text
             )
             if (trailing != null) {
                 Box(
-                    LayoutGravity.Center,
+                    Modifier.gravity(RowAlign.Center),
                     paddingEnd = TrailingRightPadding,
                     children = trailing
                 )
@@ -247,6 +259,7 @@ private object TwoLine {
 
     @Composable
     fun ListItem(
+        modifier: Modifier = Modifier.None,
         icon: @Composable() (() -> Unit)?,
         text: @Composable() (() -> Unit),
         secondaryText: @Composable() (() -> Unit)?,
@@ -254,15 +267,16 @@ private object TwoLine {
         trailing: @Composable() (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
-        Row(LayoutHeight.Min(minHeight)) {
-            val modifier = LayoutWeight(1f) + LayoutPadding(
-                start = ContentLeftPadding,
-                end = ContentRightPadding
-            )
+        Row(modifier.preferredHeightIn(minHeight = minHeight)) {
+            val columnModifier = Modifier.weight(1f)
+                .padding(start = ContentLeftPadding, end = ContentRightPadding)
 
             if (icon != null) {
                 Box(
-                    LayoutSize.Min(IconLeftPadding + IconMinPaddedWidth, minHeight),
+                    Modifier.preferredSizeIn(
+                        minWidth = IconLeftPadding + IconMinPaddedWidth,
+                        minHeight = minHeight
+                    ),
                     gravity = ContentGravity.TopStart,
                     paddingStart = IconLeftPadding,
                     paddingTop = IconVerticalPadding,
@@ -274,7 +288,7 @@ private object TwoLine {
             if (overlineText != null) {
                 BaselinesOffsetColumn(
                     listOf(OverlineBaselineOffset, OverlineToPrimaryBaselineOffset),
-                    modifier
+                    columnModifier
                 ) {
                     overlineText()
                     text()
@@ -293,7 +307,7 @@ private object TwoLine {
                             PrimaryToSecondaryBaselineOffsetNoIcon
                         }
                     ),
-                    modifier
+                    columnModifier
                 ) {
                     text()
                     secondaryText!!()
@@ -309,7 +323,8 @@ private object TwoLine {
                 ) {
                     Box(
                         // TODO(popam): find way to center and wrap content without minHeight
-                        LayoutHeight.Min(minHeight) + LayoutPadding(end = TrailingRightPadding),
+                        Modifier.preferredHeightIn(minHeight = minHeight)
+                            .padding(end = TrailingRightPadding),
                         gravity = ContentGravity.Center,
                         children = trailing
                     )
@@ -338,16 +353,18 @@ private object ThreeLine {
 
     @Composable
     fun ListItem(
+        modifier: Modifier = Modifier.None,
         icon: @Composable() (() -> Unit)?,
         text: @Composable() (() -> Unit),
         secondaryText: @Composable() (() -> Unit),
         overlineText: @Composable() (() -> Unit)?,
         trailing: @Composable() (() -> Unit)?
     ) {
-        Row(LayoutHeight.Min(MinHeight)) {
+        Row(modifier.preferredHeightIn(minHeight = MinHeight)) {
             if (icon != null) {
+                val minSize = IconLeftPadding + IconMinPaddedWidth
                 Box(
-                    LayoutSize.Min(IconLeftPadding + IconMinPaddedWidth),
+                    Modifier.preferredSizeIn(minWidth = minSize, minHeight = minSize),
                     gravity = ContentGravity.CenterStart,
                     paddingStart = IconLeftPadding,
                     paddingTop = IconThreeLineVerticalPadding,
@@ -361,8 +378,8 @@ private object ThreeLine {
                     ThreeLineBaselineSecondOffset,
                     ThreeLineBaselineThirdOffset
                 ),
-                LayoutWeight(1f) +
-                        LayoutPadding(start = ContentLeftPadding, end = ContentRightPadding)
+                Modifier.weight(1f)
+                    .padding(start = ContentLeftPadding, end = ContentRightPadding)
             ) {
                 if (overlineText != null) overlineText()
                 text()
@@ -371,7 +388,7 @@ private object ThreeLine {
             if (trailing != null) {
                 OffsetToBaselineOrCenter(
                     ThreeLineBaselineFirstOffset - ThreeLineTrailingTopPadding,
-                    LayoutPadding(top = ThreeLineTrailingTopPadding, end = TrailingRightPadding),
+                    Modifier.padding(top = ThreeLineTrailingTopPadding, end = TrailingRightPadding),
                     trailing
                 )
             }
@@ -389,9 +406,9 @@ private object ThreeLine {
 private fun BaselinesOffsetColumn(
     offsets: List<Dp>,
     modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
-    Layout(children, modifier) { measurables, constraints, _ ->
+    Layout(content, modifier) { measurables, constraints, _ ->
         val childConstraints = constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity)
         val placeables = measurables.map { it.measure(childConstraints) }
 
@@ -431,9 +448,9 @@ private fun BaselinesOffsetColumn(
 private fun OffsetToBaselineOrCenter(
     offset: Dp,
     modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
-    Layout(children, modifier) { measurables, constraints, _ ->
+    Layout(content, modifier) { measurables, constraints, _ ->
         val placeable = measurables[0].measure(constraints.copy(minHeight = 0.ipx))
         val baseline = placeable[FirstBaseline]
         val y: IntPx
@@ -455,12 +472,12 @@ private fun OffsetToBaselineOrCenter(
 private fun applyTextStyle(
     textStyle: TextStyle,
     emphasis: Emphasis,
-    children: @Composable() (() -> Unit)?
+    icon: @Composable() (() -> Unit)?
 ): @Composable() (() -> Unit)? {
-    if (children == null) return null
+    if (icon == null) return null
     return {
         ProvideEmphasis(emphasis) {
-            ProvideTextStyle(textStyle, children)
+            ProvideTextStyle(textStyle, icon)
         }
     }
 }

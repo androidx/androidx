@@ -41,11 +41,13 @@ public final class FakeAppConfig {
         CameraFactory.Provider cameraFactoryProvider = ignored -> {
             FakeCameraFactory cameraFactory = new FakeCameraFactory();
             cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0,
-                    () -> new FakeCamera(null,
-                            new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK)));
+                    () -> new FakeCamera(CAMERA_ID_0, null,
+                            new FakeCameraInfoInternal(CAMERA_ID_0, 0,
+                                    CameraSelector.LENS_FACING_BACK)));
             cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, CAMERA_ID_1,
-                    () -> new FakeCamera(null,
-                            new FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_FRONT)));
+                    () -> new FakeCamera(CAMERA_ID_1, null,
+                            new FakeCameraInfoInternal(CAMERA_ID_1, 0,
+                                    CameraSelector.LENS_FACING_FRONT)));
             return cameraFactory;
         };
 

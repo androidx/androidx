@@ -25,7 +25,5 @@
     <application
         android:requestLegacyExternalStorage="true"
         android:debuggable="false"
-        tools:replace="android:debuggable">
-        <activity android:name="android.app.Activity"/>
-    </application>
+        tools:replace="android:debuggable" />
 </manifest>

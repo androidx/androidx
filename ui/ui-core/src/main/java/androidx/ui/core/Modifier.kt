@@ -19,24 +19,28 @@ package androidx.ui.core
 import androidx.compose.Stable
 
 /**
- * An immutable chain of [modifier elements][Modifier.Element] for use with Composables.
- * A Composable that has a `Modifier` can be considered decorated or wrapped by that `Modifier`.
+ * An ordered, immutable collection of [modifier elements][Modifier.Element] that decorate or add
+ * behavior to Compose UI elements. For example, backgrounds, padding and click event listeners
+ * decorate or add behavior to rows, text or buttons.
  *
- * Modifiers may be compared for equality provided that all of their [elements][Element] are
- * `object`s, `data class`es or otherwise implement [equals][Any.equals]. A correct implementation
- * of an [Element] must meet this requirement.
+ * @sample androidx.ui.core.samples.ModifierUsageSample
  *
- * Modifier elements may be combined using `+` Order is significant; modifier elements to the left
- * are applied before modifier elements to the right.
+ * Modifier implementations should offer a fluent factory extension function on [Modifier] for
+ * creating combined modifiers by starting from existing modifiers:
+ *
+ * @sample androidx.ui.core.samples.ModifierFactorySample
+ *
+ * Modifier elements may be combined using [the + operator][plus]. Order is significant; modifier
+ * elements that appear first will be applied first.
  *
  * Composables that accept a [Modifier] as a parameter to be applied to the whole component
  * represented by the composable function should name the parameter `modifier` and
  * assign the parameter a default value of [Modifier.None]. It should appear as the first
  * optional parameter in the parameter list; after all required parameters (except for trailing
  * lambda parameters) but before any other parameters with default values. Any default modifiers
- * desired by a composable function should be concatenated to the right or left of the `modifier`
- * parameter's value in the composable function's implementation, keeping [Modifier.None] as the
- * default parameter value. For example:
+ * desired by a composable function should come after the `modifier` parameter's value in the
+ * composable function's implementation, keeping [Modifier.None] as the default parameter value.
+ * For example:
  *
  * @sample androidx.ui.core.samples.ModifierParameterSample
  *
@@ -76,32 +80,14 @@ interface Modifier {
     fun <R> foldOut(initial: R, operation: (Element, R) -> R): R
 
     /**
-     * Wraps another [Modifier] with this one, returning the new chain.
-     */
-    @Deprecated(
-        "use + instead",
-        replaceWith = ReplaceWith("this + other")
-    )
-    infix fun wraps(other: Modifier): Modifier = this + other
-
-    /**
      * Concatenates this modifier with another.
      *
      * Returns a [Modifier] representing this modifier followed by [other] in sequence.
      */
     operator fun plus(other: Modifier): Modifier =
-        if (other === None) this else foldOut(other, ::CombinedModifier)
-
-    /**
-     * An empty [Modifier] that contains no [elements][Element].
-     * Suitable for use as a sentinel or default parameter.
-     */
-    object None : Modifier {
-        override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
-        override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
-        override operator fun plus(other: Modifier): Modifier = other
-        override fun toString() = "Modifier.None"
-    }
+        if (other === None) this else foldOut(other) { element, wrapped ->
+            CombinedModifier(element, wrapped)
+        }
 
     /**
      * A single element contained within a [Modifier] chain.
@@ -112,6 +98,21 @@ interface Modifier {
 
         override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R =
             operation(this, initial)
+    }
+
+    // The companion object implements `Modifier` so that it may be used  as the start of a
+    // modifier extension factory expression.
+    companion object : Modifier {
+        override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
+        override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
+        override operator fun plus(other: Modifier): Modifier = other
+        override fun toString() = "Modifier.None"
+
+        /**
+         * An empty [Modifier] that contains no [elements][Element].
+         * Suitable for use as a sentinel or default parameter.
+         */
+        val None: Modifier get() = this
     }
 }
 

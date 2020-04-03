@@ -24,6 +24,7 @@ import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
+import androidx.ui.core.Modifier
 import androidx.ui.core.PassThroughLayout
 import androidx.ui.foundation.animation.AnchorsFlingConfig
 import androidx.ui.foundation.animation.fling
@@ -68,7 +69,7 @@ internal fun <T> StateDraggable(
     enabled: Boolean = true,
     minValue: Float = Float.MIN_VALUE,
     maxValue: Float = Float.MAX_VALUE,
-    children: @Composable() (AnimatedFloat) -> Unit
+    content: @Composable() (AnimatedFloat) -> Unit
 ) {
     val forceAnimationCheck = state { true }
 
@@ -92,7 +93,7 @@ internal fun <T> StateDraggable(
     onCommit(currentValue, forceAnimationCheck.value) {
         position.animateTo(currentValue, animationBuilder)
     }
-    val draggable = draggable(
+    val draggable = Modifier.draggable(
         dragDirection = dragDirection,
         onDragDeltaConsumptionRequested = { delta ->
             val old = position.value
@@ -107,6 +108,6 @@ internal fun <T> StateDraggable(
     //  is implemented with modifiers.
     @Suppress("DEPRECATION")
     PassThroughLayout(draggable) {
-        children(position)
+        content(position)
     }
 }

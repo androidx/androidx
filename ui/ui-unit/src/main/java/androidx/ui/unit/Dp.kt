@@ -134,7 +134,7 @@ data /*inline*/ class Dp(val value: Float) : Comparable<Dp> {
  *     // -- or --
  *     val y = 10.dp
  */
-inline val Int.dp: Dp get() = Dp(value = this.toFloat())
+inline val Int.dp: Dp get() = if (this == 0) Hairline else Dp(value = this.toFloat())
 
 /**
  * Create a [Dp] using a [Double]:
@@ -143,7 +143,7 @@ inline val Int.dp: Dp get() = Dp(value = this.toFloat())
  *     // -- or --
  *     val y = 10.0.dp
  */
-inline val Double.dp: Dp get() = Dp(value = this.toFloat())
+inline val Double.dp: Dp get() = if (this == 0.0) Hairline else Dp(value = this.toFloat())
 
 /**
  * Create a [Dp] using a [Float]:
@@ -152,7 +152,7 @@ inline val Double.dp: Dp get() = Dp(value = this.toFloat())
  *     // -- or --
  *     val y = 10f.dp
  */
-inline val Float.dp: Dp get() = Dp(value = this)
+inline val Float.dp: Dp get() = if (this == 0f) Hairline else Dp(value = this)
 
 inline operator fun Float.div(other: Dp) =
     DpInverse(this / other.value)

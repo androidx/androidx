@@ -18,15 +18,20 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredSizeIn
+import androidx.ui.layout.wrapContentHeight
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.dp
 
 @Sampled
@@ -39,7 +44,9 @@ fun SimpleAlignedModifier() {
     // constraints, and it will be aligned in the 40.dp x 40.dp space. Note the example would not
     // work if LayoutAlign was specified before LayoutSize in the modifier chain.
     Box(
-        modifier = LayoutSize(20.dp) + LayoutSize.Min(40.dp, 40.dp) + LayoutAlign.TopCenter,
+        Modifier.preferredSize(20.dp)
+            .preferredSizeIn(minWidth = 40.dp, minHeight = 40.dp)
+            .wrapContentSize(Alignment.TopCenter),
         backgroundColor = Color.Blue
     )
 }
@@ -48,16 +55,15 @@ fun SimpleAlignedModifier() {
 @Composable
 fun SimpleVerticallyAlignedModifier() {
     // Here, the blue rectangle prefers to have a 50.dp height, subject to the incoming constraints.
-    // Because of the LayoutSize.Fill modifier, if LayoutAlign was not present, the blue rectangle
-    // would actually fill the available height to satisfy the min height set by the modifier.
-    // However, because we also provide LayoutAlign, the blue rectangle is allowed to be smaller
+    // However, because we also wrapContentHeight, the blue rectangle is allowed to be smaller
     // than the min height, and it will be centered vertically in the available height.
     // The width of the rectangle will still fill the available width, because the
-    // LayoutAlign.CenterVertically modifier is only concerned with vertical alignment.
-    // Note the example would not work if LayoutAlign was specified before LayoutSize
+    // wrapContentHeight(Alignment.Center) modifier is only concerned with vertical alignment.
+    // Note the example would not work if wrapContentHeight was specified before preferredSize
     // in the modifier chain.
     Box(
-        LayoutSize(50.dp) + LayoutSize.Fill + LayoutAlign.CenterVertically,
+        Modifier.preferredSize(50.dp)
+            .wrapContentHeight(Alignment.Center),
         backgroundColor = Color.Blue
     )
 }
@@ -65,37 +71,57 @@ fun SimpleVerticallyAlignedModifier() {
 @Sampled
 @Composable
 fun SimpleGravityInRow() {
-    Row(LayoutHeight.Fill) {
+    Row(Modifier.fillMaxHeight()) {
         // The child with no gravity modifier is positioned by default so that its top edge is
         // aligned to the top of the vertical axis.
-        Box(LayoutSize(80.dp, 40.dp), backgroundColor = Color.Magenta)
+        Box(Modifier.preferredSize(80.dp, 40.dp), backgroundColor = Color.Magenta)
         // Gravity.Top, the child will be positioned so that its top edge is aligned to the top
         // of the vertical axis.
-        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.Top, backgroundColor = Color.Red)
+        Box(Modifier.preferredSize(80.dp, 40.dp).gravity(RowAlign.Top), backgroundColor = Color.Red)
         // Gravity.Center, the child will be positioned so that its center is in the middle of
         // the vertical axis.
-        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.Center, backgroundColor = Color.Yellow)
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(RowAlign.Center),
+            backgroundColor = Color.Yellow
+        )
         // Gravity.Bottom, the child will be positioned so that its bottom edge is aligned to the
         // bottom of the vertical axis.
-        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.Bottom, backgroundColor = Color.Green)
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(RowAlign.Bottom),
+            backgroundColor = Color.Green
+        )
     }
 }
 
 @Sampled
 @Composable
 fun SimpleGravityInColumn() {
-    Column(LayoutWidth.Fill) {
+    Column(Modifier.fillMaxWidth()) {
         // The child with no gravity modifier is positioned by default so that its start edge
         // aligned with the start edge of the horizontal axis.
-        Box(LayoutSize(80.dp, 40.dp), backgroundColor = Color.Magenta)
+        Box(Modifier.preferredSize(80.dp, 40.dp), backgroundColor = Color.Magenta)
         // Gravity.Start, the child will be positioned so that its start edge is aligned with
         // the start edge of the horizontal axis.
-        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.Start, backgroundColor = Color.Red)
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(ColumnAlign.Start),
+            backgroundColor = Color.Red
+        )
         // Gravity.Center, the child will be positioned so that its center is in the middle of
         // the horizontal axis.
-        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.Center, backgroundColor = Color.Yellow)
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(ColumnAlign.Center),
+            backgroundColor = Color.Yellow
+        )
         // Gravity.End, the child will be positioned so that its end edge aligned to the end of
         // the horizontal axis.
-        Box(LayoutSize(80.dp, 40.dp) + LayoutGravity.End, backgroundColor = Color.Green)
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(ColumnAlign.End),
+            backgroundColor = Color.Green
+        )
     }
 }

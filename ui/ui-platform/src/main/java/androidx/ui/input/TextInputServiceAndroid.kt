@@ -40,7 +40,7 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
     private var onEditCommand: (List<EditOperation>) -> Unit = {}
     private var onImeActionPerformed: (ImeAction) -> Unit = {}
 
-    private var state = InputState(text = "", selection = TextRange(0, 0))
+    private var state = EditorValue(text = "", selection = TextRange(0, 0))
     private var keyboardType = KeyboardType.Text
     private var imeAction = ImeAction.Unspecified
     private var ic: RecordingInputConnection? = null
@@ -79,7 +79,7 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
     fun isEditorFocused(): Boolean = editorHasFocus
 
     override fun startInput(
-        initModel: InputState,
+        initModel: EditorValue,
         keyboardType: KeyboardType,
         imeAction: ImeAction,
         onEditCommand: (List<EditOperation>) -> Unit,
@@ -117,7 +117,7 @@ internal class TextInputServiceAndroid(val view: View) : PlatformTextInputServic
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    override fun onStateUpdated(model: InputState) {
+    override fun onStateUpdated(model: EditorValue) {
         this.state = model
         ic?.updateInputState(this.state, imm, view)
     }

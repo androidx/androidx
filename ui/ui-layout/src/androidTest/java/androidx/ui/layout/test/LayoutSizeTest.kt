@@ -19,18 +19,24 @@ package androidx.ui.layout.test
 import android.content.res.Resources
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
-import androidx.ui.layout.Align
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutAspectRatio
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.Stack
+import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredHeightIn
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredSizeIn
+import androidx.ui.layout.preferredWidth
+import androidx.ui.layout.preferredWidthIn
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -38,7 +44,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -60,39 +65,43 @@ class LayoutSizeTest : LayoutTest() {
         val size = MutableList(6) { Ref<IntPxSize>() }
         val position = MutableList(6) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Column {
                     Container(
-                        LayoutWidth.Max(sizeDp * 2) +
-                                LayoutWidth.Min(sizeDp) + LayoutHeight(sizeDp) +
-                                saveLayoutInfo(size[0], position[0], positionedLatch)
+                        Modifier.preferredWidthIn(minWidth = sizeDp, maxWidth = sizeDp * 2)
+                            .preferredHeight(sizeDp)
+                            .saveLayoutInfo(size[0], position[0], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutWidth.Max(sizeDp * 2) + LayoutHeight(sizeDp) +
-                                saveLayoutInfo(size[1], position[1], positionedLatch)
+                        Modifier.preferredWidthIn(maxWidth = sizeDp * 2)
+                            .preferredHeight(sizeDp)
+                            .saveLayoutInfo(size[1], position[1], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutWidth.Min(sizeDp) + LayoutHeight(sizeDp) +
-                                saveLayoutInfo(size[2], position[2], positionedLatch)
+                        Modifier.preferredWidthIn(minWidth = sizeDp)
+                            .preferredHeight(sizeDp)
+                            .saveLayoutInfo(size[2], position[2], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutWidth.Max(sizeDp) + LayoutWidth.Min(sizeDp * 2) +
-                                LayoutHeight(sizeDp) +
-                                saveLayoutInfo(size[3], position[3], positionedLatch)
+                        Modifier.preferredWidthIn(maxWidth = sizeDp)
+                            .preferredWidthIn(minWidth = sizeDp * 2)
+                            .preferredHeight(sizeDp)
+                            .saveLayoutInfo(size[3], position[3], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutWidth.Min(sizeDp * 2) + LayoutWidth.Max(sizeDp) +
-                                LayoutHeight(sizeDp) +
-                                saveLayoutInfo(size[4], position[4], positionedLatch)
+                        Modifier.preferredWidthIn(minWidth = sizeDp * 2)
+                            .preferredWidthIn(maxWidth = sizeDp)
+                            .preferredHeight(sizeDp)
+                            .saveLayoutInfo(size[4], position[4], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutWidth(sizeDp) + LayoutHeight(sizeDp) +
-                                saveLayoutInfo(size[5], position[5], positionedLatch)
+                        Modifier.preferredSize(sizeDp)
+                            .saveLayoutInfo(size[5], position[5], positionedLatch)
                     ) {
                     }
                 }
@@ -128,39 +137,43 @@ class LayoutSizeTest : LayoutTest() {
         val size = MutableList(6) { Ref<IntPxSize>() }
         val position = MutableList(6) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Row {
-                    Container(LayoutHeight.Max(sizeDp * 2) + LayoutHeight.Min(sizeDp) +
-                            LayoutWidth(sizeDp) +
-                            saveLayoutInfo(size[0], position[0], positionedLatch)
+                    Container(
+                        Modifier.preferredHeightIn(minHeight = sizeDp, maxHeight = sizeDp * 2)
+                            .preferredWidth(sizeDp)
+                            .saveLayoutInfo(size[0], position[0], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutHeight.Max(sizeDp * 2) +
-                                LayoutWidth(sizeDp) +
-                                saveLayoutInfo(size[1], position[1], positionedLatch)
+                        Modifier.preferredHeightIn(maxHeight = sizeDp * 2)
+                            .preferredWidth(sizeDp)
+                            .saveLayoutInfo(size[1], position[1], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutHeight.Min(sizeDp) + LayoutWidth(sizeDp) +
-                                saveLayoutInfo(size[2], position[2], positionedLatch)
+                        Modifier.preferredHeightIn(minHeight = sizeDp)
+                            .preferredWidth(sizeDp)
+                            .saveLayoutInfo(size[2], position[2], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutHeight.Max(sizeDp) + LayoutHeight.Min(sizeDp * 2) +
-                                LayoutWidth(sizeDp) +
-                                saveLayoutInfo(size[3], position[3], positionedLatch)
+                        Modifier.preferredHeightIn(maxHeight = sizeDp)
+                            .preferredHeightIn(minHeight = sizeDp * 2)
+                            .preferredWidth(sizeDp)
+                            .saveLayoutInfo(size[3], position[3], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutHeight.Min(sizeDp * 2) + LayoutHeight.Max(sizeDp) +
-                                LayoutWidth(sizeDp) +
-                                saveLayoutInfo(size[4], position[4], positionedLatch)
+                        Modifier.preferredHeightIn(minHeight = sizeDp * 2)
+                            .preferredHeightIn(maxHeight = sizeDp)
+                            .preferredWidth(sizeDp)
+                            .saveLayoutInfo(size[4], position[4], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutHeight(sizeDp) + LayoutWidth(sizeDp) +
-                                saveLayoutInfo(size[5], position[5], positionedLatch)
+                        Modifier.preferredHeight(sizeDp) + Modifier.preferredWidth(sizeDp) +
+                                Modifier.saveLayoutInfo(size[5], position[5], positionedLatch)
                     ) {
                     }
                 }
@@ -196,31 +209,38 @@ class LayoutSizeTest : LayoutTest() {
         val size = MutableList(5) { Ref<IntPxSize>() }
         val position = MutableList(5) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Row {
+                    val maxSize = sizeDp * 2
                     Container(
-                        LayoutSize.Max(sizeDp * 2) + LayoutSize.Min(sizeDp) +
-                                saveLayoutInfo(size[0], position[0], positionedLatch)
+                        Modifier.preferredSizeIn(maxWidth = maxSize, maxHeight = maxSize)
+                            .preferredSizeIn(minWidth = sizeDp, minHeight = sizeDp)
+                            .saveLayoutInfo(size[0], position[0], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutSize.Max(sizeDp) + LayoutSize.Min(sizeDp * 2, sizeDp) +
-                                saveLayoutInfo(size[1], position[1], positionedLatch)
+                        Modifier.preferredSizeIn(maxWidth = sizeDp, maxHeight = sizeDp)
+                            .preferredSizeIn(minWidth = sizeDp * 2, minHeight = sizeDp)
+                            .saveLayoutInfo(size[1], position[1], positionedLatch)
+                    ) {
+                    }
+                    val maxSize1 = sizeDp * 2
+                    Container(
+                        Modifier.preferredSizeIn(minWidth = sizeDp, minHeight = sizeDp)
+                            .preferredSizeIn(maxWidth = maxSize1, maxHeight = maxSize1)
+                            .saveLayoutInfo(size[2], position[2], positionedLatch)
+                    ) {
+                    }
+                    val minSize = sizeDp * 2
+                    Container(
+                        Modifier.preferredSizeIn(minWidth = minSize, minHeight = minSize)
+                            .preferredSizeIn(maxWidth = sizeDp, maxHeight = sizeDp)
+                            .saveLayoutInfo(size[3], position[3], positionedLatch)
                     ) {
                     }
                     Container(
-                        LayoutSize.Min(sizeDp) + LayoutSize.Max(sizeDp * 2) +
-                                saveLayoutInfo(size[2], position[2], positionedLatch)
-                    ) {
-                    }
-                    Container(
-                        LayoutSize.Min(sizeDp * 2) + LayoutSize.Max(sizeDp) +
-                                saveLayoutInfo(size[3], position[3], positionedLatch)
-                    ) {
-                    }
-                    Container(
-                        LayoutSize(sizeDp) +
-                                saveLayoutInfo(size[4], position[4], positionedLatch)
+                        Modifier.preferredSize(sizeDp)
+                            .saveLayoutInfo(size[4], position[4], positionedLatch)
                     ) {
                     }
                 }
@@ -254,17 +274,18 @@ class LayoutSizeTest : LayoutTest() {
         val childSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Container(width = sizeDp, height = sizeDp) {
                     Container(
-                        LayoutWidth(sizeDp * 2) + LayoutHeight(sizeDp * 3) +
-                                onPositioned { coordinates ->
-                                    constrainedBoxSize.value = coordinates.size
-                                    positionedLatch.countDown()
-                                }
+                        Modifier.preferredWidth(sizeDp * 2)
+                            .preferredHeight(sizeDp * 3)
+                            .onPositioned { coordinates: LayoutCoordinates ->
+                                constrainedBoxSize.value = coordinates.size
+                                positionedLatch.countDown()
+                            }
                     ) {
                         Container(expanded = true,
-                            modifier = saveLayoutInfo(
+                            modifier = Modifier.saveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
                                 positionedLatch = positionedLatch
@@ -291,29 +312,47 @@ class LayoutSizeTest : LayoutTest() {
         val size = MutableList(4) { Ref<IntPxSize>() }
         val position = MutableList(4) { Ref<PxPosition>() }
         show {
-            Align(alignment = Alignment.TopStart) {
+            Stack {
                 Row {
-                    Container(LayoutWidth.Max(Dp.Infinity)) {
+                    Container(Modifier.preferredWidthIn(maxWidth = Dp.Infinity)) {
                         Container(width = sizeDp, height = sizeDp,
-                            modifier = saveLayoutInfo(size[0], position[0], positionedLatch)
+                            modifier = Modifier.saveLayoutInfo(size[0], position[0],
+                                positionedLatch)
                         ) {
                         }
                     }
-                    Container(LayoutHeight.Max(Dp.Infinity)) {
+                    Container(Modifier.preferredHeightIn(maxHeight = Dp.Infinity)) {
                         Container(width = sizeDp, height = sizeDp,
-                            modifier = saveLayoutInfo(size[1], position[1], positionedLatch)
+                            modifier = Modifier.saveLayoutInfo(
+                                size[1],
+                                position[1],
+                                positionedLatch
+                            )
                         ) {
                         }
                     }
                     Container(
-                        LayoutWidth(sizeDp) + LayoutHeight(sizeDp) + LayoutWidth.Max(Dp.Infinity) +
-                                LayoutHeight.Max(Dp.Infinity) +
-                        saveLayoutInfo(size[2], position[2], positionedLatch)
+                        Modifier.preferredWidth(sizeDp)
+                            .preferredHeight(sizeDp)
+                            .preferredWidthIn(maxWidth = Dp.Infinity)
+                            .preferredHeightIn(maxHeight = Dp.Infinity)
+                            .saveLayoutInfo(size[2], position[2], positionedLatch)
                     ) {
                     }
-                    Container(LayoutSize.Max(Dp.Infinity)) {
-                        Container(width = sizeDp, height = sizeDp, modifier =
-                            saveLayoutInfo(size[3], position[3], positionedLatch)
+                    Container(
+                        Modifier.preferredSizeIn(
+                            maxWidth = Dp.Infinity,
+                            maxHeight = Dp.Infinity
+                        )
+                    ) {
+                        Container(
+                            width = sizeDp,
+                            height = sizeDp,
+                            modifier = Modifier.saveLayoutInfo(
+                                size[3],
+                                position[3],
+                                positionedLatch
+                            )
                         ) {
                         }
                     }
@@ -331,8 +370,8 @@ class LayoutSizeTest : LayoutTest() {
     @Test
     fun testMinWidthModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutWidth.Min(10.dp)) {
-                Container(LayoutAspectRatio(1f)) { }
+            Container(Modifier.preferredWidthIn(minWidth = 10.dp)) {
+                Container(Modifier.aspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -361,8 +400,8 @@ class LayoutSizeTest : LayoutTest() {
     @Test
     fun testMaxWidthModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutWidth.Max(20.dp)) {
-                Container(LayoutAspectRatio(1f)) { }
+            Container(Modifier.preferredWidthIn(maxWidth = 20.dp)) {
+                Container(Modifier.aspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -391,8 +430,8 @@ class LayoutSizeTest : LayoutTest() {
     @Test
     fun testMinHeightModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutHeight.Min(30.dp)) {
-                Container(LayoutAspectRatio(1f)) { }
+            Container(Modifier.preferredHeightIn(minHeight = 30.dp)) {
+                Container(Modifier.aspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -421,8 +460,8 @@ class LayoutSizeTest : LayoutTest() {
     @Test
     fun testMaxHeightModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutHeight.Max(40.dp)) {
-                Container(LayoutAspectRatio(1f)) { }
+            Container(Modifier.preferredHeightIn(maxHeight = 40.dp)) {
+                Container(Modifier.aspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -451,8 +490,8 @@ class LayoutSizeTest : LayoutTest() {
     @Test
     fun testWidthModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutWidth(10.dp)) {
-                Container(LayoutAspectRatio(1f)) { }
+            Container(Modifier.preferredWidth(10.dp)) {
+                Container(Modifier.aspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -481,8 +520,8 @@ class LayoutSizeTest : LayoutTest() {
     @Test
     fun testHeightModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutHeight(10.dp)) {
-                Container(LayoutAspectRatio(1f)) { }
+            Container(Modifier.preferredHeight(10.dp)) {
+                Container(Modifier.aspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -512,10 +551,14 @@ class LayoutSizeTest : LayoutTest() {
     fun testWidthHeightModifiers_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(
-                LayoutWidth.Min(10.dp) + LayoutWidth.Max(20.dp) + LayoutHeight.Min(30.dp) +
-                        LayoutHeight.Max(40.dp)
+                Modifier.preferredSizeIn(
+                    minWidth = 10.dp,
+                    maxWidth = 20.dp,
+                    minHeight = 30.dp,
+                    maxHeight = 40.dp
+                )
             ) {
-                Container(LayoutAspectRatio(1f)) { }
+                Container(Modifier.aspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -544,8 +587,8 @@ class LayoutSizeTest : LayoutTest() {
     @Test
     fun testMinSizeModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutSize.Min(20.dp, 30.dp)) {
-                Container(LayoutAspectRatio(1f)) { }
+            Container(Modifier.preferredSizeIn(minWidth = 20.dp, minHeight = 30.dp)) {
+                Container(Modifier.aspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -574,8 +617,8 @@ class LayoutSizeTest : LayoutTest() {
     @Test
     fun testMaxSizeModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutSize.Max(40.dp, 50.dp)) {
-                Container(LayoutAspectRatio(1f)) { }
+            Container(Modifier.preferredSizeIn(maxWidth = 40.dp, maxHeight = 50.dp)) {
+                Container(Modifier.aspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -604,8 +647,8 @@ class LayoutSizeTest : LayoutTest() {
     @Test
     fun testSizeModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
-            Container(LayoutSize(40.dp, 50.dp)) {
-                Container(LayoutAspectRatio(1f)) { }
+            Container(Modifier.preferredSize(40.dp, 50.dp)) {
+                Container(Modifier.aspectRatio(1f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
@@ -641,16 +684,17 @@ class LayoutSizeTest : LayoutTest() {
         val screenHeight = displayMetrics.heightPixels
 
         assertEquals(IntPxSize(width.toIntPx(), height.toIntPx()), getSize())
-        assertEquals(IntPxSize(screenWidth.ipx, height.toIntPx()), getSize(LayoutWidth.Fill))
-        assertEquals(IntPxSize(width.toIntPx(), screenHeight.ipx), getSize(LayoutHeight.Fill))
-        assertEquals(IntPxSize(screenWidth.ipx, screenHeight.ipx), getSize(LayoutSize.Fill))
+        assertEquals(IntPxSize(screenWidth.ipx, height.toIntPx()), getSize(Modifier.fillMaxWidth()))
+        assertEquals(IntPxSize(width.toIntPx(), screenHeight.ipx),
+            getSize(Modifier.fillMaxHeight()))
+        assertEquals(IntPxSize(screenWidth.ipx, screenHeight.ipx), getSize(Modifier.fillMaxSize()))
     }
 
     @Test
     fun testFillModifier_noChangeIntrinsicMeasurements() = with(density) {
-        verifyIntrinsicMeasurements(LayoutWidth.Fill)
-        verifyIntrinsicMeasurements(LayoutHeight.Fill)
-        verifyIntrinsicMeasurements(LayoutSize.Fill)
+        verifyIntrinsicMeasurements(Modifier.fillMaxWidth())
+        verifyIntrinsicMeasurements(Modifier.fillMaxHeight())
+        verifyIntrinsicMeasurements(Modifier.fillMaxSize())
     }
 
     private fun getSize(modifier: Modifier = Modifier.None): IntPxSize {
@@ -662,8 +706,8 @@ class LayoutSizeTest : LayoutTest() {
         val position = Ref<PxPosition>()
         show {
             Layout(@Composable {
-                Align(alignment = Alignment.TopStart) {
-                    Container(modifier + saveLayoutInfo(size, position, positionedLatch)) {
+                Stack {
+                    Container(modifier + Modifier.saveLayoutInfo(size, position, positionedLatch)) {
                         Container(width = width, height = height) { }
                     }
                 }
@@ -686,7 +730,7 @@ class LayoutSizeTest : LayoutTest() {
         // intrinsic measurements do not change with the ExpandedModifier
         testIntrinsics(@Composable {
             Container(
-                expandedModifier + LayoutAspectRatio(2f),
+                expandedModifier + Modifier.aspectRatio(2f),
                 width = 30.dp, height = 40.dp) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Width

@@ -21,33 +21,43 @@ import androidx.compose.Providers
 import androidx.ui.foundation.ProvideTextStyle
 
 /**
- * This component defines the styling principles from the Material design specification. It must be
- * present within a hierarchy of components that includes Material components, as it defines key
- * values such as base colors and typography.
+ * A MaterialTheme defines the styling principles from the Material design specification.
  *
- * Material components such as [Button] and [Checkbox] use this definition to set default values.
+ * Material components such as [Button] and [Checkbox] use values provided here when retrieving
+ * default values.
  *
- * It defines colors as specified in the [Material Color theme creation spec](https://material.io/design/color/the-color-system.html#color-theme-creation)
- * and the typography defined in the [Material Type Scale spec](https://material.io/design/typography/the-type-system.html#type-scale).
+ * It defines colors as specified in the [Material Color theme creation spec](https://material.io/design/color/the-color-system.html#color-theme-creation),
+ * typography defined in the [Material Type Scale spec](https://material.io/design/typography/the-type-system.html#type-scale),
+ * and shapes defined in the [Shape scheme](https://material.io/design/shape/applying-shape-to-ui.html#shape-scheme).
  *
- * All values may be set by providing this component with the [colors][ColorPalette] and
- * [typography][Typography] attributes. Use this to configure the overall theme of your
- * application.
+ * All values may be set by providing this component with the [colors][ColorPalette],
+ * [typography][Typography], and [shapes][Shapes] attributes. Use this to configure the overall
+ * theme of elements within this MaterialTheme.
+ *
+ * Any values that are not set will inherit the current value from the theme, falling back to the
+ * defaults if there is no parent MaterialTheme. This allows using a MaterialTheme at the top
+ * of your application, and then separate MaterialTheme(s) for different screens / parts of your
+ * UI, overriding only the parts of the theme definition that need to change.
  *
  * @sample androidx.ui.material.samples.MaterialThemeSample
  *
  * @param colors A complete definition of the Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
+ * @param shapes A set of shapes to be used by the components in this hierarchy
  */
 @Composable
 fun MaterialTheme(
-    colors: ColorPalette = lightColorPalette(),
-    typography: Typography = Typography(),
-    children: @Composable() () -> Unit
+    colors: ColorPalette = MaterialTheme.colors,
+    typography: Typography = MaterialTheme.typography,
+    shapes: Shapes = MaterialTheme.shapes,
+    content: @Composable() () -> Unit
 ) {
     ProvideColorPalette(colors) {
-        Providers(TypographyAmbient provides typography) {
-            ProvideTextStyle(value = typography.body1, children = children)
+        Providers(
+            TypographyAmbient provides typography,
+            ShapesAmbient provides shapes
+        ) {
+            ProvideTextStyle(value = typography.body1, children = content)
         }
     }
 }
@@ -80,12 +90,5 @@ object MaterialTheme {
      */
     @Composable
     val shapes: Shapes
-        get() = ShapeAmbient.current
-
-    /**
-     * Retrieves the current [EmphasisLevels] at the call site's position in the hierarchy.
-     */
-    @Composable
-    val emphasisLevels: EmphasisLevels
-        get() = EmphasisAmbient.current
+        get() = ShapesAmbient.current
 }

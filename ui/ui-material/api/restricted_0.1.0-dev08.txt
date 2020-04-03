@@ -377,7 +377,7 @@ package androidx.ui.material.ripple {
   }
 
   public final class RippleKt {
-    method public static androidx.ui.core.Modifier ripple(boolean bounded = true, androidx.ui.unit.Dp? radius = null, androidx.ui.graphics.Color? color = null, boolean enabled = true, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current);
+    method public static androidx.ui.core.Modifier ripple(androidx.ui.core.Modifier, boolean bounded = true, androidx.ui.unit.Dp? radius = null, androidx.ui.graphics.Color? color = null, boolean enabled = true, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current);
   }
 
   public final class RippleTheme {

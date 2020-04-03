@@ -50,8 +50,6 @@ class GestureScope internal constructor(
     // TODO: Avoid calling this multiple times as it involves synchronization.
     internal inline val semanticsNode
         get() = semanticsNodeInteraction.fetchSemanticsNode("Failed to perform a gesture.")
-    internal inline val semanticsTreeInteraction
-        get() = semanticsNodeInteraction.semanticsTreeInteraction
 }
 
 /**
@@ -108,7 +106,7 @@ fun GestureScope.localToGlobal(position: PxPosition): PxPosition {
  * @param position The position where to click, in the component's local coordinate system
  */
 fun GestureScope.sendClick(position: PxPosition) {
-    semanticsTreeInteraction.sendInput {
+    semanticsNodeInteraction.sendInput {
         it.sendClick(localToGlobal(position))
     }
 }
@@ -159,7 +157,7 @@ fun GestureScope.sendLongClick() {
  */
 fun GestureScope.sendDoubleClick(position: PxPosition) {
     val globalPosition = localToGlobal(position)
-    semanticsTreeInteraction.sendInput {
+    semanticsNodeInteraction.sendInput {
         it.sendClick(globalPosition)
         it.delay(doubleClickDelay)
         it.sendClick(globalPosition)
@@ -195,7 +193,7 @@ fun GestureScope.sendSwipe(
 ) {
     val globalStart = localToGlobal(start)
     val globalEnd = localToGlobal(end)
-    semanticsTreeInteraction.sendInput {
+    semanticsNodeInteraction.sendInput {
         it.sendSwipe(globalStart, globalEnd, duration)
     }
 }
@@ -256,7 +254,7 @@ fun GestureScope.sendSwipeWithVelocity(
     val fx = createFunctionForVelocity(durationMs, globalStart.x.value, globalEnd.x.value, vx)
     val fy = createFunctionForVelocity(durationMs, globalStart.y.value, globalEnd.y.value, vy)
 
-    semanticsTreeInteraction.sendInput {
+    semanticsNodeInteraction.sendInput {
         it.sendSwipe({ t -> PxPosition(fx(t).px, fy(t).px) }, duration)
     }
 }

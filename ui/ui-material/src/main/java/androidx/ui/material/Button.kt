@@ -28,7 +28,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
@@ -69,12 +69,12 @@ fun Button(
     modifier: Modifier = Modifier.None,
     enabled: Boolean = true,
     elevation: Dp = 2.dp,
-    shape: Shape = MaterialTheme.shapes.button,
+    shape: Shape = MaterialTheme.shapes.small,
     border: Border? = null,
     backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
     innerPadding: EdgeInsets = Button.DefaultInnerPadding,
-    children: @Composable() () -> Unit
+    text: @Composable() () -> Unit
 ) {
     // Since we're adding layouts in between the clickable layer and the content, we need to
     // merge all descendants, or we'll get multiple nodes
@@ -90,7 +90,7 @@ fun Button(
             Clickable(
                 onClick = onClick,
                 enabled = enabled,
-                modifier = ripple(enabled = enabled)
+                modifier = Modifier.ripple(enabled = enabled)
             ) {
                 Box(
                     ButtonConstraints,
@@ -101,7 +101,7 @@ fun Button(
                 ) {
                     ProvideTextStyle(
                         value = MaterialTheme.typography.button,
-                        children = children
+                        children = text
                     )
                 }
             }
@@ -147,14 +147,14 @@ inline fun OutlinedButton(
     modifier: Modifier = Modifier.None,
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
-    shape: Shape = MaterialTheme.shapes.button,
+    shape: Shape = MaterialTheme.shapes.small,
     border: Border? = Border(
         1.dp, MaterialTheme.colors.onSurface.copy(alpha = OutlinedStrokeOpacity)
     ),
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = MaterialTheme.colors.primary,
     innerPadding: EdgeInsets = Button.DefaultInnerPadding,
-    noinline children: @Composable() () -> Unit
+    noinline text: @Composable() () -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
@@ -165,7 +165,7 @@ inline fun OutlinedButton(
     backgroundColor = backgroundColor,
     contentColor = contentColor,
     innerPadding = innerPadding,
-    children = children
+    text = text
 )
 
 /**
@@ -203,12 +203,12 @@ inline fun TextButton(
     modifier: Modifier = Modifier.None,
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
-    shape: Shape = MaterialTheme.shapes.button,
+    shape: Shape = MaterialTheme.shapes.small,
     border: Border? = null,
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colors.primary,
     innerPadding: EdgeInsets = TextButton.DefaultInnerPadding,
-    noinline children: @Composable() () -> Unit
+    noinline text: @Composable() () -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
@@ -219,11 +219,11 @@ inline fun TextButton(
     backgroundColor = backgroundColor,
     contentColor = contentColor,
     innerPadding = innerPadding,
-    children = children
+    text = text
 )
 
 // Specification for Material Button:
-private val ButtonConstraints = LayoutSize.Min(64.dp, 36.dp)
+private val ButtonConstraints = Modifier.preferredSizeIn(minWidth = 64.dp, minHeight = 36.dp)
 
 /**
  * Contains the default values used by [Button]

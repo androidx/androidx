@@ -111,7 +111,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testPlayVideo() throws Throwable {
+    public void playVideo() throws Throwable {
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
         PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem, null);
         setPlayerWrapper(playerWrapper);
@@ -126,7 +126,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testPlayVideoWithMediaItemFromFileDescriptor() throws Throwable {
+    public void playVideoWithMediaItemFromFileDescriptor() throws Throwable {
         AssetFileDescriptor afd = mContext.getResources()
                 .openRawResourceFd(R.raw.testvideo_with_2_subtitle_tracks);
         final MediaItem item = new FileMediaItem.Builder(
@@ -148,7 +148,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testPlayVideoOnTextureView() throws Throwable {
+    public void playVideoOnTextureView() throws Throwable {
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
         if (setViewTypeMayCrash()) {
@@ -179,7 +179,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testPlayVideoWithVisibilityChange() throws Throwable {
+    public void playVideoWithVisibilityChange() throws Throwable {
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
         if (setViewTypeMayCrash()) {
@@ -243,7 +243,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testSetViewType() throws Throwable {
+    public void setViewType() throws Throwable {
         if (setViewTypeMayCrash()) {
             return;
         }
@@ -290,7 +290,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
     // @UiThreadTest will be ignored by Parameterized test runner (b/30746303)
     @Test
-    public void testAttachedMediaControlView_setPlayerOrController() throws Throwable {
+    public void attachedMediaControlView_setPlayerOrController() throws Throwable {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -333,7 +333,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     @Test
-    public void testAspectRatioOfSurfaceView() throws Throwable {
+    public void aspectRatioOfSurfaceView() throws Throwable {
         MediaItem testMediaItem = createTestMediaItem(getResourceUri(R.raw.test_file_scheme_video));
         VideoSize testVideoSize = new VideoSize(352, 288);
         CountDownLatch latch = new CountDownLatch(1);
@@ -391,6 +391,9 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     private void checkVideoRendering(boolean expectRendering) throws InterruptedException {
         if (Build.DEVICE.equals("sailfish") && Build.VERSION.SDK_INT == 28) {
             // See b/137321781
+            return;
+        }
+        if (Build.DEVICE.startsWith("generic_") && Build.VERSION.SDK_INT == 26) {
             return;
         }
         if (Build.DEVICE.equals("fugu") && Build.VERSION.SDK_INT == 24) {

@@ -16,63 +16,100 @@
 
 package androidx.lifecycle.hilt
 
+import androidx.lifecycle.hilt.ext.hasAnnotation
 import com.google.auto.common.BasicAnnotationProcessor
+import com.google.auto.common.MoreElements
 import com.google.auto.service.AutoService
 import com.google.common.collect.SetMultimap
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
+import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.Processor
+import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.NestingKind
+import javax.lang.model.element.TypeElement
+import javax.lang.model.util.ElementFilter
+import javax.tools.Diagnostic
 
 /**
- * Should generate:
- * ```
- * @Module
- * @InstallIn(ActivityComponent.class)
- * public abstract class $_HiltModule {
- *   @Binds
- *   @IntoMap
- *   @ViewModelKey($.class)
- *   public bind($_AssistedFactory f): ViewModelAssistedFactory<?>
- * }
- * ```
- * and
- * ```
- * class $_AssistedFactory extends ViewModelAssistedFactory<$> {
- *
- *   private final Provider<Dep1> dep1;
- *   private final Provider<Dep2> dep2;
- *   ...
- *
- *   @Inject
- *   $_AssistedFactory(Provider<Dep1> dep1, Provider<Dep2> dep2, ...) {
- *     this.dep1 = dep1;
- *     this.dep2 = dep2;
- *     ...
- *   }
- *
- *   @Overrides
- *   @NonNull
- *   public $ create(@NonNull SavedStateHandle handle) {
- *     return new $(dep1.get(), dep2.get(), ..., handle);
- *   }
- * }
- * ```
+ * Annotation processor that generates code enabling assisted injection of ViewModels using Hilt.
  */
 @AutoService(Processor::class)
 @IncrementalAnnotationProcessor(ISOLATING)
 class HiltViewModelProcessor : BasicAnnotationProcessor() {
-    override fun initSteps() = listOf(ViewModelInjectStep())
+    override fun initSteps() = listOf(ViewModelInjectStep(processingEnv))
 
-    class ViewModelInjectStep : ProcessingStep {
+    override fun getSupportedSourceVersion() = SourceVersion.latest()
+}
 
-        override fun annotations() = setOf(ViewModelInject::class.java)
+class ViewModelInjectStep(
+    private val processingEnv: ProcessingEnvironment
+) : BasicAnnotationProcessor.ProcessingStep {
 
-        override fun process(
-            elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
-        ): MutableSet<out Element> {
-            // TODO(danysantiago): Implement this...
-            return mutableSetOf()
+    private val elements = processingEnv.elementUtils
+    private val types = processingEnv.typeUtils
+    private val messager = processingEnv.messager
+
+    override fun annotations() = setOf(ViewModelInject::class.java)
+
+    override fun process(
+        elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
+    ): MutableSet<out Element> {
+        val parsedElements = mutableSetOf<TypeElement>()
+        elementsByAnnotation[ViewModelInject::class.java].forEach { element ->
+            val constructorElement = MoreElements.asExecutable(element)
+            val typeElement = MoreElements.asType(constructorElement.enclosingElement)
+            if (parsedElements.add(typeElement)) {
+                parse(typeElement, constructorElement)?.let { viewModel ->
+                    HiltViewModelGenerator(processingEnv, viewModel).generate()
+                }
+            }
         }
+        return mutableSetOf()
+    }
+
+    private fun parse(
+        typeElement: TypeElement,
+        constructorElement: ExecutableElement
+    ): HiltViewModelElements? {
+        var valid = true
+
+        if (!types.isSubtype(typeElement.asType(),
+                elements.getTypeElement(ClassNames.VIEW_MODEL.toString()).asType())) {
+            error("@ViewModelInject is only supported on types that subclass " +
+                    "androidx.lifecycle.ViewModel.")
+            valid = false
+        }
+
+        ElementFilter.constructorsIn(typeElement.enclosedElements).filter {
+            it.hasAnnotation(ViewModelInject::class)
+        }.let { constructors ->
+            if (constructors.size > 1) {
+                error("Multiple @ViewModelInject annotated constructors found.", typeElement)
+                valid = false
+            }
+            constructors.filter { it.modifiers.contains(Modifier.PRIVATE) }.forEach {
+                error("@ViewModelInject annotated constructors must not be private.", it)
+                valid = false
+            }
+        }
+
+        if (typeElement.nestingKind == NestingKind.MEMBER &&
+            !typeElement.modifiers.contains(Modifier.STATIC)) {
+            error("@ViewModelInject may only be used on inner classes if they are static.",
+                typeElement)
+            valid = false
+        }
+
+        if (!valid) return null
+
+        return HiltViewModelElements(typeElement, constructorElement)
+    }
+
+    private fun error(message: String, element: Element? = null) {
+        messager.printMessage(Diagnostic.Kind.ERROR, message, element)
     }
 }

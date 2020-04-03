@@ -14,5 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest package="androidx.ui.benchmark" xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.ui.benchmark">
+
+    <application>
+        <activity
+            android:name="androidx.activity.ComponentActivity"
+            android:theme="@style/TestTheme" />
+    </application>
 </manifest>

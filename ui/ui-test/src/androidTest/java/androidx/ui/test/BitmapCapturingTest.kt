@@ -19,12 +19,14 @@ package androidx.ui.test
 import android.os.Build
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -159,19 +161,17 @@ class BitmapCapturingTest {
                                 Row {
                                     TestTag(tag11) {
                                         Semantics(container = true) {
-                                            ColoredRect(
-                                                color = color11,
-                                                width = 100.ipx.toDp(),
-                                                height = 50.ipx.toDp()
+                                            Box(Modifier
+                                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                                .drawBackground(color11)
                                             )
                                         }
                                     }
                                     TestTag(tag12) {
                                         Semantics(container = true) {
-                                            ColoredRect(
-                                                color = color12,
-                                                width = 100.ipx.toDp(),
-                                                height = 50.ipx.toDp()
+                                            Box(Modifier
+                                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                                .drawBackground(color12)
                                             )
                                         }
                                     }
@@ -179,19 +179,17 @@ class BitmapCapturingTest {
                                 Row {
                                     TestTag(tag21) {
                                         Semantics(container = true) {
-                                            ColoredRect(
-                                                color = color21,
-                                                width = 100.ipx.toDp(),
-                                                height = 50.ipx.toDp()
+                                            Box(Modifier
+                                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                                .drawBackground(color21)
                                             )
                                         }
                                     }
                                     TestTag(tag22) {
                                         Semantics(container = true) {
-                                            ColoredRect(
-                                                color = color22,
-                                                width = 100.ipx.toDp(),
-                                                height = 50.ipx.toDp()
+                                            Box(Modifier
+                                                .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                                .drawBackground(color22)
                                             )
                                         }
                                     }

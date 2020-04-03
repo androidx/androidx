@@ -25,6 +25,25 @@ import androidx.ui.unit.px
 /**
  * Describes a change that has occurred for a particular pointer, as well as how much of the change
  * has been consumed (meaning, used by a node in the UI).
+ *
+ * The [current] data always represents the position of the pointer relative to the element that
+ * this [PointerInputChange] is being dispatched to.
+ *
+ * The [previous] data, however, represents the position of the pointer offset to the current
+ * position of the pointer relative to the screen.
+ *
+ * This means that [current] and [previous] can always be used to understand how much a pointer
+ * has moved relative to an element, even if that element is moving along with the changes to the
+ * pointer.  For example, if a pointer touches a 1x1 pixel box in the middle, [current] will
+ * report a position of (0, 0) when dispatched to it.  If the next event moves x position 5
+ * pixels, [current] will report (5, 0) and [previous] will report (0, 0).  If the box moves all 5
+ * pixels, and the next event represents the pointer moving along the x axis for 5 more pixels,
+ * [current] will again report (5, 0) and [previous] will report (0, 0).
+ *
+ * @param id The unique id of the pointer associated with this [PointerInputChange].
+ * @param current The [PointerInputData] that represents the current state of this pointer.
+ * @param previous The [PointerInputData] that represents the previous state of this pointer.
+ * @param consumed Which aspects of this change have been consumed.
  */
 data class PointerInputChange(
     val id: PointerId,
@@ -43,6 +62,11 @@ data class PointerInputChange(
 // TODO(shepshapard): Uptime will be an Inline Class, so it should not be nullable.
 /**
  * Data associated with a pointer.
+ *
+ * @param uptime The time associated with this particular [PointerInputData]
+ * @param position The position of the pointer at [uptime] relative to element that
+ * the owning [PointerInputChange] is being dispatched to.
+ * @param down True if the at [uptime] the pointer was contacting the screen.
  */
 data class PointerInputData(
     val uptime: Uptime? = null,
@@ -52,6 +76,9 @@ data class PointerInputData(
 
 /**
  * Describes what aspects of, and how much of, a change has been consumed.
+ *
+ * @param positionChange The amount of change to the position that has been consumed.
+ * @param downChange True if a change to down or up has been consumed.
  */
 data class ConsumedData(
     val positionChange: PxPosition = PxPosition.Origin,
@@ -103,22 +130,53 @@ interface CustomEventDispatcher {
 
 // Change querying functions
 
+/**
+ * True if this [PointerInputChange] represents a pointer coming in contact with the screen and
+ * that change has not been consumed.
+ */
 fun PointerInputChange.changedToDown() = !consumed.downChange && !previous.down && current.down
 
+/**
+ * True if this [PointerInputChange] represents a pointer coming in contact with the screen, whether
+ * or not that change has been consumed.
+ */
 fun PointerInputChange.changedToDownIgnoreConsumed() = !previous.down && current.down
 
+/**
+ * True if this [PointerInputChange] represents a pointer breaking contact with the screen and
+ * that change has not been consumed.
+ */
 fun PointerInputChange.changedToUp() = !consumed.downChange && previous.down && !current.down
 
+/**
+ * True if this [PointerInputChange] represents a pointer breaking contact with the screen, whether
+ * or not that change has been consumed.
+ */
 fun PointerInputChange.changedToUpIgnoreConsumed() = previous.down && !current.down
 
-fun PointerInputChange.positionChange() = this.positionChangeInternal(false)
-
-fun PointerInputChange.positionChangeIgnoreConsumed() = this.positionChangeInternal(true)
-
+/**
+ * True if this [PointerInputChange] represents a pointer moving on the screen and some of that
+ * movement has not been consumed.
+ */
 fun PointerInputChange.positionChanged() = this.positionChangeInternal(false) != PxPosition.Origin
 
+/**
+ * True if this [PointerInputChange] represents a pointer moving on the screen ignoring how much
+ * of that movement may have been consumed.
+ */
 fun PointerInputChange.positionChangedIgnoreConsumed() =
     this.positionChangeInternal(true) != PxPosition.Origin
+
+/**
+ * The distance that the pointer has moved on the screen minus any distance that has been consumed.
+ */
+fun PointerInputChange.positionChange() = this.positionChangeInternal(false)
+
+/**
+ * The distance that the pointer has moved on the screen, ignoring any distance that may have been
+ * consumed.
+ */
+fun PointerInputChange.positionChangeIgnoreConsumed() = this.positionChangeInternal(true)
 
 private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = false): PxPosition {
     val previousPosition = previous.position
@@ -140,14 +198,30 @@ private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = 
 
 // Consumption querying functions
 
+/**
+ * True if any of this [PointerInputChange]s movement has been consumed.
+ */
 fun PointerInputChange.anyPositionChangeConsumed() =
     consumed.positionChange.x.value != 0f || consumed.positionChange.y.value != 0f
 
 // Consume functions
 
+/**
+ * Consume the up or down change of this [PointerInputChange].
+ *
+ * Note: This function creates a modified copy of this [PointerInputChange].
+ */
 fun PointerInputChange.consumeDownChange() =
     copy(consumed = this.consumed.copy(downChange = true))
 
+/**
+ * Consumes some portion of the position change of this [PointerInputChange].
+ *
+ * Note: This function creates a modified copy of this [PointerInputChange]
+ *
+ * @param consumedDx The amount of position change on the x axis to consume.
+ * @param consumedDy The amount of position change on the y axis to consume.
+ */
 fun PointerInputChange.consumePositionChange(
     consumedDx: Px,
     consumedDy: Px

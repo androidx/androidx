@@ -19,14 +19,17 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.testTag
 import androidx.ui.test.android.AndroidInputDispatcher
@@ -148,10 +151,10 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     @Composable
     fun Ui() {
         val paint = remember { Paint().apply { color = Color.Yellow } }
-        Stack(LayoutSize.Fill + LayoutAlign.BottomEnd) {
+        Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
             Semantics(container = true, properties = { testTag = tag }) {
                 with(DensityAmbient.current) {
-                    Canvas(recorder + LayoutSize(500.px.toDp())) {
+                    Canvas(recorder.preferredSize(500.px.toDp())) {
                         bounds = Rect(0f, 0f, size.width.value, size.height.value)
                         drawRect(bounds, paint)
                     }
@@ -164,7 +167,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     fun swipeWithVelocity() {
         composeTestRule.setContent { Ui() }
         findByTag(tag).doGesture { sendSwipeWithVelocity(start, end, velocity, duration) }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             recorder.run {
                 val durationMs = duration.inMilliseconds()
                 val minimumEventSize = max(2, (durationMs / eventPeriod).toInt())

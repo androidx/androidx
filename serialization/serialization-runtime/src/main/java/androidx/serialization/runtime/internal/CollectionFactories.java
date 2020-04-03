@@ -19,6 +19,7 @@ package androidx.serialization.runtime.internal;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +38,11 @@ public final class CollectionFactories {
                 @NonNull
                 @Override
                 public List<?> create(int capacity) {
-                    return new ArrayList<>(capacity);
+                    if (capacity == 0) {
+                        return Collections.emptyList();
+                    } else {
+                        return new ArrayList<>(capacity);
+                    }
                 }
             };
 
@@ -46,7 +51,11 @@ public final class CollectionFactories {
                 @NonNull
                 @Override
                 public Set<?> create(int capacity) {
-                    return new LinkedHashSet<>(capacity);
+                    if (capacity == 0) {
+                        return Collections.emptySet();
+                    } else {
+                        return new LinkedHashSet<>(capacity);
+                    }
                 }
             };
 

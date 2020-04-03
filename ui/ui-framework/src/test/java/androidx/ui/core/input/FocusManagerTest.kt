@@ -18,7 +18,6 @@ package androidx.ui.core.input
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
@@ -31,85 +30,89 @@ import org.junit.runners.JUnit4
 class FocusManagerTest {
     @Test
     fun requestFocusTest() {
-        val FocusNode1: FocusManager.FocusNode = mock()
+        val focusNode1 = FocusNode()
+        val observer: FocusTransitionObserver = mock()
 
         val fm = FocusManagerImpl()
-        fm.requestFocus(FocusNode1)
+        fm.registerObserver(focusNode1, observer)
+        fm.requestFocus(focusNode1)
 
-        verify(FocusNode1, times(1)).onFocus()
-        verify(FocusNode1, never()).onBlur(eq(true /* hasNextClient */))
+        verify(observer, times(1)).invoke(eq(null), eq(focusNode1))
     }
 
     @Test
     fun requestFocus_CallingOrderTest() {
-        val FocusNode1: FocusManager.FocusNode = mock()
-        val FocusNode2: FocusManager.FocusNode = mock()
+        val focusNode1 = FocusNode()
+        val focusNode2 = FocusNode()
+
+        val observer1: FocusTransitionObserver = mock()
+        val observer2: FocusTransitionObserver = mock()
 
         val fm = FocusManagerImpl()
-        fm.requestFocus(FocusNode1)
-        fm.requestFocus(FocusNode2)
+        fm.registerObserver(focusNode1, observer1)
+        fm.registerObserver(focusNode2, observer2)
+        fm.requestFocus(focusNode1)
+        fm.requestFocus(focusNode2)
 
-        // onBlur must be called to currently focused object, then onFocus is called to the next
-        // object.
-        inOrder(FocusNode1, FocusNode2) {
-            verify(FocusNode1, times(1)).onBlur(eq(true /* hasNextClient */))
-            verify(FocusNode2, times(1)).onFocus()
-        }
+        verify(observer1, times(1)).invoke(eq(focusNode1), eq(focusNode2))
     }
 
     @Test
     fun requestFocus_doNothingIfAlreadyFocused() {
-        val FocusNode1: FocusManager.FocusNode = mock()
+        val focusNode1 = FocusNode()
+        val observer: FocusTransitionObserver = mock()
 
         val fm = FocusManagerImpl()
-        fm.requestFocus(FocusNode1)
-        verify(FocusNode1, times(1)).onFocus()
-        verify(FocusNode1, never()).onBlur(any())
+        fm.registerObserver(focusNode1, observer)
+        fm.requestFocus(focusNode1)
+        verify(observer, times(1)).invoke(eq(null), eq(focusNode1))
 
         // Either onFocus or onBlur must not be called for the already focused object.
-        fm.requestFocus(FocusNode1)
-        verify(FocusNode1, times(1)).onFocus()
-        verify(FocusNode1, never()).onBlur(any())
+        fm.requestFocus(focusNode1)
+        verify(observer, never()).invoke(any(), any())
     }
 
     @Test
     fun register_and_focusNodeById() {
         val id = "Focus Node ID"
-        val node = mock<FocusManager.FocusNode>()
+        val node = mock<FocusNode>()
+        val observer = mock<FocusTransitionObserver>()
 
         val fm = FocusManagerImpl()
-
+        fm.registerObserver(node, observer)
         fm.registerFocusNode(id, node)
         fm.requestFocusById(id)
-        verify(node, times(1)).onFocus()
-        verify(node, never()).onBlur(any())
+        verify(observer, times(1)).invoke(eq(null), eq(node))
     }
 
     @Test
     fun unregister() {
         val id = "Focus Node ID"
-        val node = mock<FocusManager.FocusNode>()
+        val node = mock<FocusNode>()
+        val observer = mock<FocusTransitionObserver>()
 
         val fm = FocusManagerImpl()
 
+        fm.registerObserver(node, observer)
         fm.registerFocusNode(id, node)
 
         fm.unregisterFocusNode(id)
         fm.requestFocusById(id)
-        verify(node, never()).onFocus()
-        verify(node, never()).onBlur(any())
+        verify(observer, never()).invoke(any(), any())
     }
 
     @Test
     fun blur() {
-        val focusNode: FocusManager.FocusNode = mock()
+        val focusNode: FocusNode = mock()
+        val observer = mock<FocusTransitionObserver>()
 
         val fm = FocusManagerImpl()
+        fm.registerObserver(focusNode, observer)
         fm.requestFocus(focusNode)
 
         // onBlur must be called to currently focused object, then onFocus is called to the next
         // object.
         fm.blur(focusNode)
-        verify(focusNode, times(1)).onBlur(eq(false /* hasNextClient */))
+        verify(observer, times(1)).invoke(eq(focusNode), eq(null))
     }
 }

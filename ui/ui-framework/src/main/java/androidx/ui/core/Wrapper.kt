@@ -37,8 +37,11 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.compose.staticAmbientOf
 import androidx.compose.compositionFor
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
+import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.input.FocusManager
 import androidx.ui.core.input.FocusManagerImpl
@@ -124,9 +127,7 @@ fun Activity.setContent(
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? Owner
         ?: createOwner(this).also {
-            if (it is ViewGroup) {
-                setContentView(it)
-            }
+            setContentView(it.view)
         }
 
     // TODO(lmr): setup lifecycle-based dispose since we have Activity here
@@ -155,13 +156,14 @@ private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
 fun ViewGroup.setContent(
     content: @Composable() () -> Unit
 ): Composition {
+    FrameManager.ensureStarted()
     val composeView =
         if (childCount > 0) {
             getChildAt(0) as? Owner
         } else {
             removeAllViews(); null
         }
-            ?: createOwner(context).also { if (it is ViewGroup) addView(it) }
+            ?: createOwner(context).also { addView(it.view) }
     return doSetContent(composeView, context, content)
 }
 
@@ -249,6 +251,7 @@ private fun WrapWithAmbients(
         TextInputServiceAmbient provides owner.textInputService,
         FontLoaderAmbient provides owner.fontLoader,
         HapticFeedBackAmbient provides owner.hapticFeedBack,
+        ClipboardManagerAmbient provides owner.clipboardManager,
         AutofillTreeAmbient provides owner.autofillTree,
         ConfigurationAmbient provides configuration,
         OwnerAmbient provides owner,
@@ -287,6 +290,8 @@ val AnimationClockAmbient = staticAmbientOf<AnimationClockObservable>()
 val FontLoaderAmbient = staticAmbientOf<Font.ResourceLoader>()
 
 val UriHandlerAmbient = staticAmbientOf<UriHandler>()
+
+val ClipboardManagerAmbient = staticAmbientOf<ClipboardManager>()
 
 /**
  * The ambient to provide haptic feedback to the user.

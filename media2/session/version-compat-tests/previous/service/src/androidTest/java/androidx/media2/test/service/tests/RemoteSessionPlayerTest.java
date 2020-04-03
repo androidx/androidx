@@ -85,7 +85,7 @@ public class RemoteSessionPlayerTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testSetVolumeToByController() throws Exception {
+    public void setVolumeToByController() throws Exception {
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
@@ -104,7 +104,7 @@ public class RemoteSessionPlayerTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testAdjustVolumeByController() throws Exception {
+    public void adjustVolumeByController() throws Exception {
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;

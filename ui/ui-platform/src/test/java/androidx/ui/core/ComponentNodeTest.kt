@@ -365,7 +365,7 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(0)).onSizeChange(node)
-        node.handleLayoutResult(object : MeasureScope.LayoutResult {
+        node.handleMeasureResult(object : MeasureScope.MeasureResult {
             override val width: IntPx = 10.ipx
             override val height: IntPx = 10.ipx
             override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
@@ -778,7 +778,7 @@ class ComponentNodeTest {
     @Test
     fun coordinatesAttachedWhenLayoutNodeAttached() {
         val layoutNode = LayoutNode()
-        val drawModifier = draw { _, _ -> }
+        val drawModifier = Modifier.drawBehind { }
         layoutNode.modifier = drawModifier
         assertFalse(layoutNode.coordinates.isAttached)
         assertFalse(layoutNode.coordinates.isAttached)
@@ -794,13 +794,13 @@ class ComponentNodeTest {
     @Test
     fun layoutNodeWrapperAttachedWhenLayoutNodeAttached() {
         val layoutNode = LayoutNode()
-        val drawModifier = draw { _, _ -> }
+        val drawModifier = Modifier.drawBehind { }
         layoutNode.modifier = drawModifier
         val layoutNodeWrapper = layoutNode.layoutNodeWrapper
         assertFalse(layoutNodeWrapper.isAttached)
         layoutNode.attach(mockOwner())
         assertTrue(layoutNodeWrapper.isAttached)
-        layoutNode.modifier = draw { _, _ -> }
+        layoutNode.modifier = Modifier.drawBehind { }
         assertFalse(layoutNodeWrapper.isAttached)
         assertTrue(layoutNode.coordinates.isAttached)
         assertTrue(layoutNode.coordinates.isAttached)
@@ -810,7 +810,7 @@ class ComponentNodeTest {
     fun layoutNodeWrapperParentCoordinates() {
         val layoutNode = LayoutNode()
         val layoutNode2 = LayoutNode()
-        val drawModifier = draw { _, _ -> }
+        val drawModifier = Modifier.drawBehind { }
         layoutNode.modifier = drawModifier
         layoutNode2.insertAt(0, layoutNode)
         layoutNode2.attach(mockOwner())
@@ -1664,7 +1664,13 @@ class ComponentNodeTest {
     private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier.None) =
         LayoutNode().apply {
             this.modifier = modifier
+            layoutDirection = LayoutDirection.Ltr
             resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
+            var wrapper: LayoutNodeWrapper? = layoutNodeWrapper
+            while (wrapper != null) {
+                wrapper.measureResult = innerLayoutNodeWrapper.measureResult
+                wrapper = (wrapper as? LayoutNodeWrapper)?.wrapped
+            }
             place(x.ipx, y.ipx)
         }
 

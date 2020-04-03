@@ -17,6 +17,7 @@
 package androidx.testutils
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.os.Build
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
@@ -88,22 +89,23 @@ private class AnimationDurationScaleRuleImpl(
     /**
      * Reflect into the duration field and make it accessible.
      */
-    private val durationField =
-        ValueAnimator::class.java.getDeclaredField("sDurationScale").also {
-            it.isAccessible = true
-        }
+    private val durationSetter =
+        ValueAnimator::class.java.getDeclaredMethod("setDurationScale", Float::class.java)
+    @SuppressLint("DiscouragedPrivateApi")
+    private val durationGetter =
+        ValueAnimator::class.java.getDeclaredMethod("getDurationScale")
 
     /**
      * The duration scale at the beginning of the test so that we can re-use it later to reset.
      */
-    private val originalDurationScale = durationField.getFloat(null)
+    private val originalDurationScale = durationGetter.invoke(null) as Float
 
     override fun setAnimationDurationScale(animationDurationScale: Float) {
-        durationField.setFloat(null, animationDurationScale)
+        durationSetter.invoke(null, animationDurationScale)
     }
 
     private fun resetAnimationDuration() {
-        durationField.setFloat(null, originalDurationScale)
+        durationSetter.invoke(null, originalDurationScale)
     }
 
     override fun starting(description: Description) {

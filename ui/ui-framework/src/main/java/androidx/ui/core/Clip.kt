@@ -21,10 +21,38 @@ import androidx.ui.graphics.Shape
 /**
  * Clips the content to the bounds of the layer.
  */
-val DrawClipToBounds: Modifier = drawLayer(clipToBounds = true)
+@Deprecated(
+    "Use Modifier.clipToBounds",
+    replaceWith = ReplaceWith(
+        "Modifier.clipToBounds()",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.clipToBounds"
+    )
+)
+val DrawClipToBounds: Modifier = Modifier.drawLayer(clipToBounds = true)
+
+/**
+ * Clip the content to the bounds of a layer defined at this modifier.
+ */
+@Suppress("DEPRECATION")
+fun Modifier.clipToBounds() = this + DrawClipToBounds
 
 /**
  * Clips the content to [shape].
  */
+@Deprecated(
+    "Use Modifier.clip",
+    replaceWith = ReplaceWith(
+        "Modifier.clip(shape)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.clip"
+    )
+)
 fun drawClip(shape: Shape): Modifier =
-    drawLayer(clipToBounds = false, clipToOutline = true, outlineShape = shape)
+    Modifier.drawLayer(clipToBounds = false, clipToOutline = true, outlineShape = shape)
+
+/**
+ * Clip the content to [shape].
+ */
+fun Modifier.clip(shape: Shape) =
+    this + Modifier.drawLayer(clipToBounds = false, clipToOutline = true, outlineShape = shape)

@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.CameraInternal;
 
 /**
  * A {@link MeteringPointFactory} that can convert a {@link View} (x, y) into a
@@ -89,9 +90,9 @@ public final class DisplayOrientedMeteringPointFactory extends MeteringPointFact
         mCameraSelector = cameraSelector;
         mDisplay = display;
         try {
-            String cameraId = CameraX.getCameraWithCameraSelector(mCameraSelector);
-            mCameraInfo = CameraX.getCameraInfo(cameraId);
-        } catch (Exception e) {
+            CameraInternal camera = CameraX.getCameraWithCameraSelector(mCameraSelector);
+            mCameraInfo = camera.getCameraInfoInternal();
+        } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(
                     "Unable to get camera id for the CameraSelector.", e);
         }

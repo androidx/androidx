@@ -27,19 +27,20 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.DrawScope
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.RawDragGestureDetector
+import androidx.ui.core.gesture.rawDragGestureFilter
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.Text
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -53,7 +54,7 @@ fun SwipeToDismissDemo() {
         Text(
             "Swipe up to dismiss",
             style = TextStyle(fontSize = 30.sp),
-            modifier = LayoutPadding(40.dp)
+            modifier = Modifier.padding(40.dp)
         )
     }
 }
@@ -68,7 +69,7 @@ private fun SwipeToDismiss() {
     val index = state { 0 }
     val itemWidth = state { 0f }
     val isFlinging = state { false }
-    val modifier = RawDragGestureDetector(dragObserver = object : DragObserver {
+    val modifier = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
         override fun onStart(downPosition: PxPosition) {
             itemBottom.setBounds(0f, height)
             if (isFlinging.value && itemBottom.targetValue < 100f) {
@@ -96,7 +97,7 @@ private fun SwipeToDismiss() {
                     null
                 } else {
                     val animation = PhysicsBuilder<Float>(dampingRatio = 0.8f, stiffness = 300f)
-                    var projectedTarget = target + sign(velocity) * 0.2f * height
+                    val projectedTarget = target + sign(velocity) * 0.2f * height
                     if (projectedTarget < 0.6 * height) {
                         TargetAnimation(0f, animation)
                     } else {
@@ -123,10 +124,13 @@ private fun SwipeToDismiss() {
     val heightDp = with(DensityAmbient.current) { height.toDp() }
     val paint = remember { Paint() }
 
-    Canvas(modifier + LayoutWidth.Fill + LayoutHeight(heightDp) +
-            onPositioned { coordinates ->
+    Canvas(
+        modifier.fillMaxWidth()
+            .preferredHeight(heightDp)
+            .onPositioned { coordinates ->
                 itemWidth.value = coordinates.size.width.value * 2 / 3f
-            }) {
+            }
+    ) {
         val progress = 1 - itemBottom.value / height
         // TODO: this progress can be used to drive state transitions
         val alpha = 1f - FastOutSlowInEasing(progress)
@@ -142,7 +146,7 @@ private fun SwipeToDismiss() {
     }
 }
 
-private fun CanvasScope.drawLeftItems(
+private fun DrawScope.drawLeftItems(
     paint: Paint,
     horizontalOffset: Float,
     width: Float,
@@ -168,7 +172,7 @@ private fun CanvasScope.drawLeftItems(
     }
 }
 
-private fun CanvasScope.drawDismissingItem(
+private fun DrawScope.drawDismissingItem(
     paint: Paint,
     bottom: Float,
     width: Float,

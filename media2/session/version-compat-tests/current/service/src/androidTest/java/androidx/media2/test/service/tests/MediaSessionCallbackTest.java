@@ -85,7 +85,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPostConnect_afterConnected() throws InterruptedException {
+    public void onPostConnect_afterConnected() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
@@ -103,7 +103,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPostConnect_afterConnectionRejected() throws InterruptedException {
+    public void onPostConnect_afterConnectionRejected() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
@@ -127,7 +127,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCommandRequest() throws InterruptedException {
+    public void onCommandRequest() throws InterruptedException {
         mPlayer = new MockPlayer(1);
 
         final MockOnCommandCallback callback = new MockOnCommandCallback();
@@ -155,7 +155,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCreateMediaItem() throws InterruptedException {
+    public void onCreateMediaItem() throws InterruptedException {
         mPlayer = new MockPlayer(1);
 
         final List<String> list = MediaTestUtils.createMediaIds(3);
@@ -196,7 +196,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCustomCommand() throws InterruptedException {
+    public void onCustomCommand() throws InterruptedException {
         // TODO(jaewan): Need to revisit with the permission.
         final SessionCommand testCommand = new SessionCommand("testCustomCommand", null);
         final Bundle testArgs = new Bundle();
@@ -238,7 +238,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnFastForward() throws InterruptedException {
+    public void onFastForward() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
@@ -259,7 +259,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnRewind() throws InterruptedException {
+    public void onRewind() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
@@ -279,7 +279,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnSkipForward() throws InterruptedException {
+    public void onSkipForward() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
@@ -300,7 +300,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnSkipBackward() throws InterruptedException {
+    public void onSkipBackward() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
             @Override
@@ -322,7 +322,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testOnPlayFromSearch() throws InterruptedException {
+    public void onPlayFromSearch() throws InterruptedException {
         final String testQuery = "random query";
         final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -349,7 +349,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testOnPlayFromUri() throws InterruptedException {
+    public void onPlayFromUri() throws InterruptedException {
         final Uri testUri = Uri.parse("foo://boo");
         final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -377,7 +377,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testOnPlayFromMediaId() throws InterruptedException {
+    public void onPlayFromMediaId() throws InterruptedException {
         final String testMediaId = "media_id";
         final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -404,7 +404,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testOnPrepareFromSearch() throws InterruptedException {
+    public void onPrepareFromSearch() throws InterruptedException {
         final String testQuery = "random query";
         final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -431,7 +431,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testOnPrepareFromUri() throws InterruptedException {
+    public void onPrepareFromUri() throws InterruptedException {
         final Uri testUri = Uri.parse("foo://boo");
         final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -458,7 +458,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
     @Test
     @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testOnPrepareFromMediaId() throws InterruptedException {
+    public void onPrepareFromMediaId() throws InterruptedException {
         final String testMediaId = "media_id";
         final Bundle testExtras = TestUtils.createTestBundle();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -484,7 +484,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnSetRating() throws InterruptedException {
+    public void onSetRating() throws InterruptedException {
         final float ratingValue = 3.5f;
         final Rating testRating = new StarRating(5, ratingValue);
         final String testMediaId = "media_id";
@@ -514,7 +514,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnConnect() throws InterruptedException {
+    public void onConnect() throws InterruptedException {
         final AtomicReference<Bundle> connectionHints = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -543,7 +543,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnDisconnected() throws InterruptedException {
+    public void onDisconnected() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
                 .setId("testOnDisconnected")

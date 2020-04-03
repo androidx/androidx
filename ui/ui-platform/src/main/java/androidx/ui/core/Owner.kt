@@ -18,6 +18,7 @@ package androidx.ui.core
 import androidx.annotation.RestrictTo
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
+import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.graphics.Canvas
@@ -52,6 +53,11 @@ interface Owner {
      * Provide haptic feedback to the user. Use the Android version of haptic feedback.
      */
     val hapticFeedBack: HapticFeedback
+
+    /**
+     * Provide clipboard manager to the user. Use the Android version of clipboard manager.
+     */
+    val clipboardManager: ClipboardManager
 
     /**
      *  A data structure used to store autofill information. It is used by components that want to
@@ -186,7 +192,8 @@ interface Owner {
      */
     fun createLayer(
         drawLayerModifier: DrawLayerModifier,
-        drawBlock: (Canvas, Density) -> Unit
+        drawBlock: (Canvas) -> Unit,
+        invalidateParentLayer: () -> Unit
     ): OwnedLayer
 
     val measureIteration: Long

@@ -23,13 +23,14 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.draggable
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendSwipe
 import androidx.ui.test.sendSwipeWithVelocity
 import androidx.ui.unit.PxPosition
@@ -55,7 +56,7 @@ class DraggableTest {
     fun draggable_horizontalDrag() {
         var total = 0f
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Horizontal,
                 onDragDeltaConsumptionRequested = { delta ->
                     total += delta
@@ -70,7 +71,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        val lastTotal = composeTestRule.runOnIdleCompose {
+        val lastTotal = runOnIdleCompose {
             assertThat(total).isGreaterThan(0)
             total
         }
@@ -81,7 +82,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(lastTotal)
         }
         findByTag(draggableBoxTag).doGesture {
@@ -91,7 +92,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isLessThan(0.01f)
         }
     }
@@ -100,7 +101,7 @@ class DraggableTest {
     fun draggable_verticalDrag() {
         var total = 0f
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Vertical,
                 onDragDeltaConsumptionRequested = { delta ->
                     total += delta
@@ -115,7 +116,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        val lastTotal = composeTestRule.runOnIdleCompose {
+        val lastTotal = runOnIdleCompose {
             assertThat(total).isGreaterThan(0)
             total
         }
@@ -126,7 +127,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(lastTotal)
         }
         findByTag(draggableBoxTag).doGesture {
@@ -136,7 +137,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isLessThan(0.01f)
         }
     }
@@ -146,7 +147,7 @@ class DraggableTest {
         var startTrigger = 0f
         var stopTrigger = 0f
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Horizontal,
                 onDragStarted = {
                     startTrigger += 1
@@ -159,7 +160,7 @@ class DraggableTest {
                 }
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(startTrigger).isEqualTo(0)
             assertThat(stopTrigger).isEqualTo(0)
         }
@@ -170,7 +171,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(startTrigger).isEqualTo(1)
             assertThat(stopTrigger).isEqualTo(1)
         }
@@ -179,9 +180,9 @@ class DraggableTest {
     @Test
     fun draggable_disabledWontCallLambda() {
         var total = 0f
-        var enabled = mutableStateOf(true)
+        val enabled = mutableStateOf(true)
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Horizontal,
                 onDragDeltaConsumptionRequested = { delta ->
                     total += delta
@@ -197,7 +198,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        val prevTotal = composeTestRule.runOnIdleCompose {
+        val prevTotal = runOnIdleCompose {
             assertThat(total).isGreaterThan(0f)
             enabled.value = false
             total
@@ -209,7 +210,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(prevTotal)
         }
     }
@@ -218,7 +219,7 @@ class DraggableTest {
     fun draggable_velocityProxy() {
         var velocityTriggered = 0f
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Horizontal,
                 onDragStopped = {
                     velocityTriggered = it
@@ -237,7 +238,7 @@ class DraggableTest {
 
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(velocityTriggered - 112f).isLessThan(0.1f)
         }
     }
@@ -246,7 +247,7 @@ class DraggableTest {
     fun draggable_startWithoutSlop_ifAnimating() {
         var total = 0f
         setDraggableContent {
-            draggable(
+            Modifier.draggable(
                 dragDirection = DragDirection.Horizontal,
                 onDragDeltaConsumptionRequested = { delta ->
                     total += delta
@@ -262,7 +263,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // should be exactly 100 as there's no slop
             assertThat(total).isEqualTo(100f)
         }
@@ -274,7 +275,7 @@ class DraggableTest {
         var dragStopped = 0f
         setDraggableContent {
             if (total < 20f) {
-                draggable(
+                Modifier.draggable(
                     dragDirection = DragDirection.Horizontal,
                     onDragDeltaConsumptionRequested = { delta ->
                         total += delta
@@ -292,7 +293,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // should be exactly 100 as there's no slop
             assertThat(total).isGreaterThan(0f)
             assertThat(dragStopped).isEqualTo(1f)
@@ -308,20 +309,22 @@ class DraggableTest {
                 TestTag(draggableBoxTag) {
                     Semantics(container = true) {
                         Box(gravity = ContentGravity.Center,
-                            modifier = LayoutSize(300.dp) + draggable(
-                                dragDirection = DragDirection.Horizontal,
-                                onDragDeltaConsumptionRequested = { delta ->
-                                    outerDrag += delta
-                                    delta
-                                }
-                            )) {
-                            Box(modifier = LayoutSize(300.dp) + draggable(
-                                dragDirection = DragDirection.Horizontal,
-                                onDragDeltaConsumptionRequested = { delta ->
-                                    innerDrag += delta / 2
-                                    delta / 2
-                                }
-                            ))
+                            modifier = Modifier.preferredSize(300.dp)
+                                .draggable(
+                                    dragDirection = DragDirection.Horizontal,
+                                    onDragDeltaConsumptionRequested = { delta ->
+                                        outerDrag += delta
+                                        delta
+                                    }
+                                )) {
+                            Box(modifier = Modifier.preferredSize(300.dp)
+                                .draggable(
+                                    dragDirection = DragDirection.Horizontal,
+                                    onDragDeltaConsumptionRequested = { delta ->
+                                        innerDrag += delta / 2
+                                        delta / 2
+                                    }
+                                ))
                         }
                     }
                 }
@@ -334,7 +337,7 @@ class DraggableTest {
                 duration = 300.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(innerDrag).isGreaterThan(0f)
             assertThat(outerDrag).isGreaterThan(0f)
             // we consumed half delta in child, so exactly half should go to the parent
@@ -348,7 +351,7 @@ class DraggableTest {
                 val draggable = draggableFactory()
                 TestTag(draggableBoxTag) {
                     Semantics(container = true) {
-                        Box(modifier = LayoutSize(100.dp) + draggable)
+                        Box(modifier = Modifier.preferredSize(100.dp) + draggable)
                     }
                 }
             }

@@ -26,7 +26,7 @@ import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
  */
 public final class CameraOrientationUtil {
     private static final String TAG = "CameraOrientationUtil";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     // Do not allow instantiation
     private CameraOrientationUtil() {

@@ -57,14 +57,14 @@ class ScaleSlopExceededGestureDetectorTest {
     @Test
     fun onPointerInputChanges_1PointerMoves10TimesScaleSlopInXAndY_onTouchSlopExceededNotCalled() {
         var pointer = down(0)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         pointer = pointer.moveBy(
             Duration(milliseconds = 10),
             TestTouchSlop.toFloat() * 10,
             TestTouchSlop.toFloat() * 10
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer)
 
         assertThat(onScaleSlopExceededCount).isEqualTo(0)
     }
@@ -458,7 +458,7 @@ class ScaleSlopExceededGestureDetectorTest {
         // Arrange
         var pointer1 = down(0, 0.milliseconds, 0f, 0f)
         var pointer2 = down(1, 0.milliseconds, 0f, 50f)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
 
@@ -473,7 +473,7 @@ class ScaleSlopExceededGestureDetectorTest {
             10f,
             100f
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Translate, rotate and scale down.
         pointer1 = pointer1.moveTo(
@@ -486,7 +486,7 @@ class ScaleSlopExceededGestureDetectorTest {
             -40f,
             75f
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Translate, rotate and scale up.
         pointer1 = pointer1.moveTo(
@@ -499,7 +499,7 @@ class ScaleSlopExceededGestureDetectorTest {
             40f,
             -20f
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Translate, rotate and scale down.
         pointer1 = pointer1.moveTo(
@@ -512,7 +512,7 @@ class ScaleSlopExceededGestureDetectorTest {
             20f,
             -80f
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(onScaleSlopExceededCount).isEqualTo(0)
     }
@@ -522,7 +522,7 @@ class ScaleSlopExceededGestureDetectorTest {
         // Arrange
         var pointer1 = down(0, 0.milliseconds, 0f, 0f)
         var pointer2 = down(1, 0.milliseconds, 0f, 20f)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
 
@@ -537,7 +537,7 @@ class ScaleSlopExceededGestureDetectorTest {
             0f,
             30 + TinyNum
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Under
         pointer1 = pointer1.moveTo(
@@ -550,7 +550,7 @@ class ScaleSlopExceededGestureDetectorTest {
             0f,
             30 - TinyNum
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Over
         pointer1 = pointer1.moveTo(
@@ -563,7 +563,7 @@ class ScaleSlopExceededGestureDetectorTest {
             0f,
             30 + TinyNum
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(onScaleSlopExceededCount).isEqualTo(1)
     }
@@ -574,7 +574,7 @@ class ScaleSlopExceededGestureDetectorTest {
         // Arrange
         var pointer1 = down(0, 0.milliseconds, 0f, 0f)
         var pointer2 = down(1, 0.milliseconds, 1f, 0f)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
 
@@ -590,7 +590,7 @@ class ScaleSlopExceededGestureDetectorTest {
                 1f,
                 0f
             )
-            mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+            mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         }
 
         // Verify that we have not gone over.
@@ -607,7 +607,7 @@ class ScaleSlopExceededGestureDetectorTest {
             TinyNum,
             0f
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Verify we have gone over.
         assertThat(onScaleSlopExceededCount).isEqualTo(1)
@@ -618,7 +618,7 @@ class ScaleSlopExceededGestureDetectorTest {
         // Arrange
         var pointer1 = down(0, 0.milliseconds, 0f, 0f)
         var pointer2 = down(1, 0.milliseconds, 0f, 1f)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
 
@@ -634,7 +634,7 @@ class ScaleSlopExceededGestureDetectorTest {
                 0f,
                 1f
             )
-            mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+            mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         }
 
         // Verify that we have not gone over.
@@ -651,7 +651,7 @@ class ScaleSlopExceededGestureDetectorTest {
             0f,
             TinyNum
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Verify we have gone over.
         assertThat(onScaleSlopExceededCount).isEqualTo(1)
@@ -660,13 +660,13 @@ class ScaleSlopExceededGestureDetectorTest {
     // Tests that verify correct cancelling behavior.
 
     @Test
-    fun cancelHandler_scaleUnderCancelScaleUnder_onScaleSlopExceededNotCalled() {
+    fun onCancel_scaleUnderCancelScaleUnder_onScaleSlopExceededNotCalled() {
 
         // Arrange
 
         var pointer1 = down(0, 0.milliseconds, 0f, 0f)
         var pointer2 = down(1, 0L.milliseconds, 1f, 0f)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         pointer1 = pointer1.moveTo(
             10.milliseconds,
@@ -678,15 +678,15 @@ class ScaleSlopExceededGestureDetectorTest {
             11f,
             0f
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
 
-        mRecognizer.cancelHandler()
+        mRecognizer.onCancel()
 
         pointer1 = down(0, 0.milliseconds, 0f, 0f)
         pointer2 = down(1, 0L.milliseconds, 1f, 0f)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         pointer1 = pointer1.moveTo(
             10.milliseconds,
@@ -698,7 +698,7 @@ class ScaleSlopExceededGestureDetectorTest {
             11f,
             0f
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Assert
 
@@ -706,13 +706,13 @@ class ScaleSlopExceededGestureDetectorTest {
     }
 
     @Test
-    fun cancelHandler_scalePastCancelScalePast_onScaleSlopExceededCalledTwice() {
+    fun onCancel_scalePastCancelScalePast_onScaleSlopExceededCalledTwice() {
 
         // Arrange
 
         var pointer1 = down(0, 0.milliseconds, 0f, 0f)
         var pointer2 = down(1, 0L.milliseconds, 1f, 0f)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         pointer1 = pointer1.moveTo(
             10.milliseconds,
@@ -724,15 +724,15 @@ class ScaleSlopExceededGestureDetectorTest {
             11 + TinyNum,
             0f
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
 
-        mRecognizer.cancelHandler()
+        mRecognizer.onCancel()
 
         pointer1 = down(0, 0.milliseconds, 0f, 0f)
         pointer2 = down(1, 0L.milliseconds, 1f, 0f)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         pointer1 = pointer1.moveTo(
             10.milliseconds,
@@ -744,7 +744,7 @@ class ScaleSlopExceededGestureDetectorTest {
             11 + TinyNum,
             0f
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Assert
 
@@ -765,7 +765,7 @@ class ScaleSlopExceededGestureDetectorTest {
         // Arrange
         var pointer1 = down(0, 0.milliseconds, x1s, y1s)
         var pointer2 = down(1, 0L.milliseconds, x2s, y2s)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         // Act
         pointer1 = pointer1.moveTo(
@@ -778,7 +778,7 @@ class ScaleSlopExceededGestureDetectorTest {
             x2e,
             y2e
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(onScaleSlopExceededCount).isEqualTo(expectedCound)
     }
@@ -802,7 +802,7 @@ class ScaleSlopExceededGestureDetectorTest {
         var pointer1 = down(0, 0.milliseconds, x1s, y1s)
         var pointer2 = down(1, 0.milliseconds, x2s, y2s)
         var pointer3 = down(2, 0.milliseconds, x3s, y3s)
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2, pointer3)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
 
         // Act
         pointer1 = pointer1.moveTo(
@@ -820,7 +820,7 @@ class ScaleSlopExceededGestureDetectorTest {
             x3e,
             y3e
         )
-        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer1, pointer2, pointer3)
+        mRecognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
 
         assertThat(onScaleSlopExceededCount).isEqualTo(expectedCound)
     }

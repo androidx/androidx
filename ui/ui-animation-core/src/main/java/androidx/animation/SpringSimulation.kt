@@ -52,11 +52,6 @@ internal class SpringSimulation(var finalPosition: Float) {
     // Indicates whether the spring has been initialized
     private var initialized = false
 
-    // Threshold for velocity and value to determine when it's reasonable to assume that the spring
-    // is approximately at rest.
-    private var valueThreshold: Double = 0.005
-    private var velocityThreshold: Double = 0.3125
-
     // Intermediate values to simplify the spring function calculation per frame.
     private var gammaPlus: Double = 0.0
     private var gammaMinus: Double = 0.0
@@ -102,24 +97,6 @@ internal class SpringSimulation(var finalPosition: Float) {
         val c = 2.0 * naturalFreq * dampingRatio
 
         return (-k * adjustedDisplacement - c * lastVelocity).toFloat()
-    }
-
-    fun isAtEquilibrium(value: Float, velocity: Float, timeElapsed: Long = 0): Boolean {
-        if (timeElapsed > 0) {
-            val (endValue, endVelocity) = updateValues(value, velocity, timeElapsed)
-            return isAtEquilibrium(endValue, endVelocity)
-        } else {
-            return isAtEquilibrium(value, velocity)
-        }
-    }
-
-    private fun isAtEquilibrium(value: Float, velocity: Float): Boolean {
-
-        if ((Math.abs(velocity) < velocityThreshold &&
-                    Math.abs(value - finalPosition) < valueThreshold)) {
-            return true
-        }
-        return false
     }
 
     /**
@@ -200,28 +177,9 @@ internal class SpringSimulation(var finalPosition: Float) {
                     Math.cos(dampedFreq * deltaT)))))
         }
 
-        var newValue = (displacement + finalPosition).toFloat()
-        var newVelocity = currentVelocity.toFloat()
-        if (isAtEquilibrium(newValue, newVelocity)) {
-            newValue = finalPosition
-            newVelocity = 0f
-        }
+        val newValue = (displacement + finalPosition).toFloat()
+        val newVelocity = currentVelocity.toFloat()
 
         return Motion(newValue, newVelocity)
-    }
-
-    /**
-     * This threshold defines how close the animation value needs to be before the animation can
-     * finish. This default value is based on the property being animated, e.g. animations on alpha,
-     * scale, translation or rotation would have different thresholds. This value should be small
-     * enough to avoid visual glitch of "jumping to the end". But it shouldn't be so small that
-     * animations take seconds to finish.
-     *
-     * @param threshold the difference between the animation value and final spring position that
-     * is allowed to end the animation when velocity is very low
-     */
-    internal fun setValueThreshold(threshold: Double) {
-        valueThreshold = Math.abs(threshold)
-        velocityThreshold = valueThreshold * VelocityThresholdMultiplier
     }
 }

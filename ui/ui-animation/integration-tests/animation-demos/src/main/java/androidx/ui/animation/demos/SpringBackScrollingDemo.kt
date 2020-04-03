@@ -24,18 +24,20 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
+import androidx.ui.core.DrawScope
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.RawDragGestureDetector
+import androidx.ui.core.gesture.rawDragGestureFilter
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.Text
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -44,16 +46,16 @@ import kotlin.math.roundToInt
 
 @Composable
 fun SpringBackScrollingDemo() {
-    Column(LayoutHeight.Fill) {
+    Column(Modifier.fillMaxHeight()) {
         Text(
             "<== Scroll horizontally ==>",
             style = TextStyle(fontSize = 20.sp),
-            modifier = LayoutPadding(40.dp)
+            modifier = Modifier.padding(40.dp)
         )
         val animScroll = animatedFloat(0f)
         val itemWidth = state { 0f }
-        var isFlinging = state { false }
-        val gesture = RawDragGestureDetector(dragObserver = object : DragObserver {
+        val isFlinging = state { false }
+        val gesture = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
                 animScroll.snapTo(animScroll.targetValue + dragDistance.x.value)
                 return dragDistance
@@ -67,7 +69,7 @@ fun SpringBackScrollingDemo() {
             }
         })
         val paint = remember { Paint() }
-        Canvas(gesture + LayoutWidth.Fill + LayoutHeight(400.dp)) {
+        Canvas(gesture.fillMaxWidth().preferredHeight(400.dp)) {
             itemWidth.value = size.width.value / 2f
             if (isFlinging.value) {
                 // Figure out what position to spring back to
@@ -105,7 +107,7 @@ fun SpringBackScrollingDemo() {
     }
 }
 
-private fun CanvasScope.drawRects(paint: Paint, animScroll: Float) {
+private fun DrawScope.drawRects(paint: Paint, animScroll: Float) {
     val width = size.width.value / 2f
     val scroll = animScroll + width / 2
     var startingPos = scroll % width

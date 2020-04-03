@@ -18,21 +18,22 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
 @Sampled
 @Composable
 fun LayoutPaddingModifier() {
-    Stack(modifier = DrawBackground(Color.Gray)) {
+    Stack(Modifier.drawBackground(Color.Gray)) {
         Box(
-            LayoutPadding(start = 20.dp, top = 30.dp, end = 20.dp, bottom = 30.dp) +
-                    LayoutSize(50.dp),
+            Modifier.padding(start = 20.dp, top = 30.dp, end = 20.dp, bottom = 30.dp)
+                .preferredSize(50.dp),
             backgroundColor = Color.Blue
         )
     }
@@ -41,7 +42,7 @@ fun LayoutPaddingModifier() {
 @Sampled
 @Composable
 fun LayoutPaddingAllModifier() {
-    Stack(modifier = DrawBackground(Color.Gray)) {
-        Box(LayoutPadding(all = 20.dp) + LayoutSize(50.dp), backgroundColor = Color.Blue)
+    Stack(Modifier.drawBackground(Color.Gray)) {
+        Box(Modifier.padding(all = 20.dp).preferredSize(50.dp), backgroundColor = Color.Blue)
     }
 }

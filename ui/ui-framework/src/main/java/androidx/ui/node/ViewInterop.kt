@@ -26,6 +26,8 @@ import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
+import androidx.ui.core.Modifier
+import androidx.ui.core.drawBehind
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
@@ -93,8 +95,8 @@ internal fun View.toComponentNode(): ComponentNode {
     // TODO(popam): forward pointer input, accessibility, focus
     // Prepare layout node that proxies measure and layout passes to the View.
     val layoutNode = LayoutNode()
-    layoutNode.modifier = androidx.ui.core.draw { canvas, _ ->
-        draw(canvas.nativeCanvas)
+    layoutNode.modifier = Modifier.drawBehind {
+        draw(nativeCanvas)
     }
     layoutNode.onAttach = { owner ->
         (owner as? AndroidOwner)?.addAndroidView(this, layoutNode)
@@ -110,7 +112,7 @@ internal fun View.toComponentNode(): ComponentNode {
             measurables: List<Measurable>,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): MeasureScope.LayoutResult {
+        ): MeasureScope.MeasureResult {
             if (constraints.minWidth != 0.ipx) {
                 minimumWidth = constraints.minWidth.value
             }

@@ -19,6 +19,24 @@ package androidx.compose
 import androidx.compose.SlotTable.Companion.EMPTY
 import kotlin.collections.isNotEmpty
 
+/**
+ * This is here because outdated versions of the compose IDE plugin expect to find it.
+ * Without it, calls to [remember] are seen as errors, which breaks inference of [state] and more.
+ *
+ * This API is no longer needed in any way by the compiler, but we still need this API
+ * to be here to support versions of Android Studio that are still looking for it. Without it,
+ * valid composable code will look broken in the IDE. Remove this after we have left some time to
+ * get all versions of Studio upgraded.
+ * TODO b/152059242
+ */
+@Deprecated(
+    "This property should not be called directly. It is only used by the compiler.",
+    replaceWith = ReplaceWith("currentComposer")
+)
+internal val composer: Composer<*> get() = error(
+    "This property should not be called directly. It is only used by the compiler."
+)
+
 internal typealias Change<N> = (
     applier: Applier<N>,
     slots: SlotWriter,
@@ -1136,7 +1154,7 @@ open class Composer<N>(
             // doesn't exist in this set, it needs to be removed.
             val usedKeys = current.toSet()
 
-            val movedKeys = mutableSetOf<KeyInfo>()
+            val placedKeys = mutableSetOf<KeyInfo>()
             var currentIndex = 0
             val currentEnd = current.size
             var previousIndex = 0
@@ -1170,8 +1188,8 @@ open class Composer<N>(
                     continue
                 }
 
-                if (previousInfo in movedKeys) {
-                    // If the group was already moved to the correct location, skip it.
+                if (previousInfo in placedKeys) {
+                    // If the group was already placed in the correct location, skip it.
                     previousIndex++
                     continue
                 }
@@ -1182,6 +1200,7 @@ open class Composer<N>(
                     val currentInfo = current[currentIndex]
                     if (currentInfo !== previousInfo) {
                         val nodePosition = pending.nodePositionOf(currentInfo)
+                        placedKeys.add(currentInfo)
                         if (nodePosition != nodeOffset) {
                             val updatedCount = pending.updatedNodeCountOf(currentInfo)
                             recordMoveNode(
@@ -1189,7 +1208,6 @@ open class Composer<N>(
                                 nodeOffset + pending.startIndex, updatedCount
                             )
                             pending.registerMoveNode(nodePosition, nodeOffset, updatedCount)
-                            movedKeys.add(currentInfo)
                         } // else the nodes are already in the correct position
                     } else {
                         // The correct nodes are in the right location

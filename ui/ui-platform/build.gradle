@@ -37,7 +37,7 @@ dependencies {
 
     implementation project(":compose:compose-runtime")
     api project(":ui:ui-core")
-    api project(":ui:ui-text")
+    api project(":ui:ui-text-core")
     implementation project(":ui:ui-util")
     implementation project(":ui:ui-saved-instance-state")
 
@@ -63,8 +63,9 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
 
-    androidTestImplementation project(":ui:ui-test")
+    androidTestImplementation project(":ui:ui-foundation")
     androidTestImplementation project(":ui:ui-platform:samples")
+    androidTestImplementation project(":ui:ui-test")
 }
 
 androidx {
@@ -87,5 +88,9 @@ android {
         unitTests {
             includeAndroidResources = true
         }
+    }
+
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
     }
 }

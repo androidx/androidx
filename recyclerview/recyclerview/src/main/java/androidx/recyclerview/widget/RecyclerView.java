@@ -3837,7 +3837,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     void dispatchLayout() {
         if (mAdapter == null) {
-            Log.e(TAG, "No adapter attached; skipping layout");
+            Log.w(TAG, "No adapter attached; skipping layout");
             // leave the state in START
             return;
         }

@@ -22,12 +22,15 @@ import androidx.navigation.NavigatorProvider
 import androidx.navigation.NoOpNavigator
 import androidx.navigation.dynamicfeatures.shared.TestDynamicInstallManager
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.spy
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
 
 @RunWith(JUnit4::class)
 @SmallTest
@@ -39,27 +42,50 @@ class DynamicIncludeGraphNavigatorTest {
     private lateinit var noOpNavigator: NoOpNavigator
     private lateinit var installManager: TestDynamicInstallManager
     private lateinit var inflater: NavInflater
+    private lateinit var context: Context
 
     @Before
     fun setup() {
-        val contextSpy = spy(Context::class.java)
+        context = mock(Context::class.java)
+        `when`(context.packageName).thenReturn(PACKAGE_NAME)
         provider = NavigatorProvider()
         noOpNavigator = NoOpNavigator()
         installManager = TestDynamicInstallManager()
-        inflater = NavInflater(contextSpy, provider)
+        inflater = NavInflater(context, provider)
 
         navigator = DynamicIncludeGraphNavigator(
-            contextSpy,
+            context,
             provider,
             inflater,
             installManager
         )
         provider.addNavigator(noOpNavigator)
         dynamicNavGraph = navigator.createDestination()
+        dynamicNavGraph.moduleName = FEATURE_NAME
     }
 
     @Test
     fun testCreateDestination() {
         assertNotNull(navigator.createDestination())
     }
+
+    @Test
+    fun testReplacePackagePlaceholder() {
+        assertThat(
+            dynamicNavGraph.getPackageOrDefault(context, "\${applicationId}.something" +
+                    ".$FEATURE_NAME")
+        ).isEqualTo("$PACKAGE_NAME.something.$FEATURE_NAME")
+
+        assertThat(
+            dynamicNavGraph.getPackageOrDefault(context, "something.\${applicationId}" +
+                    ".$FEATURE_NAME")
+        ).isEqualTo("something.$PACKAGE_NAME.$FEATURE_NAME")
+
+        assertThat(
+            dynamicNavGraph.getPackageOrDefault(context, null)
+        ).isEqualTo("$PACKAGE_NAME.$FEATURE_NAME")
+    }
 }
+
+private const val PACKAGE_NAME = "com.test.app"
+private const val FEATURE_NAME = "myfeature"

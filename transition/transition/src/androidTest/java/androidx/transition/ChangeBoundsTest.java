@@ -19,7 +19,6 @@ package androidx.transition;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import android.content.Context;
@@ -116,7 +115,8 @@ public class ChangeBoundsTest extends BaseTransitionTest {
 
     private class TestSuppressLayout extends FrameLayout {
 
-        private Boolean mExpectedSuppressLayout;
+        private boolean mExpectedSuppressLayout;
+        private Boolean mActualSuppressLayout;
 
         private TestSuppressLayout(@NonNull Context context) {
             super(context);
@@ -127,14 +127,14 @@ public class ChangeBoundsTest extends BaseTransitionTest {
         }
 
         void ensureExpectedValueApplied() {
-            assertNull(mExpectedSuppressLayout);
+            assertNotNull(mActualSuppressLayout);
+            assertEquals(mExpectedSuppressLayout, mActualSuppressLayout);
+            mActualSuppressLayout = null;
         }
 
         // Called via reflection
         public void suppressLayout(boolean suppress) {
-            assertNotNull(mExpectedSuppressLayout);
-            assertEquals(mExpectedSuppressLayout, suppress);
-            mExpectedSuppressLayout = null;
+            mActualSuppressLayout = suppress;
         }
     }
 

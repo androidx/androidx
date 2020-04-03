@@ -18,13 +18,19 @@ package androidx.lifecycle.hilt
 
 import com.squareup.javapoet.ClassName
 
-object ClassNames {
-    val ACTIVITY_COMPONENT = ClassName.get("dagger.hilt.android.component", "ActivityComponent")
+internal object ClassNames {
+    val ACTIVITY_RETAINED_COMPONENT =
+        ClassName.get("dagger.hilt.android.components", "ActivityRetainedComponent")
     val BINDS = ClassName.get("dagger", "Binds")
+    val NON_NULL = ClassName.get("androidx.annotation", "NonNull")
     val INJECT = ClassName.get("javax.inject", "Inject")
     val INSTALL_IN = ClassName.get("dagger.hilt", "InstallIn")
     val INTO_MAP = ClassName.get("dagger.multibindings", "IntoMap")
     val MODULE = ClassName.get("dagger", "Module")
     val PROVIDER = ClassName.get("javax.inject", "Provider")
+    val VIEW_MODEL_ASSISTED_FACTORY =
+        ClassName.get("androidx.lifecycle.hilt", "ViewModelAssistedFactory")
+    val VIEW_MODEL = ClassName.get("androidx.lifecycle", "ViewModel")
     val VIEW_MODEL_KEY = ClassName.get("androidx.lifecycle.hilt", "ViewModelKey")
+    val SAVED_STATE_HANDLE = ClassName.get("androidx.lifecycle", "SavedStateHandle")
 }

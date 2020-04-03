@@ -17,15 +17,16 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.padding
 import androidx.ui.material.samples.SliderSample
 import androidx.ui.material.samples.StepsSliderSample
 import androidx.ui.unit.dp
 
 @Composable
 fun SliderDemo() {
-    Column(LayoutPadding(10.dp)) {
+    Column(Modifier.padding(10.dp)) {
         SliderSample()
         StepsSliderSample()
     }

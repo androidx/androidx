@@ -24,23 +24,26 @@ import androidx.ui.autofill.AutofillType
 import androidx.ui.core.AutofillAmbient
 import androidx.ui.core.AutofillTreeAmbient
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.foundation.TextField
+import androidx.ui.core.Modifier
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.onChildPositioned
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextField
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.MaterialTheme
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
 @Composable
 fun ExplicitAutofillTypesDemo() {
     Column {
-        val nameState = state { "Enter name here" }
-        val emailState = state { "Enter email here" }
+        val nameState = state { TextFieldValue("Enter name here") }
+        val emailState = state { TextFieldValue("Enter email here") }
         val autofill = AutofillAmbient.current
         val labelStyle = MaterialTheme.typography.subtitle1
         val textStyle = MaterialTheme.typography.h6
@@ -48,7 +51,9 @@ fun ExplicitAutofillTypesDemo() {
         Text("Name", style = labelStyle)
         Autofill(
             autofillTypes = listOf(AutofillType.Name),
-            onFill = { nameState.value = it }
+            onFill = { nameState.value =
+                TextFieldValue(it)
+            }
         ) { autofillNode ->
             TextField(
                 value = nameState.value,
@@ -61,12 +66,14 @@ fun ExplicitAutofillTypesDemo() {
             )
         }
 
-        Spacer(LayoutHeight(40.dp))
+        Spacer(Modifier.preferredHeight(40.dp))
 
         Text("Email", style = labelStyle)
         Autofill(
             autofillTypes = listOf(AutofillType.EmailAddress),
-            onFill = { emailState.value = it }
+            onFill = { emailState.value =
+                TextFieldValue(it)
+            }
         ) { autofillNode ->
             TextField(
                 value = emailState.value,
@@ -92,7 +99,8 @@ private fun Autofill(
     val autofillTree = AutofillTreeAmbient.current
     autofillTree += autofillNode
 
-    OnChildPositioned(onPositioned = { autofillNode.boundingBox = it.boundingBox() }) {
+    @Suppress("DEPRECATION")
+    PassThroughLayout(onChildPositioned { autofillNode.boundingBox = it.boundingBox() }) {
         children(autofillNode)
     }
 }

@@ -16,7 +16,7 @@
 
 package androidx.ui.graphics
 
-import androidx.ui.core.toFrameworkRect
+import androidx.ui.core.toAndroidRect
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
@@ -129,14 +129,14 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
 
     override fun addRect(rect: Rect) {
         check(_rectIsValid(rect))
-        rectF.set(rect.toFrameworkRect())
+        rectF.set(rect.toAndroidRect())
         // TODO(njawad) figure out what to do with Path Direction,
         // Flutter does not use it, Platform does
         internalPath.addRect(rectF, android.graphics.Path.Direction.CCW)
     }
 
     override fun addOval(oval: Rect) {
-        rectF.set(oval.toFrameworkRect())
+        rectF.set(oval.toAndroidRect())
         internalPath.addOval(rectF, android.graphics.Path.Direction.CCW)
     }
 
@@ -146,7 +146,7 @@ inline fun Path.asAndroidPath(): android.graphics.Path =
 
     override fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
         check(_rectIsValid(oval))
-        rectF.set(oval.toFrameworkRect())
+        rectF.set(oval.toAndroidRect())
         internalPath.addArc(rectF, startAngleDegrees, sweepAngleDegrees)
     }
 

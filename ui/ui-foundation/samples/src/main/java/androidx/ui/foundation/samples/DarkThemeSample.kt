@@ -18,10 +18,13 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.isSystemInDarkTheme
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
 @Sampled
@@ -30,6 +33,6 @@ fun DarkThemeSample() {
     val dark = isSystemInDarkTheme()
     val color = if (dark) Color.White else Color.Black
     Stack {
-        ColoredRect(color = color, width = 50.dp, height = 50.dp)
+        Box(Modifier.preferredSize(50.dp).drawBackground(color))
     }
 }

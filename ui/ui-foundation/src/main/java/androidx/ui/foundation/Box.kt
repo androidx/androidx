@@ -78,12 +78,12 @@ fun Box(
     children: @Composable() () -> Unit = emptyContent()
 ) {
     val borderModifier =
-        if (border != null) DrawBorder(border, shape) else Modifier.None
+        if (border != null) Modifier.drawBorder(border, shape) else Modifier.None
     val backgroundModifier =
         if (backgroundColor == Color.Transparent) {
             Modifier.None
         } else {
-            DrawBackground(backgroundColor, shape)
+            Modifier.drawBackground(backgroundColor, shape)
         }
     // TODO(malkov): support ContentColor prorogation (b/148129218)
     // TODO(popam): there should be no custom layout, use Column instead (b/148809177)

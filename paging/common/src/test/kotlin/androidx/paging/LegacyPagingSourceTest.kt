@@ -36,7 +36,10 @@ class LegacyPagingSourceTest {
             )
         ),
         anchorPosition = 0,
-        initialLoadSize = 1,
+        config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 1
+        ),
         placeholdersStart = 0
     )
 
@@ -121,7 +124,10 @@ class LegacyPagingSourceTest {
                         )
                     ),
                     anchorPosition = 3,
-                    initialLoadSize = 1,
+                    config = PagingConfig(
+                        pageSize = 1,
+                        prefetchDistance = 1
+                    ),
                     placeholdersStart = 0
                 )
             )
@@ -138,7 +144,10 @@ class LegacyPagingSourceTest {
                         )
                     ),
                     anchorPosition = 4,
-                    initialLoadSize = 1,
+                    config = PagingConfig(
+                        pageSize = 1,
+                        prefetchDistance = 1
+                    ),
                     placeholdersStart = 0
                 )
             )

@@ -17,6 +17,8 @@
 package androidx.ui.graphics
 
 import androidx.ui.unit.PxSize
+import kotlin.math.max
+import kotlin.math.min
 
 private const val OriginalScale = 1.0f
 
@@ -105,19 +107,17 @@ data class FixedScale(val value: Float) : ScaleFit {
     override fun scale(srcSize: PxSize, dstSize: PxSize): Float = value
 }
 
-private fun computeFillMaxDimension(srcSize: PxSize, dstSize: PxSize): Float =
-    if (dstSize.width > dstSize.height) {
-        computeFillWidth(srcSize, dstSize)
-    } else {
-        computeFillHeight(srcSize, dstSize)
-    }
+private fun computeFillMaxDimension(srcSize: PxSize, dstSize: PxSize): Float {
+    val widthScale = computeFillWidth(srcSize, dstSize)
+    val heightScale = computeFillHeight(srcSize, dstSize)
+    return max(widthScale, heightScale)
+}
 
-private fun computeFillMinDimension(srcSize: PxSize, dstSize: PxSize): Float =
-    if (dstSize.width < dstSize.height) {
-        computeFillWidth(srcSize, dstSize)
-    } else {
-        computeFillHeight(srcSize, dstSize)
-    }
+private fun computeFillMinDimension(srcSize: PxSize, dstSize: PxSize): Float {
+    val widthScale = computeFillWidth(srcSize, dstSize)
+    val heightScale = computeFillHeight(srcSize, dstSize)
+    return min(widthScale, heightScale)
+}
 
 private fun computeFillWidth(srcSize: PxSize, dstSize: PxSize): Float =
     dstSize.width.value / srcSize.width.value

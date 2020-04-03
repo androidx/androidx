@@ -18,7 +18,7 @@ package androidx.ui.foundation
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
@@ -28,7 +28,7 @@ import androidx.ui.text.style.TextOverflow
 /**
  * A continent version of [Text] component to be able to handle click event on the text.
  *
- * This is a shorthand of [Text] with [PressIndicatorGestureDetector] to be able to handle click
+ * This is a shorthand of [Text] with [pressIndicatorGestureFilter] to be able to handle click
  * event easily.
  *
  * @sample androidx.ui.foundation.samples.ClickableText
@@ -38,7 +38,7 @@ import androidx.ui.text.style.TextOverflow
  * @sample androidx.ui.foundation.samples.LongClickableText
  *
  * @see Text
- * @see androidx.ui.core.gesture.PressIndicatorGestureDetector
+ * @see androidx.ui.core.gesture.pressIndicatorGestureFilter
  *
  * @param text The text to be displayed.
  * @param modifier Modifier to apply to this layout node.
@@ -66,7 +66,7 @@ fun ClickableText(
     onClick: (Int) -> Unit
 ) {
     val layoutResult = state<TextLayoutResult?> { null }
-    val pressIndicator = PressIndicatorGestureDetector(
+    val pressIndicator = Modifier.pressIndicatorGestureFilter(
         onStart = { pos ->
             layoutResult.value?.let { layoutResult ->
                 onClick(layoutResult.getOffsetForPosition(pos))

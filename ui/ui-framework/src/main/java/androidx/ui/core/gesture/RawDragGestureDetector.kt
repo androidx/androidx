@@ -34,6 +34,7 @@ import androidx.ui.core.positionChange
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
+import androidx.ui.util.fastAny
 
 interface DragObserver {
 
@@ -98,7 +99,7 @@ interface DragObserver {
  * Note: By default, this gesture detector only waits for a single pointer to have moved to start
  * dragging.  It is extremely likely that you don't want to use this gesture detector directly, but
  * instead use a drag gesture detector that does wait for some other condition to have occurred
- * (such as [DragGestureDetector] which waits for a single pointer to have passed touch
+ * (such as [dragGestureFilter] which waits for a single pointer to have passed touch
  * slop before dragging starts).
  *
  * Dragging begins when the a single pointer has moved and either [canStartDragging] is null or
@@ -122,14 +123,14 @@ interface DragObserver {
 // TODO(b/129784010): Consider also allowing onStart, onDrag, and onStop to be set individually (instead of all being
 //  set via DragObserver).
 @Composable
-fun RawDragGestureDetector(
+fun Modifier.rawDragGestureFilter(
     dragObserver: DragObserver,
     canStartDragging: (() -> Boolean)? = null
 ): Modifier {
     val recognizer = remember { RawDragGestureRecognizer() }
     recognizer.dragObserver = dragObserver
     recognizer.canStartDragging = canStartDragging
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class RawDragGestureRecognizer : PointerInputFilter() {
@@ -139,8 +140,11 @@ internal class RawDragGestureRecognizer : PointerInputFilter() {
     var canStartDragging: (() -> Boolean)? = null
     lateinit var dragObserver: DragObserver
 
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
 
             var changesToReturn = changes
 
@@ -163,7 +167,7 @@ internal class RawDragGestureRecognizer : PointerInputFilter() {
 
                 // Handle up changes, which includes removing individual pointer VelocityTrackers
                 // and potentially calling onStop().
-                if (changesToReturn.any { it.changedToUpIgnoreConsumed() }) {
+                if (changesToReturn.fastAny { it.changedToUpIgnoreConsumed() }) {
 
                     var velocityTracker: VelocityTracker? = null
 
@@ -203,7 +207,7 @@ internal class RawDragGestureRecognizer : PointerInputFilter() {
                 }
 
                 // For each new pointer that has been added, start tracking information about it.
-                if (changesToReturn.any { it.changedToDownIgnoreConsumed() }) {
+                if (changesToReturn.fastAny { it.changedToDownIgnoreConsumed() }) {
                     changesToReturn.forEach {
                         // If a pointer has changed to down, we should start tracking information
                         // about it.
@@ -295,10 +299,10 @@ internal class RawDragGestureRecognizer : PointerInputFilter() {
                 changesToReturn = movedChanges + otherChanges
             }
 
-            changesToReturn
+            return changesToReturn
         }
 
-    override val cancelHandler = {
+    override fun onCancel() {
         downPositions.clear()
         velocityTrackers.clear()
         if (started) {

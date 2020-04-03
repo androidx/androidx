@@ -24,6 +24,7 @@ import androidx.core.content.withStyledAttributes
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
 import androidx.navigation.NavInflater
+import androidx.navigation.NavInflater.APPLICATION_ID_PLACEHOLDER
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.NavigatorProvider
@@ -151,19 +152,39 @@ class DynamicIncludeGraphNavigator(
         override fun onInflate(context: Context, attrs: AttributeSet) {
             super.onInflate(context, attrs)
             context.withStyledAttributes(attrs, R.styleable.DynamicIncludeGraphNavigator) {
-                graphPackage = getString(R.styleable.DynamicIncludeGraphNavigator_graphPackage)
-                require(!graphPackage.isNullOrEmpty()) {
-                    "graphPackage must be set for dynamic navigation"
+                moduleName = getString(R.styleable.DynamicIncludeGraphNavigator_moduleName)
+                require(!moduleName.isNullOrEmpty()) {
+                    "`moduleName` must be set for <include-dynamic>"
                 }
+
+                graphPackage = getString(R.styleable.DynamicIncludeGraphNavigator_graphPackage)
+                    .let {
+                        if (it != null) {
+                            require(it.isNotEmpty()) {
+                                "`graphPackage` cannot be empty for <include-dynamic>. You can " +
+                                        "omit the `graphPackage` attribute entirely to use the " +
+                                        "default of ${context.packageName}.$moduleName."
+                            }
+                        }
+                        getPackageOrDefault(context, it)
+                    }
 
                 graphResourceName =
                     getString(R.styleable.DynamicIncludeGraphNavigator_graphResName)
-                require(!graphPackage.isNullOrEmpty()) {
-                    "graphResName must be set for dynamic navigation"
+                require(!graphResourceName.isNullOrEmpty()) {
+                    "`graphResName` must be set for <include-dynamic>"
                 }
-
-                moduleName = getString(R.styleable.DynamicIncludeGraphNavigator_moduleName)
             }
+        }
+
+        internal fun getPackageOrDefault(
+            context: Context,
+            graphPackage: String?
+        ): String {
+            return graphPackage?.replace(
+                APPLICATION_ID_PLACEHOLDER,
+                context.packageName
+            ) ?: "${context.packageName}.$moduleName"
         }
     }
 }

@@ -17,12 +17,13 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
 import androidx.ui.material.AlertDialog
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
@@ -42,14 +43,14 @@ fun RallyAlertDialog(
             buttons = {
                 Column {
                     Divider(
-                        LayoutPadding(start = 12.dp, end = 12.dp),
+                        Modifier.padding(12.dp, 0.dp, 12.dp, 0.dp),
                         color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f)
                     )
                     TextButton(
                         onClick = onDismiss,
                         shape = RectangleShape,
                         innerPadding = EdgeInsets(16.dp),
-                        modifier = LayoutWidth.Fill
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(buttonText)
                     }

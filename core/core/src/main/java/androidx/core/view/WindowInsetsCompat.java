@@ -18,6 +18,7 @@ package androidx.core.view;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.graphics.Insets.toCompatInsets;
 
 import android.graphics.Rect;
@@ -28,6 +29,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.core.graphics.Insets;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
@@ -46,24 +48,30 @@ import java.util.Objects;
 public class WindowInsetsCompat {
     private static final String TAG = "WindowInsetsCompat";
 
-    static final WindowInsetsCompat EMPTY =
-            new WindowInsetsCompat((WindowInsetsCompat) null);
+    /**
+     * @hide we'll make this public in a future release
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public static final WindowInsetsCompat CONSUMED = new WindowInsetsCompat.Builder()
+            .build()
+            .consumeDisplayCutout()
+            .consumeStableInsets()
+            .consumeSystemWindowInsets();
 
     private final Impl mImpl;
 
     @RequiresApi(20)
-    private WindowInsetsCompat(@Nullable WindowInsets insets) {
-        if (insets == null) {
-            // Ideally insets would be @NonNull, oh well.
-            mImpl = new Impl();
-        } else if (SDK_INT >= 29) {
-            mImpl = new Impl29(insets);
+    private WindowInsetsCompat(@NonNull WindowInsets insets) {
+        if (SDK_INT >= 29) {
+            mImpl = new Impl29(this, insets);
+        } else if (SDK_INT >= 28) {
+            mImpl = new Impl28(this, insets);
         } else if (SDK_INT >= 21) {
-            mImpl = new Impl21(insets);
+            mImpl = new Impl21(this, insets);
         } else if (SDK_INT >= 20) {
-            mImpl = new Impl20(insets);
+            mImpl = new Impl20(this, insets);
         } else {
-            mImpl = new Impl();
+            mImpl = new Impl(this);
         }
     }
 
@@ -74,18 +82,22 @@ public class WindowInsetsCompat {
      */
     public WindowInsetsCompat(@Nullable final WindowInsetsCompat src) {
         if (src != null) {
-            if (SDK_INT >= 29) {
-                mImpl = new Impl29(src.toWindowInsets());
-            } else if (SDK_INT >= 21) {
-                mImpl = new Impl21(src.toWindowInsets());
-            } else if (SDK_INT >= 20) {
-                mImpl = new Impl20(src.toWindowInsets());
+            // We'll copy over from the 'src' instance's impl
+            final Impl srcImpl = src.mImpl;
+            if (SDK_INT >= 29 && srcImpl instanceof Impl29) {
+                mImpl = new Impl29(this, (Impl29) srcImpl);
+            } else if (SDK_INT >= 28 && srcImpl instanceof Impl28) {
+                mImpl = new Impl28(this, (Impl28) srcImpl);
+            } else if (SDK_INT >= 21 && srcImpl instanceof Impl21) {
+                mImpl = new Impl21(this, (Impl21) srcImpl);
+            } else if (SDK_INT >= 20 && srcImpl instanceof Impl20) {
+                mImpl = new Impl20(this, (Impl20) srcImpl);
             } else {
-                mImpl = new Impl();
+                mImpl = new Impl(this);
             }
         } else {
             // Ideally src would be @NonNull, oh well.
-            mImpl = new Impl();
+            mImpl = new Impl(this);
         }
     }
 
@@ -551,14 +563,18 @@ public class WindowInsetsCompat {
      *
      * @return the wrapped WindowInsets instance
      */
-    @NonNull
+    @Nullable
     @RequiresApi(20)
     public WindowInsets toWindowInsets() {
-        return ((Impl20) mImpl).mPlatformInsets;
+        return mImpl instanceof Impl20 ? ((Impl20) mImpl).mPlatformInsets : null;
     }
 
     private static class Impl {
-        Impl() {}
+        final WindowInsetsCompat mHost;
+
+        Impl(@NonNull WindowInsetsCompat host) {
+            mHost = host;
+        }
 
         boolean isRound() {
             return false;
@@ -570,12 +586,12 @@ public class WindowInsetsCompat {
 
         @NonNull
         WindowInsetsCompat consumeSystemWindowInsets() {
-            return EMPTY;
+            return mHost;
         }
 
         @NonNull
         WindowInsetsCompat consumeStableInsets() {
-            return EMPTY;
+            return mHost;
         }
 
         @Nullable
@@ -585,7 +601,7 @@ public class WindowInsetsCompat {
 
         @NonNull
         WindowInsetsCompat consumeDisplayCutout() {
-            return EMPTY;
+            return mHost;
         }
 
         @NonNull
@@ -618,7 +634,7 @@ public class WindowInsetsCompat {
 
         @NonNull
         WindowInsetsCompat inset(int left, int top, int right, int bottom) {
-            return EMPTY;
+            return CONSUMED;
         }
     }
 
@@ -630,8 +646,13 @@ public class WindowInsetsCompat {
         // Used to cache the wrapped value
         private Insets mSystemWindowInsets = null;
 
-        Impl20(@NonNull WindowInsets insets) {
+        Impl20(@NonNull WindowInsetsCompat host, @NonNull WindowInsets insets) {
+            super(host);
             mPlatformInsets = insets;
+        }
+
+        Impl20(@NonNull WindowInsetsCompat host, @NonNull Impl20 other) {
+            this(host, new WindowInsets(other.mPlatformInsets));
         }
 
         @Override
@@ -680,8 +701,12 @@ public class WindowInsetsCompat {
     private static class Impl21 extends Impl20 {
         private Insets mStableInsets = null;
 
-        Impl21(@NonNull WindowInsets insets) {
-            super(insets);
+        Impl21(@NonNull WindowInsetsCompat host, @NonNull WindowInsets insets) {
+            super(host, insets);
+        }
+
+        Impl21(@NonNull WindowInsetsCompat host, @NonNull Impl21 other) {
+            super(host, other);
         }
 
         @Override
@@ -717,8 +742,12 @@ public class WindowInsetsCompat {
 
     @RequiresApi(28)
     private static class Impl28 extends Impl21 {
-        Impl28(@NonNull WindowInsets insets) {
-            super(insets);
+        Impl28(@NonNull WindowInsetsCompat host, @NonNull WindowInsets insets) {
+            super(host, insets);
+        }
+
+        Impl28(@NonNull WindowInsetsCompat host, @NonNull Impl28 other) {
+            super(host, other);
         }
 
         @Nullable
@@ -741,8 +770,12 @@ public class WindowInsetsCompat {
         private Insets mMandatorySystemGestureInsets = null;
         private Insets mTappableElementInsets = null;
 
-        Impl29(@NonNull WindowInsets insets) {
-            super(insets);
+        Impl29(@NonNull WindowInsetsCompat host, @NonNull WindowInsets insets) {
+            super(host, insets);
+        }
+
+        Impl29(@NonNull WindowInsetsCompat host, @NonNull Impl29 other) {
+            super(host, other);
         }
 
         @NonNull
@@ -945,10 +978,10 @@ public class WindowInsetsCompat {
     }
 
     private static class BuilderImpl {
-        private WindowInsetsCompat mInsets;
+        private final WindowInsetsCompat mInsets;
 
         BuilderImpl() {
-            this(EMPTY);
+            this(new WindowInsetsCompat((WindowInsetsCompat) null));
         }
 
         BuilderImpl(@NonNull WindowInsetsCompat insets) {
@@ -1064,7 +1097,10 @@ public class WindowInsetsCompat {
         }
 
         BuilderImpl29(@NonNull WindowInsetsCompat insets) {
-            mPlatBuilder = new WindowInsets.Builder(insets.toWindowInsets());
+            final WindowInsets platInsets = insets.toWindowInsets();
+            mPlatBuilder = platInsets != null
+                    ? new WindowInsets.Builder(platInsets)
+                    : new WindowInsets.Builder();
         }
 
         @Override

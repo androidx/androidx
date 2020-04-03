@@ -17,8 +17,11 @@
 package androidx.ui.foundation
 
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.setContentAndCollectSizes
 import androidx.ui.unit.dp
@@ -43,7 +46,7 @@ class ColoredRectTest {
         val height = 71.dp
         composeTestRule
             .setContentAndCollectSizes {
-                ColoredRect(width = width, height = height, color = color)
+                Box(Modifier.preferredSize(width, height).drawBackground(color))
             }
             .assertWidthEqualsTo(width)
             .assertHeightEqualsTo(height)
@@ -60,7 +63,7 @@ class ColoredRectTest {
                     height
                 )
             ) {
-                ColoredRect(color = color)
+                Box(Modifier.fillMaxSize().drawBackground(color))
             }
             .assertWidthEqualsTo(width)
             .assertHeightEqualsTo(height)
@@ -71,7 +74,7 @@ class ColoredRectTest {
         val dm = composeTestRule.displayMetrics
         composeTestRule
             .setContentAndCollectSizes {
-                ColoredRect(color = color)
+                Box(Modifier.fillMaxSize().drawBackground(color))
             }
             .assertWidthEqualsTo { dm.widthPixels.ipx }
             .assertHeightEqualsTo { dm.heightPixels.ipx }

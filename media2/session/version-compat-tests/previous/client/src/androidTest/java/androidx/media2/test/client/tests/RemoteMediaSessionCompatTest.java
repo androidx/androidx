@@ -56,14 +56,14 @@ public class RemoteMediaSessionCompatTest {
 
     @Test
     @SmallTest
-    public void testGettingToken() {
+    public void gettingToken() {
         MediaSessionCompat.Token token = mRemoteSessionCompat.getSessionToken();
         assertNotNull(token);
     }
 
     @Test
     @SmallTest
-    public void testCreatingControllerCompat() throws Exception {
+    public void creatingControllerCompat() throws Exception {
         MediaSessionCompat.Token token = mRemoteSessionCompat.getSessionToken();
         assertNotNull(token);
         MediaControllerCompat controller = new MediaControllerCompat(mContext, token);

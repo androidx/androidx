@@ -16,7 +16,7 @@
 
 package androidx.mediarouter.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -60,7 +60,7 @@ import java.util.List;
  * @see MediaRouteActionProvider
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY)
 public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
     private static final String TAG = "MediaRouteChooserDialog";
 

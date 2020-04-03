@@ -16,10 +16,10 @@
 
 package androidx.ui.test
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
 import android.util.DisplayMetrics
+import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.ui.unit.Density
@@ -68,22 +68,6 @@ interface ComposeTestRule : TestRule {
     fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup
 
     /**
-     * Runs the given action on the UI thread.
-     *
-     * This method is blocking until the action is complete.
-     */
-    fun <T> runOnUiThread(action: () -> T): T
-
-    /**
-     * Executes the given action in the same way as [runOnUiThread] but also makes sure Compose
-     * is idle before executing it. This is great place for doing your assertions on shared
-     * variables.
-     *
-     * This method is blocking until the action is complete.
-     */
-    fun <T> runOnIdleCompose(action: () -> T): T
-
-    /**
      * Takes screenshot of the Activity's window after Compose UI gets idle.
      *
      * This function blocks until complete.
@@ -127,5 +111,5 @@ interface ComposeTestCaseSetup {
  * androidTest/AndroidManifest.xml).
  */
 fun createComposeRule(disableTransitions: Boolean = false): ComposeTestRule {
-    return AndroidComposeTestRule(Activity::class.java, disableTransitions)
+    return AndroidComposeTestRule(ComponentActivity::class.java, disableTransitions)
 }

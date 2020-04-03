@@ -19,10 +19,11 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.toRect
 
@@ -30,7 +31,7 @@ import androidx.ui.unit.toRect
 @Composable
 fun CanvasSample() {
     val paint = remember { Paint().apply { color = Color.Magenta } }
-    Canvas(modifier = LayoutSize(100.dp)) {
+    Canvas(modifier = Modifier.preferredSize(100.dp)) {
         drawRect(size.toRect(), paint)
     }
 }

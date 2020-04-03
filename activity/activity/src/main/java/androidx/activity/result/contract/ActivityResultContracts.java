@@ -35,6 +35,7 @@ import android.provider.MediaStore;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCaller;
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
@@ -49,7 +50,7 @@ import java.util.Map;
 /**
  * A collection of some standard activity call contracts, as provided by android.
  */
-public class ActivityResultContracts {
+public final class ActivityResultContracts {
     private ActivityResultContracts() {}
 
     /**
@@ -60,7 +61,7 @@ public class ActivityResultContracts {
      * having to manage request codes when calling an activity API for which a type-safe contract is
      * not available.
      */
-    public static class StartActivityForResult
+    public static final class StartActivityForResult
             extends ActivityResultContract<Intent, ActivityResult> {
 
         @NonNull
@@ -80,7 +81,7 @@ public class ActivityResultContracts {
     /**
      * An {@link ActivityResultContract} to {@link Activity#requestPermissions request permissions}
      */
-    public static class RequestPermissions
+    public static final class RequestPermissions
             extends ActivityResultContract<String[], java.util.Map<String, Boolean>> {
 
 
@@ -173,7 +174,7 @@ public class ActivityResultContracts {
     /**
      * An {@link ActivityResultContract} to {@link Activity#requestPermissions request a permission}
      */
-    public static class RequestPermission extends ActivityResultContract<String, Boolean> {
+    public static final class RequestPermission extends ActivityResultContract<String, Boolean> {
 
         @NonNull
         @Override
@@ -208,10 +209,14 @@ public class ActivityResultContracts {
     /**
      * An {@link ActivityResultContract} to
      * {@link MediaStore#ACTION_IMAGE_CAPTURE take small a picture} preview, returning it as a
-     * {@link Bitmap}
+     * {@link Bitmap}.
+     * <p>
+     * This can be extended to override {@link #createIntent} if you wish to pass additional
+     * extras to the Intent created by {@code super.createIntent()}.
      */
     public static class TakePicturePreview extends ActivityResultContract<Void, Bitmap> {
 
+        @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @Nullable Void input) {
@@ -220,7 +225,14 @@ public class ActivityResultContracts {
 
         @Nullable
         @Override
-        public Bitmap parseResult(int resultCode, @Nullable Intent intent) {
+        public final SynchronousResult<Bitmap> getSynchronousResult(@NonNull Context context,
+                @Nullable Void input) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public final Bitmap parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return null;
             return intent.getParcelableExtra("data");
         }
@@ -229,12 +241,16 @@ public class ActivityResultContracts {
     /**
      * An {@link ActivityResultContract} to
      * {@link MediaStore#ACTION_IMAGE_CAPTURE take a picture} saving it into the provided
-     * content-{@link Uri}
-     *
+     * content-{@link Uri}.
+     * <p>
      * Returns a thumbnail.
+     * <p>
+     * This can be extended to override {@link #createIntent} if you wish to pass additional
+     * extras to the Intent created by {@code super.createIntent()}.
      */
     public static class TakePicture extends ActivityResultContract<Uri, Bitmap> {
 
+        @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull Uri input) {
@@ -244,7 +260,14 @@ public class ActivityResultContracts {
 
         @Nullable
         @Override
-        public Bitmap parseResult(int resultCode, @Nullable Intent intent) {
+        public final SynchronousResult<Bitmap> getSynchronousResult(@NonNull Context context,
+                @NonNull Uri input) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public final Bitmap parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return null;
             return intent.getParcelableExtra("data");
         }
@@ -253,12 +276,16 @@ public class ActivityResultContracts {
     /**
      * An {@link ActivityResultContract} to
      * {@link MediaStore#ACTION_IMAGE_CAPTURE take a picture} saving it into the provided
-     * content-{@link Uri}
-     *
+     * content-{@link Uri}.
+     * <p>
      * Returns a thumbnail.
+     * <p>
+     * This can be extended to override {@link #createIntent} if you wish to pass additional
+     * extras to the Intent created by {@code super.createIntent()}.
      */
     public static class TakeVideo extends ActivityResultContract<Uri, Bitmap> {
 
+        @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull Uri input) {
@@ -268,7 +295,14 @@ public class ActivityResultContracts {
 
         @Nullable
         @Override
-        public Bitmap parseResult(int resultCode, @Nullable Intent intent) {
+        public final SynchronousResult<Bitmap> getSynchronousResult(@NonNull Context context,
+                @NonNull Uri input) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public final Bitmap parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return null;
             return intent.getParcelableExtra("data");
         }
@@ -277,11 +311,12 @@ public class ActivityResultContracts {
     /**
      * An {@link ActivityResultContract} to request the user to pick a contact from the contacts
      * app.
-     * The result is a {@code content:} {@link Uri}
+     * <p>
+     * The result is a {@code content:} {@link Uri}.
      *
      * @see ContactsContract
      */
-    public static class PickContact extends ActivityResultContract<Void, Uri> {
+    public static final class PickContact extends ActivityResultContract<Void, Uri> {
 
         @NonNull
         @Override
@@ -298,46 +333,78 @@ public class ActivityResultContracts {
     }
 
     /**
-     * An {@link ActivityResultContract} to prompt the user to pick a file, receiving its copy as
-     * a {@code file:/http:/content:} {@link Uri}
-     *
-     * The input is the mime type to filter by, e.g. {@code image/*}
+     * An {@link ActivityResultContract} to prompt the user to pick a piece of content, receiving
+     * a {@code content://} {@link Uri} for that content that allows you to use
+     * {@link android.content.ContentResolver#openInputStream(Uri)} to access the raw data. By
+     * default, this adds {@link Intent#CATEGORY_OPENABLE} to only return content that can be
+     * represented as a stream.
+     * <p>
+     * The input is the mime type to filter by, e.g. {@code image/*}.
+     * <p>
+     * This can be extended to override {@link #createIntent} if you wish to pass additional
+     * extras to the Intent created by {@code super.createIntent()}.
      */
-    public static class PickFile extends ActivityResultContract<String, Uri> {
+    public static class GetContent extends ActivityResultContract<String, Uri> {
+
+        @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull String input) {
-            return new Intent(Intent.ACTION_GET_CONTENT).setType(input);
+            return new Intent(Intent.ACTION_GET_CONTENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType(input);
         }
 
         @Nullable
         @Override
-        public Uri parseResult(int resultCode, @Nullable Intent intent) {
+        public final SynchronousResult<Uri> getSynchronousResult(@NonNull Context context,
+                @NonNull String input) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public final Uri parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return null;
             return intent.getData();
         }
     }
 
     /**
-     * An {@link ActivityResultContract} to prompt the user to pick (possibly multiple) files,
-     * receiving their copies as
-     * a {@code file:/http:/content:} {@link Uri}s
-     *
-     * The input is the mime type to filter by, e.g. {@code image/*}
+     * An {@link ActivityResultContract} to prompt the user to pick one or more a pieces of
+     * content, receiving a {@code content://} {@link Uri} for each piece of content that allows
+     * you to use {@link android.content.ContentResolver#openInputStream(Uri)}
+     * to access the raw data. By default, this adds {@link Intent#CATEGORY_OPENABLE} to only
+     * return content that can be represented as a stream.
+     * <p>
+     * The input is the mime type to filter by, e.g. {@code image/*}.
+     * <p>
+     * This can be extended to override {@link #createIntent} if you wish to pass additional
+     * extras to the Intent created by {@code super.createIntent()}.
      */
     @TargetApi(18)
-    public static class PickFiles extends ActivityResultContract<String, List<Uri>> {
+    public static class GetContents extends ActivityResultContract<String, List<Uri>> {
+
+        @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull String input) {
             return new Intent(Intent.ACTION_GET_CONTENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE)
                     .setType(input)
                     .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         }
 
+        @Nullable
+        @Override
+        public final SynchronousResult<List<Uri>> getSynchronousResult(@NonNull Context context,
+                @NonNull String input) {
+            return null;
+        }
+
         @NonNull
         @Override
-        public List<Uri> parseResult(int resultCode, @Nullable Intent intent) {
+        public final List<Uri> parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) {
                 return Collections.emptyList();
             }
@@ -359,14 +426,19 @@ public class ActivityResultContracts {
 
     /**
      * An {@link ActivityResultContract} to prompt the user to open a document, receiving its
-     * contents as a {@code file:/http:/content:} {@link Uri}
-     *
-     * The input is the mime types to filter by, e.g. {@code image/*}
+     * contents as a {@code file:/http:/content:} {@link Uri}.
+     * <p>
+     * The input is the mime types to filter by, e.g. {@code image/*}.
+     * <p>
+     * This can be extended to override {@link #createIntent} if you wish to pass additional
+     * extras to the Intent created by {@code super.createIntent()}.
      *
      * @see DocumentsContract
      */
     @TargetApi(19)
     public static class OpenDocument extends ActivityResultContract<String[], Uri> {
+
+        @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull String[] input) {
@@ -377,7 +449,14 @@ public class ActivityResultContracts {
 
         @Nullable
         @Override
-        public Uri parseResult(int resultCode, @Nullable Intent intent) {
+        public final SynchronousResult<Uri> getSynchronousResult(@NonNull Context context,
+                @NonNull String[] input) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public final Uri parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return null;
             return intent.getData();
         }
@@ -385,14 +464,19 @@ public class ActivityResultContracts {
 
     /**
      * An {@link ActivityResultContract} to prompt the user to open  (possibly multiple)
-     * documents, receiving their contents as {@code file:/http:/content:} {@link Uri}s
-     *
-     * The input is the mime types to filter by, e.g. {@code image/*}
+     * documents, receiving their contents as {@code file:/http:/content:} {@link Uri}s.
+     * <p>
+     * The input is the mime types to filter by, e.g. {@code image/*}.
+     * <p>
+     * This can be extended to override {@link #createIntent} if you wish to pass additional
+     * extras to the Intent created by {@code super.createIntent()}.
      *
      * @see DocumentsContract
      */
     @TargetApi(19)
     public static class OpenDocuments extends ActivityResultContract<String[], List<Uri>> {
+
+        @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull String[] input) {
@@ -404,20 +488,29 @@ public class ActivityResultContracts {
 
         @Nullable
         @Override
-        public List<Uri> parseResult(int resultCode, @Nullable Intent intent) {
+        public final SynchronousResult<List<Uri>> getSynchronousResult(@NonNull Context context,
+                @NonNull String[] input) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public final List<Uri> parseResult(int resultCode, @Nullable Intent intent) {
             if (resultCode != Activity.RESULT_OK) return null;
             if (intent == null) return null;
-            return PickFiles.getClipDataUris(intent);
+            return GetContents.getClipDataUris(intent);
         }
     }
 
     /**
      * An {@link ActivityResultContract} to prompt the user to select a directory, returning the
-     * user selection as a {@link Uri}.
-     *
-     * Apps can fully manage documents within the returned directory.
-     *
+     * user selection as a {@link Uri}. Apps can fully manage documents within the returned
+     * directory.
+     * <p>
      * The input is an optional {@link Uri} of the initial starting location.
+     * <p>
+     * This can be extended to override {@link #createIntent} if you wish to pass additional
+     * extras to the Intent created by {@code super.createIntent()}.
      *
      * @see Intent#ACTION_OPEN_DOCUMENT_TREE
      * @see DocumentsContract#buildDocumentUriUsingTree
@@ -425,6 +518,8 @@ public class ActivityResultContracts {
      */
     @TargetApi(21)
     public static class OpenDocumentTree extends ActivityResultContract<Uri, Uri> {
+
+        @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @Nullable Uri input) {
@@ -438,7 +533,14 @@ public class ActivityResultContracts {
 
         @Nullable
         @Override
-        public Uri parseResult(int resultCode, @Nullable Intent intent) {
+        public final SynchronousResult<Uri> getSynchronousResult(@NonNull Context context,
+                @Nullable Uri input) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public final Uri parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return null;
             return intent.getData();
         }
@@ -447,11 +549,16 @@ public class ActivityResultContracts {
     /**
      * An {@link ActivityResultContract} to prompt the user to select a path for creating a new
      * document, returning the {@code content:} {@link Uri} of the item that was created.
-     *
+     * <p>
      * The input is the suggested name for the new file.
+     * <p>
+     * This can be extended to override {@link #createIntent} if you wish to pass additional
+     * extras to the Intent created by {@code super.createIntent()}.
      */
     @TargetApi(19)
     public static class CreateDocument extends ActivityResultContract<String, Uri> {
+
+        @CallSuper
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull String input) {
@@ -462,7 +569,14 @@ public class ActivityResultContracts {
 
         @Nullable
         @Override
-        public Uri parseResult(int resultCode, @Nullable Intent intent) {
+        public final SynchronousResult<Uri> getSynchronousResult(@NonNull Context context,
+                @NonNull String input) {
+            return null;
+        }
+
+        @Nullable
+        @Override
+        public final Uri parseResult(int resultCode, @Nullable Intent intent) {
             if (intent == null || resultCode != Activity.RESULT_OK) return null;
             return intent.getData();
         }

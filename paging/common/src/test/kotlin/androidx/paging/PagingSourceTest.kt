@@ -259,8 +259,9 @@ class PagingSourceTest {
         private var error = false
 
         override fun getRefreshKey(state: PagingState<Key, Item>): Key? {
-            val item = state.closestItemToPosition(state.anchorPosition)
-            return Key(item.name, item.id)
+            return state.anchorPosition
+                ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition) }
+                ?.let { item -> Key(item.name, item.id) }
         }
 
         override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Item> {

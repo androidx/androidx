@@ -16,7 +16,7 @@
 
 package androidx.ui.benchmark
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.rule.ActivityTestRule
@@ -33,8 +33,8 @@ import org.junit.runners.model.Statement
 class AndroidBenchmarkRule : TestRule {
 
     private val activityTestRule =
-        ActivityTestRule<Activity>(
-            Activity::class.java
+        ActivityTestRule<ComponentActivity>(
+            ComponentActivity::class.java
         )
 
     val benchmarkRule = BenchmarkRule()

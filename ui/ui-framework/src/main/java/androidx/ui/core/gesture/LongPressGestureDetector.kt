@@ -34,6 +34,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.temputils.delay
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.util.fastAny
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
@@ -48,13 +49,13 @@ import kotlin.coroutines.CoroutineContext
  * (double tap, triple tap) and tap.
  */
 @Composable
-fun LongPressGestureDetector(
+fun Modifier.longPressGestureFilter(
     onLongPress: (PxPosition) -> Unit
 ): Modifier {
     val coroutineContext = CoroutineContextAmbient.current
     val recognizer = remember { LongPressGestureRecognizer(coroutineContext) }
     recognizer.onLongPress = onLongPress
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class LongPressGestureRecognizer(
@@ -73,12 +74,15 @@ internal class LongPressGestureRecognizer(
     private var job: Job? = null
     private lateinit var customEventDispatcher: CustomEventDispatcher
 
-    override val initHandler = { customEventDispatcher: CustomEventDispatcher ->
+    override fun onInit(customEventDispatcher: CustomEventDispatcher) {
         this.customEventDispatcher = customEventDispatcher
     }
 
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, bounds: IntPxSize ->
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
 
             var changesToReturn = changes
 
@@ -123,29 +127,28 @@ internal class LongPressGestureRecognizer(
             if (
                 pass == PointerEventPass.PostDown &&
                 state != State.Idle &&
-                changes.any { it.anyPositionChangeConsumed() }
+                changes.fastAny { it.anyPositionChangeConsumed() }
             ) {
                 // If we are anything but Idle and something consumed movement, reset.
                 resetToIdle()
             }
 
-            changesToReturn
+            return changesToReturn
         }
 
-    override val customEventHandler: (CustomEvent, PointerEventPass) -> Unit =
-        { customEvent, pointerInputPass ->
-            if (
-                state == State.Primed &&
-                customEvent is LongPressFiredEvent &&
-                pointerInputPass == PointerEventPass.InitialDown
-            ) {
-                // If we are primed but something else fired long press, we should reset.
-                // Doesn't matter what pass we are on, just choosing one so we only reset once.
-                resetToIdle()
-            }
+    override fun onCustomEvent(customEvent: CustomEvent, pass: PointerEventPass) {
+        if (
+            state == State.Primed &&
+            customEvent is LongPressFiredEvent &&
+            pass == PointerEventPass.InitialDown
+        ) {
+            // If we are primed but something else fired long press, we should reset.
+            // Doesn't matter what pass we are on, just choosing one so we only reset once.
+            resetToIdle()
         }
+    }
 
-    override val cancelHandler = {
+    override fun onCancel() {
         resetToIdle()
     }
 

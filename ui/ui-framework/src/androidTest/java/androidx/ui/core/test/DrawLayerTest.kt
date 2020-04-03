@@ -19,6 +19,7 @@ package androidx.ui.core.test
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.TransformOrigin
 import androidx.ui.core.boundsInRoot
 import androidx.ui.core.drawLayer
@@ -56,7 +57,7 @@ class DrawLayerTest {
     private lateinit var positionLatch: CountDownLatch
     private lateinit var layoutCoordinates: LayoutCoordinates
 
-    private val positioner = onPositioned {
+    private val positioner = Modifier.onPositioned {
         layoutCoordinates = it
         positionLatch.countDown()
     }
@@ -72,7 +73,7 @@ class DrawLayerTest {
     fun testLayerBoundsPosition() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                FixedSize(30.ipx, PaddingModifier(10.ipx) + drawLayer() + positioner) {
+                FixedSize(30.ipx, PaddingModifier(10.ipx).drawLayer() + positioner) {
                 }
             }
         }
@@ -98,7 +99,7 @@ class DrawLayerTest {
                 Padding(10.ipx) {
                     FixedSize(
                         10.ipx,
-                        drawLayer(scaleX = 2f, scaleY = 3f) + positioner
+                        Modifier.drawLayer(scaleX = 2f, scaleY = 3f) + positioner
                     ) {
                     }
                 }
@@ -120,7 +121,7 @@ class DrawLayerTest {
                 Padding(10.ipx) {
                     FixedSize(
                         10.ipx,
-                        drawLayer(scaleY = 3f, rotationZ = 90f) + positioner
+                        Modifier.drawLayer(scaleY = 3f, rotationZ = 90f) + positioner
                     ) {
                     }
                 }
@@ -141,7 +142,7 @@ class DrawLayerTest {
             activity.setContent {
                 Padding(10.ipx) {
                     FixedSize(10.ipx,
-                        drawLayer(
+                        Modifier.drawLayer(
                             rotationZ = 90f,
                             transformOrigin = TransformOrigin(1.0f, 1.0f)
                         ) + positioner
@@ -159,14 +160,37 @@ class DrawLayerTest {
     }
 
     @Test
+    fun testTranslationXY() {
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                Padding(10.ipx) {
+                    FixedSize(10.ipx,
+                        Modifier.drawLayer(
+                            translationX = 5.0f,
+                            translationY = 8.0f
+                        ) + positioner
+                    )
+                }
+            }
+        }
+
+        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        activity.runOnUiThread {
+            val bounds = layoutCoordinates.boundsInRoot
+            assertEquals(PxBounds(15.px, 18.px, 25.px, 28.px), bounds)
+            assertEquals(PxPosition(15.px, 18.px), layoutCoordinates.positionInRoot)
+        }
+    }
+
+    @Test
     fun testClip() {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Padding(10.ipx) {
-                    FixedSize(10.ipx, drawLayer(clipToBounds = true)) {
+                    FixedSize(10.ipx, Modifier.drawLayer(clipToBounds = true)) {
                         FixedSize(
                             10.ipx,
-                            drawLayer(scaleX = 2f) + positioner
+                            Modifier.drawLayer(scaleX = 2f) + positioner
                         ) {
                         }
                     }
@@ -180,6 +204,32 @@ class DrawLayerTest {
             assertEquals(PxBounds(10.px, 10.px, 20.px, 20.px), bounds)
             // Positions aren't clipped
             assertEquals(PxPosition(5.px, 10.px), layoutCoordinates.positionInRoot)
+        }
+    }
+
+    @Test
+    fun testTotalClip() {
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                Padding(10.ipx) {
+                    FixedSize(10.ipx, Modifier.drawLayer(clipToBounds = true)) {
+                        FixedSize(
+                            10.ipx,
+                            PaddingModifier(20.ipx) +
+                                    positioner
+                        ) {
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
+        activity.runOnUiThread {
+            val bounds = layoutCoordinates.boundsInRoot
+            // should be completely clipped out
+            assertEquals(0.px, bounds.width)
+            assertEquals(0.px, bounds.height)
         }
     }
 }

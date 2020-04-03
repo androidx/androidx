@@ -16,7 +16,7 @@
 
 package androidx.ui.benchmark
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.rule.ActivityTestRule
@@ -37,7 +37,8 @@ class ComposeBenchmarkRule(
     private val enableTransitions: Boolean = false
 ) : TestRule {
 
-    private val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
+    private val activityTestRule =
+        ActivityTestRule<ComponentActivity>(ComponentActivity::class.java)
 
     val benchmarkRule = BenchmarkRule()
 

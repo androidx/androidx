@@ -21,17 +21,17 @@ import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.DrawScope
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.StrokeCap
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
@@ -62,9 +62,9 @@ fun Switch(
                 value = checked,
                 onValueChange = onCheckedChange,
                 enabled = enabled,
-                modifier = ripple(bounded = false, enabled = enabled)
+                modifier = Modifier.ripple(bounded = false, enabled = enabled)
             ) {
-                SwitchImpl(checked, onCheckedChange, color, LayoutPadding(DefaultSwitchPadding))
+                SwitchImpl(checked, onCheckedChange, color, Modifier.padding(DefaultSwitchPadding))
             }
         }
     }
@@ -110,13 +110,13 @@ private fun DrawSwitch(
     } else {
         MaterialTheme.colors.onSurface.copy(alpha = UncheckedTrackOpacity)
     }
-    Canvas(modifier + LayoutSize(SwitchWidth, SwitchHeight)) {
+    Canvas(modifier.preferredSize(SwitchWidth, SwitchHeight)) {
         drawTrack(trackColor)
         drawThumb(thumbValue.value, thumbColor)
     }
 }
 
-private fun CanvasScope.drawTrack(trackColor: Color) {
+private fun DrawScope.drawTrack(trackColor: Color) {
     val paint = Paint().apply {
         isAntiAlias = true
         color = trackColor
@@ -134,7 +134,7 @@ private fun CanvasScope.drawTrack(trackColor: Color) {
     )
 }
 
-private fun CanvasScope.drawThumb(position: Float, thumbColor: Color) {
+private fun DrawScope.drawThumb(position: Float, thumbColor: Color) {
     val paint = Paint().apply {
         isAntiAlias = true
         color = thumbColor
@@ -146,8 +146,8 @@ private fun CanvasScope.drawThumb(position: Float, thumbColor: Color) {
     drawCircle(Offset(x, centerHeight.value), thumbRadius, paint)
 }
 
-private val CheckedTrackOpacity = 0.54f
-private val UncheckedTrackOpacity = 0.38f
+private const val CheckedTrackOpacity = 0.54f
+private const val UncheckedTrackOpacity = 0.38f
 
 private val TrackWidth = 34.dp
 private val TrackStrokeWidth = 14.dp

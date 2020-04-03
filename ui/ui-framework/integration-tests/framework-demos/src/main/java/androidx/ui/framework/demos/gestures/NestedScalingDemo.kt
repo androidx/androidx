@@ -18,12 +18,14 @@ package androidx.ui.framework.demos.gestures
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
-import androidx.ui.core.gesture.RawScaleGestureDetector
+import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.rawScaleGestureFilter
 import androidx.ui.core.gesture.RawScaleObserver
-import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutAlign
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.IntPx
 
 /**
@@ -72,9 +74,9 @@ private fun Scalable(
 
     Layout(
         children = children,
-        modifier = LayoutAlign.Center +
-                RawScaleGestureDetector(outerScaleObserver) +
-                DrawBackground(color = color),
+        modifier = Modifier.wrapContentSize(Alignment.Center)
+            .rawScaleGestureFilter(outerScaleObserver)
+            .drawBackground(color = color),
         measureBlock = { measurables, constraints, _ ->
             val newConstraints =
                 constraints.copy(

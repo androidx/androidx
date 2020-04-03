@@ -108,7 +108,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testConnection_sessionAccepts() throws InterruptedException {
+    public void connection_sessionAccepts() throws InterruptedException {
         // createController() uses controller callback to wait until the controller becomes
         // available.
         MediaController controller = createController(mRemoteSession2.getToken());
@@ -116,7 +116,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testConnection_sessionRejects() throws InterruptedException {
+    public void connection_sessionRejects() throws InterruptedException {
         RemoteMediaSession session =
                 createRemoteMediaSession(TEST_CONTROLLER_CALLBACK_SESSION_REJECTS);
 
@@ -130,14 +130,14 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testConnection_toLibraryService() throws InterruptedException {
+    public void connection_toLibraryService() throws InterruptedException {
         SessionToken token = new SessionToken(mContext, MOCK_MEDIA2_LIBRARY_SERVICE);
         MediaController controller = createController(token);
         assertNotNull(controller);
     }
 
     @Test
-    public void testConnection_sessionClosed() throws InterruptedException {
+    public void connection_sessionClosed() throws InterruptedException {
         MediaController controller = createController(mRemoteSession2.getToken());
 
         mRemoteSession2.close();
@@ -145,7 +145,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testConnection_controllerClosed() throws InterruptedException {
+    public void connection_controllerClosed() throws InterruptedException {
         MediaController controller = createController(mRemoteSession2.getToken());
 
         controller.close();
@@ -154,7 +154,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     @LargeTest
-    public void testNoInteractionAfterSessionClose_session() throws InterruptedException {
+    public void noInteractionAfterSessionClose_session() throws InterruptedException {
         SessionToken token = mRemoteSession2.getToken();
         mController = createController(token);
         testControllerAfterSessionIsClosed(DEFAULT_TEST_NAME);
@@ -162,7 +162,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     @LargeTest
-    public void testNoInteractionAfterControllerClose_session() throws InterruptedException {
+    public void noInteractionAfterControllerClose_session() throws InterruptedException {
         final SessionToken token = mRemoteSession2.getToken();
         mController = createController(token);
 
@@ -177,7 +177,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     @LargeTest
-    public void testConnection_withLongPlaylist() throws InterruptedException {
+    public void connection_withLongPlaylist() throws InterruptedException {
         final int playlistSize = 5000;
         mRemoteSession2.getMockPlayer().createAndSetDummyPlaylist(playlistSize);
 
@@ -206,7 +206,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_sessionUpdatePlayer() throws InterruptedException {
+    public void controllerCallback_sessionUpdatePlayer() throws InterruptedException {
         final int testState = SessionPlayer.PLAYER_STATE_PLAYING;
         final List<MediaItem> testPlaylist = MediaTestUtils.createFileMediaItems(3);
         final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
@@ -251,7 +251,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCurrentMediaItemChanged() throws Exception {
+    public void onCurrentMediaItemChanged() throws Exception {
         final int listSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(listSize);
         mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
@@ -290,7 +290,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCurrentMediaItemChanged_withDuration() throws Exception {
+    public void onCurrentMediaItemChanged_withDuration() throws Exception {
         if (!MediaTestUtils.isServiceToT()) {
             // TODO(b/143999611): Remove this once the corresponding fixes are released.
             return;
@@ -338,7 +338,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCurrentMediaItemChanged_notCalledWithSameValue() throws Exception {
+    public void onCurrentMediaItemChanged_notCalledWithSameValue() throws Exception {
         if (!MediaTestUtils.isServiceToT()) {
             // TODO(b/143999611): Remove this once the corresponding fixes are released.
             return;
@@ -387,7 +387,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCurrentMediaItemChanged_withUpdatedMetadata() throws Exception {
+    public void onCurrentMediaItemChanged_withUpdatedMetadata() throws Exception {
         if (!MediaTestUtils.isServiceToT()) {
             // TODO(b/143999611): Remove this once the corresponding fixes are released.
             return;
@@ -440,7 +440,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
      * This also tests {@link MediaController#getPlaybackSpeed()}.
      */
     @Test
-    public void testOnPlaybackSpeedChanged() throws Exception {
+    public void onPlaybackSpeedChanged() throws Exception {
         final float speed = 1.5f;
         mRemoteSession2.getMockPlayer().setPlaybackSpeed(speed);
 
@@ -463,7 +463,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
      * This also tests {@link MediaController#getPlaybackInfo()}.
      */
     @Test
-    public void testOnPlaybackInfoChanged() throws Exception {
+    public void onPlaybackInfoChanged() throws Exception {
         final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setContentType(CONTENT_TYPE_MUSIC)
                 .build();
@@ -503,7 +503,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPlaybackInfoChanged_byAudioAttributesChange() throws InterruptedException {
+    public void onPlaybackInfoChanged_byAudioAttributesChange() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
                 .setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
@@ -529,7 +529,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
      * This also tests {@link MediaController#getPlaylist()}.
      */
     @Test
-    public void testOnPlaylistChanged() throws InterruptedException {
+    public void onPlaylistChanged() throws InterruptedException {
         final List<MediaItem> testList = MediaTestUtils.createFileMediaItems(2);
         final AtomicReference<List<MediaItem>> listFromCallback = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -555,7 +555,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPlaylistChanged_nullList() throws InterruptedException {
+    public void onPlaylistChanged_nullList() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
@@ -576,7 +576,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     @LargeTest
-    public void testOnPlaylistChanged_longList() throws InterruptedException {
+    public void onPlaylistChanged_longList() throws InterruptedException {
         final int listSize = 5000;
         final AtomicReference<List<MediaItem>> listFromCallback = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -608,7 +608,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
      * This also tests {@link MediaController#getPlaylistMetadata()}.
      */
     @Test
-    public void testOnPlaylistMetadataChanged() throws InterruptedException {
+    public void onPlaylistMetadataChanged() throws InterruptedException {
         final MediaMetadata testMetadata = MediaTestUtils.createMetadata();
         final AtomicReference<MediaMetadata> metadataFromCallback = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -636,7 +636,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     @Test
     @LargeTest
-    public void testOnPlaylistMetadataChanged_withManyLargeImages() throws InterruptedException {
+    public void onPlaylistMetadataChanged_withManyLargeImages() throws InterruptedException {
         final int imageCount = 20;
         final int originalWidth = 1024;
         final int originalHeight = 1024;
@@ -678,7 +678,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
      * This also tests {@link MediaController#getShuffleMode()}.
      */
     @Test
-    public void testOnShuffleModeChanged() throws InterruptedException {
+    public void onShuffleModeChanged() throws InterruptedException {
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController.ControllerCallback callback =
@@ -704,7 +704,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
      * This also tests {@link MediaController#getRepeatMode()}.
      */
     @Test
-    public void testOnRepeatModeChanged() throws InterruptedException {
+    public void onRepeatModeChanged() throws InterruptedException {
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_GROUP;
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController.ControllerCallback callback =
@@ -728,7 +728,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPlaybackCompleted() throws InterruptedException {
+    public void onPlaybackCompleted() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
@@ -747,7 +747,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnSeekCompleted() throws InterruptedException {
+    public void onSeekCompleted() throws InterruptedException {
         final long testSeekPosition = 400;
         final long testPosition = 500;
         final CountDownLatch latch = new CountDownLatch(1);
@@ -772,7 +772,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnBufferingStateChanged() throws InterruptedException {
+    public void onBufferingStateChanged() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
 
         final List<MediaItem> testPlaylist = MediaTestUtils.createFileMediaItems(3);
@@ -814,7 +814,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnBufferingStateChanged_bufferingAndStarved() throws InterruptedException {
+    public void onBufferingStateChanged_bufferingAndStarved() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
 
         final List<MediaItem> testPlaylist = MediaTestUtils.createFileMediaItems(3);
@@ -856,7 +856,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPlayerStateChanged_playing() throws InterruptedException {
+    public void onPlayerStateChanged_playing() throws InterruptedException {
         final int testPlayerState = SessionPlayer.PLAYER_STATE_PLAYING;
         final long testPosition = 500;
         final long testTimeDiff = 100;
@@ -882,7 +882,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPlayerStateChanged_paused() throws InterruptedException {
+    public void onPlayerStateChanged_paused() throws InterruptedException {
         final int testPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
         final long testPosition = 500;
         final long testTimeDiff = 100;
@@ -912,7 +912,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
      * This also tests {@link MediaController#getAllowedCommands()}.
      */
     @Test
-    public void testOnAllowedCommandsChanged() throws InterruptedException {
+    public void onAllowedCommandsChanged() throws InterruptedException {
         final SessionCommandGroup.Builder builder = new SessionCommandGroup.Builder();
         builder.addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PLAY));
         builder.addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PAUSE));
@@ -937,7 +937,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCustomCommand() throws InterruptedException {
+    public void onCustomCommand() throws InterruptedException {
         final String testCommandAction = "test_action";
         final SessionCommand testCommand = new SessionCommand(testCommandAction, null);
         final Bundle testArgs = TestUtils.createTestBundle();
@@ -982,7 +982,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnCustomLayoutChanged() throws InterruptedException {
+    public void onCustomLayoutChanged() throws InterruptedException {
         final List<MediaSession.CommandButton> buttons = new ArrayList<>();
 
         MediaSession.CommandButton button = new MediaSession.CommandButton.Builder()
@@ -1028,7 +1028,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnVideoSizeChanged() throws InterruptedException {
+    public void onVideoSizeChanged() throws InterruptedException {
         final VideoSize testSize = new VideoSize(100, 42);
         final CountDownLatch latch = new CountDownLatch(2);
         final MediaController.ControllerCallback callback =
@@ -1057,7 +1057,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnTracksChanged() throws InterruptedException {
+    public void onTracksChanged() throws InterruptedException {
         final List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -1077,7 +1077,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnTrackSelected() throws InterruptedException {
+    public void onTrackSelected() throws InterruptedException {
         final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1,
                 SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
 
@@ -1098,7 +1098,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnTrackDeselected() throws InterruptedException {
+    public void onTrackDeselected() throws InterruptedException {
         final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1,
                 SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
 
@@ -1119,7 +1119,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnSubtitleData() throws InterruptedException {
+    public void onSubtitleData() throws InterruptedException {
         MediaFormat format = new MediaFormat();
         format.setString(MediaFormat.KEY_LANGUAGE, "und");
         format.setString(MediaFormat.KEY_MIME, MIMETYPE_TEXT_CEA_608);

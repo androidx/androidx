@@ -36,7 +36,7 @@ import java.lang.reflect.Method;
  */
 public final class Trace {
 
-    private static final String TAG = "Trace";
+    static final String TAG = "Trace";
 
     private static long sTraceTagApp;
     private static Method sIsTagEnabledMethod;
@@ -96,12 +96,11 @@ public final class Trace {
      * null character '\0' are used internally by the tracing mechanism.  If sectionName contains
      * these characters they will be replaced with a space character in the trace.
      *
-     * @param label The name of the code section to appear in the trace.  This may be at
-     * most 127 Unicode code units long.
+     * @param label The name of the code section to appear in the trace.
      */
     public static void beginSection(@NonNull String label) {
         if (Build.VERSION.SDK_INT >= 18) {
-            android.os.Trace.beginSection(label);
+            TraceApi18Impl.beginSection(label);
         }
     }
 
@@ -114,7 +113,7 @@ public final class Trace {
      */
     public static void endSection() {
         if (Build.VERSION.SDK_INT >= 18) {
-            android.os.Trace.endSection();
+            TraceApi18Impl.endSection();
         }
     }
 
@@ -130,7 +129,7 @@ public final class Trace {
      */
     public static void beginAsyncSection(@NonNull String methodName, int cookie) {
         if (Build.VERSION.SDK_INT >= 29) {
-            android.os.Trace.beginAsyncSection(methodName, cookie);
+            TraceApi29Impl.beginAsyncSection(methodName, cookie);
         } else if (Build.VERSION.SDK_INT >= 18) {
             try {
                 sAsyncTraceBeginMethod.invoke(null, sTraceTagApp, methodName, cookie);
@@ -150,7 +149,7 @@ public final class Trace {
      */
     public static void endAsyncSection(@NonNull String methodName, int cookie) {
         if (Build.VERSION.SDK_INT >= 29) {
-            android.os.Trace.endAsyncSection(methodName, cookie);
+            TraceApi29Impl.endAsyncSection(methodName, cookie);
         } else if (Build.VERSION.SDK_INT >= 18) {
             try {
                 sAsyncTraceEndMethod.invoke(null, sTraceTagApp, methodName, cookie);
@@ -169,7 +168,7 @@ public final class Trace {
      */
     public static void setCounter(@NonNull String counterName, int counterValue) {
         if (Build.VERSION.SDK_INT >= 29) {
-            android.os.Trace.setCounter(counterName, counterValue);
+            TraceApi29Impl.setCounter(counterName, counterValue);
         } else if (Build.VERSION.SDK_INT >= 18) {
             try {
                 sTraceCounterMethod.invoke(null, sTraceTagApp, counterName, counterValue);

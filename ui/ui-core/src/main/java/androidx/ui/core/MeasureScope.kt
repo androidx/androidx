@@ -21,7 +21,7 @@ import androidx.ui.unit.IntPx
 
 /**
  * The receiver scope of a layout's measure lambda. The return value of the
- * measure lambda is [LayoutResult], which should be returned by [layout]
+ * measure lambda is [MeasureResult], which should be returned by [layout]
  */
 abstract class MeasureScope : Density {
     /**
@@ -33,7 +33,7 @@ abstract class MeasureScope : Density {
      * using the [Placeable.get] operator. Note that alignment lines will be inherited by parent
      * layouts, such that indirect parents will be able to query them as well.
      */
-    interface LayoutResult {
+    interface MeasureResult {
         val width: IntPx
         val height: IntPx
         val alignmentLines: Map<AlignmentLine, IntPx>
@@ -60,7 +60,7 @@ abstract class MeasureScope : Density {
         alignmentLines: Map<AlignmentLine, IntPx> = emptyMap(),
         /*crossinline*/
         placementBlock: Placeable.PlacementScope.() -> Unit
-    ) = object : LayoutResult {
+    ) = object : MeasureResult {
         override val width = width
         override val height = height
         override val alignmentLines = alignmentLines
@@ -80,4 +80,4 @@ abstract class MeasureScope : Density {
  * A function for performing layout measurement.
  */
 typealias MeasureBlock =
-        MeasureScope.(List<Measurable>, Constraints, LayoutDirection) -> MeasureScope.LayoutResult
+        MeasureScope.(List<Measurable>, Constraints, LayoutDirection) -> MeasureScope.MeasureResult

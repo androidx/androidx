@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
@@ -28,6 +29,7 @@ import androidx.compose.Composition
 import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
+import androidx.compose.emptyContent
 import androidx.compose.escapeCompose
 import androidx.compose.onCommit
 import androidx.compose.onDispose
@@ -53,7 +55,9 @@ import org.jetbrains.annotations.TestOnly
  * @sample androidx.ui.framework.samples.PopupSample
  *
  * @param alignment The alignment relative to the parent.
- * @param offset An offset from the original aligned position of the popup.
+ * @param offset An offset from the original aligned position of the popup. Offset respects the
+ * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
+ * will be subtracted from it.
  * @param popupProperties Provides extended set of properties to configure the popup.
  * @param children The content to be displayed inside the popup.
  */
@@ -88,14 +92,14 @@ fun Popup(
  *
  * @sample androidx.ui.framework.samples.DropdownPopupSample
  *
- * @param dropDownAlignment The left or right alignment below the parent.
+ * @param dropDownAlignment The start or end alignment below the parent.
  * @param offset An offset from the original aligned position of the popup.
  * @param popupProperties Provides extended set of properties to configure the popup.
  * @param children The content to be displayed inside the popup.
  */
 @Composable
 fun DropdownPopup(
-    dropDownAlignment: DropDownAlignment = DropDownAlignment.Left,
+    dropDownAlignment: DropDownAlignment = DropDownAlignment.Start,
     offset: IntPxPosition = IntPxPosition(IntPx.Zero, IntPx.Zero),
     popupProperties: PopupProperties = PopupProperties(),
     children: @Composable() () -> Unit
@@ -116,12 +120,10 @@ fun DropdownPopup(
     )
 }
 
-private val DefaultTestTag = "DEFAULT_TEST_TAG"
-
 // TODO(b/142431825): This is a hack to work around Popups not using Semantics for test tags
 //  We should either remove it, or come up with an abstracted general solution that isn't specific
 //  to Popup
-private val PopupTestTagAmbient = ambientOf { DefaultTestTag }
+private val PopupTestTagAmbient = ambientOf { "DEFAULT_TEST_TAG" }
 
 @Composable
 internal fun PopupTestTag(tag: String, children: @Composable() () -> Unit) {
@@ -158,8 +160,8 @@ private fun Popup(
 
     // TODO(soboleva): Look at module arrangement so that Box can be
     // used instead of this custom Layout
-    // Get the parent's global position and size
-    Layout(children = {}, modifier = onPositioned { childCoordinates ->
+    // Get the parent's global position, size and layout direction
+    Layout(children = emptyContent(), modifier = Modifier.onPositioned { childCoordinates ->
         val coordinates = childCoordinates.parentCoordinates!!
         // Get the global position of the parent
         val layoutPosition = coordinates.localToGlobal(PxPosition.Origin)
@@ -170,11 +172,14 @@ private fun Popup(
 
         // Update the popup's position
         popupLayout.updatePosition()
-    }) { _, _, _ -> layout(0.ipx, 0.ipx) {} }
+    }) { _, _, layoutDirection ->
+        popupLayout.popupPositionProperties.parentLayoutDirection = layoutDirection
+        layout(0.ipx, 0.ipx) {}
+    }
 
     onCommit {
         composition = popupLayout.setContent {
-            SimpleStack(onPositioned {
+            SimpleStack(Modifier.onPositioned {
                 // Get the size of the content
                 popupLayout.popupPositionProperties.childrenSize = it.size.toPxSize()
 
@@ -233,6 +238,7 @@ private inline fun SimpleStack(modifier: Modifier, noinline children: @Composabl
  * @param popupProperties Properties of the popup.
  * @param calculatePopupPosition The logic of positioning the popup relative to its parent.
  */
+@SuppressLint("ViewConstructor")
 private class PopupLayout(
     context: Context,
     val composeView: View,
@@ -358,6 +364,7 @@ internal data class PopupPositionProperties(
     var parentPosition = PxPosition.Origin
     var parentSize = PxSize.Zero
     var childrenSize = PxSize.Zero
+    var parentLayoutDirection: LayoutDirection = LayoutDirection.Ltr
 }
 
 /**
@@ -365,14 +372,16 @@ internal data class PopupPositionProperties(
  * [DropDownAlignment] is used to specify how should [DropdownPopup] be aligned.
  */
 enum class DropDownAlignment {
-    Left,
-    Right
+    Start,
+    End
 }
 
 internal fun calculatePopupGlobalPosition(
     popupPositionProperties: PopupPositionProperties,
     alignment: Alignment
 ): IntPxPosition {
+    val layoutDirection = popupPositionProperties.parentLayoutDirection
+
     // TODO: Decide which is the best way to round to result without reimplementing Alignment.align
     var popupGlobalPosition = IntPxPosition(IntPx.Zero, IntPx.Zero)
 
@@ -381,14 +390,16 @@ internal fun calculatePopupGlobalPosition(
         IntPxSize(
             popupPositionProperties.parentSize.width.round(),
             popupPositionProperties.parentSize.height.round()
-        )
+        ),
+        layoutDirection
     )
     // Get the aligned point inside the child
     val relativePopupPos = alignment.align(
         IntPxSize(
             popupPositionProperties.childrenSize.width.round(),
             popupPositionProperties.childrenSize.height.round()
-        )
+        ),
+        layoutDirection
     )
 
     // Add the global position of the parent
@@ -404,7 +415,11 @@ internal fun calculatePopupGlobalPosition(
     popupGlobalPosition -= IntPxPosition(relativePopupPos.x, relativePopupPos.y)
 
     // Add the user offset
-    popupGlobalPosition += popupPositionProperties.offset
+    val offset = IntPxPosition(
+        popupPositionProperties.offset.x * (if (layoutDirection == LayoutDirection.Ltr) 1 else -1),
+        popupPositionProperties.offset.y
+    )
+    popupGlobalPosition += offset
 
     return popupGlobalPosition
 }
@@ -413,6 +428,8 @@ internal fun calculateDropdownPopupPosition(
     popupPositionProperties: PopupPositionProperties,
     dropDownAlignment: DropDownAlignment
 ): IntPxPosition {
+    val layoutDirection = popupPositionProperties.parentLayoutDirection
+
     var popupGlobalPosition = IntPxPosition(IntPx.Zero, IntPx.Zero)
 
     // Add the global position of the parent
@@ -421,14 +438,27 @@ internal fun calculateDropdownPopupPosition(
         popupPositionProperties.parentPosition.y.round()
     )
 
-    // The X coordinate of the popup relative to the parent is equal to the parent's width if
-    // aligned to the END or it is 0 otherwise
+    /*
+    * In LTR context aligns popup's left edge with the parent's left edge for Start alignment and
+    * parent's right edge for End alignment.
+    * In RTL context aligns popup's right edge with the parent's right edge for Start alignment and
+    * parent's left edge for End alignment.
+    */
     val alignmentPositionX =
-        if (dropDownAlignment == DropDownAlignment.Right) {
-            popupPositionProperties.parentSize.width.round()
+        if (dropDownAlignment == DropDownAlignment.Start) {
+            if (layoutDirection == LayoutDirection.Ltr) {
+                0.ipx
+            } else {
+                popupPositionProperties.parentSize.width.round() -
+                    popupPositionProperties.childrenSize.width.round()
+            }
         } else {
-            IntPx.Zero
-        }
+            if (layoutDirection == LayoutDirection.Ltr) {
+                popupPositionProperties.parentSize.width.round()
+            } else {
+                -popupPositionProperties.childrenSize.width.round()
+            }
+    }
 
     // The popup's position relative to the parent's top left corner
     val dropdownAlignmentPosition = IntPxPosition(
@@ -439,7 +469,11 @@ internal fun calculateDropdownPopupPosition(
     popupGlobalPosition += dropdownAlignmentPosition
 
     // Add the user offset
-    popupGlobalPosition += popupPositionProperties.offset
+    val offset = IntPxPosition(
+        popupPositionProperties.offset.x * (if (layoutDirection == LayoutDirection.Ltr) 1 else -1),
+        popupPositionProperties.offset.y
+    )
+    popupGlobalPosition += offset
 
     return popupGlobalPosition
 }

@@ -29,8 +29,8 @@ import androidx.ui.animation.animatedFloat
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.core.gesture.RawDragGestureDetector
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.core.gesture.rawDragGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
@@ -39,10 +39,10 @@ import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -56,10 +56,10 @@ fun AnimatableSeekBarDemo() {
             Text(
                 "Drag to update AnimationClock",
                 style = TextStyle(fontSize = 20.sp),
-                modifier = LayoutPadding(40.dp)
+                modifier = Modifier.padding(40.dp)
             )
 
-            Box(LayoutPadding(start = 10.dp, end = 10.dp, bottom = 30.dp)) {
+            Box(Modifier.padding(start = 10.dp, end = 10.dp, bottom = 30.dp)) {
                 MovingTargetExample(clock)
             }
 
@@ -69,7 +69,7 @@ fun AnimatableSeekBarDemo() {
                 toState = "end"
             ) { state ->
                 val paint = remember { Paint() }
-                Canvas(LayoutSize(600.dp, 400.dp)) {
+                Canvas(Modifier.preferredSize(600.dp, 400.dp)) {
                     val rect = Rect(
                         0f, 0f, size.width.value * 0.2f,
                         size.width.value * 0.2f
@@ -118,7 +118,9 @@ fun MovingTargetExample(clock: ManualAnimationClock) {
     }
 
     DrawSeekBar(
-        RawDragGestureDetector(dragObserver) + PressIndicatorGestureDetector(onStart = onPress),
+        Modifier
+            .rawDragGestureFilter(dragObserver)
+            .pressIndicatorGestureFilter(onStart = onPress),
         animValue.value,
         clock
     )
@@ -127,7 +129,7 @@ fun MovingTargetExample(clock: ManualAnimationClock) {
 @Composable
 fun DrawSeekBar(modifier: Modifier = Modifier.None, x: Float, clock: ManualAnimationClock) {
     val paint = remember { Paint() }
-    Canvas(modifier + LayoutWidth.Fill + LayoutHeight(60.dp)) {
+    Canvas(modifier.fillMaxWidth().preferredHeight(60.dp)) {
         val centerY = size.height.value / 2
         val xConstraint = x.coerceIn(0f, size.width.value)
         clock.clockTimeMillis = (400 * (x / size.width.value)).toLong().coerceIn(0, 399)

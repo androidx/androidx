@@ -203,7 +203,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
             val bundle = "bundle"
             addParameter(
                 ParameterSpec.builder(BUNDLE_CLASSNAME, bundle)
-                    .addAnnotation(specs.annotations.NONNULL_CLASSNAME)
+                    .addAnnotation(specs.androidAnnotations.NONNULL_CLASSNAME)
                     .build()
             )
             returns(className)
@@ -305,7 +305,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
 
 private class ClassWithArgsSpecs(
     val args: List<Argument>,
-    val annotations: Annotations,
+    val androidAnnotations: Annotations,
     val privateConstructor: Boolean = false
 ) {
 
@@ -322,7 +322,7 @@ private class ClassWithArgsSpecs(
 
     fun setters(thisClassName: ClassName) = args.map { arg ->
         MethodSpec.methodBuilder("set${arg.sanitizedName.capitalize()}").apply {
-            addAnnotation(annotations.NONNULL_CLASSNAME)
+            addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
             addModifiers(Modifier.PUBLIC)
             addParameter(generateParameterSpec(arg))
             addNullCheck(arg, arg.sanitizedName)
@@ -359,7 +359,7 @@ private class ClassWithArgsSpecs(
             addAnnotation(Override::class.java)
         }
         addAnnotation(suppressAnnotationSpec)
-        addAnnotation(annotations.NONNULL_CLASSNAME)
+        addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
         addModifiers(Modifier.PUBLIC)
         returns(BUNDLE_CLASSNAME)
         val result = "__result"
@@ -401,9 +401,9 @@ private class ClassWithArgsSpecs(
             addAnnotation(suppressAnnotationSpec)
             if (arg.type.allowsNullable()) {
                 if (arg.isNullable) {
-                    addAnnotation(annotations.NULLABLE_CLASSNAME)
+                    addAnnotation(androidAnnotations.NULLABLE_CLASSNAME)
                 } else {
-                    addAnnotation(annotations.NONNULL_CLASSNAME)
+                    addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
                 }
             }
             addStatement(
@@ -526,9 +526,9 @@ private class ClassWithArgsSpecs(
         return ParameterSpec.builder(arg.type.typeName(), arg.sanitizedName).apply {
             if (arg.type.allowsNullable()) {
                 if (arg.isNullable) {
-                    addAnnotation(annotations.NULLABLE_CLASSNAME)
+                    addAnnotation(androidAnnotations.NULLABLE_CLASSNAME)
                 } else {
-                    addAnnotation(annotations.NONNULL_CLASSNAME)
+                    addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
                 }
             }
         }.build()

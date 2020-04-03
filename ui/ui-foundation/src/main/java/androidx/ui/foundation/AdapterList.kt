@@ -26,17 +26,17 @@ import androidx.compose.remember
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.MeasuringIntrinsicsMeasureBlocks
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
+import androidx.ui.core.clipToBounds
 import androidx.ui.core.subcomposeInto
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.foundation.gestures.Scrollable
 import androidx.ui.foundation.gestures.ScrollableState
+import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -256,7 +256,7 @@ private class ListState<T>(
             measurables: List<Measurable>,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): MeasureScope.LayoutResult {
+        ): MeasureScope.MeasureResult {
             measuredThisPass.clear()
             if (forceRecompose) {
                 rootNode.ignoreModelReads { recomposeAllChildren() }
@@ -475,14 +475,18 @@ fun <T> AdapterList(
     state.compositionRef = compositionReference()
     state.forceRecompose = true
 
-    Scrollable(dragDirection = DragDirection.Vertical, scrollableState = ScrollableState(
-        onScrollDeltaConsumptionRequested = state.onScrollDeltaConsumptionRequestedListener
-    )) {
-        androidx.ui.core.LayoutNode(
-            modifier = modifier + DrawClipToBounds,
-            ref = state.rootNodeRef,
-            measureBlocks = state.measureBlocks
-        )
-    }
+    androidx.ui.core.LayoutNode(
+        modifier = modifier
+            .scrollable(
+                dragDirection = DragDirection.Vertical,
+                scrollableState = ScrollableState(
+                    onScrollDeltaConsumptionRequested =
+                    state.onScrollDeltaConsumptionRequestedListener
+                )
+            )
+            .clipToBounds(),
+        ref = state.rootNodeRef,
+        measureBlocks = state.measureBlocks
+    )
     state.recomposeIfAttached()
 }

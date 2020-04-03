@@ -19,7 +19,7 @@ package androidx.ui.foundation.selection
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.PassThroughLayout
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Strings
 import androidx.ui.foundation.selection.ToggleableState.Indeterminate
 import androidx.ui.foundation.selection.ToggleableState.Off
@@ -31,7 +31,7 @@ import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
 
 /**
- * Combines [TapGestureDetector] and [Semantics] for the components that need to be
+ * Combines [tapGestureFilter] and [Semantics] for the components that need to be
  * toggleable, like Switch.
  *
  * @sample androidx.ui.foundation.samples.ToggleableSample
@@ -65,7 +65,7 @@ fun Toggleable(
 }
 
 /**
- * Combines [TapGestureDetector] and [Semantics] for the components with three states
+ * Combines [tapGestureFilter] and [Semantics] for the components with three states
  * like TriStateCheckbox.
  *
  * It supports three states: On, Off and Indeterminate.
@@ -111,7 +111,7 @@ fun TriStateToggleable(
         // TODO(b/150706555): This layout is temporary and should be removed once Semantics
         //  is implemented with modifiers.
         @Suppress("DEPRECATION")
-        PassThroughLayout(modifier + TapGestureDetector(onClick), children)
+        PassThroughLayout(modifier.tapGestureFilter(onClick), children)
     }
 }
 

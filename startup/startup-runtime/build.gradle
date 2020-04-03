@@ -29,6 +29,10 @@ plugins {
 }
 
 android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
     buildTypes {
         debug {
             // Breaks Kotlin compiler
@@ -39,7 +43,7 @@ android {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation(project(':tracing:tracing-ktx'))
+    implementation(project(':tracing:tracing'))
     lintPublish(project(':startup:startup-runtime-lint'))
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

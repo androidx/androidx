@@ -20,16 +20,20 @@ import android.os.SystemClock.sleep
 import androidx.compose.Model
 import androidx.compose.emptyContent
 import androidx.test.filters.MediumTest
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.globalBounds
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -64,12 +68,12 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Box(LayoutSize.Fill + onPositioned { coords ->
+                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
                     position = coords.localToGlobal(PxPosition.Origin)
                 })
             }, bodyContent = emptyContent())
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(position!!.x.value).isEqualTo(0f)
         }
     }
@@ -79,13 +83,13 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Closed, {}, drawerContent = {
-                Box(LayoutSize.Fill + onPositioned { coords ->
+                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
                     position = coords.localToGlobal(PxPosition.Origin)
                 })
             }, bodyContent = emptyContent())
         }
         val width = composeTestRule.displayMetrics.widthPixels
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(position!!.x.round().value).isEqualTo(-width)
         }
     }
@@ -95,7 +99,9 @@ class DrawerTest {
         var size: IntPxSize? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Box(LayoutSize.Fill + onPositioned { coords -> size = coords.size })
+                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
+                    size = coords.size
+                })
             }, bodyContent = emptyContent())
         }
 
@@ -111,7 +117,7 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Opened, {}, drawerContent = {
-                Box(LayoutSize.Fill + onPositioned { coords ->
+                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
                     position = coords.localToGlobal(PxPosition.Origin)
                 })
             }, bodyContent = emptyContent())
@@ -121,7 +127,7 @@ class DrawerTest {
         val height = composeTestRule.displayMetrics.heightPixels
         // temporary calculation of landscape screen
         val expectedHeight = if (width > height) 0 else (height / 2f).roundToInt()
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(position!!.y.round().value).isEqualTo(expectedHeight)
         }
     }
@@ -131,13 +137,13 @@ class DrawerTest {
         var position: PxPosition? = null
         composeTestRule.setMaterialContent {
             BottomDrawerLayout(DrawerState.Closed, {}, drawerContent = {
-                Box(LayoutSize.Fill + onPositioned { coords ->
+                Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
                     position = coords.localToGlobal(PxPosition.Origin)
                 })
             }, bodyContent = emptyContent())
         }
         val height = composeTestRule.displayMetrics.heightPixels
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(position!!.y.round().value).isEqualTo(height)
         }
     }
@@ -147,7 +153,7 @@ class DrawerTest {
         composeTestRule
             .setMaterialContentAndCollectSizes {
                 StaticDrawer {
-                    Box(LayoutSize.Fill)
+                    Box(Modifier.fillMaxSize())
                 }
             }
             .assertWidthEqualsTo(256.dp)
@@ -166,7 +172,7 @@ class DrawerTest {
                     ModalDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
                             Box(
-                                LayoutSize.Fill + onPositioned { info ->
+                                Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
                                     val pos = info.localToGlobal(PxPosition.Origin)
                                     if (pos.x == 0.px) {
                                         // If fully opened, mark the openedLatch if present
@@ -179,7 +185,8 @@ class DrawerTest {
                             )
                         },
                         bodyContent = {
-                            Box(LayoutSize.Fill + onPositioned { contentWidth = it.size.width })
+                            Box(Modifier.fillMaxSize()
+                                .onPositioned { contentWidth = it.size.width })
                         })
                 }
             }
@@ -189,7 +196,7 @@ class DrawerTest {
 
         // When the drawer state is set to Opened
         openedLatch = CountDownLatch(1)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             drawerState.state = DrawerState.Opened
         }
         // Then the drawer should be opened
@@ -197,7 +204,7 @@ class DrawerTest {
 
         // When the drawer state is set to Closed
         closedLatch = CountDownLatch(1)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             drawerState.state = DrawerState.Closed
         }
         // Then the drawer should be closed
@@ -216,12 +223,12 @@ class DrawerTest {
                     ModalDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
                             Clickable(onClick = { drawerClicks += 1 }) {
-                                Box(LayoutSize.Fill, children = emptyContent())
+                                Box(Modifier.fillMaxSize(), children = emptyContent())
                             }
                         },
                         bodyContent = {
                             Clickable(onClick = { bodyClicks += 1 }) {
-                                Box(LayoutSize.Fill, children = emptyContent())
+                                Box(Modifier.fillMaxSize(), children = emptyContent())
                             }
                         })
                 }
@@ -231,7 +238,7 @@ class DrawerTest {
         // Click in the middle of the drawer (which is the middle of the body)
         findByTag("Drawer").doGesture { sendClick() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(0)
             assertThat(bodyClicks).isEqualTo(1)
 
@@ -246,7 +253,7 @@ class DrawerTest {
             sendClick(PxPosition(left, centerY))
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(1)
             assertThat(bodyClicks).isEqualTo(1)
         }
@@ -265,7 +272,7 @@ class DrawerTest {
                 Semantics(container = true) {
                     BottomDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
-                            Box(LayoutSize.Fill + onPositioned { info ->
+                            Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
                                 val pos = info.localToGlobal(PxPosition.Origin)
                                 if (pos.y.round() == openedHeight) {
                                     // If fully opened, mark the openedLatch if present
@@ -277,7 +284,7 @@ class DrawerTest {
                             })
                         },
                         bodyContent = {
-                            Box(LayoutSize.Fill + onPositioned {
+                            Box(Modifier.fillMaxSize().onPositioned {
                                 contentHeight = it.size.height
                                 openedHeight = it.size.height * BottomDrawerOpenFraction
                             })
@@ -291,7 +298,7 @@ class DrawerTest {
 
         // When the drawer state is set to Opened
         openedLatch = CountDownLatch(1)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             drawerState.state = DrawerState.Opened
         }
         // Then the drawer should be opened
@@ -299,7 +306,7 @@ class DrawerTest {
 
         // When the drawer state is set to Closed
         closedLatch = CountDownLatch(1)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             drawerState.state = DrawerState.Closed
         }
         // Then the drawer should be closed
@@ -318,12 +325,12 @@ class DrawerTest {
                     BottomDrawerLayout(drawerState.state, { drawerState.state = it },
                         drawerContent = {
                             Clickable(onClick = { drawerClicks += 1 }) {
-                                Box(LayoutSize.Fill, children = emptyContent())
+                                Box(Modifier.fillMaxSize(), children = emptyContent())
                             }
                         },
                         bodyContent = {
                             Clickable(onClick = { bodyClicks += 1 }) {
-                                Box(LayoutSize.Fill, children = emptyContent())
+                                Box(Modifier.fillMaxSize(), children = emptyContent())
                             }
                         })
                 }
@@ -333,12 +340,12 @@ class DrawerTest {
         // Click in the middle of the drawer (which is the middle of the body)
         findByTag("Drawer").doGesture { sendClick() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(0)
             assertThat(bodyClicks).isEqualTo(1)
         }
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             drawerState.state = DrawerState.Opened
         }
         sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait

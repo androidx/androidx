@@ -93,6 +93,16 @@ interface DrawLayerModifier : Modifier.Element {
     val alpha: Float get() = 1f
 
     /**
+     * Horizontal pixel offset of the layer relative to its left bound
+     */
+    val translationX: Float get() = 0f
+
+    /**
+     * Vertical pixel offset of the layer relative to its top bound
+     */
+    val translationY: Float get() = 0f
+
+    /**
      * Sets the Z coordinate of the layer in pixels. With [outlineShape] set, this will cause
      * a shadow. Varying the [elevation] can also change the order in which layers are drawn.
      */
@@ -139,20 +149,22 @@ interface DrawLayerModifier : Modifier.Element {
      *
      * @see clipToOutline
      */
-    val clipToBounds: Boolean get() = true
+    val clipToBounds: Boolean get() = false
 
     /**
      * Clips the content to the [outlineShape]. If [outlineShape] is null, no clipping will occur.
      * When both [clipToBounds] and [clipToOutline] are `true`, the content will be clipped by
      * both the bounding rectangle and the [outlineShape].
      */
-    val clipToOutline: Boolean get() = true
+    val clipToOutline: Boolean get() = false
 }
 
 private data class SimpleDrawLayerModifier(
     override val scaleX: Float,
     override val scaleY: Float,
     override val alpha: Float,
+    override val translationX: Float,
+    override val translationY: Float,
     override val elevation: Float,
     override val rotationX: Float,
     override val rotationY: Float,
@@ -171,6 +183,8 @@ private data class SimpleDrawLayerModifier(
  * @param scaleX [DrawLayerModifier.scaleX]
  * @param scaleY [DrawLayerModifier.scaleY]
  * @param alpha [DrawLayerModifier.alpha]
+ * @param translationX [DrawLayerModifier.translationX]
+ * @param translationY [DrawLayerModifier.translationY]
  * @param elevation [DrawLayerModifier.elevation]
  * @param rotationX [DrawLayerModifier.rotationX]
  * @param rotationY [DrawLayerModifier.rotationY]
@@ -180,22 +194,81 @@ private data class SimpleDrawLayerModifier(
  * @param clipToBounds [DrawLayerModifier.clipToBounds]
  * @param clipToOutline [DrawLayerModifier.clipToOutline]
  */
+@Deprecated(
+    "Use Modifier.drawLayer",
+    replaceWith = ReplaceWith(
+        "Modifier.drawLayer(scaleX, scaleY, alpha, elevation, rotationX, rotationY, rotationZ, " +
+                "transformOrigin, outlineShape, clipToBounds, clipToOutline)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.drawLayer"
+    )
+)
 fun drawLayer(
     scaleX: Float = 1f,
     scaleY: Float = 1f,
     alpha: Float = 1f,
+    translationX: Float = 0f,
+    translationY: Float = 0f,
     elevation: Float = 0f,
     rotationX: Float = 0f,
     rotationY: Float = 0f,
     rotationZ: Float = 0f,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
     outlineShape: Shape? = null,
-    clipToBounds: Boolean = true,
-    clipToOutline: Boolean = true
+    clipToBounds: Boolean = false,
+    clipToOutline: Boolean = false
 ): Modifier = SimpleDrawLayerModifier(
     scaleX = scaleX,
     scaleY = scaleY,
     alpha = alpha,
+    translationX = translationX,
+    translationY = translationY,
+    elevation = elevation,
+    rotationX = rotationX,
+    rotationY = rotationY,
+    rotationZ = rotationZ,
+    transformOrigin = transformOrigin,
+    outlineShape = outlineShape,
+    clipToBounds = clipToBounds,
+    clipToOutline = clipToOutline
+)
+
+/**
+ * Draw the content into a layer. This permits applying special effects and transformations:
+ *
+ * @sample androidx.ui.core.samples.ChangeOpacity
+ *
+ * @param scaleX [DrawLayerModifier.scaleX]
+ * @param scaleY [DrawLayerModifier.scaleY]
+ * @param alpha [DrawLayerModifier.alpha]
+ * @param elevation [DrawLayerModifier.elevation]
+ * @param rotationX [DrawLayerModifier.rotationX]
+ * @param rotationY [DrawLayerModifier.rotationY]
+ * @param rotationZ [DrawLayerModifier.rotationZ]
+ * @param outlineShape [DrawLayerModifier.outlineShape]
+ * @param clipToBounds [DrawLayerModifier.clipToBounds]
+ * @param clipToOutline [DrawLayerModifier.clipToOutline]
+ */
+fun Modifier.drawLayer(
+    scaleX: Float = 1f,
+    scaleY: Float = 1f,
+    alpha: Float = 1f,
+    translationX: Float = 0f,
+    translationY: Float = 0f,
+    elevation: Float = 0f,
+    rotationX: Float = 0f,
+    rotationY: Float = 0f,
+    rotationZ: Float = 0f,
+    transformOrigin: TransformOrigin = TransformOrigin.Center,
+    outlineShape: Shape? = null,
+    clipToBounds: Boolean = false,
+    clipToOutline: Boolean = false
+) = this + SimpleDrawLayerModifier(
+    scaleX = scaleX,
+    scaleY = scaleY,
+    alpha = alpha,
+    translationX = translationX,
+    translationY = translationY,
     elevation = elevation,
     rotationX = rotationX,
     rotationY = rotationY,

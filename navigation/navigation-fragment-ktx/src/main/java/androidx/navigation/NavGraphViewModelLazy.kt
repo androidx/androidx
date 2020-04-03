@@ -24,9 +24,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 /**
  * Returns a property delegate to access a [ViewModel] scoped to a navigation graph present on the
@@ -55,28 +52,13 @@ inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     @IdRes navGraphId: Int,
     noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
 ): Lazy<VM> {
-    val backStackEntryLock = Mutex()
-    var backStackEntry: NavBackStackEntry? = null
+    val backStackEntry by lazy {
+        findNavController().getBackStackEntry(navGraphId)
+    }
     val storeProducer: () -> ViewModelStore = {
-        runBlocking {
-            backStackEntryLock.withLock {
-                if (backStackEntry == null) {
-                    backStackEntry = findNavController().getBackStackEntry(navGraphId)
-                }
-
-                backStackEntry!!.viewModelStore
-            }
-        }
+        backStackEntry.viewModelStore
     }
     return createViewModelLazy(VM::class, storeProducer, {
-        factoryProducer?.invoke() ?: runBlocking {
-            backStackEntryLock.withLock {
-                if (backStackEntry == null) {
-                    backStackEntry = findNavController().getBackStackEntry(navGraphId)
-                }
-
-                backStackEntry!!.defaultViewModelProviderFactory
-            }
-        }
+        factoryProducer?.invoke() ?: backStackEntry.defaultViewModelProviderFactory
     })
 }

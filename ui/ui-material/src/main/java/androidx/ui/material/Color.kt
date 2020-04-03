@@ -21,7 +21,9 @@ import androidx.compose.Composable
 import androidx.compose.StructurallyEqual
 import androidx.compose.mutableStateOf
 import androidx.compose.Providers
+import androidx.compose.getValue
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.staticAmbientOf
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
@@ -295,14 +297,14 @@ private fun ObservableColorPalette.updateColorsFrom(other: ColorPalette): Observ
  * just provides the given palette in the [ColorAmbient] [Ambient].
  */
 @Composable
-internal fun ProvideColorPalette(colorPalette: ColorPalette, children: @Composable() () -> Unit) {
+internal fun ProvideColorPalette(colorPalette: ColorPalette, content: @Composable() () -> Unit) {
     val palette = when (colorPalette) {
         is ObservableColorPalette -> {
             (remember { ObservableColorPalette(colorPalette) }).updateColorsFrom(colorPalette)
         }
         else -> colorPalette
     }
-    Providers(ColorAmbient provides palette, children = children)
+    Providers(ColorAmbient provides palette, children = content)
 }
 
 /**

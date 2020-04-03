@@ -60,7 +60,7 @@ import java.util.Set;
 @MediumTest
 public class MediaMetadataTest {
     @Test
-    public void testBuilder() {
+    public void builder() {
         final String title = "title";
         final long discNumber = 10;
         final Rating rating = new ThumbRating(true);
@@ -77,7 +77,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testSetExtra() {
+    public void setExtra() {
         final Bundle extras = new Bundle();
         extras.putString("MediaMetadataTest", "testBuilder");
 
@@ -94,7 +94,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testParcelling_withSmallBitmap_bitmapPreservedAfterParcelled() {
+    public void parcelling_withSmallBitmap_bitmapPreservedAfterParcelled() {
         // A small bitmap (160kB) that doesn't need to be scaled down.
         final int testBitmapSize = 200;
         Bitmap testBitmap = Bitmap.createBitmap(
@@ -123,7 +123,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testParcelling_withLargeBitmap_bitmapPreservedAfterParcelled() {
+    public void parcelling_withLargeBitmap_bitmapPreservedAfterParcelled() {
         // A large bitmap (4MB) which exceeds the binder limit. Scaling down would happen.
         final int testBitmapSize = 1024;
         Bitmap testBitmap = Bitmap.createBitmap(
@@ -152,7 +152,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testParceling_withSmallBitmaps() {
+    public void parceling_withSmallBitmaps() {
         final int bitmapCount = 100;
         final List<String> keyList = new ArrayList<>(bitmapCount);
         final String bitmapKeyPrefix = "bitmap_";
@@ -203,7 +203,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testParceling_withLargeBitmaps() {
+    public void parceling_withLargeBitmaps() {
         final int bitmapCount = 100;
         final List<String> keyList = new ArrayList<>(bitmapCount);
         final String bitmapKeyPrefix = "bitmap_";
@@ -254,7 +254,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testMediaUtils_convertToMediaMetadataCompat() {
+    public void mediaUtils_convertToMediaMetadataCompat() {
         HeartRating testRating = new HeartRating(true);
         long testState = MediaMetadata.STATUS_DOWNLOADING;
         String testCustomKey = "android.media.test";
@@ -276,7 +276,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testMediaUtils_convertToMediaItem() {
+    public void mediaUtils_convertToMediaItem() {
         RatingCompat testRating = RatingCompat.newHeartRating(true);
         long testState = MediaDescriptionCompat.STATUS_DOWNLOADING;
         String testCustomKey = "android.media.test";

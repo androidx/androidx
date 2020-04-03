@@ -253,6 +253,12 @@ package androidx.ui.test {
     method public static androidx.ui.unit.PxSize setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class StateRestorationTester {
+    ctor public StateRestorationTester(androidx.ui.test.ComposeTestRule composeTestRule);
+    method public void emulateSavedInstanceStateRestore();
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+  }
+
   public interface TestAnimationClock extends androidx.animation.AnimationClockObservable {
     method public void advanceClock(long milliseconds);
     method public boolean isIdle();

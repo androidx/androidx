@@ -18,18 +18,20 @@ package androidx.ui.layout.test
 
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.LayoutAspectRatio
-import androidx.ui.layout.LayoutDirectionModifier
-import androidx.ui.layout.LayoutGravity
 import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
+import androidx.ui.layout.rtl
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -57,7 +59,7 @@ class LayoutPaddingTest : LayoutTest() {
      */
     @Test(expected = IllegalArgumentException::class)
     fun negativeStartPadding_throws() {
-        LayoutPadding(start = -1f.dp)
+        Modifier.padding(start = -1f.dp)
     }
 
     /**
@@ -65,7 +67,7 @@ class LayoutPaddingTest : LayoutTest() {
      */
     @Test(expected = IllegalArgumentException::class)
     fun negativeTopPadding_throws() {
-        LayoutPadding(top = -1f.dp)
+        Modifier.padding(top = -1f.dp)
     }
 
     /**
@@ -73,7 +75,7 @@ class LayoutPaddingTest : LayoutTest() {
      */
     @Test(expected = IllegalArgumentException::class)
     fun negativeEndPadding_throws() {
-        LayoutPadding(end = -1f.dp)
+        Modifier.padding(end = -1f.dp)
     }
 
     /**
@@ -81,7 +83,7 @@ class LayoutPaddingTest : LayoutTest() {
      */
     @Test(expected = IllegalArgumentException::class)
     fun negativeBottomPadding_throws() {
-        LayoutPadding(bottom = -1f.dp)
+        Modifier.padding(bottom = -1f.dp)
     }
 
     /**
@@ -90,8 +92,8 @@ class LayoutPaddingTest : LayoutTest() {
     @Test
     fun allEqualToAbsoluteWithExplicitSides() {
         Assert.assertEquals(
-            LayoutPadding(10.dp, 10.dp, 10.dp, 10.dp),
-            LayoutPadding(10.dp)
+            Modifier.padding(10.dp, 10.dp, 10.dp, 10.dp),
+            Modifier.padding(10.dp)
         )
     }
 
@@ -104,7 +106,7 @@ class LayoutPaddingTest : LayoutTest() {
     fun paddingAllAppliedToChild() = with(density) {
         val padding = 10.dp
         testPaddingIsAppliedImplementation(padding) { child: @Composable() () -> Unit ->
-            TestBox(modifier = LayoutPadding(padding), body = child)
+            TestBox(modifier = Modifier.padding(padding), body = child)
         }
     }
 
@@ -119,7 +121,7 @@ class LayoutPaddingTest : LayoutTest() {
         val paddingTop = 15.dp
         val paddingRight = 20.dp
         val paddingBottom = 30.dp
-        val padding = LayoutPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
+        val padding = Modifier.padding(paddingLeft, paddingTop, paddingRight, paddingBottom)
         testPaddingWithDifferentInsetsImplementation(
             paddingLeft,
             paddingTop,
@@ -141,7 +143,7 @@ class LayoutPaddingTest : LayoutTest() {
     fun insufficientSpaceAvailable() = with(density) {
         val padding = 30.dp
         testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable() () -> Unit ->
-            TestBox(modifier = LayoutPadding(padding), body = child)
+            TestBox(modifier = Modifier.padding(padding), body = child)
         }
     }
 
@@ -152,8 +154,8 @@ class LayoutPaddingTest : LayoutTest() {
         val latch = CountDownLatch(1)
         var error: Throwable? = null
         testIntrinsics(@Composable {
-            TestBox(modifier = LayoutPadding(padding)) {
-                Container(LayoutAspectRatio(2f)) { }
+            TestBox(modifier = Modifier.padding(padding)) {
+                Container(Modifier.aspectRatio(2f)) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Spacing is applied on both sides of an axis
@@ -222,34 +224,37 @@ class LayoutPaddingTest : LayoutTest() {
         // ltr: P1 S P2 | S P3 | P1 S
         // rtl:    S P1 | P3 S | P2 S P1
         show {
-            Row(LayoutWidth(sizeDp * 3) + LayoutDirectionModifier.Rtl) {
+            Row(Modifier.preferredWidth(sizeDp * 3).rtl) {
                 Stack(
-                    LayoutPadding(start = padding1Dp, end = padding2Dp) +
-                            LayoutSize(sizeDp, sizeDp) +
-                            onPositioned { coordinates ->
-                                childSize[0] = coordinates.size
-                                childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                                drawLatch.countDown()
-                            }
+                    Modifier.padding(start = padding1Dp, end = padding2Dp)
+                        .preferredSize(sizeDp, sizeDp)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[0] = coordinates.size
+                            childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }
                 ) {
                 }
 
-                Stack(LayoutPadding(end = padding3Dp) + LayoutSize(sizeDp, sizeDp) +
-                        onPositioned { coordinates ->
+                Stack(
+                    Modifier.padding(end = padding3Dp)
+                        .preferredSize(sizeDp, sizeDp)
+                        .onPositioned { coordinates: LayoutCoordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        }) {
+                        }
+                ) {
                 }
 
                 Stack(
-                    LayoutPadding(start = padding1Dp) +
-                            LayoutSize(sizeDp, sizeDp) +
-                            onPositioned { coordinates ->
-                                childSize[2] = coordinates.size
-                                childPosition[2] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                                drawLatch.countDown()
-                            }
+                    Modifier.padding(start = padding1Dp)
+                        .preferredSize(sizeDp, sizeDp)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[2] = coordinates.size
+                            childPosition[2] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            drawLatch.countDown()
+                        }
                 ) {
                 }
             }
@@ -291,13 +296,12 @@ class LayoutPaddingTest : LayoutTest() {
             Stack {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(sizeDp, sizeDp),
-                    modifier = LayoutGravity.Center
+                    modifier = Modifier.gravity(Alignment.Center)
                 ) {
                     val children = @Composable {
-                        Container(onPositioned { coordinates ->
+                        Container(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize = coordinates.size
-                            childPosition =
-                                coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
                         }) {
                         }
@@ -338,13 +342,12 @@ class LayoutPaddingTest : LayoutTest() {
             Stack {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(sizeDp, sizeDp),
-                    modifier = LayoutGravity.Center
+                    modifier = Modifier.gravity(Alignment.Center)
                 ) {
                     val children = @Composable {
-                        Container(onPositioned { coordinates ->
+                        Container(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize = coordinates.size
-                            childPosition =
-                                coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                            childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
                         }) {
                         }
@@ -392,10 +395,10 @@ class LayoutPaddingTest : LayoutTest() {
             Stack {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(sizeDp, sizeDp),
-                    modifier = LayoutGravity.Center
+                    modifier = Modifier.gravity(Alignment.Center)
                 ) {
                     paddingContainer {
-                        Container(onPositioned { coordinates ->
+                        Container(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                             childSize = coordinates.size
                             childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()

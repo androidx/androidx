@@ -35,13 +35,15 @@ import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.BottomAppBar.FabConfiguration
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Density
@@ -68,10 +70,11 @@ import kotlin.math.sqrt
  * typically be an [IconButton] or [IconToggleButton].
  * @param actions The actions displayed at the end of the TopAppBar. This should typically be
  * [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
- * @param color The background color for the TopAppBar. Use [Color.Transparent] to have no color.
+ * @param backgroundColor The background color for the TopAppBar. Use [Color.Transparent] to have
+ * no color.
  * @param contentColor The preferred content color provided by this TopAppBar to its children.
- * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
- * the theme, this will keep the same value set above this TopAppBar.
+ * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor]
+ * is not a color from the theme, this will keep the same value set above this TopAppBar.
  * @param elevation the elevation of this TopAppBar.
  */
 @Composable
@@ -80,26 +83,23 @@ fun TopAppBar(
     modifier: Modifier = Modifier.None,
     navigationIcon: @Composable() (() -> Unit)? = null,
     actions: @Composable() RowScope.() -> Unit = {},
-    color: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = TopAppBarElevation
 ) {
-    AppBar(color, contentColor, elevation, RectangleShape, modifier) {
-        val emphasisLevels = MaterialTheme.emphasisLevels
+    AppBar(backgroundColor, contentColor, elevation, RectangleShape, modifier) {
+        val emphasisLevels = EmphasisAmbient.current
         if (navigationIcon == null) {
-            Spacer(LayoutWidth(TitleInsetWithoutIcon))
+            Spacer(TitleInsetWithoutIcon)
         } else {
             // TODO: make this a row after b/148014745 is fixed
-            Box(
-                LayoutHeight.Fill + LayoutWidth(TitleInsetWithIcon),
-                gravity = ContentGravity.CenterStart
-            ) {
+            Box(TitleIconModifier, gravity = ContentGravity.CenterStart) {
                 ProvideEmphasis(emphasisLevels.high, navigationIcon)
             }
         }
 
         // TODO(soboleva): rework this once AlignmentLineOffset is a modifier
-        Box(LayoutHeight.Fill + LayoutWeight(1f), gravity = ContentGravity.BottomStart) {
+        Box(Modifier.fillMaxHeight().weight(1f), gravity = ContentGravity.BottomStart) {
             val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
             AlignmentLineOffset(alignmentLine = LastBaseline, after = baselineOffset) {
                 Semantics(container = true) {
@@ -113,7 +113,7 @@ fun TopAppBar(
         }
 
         // TODO: remove box and center align row's children after b/148014745 is fixed
-        Box(modifier = LayoutHeight.Fill, gravity = ContentGravity.CenterEnd) {
+        Box(Modifier.fillMaxHeight(), gravity = ContentGravity.CenterEnd) {
             Row(arrangement = Arrangement.End) {
                 ProvideEmphasis(emphasisLevels.medium) {
                     actions()
@@ -130,23 +130,31 @@ fun TopAppBar(
  * This TopAppBar has no pre-defined slots for content, allowing you to customize the layout of
  * content inside.
  *
- * @param color The background color for the TopAppBar. Use [Color.Transparent] to have no color.
+ * @param backgroundColor The background color for the TopAppBar. Use [Color.Transparent] to have
+ * no color.
  * @param contentColor The preferred content color provided by this TopAppBar to its children.
- * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
- * the theme, this will keep the same value set above this TopAppBar.
+ * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor] is
+ * not a color from the theme, this will keep the same value set above this TopAppBar.
  * @param elevation the elevation of this TopAppBar.
- * @param children the children of this TopAppBar.The default layout here is a [Row],
+ * @param content the content of this TopAppBar.The default layout here is a [Row],
  * so content inside will be placed horizontally.
  */
 @Composable
 fun TopAppBar(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = TopAppBarElevation,
-    children: @Composable() RowScope.() -> Unit
+    content: @Composable() RowScope.() -> Unit
 ) {
-    AppBar(color, contentColor, elevation, RectangleShape, modifier = modifier, children = children)
+    AppBar(
+        backgroundColor,
+        contentColor,
+        elevation,
+        RectangleShape,
+        modifier = modifier,
+        children = content
+    )
 }
 
 object BottomAppBar {
@@ -209,10 +217,11 @@ object BottomAppBar {
  *
  * @sample androidx.ui.material.samples.SimpleBottomAppBar
  *
- * @param color The background color for the BottomAppBar. Use [Color.Transparent] to have no color.
+ * @param backgroundColor The background color for the BottomAppBar. Use [Color.Transparent] to
+ * have no color.
  * @param contentColor The preferred content color provided by this BottomAppBar to its children.
- * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
- * the theme, this will keep the same value set above this BottomAppBar.
+ * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor] is
+ * not a color from the theme, this will keep the same value set above this BottomAppBar.
  * @param fabConfiguration The [FabConfiguration] that controls where the [FloatingActionButton]
  * is placed inside the BottomAppBar. This is used both to determine the cutout position for
  * BottomAppBar (if cutoutShape is non-null) and to choose proper layout for BottomAppBar. If
@@ -220,17 +229,17 @@ object BottomAppBar {
  * @param cutoutShape the shape of the cutout that will be added to the BottomAppBar - this
  * should typically be the same shape used inside the [FloatingActionButton]. This shape will be
  * drawn with an offset around all sides. If null, where will be no cutout.
- * @param children the children of this BottomAppBar. The default layout here is a [Row],
+ * @param content the content of this BottomAppBar. The default layout here is a [Row],
  * so content inside will be placed horizontally.
  */
 @Composable
 fun BottomAppBar(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
     fabConfiguration: FabConfiguration? = null,
     cutoutShape: Shape? = null,
-    children: @Composable() RowScope.() -> Unit
+    content: @Composable() RowScope.() -> Unit
 ) {
     val shape = if (cutoutShape == null || fabConfiguration == null) {
         RectangleShape
@@ -241,11 +250,11 @@ fun BottomAppBar(
             fabConfiguration.fabSize.toPxSize()
         )
     }
-    AppBar(color, contentColor, BottomAppBarElevation, shape, modifier) {
+    AppBar(backgroundColor, contentColor, BottomAppBarElevation, shape, modifier) {
         // TODO: remove box and inline row's children after b/148014745 is fixed
-        Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
+        Box(Modifier.fillMaxSize(), gravity = ContentGravity.Center) {
             // TODO: b/150609566 clarify emphasis for children
-            Row(LayoutWidth.Fill, children = children)
+            Row(Modifier.fillMaxWidth(), children = content)
         }
     }
 }
@@ -486,7 +495,7 @@ internal fun calculateRoundedEdgeIntercept(
  */
 @Composable
 private fun AppBar(
-    color: Color,
+    backgroundColor: Color,
     contentColor: Color,
     elevation: Dp,
     shape: Shape,
@@ -494,17 +503,16 @@ private fun AppBar(
     children: @Composable() RowScope.() -> Unit
 ) {
     Surface(
-        color = color,
+        color = backgroundColor,
         contentColor = contentColor,
         elevation = elevation,
         shape = shape,
         modifier = modifier
     ) {
         Row(
-            LayoutWidth.Fill + LayoutPadding(
-                start = AppBarHorizontalPadding,
-                end = AppBarHorizontalPadding
-            ) + LayoutHeight(AppBarHeight),
+            Modifier.fillMaxWidth()
+                .padding(start = AppBarHorizontalPadding, end = AppBarHorizontalPadding)
+                .preferredHeight(AppBarHeight),
             arrangement = Arrangement.SpaceBetween,
             children = children
         )
@@ -515,9 +523,10 @@ private val AppBarHeight = 56.dp
 // TODO: this should probably be part of the touch target of the start and end icons, clarify this
 private val AppBarHorizontalPadding = 4.dp
 // Start inset for the title when there is no navigation icon provided
-private val TitleInsetWithoutIcon = 16.dp - AppBarHorizontalPadding
+private val TitleInsetWithoutIcon = Modifier.preferredWidth(16.dp - AppBarHorizontalPadding)
 // Start inset for the title when there is a navigation icon provided
-private val TitleInsetWithIcon = 72.dp - AppBarHorizontalPadding
+private val TitleIconModifier = Modifier.fillMaxHeight()
+    .preferredWidth(72.dp - AppBarHorizontalPadding)
 // The baseline distance for the title from the bottom of the app bar
 private val TitleBaselineOffset = 20.sp
 

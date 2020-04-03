@@ -24,13 +24,16 @@ import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
+import androidx.ui.core.input.FocusNode
+import androidx.ui.core.input.FocusTransitionObserver
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
-import androidx.ui.input.InputState
+import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextLayoutResult
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
@@ -57,7 +60,7 @@ class TextFieldTest {
         val focusManager = mock<FocusManager>()
         val inputService = mock<TextInputService>()
         composeTestRule.setContent {
-            val state = state { "" }
+            val state = state { TextFieldValue("") }
             Providers(
                 FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides inputService
@@ -73,14 +76,14 @@ class TextFieldTest {
 
         findByTag("textField").doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             verify(focusManager, times(1)).requestFocus(any())
         }
     }
 
     @Composable
     private fun TextFieldApp() {
-        val state = state { "" }
+        val state = state { TextFieldValue("") }
         TextField(
             value = state.value,
             onValueChange = {
@@ -89,16 +92,43 @@ class TextFieldTest {
         )
     }
 
+    /**
+     * Fake class for giving input focus when requestFocus is called.
+     */
+    class FakeFocusManager : FocusManager {
+        var observer: FocusTransitionObserver? = null
+
+        override fun registerObserver(node: FocusNode, observer: FocusTransitionObserver) {
+            this.observer = observer
+        }
+
+        override fun requestFocus(client: FocusNode) {
+            observer?.invoke(null, client)
+        }
+
+        override fun requestFocusById(identifier: String) {
+            throw RuntimeException("Not implemented")
+        }
+
+        override fun registerFocusNode(identifier: String, node: FocusNode) {
+            throw RuntimeException("Not implemented")
+        }
+
+        override fun unregisterFocusNode(identifier: String) {
+            throw RuntimeException("Not implemented")
+        }
+
+        override fun blur(client: FocusNode) {
+            throw RuntimeException("Not implemented")
+        }
+    }
+
     @Test
     fun textField_commitTexts() {
-        val focusManager = mock<FocusManager>()
+        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
-        // Always give focus to the passed node.
-        whenever(focusManager.requestFocus(any())).thenAnswer {
-            (it.arguments[0] as FocusManager.FocusNode).onFocus()
-        }
         whenever(textInputService.startInput(any(), any(), any(), any(), any()))
             .thenReturn(inputSessionToken)
 
@@ -118,7 +148,7 @@ class TextFieldTest {
             .doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // Verify startInput is called and capture the callback.
             val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
             verify(textInputService, times(1)).startInput(
@@ -144,11 +174,11 @@ class TextFieldTest {
             // TODO: This should work only with runOnUiThread. But it seems that these events are
             // not buffered and chaining multiple of them before composition happens makes them to
             // get lost.
-            composeTestRule.runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
+            runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
         }
 
-        composeTestRule.runOnIdleCompose {
-            val stateCaptor = argumentCaptor<InputState>()
+        runOnIdleCompose {
+            val stateCaptor = argumentCaptor<EditorValue>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
 
@@ -159,11 +189,11 @@ class TextFieldTest {
 
     @Composable
     private fun OnlyDigitsApp() {
-        val state = state { "" }
+        val state = state { TextFieldValue("") }
         TextField(
             value = state.value,
             onValueChange = {
-                if (it.all { it.isDigit() }) {
+                if (it.text.all { it.isDigit() }) {
                     state.value = it
                 }
             }
@@ -172,14 +202,10 @@ class TextFieldTest {
 
     @Test
     fun textField_commitTexts_state_may_not_set() {
-        val focusManager = mock<FocusManager>()
+        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
-        // Always give focus to the passed node.
-        whenever(focusManager.requestFocus(any())).thenAnswer {
-            (it.arguments[0] as FocusManager.FocusNode).onFocus()
-        }
         whenever(textInputService.startInput(any(), any(), any(), any(), any()))
             .thenReturn(inputSessionToken)
 
@@ -199,7 +225,7 @@ class TextFieldTest {
             .doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // Verify startInput is called and capture the callback.
             val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
             verify(textInputService, times(1)).startInput(
@@ -225,11 +251,11 @@ class TextFieldTest {
             // TODO: This should work only with runOnUiThread. But it seems that these events are
             // not buffered and chaining multiple of them before composition happens makes them to
             // get lost.
-            composeTestRule.runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
+            runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
         }
 
-        composeTestRule.runOnIdleCompose {
-            val stateCaptor = argumentCaptor<InputState>()
+        runOnIdleCompose {
+            val stateCaptor = argumentCaptor<EditorValue>()
             verify(textInputService, atLeastOnce())
                 .onStateUpdated(eq(inputSessionToken), stateCaptor.capture())
 
@@ -241,14 +267,10 @@ class TextFieldTest {
 
     @Test
     fun textField_onTextLayoutCallback() {
-        val focusManager = mock<FocusManager>()
+        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
-        // Always give focus to the passed node.
-        whenever(focusManager.requestFocus(any())).thenAnswer {
-            (it.arguments[0] as FocusManager.FocusNode).onFocus()
-        }
         whenever(textInputService.startInput(any(), any(), any(), any(), any()))
             .thenReturn(inputSessionToken)
 
@@ -259,7 +281,7 @@ class TextFieldTest {
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {
-                    val state = state { "" }
+                    val state = state { TextFieldValue("") }
                     TextField(
                         value = state.value,
                         onValueChange = {
@@ -276,7 +298,7 @@ class TextFieldTest {
             .doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // Verify startInput is called and capture the callback.
             val onEditCommandCaptor = argumentCaptor<(List<EditOperation>) -> Unit>()
             verify(textInputService, times(1)).startInput(
@@ -300,10 +322,10 @@ class TextFieldTest {
             // TODO: This should work only with runOnUiThread. But it seems that these events are
             // not buffered and chaining multiple of them before composition happens makes them to
             // get lost.
-            composeTestRule.runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
+            runOnIdleCompose { onEditCommandCallback!!.invoke(it) }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             val layoutCaptor = argumentCaptor<TextLayoutResult>()
             verify(onTextLayout, atLeastOnce()).invoke(layoutCaptor.capture())
 

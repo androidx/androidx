@@ -40,7 +40,7 @@ fun imageResource(@DrawableRes id: Int): ImageAsset {
     context.resources.getValue(id, value, true)
     // We use the file path as a key of the request cache.
     // TODO(nona): Add density to the key?
-    val key = value.string?.toString()
+    val key = value.string!!.toString() // image resource must have resource path.
     return remember(key) { imageFromResource(context.resources, id) }
 }
 
@@ -64,7 +64,10 @@ fun loadImageResource(
 ): DeferredResource<ImageAsset> {
     val context = ContextAmbient.current
     val res = context.resources
-    return loadResource(id, pendingImage, failedImage) {
+    val value = remember { TypedValue() }
+    res.getValue(id, value, true)
+    val key = value.string!!.toString() // image resource must have resource path.
+    return loadResource(key, pendingImage, failedImage) {
         trace("Image Resource Loading") {
             imageFromResource(res, id)
         }

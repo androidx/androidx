@@ -22,11 +22,18 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Window
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.Composable
-import androidx.compose.Composition
 import androidx.compose.frames.modelListOf
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
+import androidx.compose.remember
+import androidx.compose.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.preference.PreferenceManager
 import androidx.ui.core.setContent
 import androidx.ui.demos.common.ActivityDemo
@@ -42,44 +49,40 @@ import androidx.ui.material.lightColorPalette
 /**
  * Main [Activity] containing all Compose related demos.
  */
-class DemoActivity : Activity() {
-
-    private lateinit var composition: Composition
-
-    private val navigator = Navigator(initialDemo = AllDemosCategory) { activityDemo ->
-        startActivity(Intent(this, activityDemo.activityClass.java))
-    }
-
-    private val demoColors = DemoColorPalette()
-    private var isFiltering by mutableStateOf(false)
-
-    override fun onResume() {
-        super.onResume()
-        demoColors.loadColorsFromSharedPreferences(this)
-    }
-
-    override fun onBackPressed() {
-        if (isFiltering) {
-            isFiltering = false
-        } else if (!navigator.popBackStack()) {
-            super.onBackPressed()
-        }
-    }
+class DemoActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        composition = setContent {
+        val composition = setContent {
+            val navigator = remember {
+                Navigator(
+                    initialDemo = AllDemosCategory,
+                    backDispatcher = onBackPressedDispatcher
+                ) { activityDemo ->
+                    startActivity(Intent(this, activityDemo.activityClass.java))
+                }
+            }
+            val demoColors = remember {
+                DemoColorPalette().also {
+                    lifecycle.addObserver(LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_RESUME) {
+                            it.loadColorsFromSharedPreferences(this)
+                        }
+                    })
+                }
+            }
             DemoTheme(demoColors, window) {
-                val onStartFiltering = { isFiltering = true }
-                val onEndFiltering = { isFiltering = false }
+                val filteringMode = remember { FilterMode(onBackPressedDispatcher) }
+                val onStartFiltering = { filteringMode.isFiltering = true }
+                val onEndFiltering = { filteringMode.isFiltering = false }
                 DemoApp(
                     currentDemo = navigator.currentDemo,
                     backStackTitle = navigator.backStackTitle,
-                    isFiltering = isFiltering,
+                    isFiltering = filteringMode.isFiltering,
                     onStartFiltering = onStartFiltering,
                     onEndFiltering = onEndFiltering,
                     onNavigateToDemo = { demo ->
-                        if (isFiltering) {
+                        if (filteringMode.isFiltering) {
                             onEndFiltering()
                             navigator.popAll()
                         }
@@ -95,11 +98,11 @@ class DemoActivity : Activity() {
                 )
             }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        composition.dispose()
+        lifecycle.addObserver(LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                composition.dispose()
+            }
+        })
     }
 }
 
@@ -131,12 +134,26 @@ private val ColorPalette.darkenedPrimary: Int
 
 private class Navigator(
     private val initialDemo: DemoCategory,
+    private val backDispatcher: OnBackPressedDispatcher,
     val launchActivityDemo: (ActivityDemo<*>) -> Unit
 ) {
     private val backStack: MutableList<Demo> = modelListOf()
 
-    var currentDemo by mutableStateOf<Demo>(initialDemo)
-        private set
+    private val onBackPressed = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            popBackStack()
+        }
+    }.apply {
+        backDispatcher.addCallback(this)
+    }
+
+    private var _currentDemo by mutableStateOf<Demo>(initialDemo)
+    var currentDemo: Demo
+        get() = _currentDemo
+        private set(value) {
+            _currentDemo = value
+            onBackPressed.isEnabled = !isRoot
+        }
 
     val isRoot: Boolean get() = backStack.isEmpty()
 
@@ -160,11 +177,29 @@ private class Navigator(
         }
     }
 
-    fun popBackStack(): Boolean {
-        if (isRoot) return false
+    private fun popBackStack() {
         currentDemo = backStack.removeAt(backStack.lastIndex)
-        return true
     }
+}
+
+private class FilterMode(backDispatcher: OnBackPressedDispatcher) {
+
+    private var _isFiltering by mutableStateOf(false)
+
+    private val onBackPressed = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            isFiltering = false
+        }
+    }.apply {
+        backDispatcher.addCallback(this)
+    }
+
+    var isFiltering
+        get() = _isFiltering
+        set(value) {
+            _isFiltering = value
+            onBackPressed.isEnabled = value
+        }
 }
 
 /**

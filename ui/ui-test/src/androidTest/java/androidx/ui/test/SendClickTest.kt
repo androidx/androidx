@@ -16,16 +16,16 @@
 
 package androidx.ui.test
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.FrameLayout
+import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInputHandler
+import androidx.ui.core.PointerInputChange
 import androidx.ui.core.TestTag
 import androidx.ui.core.changedToUp
 import androidx.ui.core.pointerinput.PointerInputFilter
@@ -34,9 +34,10 @@ import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
@@ -59,7 +60,7 @@ private data class ClickData(
 )
 
 // The presence of an ActionBar follows from the theme set in AndroidManifest.xml
-class ActivityWithActionBar : Activity() {
+class ActivityWithActionBar : ComponentActivity() {
     private lateinit var composeHolder: FrameLayout
     private var composition: Composition? = null
 
@@ -87,7 +88,7 @@ class ActivityWithActionBar : Activity() {
     }
 }
 
-private fun <T : Activity> AndroidComposeTestRule<T>.setContent(
+private fun <T : ComponentActivity> AndroidComposeTestRule<T>.setContent(
     recordedClicks: MutableList<ClickData>
 ) {
     val activity = activityTestRule.activity
@@ -110,22 +111,29 @@ private fun Ui(recordedClicks: MutableList<ClickData>) {
                         val pointerInputModifier =
                             object : PointerInputModifier {
                                 override val pointerInputFilter = object : PointerInputFilter() {
-                                    override val pointerInputHandler: PointerInputHandler =
-                                        { changes, pass, _ ->
-                                            if (pass == PointerEventPass.InitialDown) {
-                                                changes.filter { it.changedToUp() }.forEach {
-                                                    recordedClicks.add(
-                                                        ClickData(i, it.current.position!!)
-                                                    )
-                                                }
+                                    override fun onPointerInput(
+                                        changes: List<PointerInputChange>,
+                                        pass: PointerEventPass,
+                                        bounds: IntPxSize
+                                    ): List<PointerInputChange> {
+                                        if (pass == PointerEventPass.InitialDown) {
+                                            changes.filter { it.changedToUp() }.forEach {
+                                                recordedClicks.add(
+                                                    ClickData(i, it.current.position!!)
+                                                )
                                             }
-                                            changes
                                         }
-                                    override val cancelHandler: () -> Unit = {}
+                                        return changes
+                                    }
+
+                                    override fun onCancel() {
+                                        // Do nothing
+                                    }
                                 }
                             }
+                        squareSize.toDp()
                         Box(
-                            pointerInputModifier + LayoutSize(squareSize.toDp()),
+                            pointerInputModifier.preferredSize(squareSize.toDp()),
                             backgroundColor = colors[i]
                         )
                     }
@@ -139,14 +147,14 @@ private fun Ui(recordedClicks: MutableList<ClickData>) {
 @RunWith(Parameterized::class)
 class SendClickWithoutArgumentsTest(config: TestConfig) {
     data class TestConfig(
-        val activityClass: Class<out Activity>
+        val activityClass: Class<out ComponentActivity>
     )
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> = listOf(
-            TestConfig(Activity::class.java),
+            TestConfig(ComponentActivity::class.java),
             TestConfig(ActivityWithActionBar::class.java)
         )
     }
@@ -165,7 +173,7 @@ class SendClickWithoutArgumentsTest(config: TestConfig) {
         findByTag("${tag}$last").doGesture { sendClick() }
 
         // Then each component has registered a click
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(recordedClicks).isEqualTo(
                 listOf(
                     ClickData(first, center),
@@ -181,7 +189,7 @@ class SendClickWithoutArgumentsTest(config: TestConfig) {
 class SendClickWithArgumentsTest(private val config: TestConfig) {
     data class TestConfig(
         val position: PxPosition,
-        val activityClass: Class<out Activity>
+        val activityClass: Class<out ComponentActivity>
     )
 
     companion object {
@@ -191,7 +199,7 @@ class SendClickWithArgumentsTest(private val config: TestConfig) {
             return mutableListOf<TestConfig>().apply {
                 for (x in listOf(0.px, squareSize - 1.px)) {
                     for (y in listOf(0.px, squareSize - 1.px)) {
-                        add(TestConfig(PxPosition(x, y), Activity::class.java))
+                        add(TestConfig(PxPosition(x, y), ComponentActivity::class.java))
                         add(TestConfig(PxPosition(x, y), ActivityWithActionBar::class.java))
                     }
                 }
@@ -213,7 +221,7 @@ class SendClickWithArgumentsTest(private val config: TestConfig) {
         findByTag("${tag}$last").doGesture { sendClick(config.position) }
 
         // Then each component has registered a click
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(recordedClicks).isEqualTo(
                 listOf(
                     ClickData(first, config.position),

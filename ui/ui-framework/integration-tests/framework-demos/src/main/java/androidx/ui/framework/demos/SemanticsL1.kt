@@ -18,17 +18,18 @@ package androidx.ui.framework.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
+import androidx.ui.core.Modifier
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.ui.unit.PxPosition
@@ -144,7 +145,7 @@ fun PressGestureDetectorWithActions(
     onPress: SemanticAction<PxPosition> = SemanticAction(defaultParam = PxPosition.Origin) { },
     onRelease: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { },
     onCancel: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { }
-) = PressIndicatorGestureDetector(
+) = Modifier.pressIndicatorGestureFilter(
         onStart = { onPress.action(ActionParam(ActionCaller.PointerInput, it)) },
         onStop = { onRelease.action(ActionParam(ActionCaller.PointerInput, Unit)) },
         onCancel = { onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) }
@@ -163,7 +164,7 @@ fun Semantics(
     actions: Set<SemanticAction<out Any?>> = setOf(),
     children: @Composable() () -> Unit
 ) {
-    Column(LayoutHeight.Fill) {
+    Column(Modifier.fillMaxHeight()) {
         MaterialTheme {
             Collapsable {
                 InvokeActionsByType(actions)
@@ -172,9 +173,9 @@ fun Semantics(
                 InvokeActionsByParameters(actions)
             }
         }
-        Row(LayoutWidth.Fill, arrangement = Arrangement.Center) {
+        Row(Modifier.fillMaxWidth(), arrangement = Arrangement.Center) {
             Box(
-                LayoutGravity.Center + LayoutSize(500.dp, 300.dp),
+                Modifier.gravity(RowAlign.Center).preferredSize(500.dp, 300.dp),
                 gravity = ContentGravity.Center,
                 children = children
             )
@@ -191,7 +192,7 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
     val secondary =
         actions.firstOrNull { it.types.contains(AccessibilityAction.Secondary) }
     Text(text = "Accessibility Actions By Type", style = MaterialTheme.typography.h6)
-    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
+    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = { primary?.invoke(ActionCaller.Accessibility) }) {
             Text("Primary")
         }
@@ -210,7 +211,7 @@ private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf
         text = "Accessibility Actions By Phrase",
         style = MaterialTheme.typography.h6
     )
-    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
+    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
         actions.forEach {
             Button(onClick = { it.invoke(ActionCaller.Accessibility) }) {
                 Text(it.phrase)
@@ -227,7 +228,7 @@ private fun InvokeActionsByAssistantAction(actions: Set<SemanticAction<out Any?>
     val positive = actions.firstOrNull { it.types.contains(PolarityAction.Positive) }
     val negative = actions.firstOrNull { it.types.contains(PolarityAction.Negative) }
     Text(text = "Assistant Actions", style = MaterialTheme.typography.h6)
-    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
+    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = { negative?.invoke(ActionCaller.Assistant) }) {
             Text("Negative")
         }
@@ -251,7 +252,7 @@ private fun InvokeActionsByParameters(actions: Set<SemanticAction<out Any?>> = s
     val unitAction =
         actions.firstOrNull { it.defaultParam is Unit } as SemanticAction<Unit>?
     Text(text = "Actions using Parameters", style = MaterialTheme.typography.h6)
-    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
+    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = { pxPositionAction?.invoke(param = PxPosition(1.px, 1.px)) }) {
             Text("IntAction")
         }
@@ -275,7 +276,7 @@ private fun Collapsable(children: @Composable() () -> Unit) {
 
     val collapsedState = state { CollapseMode.Collapsed }
 
-    Row(LayoutWidth.Fill, arrangement = Arrangement.SpaceEvenly) {
+    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
         Button(onClick = {
             collapsedState.value = when (collapsedState.value) {
                 CollapseMode.Collapsed -> CollapseMode.Visible

@@ -55,8 +55,8 @@ inline fun Draw(
 
 /**
  * A Draw scope that accepts children to allow modifying the canvas for children.
- * The [children] are drawn when [DrawReceiver.drawChildren] is called.
- * If the [onPaint] does not call [DrawReceiver.drawChildren] then it will be called
+ * The [children] are drawn when [ContentDrawScope.drawContent] is called.
+ * If the [onPaint] does not call [ContentDrawScope.drawContent] then it will be called
  * after the lambda.
  *
  * *Deprecated:* Draw composable is a common source of bugs as it's not a layout and takes parent
@@ -74,7 +74,7 @@ inline fun Draw(
 )
 inline fun Draw(
     crossinline children: @Composable() () -> Unit,
-    noinline onPaint: DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
+    noinline onPaint: ContentDrawScope.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     DrawNode(onPaintWithChildren = onPaint) {
         children()

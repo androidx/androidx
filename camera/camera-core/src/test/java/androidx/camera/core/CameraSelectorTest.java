@@ -24,7 +24,7 @@ import android.os.Build;
 
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.CameraIdFilter;
+import androidx.camera.core.impl.CameraFilter;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -53,11 +53,13 @@ import java.util.concurrent.ExecutionException;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class CameraSelectorTest {
-    private CameraInternal mRearCamera;
-    private CameraInternal mFrontCamera;
     private static final String REAR_ID = "0";
     private static final String FRONT_ID = "1";
-    private Set<String> mCameraIds = new HashSet<>();
+    private static final int REAR_ROTATION_DEGREE = 0;
+    private static final int FRONT_ROTATION_DEGREE = 90;
+    private CameraInternal mRearCamera;
+    private CameraInternal mFrontCamera;
+    private Set<CameraInternal> mCameras = new HashSet<>();
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
@@ -73,14 +75,16 @@ public class CameraSelectorTest {
         };
         FakeCameraFactory cameraFactory = new FakeCameraFactory();
         mRearCamera = new FakeCamera(mock(CameraControlInternal.class),
-                new FakeCameraInfoInternal(0,
+                new FakeCameraInfoInternal(REAR_ROTATION_DEGREE,
                         CameraSelector.LENS_FACING_BACK));
         cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, REAR_ID, () -> mRearCamera);
+        mCameras.add(mRearCamera);
         cameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_BACK, REAR_ID);
         mFrontCamera = new FakeCamera(mock(CameraControlInternal.class),
-                new FakeCameraInfoInternal(0,
+                new FakeCameraInfoInternal(FRONT_ROTATION_DEGREE,
                         CameraSelector.LENS_FACING_FRONT));
         cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, FRONT_ID, () -> mFrontCamera);
+        mCameras.add(mFrontCamera);
         cameraFactory.setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_FRONT, FRONT_ID);
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
@@ -88,8 +92,6 @@ public class CameraSelectorTest {
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(configFactoryProvider);
         CameraX.initialize(context, appConfigBuilder.build()).get();
-        mCameraIds.add(REAR_ID);
-        mCameraIds.add(FRONT_ID);
     }
 
     @After
@@ -101,8 +103,7 @@ public class CameraSelectorTest {
     public void canSelectWithLensFacing() {
         CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
         cameraSelectorBuilder.requireLensFacing(CameraSelector.LENS_FACING_BACK);
-        String result = cameraSelectorBuilder.build().select(mCameraIds);
-        assertThat(result).isEqualTo(REAR_ID);
+        assertThat(cameraSelectorBuilder.build().select(mCameras)).isEqualTo(mRearCamera);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -110,7 +111,7 @@ public class CameraSelectorTest {
         CameraSelector.Builder cameraSelectorBuilder = new CameraSelector.Builder();
         cameraSelectorBuilder.requireLensFacing(CameraSelector.LENS_FACING_BACK).requireLensFacing(
                 CameraSelector.LENS_FACING_FRONT);
-        cameraSelectorBuilder.build().select(mCameraIds);
+        cameraSelectorBuilder.build().select(mCameras);
     }
 
     @Test
@@ -131,9 +132,9 @@ public class CameraSelectorTest {
 
     @Test
     public void canAppendFilters() {
-        CameraIdFilter filter0 = mock(CameraIdFilter.class);
-        CameraIdFilter filter1 = mock(CameraIdFilter.class);
-        CameraIdFilter filter2 = mock(CameraIdFilter.class);
+        CameraFilter filter0 = mock(CameraFilter.class);
+        CameraFilter filter1 = mock(CameraFilter.class);
+        CameraFilter filter2 = mock(CameraFilter.class);
 
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .appendFilter(filter0)
@@ -146,11 +147,11 @@ public class CameraSelectorTest {
 
     @Test
     public void canSelectDefaultBackCamera() {
-        assertThat(CameraSelector.DEFAULT_BACK_CAMERA.select(mCameraIds)).isEqualTo(REAR_ID);
+        assertThat(CameraSelector.DEFAULT_BACK_CAMERA.select(mCameras)).isEqualTo(mRearCamera);
     }
 
     @Test
     public void canSelectDefaultFrontCamera() {
-        assertThat(CameraSelector.DEFAULT_FRONT_CAMERA.select(mCameraIds)).isEqualTo(FRONT_ID);
+        assertThat(CameraSelector.DEFAULT_FRONT_CAMERA.select(mCameras)).isEqualTo(mFrontCamera);
     }
 }

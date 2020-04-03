@@ -25,7 +25,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Modifier
-import androidx.ui.core.draw
+import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
 import androidx.ui.core.drawShadow
 import androidx.ui.core.setContent
@@ -94,7 +94,7 @@ class DrawShadowTest {
     fun shadowDrawnInsideRenderNode() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                ShadowContainer(modifier = drawLayer(clipToBounds = false))
+                ShadowContainer(modifier = Modifier.drawLayer(clipToBounds = false))
             }
         }
 
@@ -132,7 +132,7 @@ class DrawShadowTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                ShadowContainer(elevation, modifier = drawLayer())
+                ShadowContainer(elevation, modifier = Modifier.drawLayer(clipToBounds = true))
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -154,7 +154,7 @@ class DrawShadowTest {
                 AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
                     AtLeastSize(
                         size = 10.ipx,
-                        modifier = drawShadow(rectShape, 4.dp, opacity = 0.5f)
+                        modifier = Modifier.drawShadow(rectShape, 4.dp, opacity = 0.5f)
                     ) {
                     }
                 }
@@ -181,7 +181,7 @@ class DrawShadowTest {
             activity.setContent {
                 AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
                     val shadow = if (model.value) {
-                        drawShadow(rectShape, 8.dp)
+                        Modifier.drawShadow(rectShape, 8.dp)
                     } else {
                         Modifier.None
                     }
@@ -210,7 +210,7 @@ class DrawShadowTest {
         AtLeastSize(size = 12.ipx, modifier = modifier + background(Color.White)) {
             AtLeastSize(
                 size = 10.ipx,
-                modifier = drawShadow(shape = rectShape, elevation = elevation.value)
+                modifier = Modifier.drawShadow(shape = rectShape, elevation = elevation.value)
             ) {
             }
         }
@@ -220,8 +220,8 @@ class DrawShadowTest {
         assertNotEquals(color(width / 2, height - 1), Color.White)
     }
 
-    private fun background(color: Color) = draw { canvas, size ->
-        canvas.drawRect(size.toRect(), Paint().apply {
+    private fun background(color: Color) = Modifier.drawBehind {
+        drawRect(size.toRect(), Paint().apply {
             this.color = color
         })
         drawLatch.countDown()

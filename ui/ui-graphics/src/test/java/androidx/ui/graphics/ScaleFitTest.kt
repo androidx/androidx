@@ -81,4 +81,22 @@ class ScaleFitTest {
         )
         assertEquals(0.25f, scale)
     }
+
+    @Test
+    fun testScaleFillMaxDimensionWidth() {
+        val scale = ScaleFit.FillMaxDimension.scale(
+            srcSize = PxSize(IntPx(100), IntPx(400)),
+            dstSize = PxSize(IntPx(200), IntPx(200))
+        )
+        assertEquals(2.00f, scale)
+    }
+
+    @Test
+    fun testScaleFillMaxDimensionHeight() {
+        val scale = ScaleFit.FillMaxDimension.scale(
+            srcSize = PxSize(IntPx(300), IntPx(100)),
+            dstSize = PxSize(IntPx(200), IntPx(200))
+        )
+        assertEquals(2.00f, scale)
+    }
 }

@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.ui.core.Modifier
-import androidx.ui.core.asModifier
+import androidx.ui.core.paint
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
@@ -28,7 +28,7 @@ import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 
@@ -86,22 +86,21 @@ fun Icon(
     modifier: Modifier = Modifier.None,
     tint: Color = contentColor()
 ) {
-    val iconModifier = painter.asModifier(colorFilter = ColorFilter.tint(tint))
-
     // TODO: consider allowing developers to override the intrinsic size, and specify their own
     // size that this icon will be forced to take up.
-    val layoutModifier = if (painter.intrinsicSize == PxSize.UnspecifiedSize) {
+    // TODO: b/149735981 semantics for content description
+    Box(
+        modifier.defaultSizeFor(painter).paint(painter, colorFilter = ColorFilter.tint(tint)),
+        children = emptyContent()
+    )
+}
+
+private fun Modifier.defaultSizeFor(painter: Painter) =
+    this + if (painter.intrinsicSize == PxSize.UnspecifiedSize) {
         DefaultIconSizeModifier
     } else {
         Modifier.None
     }
 
-    // TODO: b/149735981 semantics for content description
-    Box(
-        modifier = modifier + layoutModifier + iconModifier,
-        children = emptyContent()
-    )
-}
-
 // Default icon size, for icons with no intrinsic size information
-private val DefaultIconSizeModifier = LayoutSize(24.dp)
+private val DefaultIconSizeModifier = Modifier.preferredSize(24.dp)

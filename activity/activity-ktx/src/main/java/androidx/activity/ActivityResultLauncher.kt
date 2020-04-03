@@ -17,21 +17,27 @@
 package androidx.activity
 
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.app.ActivityOptionsCompat
 
 /**
  * Convenience method to launch a prepared call using an invoke operator.
  */
-operator fun <I> ActivityResultLauncher<I>.invoke(input: I) = launch(input)
+operator fun <I> ActivityResultLauncher<I>.invoke(
+    input: I,
+    options: ActivityOptionsCompat? = null
+) = launch(input, options)
 
 /**
  * Convenience method to launch a no-argument prepared call using an invoke operator
  * without arguments.
  */
-operator fun ActivityResultLauncher<Void?>.invoke() = launch(null)
+operator fun ActivityResultLauncher<Void?>.invoke(options: ActivityOptionsCompat? = null) =
+    launch(null, options)
 
 /**
  * Convenience method to launch a no-argument prepared call using an invoke operator
  * without arguments.
  */
 @JvmName("invokeUnit")
-operator fun ActivityResultLauncher<Unit>.invoke() = launch(null)
+operator fun ActivityResultLauncher<Unit>.invoke(options: ActivityOptionsCompat? = null) =
+    launch(null, options)

@@ -97,7 +97,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGettersAfterConnected() throws Exception {
+    public void gettersAfterConnected() throws Exception {
         prepareLooper();
         final long position = 150000;
         final long bufferedPosition = 900000;
@@ -127,14 +127,14 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetPackageName() throws Exception {
+    public void getPackageName() throws Exception {
         prepareLooper();
         mController = createController(mSession.getSessionToken());
         assertEquals(SERVICE_PACKAGE_NAME, mController.getConnectedToken().getPackageName());
     }
 
     @Test
-    public void testGetSessionActivity() throws Exception {
+    public void getSessionActivity() throws Exception {
         prepareLooper();
         final Intent sessionActivity = new Intent(mContext, MockActivity.class);
         PendingIntent pi = PendingIntent.getActivity(mContext, 0, sessionActivity, 0);
@@ -153,7 +153,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
      * This also tests {@link ControllerCallback#onRepeatModeChanged(MediaController, int)}.
      */
     @Test
-    public void testGetRepeatMode() throws Exception {
+    public void getRepeatMode() throws Exception {
         prepareLooper();
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_GROUP;
         final CountDownLatch latch = new CountDownLatch(1);
@@ -175,7 +175,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
      * This also tests {@link ControllerCallback#onShuffleModeChanged(MediaController, int)}.
      */
     @Test
-    public void testGetShuffleMode() throws Exception {
+    public void getShuffleMode() throws Exception {
         prepareLooper();
         final int testShuffleMode = SessionPlayer.SHUFFLE_MODE_GROUP;
         final CountDownLatch latch = new CountDownLatch(1);
@@ -198,7 +198,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
      * MediaController, List, MediaMetadata)}.
      */
     @Test
-    public void testGetPlaylist() throws Exception {
+    public void getPlaylist() throws Exception {
         prepareLooper();
         final List<MediaItem> testList = MediaTestUtils.createFileMediaItems(2);
         final List<QueueItem> testQueue = MediaUtils.convertToQueueItemList(testList);
@@ -226,7 +226,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetPlaylistMetadata() throws Exception {
+    public void getPlaylistMetadata() throws Exception {
         prepareLooper();
         final AtomicReference<MediaMetadata> metadataFromCallback = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -249,14 +249,14 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testGetCurrentMediaItemAfterConnected() throws Exception {
+    public void getCurrentMediaItemAfterConnected() throws Exception {
         prepareLooper();
         mController = createController(mSession.getSessionToken(), true, null);
         assertNull(mController.getCurrentMediaItem());
     }
 
     @Test
-    public void testGetCurrentMediaItemAfterConnected_metadata() throws Exception {
+    public void getCurrentMediaItemAfterConnected_metadata() throws Exception {
         prepareLooper();
         final String testMediaId = "testGetCurrentMediaItemWhenConnected_metadata";
         MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
@@ -269,7 +269,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onCurrentMediaItemChanged_byMetadataChange()
+    public void controllerCallback_onCurrentMediaItemChanged_byMetadataChange()
             throws Exception {
         prepareLooper();
         final String testMediaId = "testControllerCallback_onCurrentMediaItemChanged_bySetMetadata";
@@ -290,7 +290,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onCurrentMediaItemChanged_byActiveQueueItemChange()
+    public void controllerCallback_onCurrentMediaItemChanged_byActiveQueueItemChange()
             throws Exception {
         prepareLooper();
         final List<MediaItem> testList = MediaTestUtils.createFileMediaItems(2);
@@ -324,7 +324,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onSeekCompleted() throws Exception {
+    public void controllerCallback_onSeekCompleted() throws Exception {
         prepareLooper();
         final long testSeekPosition = 400;
         final long testPosition = 500;
@@ -351,7 +351,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onBufferingCompleted() throws Exception {
+    public void controllerCallback_onBufferingCompleted() throws Exception {
         prepareLooper();
         final List<MediaItem> testPlaylist = MediaTestUtils.createFileMediaItems(1);
         final MediaMetadataCompat metadata = MediaUtils.convertToMediaMetadataCompat(
@@ -389,7 +389,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onBufferingStarved() throws Exception {
+    public void controllerCallback_onBufferingStarved() throws Exception {
         prepareLooper();
         final List<MediaItem> testPlaylist = MediaTestUtils.createFileMediaItems(1);
         final MediaMetadataCompat metadata = MediaUtils.convertToMediaMetadataCompat(
@@ -427,7 +427,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onPlayerStateChanged() throws Exception {
+    public void controllerCallback_onPlayerStateChanged() throws Exception {
         prepareLooper();
         final int testPlayerState = SessionPlayer.PLAYER_STATE_PLAYING;
         final long testPosition = 500;
@@ -455,7 +455,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onPlaybackSpeedChanged() throws Exception {
+    public void controllerCallback_onPlaybackSpeedChanged() throws Exception {
         prepareLooper();
         final float testSpeed = 3.0f;
 
@@ -476,7 +476,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onPlaybackInfoChanged_byPlaybackTypeChangeToRemote()
+    public void controllerCallback_onPlaybackInfoChanged_byPlaybackTypeChangeToRemote()
             throws Exception {
         prepareLooper();
         final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
@@ -509,7 +509,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onPlaybackInfoChanged_byPlaybackTypeChangeToLocal()
+    public void controllerCallback_onPlaybackInfoChanged_byPlaybackTypeChangeToLocal()
             throws Exception {
         if (Build.VERSION.SDK_INT == 21 || Build.VERSION.SDK_INT == 22) {
             // In API 21 and 22, onAudioInfoChanged is not called.
@@ -541,7 +541,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onCustomCommand() throws Exception {
+    public void controllerCallback_onCustomCommand() throws Exception {
         prepareLooper();
         final String event = "testControllerCallback_onCustomCommand";
         final Bundle extras = TestUtils.createTestBundle();
@@ -563,7 +563,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onSetCustomLayout() throws Exception {
+    public void controllerCallback_onSetCustomLayout() throws Exception {
         prepareLooper();
 
         final CustomAction testCustomAction1 =
@@ -607,7 +607,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onAllowedCommandChanged() throws Exception {
+    public void controllerCallback_onAllowedCommandChanged() throws Exception {
         prepareLooper();
 
         final CustomAction testCustomAction1 =
@@ -635,13 +635,13 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onConnected() throws Exception {
+    public void controllerCallback_onConnected() throws Exception {
         prepareLooper();
         mController = createController(mSession.getSessionToken());
     }
 
     @Test
-    public void testControllerCallback_onDisconnected() throws Exception {
+    public void controllerCallback_onDisconnected() throws Exception {
         prepareLooper();
         mController = createController(mSession.getSessionToken());
         mSession.release();
@@ -649,7 +649,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_close() throws Exception {
+    public void controllerCallback_close() throws Exception {
         prepareLooper();
         mController = createController(mSession.getSessionToken());
         mController.close();
@@ -657,7 +657,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testClose_twice() throws Exception {
+    public void close_twice() throws Exception {
         prepareLooper();
         mController = createController(mSession.getSessionToken());
         mController.close();
@@ -665,7 +665,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testIsConnected() throws Exception {
+    public void isConnected() throws Exception {
         prepareLooper();
         mController = createController(mSession.getSessionToken());
         assertTrue(mController.isConnected());
@@ -676,7 +676,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testClose_beforeConnected() throws InterruptedException {
+    public void close_beforeConnected() throws InterruptedException {
         prepareLooper();
         MediaController controller = createController(mSession.getSessionToken(), false, null);
 
@@ -685,7 +685,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testControllerCallback_onCustomCommand_bySetCaptioningEnabled() throws Exception {
+    public void controllerCallback_onCustomCommand_bySetCaptioningEnabled() throws Exception {
         prepareLooper();
         final String sessionCommandOnCaptioningEnabledChanged =
                 "android.media.session.command.ON_CAPTIONING_ENALBED_CHANGED";

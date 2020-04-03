@@ -19,6 +19,18 @@ package androidx.ui.core
 import androidx.annotation.FloatRange
 
 /**
+ * Draw content with modified opacity (alpha) that may be less than 1.
+ *
+ * Example usage:
+ * @sample androidx.ui.framework.samples.OpacitySample
+ *
+ * @param opacity the fraction of children's alpha value.
+ */
+fun Modifier.drawOpacity(
+    @FloatRange(from = 0.0, to = 1.0) opacity: Float
+) = this + drawLayer(alpha = opacity, clipToBounds = true)
+
+/**
  * Makes its children partially transparent.
  *
  * Example usage:
@@ -27,7 +39,14 @@ import androidx.annotation.FloatRange
  *
  * @param opacity the fraction of children's alpha value.
  */
+@Deprecated(
+    "Use Modifier.drawOpacity",
+    replaceWith = ReplaceWith(
+        "Modifier.drawOpacity(opacity)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.core.drawOpacity"
+    )
+)
 fun drawOpacity(
     @FloatRange(from = 0.0, to = 1.0) opacity: Float
-): Modifier =
-    drawLayer(alpha = opacity)
+): Modifier = Modifier.drawOpacity(opacity)

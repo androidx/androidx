@@ -29,17 +29,12 @@ plugins {
 }
 
 dependencies {
+    kotlinPlugin project(path: ":compose:compose-compiler")
     implementation(KOTLIN_STDLIB)
-
-    // TODO: Non-Kotlin dependency, move to Android-specific code
-    implementation "androidx.collection:collection:1.1.0"
-    // TODO: Non-Kotlin dependency, move to Android-specific code
-    implementation "androidx.core:core:1.0.2"
-
     implementation project(":compose:compose-runtime")
-    implementation project(":ui:ui-util")
-    implementation project(":ui:ui-android-text")
-    api project(":ui:ui-core")
+    api project(":ui:ui-framework")
+    api project(":ui:ui-platform")
+    api project(":ui:ui-text-core")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
@@ -51,6 +46,8 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
 
+    androidTestImplementation project(":ui:ui-test")
+    androidTestImplementation "androidx.core:core:1.0.2"
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
@@ -64,16 +61,24 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX UI Text"
+    name = "AndroidX UI Text Composables"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
-    inceptionYear = "2019"
-    description = "AndroidX UI Text"
+    inceptionYear = "2020"
+    description = "AndroidX UI base Text composables for building up higher level text."
 }
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         useIR = true
+    }
+}
+
+android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // Breaks Kotlin compiler.
+        }
     }
 }

@@ -21,9 +21,11 @@ import androidx.compose.Providers
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirectionAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
-import androidx.ui.layout.LayoutDirectionModifier
-import androidx.ui.layout.MaxIntrinsicWidth
+import androidx.ui.layout.IntrinsicSize
+import androidx.ui.layout.preferredWidth
+import androidx.ui.layout.rtl
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -44,7 +46,7 @@ class LayoutDirectionModifierTest : LayoutTest() {
         val children = @Composable {
             Layout(
                 children = @Composable() {},
-                modifier = LayoutDirectionModifier.Rtl
+                modifier = Modifier.rtl
             ) { _, _, incomingLayoutDirection ->
                 layoutDirection.value = incomingLayoutDirection
                 latch.countDown()
@@ -68,21 +70,19 @@ class LayoutDirectionModifierTest : LayoutTest() {
         val latch = CountDownLatch(1)
         val layoutDirection = Ref<androidx.ui.core.LayoutDirection>()
         val children = @Composable {
-            MaxIntrinsicWidth {
-                Layout(
-                    children = @Composable() {},
-                    modifier = LayoutDirectionModifier.Rtl,
-                    minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
-                    minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
-                    maxIntrinsicWidthMeasureBlock = { _, _, incomingLayoutDirection ->
-                        layoutDirection.value = incomingLayoutDirection
-                        latch.countDown()
-                        0.ipx
-                    },
-                    maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx }
-                ) { _, _, _ ->
-                    layout(0.ipx, 0.ipx) {}
-                }
+            Layout(
+                children = @Composable() {},
+                modifier = Modifier.preferredWidth(IntrinsicSize.Max).rtl,
+                minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
+                minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
+                maxIntrinsicWidthMeasureBlock = { _, _, incomingLayoutDirection ->
+                    layoutDirection.value = incomingLayoutDirection
+                    latch.countDown()
+                    0.ipx
+                },
+                maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx }
+            ) { _, _, _ ->
+                layout(0.ipx, 0.ipx) {}
             }
         }
 
