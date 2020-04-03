@@ -45,7 +45,6 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Scaffold
 import androidx.ui.material.TopAppBar
 import androidx.ui.material.lightColorPalette
-import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import kotlin.math.round
 
@@ -132,7 +131,7 @@ private fun Card(index: Int) {
         backgroundColor = shapeColor,
         gravity = ContentGravity.Center
     ) {
-        Text("Card ${index + 1}", style = TextStyle(color = textColor))
+        Text("Card ${index + 1}", color = textColor)
     }
 }
 
