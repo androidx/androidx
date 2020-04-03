@@ -204,6 +204,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
     // Test that shared elements transition from one fragment to the next
     // and back during pop.
+    @Suppress("DEPRECATION")
     @Test
     fun sharedElementWithTargetFragment() {
         val fragment1 = setupInitialFragment()
