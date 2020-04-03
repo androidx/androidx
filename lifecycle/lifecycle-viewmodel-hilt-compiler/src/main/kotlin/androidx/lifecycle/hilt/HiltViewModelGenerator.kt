@@ -16,6 +16,10 @@
 
 package androidx.lifecycle.hilt
 
+import androidx.lifecycle.hilt.ext.L
+import androidx.lifecycle.hilt.ext.T
+import androidx.lifecycle.hilt.ext.W
+import androidx.lifecycle.hilt.ext.addGeneratedAnnotation
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
@@ -23,7 +27,6 @@ import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
 import javax.annotation.processing.ProcessingEnvironment
@@ -40,7 +43,7 @@ import javax.lang.model.element.Modifier
  *   @Binds
  *   @IntoMap
  *   @ViewModelKey($.class)
- *   ViewModelAssistedFactory<?> bind($_AssistedFactory f)
+ *   ViewModelAssistedFactory<? extends ViewModel> bind($_AssistedFactory factory)
  * }
  * ```
  * and
@@ -58,7 +61,7 @@ import javax.lang.model.element.Modifier
  *     ...
  *   }
  *
- *   @Overrides
+ *   @Override
  *   @NonNull
  *   public $ create(@NonNull SavedStateHandle handle) {
  *     return new $(dep1.get(), dep2.get(), ..., handle);
@@ -71,17 +74,14 @@ internal class HiltViewModelGenerator(
     private val viewModelElements: HiltViewModelElements
 ) {
     fun generate() {
-        val fieldsSpecs = getFieldSpecs(viewModelElements)
-        val constructorSpec = getConstructorMethodSpec(fieldsSpecs)
-        val createMethodSpec = getCreateMethodSpec(viewModelElements)
         val factoryTypeSpec = TypeSpec.classBuilder(viewModelElements.factoryClassName)
             .addOriginatingElement(viewModelElements.typeElement)
             .addSuperinterface(viewModelElements.factorySuperTypeName)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addGeneratedAnnotation(processingEnv.elementUtils, processingEnv.sourceVersion)
-            .addFields(fieldsSpecs)
-            .addMethod(constructorSpec)
-            .addMethod(createMethodSpec)
+            .addFields(getFieldSpecs())
+            .addMethod(getConstructorMethodSpec())
+            .addMethod(getCreateMethodSpec())
             .build()
         JavaFile.builder(viewModelElements.factoryClassName.packageName(), factoryTypeSpec)
             .build()
@@ -95,6 +95,7 @@ internal class HiltViewModelGenerator(
                 AnnotationSpec.builder(ClassNames.INSTALL_IN)
                     .addMember("value", "$T.class", ClassNames.ACTIVITY_RETAINED_COMPONENT)
                     .build())
+            .addModifiers(Modifier.PUBLIC)
             .addMethod(
                 MethodSpec.methodBuilder("bind")
                     .addAnnotation(ClassNames.BINDS)
@@ -116,41 +117,34 @@ internal class HiltViewModelGenerator(
             .writeTo(processingEnv.filer)
     }
 
-    private fun getFieldSpecs(viewModelElements: HiltViewModelElements) =
-        viewModelElements.constructorElement.parameters.mapNotNull { parameter ->
-            val paramTypeName = TypeName.get(parameter.asType())
-            if (paramTypeName == ClassNames.SAVED_STATE_HANDLE) {
-                // Skip SavedStateHandle since it is assisted injected.
-                return@mapNotNull null
-            }
-            // TODO(danysantiago): Handle qualifiers
-            // TODO(danysantiago): Don't wrap params that are already a Provider
-            FieldSpec.builder(
-                ParameterizedTypeName.get(ClassNames.PROVIDER, paramTypeName),
-                "${parameter.simpleName}Provider",
-                Modifier.PRIVATE, Modifier.FINAL)
+    private fun getFieldSpecs() = viewModelElements.dependencyRequests
+        .filterNot { it.isSavedStateHandle }
+        .map { dependencyRequest ->
+            val fieldTypeName = dependencyRequest.providerTypeName.withoutAnnotations()
+            FieldSpec.builder(fieldTypeName, dependencyRequest.name)
+                .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
                 .build()
         }
 
-    private fun getConstructorMethodSpec(fieldsSpecs: List<FieldSpec>) =
+    private fun getConstructorMethodSpec() =
         MethodSpec.constructorBuilder()
             .addAnnotation(ClassNames.INJECT)
             .apply {
-                fieldsSpecs.forEach { field ->
-                    addParameter(field.type, field.name)
-                    addStatement("this.$1N = $1N", field)
+                viewModelElements.dependencyRequests
+                    .filterNot { it.isSavedStateHandle }
+                    .forEach { dependencyRequest ->
+                        addParameter(dependencyRequest.providerTypeName, dependencyRequest.name)
+                        addStatement("this.$1N = $1N", dependencyRequest.name)
                 }
             }
             .build()
 
-    private fun getCreateMethodSpec(viewModelElements: HiltViewModelElements): MethodSpec {
-        val constructorArgs = viewModelElements.constructorElement.parameters.map { param ->
-            val paramTypeName = TypeName.get(param.asType())
-            val paramLiteral = if (paramTypeName == ClassNames.SAVED_STATE_HANDLE) {
-                "handle"
-            } else {
-                // TODO(danysantiago): Consider using the field specs?
-                "${param.simpleName}Provider.get()"
+    private fun getCreateMethodSpec(): MethodSpec {
+        val constructorArgs = viewModelElements.dependencyRequests.map { dependencyRequest ->
+            val paramLiteral = when {
+                dependencyRequest.isSavedStateHandle -> "handle"
+                dependencyRequest.isProvider -> dependencyRequest.name
+                else -> "${dependencyRequest.name}.get()"
             }
             CodeBlock.of(L, paramLiteral)
         }
@@ -168,3 +162,6 @@ internal class HiltViewModelGenerator(
             .build()
     }
 }
+
+internal val DependencyRequest.isSavedStateHandle: Boolean
+    get() = type == ClassNames.SAVED_STATE_HANDLE && qualifier == null

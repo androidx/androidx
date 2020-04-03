@@ -16,11 +16,15 @@
 
 package androidx.lifecycle.hilt
 
+import androidx.lifecycle.hilt.ext.hasAnnotation
 import com.google.auto.common.MoreElements
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 
 /**
  * Data class that represents a Hilt injected ViewModel
@@ -31,17 +35,49 @@ internal data class HiltViewModelElements(
 ) {
     val className = ClassName.get(typeElement)
 
-    // TODO(danysantiago): Handle nested classes
     val factoryClassName = ClassName.get(
         MoreElements.getPackage(typeElement).qualifiedName.toString(),
-        "${typeElement.simpleName}_AssistedFactory")
+        "${className.simpleNames().joinToString("_")}_AssistedFactory")
 
     val factorySuperTypeName = ParameterizedTypeName.get(
         ClassNames.VIEW_MODEL_ASSISTED_FACTORY,
         className)
 
-    // TODO(danysantiago): Handle nested classes
     val moduleClassName = ClassName.get(
         MoreElements.getPackage(typeElement).qualifiedName.toString(),
-        "${typeElement.simpleName}_HiltModule")
+        "${className.simpleNames().joinToString("_")}_HiltModule")
+
+    val dependencyRequests = constructorElement.parameters.map { it.toDependencyRequest() }
 }
+
+/**
+ * Data class that represents a binding request from the injected ViewModel
+ */
+internal data class DependencyRequest(
+    val name: String,
+    val type: TypeName,
+    val qualifier: AnnotationSpec? = null
+) {
+    val isProvider = type is ParameterizedTypeName && type.rawType == ClassNames.PROVIDER
+
+    val providerTypeName: TypeName = let {
+        val type = if (isProvider) {
+            type // Do not wrap a Provider inside another Provider.
+        } else {
+            ParameterizedTypeName.get(ClassNames.PROVIDER, type.box())
+        }
+        if (qualifier != null) {
+            type.annotated(qualifier)
+        } else {
+            type
+        }
+    }
+}
+
+internal fun VariableElement.toDependencyRequest() = DependencyRequest(
+    name = simpleName.toString(),
+    type = TypeName.get(asType()),
+    qualifier = annotationMirrors.find {
+        it.annotationType.asElement().hasAnnotation("javax.inject.Qualifier")
+    }?.let { AnnotationSpec.get(it) }
+)
