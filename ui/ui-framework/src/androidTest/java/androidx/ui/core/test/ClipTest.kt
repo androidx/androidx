@@ -383,6 +383,10 @@ class ClipTest {
         val clip = object : DrawLayerModifier {
             override val outlineShape: Shape?
                 get() = model.value
+            override val clipToBounds: Boolean
+                get() = true
+            override val clipToOutline: Boolean
+                get() = true
         }
 
         rule.runOnUiThreadIR {

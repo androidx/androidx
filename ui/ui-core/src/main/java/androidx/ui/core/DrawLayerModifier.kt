@@ -149,14 +149,14 @@ interface DrawLayerModifier : Modifier.Element {
      *
      * @see clipToOutline
      */
-    val clipToBounds: Boolean get() = true
+    val clipToBounds: Boolean get() = false
 
     /**
      * Clips the content to the [outlineShape]. If [outlineShape] is null, no clipping will occur.
      * When both [clipToBounds] and [clipToOutline] are `true`, the content will be clipped by
      * both the bounding rectangle and the [outlineShape].
      */
-    val clipToOutline: Boolean get() = true
+    val clipToOutline: Boolean get() = false
 }
 
 private data class SimpleDrawLayerModifier(
@@ -215,8 +215,8 @@ fun drawLayer(
     rotationZ: Float = 0f,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
     outlineShape: Shape? = null,
-    clipToBounds: Boolean = true,
-    clipToOutline: Boolean = true
+    clipToBounds: Boolean = false,
+    clipToOutline: Boolean = false
 ): Modifier = SimpleDrawLayerModifier(
     scaleX = scaleX,
     scaleY = scaleY,
@@ -261,8 +261,8 @@ fun Modifier.drawLayer(
     rotationZ: Float = 0f,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
     outlineShape: Shape? = null,
-    clipToBounds: Boolean = true,
-    clipToOutline: Boolean = true
+    clipToBounds: Boolean = false,
+    clipToOutline: Boolean = false
 ) = this + SimpleDrawLayerModifier(
     scaleX = scaleX,
     scaleY = scaleY,
