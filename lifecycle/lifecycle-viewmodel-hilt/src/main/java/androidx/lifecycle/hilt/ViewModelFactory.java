@@ -34,14 +34,13 @@ import javax.inject.Provider;
  */
 public final class ViewModelFactory extends AbstractSavedStateViewModelFactory {
 
-    private final Map<
-            Class<? extends ViewModel>,
+    private final Map<String,
             Provider<ViewModelAssistedFactory<? extends ViewModel>>> mViewModelFactories;
 
     ViewModelFactory(
             @NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs,
-            @NonNull Map<Class<? extends ViewModel>,
+            @NonNull Map<String,
                     Provider<ViewModelAssistedFactory<? extends ViewModel>>> viewModelFactories) {
         super(owner, defaultArgs);
         this.mViewModelFactories = viewModelFactories;
@@ -53,7 +52,15 @@ public final class ViewModelFactory extends AbstractSavedStateViewModelFactory {
     protected <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass,
             @NonNull SavedStateHandle handle) {
         // TODO(danysantiago): What to do with 'key' ???
-        // TODO(danysantiago): Better exception for missing class
-        return (T) mViewModelFactories.get(modelClass).get().create(handle);
+        Provider<ViewModelAssistedFactory<? extends ViewModel>> factoryProvider =
+                mViewModelFactories.get(modelClass.getCanonicalName());
+        if (factoryProvider == null) {
+            // TODO(danysantiago): Consider still creating those ViewModel that have a default
+            //  no-arg constructor.
+            throw new IllegalStateException("Unable to create the ViewModel class "
+                    + modelClass.getCanonicalName() + ". Did you forgot to annotate its "
+                    + "constructor with @ViewModelInject?");
+        }
+        return (T) factoryProvider.get().create(handle);
     }
 }
