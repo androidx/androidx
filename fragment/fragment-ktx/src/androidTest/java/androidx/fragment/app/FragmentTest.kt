@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class FragmentResultOwnerTest {
+class FragmentTest {
 
     @Test
     fun setFragmentResult() {
@@ -44,42 +44,18 @@ class FragmentResultOwnerTest {
                     add(fragment1, null)
                 }
             }
-
             val expectedResult = "resultGood"
-            val resultBundle = bundleOf("bundleKey" to expectedResult)
+            val fragment2 = SetResultFragment(expectedResult)
 
-            fm.setResult("requestKey", resultBundle)
+            withActivity {
+                fm.commitNow {
+                    add(fragment2, null)
+                }
+            }
 
             assertWithMessage("The result is incorrect")
                 .that(fragment1.actualResult)
                 .isEqualTo(expectedResult)
-        }
-    }
-
-    @Test
-    fun clearFragmentResultListener() {
-        with(ActivityScenario.launch(TestActivity::class.java)) {
-            val fragment1 = ResultFragment()
-
-            val fm = withActivity {
-                supportFragmentManager
-            }
-
-            withActivity {
-                fm.commitNow {
-                    add(fragment1, null)
-                }
-            }
-
-            val expectedResult = "resultGood"
-            val resultBundle = bundleOf("bundleKey" to expectedResult)
-
-            fm.setResultListener("requestKey", fragment1, null)
-            fm.setResult("requestKey", resultBundle)
-
-            assertWithMessage("The listener was cleared but the result was not null")
-                .that(fragment1.actualResult)
-                .isNull()
         }
     }
 
@@ -89,9 +65,17 @@ class FragmentResultOwnerTest {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
 
-            parentFragmentManager.setResultListener("requestKey", this) { _, bundle ->
+            setResultListener("requestKey") { _, bundle ->
                 actualResult = bundle.getString("bundleKey")
             }
+        }
+    }
+
+    class SetResultFragment(val resultString: String) : Fragment() {
+        override fun onStart() {
+            super.onStart()
+
+            setResult("requestKey", bundleOf("bundleKey" to resultString))
         }
     }
 }
