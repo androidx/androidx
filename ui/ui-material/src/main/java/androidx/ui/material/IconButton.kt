@@ -48,7 +48,7 @@ import androidx.ui.unit.dp
 @Composable
 fun IconButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     icon: @Composable() () -> Unit
 ) {
     Clickable(onClick, Modifier.ripple(bounded = false, radius = RippleRadius)) {
@@ -79,7 +79,7 @@ fun IconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     icon: @Composable() () -> Unit
 ) {
     Toggleable(

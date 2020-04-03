@@ -42,7 +42,7 @@ import androidx.ui.unit.dp
  */
 @Composable
 fun Card(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.medium,
     color: Color = MaterialTheme.colors.surface,
     contentColor: Color = contentColorFor(color),

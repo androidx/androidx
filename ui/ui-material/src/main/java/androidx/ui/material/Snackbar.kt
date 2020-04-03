@@ -66,7 +66,7 @@ import androidx.ui.unit.max
 fun Snackbar(
     text: @Composable() () -> Unit,
     action: @Composable() (() -> Unit)? = null,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     actionOnNewLine: Boolean = false,
     shape: Shape = MaterialTheme.shapes.small,
     elevation: Dp = 6.dp

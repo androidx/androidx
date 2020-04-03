@@ -111,12 +111,12 @@ private fun BaseRow(
  * A vertical colored line that is used in a [BaseRow] to differentiate accounts.
  */
 @Composable
-private fun AccountIndicator(color: Color, modifier: Modifier = Modifier.None) {
+private fun AccountIndicator(color: Color, modifier: Modifier = Modifier) {
     Box(modifier.preferredSize(4.dp, 36.dp).drawBackground(color))
 }
 
 @Composable
-fun RallyDivider(modifier: Modifier = Modifier.None) {
+fun RallyDivider(modifier: Modifier = Modifier) {
     Divider(color = MaterialTheme.colors.background, thickness = 1.dp, modifier = modifier)
 }
 

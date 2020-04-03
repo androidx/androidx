@@ -51,7 +51,7 @@ open class StubPointerInputHandler(
     }
 }
 
-internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier.None) =
+internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier) =
     LayoutNode().apply {
         this.modifier = modifier
         layoutDirection = LayoutDirection.Ltr

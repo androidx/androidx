@@ -475,7 +475,7 @@ class IntrinsicTest : LayoutTest() {
 
 @Composable
 private fun FixedIntrinsicsBox(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     minIntrinsicWidth: Dp,
     width: Dp,
     maxIntrinsicWidth: Dp,

@@ -179,7 +179,7 @@ class SliderPosition(
 fun Slider(
     position: SliderPosition,
     onValueChange: (Float) -> Unit = { position.value = it },
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     onValueChangeEnd: () -> Unit = {},
     color: Color = MaterialTheme.colors.primary
 ) {

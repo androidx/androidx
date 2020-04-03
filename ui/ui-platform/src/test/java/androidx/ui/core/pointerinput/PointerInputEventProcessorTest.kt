@@ -2307,7 +2307,7 @@ class PointerInputEventProcessorTest {
         // Act
 
         pointerInputEventProcessor.process(down)
-        childLayoutNode.modifier = Modifier.None
+        childLayoutNode.modifier = Modifier
         pointerInputEventProcessor.process(up)
 
         // Assert
@@ -2358,7 +2358,7 @@ class PointerInputEventProcessorTest {
         // Act
 
         pointerInputEventProcessor.process(down)
-        childLayoutNode.modifier = Modifier.None
+        childLayoutNode.modifier = Modifier
         pointerInputEventProcessor.process(up)
 
         // Assert

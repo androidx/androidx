@@ -66,7 +66,7 @@ fun Checkbox(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.secondary
 ) {
     TriStateCheckbox(
@@ -102,7 +102,7 @@ fun TriStateCheckbox(
     state: ToggleableState,
     onClick: () -> Unit,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.secondary
 ) {
     Semantics(container = true, mergeAllDescendants = true) {

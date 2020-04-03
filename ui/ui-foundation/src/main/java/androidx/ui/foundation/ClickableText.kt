@@ -57,7 +57,7 @@ import androidx.ui.text.style.TextOverflow
 @Composable
 fun ClickableText(
     text: AnnotatedString,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,

@@ -60,7 +60,7 @@ import androidx.ui.layout.preferredSize
 @Composable
 inline fun Image(
     asset: ImageAsset,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
     scaleFit: ScaleFit = ScaleFit.Fit,
     alpha: Float = DefaultAlpha,
@@ -101,7 +101,7 @@ inline fun Image(
 @Composable
 inline fun Image(
     asset: VectorAsset,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
     scaleFit: ScaleFit = ScaleFit.Fit,
     alpha: Float = DefaultAlpha,
@@ -141,7 +141,7 @@ inline fun Image(
 @Composable
 fun Image(
     painter: Painter,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
     scaleFit: ScaleFit = ScaleFit.Fit,
     alpha: Float = DefaultAlpha,

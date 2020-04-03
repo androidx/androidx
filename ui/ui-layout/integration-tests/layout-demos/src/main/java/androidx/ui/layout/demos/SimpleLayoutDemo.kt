@@ -120,12 +120,12 @@ fun SimpleLayoutDemo() {
 }
 
 @Composable
-private fun PurpleSquare(modifier: Modifier = Modifier.None) {
+private fun PurpleSquare(modifier: Modifier = Modifier) {
     Box(modifier.preferredSize(48.dp), backgroundColor = Color(0xFF6200EE))
 }
 
 @Composable
-private fun CyanSquare(modifier: Modifier = Modifier.None) {
+private fun CyanSquare(modifier: Modifier = Modifier) {
     Box(modifier.preferredSize(24.dp), backgroundColor = Color(0xFF03DAC6))
 }
 

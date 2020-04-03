@@ -172,7 +172,7 @@ private fun Pressable(
     val layout = Modifier.fillMaxWidth().preferredHeight(height)
 
     val pressOverlay =
-        if (showPressed.value) Modifier.drawBackground(pressedColor) else Modifier.None
+        if (showPressed.value) Modifier.drawBackground(pressedColor) else Modifier
     Box(gestureDetectors.plus(layout).drawBackground(color.value).plus(pressOverlay))
 }
 

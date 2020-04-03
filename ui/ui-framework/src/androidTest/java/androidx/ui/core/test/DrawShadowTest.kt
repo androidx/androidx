@@ -183,7 +183,7 @@ class DrawShadowTest {
                     val shadow = if (model.value) {
                         Modifier.drawShadow(rectShape, 8.dp)
                     } else {
-                        Modifier.None
+                        Modifier
                     }
                     AtLeastSize(size = 10.ipx, modifier = shadow) {
                     }
@@ -205,7 +205,7 @@ class DrawShadowTest {
     @Composable
     private fun ShadowContainer(
         elevation: State<Dp> = mutableStateOf(8.dp),
-        modifier: Modifier = Modifier.None
+        modifier: Modifier = Modifier
     ) {
         AtLeastSize(size = 12.ipx, modifier = modifier + background(Color.White)) {
             AtLeastSize(

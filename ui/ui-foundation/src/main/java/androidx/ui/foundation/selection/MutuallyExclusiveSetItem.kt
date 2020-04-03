@@ -43,7 +43,7 @@ import androidx.ui.semantics.onClick
 fun MutuallyExclusiveSetItem(
     selected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit
 ) {
     // TODO: when semantics can be merged, we should make this use Clickable internally rather

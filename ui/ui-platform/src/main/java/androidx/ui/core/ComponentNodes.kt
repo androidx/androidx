@@ -1028,7 +1028,7 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The [Modifier] currently applied to this node.
      */
-    var modifier: Modifier = Modifier.None
+    var modifier: Modifier = Modifier
         set(value) {
             if (value == field) return
             field = value

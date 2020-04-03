@@ -469,7 +469,7 @@ private fun ColumnScope.ClickableTextWithBackground(
 
 @Composable
 private fun EditLine(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onValueChange: (String) -> Unit = {},

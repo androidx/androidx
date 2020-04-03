@@ -444,7 +444,7 @@ class PainterModifierTest {
      */
     @Composable
     fun NoIntrinsicSizeContainer(
-        modifier: Modifier = Modifier.None,
+        modifier: Modifier = Modifier,
         children: @Composable() () -> Unit
     ) {
         Layout(children, modifier) { measurables, constraints, _ ->

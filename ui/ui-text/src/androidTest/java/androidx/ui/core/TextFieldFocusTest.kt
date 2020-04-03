@@ -49,7 +49,7 @@ class TextFieldFocusTest {
             val editor = state { EditorValue() }
             CoreTextField(
                 value = editor.value,
-                modifier = Modifier.None,
+                modifier = Modifier,
                 onValueChange = {
                     editor.value = it
                 },

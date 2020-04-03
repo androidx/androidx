@@ -44,7 +44,7 @@ class FirstDrawTest {
     fun waitsForFirstDraw() {
         var drawn = false
         testRule.setContent {
-            Canvas(Modifier.None) {
+            Canvas(Modifier) {
                 drawn = true
             }
         }
@@ -86,8 +86,8 @@ class FirstDrawTest {
             activity.setContentView(root)
             outOfBoundsView.setContent {
                 // If you see this box when running the test, the test is setup incorrectly
-                Box(Modifier.None, backgroundColor = Color.Yellow)
-                Canvas(Modifier.None) {
+                Box(Modifier, backgroundColor = Color.Yellow)
+                Canvas(Modifier) {
                     drawn = true
                 }
             }

@@ -80,7 +80,7 @@ import kotlin.math.sqrt
 @Composable
 fun TopAppBar(
     title: @Composable() () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     navigationIcon: @Composable() (() -> Unit)? = null,
     actions: @Composable() RowScope.() -> Unit = {},
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
@@ -141,7 +141,7 @@ fun TopAppBar(
  */
 @Composable
 fun TopAppBar(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = TopAppBarElevation,
@@ -234,7 +234,7 @@ object BottomAppBar {
  */
 @Composable
 fun BottomAppBar(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     fabConfiguration: FabConfiguration? = null,
@@ -499,7 +499,7 @@ private fun AppBar(
     contentColor: Color,
     elevation: Dp,
     shape: Shape,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() RowScope.() -> Unit
 ) {
     Surface(

@@ -48,7 +48,7 @@ class MultipleActivitiesFindTest {
             super.onCreate(savedInstanceState)
             setContent {
                 Semantics(container = true, properties = { testTag = tag }) {
-                    Box(Modifier.None)
+                    Box(Modifier)
                 }
             }
         }

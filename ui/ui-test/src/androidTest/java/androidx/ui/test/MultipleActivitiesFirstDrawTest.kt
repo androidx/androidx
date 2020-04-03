@@ -43,7 +43,7 @@ class MultipleActivitiesFirstDrawTest {
     class Activity1 : ComponentActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            setContent { Box(Modifier.None) }
+            setContent { Box(Modifier) }
             startActivity(Intent(this, Activity2::class.java))
         }
     }
@@ -51,7 +51,7 @@ class MultipleActivitiesFirstDrawTest {
     class Activity2 : ComponentActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            setContent { Box(Modifier.None) }
+            setContent { Box(Modifier) }
         }
     }
 }

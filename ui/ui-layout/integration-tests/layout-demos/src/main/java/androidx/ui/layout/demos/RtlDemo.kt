@@ -149,7 +149,7 @@ private fun CustomLayout(rtlSupport: Boolean) {
 }
 
 @Composable
-private fun LayoutWithConstraints(modifier: Modifier = Modifier.None, text: String) {
+private fun LayoutWithConstraints(modifier: Modifier = Modifier, text: String) {
     WithConstraints(modifier) { constraints, direction ->
         with(DensityAmbient.current) {
             val w = (constraints.maxWidth / 3).toDp()

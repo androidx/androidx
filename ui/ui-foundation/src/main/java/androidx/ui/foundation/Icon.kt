@@ -42,7 +42,7 @@ import androidx.ui.unit.dp
 @Composable
 fun Icon(
     asset: VectorAsset,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     tint: Color = contentColor()
 ) {
     Icon(
@@ -62,7 +62,7 @@ fun Icon(
 @Composable
 fun Icon(
     asset: ImageAsset,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     tint: Color = contentColor()
 ) {
     val painter = remember(asset) { ImagePainter(asset) }
@@ -83,7 +83,7 @@ fun Icon(
 @Composable
 fun Icon(
     painter: Painter,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     tint: Color = contentColor()
 ) {
     // TODO: consider allowing developers to override the intrinsic size, and specify their own
@@ -99,7 +99,7 @@ private fun Modifier.defaultSizeFor(painter: Painter) =
     this + if (painter.intrinsicSize == PxSize.UnspecifiedSize) {
         DefaultIconSizeModifier
     } else {
-        Modifier.None
+        Modifier
     }
 
 // Default icon size, for icons with no intrinsic size information

@@ -385,7 +385,7 @@ class AndroidViewCompatTest {
 
     @Composable
     fun Container(
-        modifier: Modifier = Modifier.None,
+        modifier: Modifier = Modifier,
         children: @Composable() () -> Unit
     ) {
         Layout(children, modifier) { measurables, constraints, _ ->
