@@ -417,6 +417,7 @@ package androidx.ui.core.semantics {
     method public androidx.ui.core.ComponentNode getComponentNode();
     method public androidx.ui.core.semantics.SemanticsConfiguration getConfig();
     method public androidx.ui.unit.PxBounds getGlobalBounds();
+    method public androidx.ui.unit.PxPosition getGlobalPosition();
     method public boolean getHasChildren();
     method public int getId();
     method public androidx.ui.core.semantics.SemanticsNode? getParent();
@@ -431,6 +432,7 @@ package androidx.ui.core.semantics {
     property public final java.util.List<androidx.ui.core.semantics.SemanticsNode> children;
     property public final androidx.ui.core.semantics.SemanticsConfiguration config;
     property public final androidx.ui.unit.PxBounds globalBounds;
+    property public final androidx.ui.unit.PxPosition globalPosition;
     property public final boolean hasChildren;
     property public final boolean isSemanticBoundary;
     property public final androidx.ui.core.semantics.SemanticsNode? parent;
