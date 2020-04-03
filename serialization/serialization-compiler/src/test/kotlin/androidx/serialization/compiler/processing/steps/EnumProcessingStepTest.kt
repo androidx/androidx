@@ -16,7 +16,6 @@
 
 package androidx.serialization.compiler.processing.steps
 
-import androidx.serialization.compiler.codegen.java.JavaGenerator
 import androidx.serialization.compiler.schema.Enum
 import androidx.serialization.schema.Reserved
 import com.google.auto.common.BasicAnnotationProcessor
@@ -124,26 +123,6 @@ class EnumProcessingStepTest {
                     "annotated with @EnumValue")
     }
 
-    @Test
-    fun testSerializerGeneration() {
-        val testEnum = JavaFileObjects.forSourceString("com.example.Test", """
-            package com.example;
-            import androidx.serialization.EnumValue;
-            
-            public enum Test {
-                @EnumValue(EnumValue.DEFAULT)
-                DEFAULT,
-                @EnumValue(1)
-                ONE,
-                @EnumValue(2)
-                TWO
-            }
-        """.trimIndent())
-
-        assertThat(compile(testEnum))
-            .generatedSourceFile("com.example.TestSerializer")
-    }
-
     private fun compile(vararg sources: JavaFileObject): Compilation {
         return javac().withProcessors(SchemaCompilationProcessor()).compile(*sources)
     }
@@ -160,8 +139,7 @@ class EnumProcessingStepTest {
         lateinit var enum: Enum
 
         override fun initSteps(): List<ProcessingStep> {
-            val javaGenerator = JavaGenerator(processingEnv, this::class.java.canonicalName)
-            return listOf(EnumProcessingStep(processingEnv, javaGenerator) { enum = it })
+            return listOf(EnumProcessingStep(processingEnv) { enum = it })
     }
 
         override fun getSupportedSourceVersion(): SourceVersion {
