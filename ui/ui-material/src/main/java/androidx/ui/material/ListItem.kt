@@ -68,7 +68,7 @@ import androidx.ui.unit.max
 @Composable
 fun ListItem(
     text: String,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     icon: ImageAsset? = null,
     secondaryText: String? = null,
@@ -129,7 +129,7 @@ fun ListItem(
  */
 @Composable
 fun ListItem(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     icon: @Composable() (() -> Unit)? = null,
     secondaryText: @Composable() (() -> Unit)? = null,
@@ -259,7 +259,7 @@ private object TwoLine {
 
     @Composable
     fun ListItem(
-        modifier: Modifier = Modifier.None,
+        modifier: Modifier = Modifier,
         icon: @Composable() (() -> Unit)?,
         text: @Composable() (() -> Unit),
         secondaryText: @Composable() (() -> Unit)?,
@@ -353,7 +353,7 @@ private object ThreeLine {
 
     @Composable
     fun ListItem(
-        modifier: Modifier = Modifier.None,
+        modifier: Modifier = Modifier,
         icon: @Composable() (() -> Unit)?,
         text: @Composable() (() -> Unit),
         secondaryText: @Composable() (() -> Unit),
@@ -405,7 +405,7 @@ private object ThreeLine {
 @Composable
 private fun BaselinesOffsetColumn(
     offsets: List<Dp>,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     content: @Composable() () -> Unit
 ) {
     Layout(content, modifier) { measurables, constraints, _ ->
@@ -447,7 +447,7 @@ private fun BaselinesOffsetColumn(
 @Composable
 private fun OffsetToBaselineOrCenter(
     offset: Dp,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     content: @Composable() () -> Unit
 ) {
     Layout(content, modifier) { measurables, constraints, _ ->

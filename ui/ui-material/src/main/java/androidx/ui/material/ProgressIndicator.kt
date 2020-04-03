@@ -54,7 +54,7 @@ import kotlin.math.max
 @Composable
 fun LinearProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary
 ) {
     DeterminateProgressIndicator(progress = progress) {
@@ -78,7 +78,7 @@ fun LinearProgressIndicator(
  */
 @Composable
 fun LinearProgressIndicator(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary
 ) {
     Transition(
@@ -138,7 +138,7 @@ private fun DrawScope.drawLinearIndicatorBackground(paint: Paint) =
 @Composable
 fun CircularProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary
 ) {
     DeterminateProgressIndicator(progress = progress) {
@@ -163,7 +163,7 @@ fun CircularProgressIndicator(
  */
 @Composable
 fun CircularProgressIndicator(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary
 ) {
     val paint = paint(color, StrokeCap.square)

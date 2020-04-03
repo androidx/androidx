@@ -75,7 +75,7 @@ import androidx.ui.unit.min
     maxIntrinsicWidthMeasureBlock: IntrinsicMeasureBlock,
     /*crossinline*/
     maxIntrinsicHeightMeasureBlock: IntrinsicMeasureBlock,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     /*crossinline*/
     measureBlock: MeasureBlock
 ) {
@@ -140,7 +140,7 @@ import androidx.ui.unit.min
 /*inline*/ fun Layout(
     /*crossinline*/
     children: @Composable() () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     /*noinline*/
     measureBlock: MeasureBlock
 ) {
@@ -164,7 +164,7 @@ import androidx.ui.unit.min
 @Deprecated("This composable is temporary to enable quicker prototyping in ConstraintLayout. " +
         "It should not be used in app code directly.")
 fun MultiMeasureLayout(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit,
     measureBlock: MeasureBlock
 ) {
@@ -178,7 +178,7 @@ fun MultiMeasureLayout(
 @Deprecated("This composable supports our transition from single child composables to modifiers. " +
         "It should not be used in app code directly.")
 fun PassThroughLayout(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit
 ) {
     val measureBlocks = remember {
@@ -417,7 +417,7 @@ private inline fun Density.MeasuringMaxIntrinsicHeight(
  */
 @Composable
 fun WithConstraints(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() (Constraints, LayoutDirection) -> Unit
 ) {
     val state = remember { WithConstrainsState() }

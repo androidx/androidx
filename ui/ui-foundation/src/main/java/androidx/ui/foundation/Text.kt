@@ -60,7 +60,7 @@ import androidx.ui.text.style.TextOverflow
 @Composable
 fun Text(
     text: String,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     color: Color? = null,
     style: TextStyle = currentTextStyle(),
     softWrap: Boolean = true,
@@ -110,7 +110,7 @@ fun Text(
 @Composable
 fun Text(
     text: AnnotatedString,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     color: Color? = null,
     style: TextStyle = currentTextStyle(),
     softWrap: Boolean = true,

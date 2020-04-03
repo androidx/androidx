@@ -66,7 +66,7 @@ import androidx.ui.unit.dp
 @Composable
 fun Button(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     elevation: Dp = 2.dp,
     shape: Shape = MaterialTheme.shapes.small,
@@ -144,7 +144,7 @@ fun Button(
 @Composable
 inline fun OutlinedButton(
     noinline onClick: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
     shape: Shape = MaterialTheme.shapes.small,
@@ -200,7 +200,7 @@ inline fun OutlinedButton(
 @Composable
 inline fun TextButton(
     noinline onClick: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
     shape: Shape = MaterialTheme.shapes.small,

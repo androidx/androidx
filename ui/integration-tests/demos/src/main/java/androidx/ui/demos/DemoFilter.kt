@@ -99,7 +99,7 @@ fun FilterAppBar(
 private fun FilterField(
     filterText: TextFieldValue,
     onFilter: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier.None
+    modifier: Modifier = Modifier
 ) {
     val identifier = "filter"
     val manager = FocusManagerAmbient.current

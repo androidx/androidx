@@ -579,7 +579,7 @@ private fun Modifier.background(
 @Composable
 fun FixedSize(
     size: State<IntPx>,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit = emptyContent()
 ) {
     Layout(children = children, modifier = modifier) { measurables, _, _ ->

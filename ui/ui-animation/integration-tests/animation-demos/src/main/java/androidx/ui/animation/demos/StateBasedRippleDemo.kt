@@ -68,7 +68,7 @@ private fun RippleRect() {
 }
 
 @Composable
-private fun RippleRectFromState(modifier: Modifier = Modifier.None, state: TransitionState) {
+private fun RippleRectFromState(modifier: Modifier = Modifier, state: TransitionState) {
     Canvas(modifier.fillMaxSize()) {
         // TODO: file bug for when "down" is not a file level val, it's not memoized correctly
         val x = down.x

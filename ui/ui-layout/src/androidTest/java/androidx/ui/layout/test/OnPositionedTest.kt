@@ -221,7 +221,7 @@ class OnPositionedTest : LayoutTest() {
             val modifier = if (needCallback.value) {
                 Modifier.onPositioned { positionedLatch.countDown() }
             } else {
-                Modifier.None
+                Modifier
             }
             Container(modifier, expanded = true) { }
         }

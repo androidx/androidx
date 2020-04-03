@@ -383,7 +383,7 @@ class ScrollableTest {
                     }
                 )
             } else {
-                Modifier.None
+                Modifier
             }
         }
         findByTag(scrollableBoxTag).doGesture {
@@ -451,7 +451,7 @@ class ScrollableTest {
             if (!disposed.value) {
                 Modifier.scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
             } else {
-                Modifier.None
+                Modifier
             }
         }
         runOnUiThread {
@@ -482,7 +482,7 @@ class ScrollableTest {
             if (!disposed.value) {
                 Modifier.scrollable(dragDirection = DragDirection.Vertical, scrollableState = state)
             } else {
-                Modifier.None
+                Modifier
             }
         }
         runOnIdleCompose {

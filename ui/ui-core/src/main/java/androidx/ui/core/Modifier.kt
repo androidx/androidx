@@ -35,11 +35,11 @@ import androidx.compose.Stable
  *
  * Composables that accept a [Modifier] as a parameter to be applied to the whole component
  * represented by the composable function should name the parameter `modifier` and
- * assign the parameter a default value of [Modifier.None]. It should appear as the first
+ * assign the parameter a default value of [Modifier]. It should appear as the first
  * optional parameter in the parameter list; after all required parameters (except for trailing
  * lambda parameters) but before any other parameters with default values. Any default modifiers
  * desired by a composable function should come after the `modifier` parameter's value in the
- * composable function's implementation, keeping [Modifier.None] as the default parameter value.
+ * composable function's implementation, keeping [Modifier] as the default parameter value.
  * For example:
  *
  * @sample androidx.ui.core.samples.ModifierParameterSample
@@ -85,7 +85,7 @@ interface Modifier {
      * Returns a [Modifier] representing this modifier followed by [other] in sequence.
      */
     operator fun plus(other: Modifier): Modifier =
-        if (other === None) this else foldOut(other) { element, wrapped ->
+        if (other === Modifier) this else foldOut(other) { element, wrapped ->
             CombinedModifier(element, wrapped)
         }
 
@@ -100,18 +100,38 @@ interface Modifier {
             operation(this, initial)
     }
 
+    /**
+     * The companion object `Modifier` is the empty, default, or starter [Modifier]
+     * that contains no [elements][Element]. Use it to create a new [Modifier] using
+     * modifier extension factory functions:
+     *
+     * @sample androidx.ui.core.samples.ModifierUsageSample
+     *
+     * or as the default value for [Modifier] parameters:
+     *
+     * @sample androidx.ui.core.samples.ModifierParameterSample
+     */
     // The companion object implements `Modifier` so that it may be used  as the start of a
     // modifier extension factory expression.
     companion object : Modifier {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
         override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
         override operator fun plus(other: Modifier): Modifier = other
-        override fun toString() = "Modifier.None"
+        override fun toString() = "Modifier"
 
         /**
          * An empty [Modifier] that contains no [elements][Element].
          * Suitable for use as a sentinel or default parameter.
+         *
+         * @deprecated Use the [Modifier] companion object instead
          */
+        @Deprecated(
+            "use the Modifier companion object instead",
+            replaceWith = ReplaceWith(
+                "Modifier",
+                "androidx.ui.core.Modifier"
+            )
+        )
         val None: Modifier get() = this
     }
 }
@@ -119,7 +139,7 @@ interface Modifier {
 /**
  * A node in a [Modifier] chain. A CombinedModifier always contains at least two elements;
  * a Modifier of one is always just the [Modifier.Element] itself, and a Modifier of zero is always
- * [Modifier.None].
+ * [Modifier].
  */
 private class CombinedModifier(
     private val element: Modifier.Element,

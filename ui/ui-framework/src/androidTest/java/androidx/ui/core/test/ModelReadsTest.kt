@@ -290,7 +290,7 @@ class ModelReadsTest {
                         model.value
                         latch.countDown()
                     }
-                } else Modifier.None
+                } else Modifier
                 AtLeastSize(10.ipx, modifier = modifier) {}
             }
         }

@@ -50,7 +50,7 @@ import androidx.ui.unit.Dp
 @Composable
 fun ColoredRect(
     brush: Brush,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     width: Dp? = null,
     height: Dp? = null
 ) {
@@ -79,7 +79,7 @@ fun ColoredRect(
 @Composable
 fun ColoredRect(
     color: Color,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     width: Dp? = null,
     height: Dp? = null
 ) {

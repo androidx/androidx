@@ -72,7 +72,7 @@ fun GestureBasedAnimationDemo() {
 }
 
 @Composable
-private fun ScaledColorRect(modifier: Modifier = Modifier.None, scale: Float, color: Color) {
+private fun ScaledColorRect(modifier: Modifier = Modifier, scale: Float, color: Color) {
     val paint = remember { Paint() }
     Canvas(modifier.fillMaxSize()) {
         val centerX = size.width.value / 2

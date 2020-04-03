@@ -67,7 +67,7 @@ import androidx.ui.unit.max
 @Composable
 fun FloatingActionButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
@@ -122,7 +122,7 @@ fun FloatingActionButton(
 fun ExtendedFloatingActionButton(
     text: @Composable() () -> Unit,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     icon: @Composable() (() -> Unit)? = null,
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.primary,
