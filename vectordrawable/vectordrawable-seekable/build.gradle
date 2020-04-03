@@ -44,7 +44,7 @@ android {
 
 androidx {
     name = "Android SeekableAnimatedVectorDrawable"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VECTORDRAWABLE_SEEKABLE
     mavenGroup = LibraryGroups.VECTORDRAWABLE
     inceptionYear = "2020"
