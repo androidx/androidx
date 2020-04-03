@@ -33,28 +33,45 @@ import androidx.ui.util.lerp
 ) : Comparable<FontWeight> {
 
     companion object {
-        /** Thin, the minimum thickness */
+        /** [Thin] */
         val W100 = FontWeight(100)
-        /** Extra-light */
+        /** [ExtraLight] */
         val W200 = FontWeight(200)
-        /** Light */
+        /** [Light] */
         val W300 = FontWeight(300)
-        /** Normal / regular / plain */
+        /** [Normal] / regular / plain */
         val W400 = FontWeight(400)
-        /** Medium */
+        /** [Medium] */
         val W500 = FontWeight(500)
-        /** Semi-bold */
+        /** [SemiBold] */
         val W600 = FontWeight(600)
-        /** Bold */
+        /** [Bold] */
         val W700 = FontWeight(700)
-        /** Extra-bold */
+        /** [ExtraBold] */
         val W800 = FontWeight(800)
-        /** Black, maximum thickness */
+        /** [Black] */
         val W900 = FontWeight(900)
-        /** The default font weight. */
+
+        /** Alias for [W100] */
+        val Thin = W100
+        /** Alias for [W200] */
+        val ExtraLight = W200
+        /** Alias for [W300] */
+        val Light = W300
+        /** The default font weight - alias for [W400] */
         val Normal = W400
-        /** A commonly used font weight that is heavier than normal. */
+        /** Alias for [W500] */
+        val Medium = W500
+        /** Alias for [W600] */
+        val SemiBold = W600
+        /**
+         * A commonly used font weight that is heavier than normal - alias for [W700]
+         */
         val Bold = W700
+        /** Alias for [W800] */
+        val ExtraBold = W800
+        /** Alias for [W900] */
+        val Black = W900
 
         /** A list of all the font weights. */
         internal val values: List<FontWeight> = listOf(
