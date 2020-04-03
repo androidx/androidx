@@ -373,6 +373,13 @@ package androidx.ui.core {
     method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.PointerInputChange);
   }
 
+  public final class Ref<T> {
+    ctor public Ref();
+    method public T? getValue();
+    method public void setValue(T? p);
+    property public final T? value;
+  }
+
   public final class TransformOrigin {
     ctor public TransformOrigin(internal long value);
     method public float getPivotFractionX();

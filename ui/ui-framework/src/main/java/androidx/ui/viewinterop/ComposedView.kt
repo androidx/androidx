@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.androidview
+package androidx.ui.viewinterop
 
 import android.content.Context
 import android.view.LayoutInflater
