@@ -19,7 +19,7 @@ package androidx.ui.text
 import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
-import androidx.ui.text.test.R
+import androidx.ui.text.core.test.R
 
 class FontTestData {
     companion object {
