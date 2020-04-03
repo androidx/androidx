@@ -1028,6 +1028,8 @@ public class MediaSession implements AutoCloseable {
         @ParcelField(5)
         boolean mEnabled;
 
+        // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
         /**
          * Used for VersionedParcelable
          */

@@ -644,6 +644,8 @@ public final class SessionCommand implements VersionedParcelable {
     @ParcelField(3)
     Bundle mCustomExtras;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Used for VersionedParcelable.
      */
