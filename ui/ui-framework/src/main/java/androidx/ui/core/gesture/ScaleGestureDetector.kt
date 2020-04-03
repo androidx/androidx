@@ -21,8 +21,8 @@ import androidx.compose.remember
 import androidx.ui.core.Modifier
 
 /**
- * Observes various events sent by [ScaleGestureDetector].  Implement and pass into
- * [ScaleGestureDetector] so that [ScaleGestureDetector] may call the functions when events occur.
+ * Observes various events sent by [scaleGestureFilter].  Implement and pass into
+ * [scaleGestureFilter] so that [scaleGestureFilter] may call the functions when events occur.
  */
 interface ScaleObserver {
     /**
@@ -33,7 +33,7 @@ interface ScaleObserver {
      * [TouchSlop]). Always called just before [onScale] and isn't called again until
      * after [onStop].
      *
-     * @see ScaleGestureDetector
+     * @see scaleGestureFilter
      * @see onScale
      * @see onStop
      */
@@ -50,7 +50,7 @@ interface ScaleObserver {
      * such that they are 20 pixels apart, the scaleFactor will be 2.  If 2 fingers that are 20
      * pixels apart move such that they are 10 pixels apart, the scaleFactor will be .5.
      *
-     * @see ScaleGestureDetector
+     * @see scaleGestureFilter
      * @see onStart
      * @see onStop
      *
@@ -64,7 +64,7 @@ interface ScaleObserver {
      *
      * Only called after [onStart] and one or more calls to [onScale]
      *
-     * @see ScaleGestureDetector
+     * @see scaleGestureFilter
      * @see onStart
      * @see onScale
      */
@@ -95,21 +95,22 @@ interface ScaleObserver {
  * was previously called. [RawScaleObserver.onStop] is called when no pointers remain.
  * [RawScaleObserver.onCancel] is called due to a system cancellation event.
  *
- * This gesture detector is similar to [RawScaleGestureDetector] except that it is made for more
+ * This gesture detector is similar to [rawScaleGestureFilter] except that it is made for more
  * standard use cases where touch slop should likely be respected and no "nested scaling" is
  * needed.
  *
  * @param scaleObserver The callback interface to report all events related to scaling.
  */
 @Composable
-fun ScaleGestureDetector(
+fun Modifier.scaleGestureFilter(
     scaleObserver: ScaleObserver
 ): Modifier {
     val glue = remember { TouchSlopScaleGestureDetectorGlue() }
     glue.scaleObserver = scaleObserver
 
-    return RawScaleGestureDetector(glue.rawScaleObserver, glue::scaleEnabled) +
-            ScaleSlopExceededGestureDetector(glue::enableScale)
+    return this
+        .rawScaleGestureFilter(glue.rawScaleObserver, glue::scaleEnabled)
+        .scaleSlopExceededGestureFilter(glue::enableScale)
 }
 
 /**

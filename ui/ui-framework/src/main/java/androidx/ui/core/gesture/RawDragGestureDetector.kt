@@ -99,7 +99,7 @@ interface DragObserver {
  * Note: By default, this gesture detector only waits for a single pointer to have moved to start
  * dragging.  It is extremely likely that you don't want to use this gesture detector directly, but
  * instead use a drag gesture detector that does wait for some other condition to have occurred
- * (such as [DragGestureDetector] which waits for a single pointer to have passed touch
+ * (such as [dragGestureFilter] which waits for a single pointer to have passed touch
  * slop before dragging starts).
  *
  * Dragging begins when the a single pointer has moved and either [canStartDragging] is null or
@@ -123,14 +123,14 @@ interface DragObserver {
 // TODO(b/129784010): Consider also allowing onStart, onDrag, and onStop to be set individually (instead of all being
 //  set via DragObserver).
 @Composable
-fun RawDragGestureDetector(
+fun Modifier.rawDragGestureFilter(
     dragObserver: DragObserver,
     canStartDragging: (() -> Boolean)? = null
 ): Modifier {
     val recognizer = remember { RawDragGestureRecognizer() }
     recognizer.dragObserver = dragObserver
     recognizer.canStartDragging = canStartDragging
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class RawDragGestureRecognizer : PointerInputFilter() {

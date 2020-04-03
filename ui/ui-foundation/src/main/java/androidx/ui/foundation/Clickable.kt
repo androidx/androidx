@@ -19,13 +19,13 @@ package androidx.ui.foundation
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.PassThroughLayout
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
 
 /**
- * Combines [TapGestureDetector] and [Semantics] for the clickable
+ * Combines [tapGestureFilter] and [Semantics] for the clickable
  * components like Button.
  *
  * @sample androidx.ui.foundation.samples.ClickableSample
@@ -57,7 +57,7 @@ fun Clickable(
         // TODO(b/150706555): This layout is temporary and should be removed once Semantics
         //  is implemented with modifiers.
         val tap = if (enabled) {
-            TapGestureDetector(onClick)
+            Modifier.tapGestureFilter(onClick)
         } else {
             Modifier.None
         }

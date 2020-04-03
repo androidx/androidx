@@ -27,7 +27,7 @@ import androidx.ui.animation.animatedFloat
 import androidx.ui.core.DrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.RawDragGestureDetector
+import androidx.ui.core.gesture.rawDragGestureFilter
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.geometry.Rect
@@ -55,7 +55,7 @@ fun SpringBackScrollingDemo() {
         val animScroll = animatedFloat(0f)
         val itemWidth = state { 0f }
         val isFlinging = state { false }
-        val gesture = RawDragGestureDetector(dragObserver = object : DragObserver {
+        val gesture = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
                 animScroll.snapTo(animScroll.targetValue + dragDistance.x.value)
                 return dragDistance

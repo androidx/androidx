@@ -20,8 +20,8 @@ import androidx.animation.AnimatedFloat
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 
@@ -32,7 +32,7 @@ import androidx.ui.unit.px
  * The common usecase for this component is when you need to be able to drag something
  * inside the component on the screen and represent this state via one float value
  *
- * If you need to control the whole dragging flow, consider using [DragGestureDetector] instead.
+ * If you need to control the whole dragging flow, consider using [dragGestureFilter] instead.
  *
  * If you are implementing scroll/fling behavior, consider using [scrollable].
  *
@@ -66,7 +66,7 @@ fun Modifier.draggable(
     val dragState = remember {
         DraggableState()
     }
-    return this + DragGestureDetector(
+    return dragGestureFilter(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {

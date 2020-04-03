@@ -21,7 +21,7 @@ import androidx.compose.state
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.LongPressDragGestureDetector
+import androidx.ui.core.gesture.longPressDragGestureFilter
 import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.foundation.Box
 import androidx.ui.layout.fillMaxSize
@@ -69,7 +69,7 @@ fun LongPressDragGestureDetectorDemo() {
         Modifier.offset(offsetX, offsetY)
             .fillMaxSize()
             .wrapContentSize(Alignment.Center)
-            .plus(LongPressDragGestureDetector(longPressDragObserver))
+            .longPressDragGestureFilter(longPressDragObserver)
             .preferredSize(96.dp),
         backgroundColor = color.value
     )

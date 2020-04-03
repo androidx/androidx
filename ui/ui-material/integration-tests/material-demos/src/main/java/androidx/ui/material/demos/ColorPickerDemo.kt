@@ -31,8 +31,8 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.drawOpacity
-import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
@@ -128,7 +128,7 @@ private fun ColorPicker(onColorChange: (Color) -> Unit) {
 // to just get the current position of the pointer, without needing to care about drag behavior /
 // relative positions.
 /**
- * [DragGestureDetector] that only cares about raw positions, where [position] is the position of
+ * [dragGestureFilter] that only cares about raw positions, where [position] is the position of
  * the current / last input event, [onPositionChange] is called with the new position when the
  * pointer moves, and [onDragStateChange] is called when dragging starts / stops.
  */
@@ -158,7 +158,7 @@ private fun SimplePointerInput(
         }
     }
 
-    return DragGestureDetector(observer, startDragImmediately = true)
+    return Modifier.dragGestureFilter(observer, startDragImmediately = true)
 }
 
 /**

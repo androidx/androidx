@@ -20,10 +20,10 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.DoubleTapGestureDetector
-import androidx.ui.core.gesture.LongPressGestureDetector
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.doubleTapGestureFilter
+import androidx.ui.core.gesture.longPressGestureFilter
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.compositeOver
@@ -82,10 +82,12 @@ private fun PressableContainer(
         currentColor.value
     }
 
-    val gestureDetectors = PressIndicatorGestureDetector(onStart, onStop, onStop) +
-            TapGestureDetector(onTap) +
-            DoubleTapGestureDetector(onDoubleTap) +
-            LongPressGestureDetector(onLongPress)
+    val gestureDetectors =
+        Modifier
+            .pressIndicatorGestureFilter(onStart, onStop, onStop)
+            .tapGestureFilter(onTap)
+            .doubleTapGestureFilter(onDoubleTap)
+            .longPressGestureFilter(onLongPress)
     Box(
         modifier + gestureDetectors,
         backgroundColor = color, border = Border(2.dp, BorderColor),

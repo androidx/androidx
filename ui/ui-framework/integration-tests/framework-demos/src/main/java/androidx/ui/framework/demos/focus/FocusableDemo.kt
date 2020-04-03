@@ -18,7 +18,7 @@ package androidx.ui.framework.demos.focus
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.focus.FocusModifier
 import androidx.ui.focus.FocusState.Focused
 import androidx.ui.focus.FocusState.NotFocusable
@@ -57,7 +57,7 @@ fun FocusableDemo() {
 private fun FocusableText(text: String) {
     val focusModifier = FocusModifier()
     Text(
-        modifier = focusModifier + TapGestureDetector { focusModifier.requestFocus() },
+        modifier = focusModifier.tapGestureFilter { focusModifier.requestFocus() },
         text = text,
         style = TextStyle(
             color = when (focusModifier.focusState) {

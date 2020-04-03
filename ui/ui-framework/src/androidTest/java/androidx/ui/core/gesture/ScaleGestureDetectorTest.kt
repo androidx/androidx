@@ -23,6 +23,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.Px
@@ -67,7 +68,7 @@ class ScaleGestureDetectorTest {
             activity.setContent {
                 touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
                 Layout(
-                    modifier = ScaleGestureDetector(scaleObserver),
+                    modifier = Modifier.scaleGestureFilter(scaleObserver),
                     measureBlock = { _, _, _ ->
                         layout(
                             (touchSlop * LayoutDimensionFactor).ceil(),

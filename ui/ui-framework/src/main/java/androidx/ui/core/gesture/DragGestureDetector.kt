@@ -56,7 +56,7 @@ import androidx.ui.unit.PxPosition
  * touches it, dragging is immediately started so the animation stops and dragging can occur.
  */
 @Composable
-fun DragGestureDetector(
+fun Modifier.dragGestureFilter(
     dragObserver: DragObserver,
     canDrag: ((Direction) -> Boolean)? = null,
     startDragImmediately: Boolean = false
@@ -67,12 +67,14 @@ fun DragGestureDetector(
     // TODO(b/146427920): There is a gap here where RawPressStartGestureDetector can cause a call to
     //  DragObserver.onStart but if the pointer doesn't move and releases, (or if cancel is called)
     //  The appropriate callbacks to DragObserver will not be called.
-    return RawDragGestureDetector(glue.rawDragObserver, glue::enabledOrStarted) +
-            TouchSlopExceededGestureDetector(glue::enableDrag, canDrag) +
-            RawPressStartStartGestureDetector(
-                glue::startDrag,
-                startDragImmediately,
-                PointerEventPass.InitialDown)
+    return this
+        .rawDragGestureFilter(glue.rawDragObserver, glue::enabledOrStarted)
+        .touchSlopExceededGestureFilter(glue::enableDrag, canDrag)
+        .rawPressStartGestureFilter(
+            glue::startDrag,
+            startDragImmediately,
+            PointerEventPass.InitialDown
+        )
 }
 
 /**
