@@ -17,8 +17,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.ui.test.test">
     <application>
-        <activity android:name="android.app.Activity"
-            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
         <activity android:name="androidx.ui.test.CustomActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
         <activity android:name="androidx.ui.test.ActivityWithActionBar" />
