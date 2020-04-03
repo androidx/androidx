@@ -135,7 +135,7 @@ package androidx.ui.material {
   }
 
   public final class DividerKt {
-    method public static void Divider(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors.surface, androidx.ui.unit.Dp height = 1.dp, androidx.ui.unit.Dp indent = 0.dp);
+    method public static void Divider(androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.graphics.Color color = MaterialTheme.colors.surface, androidx.ui.unit.Dp thickness = 1.dp, androidx.ui.unit.Dp startIndent = 0.dp);
   }
 
   public final class DrawerKt {

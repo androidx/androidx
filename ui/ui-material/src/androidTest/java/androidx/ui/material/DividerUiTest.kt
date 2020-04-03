@@ -51,7 +51,7 @@ class DividerUiTest {
         val dm = composeTestRule.displayMetrics
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                Divider(height = height)
+                Divider(thickness = height)
             }
             .assertWidthEqualsTo { dm.widthPixels.ipx }
             .assertHeightEqualsTo(height)
@@ -65,7 +65,7 @@ class DividerUiTest {
 
         composeTestRule
             .setMaterialContentAndCollectSizes {
-                Divider(indent = indent, height = height)
+                Divider(startIndent = indent, thickness = height)
             }
             .assertHeightEqualsTo(height)
             .assertWidthEqualsTo { dm.widthPixels.ipx }

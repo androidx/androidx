@@ -115,7 +115,7 @@ private fun AccountIndicator(color: Color, modifier: Modifier = Modifier.None) {
 
 @Composable
 fun RallyDivider(modifier: Modifier = Modifier.None) {
-    Divider(color = MaterialTheme.colors.background, height = 1.dp, modifier = modifier)
+    Divider(color = MaterialTheme.colors.background, thickness = 1.dp, modifier = modifier)
 }
 
 fun formatAmount(amount: Float): String {
