@@ -73,7 +73,7 @@ The modules within UI are structured as follows:
 * `ui-test/`
 
    Testing framework
-* `ui-text/`
+* `ui-text-core/`
 
    Text engine
 

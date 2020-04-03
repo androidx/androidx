@@ -37,7 +37,7 @@ dependencies {
 
     implementation project(":compose:compose-runtime")
     api project(":ui:ui-core")
-    api project(":ui:ui-text")
+    api project(":ui:ui-text-core")
     implementation project(":ui:ui-util")
     implementation project(":ui:ui-saved-instance-state")
 
