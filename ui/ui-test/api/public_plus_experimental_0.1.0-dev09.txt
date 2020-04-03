@@ -259,6 +259,9 @@ package androidx.ui.test {
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
   }
 
+  public final class SynchronizationKt {
+  }
+
   public interface TestAnimationClock extends androidx.animation.AnimationClockObservable {
     method public void advanceClock(long milliseconds);
     method public boolean isIdle();
@@ -315,9 +318,6 @@ package androidx.ui.test.android {
     method public static void registerTestClock(androidx.ui.test.TestAnimationClock clock);
     method public static void unregisterComposeFromEspresso();
     method public static void unregisterTestClock(androidx.ui.test.TestAnimationClock clock);
-  }
-
-  public final class InternalUtilsKt {
   }
 
   public final class SynchronizedTreeCollectorKt {

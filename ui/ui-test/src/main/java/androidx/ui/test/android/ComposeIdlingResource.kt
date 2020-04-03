@@ -24,6 +24,7 @@ import androidx.compose.frames.inFrame
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.ui.test.TestAnimationClock
+import androidx.ui.test.runOnUiThreadInternal
 
 /**
  * Register compose's idling check to Espresso.
@@ -84,7 +85,7 @@ internal object ComposeIdlingResource : IdlingResource {
      * Returns whether or not Compose is idle, without starting to poll if it is not.
      */
     fun isIdle(): Boolean {
-        return handler.runAndAwait {
+        return runOnUiThreadInternal {
             !(inFrame && currentFrame().hasPendingChanges()) &&
                     !Recomposer.hasPendingChanges() &&
                     areAllClocksIdle()
