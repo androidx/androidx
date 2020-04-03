@@ -16,6 +16,10 @@
 
 package androidx.autofill;
 
+import static androidx.autofill.InlinePresentationRenderer.getAttribution;
+
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -102,6 +106,15 @@ public class InlinePresentationRendererTest {
         verifyViewVisibility(suggestionView, /* titleVisible= */ true, /* subtitleVisible= */false,
                 /* startIconVisible= */ false, /* endIconVisible= */ true);
         assertFalse(suggestionView.callOnClick());
+    }
+
+    @Test
+    public void testGetAttribution() {
+        Slice slice = new InlinePresentationBuilder("title")
+                .setAttribution(mAttribution)
+                .build();
+        PendingIntent attribution = getAttribution(slice);
+        assertThat(attribution).isNotNull();
     }
 
     private static void verifyViewVisibility(View suggestionView, boolean titleVisible,
