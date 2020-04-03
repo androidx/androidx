@@ -85,7 +85,8 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                             Box(Modifier.preferredSize(350.px.toDp()).drawBackground(color))
                             Text(
                                 text = "Some title",
-                                style = TextStyle(Color.Black, 60.px.toSp())
+                                color = Color.Black,
+                                style = TextStyle(fontSize = 60.px.toSp())
                             )
                             Row(Modifier.fillMaxWidth()) {
                                 Text(

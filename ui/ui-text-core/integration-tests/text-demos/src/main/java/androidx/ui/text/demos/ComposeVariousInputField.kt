@@ -234,13 +234,11 @@ fun VariousInputFieldDemo() {
             )
 
             TagLine(tag = "Editfield with Hint Text")
-            HintEditText @Composable {
+            HintEditText {
                 Text(
                     text = "Hint Text",
-                    style = TextStyle(
-                        color = Color(0xFF888888),
-                        fontSize = fontSize8
-                    )
+                    color = Color(0xFF888888),
+                    style = TextStyle(fontSize = fontSize8)
                 )
             }
 
