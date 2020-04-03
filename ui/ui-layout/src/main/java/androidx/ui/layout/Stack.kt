@@ -280,6 +280,18 @@ class StackScope {
      * Size the element to match the size of the [Stack] after all other content elements have
      * been measured.
      */
+    fun Modifier.matchParentSize() = this + StretchGravityModifier
+
+    /**
+     * Size the element to match the size of the [Stack] after all other content elements have
+     * been measured.
+     *
+     * @deprecated renamed to [matchParentSize].
+     */
+    @Deprecated(
+        "Renamed to matchParentSize for descriptive clarity",
+        replaceWith = ReplaceWith("this.matchParentSize()")
+    )
     fun Modifier.matchParent() = this + StretchGravityModifier
 
     internal companion object {

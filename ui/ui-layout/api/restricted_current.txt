@@ -773,7 +773,8 @@ package androidx.ui.layout {
     method @Deprecated public androidx.ui.core.ParentDataModifier getTopEnd(androidx.ui.layout.LayoutGravity);
     method @Deprecated public androidx.ui.core.ParentDataModifier getTopStart(androidx.ui.layout.LayoutGravity);
     method public androidx.ui.core.Modifier gravity(androidx.ui.core.Modifier, androidx.ui.core.Alignment align);
-    method public androidx.ui.core.Modifier matchParent(androidx.ui.core.Modifier);
+    method @Deprecated public androidx.ui.core.Modifier matchParent(androidx.ui.core.Modifier);
+    method public androidx.ui.core.Modifier matchParentSize(androidx.ui.core.Modifier);
     property @Deprecated public final androidx.ui.core.ParentDataModifier BottomCenter;
     property @Deprecated public final androidx.ui.core.ParentDataModifier BottomEnd;
     property @Deprecated public final androidx.ui.core.ParentDataModifier BottomStart;

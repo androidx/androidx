@@ -200,7 +200,7 @@ private fun FixedTabRow(
             tabs(Modifier.weight(1f))
         }
         Box(Modifier.gravity(Alignment.BottomCenter).fillMaxWidth(), children = divider)
-        Box(Modifier.matchParent()) {
+        Box(Modifier.matchParentSize()) {
             indicatorContainer(tabPositions)
         }
     }
