@@ -96,8 +96,7 @@ public final class Trace {
      * null character '\0' are used internally by the tracing mechanism.  If sectionName contains
      * these characters they will be replaced with a space character in the trace.
      *
-     * @param label The name of the code section to appear in the trace.  This may be at
-     * most 127 Unicode code units long.
+     * @param label The name of the code section to appear in the trace.
      */
     public static void beginSection(@NonNull String label) {
         if (Build.VERSION.SDK_INT >= 18) {
