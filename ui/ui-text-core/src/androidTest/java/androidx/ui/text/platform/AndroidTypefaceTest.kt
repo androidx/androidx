@@ -32,7 +32,7 @@ import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.font.font
 import androidx.ui.text.font.fontFamily
 import androidx.ui.text.matchers.assertThat
-import androidx.ui.text.test.R
+import androidx.ui.text.core.test.R
 import androidx.ui.text.typefaceFromFontFamily
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any

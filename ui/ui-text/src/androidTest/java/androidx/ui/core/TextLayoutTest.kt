@@ -25,7 +25,7 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
-import androidx.ui.text.compose.test.R
+import androidx.ui.text.test.R
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily

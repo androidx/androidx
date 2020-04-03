@@ -31,7 +31,7 @@ import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
-import androidx.ui.text.compose.test.R
+import androidx.ui.text.test.R
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle

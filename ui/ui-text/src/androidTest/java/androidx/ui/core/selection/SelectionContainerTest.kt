@@ -32,7 +32,7 @@ import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
-import androidx.ui.text.compose.test.R
+import androidx.ui.text.test.R
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.ResourceFont
