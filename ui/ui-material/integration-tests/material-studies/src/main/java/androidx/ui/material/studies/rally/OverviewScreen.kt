@@ -18,6 +18,8 @@ package androidx.ui.material.studies.rally
 
 import android.annotation.SuppressLint
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text

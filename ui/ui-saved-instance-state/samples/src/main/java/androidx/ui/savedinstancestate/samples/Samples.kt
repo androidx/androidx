@@ -20,6 +20,8 @@ package androidx.ui.savedinstancestate.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.listSaver
 import androidx.ui.savedinstancestate.mapSaver

@@ -21,7 +21,9 @@ import android.os.Looper
 import androidx.animation.ExponentialDecay
 import androidx.animation.ManualAnimationClock
 import androidx.compose.Composable
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag

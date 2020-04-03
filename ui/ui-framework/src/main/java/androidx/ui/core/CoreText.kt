@@ -18,9 +18,11 @@ package androidx.ui.core
 import androidx.compose.Composable
 import androidx.compose.StructurallyEqual
 import androidx.compose.emptyContent
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.core.selection.TextSelectionDelegate

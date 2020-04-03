@@ -17,9 +17,11 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.compose.emptyContent
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver

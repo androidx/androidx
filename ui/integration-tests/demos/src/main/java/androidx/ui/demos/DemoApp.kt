@@ -17,7 +17,9 @@
 package androidx.ui.demos
 
 import androidx.compose.Composable
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
