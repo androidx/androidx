@@ -817,6 +817,19 @@ public class AppCompatTextViewTest
         assertNull(textView.getCompoundDrawables()[2]);
     }
 
+    // Temporary test to verify whether there's a platform issue with drawable resolution.
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testCompoundDrawablesPlatform_relativeAndAbsolute() {
+        // Given a TV with both drawableStart and drawableRight set
+        final TextView textView = mActivity.findViewById(
+                R.id.text_view_compound_drawables_platform_relative_and_absolute);
+        // Then the start drawable should be present
+        assertNotNull(textView.getCompoundDrawablesRelative()[0]);
+        // Then the absolute right drawable should be ignored
+        assertNull(textView.getCompoundDrawables()[2]);
+    }
+
     @Test
     public void testCompoundDrawablesCompat_overridesPlatform() {
         // Given an ACTV with both a raster android:drawableLeft & a vector app:drawableLeftCompat
