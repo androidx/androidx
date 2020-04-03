@@ -143,11 +143,11 @@ package androidx.ui.core.gesture {
     method public static androidx.ui.unit.Duration getZoomControlsTimeout();
   }
 
-  public final class DoubleTapGestureDetectorKt {
+  public final class DoubleTapGestureFilterKt {
     method public static androidx.ui.core.Modifier doubleTapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onDoubleTap);
   }
 
-  public final class DragGestureDetectorKt {
+  public final class DragGestureFilterKt {
     method public static androidx.ui.core.Modifier dragGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, boolean startDragImmediately = false);
   }
 
@@ -162,7 +162,7 @@ package androidx.ui.core.gesture {
     method public static boolean anyPointersInBounds(java.util.List<androidx.ui.core.PointerInputChange>, androidx.ui.unit.IntPxSize bounds);
   }
 
-  public final class LongPressDragGestureDetectorKt {
+  public final class LongPressDragGestureFilterKt {
     method public static androidx.ui.core.Modifier longPressDragGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.LongPressDragObserver longPressDragObserver);
   }
 
@@ -178,23 +178,23 @@ package androidx.ui.core.gesture {
     field public static final androidx.ui.core.gesture.LongPressFiredEvent! INSTANCE;
   }
 
-  public final class LongPressGestureDetectorKt {
+  public final class LongPressGestureFilterKt {
     method public static androidx.ui.core.Modifier longPressGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onLongPress);
   }
 
-  public final class PressIndicatorGestureDetectorKt {
+  public final class PressIndicatorGestureFilterKt {
     method public static androidx.ui.core.Modifier pressIndicatorGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit>? onStart = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onStop = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, boolean enabled = true);
   }
 
-  public final class RawDragGestureDetectorKt {
+  public final class RawDragGestureFilterKt {
     method public static androidx.ui.core.Modifier rawDragGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartDragging = null);
   }
 
-  public final class RawPressStartGestureDetectorKt {
+  public final class RawPressStartGestureFilterKt {
     method public static androidx.ui.core.Modifier rawPressStartGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onPressStart, boolean enabled = false, androidx.ui.core.PointerEventPass executionPass = PointerEventPass.PostUp);
   }
 
-  public final class RawScaleGestureDetectorKt {
+  public final class RawScaleGestureFilterKt {
     method public static androidx.ui.core.Modifier rawScaleGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.RawScaleObserver scaleObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartScaling = null);
   }
 
@@ -205,7 +205,7 @@ package androidx.ui.core.gesture {
     method public default void onStop();
   }
 
-  public final class ScaleGestureDetectorKt {
+  public final class ScaleGestureFilterKt {
     method public static androidx.ui.core.Modifier scaleGestureFilter(androidx.ui.core.Modifier, androidx.ui.core.gesture.ScaleObserver scaleObserver);
   }
 
@@ -216,18 +216,18 @@ package androidx.ui.core.gesture {
     method public default void onStop();
   }
 
-  public final class ScaleSlopExceededGestureDetectorKt {
+  public final class ScaleSlopExceededGestureFilterKt {
     method public static androidx.ui.core.Modifier scaleSlopExceededGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onScaleSlopExceeded);
   }
 
   public final class ScaleUtilKt {
   }
 
-  public final class TapGestureDetectorKt {
+  public final class TapGestureFilterKt {
     method public static androidx.ui.core.Modifier tapGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onTap);
   }
 
-  public final class TouchSlopExceededGestureDetectorKt {
+  public final class TouchSlopExceededGestureFilterKt {
     method public static androidx.ui.core.Modifier touchSlopExceededGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> onTouchSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null);
   }
 

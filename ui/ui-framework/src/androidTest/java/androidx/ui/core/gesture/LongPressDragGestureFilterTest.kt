@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(JUnit4::class)
-class LongPressDragGestureDetectorTest {
+class LongPressDragGestureFilterTest {
     @get:Rule
     val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var longPressDragObserver: LongPressDragObserver

@@ -53,12 +53,12 @@ fun Modifier.longPressGestureFilter(
     onLongPress: (PxPosition) -> Unit
 ): Modifier {
     val coroutineContext = CoroutineContextAmbient.current
-    val recognizer = remember { LongPressGestureRecognizer(coroutineContext) }
-    recognizer.onLongPress = onLongPress
-    return this + PointerInputModifierImpl(recognizer)
+    val filter = remember { LongPressGestureFilter(coroutineContext) }
+    filter.onLongPress = onLongPress
+    return this + PointerInputModifierImpl(filter)
 }
 
-internal class LongPressGestureRecognizer(
+internal class LongPressGestureFilter(
     private val coroutineContext: CoroutineContext
 ) : PointerInputFilter() {
     lateinit var onLongPress: (PxPosition) -> Unit

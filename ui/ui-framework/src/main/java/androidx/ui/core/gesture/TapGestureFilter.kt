@@ -50,13 +50,13 @@ import androidx.ui.util.fastAny
 fun Modifier.tapGestureFilter(
     onTap: () -> Unit
 ): Modifier {
-    val recognizer = remember { TapGestureRecognizer() }
-    recognizer.onTap = onTap
-    recognizer.consumeDownOnStart = false
-    return this + PointerInputModifierImpl(recognizer)
+    val filter = remember { TapGestureFilter() }
+    filter.onTap = onTap
+    filter.consumeDownOnStart = false
+    return this + PointerInputModifierImpl(filter)
 }
 
-internal class TapGestureRecognizer : PointerInputFilter() {
+internal class TapGestureFilter : PointerInputFilter() {
     /**
      * Called to indicate that a press gesture has successfully completed.
      *

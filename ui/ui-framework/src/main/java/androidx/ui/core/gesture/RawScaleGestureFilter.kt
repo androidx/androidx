@@ -122,14 +122,14 @@ fun Modifier.rawScaleGestureFilter(
     scaleObserver: RawScaleObserver,
     canStartScaling: (() -> Boolean)? = null
 ): Modifier {
-    val recognizer = remember { RawScaleGestureRecognizer() }
+    val filter = remember { RawScaleGestureFilter() }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
-    recognizer.scaleObserver = scaleObserver
-    recognizer.canStartScaling = canStartScaling
-    return this + PointerInputModifierImpl(recognizer)
+    filter.scaleObserver = scaleObserver
+    filter.canStartScaling = canStartScaling
+    return this + PointerInputModifierImpl(filter)
 }
 
-internal class RawScaleGestureRecognizer : PointerInputFilter() {
+internal class RawScaleGestureFilter : PointerInputFilter() {
     private var active = false
     lateinit var scaleObserver: RawScaleObserver
     var canStartScaling: (() -> Boolean)? = null

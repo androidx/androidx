@@ -38,102 +38,102 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TapGestureDetectorTest {
+class TapGestureFilterTest {
 
-    private lateinit var recognizer: TapGestureRecognizer
+    private lateinit var filter: TapGestureFilter
 
     @Before
     fun setup() {
-        recognizer = TapGestureRecognizer()
-        recognizer.onTap = mock()
+        filter = TapGestureFilter()
+        filter.onTap = mock()
     }
 
     // Verification for when onReleased should not be called.
 
     @Test
     fun pointerInputHandler_down_onReleaseNotCalled() {
-        recognizer::onPointerInput.invokeOverAllPasses(down(0, 0.milliseconds))
-        verify(recognizer.onTap, never()).invoke()
+        filter::onPointerInput.invokeOverAllPasses(down(0, 0.milliseconds))
+        verify(filter.onTap, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downConsumedUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds).consumeDownChange()
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onTap, never()).invoke()
+        verify(filter.onTap, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downMoveConsumedUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(100.milliseconds, 5f).consume(5f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(200.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onTap, never()).invoke()
+        verify(filter.onTap, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downUpConsumed_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds).consumeDownChange()
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds).consumeDownChange()
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onTap, never()).invoke()
+        verify(filter.onTap, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeXUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, -1f, 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(100.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        verify(recognizer.onTap, never()).invoke()
+        verify(filter.onTap, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveXUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(100.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        verify(recognizer.onTap, never()).invoke()
+        verify(filter.onTap, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeYUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 0f, -1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(100.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        verify(recognizer.onTap, never()).invoke()
+        verify(filter.onTap, never()).invoke()
     }
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveYUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 0f, 1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(100.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        verify(recognizer.onTap, never()).invoke()
+        verify(filter.onTap, never()).invoke()
     }
 
     // Verification for when onReleased should be called.
@@ -141,48 +141,48 @@ class TapGestureDetectorTest {
     @Test
     fun pointerInputHandler_downUp_onReleaseCalledOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onTap).invoke()
+        verify(filter.onTap).invoke()
     }
 
     @Test
     fun pointerInputHandler_downMoveUp_onReleaseCalledOnce() {
         var pointer = down(0, 0.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.moveTo(100.milliseconds, 5f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(200.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onTap).invoke()
+        verify(filter.onTap).invoke()
     }
 
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsUpDownUp_onReleaseCalledOnce() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 0f, 1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(100.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = down(1, duration = 150.milliseconds, x = 0f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(200.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
-        verify(recognizer.onTap).invoke()
+        verify(filter.onTap).invoke()
     }
 
     // Verification for when the down change should not be consumed.
 
     @Test
     fun pointerInputHandler_consumeDownOnStartIsFalse_downChangeNotConsumed() {
-        recognizer.consumeDownOnStart = false
+        filter.consumeDownOnStart = false
         val pointerEventChange =
-            recognizer::onPointerInput.invokeOverAllPasses(down(0, 0.milliseconds))
+            filter::onPointerInput.invokeOverAllPasses(down(0, 0.milliseconds))
         assertThat(pointerEventChange.consumed.downChange, `is`(false))
     }
 
@@ -191,7 +191,7 @@ class TapGestureDetectorTest {
     @Test
     fun pointerInputHandler_consumeDownOnStartIsDefault_downChangeConsumed() {
         val pointerEventChange =
-            recognizer::onPointerInput.invokeOverAllPasses(down(0, 0.milliseconds))
+            filter::onPointerInput.invokeOverAllPasses(down(0, 0.milliseconds))
         assertThat(pointerEventChange.consumed.downChange, `is`(true))
     }
 
@@ -200,12 +200,12 @@ class TapGestureDetectorTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeXUp_upChangeNotConsumed() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, -1f, 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(100.milliseconds)
         val result =
-            recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
         assertThat(result.consumed.downChange, `is`(false))
     }
@@ -213,12 +213,12 @@ class TapGestureDetectorTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveXUp_upChangeNotConsumed() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 1f, 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(100.milliseconds)
         val result =
-            recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
         assertThat(result.consumed.downChange, `is`(false))
     }
@@ -226,12 +226,12 @@ class TapGestureDetectorTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsNegativeYUp_upChangeNotConsumed() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 0f, -1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(100.milliseconds)
         val result =
-            recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
         assertThat(result.consumed.downChange, `is`(false))
     }
@@ -239,13 +239,13 @@ class TapGestureDetectorTest {
     @Test
     fun pointerInputHandler_downMoveOutsideBoundsPositiveYUp_upChangeNotConsumed() {
         var pointer = down(0, 0.milliseconds, x = 0f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.moveTo(50.milliseconds, 0f, 1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
         pointer = pointer.up(100.milliseconds)
 
         val result =
-            recognizer::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
 
         assertThat(result.consumed.downChange, `is`(false))
     }
@@ -255,9 +255,9 @@ class TapGestureDetectorTest {
     @Test
     fun pointerInputHandler_upChangeConsumed() {
         var pointer = down(0, 0.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
-        val pointerEventChange = recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        val pointerEventChange = filter::onPointerInput.invokeOverAllPasses(pointer)
         assertThat(pointerEventChange.consumed.downChange, `is`(true))
     }
 
@@ -266,7 +266,7 @@ class TapGestureDetectorTest {
     @Test
     fun pointerInputHandler_downChangeConsumedDuringPostUp() {
         var pointerEventChange = down(0, 0.milliseconds)
-        pointerEventChange = recognizer::onPointerInput.invokeOverPasses(
+        pointerEventChange = filter::onPointerInput.invokeOverPasses(
             pointerEventChange,
             PointerEventPass.InitialDown,
             PointerEventPass.PreUp,
@@ -274,7 +274,7 @@ class TapGestureDetectorTest {
         )
         assertThat(pointerEventChange.consumed.downChange, `is`(false))
 
-        pointerEventChange = recognizer::onPointerInput.invokeOverPasses(
+        pointerEventChange = filter::onPointerInput.invokeOverPasses(
             pointerEventChange,
             PointerEventPass.PostUp,
             IntPxSize(0.ipx, 0.ipx)
@@ -285,9 +285,9 @@ class TapGestureDetectorTest {
     @Test
     fun pointerInputHandler_upChangeConsumedDuringPostUp() {
         val pointer = down(0, 0.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
         var pointerEventChange = pointer.up(100.milliseconds)
-        pointerEventChange = recognizer::onPointerInput.invokeOverPasses(
+        pointerEventChange = filter::onPointerInput.invokeOverPasses(
             pointerEventChange,
             PointerEventPass.InitialDown,
             PointerEventPass.PreUp,
@@ -295,7 +295,7 @@ class TapGestureDetectorTest {
         )
         assertThat(pointerEventChange.consumed.downChange, `is`(false))
 
-        pointerEventChange = recognizer::onPointerInput.invokeOverPasses(
+        pointerEventChange = filter::onPointerInput.invokeOverPasses(
             pointerEventChange,
             PointerEventPass.PostUp,
             IntPxSize(0.ipx, 0.ipx)
@@ -308,11 +308,11 @@ class TapGestureDetectorTest {
     @Test
     fun cancelationHandler_downCancelUp_onReleaseNotCalled() {
         var pointer = down(0, 0.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
-        recognizer.onCancel()
+        filter::onPointerInput.invokeOverAllPasses(pointer)
+        filter.onCancel()
         pointer = pointer.up(100.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
 
-        verify(recognizer.onTap, never()).invoke()
+        verify(filter.onTap, never()).invoke()
     }
 }
