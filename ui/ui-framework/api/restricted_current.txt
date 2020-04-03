@@ -628,3 +628,11 @@ package androidx.ui.tooling {
 
 }
 
+package androidx.ui.viewinterop {
+
+  public final class ComposedViewKt {
+    method public static void AndroidView(@LayoutRes int resId, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> postInflationCallback = { _ ->  });
+  }
+
+}
+

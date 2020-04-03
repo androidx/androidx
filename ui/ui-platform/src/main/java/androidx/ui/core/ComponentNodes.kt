@@ -1595,10 +1595,6 @@ fun ComponentNode.add(child: ComponentNode) {
     insertAt(count, child)
 }
 
-class Ref<T> {
-    var value: T? = null
-}
-
 /**
  * Executes [block] on first level of [LayoutNode] descendants of this ComponentNode.
  */

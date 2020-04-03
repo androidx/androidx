@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.ui.androidview.demos
+package androidx.ui.core
 
-import androidx.ui.demos.common.ActivityDemo
-import androidx.ui.demos.common.ComposableDemo
-import androidx.ui.demos.common.DemoCategory
-
-val AndroidViewDemos = DemoCategory("AndroidView", listOf(
-    ActivityDemo("WebComponent", WebComponentActivity::class)
-))
+/**
+ * Value holder general purpose class.
+ */
+class Ref<T> {
+    var value: T? = null
+}
