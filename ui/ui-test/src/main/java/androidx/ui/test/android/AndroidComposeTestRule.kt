@@ -180,30 +180,38 @@ class AndroidComposeTestRule<T : Activity>(
         private val base: Statement
     ) : Statement() {
         override fun evaluate() {
-            transitionsEnabled = !disableTransitions
-            AndroidOwner.onAndroidOwnerCreatedCallback = ::onAndroidOwnerCreated
-            registerComposeWithEspresso()
+            beforeEvaluate()
             try {
                 base.evaluate()
             } finally {
-                transitionsEnabled = true
-                AndroidOwner.onAndroidOwnerCreatedCallback = null
-                // Dispose the content
-                if (disposeContentHook != null) {
-                    runOnUiThread {
-                        // NOTE: currently, calling dispose after an exception that happened during
-                        // composition is not a safe call. Compose runtime should fix this, and then
-                        // this call will be okay. At the moment, however, calling this could
-                        // itself produce an exception which will then obscure the original
-                        // exception. To fix this, we will just wrap this call in a try/catch of
-                        // its own
-                        try {
-                            disposeContentHook!!()
-                        } catch (e: Exception) {
-                            // ignore
-                        }
-                        disposeContentHook = null
+                afterEvaluate()
+            }
+        }
+
+        private fun beforeEvaluate() {
+            transitionsEnabled = !disableTransitions
+            AndroidOwner.onAndroidOwnerCreatedCallback = ::onAndroidOwnerCreated
+            registerComposeWithEspresso()
+        }
+
+        private fun afterEvaluate() {
+            transitionsEnabled = true
+            AndroidOwner.onAndroidOwnerCreatedCallback = null
+            // Dispose the content
+            if (disposeContentHook != null) {
+                runOnUiThread {
+                    // NOTE: currently, calling dispose after an exception that happened during
+                    // composition is not a safe call. Compose runtime should fix this, and then
+                    // this call will be okay. At the moment, however, calling this could
+                    // itself produce an exception which will then obscure the original
+                    // exception. To fix this, we will just wrap this call in a try/catch of
+                    // its own
+                    try {
+                        disposeContentHook!!()
+                    } catch (e: Exception) {
+                        // ignore
                     }
+                    disposeContentHook = null
                 }
             }
         }
