@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.hilt.integration.viewmodelapp
+package androidx.hilt.ext
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.hilt.lifecycle.ViewModelInject
-import javax.inject.Inject
+import com.google.auto.common.MoreElements
+import javax.lang.model.element.Element
+import kotlin.reflect.KClass
 
-@Suppress("UNUSED_PARAMETER")
-class SimpleViewModel @ViewModelInject constructor(
-    mngr: MyManager,
-    savedState: SavedStateHandle
-) : ViewModel() {
-    fun hi() = "$this - hi"
+fun Element.hasAnnotation(clazz: KClass<out Annotation>) =
+    MoreElements.isAnnotationPresent(this, clazz.java)
+
+fun Element.hasAnnotation(qName: String) = annotationMirrors.any {
+    MoreElements.asType(it.annotationType.asElement()).qualifiedName.contentEquals(qName)
 }
-
-class MyManager @Inject constructor()

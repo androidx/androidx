@@ -20,8 +20,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.hilt.ActivityViewModelFactory
-import androidx.lifecycle.hilt.ViewModelFactory
+import androidx.hilt.lifecycle.ActivityViewModelFactory
+import androidx.hilt.lifecycle.ViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
