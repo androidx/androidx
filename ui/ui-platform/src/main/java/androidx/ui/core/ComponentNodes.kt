@@ -15,6 +15,8 @@
  */
 package androidx.ui.core
 
+import androidx.ui.core.focus.FocusModifierImpl
+import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.focus.findParentFocusNode
 import androidx.ui.core.focus.ownerHasFocus
 import androidx.ui.core.focus.requestFocusForOwner
@@ -28,6 +30,7 @@ import androidx.ui.focus.FocusDetailedState.ActiveParent
 import androidx.ui.focus.FocusDetailedState.Captured
 import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.focus.FocusModifier
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -1054,6 +1057,10 @@ class LayoutNode : ComponentNode(), Measurable {
                 if (mod is DrawLayerModifier) {
                     wrapper = LayerWrapper(wrapper, mod)
                     outerLayerModifier = mod
+                }
+                if (mod is FocusModifier) {
+                    require(mod is FocusModifierImpl)
+                    wrapper = ModifiedFocusNode(wrapper, mod).also { mod.focusNode = it }
                 }
                 if (mod is PointerInputModifier) {
                     wrapper = PointerInputDelegatingWrapper(wrapper, mod)

@@ -39,12 +39,15 @@ import androidx.ui.autofill.populateViewStructure
 import androidx.ui.autofill.registerCallback
 import androidx.ui.autofill.unregisterCallback
 import androidx.ui.core.Owner.Companion.enableExtraAssertions
+import androidx.ui.core.focus.FocusModifierImpl
 import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
+import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.focus.FocusDetailedState.Active
 import androidx.ui.graphics.Canvas
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
@@ -73,10 +76,12 @@ internal class AndroidComposeView constructor(context: Context) :
     override var density = Density(context)
         private set
 
+    private val focusModifier: FocusModifierImpl = FocusModifierImpl(Inactive)
+
     override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
         it.layoutDirection = context.getLayoutDirection()
-        it.modifier = Modifier.drawLayer(clipToBounds = false)
+        it.modifier = Modifier.drawLayer(clipToBounds = false) + focusModifier
     }
 
     // LayoutNodes that need measure and layout
@@ -126,6 +131,21 @@ internal class AndroidComposeView constructor(context: Context) :
             return field
         }
         private set
+
+    override fun dispatchWindowFocusChanged(hasFocus: Boolean) {
+        if (hasFocus) {
+            focusModifier.focusDetailedState = Active
+            // TODO(b/152535715): propagate focus to children based on child focusability.
+        } else {
+            // If this view lost focus, clear focus from the children. For now we clear focus
+            // from the children by requesting focus on the parent.
+            // TODO(b/151335411): use clearFocus() instead.
+            focusModifier.apply {
+                requestFocus()
+                focusDetailedState = Inactive
+            }
+        }
+    }
 
     /**
      * Flag to indicate that we're currently measuring.

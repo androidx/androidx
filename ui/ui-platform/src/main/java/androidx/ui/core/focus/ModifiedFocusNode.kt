@@ -23,12 +23,10 @@ import androidx.ui.focus.FocusDetailedState.Captured
 import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
 
-internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
-    DelegatingLayoutNodeWrapper(wrapped) {
-    var focusState = Inactive
-
-    // Internal for access by tests.
-    internal var focusedChild: ModifiedFocusNode? = null
+internal class ModifiedFocusNode(
+    wrapped: LayoutNodeWrapper,
+    val focusModifier: FocusModifierImpl
+) : DelegatingLayoutNodeWrapper(wrapped) {
 
     /**
      * Request focus for this node.
@@ -40,10 +38,10 @@ internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
      * [FocusNode][ModifiedFocusNode]'s parent [FocusNode][ModifiedFocusNode].
      */
     fun requestFocus(propagateFocus: Boolean = true) {
-        when (focusState) {
+        when (focusModifier.focusDetailedState) {
             Active, Captured, Disabled -> return
             ActiveParent -> {
-                val focusedChild = focusedChild
+                val focusedChild = focusModifier.focusedChild
                 requireNotNull(focusedChild)
 
                 /** We don't need to do anything if [propagateFocus] is true,
@@ -75,9 +73,9 @@ internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
      *
      * @return true if the focus was successfully captured. False otherwise.
      */
-    fun captureFocus() = when (focusState) {
+    fun captureFocus() = when (focusModifier.focusDetailedState) {
         Active, Captured -> {
-            focusState = Captured
+            focusModifier.focusDetailedState = Captured
             true
         }
         else -> false
@@ -91,8 +89,8 @@ internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
      * @return true if the captured focus was released. If the node is not in the [Captured]
      * state. this function returns false to indicate that this operation was a no-op.
      */
-    fun freeFocus() = if (focusState == Captured) {
-        focusState = Active
+    fun freeFocus() = if (focusModifier.focusDetailedState == Captured) {
+        focusModifier.focusDetailedState = Active
         true
     } else {
         false
@@ -117,10 +115,10 @@ internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
 
         if (focusedCandidate == null || !propagateFocus) {
             // No Focused Children, or we don't want to propagate focus to children.
-            focusState = Active
+            focusModifier.focusDetailedState = Active
         } else {
-            focusState = ActiveParent
-            focusedChild = focusedCandidate
+            focusModifier.focusDetailedState = ActiveParent
+            focusModifier.focusedChild = focusedCandidate
             focusedCandidate.grantFocus(propagateFocus)
         }
     }
@@ -132,10 +130,10 @@ internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
      * clear focus from one of its child [ModifiedFocusNode]s.
      */
     private fun clearFocus(): Boolean {
-        return when (focusState) {
+        return when (focusModifier.focusDetailedState) {
             Active -> {
-                focusState = Inactive
-                findParentFocusNode()?.focusedChild = null
+                focusModifier.focusDetailedState = Inactive
+                findParentFocusNode()?.focusModifier?.focusedChild = null
                 true
             }
             /**
@@ -144,7 +142,7 @@ internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
              */
             ActiveParent -> {
                 if (clearFocusFromChildren()) {
-                    focusState = Active
+                    focusModifier.focusDetailedState = Active
                     clearFocus()
                 } else {
                     false
@@ -165,9 +163,9 @@ internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
     }
 
     private fun clearFocusFromChildren(): Boolean {
-        require(focusState == ActiveParent)
+        require(focusModifier.focusDetailedState == ActiveParent)
 
-        val focusedChild = focusedChild
+        val focusedChild = focusModifier.focusedChild
         requireNotNull(focusedChild)
 
         return focusedChild.clearFocus()
@@ -190,13 +188,13 @@ internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
             error("Non child node cannot request focus.")
         }
 
-        return when (focusState) {
+        return when (focusModifier.focusDetailedState) {
             /**
              * If this node is [Active], it can give focus to the requesting child.
              */
             Active -> {
-                focusState = ActiveParent
-                focusedChild = childNode
+                focusModifier.focusDetailedState = ActiveParent
+                focusModifier.focusedChild = childNode
                 childNode.grantFocus(propagateFocus)
                 true
             }
@@ -205,9 +203,10 @@ internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
              * remove focus from the currently focused child and grant it to the requesting child.
              */
             ActiveParent -> {
-                val previouslyFocusedNode = focusedChild ?: error("no focusedChild found")
+                val previouslyFocusedNode = focusModifier.focusedChild
+                requireNotNull(previouslyFocusedNode)
                 if (previouslyFocusedNode.clearFocus()) {
-                    focusedChild = childNode
+                    focusModifier.focusedChild = childNode
                     childNode.grantFocus(propagateFocus)
                     true
                 } else {
@@ -224,7 +223,7 @@ internal class ModifiedFocusNode(wrapped: LayoutNodeWrapper) :
                 if (focusParent == null) {
                     // If the owner successfully gains focus, proceed otherwise return false.
                     if (requestFocusForOwner()) {
-                        focusState = Active
+                        focusModifier.focusDetailedState = Active
                         requestFocusForChild(childNode, propagateFocus)
                     } else {
                         false

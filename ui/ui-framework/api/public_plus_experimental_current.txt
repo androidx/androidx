@@ -342,6 +342,11 @@ package androidx.ui.core.selection {
 
 package androidx.ui.focus {
 
+  public final class FocusModifierProviderKt {
+    method public static androidx.ui.focus.FocusModifier FocusModifier();
+    method public static androidx.ui.focus.FocusState getFocusState(androidx.ui.focus.FocusModifier);
+  }
+
   public final class FocusOperator {
     ctor public FocusOperator();
     method public androidx.ui.focus.FocusDetailedState getFocusDetailedState();
