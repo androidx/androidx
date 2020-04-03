@@ -31,13 +31,13 @@ import androidx.ui.text.SpanStyle
 import androidx.ui.text.TextDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
-import androidx.ui.text.test.R
 import androidx.ui.text.font.Font
-import androidx.ui.text.font.font
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.ResourceFont
 import androidx.ui.text.font.asFontFamily
+import androidx.ui.text.font.font
+import androidx.ui.text.font.test.R
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxPosition

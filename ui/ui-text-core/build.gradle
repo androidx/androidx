@@ -41,6 +41,7 @@ dependencies {
     implementation project(":ui:ui-text-android")
     api project(":ui:ui-core")
 
+    testImplementation project(":ui:ui-test-font")
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
@@ -51,6 +52,8 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
 
+
+    androidTestImplementation project(":ui:ui-test-font")
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
