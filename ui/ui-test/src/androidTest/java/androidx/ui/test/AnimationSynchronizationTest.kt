@@ -29,13 +29,14 @@ import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.ui.animation.Transition
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
@@ -62,14 +63,14 @@ class AnimationSynchronizationTest {
     private val clockTestRule = composeTestRule.clockTestRule
 
     /**
-     * High level test to only verify that [ComposeTestRule.runOnIdleCompose] awaits animations.
+     * High level test to only verify that [runOnIdleCompose] awaits animations.
      */
     @Test
     fun testRunOnIdleCompose() {
         val animationState = mutableStateOf(AnimationStates.From)
         composeTestRule.setContent { Ui(animationState) }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // Kick off the animation
             animationRunning = true
             animationState.value = AnimationStates.To
@@ -78,7 +79,7 @@ class AnimationSynchronizationTest {
         // Verify that animation is kicked off
         assertThat(animationRunning).isTrue()
         // Wait until it is finished
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // Verify it was finished
             assertThat(animationRunning).isFalse()
         }
@@ -92,7 +93,7 @@ class AnimationSynchronizationTest {
         val animationState = mutableStateOf(AnimationStates.From)
         composeTestRule.setContent { Ui(animationState) }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // Kick off the animation
             animationRunning = true
             animationState.value = AnimationStates.To
@@ -120,7 +121,7 @@ class AnimationSynchronizationTest {
         val animationState = mutableStateOf(AnimationStates.From)
         composeTestRule.setContent { Ui(animationState) }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // Record idleness after this frame is committed. The mutation we're about to make
             // will trigger a commit of the frame, which is posted at the front of the handler's
             // queue. By posting a message at the front of the queue here, it will be executed
@@ -176,7 +177,7 @@ class AnimationSynchronizationTest {
         val animationState = mutableStateOf(AnimationStates.From)
         composeTestRule.setContent { Ui(animationState) }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             recordedAnimatedValues.clear()
 
             // Kick off the animation
@@ -195,7 +196,7 @@ class AnimationSynchronizationTest {
 
         // Animation doesn't actually start until the next frame.
         // Advance by 0ms to force dispatching of a frame time.
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // Advance clock on main thread so we can assert Compose is not idle afterwards
             clockTestRule.advanceClock(0)
             assertThat(ComposeIdlingResource.isIdle()).isFalse()
@@ -208,7 +209,7 @@ class AnimationSynchronizationTest {
         assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f))
 
         // Advance first half of the animation (.5 sec)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clockTestRule.advanceClock(500)
             assertThat(ComposeIdlingResource.isIdle()).isFalse()
         }
@@ -220,7 +221,7 @@ class AnimationSynchronizationTest {
         assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f, 25f))
 
         // Advance second half of the animation (.5 sec)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clockTestRule.advanceClock(500)
             assertThat(ComposeIdlingResource.isIdle()).isFalse()
         }
@@ -260,7 +261,7 @@ class AnimationSynchronizationTest {
         val paint = remember { Paint().also { it.color = Color.Cyan } }
 
         hasRecomposed = true
-        Box(modifier = DrawBackground(color = Color.Yellow) + LayoutSize.Fill) {
+        Box(modifier = Modifier.drawBackground(Color.Yellow).fillMaxSize()) {
             hasRecomposed = true
             Transition(
                 definition = animationDefinition,
@@ -268,7 +269,7 @@ class AnimationSynchronizationTest {
                 onStateChangeFinished = { animationRunning = false }
             ) { state ->
                 hasRecomposed = true
-                Canvas(modifier = LayoutSize.Fill) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
                     recordedAnimatedValues.add(state[x])
                     drawRect(animatedRect.translate(state[x], 0f), paint)
                 }

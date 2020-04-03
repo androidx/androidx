@@ -18,15 +18,18 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.compose.getValue
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Row
+import androidx.ui.layout.padding
 import androidx.ui.material.Checkbox
 import androidx.ui.material.RadioButton
 import androidx.ui.material.RadioGroup
@@ -56,7 +59,7 @@ fun TriStateCheckboxSample() {
         }
 
         TriStateCheckbox(state = parentState, onClick = onParentClick, color = Color.Black)
-        Column(LayoutPadding(start = 10.dp)) {
+        Column(Modifier.padding(10.dp, 0.dp, 0.dp, 0.dp)) {
             Checkbox(state, onStateChange)
             Checkbox(state2, onStateChange2)
         }
@@ -130,7 +133,7 @@ fun CustomRadioGroupSample() {
                     onSelect = { onOptionSelected(text) }) {
                     // TODO: remove Box when Ripple becomes a modifier
                     Box {
-                        Column(modifier = LayoutPadding(10.dp)) {
+                        Column(modifier = Modifier.padding(10.dp)) {
                             RadioButton(
                                 selected = selected,
                                 onSelect = { onOptionSelected(text) })

@@ -19,14 +19,14 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.drawClip
+import androidx.ui.core.clip
 import androidx.ui.core.drawShadow
 import androidx.ui.foundation.Border
-import androidx.ui.foundation.DrawBackground
-import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.drawBorder
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
@@ -84,15 +84,18 @@ fun Surface(
     contentColor: Color = contentColorFor(color),
     border: Border? = null,
     elevation: Dp = 0.dp,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
-    val borderModifier = if (border != null) DrawBorder(border, shape) else Modifier.None
-    val shadowModifier = drawShadow(shape = shape, elevation = elevation, clipToOutline = false)
-    val backgroundColor = getBackgroundColorForElevation(color, elevation)
-    val background = DrawBackground(shape = shape, color = backgroundColor)
-    val clip = drawClip(shape)
-    SurfaceLayout(modifier + shadowModifier + borderModifier + background + clip) {
-        ProvideContentColor(contentColor, children)
+    SurfaceLayout(
+        modifier.drawShadow(shape = shape, elevation = elevation, clipToOutline = false)
+            .plus(if (border != null) Modifier.drawBorder(border, shape) else Modifier.None)
+            .drawBackground(
+                color = getBackgroundColorForElevation(color, elevation),
+                shape = shape
+            )
+            .clip(shape)
+    ) {
+        ProvideContentColor(contentColor, content)
     }
 }
 

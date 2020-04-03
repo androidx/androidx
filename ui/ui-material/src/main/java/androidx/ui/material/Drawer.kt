@@ -21,9 +21,10 @@ import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.DrawClipToBounds
 import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
+import androidx.ui.core.clipToBounds
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.foundation.Box
@@ -33,10 +34,11 @@ import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSizeIn
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
@@ -78,7 +80,7 @@ enum class DrawerState {
 fun StaticDrawer(
     drawerContent: @Composable() () -> Unit
 ) {
-    Box(LayoutWidth(StaticDrawerWidth) + LayoutHeight.Fill, children = drawerContent)
+    Box(StaticDrawerModifier, children = drawerContent)
 }
 
 /**
@@ -110,7 +112,7 @@ fun ModalDrawerLayout(
     drawerContent: @Composable() () -> Unit,
     bodyContent: @Composable() () -> Unit
 ) {
-    Box(LayoutSize.Fill) {
+    Box(Modifier.fillMaxSize()) {
         WithConstraints { pxConstraints, _ ->
             // TODO : think about Infinite max bounds case
             if (!pxConstraints.hasBoundedWidth) {
@@ -177,7 +179,7 @@ fun BottomDrawerLayout(
     drawerContent: @Composable() () -> Unit,
     bodyContent: @Composable() () -> Unit
 ) {
-    Box(LayoutSize.Fill) {
+    Box(Modifier.fillMaxSize()) {
         WithConstraints { pxConstraints, _ ->
             // TODO : think about Infinite max bounds case
             if (!pxConstraints.hasBoundedHeight) {
@@ -233,11 +235,11 @@ fun BottomDrawerLayout(
 private fun DrawerContent(
     xOffset: AnimatedFloat,
     constraints: DpConstraints,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     WithOffset(xOffset = xOffset) {
         Box(
-            LayoutSize.Constrain(
+            Modifier.preferredSizeIn(
                 constraints.minWidth,
                 constraints.minHeight,
                 constraints.maxWidth,
@@ -247,7 +249,7 @@ private fun DrawerContent(
         ) {
             // remove Container when we will support multiply children
             Surface {
-                Box(LayoutSize.Fill, children = children)
+                Box(Modifier.fillMaxSize(), children = content)
             }
         }
     }
@@ -257,11 +259,11 @@ private fun DrawerContent(
 private fun BottomDrawerContent(
     yOffset: AnimatedFloat,
     constraints: DpConstraints,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     WithOffset(yOffset = yOffset) {
         Box(
-            LayoutSize.Constrain(
+            Modifier.preferredSizeIn(
                 constraints.minWidth,
                 constraints.minHeight,
                 constraints.maxWidth,
@@ -270,7 +272,7 @@ private fun BottomDrawerContent(
         ) {
             // remove Container when we will support multiply children
             Surface {
-                Box(LayoutSize.Fill, children = children)
+                Box(Modifier.fillMaxSize(), children = content)
             }
         }
     }
@@ -289,7 +291,7 @@ private fun Scrim(
     val scrimContent = @Composable {
         val paint = remember { Paint().apply { style = PaintingStyle.fill } }
         val color = MaterialTheme.colors.onSurface
-        Canvas(LayoutSize.Fill) {
+        Canvas(Modifier.fillMaxSize()) {
             val scrimAlpha = fraction() * ScrimDefaultOpacity
             paint.color = color.copy(alpha = scrimAlpha)
             drawRect(size.toRect(), paint)
@@ -310,7 +312,7 @@ private fun WithOffset(
     child: @Composable() () -> Unit
 ) {
     Layout(children = {
-        Box(modifier = DrawClipToBounds, children = child)
+        Box(Modifier.clipToBounds(), children = child)
     }) { measurables, constraints, _ ->
         if (measurables.size > 1) {
             throw IllegalStateException("Only one child is allowed")
@@ -334,16 +336,15 @@ private fun WithOffset(
     }
 }
 
-private val ScrimDefaultOpacity = 0.32f
+private const val ScrimDefaultOpacity = 0.32f
 private val VerticalDrawerPadding = 56.dp
 
-// drawer children specs
-private val StaticDrawerWidth = 256.dp
-private val DrawerStiffness = 1000f
+private val StaticDrawerModifier = Modifier.preferredWidth(256.dp).fillMaxHeight()
+private const val DrawerStiffness = 1000f
 
 private val AnimationBuilder =
     PhysicsBuilder<Float>().apply {
         stiffness = DrawerStiffness
     }
 
-internal val BottomDrawerOpenFraction = 0.5f
+internal const val BottomDrawerOpenFraction = 0.5f

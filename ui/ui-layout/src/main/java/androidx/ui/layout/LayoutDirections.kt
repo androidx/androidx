@@ -14,17 +14,47 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.layout
 
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Modifier
 import androidx.ui.unit.Density
+
+/**
+ * Changes the [LayoutDirection] of the content to [LayoutDirection.Ltr].
+ */
+val Modifier.ltr: Modifier get() = this + LayoutDirectionModifier.Ltr
+
+/**
+ * Changes the [LayoutDirection] of the content to [LayoutDirection.Rtl].
+ */
+val Modifier.rtl: Modifier get() = this + LayoutDirectionModifier.Rtl
 
 /**
  * A layout modifier that changes the layout direction of the corresponding layout node.
  */
 object LayoutDirectionModifier {
+    @Deprecated(
+        "Use Modifier.ltr",
+        replaceWith = ReplaceWith(
+            "Modifier.ltr",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.layout.ltr"
+        )
+    )
     val Ltr: LayoutModifier = LayoutDirectionModifierImpl(LayoutDirection.Ltr)
+
+    @Deprecated(
+        "Use Modifier.rtl",
+        replaceWith = ReplaceWith(
+            "Modifier.rtl",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.layout.ltr"
+        )
+    )
     val Rtl: LayoutModifier = LayoutDirectionModifierImpl(LayoutDirection.Rtl)
 }
 

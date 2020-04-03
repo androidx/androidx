@@ -31,17 +31,17 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 
-import androidx.animator.Animator;
-import androidx.animator.AnimatorInflater;
-import androidx.animator.AnimatorListenerAdapter;
-import androidx.animator.AnimatorSet;
-import androidx.animator.ObjectAnimator;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SimpleArrayMap;
+import androidx.core.animation.Animator;
+import androidx.core.animation.AnimatorInflater;
+import androidx.core.animation.AnimatorListenerAdapter;
+import androidx.core.animation.AnimatorSet;
+import androidx.core.animation.ObjectAnimator;
 import androidx.core.content.res.TypedArrayUtils;
 
 import org.xmlpull.v1.XmlPullParser;

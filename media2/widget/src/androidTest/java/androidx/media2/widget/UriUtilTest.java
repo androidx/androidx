@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 public class UriUtilTest {
     @Test
     @SmallTest
-    public void testIsFromNetwork() {
+    public void isFromNetwork() {
         assertTrue(UriUtil.isFromNetwork(Uri.parse("http://localhost/dummy.mp4")));
         assertTrue(UriUtil.isFromNetwork(Uri.parse("https://localhost/dummy.mp4")));
         assertTrue(UriUtil.isFromNetwork(Uri.parse("rtsp://localhost/dummy.mp4")));

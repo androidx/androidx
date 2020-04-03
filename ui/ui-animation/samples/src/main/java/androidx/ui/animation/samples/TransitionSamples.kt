@@ -22,8 +22,11 @@ import androidx.compose.Composable
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
 private enum class State {
@@ -55,7 +58,11 @@ fun TransitionSample() {
         // This puts the transition in State.First. Any subsequent state change will trigger a
         // transition animation, as defined in the transition definition.
         Transition(definition = definition, toState = State.First) { state ->
-            ColoredRect(color = state[colorKey], width = state[widthKey], height = state[heightKey])
+            Box(
+                Modifier
+                    .preferredSize(state[widthKey], state[heightKey])
+                    .drawBackground(state[colorKey])
+            )
         }
     }
 
@@ -65,7 +72,11 @@ fun TransitionSample() {
         // gets composed for the first time.
         Transition(definition = definition, initState = State.First, toState = State.Second) {
                 state ->
-            ColoredRect(color = state[colorKey], width = state[widthKey], height = state[heightKey])
+            Box(
+                Modifier
+                    .preferredSize(state[widthKey], state[heightKey])
+                    .drawBackground(state[colorKey])
+            )
         }
     }
 }

@@ -50,8 +50,6 @@ import java.util.Set;
 public final class ArraySet<E> implements Collection<E>, Set<E> {
     private static final boolean DEBUG = false;
     private static final String TAG = "ArraySet";
-    private static final int[] INT = new int[0];
-    private static final Object[] OBJECT = new Object[0];
 
     /**
      * The minimum amount by which the capacity of a ArraySet will increase.
@@ -88,14 +86,13 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     int mSize;
     private MapCollections<E, E> mCollections;
 
-    private int binarySearch(int[] hashes, int hash) {
+    private int binarySearch(int hash) {
         try {
-            return ContainerHelpers.binarySearch(hashes, mSize, hash);
+            return ContainerHelpers.binarySearch(mHashes, mSize, hash);
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new ConcurrentModificationException();
         }
     }
-
 
     private int indexOf(Object key, int hash) {
         final int N = mSize;
@@ -105,7 +102,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
             return ~0;
         }
 
-        int index = binarySearch(mHashes, hash);
+        int index = binarySearch(hash);
 
         // If the hash code wasn't found, then we have no entry for this key.
         if (index < 0) {
@@ -143,7 +140,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
             return ~0;
         }
 
-        int index = binarySearch(mHashes, 0);
+        int index = binarySearch(0);
 
         // If the hash code wasn't found, then we have no entry for this key.
         if (index < 0) {
@@ -290,8 +287,8 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     @SuppressWarnings("NullAway") // allocArrays initializes mHashes and mArray.
     public ArraySet(int capacity) {
         if (capacity == 0) {
-            mHashes = INT;
-            mArray = OBJECT;
+            mHashes = ContainerHelpers.EMPTY_INTS;
+            mArray = ContainerHelpers.EMPTY_OBJECTS;
         } else {
             allocArrays(capacity);
         }
@@ -327,8 +324,8 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
             final int[] ohashes = mHashes;
             final Object[] oarray = mArray;
             final int osize = mSize;
-            mHashes = INT;
-            mArray = OBJECT;
+            mHashes = ContainerHelpers.EMPTY_INTS;
+            mArray = ContainerHelpers.EMPTY_OBJECTS;
             mSize = 0;
             freeArrays(ohashes, oarray, osize);
         }

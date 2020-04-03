@@ -25,11 +25,11 @@ import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
+import androidx.ui.core.AndroidOwner
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.core.Owner
 import androidx.ui.core.Placeable
 import androidx.ui.core.Ref
 import androidx.ui.core.enforce
@@ -99,18 +99,18 @@ open class LayoutTest {
     }
 
     internal fun findOwnerView(): View {
-        return findOwner(activity) as View
+        return findOwner(activity).view
     }
 
-    internal fun findOwner(activity: Activity): Owner {
+    internal fun findOwner(activity: Activity): AndroidOwner {
         val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
         return findOwner(contentViewGroup)!!
     }
 
-    internal fun findOwner(parent: ViewGroup): Owner? {
+    internal fun findOwner(parent: ViewGroup): AndroidOwner? {
         for (index in 0 until parent.childCount) {
             val child = parent.getChildAt(index)
-            if (child is Owner) {
+            if (child is AndroidOwner) {
                 return child
             } else if (child is ViewGroup) {
                 val owner = findOwner(child)
@@ -138,11 +138,11 @@ open class LayoutTest {
         assertTrue(viewDrawLatch.await(1, TimeUnit.SECONDS))
     }
 
-    internal fun saveLayoutInfo(
+    internal fun Modifier.saveLayoutInfo(
         size: Ref<IntPxSize>,
         position: Ref<PxPosition>,
         positionedLatch: CountDownLatch
-    ): Modifier = onPositioned { coordinates ->
+    ): Modifier = this.onPositioned { coordinates ->
         size.value = IntPxSize(coordinates.size.width, coordinates.size.height)
         position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
         positionedLatch.countDown()

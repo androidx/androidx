@@ -18,20 +18,21 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
 @Sampled
 @Composable
 fun SimpleCircleBox() {
     Box(
-        modifier = LayoutSize(100.dp),
+        modifier = Modifier.preferredSize(100.dp),
         backgroundColor = Color.Cyan,
         border = Border(10.dp, Color.Red),
         shape = CircleShape,

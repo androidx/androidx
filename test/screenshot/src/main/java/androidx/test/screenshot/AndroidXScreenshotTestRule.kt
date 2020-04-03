@@ -32,6 +32,6 @@ class AndroidXScreenshotTestRule(
 ) : ScreenshotTestRule(
     ScreenshotTestRuleConfig(
         "platform/frameworks/support-golden",
-        "golden/${moduleDirectory.trim('/')}"
+        moduleDirectory.trim('/')
     )
 )

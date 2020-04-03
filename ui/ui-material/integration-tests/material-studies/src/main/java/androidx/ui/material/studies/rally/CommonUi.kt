@@ -18,16 +18,18 @@ package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.icons.Icons
@@ -70,35 +72,35 @@ private fun BaseRow(
     amount: Float,
     negative: Boolean
 ) {
-    Row(LayoutHeight(68.dp)) {
+    Row(Modifier.preferredHeight(68.dp)) {
         val typography = MaterialTheme.typography
-        AccountIndicator(color = color, modifier = LayoutGravity.Center)
-        Spacer(LayoutWidth(8.dp))
-        Column(LayoutGravity.Center) {
+        AccountIndicator(color = color, modifier = Modifier.gravity(RowAlign.Center))
+        Spacer(Modifier.preferredWidth(8.dp))
+        Column(Modifier.gravity(RowAlign.Center)) {
             Text(text = title, style = typography.body1)
             Text(text = subtitle, style = typography.subtitle1)
         }
-        Spacer(LayoutWeight(1f))
+        Spacer(Modifier.weight(1f))
         Row(
-            modifier = LayoutGravity.Center + LayoutWidth(113.dp),
+            modifier = Modifier.gravity(RowAlign.Center).preferredWidth(113.dp),
             arrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = if (negative) "–$ " else "$ ",
                 style = typography.h6,
-                modifier = LayoutGravity.Center
+                modifier = Modifier.gravity(RowAlign.Center)
             )
             Text(
                 text = formatAmount(amount),
                 style = typography.h6,
-                modifier = LayoutGravity.Center
+                modifier = Modifier.gravity(RowAlign.Center)
             )
         }
-        Spacer(LayoutWidth(16.dp))
+        Spacer(Modifier.preferredWidth(16.dp))
         Icon(
             Icons.Filled.ArrowForwardIos,
             tintColor = Color.White.copy(alpha = 0.6f),
-            modifier = LayoutGravity.Center,
+            modifier = Modifier.gravity(RowAlign.Center),
             size = 12.dp
         )
     }
@@ -110,12 +112,12 @@ private fun BaseRow(
  */
 @Composable
 private fun AccountIndicator(color: Color, modifier: Modifier = Modifier.None) {
-    ColoredRect(color = color, width = 4.dp, height = 36.dp, modifier = modifier)
+    Box(modifier.preferredSize(4.dp, 36.dp).drawBackground(color))
 }
 
 @Composable
 fun RallyDivider(modifier: Modifier = Modifier.None) {
-    Divider(color = MaterialTheme.colors.background, height = 1.dp, modifier = modifier)
+    Divider(color = MaterialTheme.colors.background, thickness = 1.dp, modifier = modifier)
 }
 
 fun formatAmount(amount: Float): String {

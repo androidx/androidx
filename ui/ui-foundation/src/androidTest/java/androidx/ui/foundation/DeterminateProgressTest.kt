@@ -18,11 +18,14 @@ package androidx.ui.foundation
 
 import androidx.compose.Model
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.graphics.Color
+import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +53,7 @@ class DeterminateProgressTest {
             .setContent {
                 TestTag(tag = tag) {
                     DeterminateProgressIndicator(progress = state.progress) {
-                        ColoredRect(Color.Cyan, width = 50.dp, height = 50.dp)
+                        Box(Modifier.preferredSize(50.dp).drawBackground(Color.Cyan))
                     }
                 }
             }
@@ -58,7 +61,7 @@ class DeterminateProgressTest {
         findByTag(tag)
             .assertValueEquals("0.0")
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             state.progress = 0.5f
         }
 

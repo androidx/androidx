@@ -226,17 +226,44 @@ class PagedStorageTest {
         val storage = PagedStorage(0, page, 0)
 
         storage.lastLoadAroundIndex = -5
-        var pagingState = storage.getRefreshKeyInfo(3)
+        var pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
         assertNotNull(pagingState)
         assertEquals(0, pagingState.anchorPosition)
 
         storage.lastLoadAroundIndex = 1
-        pagingState = storage.getRefreshKeyInfo(3)
+        pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
         assertNotNull(pagingState)
         assertEquals(1, pagingState.anchorPosition)
 
         storage.lastLoadAroundIndex = 5
-        pagingState = storage.getRefreshKeyInfo(3)
+        pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
         assertNotNull(pagingState)
         assertEquals(2, pagingState.anchorPosition)
     }
@@ -247,17 +274,44 @@ class PagedStorageTest {
         val storage = PagedStorage(10, page, 10)
 
         storage.lastLoadAroundIndex = 1
-        var pagingState = storage.getRefreshKeyInfo(3)
+        var pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
         assertNotNull(pagingState)
         assertEquals(10, pagingState.anchorPosition)
 
         storage.lastLoadAroundIndex = 11
-        pagingState = storage.getRefreshKeyInfo(3)
+        pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
         assertNotNull(pagingState)
         assertEquals(11, pagingState.anchorPosition)
 
         storage.lastLoadAroundIndex = 21
-        pagingState = storage.getRefreshKeyInfo(3)
+        pagingState = storage.getRefreshKeyInfo(
+            @Suppress("DEPRECATION")
+            PagedList.Config(
+                pageSize = 3,
+                prefetchDistance = 0,
+                enablePlaceholders = true,
+                initialLoadSizeHint = 3,
+                maxSize = 3
+            )
+        )
         assertNotNull(pagingState)
         assertEquals(12, pagingState.anchorPosition)
     }

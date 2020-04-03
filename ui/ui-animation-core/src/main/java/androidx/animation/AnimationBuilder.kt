@@ -233,6 +233,7 @@ internal fun <V : AnimationVector> FloatAnimation.buildMultiDimensAnim(): Animat
 private class VectorizedAnimation<V : AnimationVector>(val anim: FloatAnimation) : Animation<V> {
     private lateinit var valueVector: V
     private lateinit var velocityVector: V
+    private lateinit var endVelocityVector: V
 
     override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
         if (!::valueVector.isInitialized) {
@@ -252,6 +253,17 @@ private class VectorizedAnimation<V : AnimationVector>(val anim: FloatAnimation)
             velocityVector[i] = anim.getVelocity(playTime, start[i], end[i], startVelocity[i])
         }
         return velocityVector
+    }
+
+    override fun getEndVelocity(start: V, end: V, startVelocity: V, animationDuration: Long): V {
+        if (!::endVelocityVector.isInitialized) {
+            endVelocityVector = startVelocity.newInstance()
+        }
+        for (i in 0 until endVelocityVector.size) {
+            endVelocityVector[i] =
+                anim.getEndVelocity(start[i], end[i], startVelocity[i], animationDuration)
+        }
+        return endVelocityVector
     }
 
     override fun getDurationMillis(start: V, end: V, startVelocity: V): Long {

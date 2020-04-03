@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.ui.layout
 
 import androidx.annotation.FloatRange
@@ -21,12 +23,26 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
-import androidx.ui.unit.Density
+import androidx.ui.core.Modifier
 import androidx.ui.core.satisfiedBy
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
+
+/**
+ * Attempts to size the content to match a specified aspect ratio by trying to match one of the
+ * incoming constraints in the following order:
+ * [Constraints.maxWidth], [Constraints.maxHeight], [Constraints.minWidth], [Constraints.minHeight].
+ * The size in the other dimension is determined by the aspect ratio.
+ *
+ * @param ratio the desired width/height ratio
+ */
+fun Modifier.aspectRatio(
+    @FloatRange(from = 0.0, fromInclusive = false)
+    ratio: Float
+) = this + LayoutAspectRatio(ratio)
 
 /**
  * A layout modifier that attempts to size a layout to match a specified aspect ratio. The layout
@@ -46,7 +62,16 @@ import androidx.ui.unit.isFinite
  *
  * @param aspectRatio A positive non-zero value representing the aspect ratio.
  */
-data class LayoutAspectRatio(
+data class LayoutAspectRatio
+@Deprecated(
+    "Use Modifier.aspectRatio",
+    replaceWith = ReplaceWith(
+        "Modifier.aspectRatio(aspectRatio)",
+        "androidx.ui.core.Modifier",
+        "androidx.ui.layout.aspectRatio"
+    )
+)
+constructor(
     @FloatRange(from = 0.0, fromInclusive = false)
     val aspectRatio: Float
 ) : LayoutModifier {

@@ -176,12 +176,12 @@ public abstract class UseCase {
     }
 
     /**
-     * Sets the {@link SessionConfig} that will be used by the currently bound {@link Camera}.
+     * Sets the {@link SessionConfig} that will be used by the attached {@link Camera}.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void attachToCamera(@NonNull SessionConfig sessionConfig) {
+    protected void updateSessionConfig(@NonNull SessionConfig sessionConfig) {
         mAttachedSessionConfig = sessionConfig;
     }
 
@@ -319,6 +319,20 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void clear() {}
 
+    /**
+     * Called use case is unbound from lifecycle or the bound lifecycle is destroyed.
+     *
+     * TODO(b/152430679): remove this once UseCase can be reused. UseCase holds reference to user
+     * callbacks which causes memory leak. (see https://issuetracker.google.com/141188637) As
+     * long as the UseCase is never reused, it's safe to clear user callbacks when the lifecycle
+     * ends or unbinds. The proper fix should be breaking reference between Camera->UseCase
+     * when camera is detached (ON_STOP).
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void onDestroy() {}
+
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -402,12 +416,12 @@ public abstract class UseCase {
     }
 
     /**
-     * Called when use case is binding to a camera.
+     * Called when use case is attaching to a camera.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void onBind(@NonNull CameraInternal camera) {
+    protected void onAttach(@NonNull CameraInternal camera) {
         synchronized (mBoundCameraLock) {
             mBoundCamera = camera;
             addStateChangeCallback(camera);
@@ -421,12 +435,12 @@ public abstract class UseCase {
     }
 
     /**
-     * Called when use case is unbinding from the currently bound camera.
+     * Called when use case is detaching from a camera.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public void onUnbind() {
+    public void onDetach() {
         // Do any cleanup required by the UseCase implementation
         clear();
 

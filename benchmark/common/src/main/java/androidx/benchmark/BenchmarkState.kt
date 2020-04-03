@@ -57,22 +57,17 @@ import java.util.concurrent.TimeUnit
  */
 class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
-    private var stages = listOf(
-        MetricsContainer(arrayOf(TimeCapture()), 1),
-        MetricsContainer(arrayOf(TimeCapture()), REPEAT_COUNT[RUNNING_TIME_STAGE]!!)
-    )
-
-    private var metrics = stages[0]
+    private val metrics = MetricsContainer()
 
     /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     var traceUniqueName = "benchmark"
 
-    private var warmupIterations = 0 // number of warmup loops that occurred
+    private var warmupIteration = 0 // increasing iteration count during warmup
 
     /**
-     * Decreasing iteration count used when [state] == [RUNNING_TIME_STAGE]
-     * Used to determine when a main measurement stage finishes.
+     * Decreasing iteration count used when [state] == [RUNNING], used to determine when main
+     * measurement loop finishes.
      */
     @JvmField // Used by [BenchmarkState.keepRunningInline()]
     @PublishedApi
@@ -83,6 +78,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     private var state = NOT_STARTED // Current benchmark state.
 
     private val warmupManager = WarmupManager()
+    private var warmupStartTimeNs = 0L
 
     private var paused = false
     private var thermalThrottleSleepSeconds: Long =
@@ -95,8 +91,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     internal var performThrottleChecks = true
     private var throttleRemainingRetries = THROTTLE_MAX_RETRIES
 
-    private var stats = mutableListOf<Stats>()
-    private var allData = mutableListOf<LongArray>()
+    private lateinit var stats: List<Stats>
 
     @SuppressLint("MethodNameUnits")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -181,8 +176,18 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         paused = false
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun startProfilingTimeStageIfRequested() {
+    private fun beginWarmup() {
+        Trace.beginSection("Warmup")
+        // Run GC to avoid memory pressure from previous run from affecting this one.
+        // Note, we don't use System.gc() because it doesn't always have consistent behavior
+        Runtime.getRuntime().gc()
+        // Only time needs to be tracked during warmup
+        warmupStartTimeNs = System.nanoTime()
+        warmupIteration = 0
+        state = WARMUP
+    }
+
+    private fun beginBenchmark() {
         when (Arguments.profilingMode) {
             ProfilingMode.Sampled, ProfilingMode.Method -> {
                 val path = File(
@@ -207,10 +212,19 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             else -> {
             }
         }
+
+        maxIterations = OVERRIDE_ITERATIONS ?: computeIterationsFromWarmup()
+        iterationsRemaining = maxIterations
+        repeatCount = 0
+        thermalThrottleSleepSeconds = 0
+        state = RUNNING
+        metrics.captureInit()
+        Trace.beginSection("Benchmark")
+        metrics.captureStart()
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    private inline fun stopProfilingTimeStageIfRequested() {
+    private fun endBenchmark() {
+        Trace.endSection() // paired with start in beginBenchmark()
         when (Arguments.profilingMode) {
             ProfilingMode.Sampled, ProfilingMode.Method -> {
                 Debug.stopMethodTracing()
@@ -221,83 +235,36 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             else -> {
             }
         }
+        ThreadPriority.resetBumpedThread()
+        warmupManager.logInfo()
+        stats = metrics.captureFinished(maxIterations = maxIterations)
+        state = FINISHED
+        totalRunTimeNs = System.nanoTime() - totalRunTimeStartNs
     }
 
-    private fun beginRunningStage() {
-        metrics = stages[state]
-        repeatCount = 0
-        metrics.captureInit()
-
-        when (state) {
-            RUNNING_WARMUP_STAGE -> {
-                // Run GC to avoid memory pressure from previous run from affecting this one.
-                // Note, we don't use System.gc() because it doesn't always have consistent behavior
-                Runtime.getRuntime().gc()
-                maxIterations = 1
-                Trace.beginSection("Warmup")
-            }
-            RUNNING_TIME_STAGE -> {
-                startProfilingTimeStageIfRequested()
-                maxIterations = computeIterations()
-                Trace.beginSection("Benchmark")
-            }
-        }
-        iterationsRemaining = maxIterations
-        metrics.captureStart()
+    private fun computeIterationsFromWarmup(): Int {
+        val idealIterations =
+            (TARGET_TEST_DURATION_NS / warmupManager.estimatedIterationTimeNs).toInt()
+        return idealIterations.coerceIn(MIN_TEST_ITERATIONS, MAX_TEST_ITERATIONS)
     }
 
-    /**
-     * @return Whether this benchmarking stage was actually ended
-     */
-    private fun endRunningStage(): Boolean {
-        if (state != RUNNING_WARMUP_STAGE &&
-            performThrottleChecks &&
-            throttleRemainingRetries > 0 &&
-            sleepIfThermalThrottled(THROTTLE_BACKOFF_S)
-        ) {
-            // We've slept due to thermal throttle - retry benchmark!
-            throttleRemainingRetries -= 1
-            metrics.captureInit()
-            repeatCount = 0
-            return false
-        }
-        Trace.endSection() // paired with start in beginBenchmarkingLoop()
-        when (state) {
-            RUNNING_WARMUP_STAGE -> {
-                warmupIterations = repeatCount
-            }
-            RUNNING_TIME_STAGE -> {
-                stopProfilingTimeStageIfRequested()
-                totalRunTimeNs = System.nanoTime() - totalRunTimeStartNs
-                ThreadPriority.resetBumpedThread()
-
-                stats.addAll(metrics.captureFinished(maxIterations = maxIterations))
-                allData.addAll(metrics.data)
-
-                warmupManager.logInfo()
-            }
-        }
-        state += 1
-        return true
-    }
-
-    /**
-     * @return whether the entire, multi-stage benchmark still has anything left to do
-     */
-    private fun startNextRepeat(): Boolean {
+    private fun startNextTestRun(): Boolean {
         metrics.captureStop()
         repeatCount++
-        // overwrite existing data, we don't keep data for warmup
-        if (state == RUNNING_WARMUP_STAGE) {
-            metrics.captureInit()
-            if (warmupManager.onNextIteration(metrics.data.last()[0])) {
-                endRunningStage()
-                beginRunningStage()
-            }
-        } else if (repeatCount >= REPEAT_COUNT[state]!!) {
-            if (endRunningStage()) {
-                if (state == FINISHED) return false
-                beginRunningStage()
+
+        if (repeatCount >= REPEAT_COUNT) {
+            if (performThrottleChecks &&
+                throttleRemainingRetries > 0 &&
+                sleepIfThermalThrottled(THROTTLE_BACKOFF_S)
+            ) {
+                // We've slept due to thermal throttle - retry benchmark!
+                throttleRemainingRetries -= 1
+                metrics.captureInit()
+                repeatCount = 0
+            } else {
+                // Benchmark finished!
+                endBenchmark()
+                return false
             }
         }
         iterationsRemaining = maxIterations
@@ -355,75 +322,67 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         }
     }
 
-    /**
-     * Internal loop control for benchmarks - will return true as long as there are more
-     * measurements to perform.
-     *
-     * Actual benchmarks should always go through [keepRunning] or [keepRunningInline], since
-     * they optimize the *Iteration* step to have extremely minimal logic performed.
-     *
-     * The looping behavior is functionally multiple nested loops:
-     * - Stage - RUNNING_WARMUP vs RUNNING_TIME
-     * - Repeat - how many measurements are made
-     * - Iteration - how many loops are run within each measurement
-     *
-     * This has the effect of a 3 layer nesting loop structure, but all condensed to a single
-     * method returning true/false to simplify the entry point.
-     *
-     * @return whether the benchmarking system has anything left to do
-     */
     @PublishedApi
     internal fun keepRunningInternal(): Boolean {
         when (state) {
             NOT_STARTED -> {
-                initialize()
-                totalRunTimeStartNs = System.nanoTime() // Record this time to find total duration
-                state = RUNNING_WARMUP_STAGE // begin benchmarking
-                if (Arguments.dryRunMode || Arguments.startupMode) state = RUNNING_TIME_STAGE
-                beginRunningStage()
-                return true
-            }
-            RUNNING_WARMUP_STAGE, RUNNING_TIME_STAGE -> {
-                iterationsRemaining--
-                if (iterationsRemaining <= 0) {
-                    throwIfPaused() // only check at end of loop to save cycles
-                    return startNextRepeat()
+                Errors.throwIfError()
+                if (!firstBenchmark && Arguments.startupMode) {
+                    throw AssertionError(
+                        "Error - multiple benchmarks in startup mode. Only one " +
+                                "benchmark may be run per 'am instrument' call, to ensure result " +
+                                "isolation."
+                    )
+                }
+                firstBenchmark = false
+
+                if (totalRunTimeStartNs == 0L) {
+                    // This is the beginning of the benchmark, we remember it.
+                    totalRunTimeStartNs = System.nanoTime()
+                }
+                if (performThrottleChecks &&
+                    !CpuInfo.locked &&
+                    !IsolationActivity.sustainedPerformanceModeInUse &&
+                    !Errors.isEmulator
+                ) {
+                    ThrottleDetector.computeThrottleBaseline()
+                }
+
+                ThreadPriority.bumpCurrentThreadPriority()
+
+                if (Arguments.dryRunMode || Arguments.startupMode) {
+                    beginBenchmark()
+                } else {
+                    beginWarmup()
                 }
                 return true
             }
-            else -> throw IllegalStateException("The benchmark is in an invalid state.")
+            WARMUP -> {
+                warmupIteration++
+                // Only check nanoTime on every iteration in WARMUP since we
+                // don't yet have a target iteration count.
+                val timeNs = System.nanoTime()
+                val lastDuration = timeNs - warmupStartTimeNs
+                warmupStartTimeNs = timeNs
+
+                throwIfPaused() // check each loop during warmup
+                if (warmupManager.onNextIteration(lastDuration)) {
+                    Trace.endSection() // paired with start in beginWarmup()
+                    beginBenchmark()
+                }
+                return true
+            }
+            RUNNING -> {
+                iterationsRemaining--
+                if (iterationsRemaining <= 0) {
+                    throwIfPaused() // only check at end of loop to save cycles
+                    return startNextTestRun()
+                }
+                return true
+            }
+            FINISHED -> throw IllegalStateException("The benchmark has finished.")
+            else -> throw IllegalStateException("The benchmark is in unknown state.")
         }
-    }
-
-    private fun initialize() {
-        Errors.throwIfError()
-        if (!firstBenchmark && Arguments.startupMode) {
-            throw AssertionError(
-                "Error - multiple benchmarks in startup mode. Only one " +
-                        "benchmark may be run per 'am instrument' call, to ensure result " +
-                        "isolation."
-            )
-        }
-        firstBenchmark = false
-
-        thermalThrottleSleepSeconds = 0
-        if (performThrottleChecks &&
-            !CpuInfo.locked &&
-            !IsolationActivity.sustainedPerformanceModeInUse &&
-            !Errors.isEmulator
-        ) {
-            ThrottleDetector.computeThrottleBaseline()
-        }
-
-        ThreadPriority.bumpCurrentThreadPriority()
-    }
-
-    private fun computeIterations(): Int {
-        var idealIterations =
-            (TARGET_TEST_DURATION_NS / warmupManager.estimatedIterationTimeNs).toInt()
-        idealIterations = idealIterations.coerceIn(MIN_TEST_ITERATIONS, MAX_TEST_ITERATIONS)
-        OVERRIDE_ITERATIONS?.let { idealIterations = OVERRIDE_ITERATIONS }
-        return idealIterations
     }
 
     private fun throwIfPaused() {
@@ -454,11 +413,11 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         className = className,
         testName = testName,
         totalRunTimeNs = totalRunTimeNs,
-        data = allData.map { it.toList() },
+        data = metrics.data.map { it.toList() },
         stats = stats,
         repeatIterations = maxIterations,
         thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
-        warmupIterations = warmupIterations
+        warmupIterations = warmupIteration
     )
 
     internal fun getReport() = checkState().run { getReport("", "") }
@@ -471,8 +430,11 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     internal fun getFullStatusReport(key: String): Bundle {
         Log.i(TAG, key + stats.map { it.getSummary() } + "count=$maxIterations")
         val status = Bundle()
-        stats.map { it.putInBundle(status, PREFIX) }
-        status.putLong("${PREFIX}count", maxIterations.toLong())
+        if (Arguments.outputEnable) {
+            // these 'legacy' CI output stats are considered output
+            stats.forEach { it.putInBundle(status, PREFIX) }
+            status.putLong("${PREFIX}count", maxIterations.toLong())
+        }
         status.putIdeSummaryLine(key, getMinTimeNanos())
         return status
     }
@@ -520,23 +482,21 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         private const val STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display."
         private const val STUDIO_OUTPUT_KEY_ID = "benchmark"
 
-        private const val NOT_STARTED = -1 // The benchmark has not started yet.
-        private const val RUNNING_WARMUP_STAGE = 0 // The benchmark warmup stage is running.
-        private const val RUNNING_TIME_STAGE = 1 // The time benchmarking stage is running.
-        private const val FINISHED = 2 // The benchmark has stopped; all stages are finished.
+        private const val NOT_STARTED = 0 // The benchmark has not started yet.
+        private const val WARMUP = 1 // The benchmark is warming up.
+        private const val RUNNING = 2 // The benchmark is running.
+        private const val FINISHED = 3 // The benchmark has stopped.
 
         private const val CONNECTED_PROFILING_SLEEP_MS = 20_000L
 
         // Values determined empirically.
         @VisibleForTesting
-        internal val REPEAT_COUNT = mapOf(
-            RUNNING_TIME_STAGE to when {
-                Arguments.dryRunMode -> 1
-                Arguments.profilingMode == ProfilingMode.ConnectedAllocation -> 1
-                Arguments.startupMode -> 10
-                else -> 50
-            }
-        )
+        internal val REPEAT_COUNT = when {
+            Arguments.dryRunMode -> 1
+            Arguments.profilingMode == ProfilingMode.ConnectedAllocation -> 1
+            Arguments.startupMode -> 10
+            else -> 50
+        }
 
         private val OVERRIDE_ITERATIONS = if (
             Arguments.dryRunMode ||
@@ -544,13 +504,13 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             Arguments.profilingMode == ProfilingMode.ConnectedAllocation
         ) 1 else null
 
-        internal val TARGET_TEST_DURATION_NS = when (Arguments.profilingMode) {
+        private val TARGET_TEST_DURATION_NS = when (Arguments.profilingMode) {
             ProfilingMode.None, ProfilingMode.Method -> TimeUnit.MICROSECONDS.toNanos(500)
             // longer measurements while profiling to ensure we have enough data
             else -> TimeUnit.MILLISECONDS.toNanos(20)
         }
-        internal const val MAX_TEST_ITERATIONS = 1_000_000
-        internal const val MIN_TEST_ITERATIONS = 1
+        private const val MAX_TEST_ITERATIONS = 1_000_000
+        private const val MIN_TEST_ITERATIONS = 1
 
         private const val THROTTLE_MAX_RETRIES = 3
         private const val THROTTLE_BACKOFF_S = 90L
@@ -591,7 +551,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             @IntRange(from = 0) thermalThrottleSleepSeconds: Long,
             @IntRange(from = 1) repeatIterations: Int
         ) {
-            val metricsContainer = MetricsContainer(REPEAT_COUNT = dataNs.size)
+            val metricsContainer = MetricsContainer()
             metricsContainer.data[metricsContainer.data.lastIndex] = dataNs.toLongArray()
             val report = Report(
                 className = className,

@@ -19,13 +19,14 @@ package androidx.ui.test
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
-import androidx.ui.core.gesture.DoubleTapGestureDetector
+import androidx.ui.core.gesture.doubleTapGestureFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.PointerInputRecorder
@@ -54,9 +55,9 @@ private fun Ui(onDoubleTap: (PxPosition) -> Unit, pointerInputRecorder: PointerI
             Semantics(container = true) {
                 with(DensityAmbient.current) {
                     Box(
-                        DoubleTapGestureDetector(onDoubleTap) +
-                                pointerInputRecorder +
-                                LayoutSize(width.toDp(), height.toDp()),
+                        Modifier.doubleTapGestureFilter(onDoubleTap)
+                            .plus(pointerInputRecorder)
+                            .preferredSize(width.toDp(), height.toDp()),
                         backgroundColor = Color.Yellow
                     )
                 }
@@ -95,7 +96,7 @@ class SendDoubleClickWithoutArgumentsTest {
         // When we inject a double click
         findByTag(tag).doGesture { sendDoubleClick() }
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Then we record 1 double click
             assertThat(recordedDoubleClicks).hasSize(1)
             // at the expected position
@@ -170,7 +171,7 @@ class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
         // When we inject a double click
         findByTag(tag).doGesture { sendDoubleClick(config.position) }
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Then we record 1 double click
             assertThat(recordedDoubleClicks).hasSize(1)
             // at the expected position

@@ -20,8 +20,10 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.Dp
 
 /**
@@ -33,12 +35,18 @@ import androidx.ui.unit.Dp
  * Note that even if width and height are specified, these will not be satisfied
  * if the component's incoming layout constraints do not allow that.
  *
- * @sample androidx.ui.foundation.samples.ColoredRectBrushSample
- *
  * @param brush brush to paint rect with
  * @param width width of this rect, by default it will match incoming layout constraints
  * @param height height of this rect, by default it will match incoming layout constraints
  */
+@Deprecated(
+    "Use Box(Modifier.preferredSize(width, height).drawBackground(brush)) instead",
+    replaceWith = ReplaceWith(
+        "Box(modifier.preferredSize(width, height)\n.drawBackground(brush))",
+        "androidx.ui.foundation.preferredSize",
+        "androidx.ui.foundation.drawBackground"
+    )
+)
 @Composable
 fun ColoredRect(
     brush: Brush,
@@ -46,20 +54,28 @@ fun ColoredRect(
     width: Dp? = null,
     height: Dp? = null
 ) {
-    val widthModifier = if (width != null) LayoutWidth(width) else LayoutWidth.Fill
-    val heightModifier = if (height != null) LayoutHeight(height) else LayoutHeight.Fill
-    Box(modifier + widthModifier + heightModifier + DrawBackground(brush))
+    val widthModifier =
+        if (width != null) Modifier.preferredWidth(width) else Modifier.fillMaxWidth()
+    val heightModifier =
+        if (height != null) Modifier.preferredHeight(height) else Modifier.fillMaxHeight()
+    Box(modifier + widthModifier + heightModifier + Modifier.drawBackground(brush))
 }
 
 /**
  * Component that represents a rectangle painted with a solid color.
  *
- * @sample androidx.ui.foundation.samples.ColoredRectColorSample
- *
  * @param color color to paint rect with
  * @param width width of this rect, by default it will match parent's constraints
  * @param height height of this rect, by default it will match parent's constraints
  */
+@Deprecated(
+    "Use Box(Modifier.preferredSize(width, height).drawBackground(color)) instead",
+    replaceWith = ReplaceWith(
+        "Box(modifier.preferredSize(width, height)\n.drawBackground(color))",
+        "androidx.ui.foundation.preferredSize",
+        "androidx.ui.foundation.drawBackground"
+    )
+)
 @Composable
 fun ColoredRect(
     color: Color,
@@ -67,7 +83,9 @@ fun ColoredRect(
     width: Dp? = null,
     height: Dp? = null
 ) {
-    val widthModifier = if (width != null) LayoutWidth(width) else LayoutWidth.Fill
-    val heightModifier = if (height != null) LayoutHeight(height) else LayoutHeight.Fill
-    Box(modifier + widthModifier + heightModifier + DrawBackground(color))
+    val widthModifier =
+        if (width != null) Modifier.preferredWidth(width) else Modifier.fillMaxWidth()
+    val heightModifier =
+        if (height != null) Modifier.preferredHeight(height) else Modifier.fillMaxHeight()
+    Box(modifier + widthModifier + heightModifier + Modifier.drawBackground(color))
 }

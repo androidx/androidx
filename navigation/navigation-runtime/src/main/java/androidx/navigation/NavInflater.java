@@ -29,6 +29,7 @@ import android.util.Xml;
 
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.navigation.common.R;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -44,7 +45,12 @@ public final class NavInflater {
     private static final String TAG_DEEP_LINK = "deepLink";
     private static final String TAG_ACTION = "action";
     private static final String TAG_INCLUDE = "include";
-    static final String APPLICATION_ID_PLACEHOLDER = "${applicationId}";
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String APPLICATION_ID_PLACEHOLDER = "${applicationId}";
 
     private static final ThreadLocal<TypedValue> sTmpValue = new ThreadLocal<>();
 

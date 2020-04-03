@@ -10,8 +10,10 @@ package androidx.compose {
 package androidx.ui.core {
 
   public final class ClipKt {
-    method public static androidx.ui.core.Modifier drawClip(androidx.ui.graphics.Shape shape);
-    method public static androidx.ui.core.Modifier getDrawClipToBounds();
+    method public static androidx.ui.core.Modifier clip(androidx.ui.core.Modifier, androidx.ui.graphics.Shape shape);
+    method public static androidx.ui.core.Modifier clipToBounds(androidx.ui.core.Modifier);
+    method @Deprecated public static androidx.ui.core.Modifier drawClip(androidx.ui.graphics.Shape shape);
+    method @Deprecated public static androidx.ui.core.Modifier getDrawClipToBounds();
   }
 
   public final class CoreTextFieldKt {
@@ -30,7 +32,8 @@ package androidx.ui.core {
   }
 
   public final class DrawShadowKt {
-    method public static androidx.ui.core.Modifier drawShadow(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation, boolean clipToOutline = true, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
+    method @Deprecated public static androidx.ui.core.Modifier drawShadow(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation, boolean clipToOutline = true, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
+    method public static androidx.ui.core.Modifier drawShadow(androidx.ui.core.Modifier, androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation, boolean clipToOutline = true, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
   }
 
   public enum DropDownAlignment {
@@ -48,7 +51,7 @@ package androidx.ui.core {
   }
 
   public final class LayoutTag implements androidx.ui.core.LayoutTagParentData androidx.ui.core.ParentDataModifier {
-    ctor public LayoutTag(Object tag);
+    ctor @Deprecated public LayoutTag(Object tag);
     method public Object component1();
     method public androidx.ui.core.LayoutTag copy(Object tag);
     method public Object getTag();
@@ -57,6 +60,7 @@ package androidx.ui.core {
 
   public final class LayoutTagKt {
     method public static Object? getTag(androidx.ui.core.Measurable);
+    method public static androidx.ui.core.Modifier tag(androidx.ui.core.Modifier, Object tag);
   }
 
   public interface LayoutTagParentData {
@@ -65,11 +69,13 @@ package androidx.ui.core {
   }
 
   public final class OpacityKt {
-    method public static androidx.ui.core.Modifier drawOpacity(@FloatRange(from=0.0, to=1.0) float opacity);
+    method public static androidx.ui.core.Modifier drawOpacity(androidx.ui.core.Modifier, @FloatRange(from=0.0, to=1.0) float opacity);
+    method @Deprecated public static androidx.ui.core.Modifier drawOpacity(@FloatRange(from=0.0, to=1.0) float opacity);
   }
 
   public final class PainterModifierKt {
-    method public static androidx.ui.core.DrawModifier asModifier(androidx.ui.graphics.painter.Painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+    method @Deprecated public static androidx.ui.core.DrawModifier asModifier(androidx.ui.graphics.painter.Painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
+    method public static androidx.ui.core.Modifier paint(androidx.ui.core.Modifier, androidx.ui.graphics.painter.Painter painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
   }
 
   public final class ParentDataKt {
@@ -394,7 +400,8 @@ package androidx.ui.graphics.vector {
     method public static void Group(androidx.ui.graphics.vector.VectorScope, String name = "", float rotation = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translationX = 0.0f, float translationY = 0.0f, java.util.List<? extends androidx.ui.graphics.vector.PathNode> clipPathData = EmptyPath, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.vector.VectorScope,kotlin.Unit> children);
     method public static void Path(androidx.ui.graphics.vector.VectorScope, java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
     method @Deprecated public static androidx.ui.core.Modifier drawVector(androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth = -1.0f, float viewportHeight = -1.0f, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
-    method public static androidx.ui.core.Modifier drawVector(androidx.ui.unit.Px defaultWidth, androidx.ui.unit.Px defaultHeight, float viewportWidth = defaultWidth.value, float viewportHeight = defaultHeight.value, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
+    method @Deprecated public static androidx.ui.core.Modifier drawVector(androidx.ui.unit.Px defaultWidth, androidx.ui.unit.Px defaultHeight, float viewportWidth = defaultWidth.value, float viewportHeight = defaultHeight.value, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
+    method public static androidx.ui.core.Modifier drawVector(androidx.ui.core.Modifier, androidx.ui.unit.Px defaultWidth, androidx.ui.unit.Px defaultHeight, float viewportWidth = defaultWidth.value, float viewportHeight = defaultHeight.value, androidx.ui.graphics.Color tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.graphics.ScaleFit scaleFit = ScaleFit.Fit, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
   }
 
   public final class VectorGroup extends androidx.ui.graphics.vector.VectorNode implements java.lang.Iterable<androidx.ui.graphics.vector.VectorNode> kotlin.jvm.internal.markers.KMappedMarker {
@@ -507,6 +514,12 @@ package androidx.ui.res {
   public final class FailedResource<T> extends androidx.ui.res.Resource<T> {
     ctor public FailedResource(T? resource, Throwable? throwable);
     method public Throwable? getThrowable();
+  }
+
+  public final class FontResourcesKt {
+    method public static androidx.ui.text.Typeface fontResource(androidx.ui.text.font.FontFamily fontFamily);
+    method public static androidx.ui.res.DeferredResource<androidx.ui.text.Typeface> loadFontResource(androidx.ui.text.font.FontFamily fontFamily, androidx.ui.text.font.FontFamily? pendingFontFamily = null, androidx.ui.text.font.FontFamily? failedFontFamily = null);
+    method public static androidx.ui.res.DeferredResource<androidx.ui.text.Typeface> loadFontResource(androidx.ui.text.font.FontFamily fontFamily, androidx.ui.text.Typeface? pendingTypeface = null, androidx.ui.text.Typeface? failedTypeface = null);
   }
 
   public final class ImageResourcesKt {

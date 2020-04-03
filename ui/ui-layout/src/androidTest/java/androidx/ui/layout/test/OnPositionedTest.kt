@@ -21,21 +21,19 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInParent
 import androidx.ui.core.positionInRoot
 import androidx.ui.core.setContent
-import androidx.ui.layout.Align
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
-import androidx.ui.test.positionInParent
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -64,9 +62,10 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         show {
-            Container(LayoutSize.Fill +
-                    LayoutPadding(start = paddingLeftPx.toDp(), top = paddingTopPx.toDp()) +
-                    onPositioned {
+            Container(
+                Modifier.fillMaxSize()
+                    .padding(start = paddingLeftPx.toDp(), top = paddingTopPx.toDp())
+                    .onPositioned {
                         realLeft = it.positionInParent.x
                         realTop = it.positionInParent.y
                         positionedLatch.countDown()
@@ -89,16 +88,18 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         show {
-            Container(onChildPositioned {
+            Container(Modifier.onChildPositioned {
                 realLeft = it.positionInParent.x
                 realTop = it.positionInParent.y
                 positionedLatch.countDown()
             }) {
                 Container(
-                    LayoutSize.Fill + LayoutPadding(
-                        start = paddingLeftPx.toDp(),
-                        top = paddingTopPx.toDp()
-                    ), children = emptyContent()
+                    Modifier.fillMaxSize()
+                        .padding(
+                            start = paddingLeftPx.toDp(),
+                            top = paddingTopPx.toDp()
+                        ),
+                    children = emptyContent()
                 )
             }
         }
@@ -118,17 +119,22 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         show {
-            Container(LayoutPadding(start = firstPaddingPx.toDp()) +
-                    onPositioned {
+            Container(
+                Modifier.padding(start = firstPaddingPx.toDp()) +
+                    Modifier.onPositioned {
                         gpCoordinates = it
                         positionedLatch.countDown()
-                    }) {
-                Container(LayoutPadding(start = secondPaddingPx.toDp())) {
-                    Container(LayoutSize.Fill + LayoutPadding(start = thirdPaddingPx.toDp()) +
-                            onPositioned {
+                    }
+            ) {
+                Container(Modifier.padding(start = secondPaddingPx.toDp())) {
+                    Container(
+                        Modifier.fillMaxSize()
+                            .padding(start = thirdPaddingPx.toDp())
+                            .onPositioned {
                                 childCoordinates = it
                                 positionedLatch.countDown()
-                            }) {
+                            }
+                    ) {
                     }
                 }
             }
@@ -154,7 +160,7 @@ class OnPositionedTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(2)
         show {
-            Row(onChildPositioned {
+            Row(Modifier.onChildPositioned {
                 if (firstCoordinates == null) {
                     firstCoordinates = it
                 } else {
@@ -189,7 +195,7 @@ class OnPositionedTest : LayoutTest() {
 
                 frameLayout.setContent {
                     Container(
-                        onPositioned {
+                        Modifier.onPositioned {
                             realGlobalPosition = it.localToGlobal(localPosition)
                             realLocalPosition = it.globalToLocal(globalPosition)
                             positionedLatch.countDown()
@@ -213,7 +219,7 @@ class OnPositionedTest : LayoutTest() {
         val positionedLatch = CountDownLatch(1)
         show {
             val modifier = if (needCallback.value) {
-                onPositioned { positionedLatch.countDown() }
+                Modifier.onPositioned { positionedLatch.countDown() }
             } else {
                 Modifier.None
             }
@@ -234,10 +240,12 @@ class OnPositionedTest : LayoutTest() {
         show {
             Stack {
                 Container(
-                    onPositioned {
+                    Modifier.onPositioned {
                         realLeft = it.positionInParent.x
                         positionedLatch.countDown()
-                    } + LayoutSize.Fill + LayoutPadding(start = modelLeft.size),
+                    }
+                        .fillMaxSize()
+                        .padding(start = modelLeft.size),
                     children = emptyContent()
                 )
             }
@@ -262,12 +270,12 @@ class OnPositionedTest : LayoutTest() {
         var realLeft: Px? = null
         var positionedLatch = CountDownLatch(1)
         show {
-            Align(Alignment.TopStart) {
+            Stack {
                 Offset(modelLeft) {
                     Container(width = 10.dp, height = 10.dp) {
                         Container(width = 10.dp, height = 10.dp) {
                             Container(
-                                onPositioned {
+                                Modifier.onPositioned {
                                     realLeft = it.positionInRoot.x
                                     positionedLatch.countDown()
                                 },
@@ -297,7 +305,7 @@ class OnPositionedTest : LayoutTest() {
         val line = VerticalAlignmentLine(::min)
         val lineValue = 10.ipx
         show {
-            val onPositioned = onPositioned { coordinates ->
+            val onPositioned = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                 Assert.assertEquals(1, coordinates.providedAlignmentLines.size)
                 Assert.assertEquals(lineValue, coordinates[line])
                 latch.countDown()

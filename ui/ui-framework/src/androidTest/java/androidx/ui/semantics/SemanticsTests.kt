@@ -31,6 +31,8 @@ import androidx.ui.test.findAllByText
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.test.assert
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -51,7 +53,7 @@ class SemanticsTests {
 
     private fun executeUpdateBlocking(updateFunction: () -> Unit) {
         val latch = CountDownLatch(1)
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             updateFunction()
             latch.countDown()
         }
@@ -82,7 +84,7 @@ class SemanticsTests {
 
         findByTag(TestTag).assertLabelEquals(label)
 
-        composeTestRule.runOnIdleCompose { showSubtree.value = false }
+        runOnIdleCompose { showSubtree.value = false }
 
         findByTag(TestTag).assertDoesNotHaveProperty(SemanticsProperties.AccessibilityLabel)
 
@@ -122,7 +124,7 @@ class SemanticsTests {
             .assertLabelEquals(label)
             .assertDoesNotHaveProperty(SemanticsProperties.AccessibilityValue)
 
-        composeTestRule.runOnIdleCompose { showNewNode.value = true }
+        runOnIdleCompose { showNewNode.value = true }
 
         findByTag(TestTag)
             .assertLabelEquals(label)
@@ -152,7 +154,7 @@ class SemanticsTests {
 
         findAllByText(label).assertCountEquals(1)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             showSubtree.value = false
         }
 
@@ -179,7 +181,7 @@ class SemanticsTests {
 
         findByTag(TestTag).assertLabelEquals(beforeLabel)
 
-        composeTestRule.runOnIdleCompose { isAfter.value = true }
+        runOnIdleCompose { isAfter.value = true }
 
         findByTag(TestTag).assertLabelEquals(afterLabel)
     }
@@ -209,7 +211,7 @@ class SemanticsTests {
 
         findByTag(TestTag).assertLabelEquals(beforeLabel)
 
-        composeTestRule.runOnIdleCompose { isAfter.value = true }
+        runOnIdleCompose { isAfter.value = true }
 
         findByTag(TestTag).assertLabelEquals(afterLabel)
     }
@@ -236,7 +238,7 @@ class SemanticsTests {
 
         findByTag(TestTag).assertLabelEquals(beforeLabel)
 
-        composeTestRule.runOnIdleCompose { isAfter.value = true }
+        runOnIdleCompose { isAfter.value = true }
 
         findByTag(TestTag).assertLabelEquals(afterLabel)
     }
@@ -263,7 +265,7 @@ class SemanticsTests {
 
         findByTag(TestTag).assertLabelEquals(beforeLabel)
 
-        composeTestRule.runOnIdleCompose { isAfter.value = true }
+        runOnIdleCompose { isAfter.value = true }
 
         findByTag(TestTag).assertLabelEquals(afterLabel)
     }
@@ -334,7 +336,7 @@ class SemanticsTests {
 
         findByTag(TestTag).assertLabelEquals(beforeLabel)
 
-        composeTestRule.runOnIdleCompose { isAfter.value = true }
+        runOnIdleCompose { isAfter.value = true }
 
         findByTag(TestTag).assertLabelEquals(afterLabel)
     }
@@ -368,7 +370,7 @@ class SemanticsTests {
         findByTag(TestTag).assertLabelEquals(beforeLabel)
         assertThat(nodeCount).isEqualTo(1)
 
-        composeTestRule.runOnIdleCompose { isAfter.value = true }
+        runOnIdleCompose { isAfter.value = true }
 
         // Make sure everything is still behaving as expected
         findByTag(TestTag).assertLabelEquals(afterLabel)

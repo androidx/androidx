@@ -126,6 +126,8 @@ package androidx.ui.core {
     method public default float getScaleX();
     method public default float getScaleY();
     method public default androidx.ui.core.TransformOrigin getTransformOrigin();
+    method public default float getTranslationX();
+    method public default float getTranslationY();
     property @FloatRange(from=0.0, to=1.0) public default float alpha;
     property public default boolean clipToBounds;
     property public default boolean clipToOutline;
@@ -137,11 +139,14 @@ package androidx.ui.core {
     property public default float scaleX;
     property public default float scaleY;
     property public default androidx.ui.core.TransformOrigin transformOrigin;
+    property public default float translationX;
+    property public default float translationY;
   }
 
   public final class DrawLayerModifierKt {
     method public static inline androidx.ui.core.TransformOrigin TransformOrigin(float pivotFractionX, float pivotFractionY);
-    method public static androidx.ui.core.Modifier drawLayer(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.core.TransformOrigin transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = true, boolean clipToOutline = true);
+    method @Deprecated public static androidx.ui.core.Modifier drawLayer(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float translationX = 0f, float translationY = 0f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.core.TransformOrigin transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = true, boolean clipToOutline = true);
+    method public static androidx.ui.core.Modifier drawLayer(androidx.ui.core.Modifier, float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float translationX = 0f, float translationY = 0f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.core.TransformOrigin transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = true, boolean clipToOutline = true);
   }
 
   public interface DrawModifier extends androidx.ui.core.Modifier.Element {
@@ -149,7 +154,8 @@ package androidx.ui.core {
   }
 
   public final class DrawModifierKt {
-    method public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
+    method @Deprecated public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
+    method public static androidx.ui.core.Modifier drawBehind(androidx.ui.core.Modifier, kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
     method public static androidx.ui.core.DrawModifier drawWithContent(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
   }
 
@@ -240,7 +246,14 @@ package androidx.ui.core {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
-    method @Deprecated public default infix androidx.ui.core.Modifier wraps(androidx.ui.core.Modifier other);
+    field public static final androidx.ui.core.Modifier.Companion! Companion;
+  }
+
+  public static final class Modifier.Companion implements androidx.ui.core.Modifier {
+    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
+    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
+    method public androidx.ui.core.Modifier getNone();
+    property public final androidx.ui.core.Modifier None;
   }
 
   public static interface Modifier.Element extends androidx.ui.core.Modifier {
@@ -248,25 +261,19 @@ package androidx.ui.core {
     method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
   }
 
-  public static final class Modifier.None implements androidx.ui.core.Modifier {
-    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
-    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
-    field public static final androidx.ui.core.Modifier.None! INSTANCE;
-  }
-
   public interface OnChildPositionedModifier extends androidx.ui.core.Modifier.Element {
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> getOnChildPositioned();
-    property public abstract kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> onChildPositioned;
+    method public void onChildPositioned(androidx.ui.core.LayoutCoordinates coordinates);
   }
 
   public interface OnPositionedModifier extends androidx.ui.core.Modifier.Element {
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> getOnPositioned();
-    property public abstract kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned;
+    method public void onPositioned(androidx.ui.core.LayoutCoordinates coordinates);
   }
 
   public final class OnPositionedModifierKt {
-    method public static androidx.ui.core.Modifier onChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onChildPositioned);
-    method public static androidx.ui.core.Modifier onPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
+    method public static androidx.ui.core.Modifier onChildPositioned(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onChildPositioned);
+    method @Deprecated public static androidx.ui.core.Modifier onChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onChildPositioned);
+    method public static androidx.ui.core.Modifier onPositioned(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
+    method @Deprecated public static androidx.ui.core.Modifier onPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
   }
 
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {

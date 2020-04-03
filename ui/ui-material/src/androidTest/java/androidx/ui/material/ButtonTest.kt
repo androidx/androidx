@@ -16,25 +16,38 @@
 
 package androidx.ui.material
 
+import android.os.Build
 import androidx.compose.Composable
+import androidx.compose.Providers
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.foundation.shape.corner.CutCornerShape
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertSemanticsIsEqualTo
+import androidx.ui.test.assertShape
+import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Dp
 import androidx.ui.unit.PxPosition
@@ -114,7 +127,7 @@ class ButtonTest {
         findByText(text)
             .doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(counter).isEqualTo(1)
         }
     }
@@ -182,7 +195,7 @@ class ButtonTest {
         findByTag(button1Tag)
             .doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(button1Counter).isEqualTo(1)
             assertThat(button2Counter).isEqualTo(0)
         }
@@ -190,7 +203,7 @@ class ButtonTest {
         findByTag(button2Tag)
             .doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(button1Counter).isEqualTo(1)
             assertThat(button2Counter).isEqualTo(1)
         }
@@ -264,23 +277,54 @@ class ButtonTest {
 
     @Test
     fun buttonTest_ContainedButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(16.dp) { children ->
-            Button(onClick = {}, children = children)
+        assertLeftPaddingIs(16.dp) { text ->
+            Button(onClick = {}, text = text)
         }
     }
 
     @Test
     fun buttonTest_OutlinedButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(16.dp) { children ->
-            OutlinedButton(onClick = {}, children = children)
+        assertLeftPaddingIs(16.dp) { text ->
+            OutlinedButton(onClick = {}, text = text)
         }
     }
 
     @Test
     fun buttonTest_TextButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(8.dp) { children ->
-            TextButton(onClick = {}, children = children)
+        assertLeftPaddingIs(8.dp) { text ->
+            TextButton(onClick = {}, text = text)
         }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun buttonTest_shapeAndColorFromThemeIsUsed() {
+        val shape = CutCornerShape(10.dp)
+        var surface = Color.Transparent
+        var primary = Color.Transparent
+        composeTestRule.setMaterialContent {
+            Stack {
+                surface = MaterialTheme.colors.surface
+                primary = MaterialTheme.colors.primary
+                Providers(ShapesAmbient provides Shapes(small = shape)) {
+                    TestTag(tag = "myButton") {
+                        Button(onClick = {}, elevation = 0.dp) {
+                            Box(Modifier.preferredSize(10.dp, 10.dp))
+                        }
+                    }
+                }
+            }
+        }
+
+        findByTag("myButton")
+            .captureToBitmap()
+            .assertShape(
+                density = composeTestRule.density,
+                shape = shape,
+                shapeColor = primary,
+                backgroundColor = surface,
+                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx() }
+            )
     }
 
     private fun assertLeftPaddingIs(
@@ -290,14 +334,16 @@ class ButtonTest {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Stack(onChildPositioned { parentCoordinates = it }) {
+            Stack(Modifier.onChildPositioned { parentCoordinates = it }) {
                 button {
-                    Text("Test button", onPositioned { childCoordinates = it })
+                    Text("Test button",
+                        Modifier.onPositioned { childCoordinates = it }
+                    )
                 }
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             val topLeft = childCoordinates!!.localToGlobal(PxPosition.Origin).x -
                     parentCoordinates!!.localToGlobal(PxPosition.Origin).x
             val currentPadding = with(composeTestRule.density) {

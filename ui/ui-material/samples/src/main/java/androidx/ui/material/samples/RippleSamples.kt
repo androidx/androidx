@@ -18,6 +18,7 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.Text
 import androidx.ui.material.ripple.ripple
@@ -25,7 +26,7 @@ import androidx.ui.material.ripple.ripple
 @Sampled
 @Composable
 fun RippleSample() {
-    Clickable(onClick = { /** do something */ }, modifier = ripple()) {
+    Clickable(onClick = { /** do something */ }, modifier = Modifier.ripple()) {
         Text(text = "Clickable text")
     }
 }

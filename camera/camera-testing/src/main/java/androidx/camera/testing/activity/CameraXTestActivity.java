@@ -117,7 +117,8 @@ public class CameraXTestActivity extends AppCompatActivity {
             return;
         }
 
-        mCameraId = CameraX.getCameraWithCameraSelector(cameraSelector);
+        mCameraId = CameraX.getCameraWithCameraSelector(
+                cameraSelector).getCameraInfoInternal().getCameraId();
 
         textureView.setSurfaceTextureListener(
                 new TextureView.SurfaceTextureListener() {

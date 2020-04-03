@@ -14,91 +14,19 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.layout
 
-import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
-import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Modifier
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
-
-/**
- * Note: this composable is deprecated, please use [LayoutAlign] modifier instead.
- *
- * A layout that takes a child and aligns it within itself, according to the alignment parameter.
- * The layout will be as large as possible for finite incoming constraints,
- * or wrap content otherwise.
- *
- * For a composable that just does center alignment, see [Center].
- * @see Center
- */
-@Composable
-// TODO (b/145599478): remove usages of Align and Center, and fully deprecate them
-internal fun Align(
-    alignment: Alignment,
-    modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit
-) {
-    Layout(children, modifier) { measurables, constraints, _ ->
-        val measurable = measurables.firstOrNull()
-        // The child cannot be larger than our max constraints, but we ignore min constraints.
-        val placeable = measurable?.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
-
-        // The layout is as large as possible for bounded constraints,
-        // or wrap content otherwise.
-        val layoutWidth = if (constraints.maxWidth.isFinite()) {
-            constraints.maxWidth
-        } else {
-            placeable?.width ?: constraints.minWidth
-        }
-        val layoutHeight = if (constraints.maxHeight.isFinite()) {
-            constraints.maxHeight
-        } else {
-            placeable?.height ?: constraints.minHeight
-        }
-
-        layout(layoutWidth, layoutHeight) {
-            if (placeable != null) {
-                val position = alignment.align(
-                    IntPxSize(layoutWidth - placeable.width, layoutHeight - placeable.height)
-                )
-                placeable.place(position.x, position.y)
-            }
-        }
-    }
-}
-
-/**
- * Note: this composable is deprecated, please use [LayoutAlign] modifier instead.
- *
- * A layout that takes a child and centers it within itself.
- * The layout will be as large as possible for finite incoming
- * constraints, or wrap content otherwise.
- *
- * For a composable that supports other alignments than just center, see [Align].
- * @see Align
- */
-@Deprecated(
-    "Center is depecated. Use LayoutSize.Fill + LayoutAlign.Center modifier instead, or one of " +
-            "the Box or Stack composables with suitable modifiers applied.",
-    ReplaceWith(
-        "Box(LayoutSize.Fill, gravity = ContentGravity.Center, children = children)",
-        "androidx.ui.foundation.Box",
-        "androidx.ui.foundation.ContentGravity"
-    )
-)
-@Composable
-fun Center(children: @Composable() () -> Unit) {
-    Align(alignment = Alignment.Center, children = children)
-}
 
 /**
  * Provides scope-dependent alignment options for children layouts where the alignment is handled
@@ -139,6 +67,15 @@ object LayoutAlign {
      * A layout modifier that positions the target component inside its parent to the top in
      * vertical direction and wraps the component in horizontal direction.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentHeight(Alignment.TopCenter)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentHeight(Alignment.TopCenter)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentHeight"
+        )
+    )
     val Top: LayoutModifier =
         AlignmentModifier(alignment = Alignment.TopStart, direction = Direction.Vertical)
 
@@ -146,6 +83,15 @@ object LayoutAlign {
      * A layout modifier that positions the target component in the center of the parent in
      * vertical direction and wraps the component in horizontal direction.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentHeight(Alignment.Center)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentHeight(Alignment.Center)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentHeight"
+        )
+    )
     val CenterVertically: LayoutModifier =
         AlignmentModifier(alignment = Alignment.CenterStart, direction = Direction.Vertical)
 
@@ -153,6 +99,15 @@ object LayoutAlign {
      * A layout modifier that positions the target component inside its parent to the bottom in
      * vertical direction and wraps the component in horizontal direction.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentHeight(Alignment.BottomCenter)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentHeight(Alignment.BottomCenter)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentHeight"
+        )
+    )
     val Bottom: LayoutModifier =
         AlignmentModifier(alignment = Alignment.BottomStart, direction = Direction.Vertical)
 
@@ -160,6 +115,15 @@ object LayoutAlign {
      * A layout modifier that positions the target component inside its parent to the start edge
      * in horizontal direction and wraps the component in vertical direction.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentWidth(Alignment.CenterStart)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentWidth(Alignment.CenterStart)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentWidth"
+        )
+    )
     val Start: LayoutModifier =
         AlignmentModifier(alignment = Alignment.TopStart, direction = Direction.Horizontal)
 
@@ -167,6 +131,15 @@ object LayoutAlign {
      * A layout modifier that positions the target component in the center of the parent in
      * horizontal direction and wraps the component in vertical direction.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentWidth(Alignment.Center)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentWidth(Alignment.Center)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentWidth"
+        )
+    )
     val CenterHorizontally: LayoutModifier =
         AlignmentModifier(alignment = Alignment.TopCenter, direction = Direction.Horizontal)
 
@@ -174,60 +147,150 @@ object LayoutAlign {
      * A layout modifier that positions the target component inside its parent to the end edge
      * in horizontal direction and wraps the component in vertical direction.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentWidth(Alignment.CenterEnd)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentWidth(Alignment.CenterEnd)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentWidth"
+        )
+    )
     val End: LayoutModifier =
         AlignmentModifier(alignment = Alignment.TopEnd, direction = Direction.Horizontal)
 
     /**
      * A layout modifier that positions the target component top-left inside its parent.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentSize(Alignment.TopStart)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentSize(Alignment.TopStart)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentSize"
+        )
+    )
     val TopStart: LayoutModifier =
         AlignmentModifier(alignment = Alignment.TopStart, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component top-center inside its parent.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentSize(Alignment.TopCenter)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentSize(Alignment.TopCenter)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentSize"
+        )
+    )
     val TopCenter: LayoutModifier =
         AlignmentModifier(alignment = Alignment.TopCenter, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component top-right inside its parent.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentSize(Alignment.TopEnd)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentSize(Alignment.TopEnd)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentSize"
+        )
+    )
     val TopEnd: LayoutModifier =
         AlignmentModifier(alignment = Alignment.TopEnd, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component center-left inside its parent.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentSize(Alignment.CenterStart)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentSize(Alignment.CenterStart)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentSize"
+        )
+    )
     val CenterStart: LayoutModifier =
         AlignmentModifier(alignment = Alignment.CenterStart, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component in the center of its parent.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentSize(Alignment.Center)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentSize(Alignment.Center)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentSize"
+        )
+    )
     val Center: LayoutModifier =
         AlignmentModifier(alignment = Alignment.Center, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component center-right inside its parent.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentSize(Alignment.CenterEnd)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentSize(Alignment.CenterEnd)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentSize"
+        )
+    )
     val CenterEnd: LayoutModifier =
         AlignmentModifier(alignment = Alignment.CenterEnd, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component bottom-left inside its parent.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentSize(Alignment.BottomStart)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentSize(Alignment.BottomStart)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentSize"
+        )
+    )
     val BottomStart: LayoutModifier =
         AlignmentModifier(alignment = Alignment.BottomStart, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component bottom-center inside its parent.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentSize(Alignment.BottomCenter)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentSize(Alignment.BottomCenter)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentSize"
+        )
+    )
     val BottomCenter: LayoutModifier =
         AlignmentModifier(alignment = Alignment.BottomCenter, direction = Direction.Both)
 
     /**
      * A layout modifier that positions the target component bottom-right inside its parent.
      */
+    @Deprecated(
+        "Use Modifier.wrapContentSize(Alignment.BottomEnd)",
+        replaceWith = ReplaceWith(
+            "Modifier.wrapContentSize(Alignment.BottomEnd)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.core.Alignment",
+            "androidx.ui.layout.wrapContentSize"
+        )
+    )
     val BottomEnd: LayoutModifier =
         AlignmentModifier(alignment = Alignment.BottomEnd, direction = Direction.Both)
 }

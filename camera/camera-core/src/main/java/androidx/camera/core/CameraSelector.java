@@ -20,8 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraIdFilter;
-import androidx.camera.core.impl.LensFacingCameraIdFilter;
+import androidx.camera.core.impl.CameraFilter;
+import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.LensFacingCameraFilter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -47,20 +48,20 @@ public final class CameraSelector {
     public static final CameraSelector DEFAULT_BACK_CAMERA =
             new CameraSelector.Builder().requireLensFacing(LENS_FACING_BACK).build();
 
-    private LinkedHashSet<CameraIdFilter> mCameraFilterSet;
+    private LinkedHashSet<CameraFilter> mCameraFilterSet;
 
-    CameraSelector(LinkedHashSet<CameraIdFilter> cameraFilterSet) {
+    CameraSelector(LinkedHashSet<CameraFilter> cameraFilterSet) {
         mCameraFilterSet = cameraFilterSet;
     }
 
     /**
-     * Selects the first camera that filtered by the {@link CameraIdFilter} assigned to the
+     * Selects the first camera that filtered by the {@link CameraFilter} assigned to the
      * selector.
      *
      * <p>The camera ids filtered must be contained in the input set. Otherwise it will throw an
      * exception.
      *
-     * @param cameraIds The camera id set being filtered.
+     * @param cameras The camera set being filtered.
      * @return The first camera filtered.
      * @throws IllegalArgumentException If there's no available camera after being filtered or
      *                                  the filtered camera ids aren't contained in the input set.
@@ -68,31 +69,33 @@ public final class CameraSelector {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public String select(@NonNull Set<String> cameraIds) {
-        Set<String> resultCameraSet = new LinkedHashSet<>();
-        for (CameraIdFilter filter : mCameraFilterSet) {
-            resultCameraSet = filter.filter(cameraIds);
+    public CameraInternal select(@NonNull Set<CameraInternal> cameras) {
+        Set<CameraInternal> camerasCopy = new LinkedHashSet<>(cameras);
+        Set<CameraInternal> resultCameraSet = new LinkedHashSet<>();
+        for (CameraFilter filter : mCameraFilterSet) {
+            resultCameraSet = filter.filterCameras(camerasCopy);
             // If the result is empty or has extra camera id that isn't contained in the
             // input, throws an exception.
             if (resultCameraSet.isEmpty()) {
                 throw new IllegalArgumentException("No available camera can be found.");
-            } else if (!cameraIds.containsAll(resultCameraSet)) {
+            } else if (!camerasCopy.containsAll(resultCameraSet)) {
                 throw new IllegalArgumentException("The output isn't contained in the input.");
             }
-            cameraIds = resultCameraSet;
+            camerasCopy = resultCameraSet;
         }
+
         return resultCameraSet.iterator().next();
     }
 
     /**
-     * Gets the set of {@link CameraIdFilter} assigned to this camera
+     * Gets the set of {@link CameraFilter} assigned to this camera
      * selector.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public LinkedHashSet<CameraIdFilter> getCameraFilterSet() {
+    public LinkedHashSet<CameraFilter> getCameraFilterSet() {
         return mCameraFilterSet;
     }
 
@@ -110,9 +113,9 @@ public final class CameraSelector {
     @Nullable
     public Integer getLensFacing() {
         Integer currentLensFacing = null;
-        for (CameraIdFilter filter : mCameraFilterSet) {
-            if (filter instanceof LensFacingCameraIdFilter) {
-                Integer newLensFacing = ((LensFacingCameraIdFilter) filter).getLensFacing();
+        for (CameraFilter filter : mCameraFilterSet) {
+            if (filter instanceof LensFacingCameraFilter) {
+                Integer newLensFacing = ((LensFacingCameraFilter) filter).getLensFacing();
                 if (currentLensFacing == null) {
                     currentLensFacing = newLensFacing;
                 } else if (!currentLensFacing.equals(newLensFacing)) {
@@ -131,13 +134,13 @@ public final class CameraSelector {
 
     /** Builder for a {@link CameraSelector}. */
     public static final class Builder {
-        private final LinkedHashSet<CameraIdFilter> mCameraFilterSet;
+        private final LinkedHashSet<CameraFilter> mCameraFilterSet;
 
         public Builder() {
             mCameraFilterSet = new LinkedHashSet<>();
         }
 
-        private Builder(@NonNull LinkedHashSet<CameraIdFilter> cameraFilterSet) {
+        private Builder(@NonNull LinkedHashSet<CameraFilter> cameraFilterSet) {
             mCameraFilterSet = new LinkedHashSet<>(cameraFilterSet);
         }
 
@@ -149,7 +152,7 @@ public final class CameraSelector {
          */
         @NonNull
         public Builder requireLensFacing(@LensFacing int lensFacing) {
-            mCameraFilterSet.add(new LensFacingCameraIdFilter(lensFacing));
+            mCameraFilterSet.add(new LensFacingCameraFilter(lensFacing));
             return this;
         }
 
@@ -160,7 +163,7 @@ public final class CameraSelector {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public Builder appendFilter(@NonNull CameraIdFilter cameraFilter) {
+        public Builder appendFilter(@NonNull CameraFilter cameraFilter) {
             mCameraFilterSet.add(cameraFilter);
             return this;
         }

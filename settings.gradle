@@ -34,7 +34,11 @@ def includeProject(name, filePath) {
         file = filePath
     }
     if (!file.exists()) {
-        throw new Exception("Path " + file + " does not exist; cannot include project " + name)
+        // This option is supported so that development/simplify_build_failure.sh can try
+        // deleting entire projects at once to identify the cause of a build failure
+        if (System.getenv("ALLOW_MISSING_PROJECTS") == null) {
+            throw new Exception("Path " + file + " does not exist; cannot include project " + name)
+        }
     }
     project(name).projectDir = file
 }
@@ -61,9 +65,6 @@ includeProject(":annotation:annotation-sampled", "annotation/annotation-sampled"
 includeProject(":annotation:annotation-experimental", "annotation/annotation-experimental")
 includeProject(":annotation:annotation-experimental-lint", "annotation/annotation-experimental-lint")
 includeProject(":annotation:annotation-experimental-lint-integration-tests", "annotation/annotation-experimental-lint/integration-tests")
-includeProject(":animator:animator", "animator/animator")
-includeProject(":animator:animator-testing", "animator/animator-testing")
-includeProject(":animator:integration-tests:testapp", "animator/integration-tests/testapp")
 includeProject(":appcompat:appcompat", "appcompat/appcompat")
 includeProject(":appcompat:appcompat-benchmark", "appcompat/appcompat-benchmark")
 includeProject(":appcompat:appcompat-lint", "appcompat/appcompat-lint")
@@ -107,6 +108,9 @@ includeProject(":contentaccess", "contentaccess")
 includeProject(":contentpager:contentpager", "contentpager/contentpager")
 includeProject(":coordinatorlayout:coordinatorlayout", "coordinatorlayout/coordinatorlayout")
 includeProject(":core:core", "core/core")
+includeProject(":core:core-animation", "core/core-animation")
+includeProject(":core:core-animation-testing", "core/core-animation-testing")
+includeProject(":core:core-animation-integration-tests:testapp", "core/core-animation-integration-tests/testapp")
 includeProject(":core:core-ktx", "core/core-ktx")
 includeProject(":core-role", "core/core-role")
 includeProject(":cursoradapter:cursoradapter", "cursoradapter/cursoradapter")
@@ -133,6 +137,7 @@ includeProject(":fragment:fragment-truth", "fragment/fragment-truth")
 includeProject(":fakeannotations", "fakeannotations")
 includeProject(":gridlayout:gridlayout", "gridlayout/gridlayout")
 includeProject(":heifwriter:heifwriter", "heifwriter/heifwriter")
+includeProject(":hilt:integration-tests:hilt-testapp-viewmodel", "hilt/integration-tests/viewmodelapp")
 includeProject(":inspection:inspection", "inspection/inspection")
 includeProject(":inspection:inspection-gradle-plugin", "inspection/inspection-gradle-plugin")
 includeProject(":inspection:inspection-testing", "inspection/inspection-testing")
@@ -243,6 +248,7 @@ includeProject(":remotecallback:remotecallback", "remotecallback/remotecallback"
 includeProject(":versionedparcelable:versionedparcelable-annotation", "versionedparcelable/annotation")
 includeProject(":versionedparcelable:versionedparcelable", "versionedparcelable/versionedparcelable")
 includeProject(":savedstate:savedstate", "savedstate/savedstate")
+includeProject(":security:security-biometric", "security/security-biometric")
 includeProject(":security:security-crypto", "security/crypto")
 includeProject(":security:security-identity-credential", "security/identity-credential")
 includeProject(":serialization:serialization", "serialization/serialization")

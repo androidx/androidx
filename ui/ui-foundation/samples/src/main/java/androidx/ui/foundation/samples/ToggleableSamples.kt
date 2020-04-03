@@ -18,6 +18,8 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.Toggleable

@@ -21,46 +21,49 @@ import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.emptyContent
+import androidx.compose.getValue
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
+import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTag
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.contentColor
+import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.ripple
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
+import androidx.ui.unit.coerceAtLeast
 import androidx.ui.unit.dp
 import androidx.ui.unit.max
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 
@@ -115,10 +118,11 @@ import androidx.ui.unit.toPx
  * @param items the list containing the items used to build this TabRow
  * @param selectedIndex the index of the currently selected tab
  * @param modifier optional [Modifier] for this TabRow
- * @param color The background color for the TabRow. Use [Color.Transparent] to have no color.
+ * @param backgroundColor The background color for the TabRow. Use [Color.Transparent] to have
+ * no color.
  * @param contentColor The preferred content color provided by this TabRow to its children.
- * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
- * the theme, this will keep the same value set above this TabRow.
+ * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor] is
+ * not a color from the theme, this will keep the same value set above this TabRow.
  * @param scrollable if the tabs should be scrollable. If `false` the tabs will take up an equal
  * amount of the space given to TabRow. If `true` the tabs will take up only as much space as they
  * need, with any excess tabs positioned off screen and able to be scrolled to.
@@ -134,8 +138,8 @@ fun <T> TabRow(
     items: List<T>,
     selectedIndex: Int,
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
     scrollable: Boolean = false,
     indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
         TabRow.IndicatorContainer(tabPositions, selectedIndex) {
@@ -143,11 +147,11 @@ fun <T> TabRow(
         }
     },
     divider: @Composable() () -> Unit = {
-        Divider(height = 1.dp, color = contentColor().copy(alpha = DividerOpacity))
+        Divider(thickness = 1.dp, color = contentColor().copy(alpha = DividerOpacity))
     },
     tab: @Composable() (Int, T) -> Unit
 ) {
-    Surface(modifier = modifier, color = color, contentColor = contentColor) {
+    Surface(modifier = modifier, color = backgroundColor, contentColor = contentColor) {
         WithConstraints { constraints, _ ->
             val width = constraints.maxWidth
             // TODO: force scrollable for tabs that will be too small if they take up equal space?
@@ -191,12 +195,12 @@ private fun FixedTabRow(
         }
     }
 
-    Stack(LayoutWidth.Fill) {
+    Stack(Modifier.fillMaxWidth()) {
         Row {
-            tabs(LayoutWeight(1f))
+            tabs(Modifier.weight(1f))
         }
-        Box(LayoutGravity.BottomCenter + LayoutWidth.Fill, children = divider)
-        Box(LayoutGravity.Stretch) {
+        Box(Modifier.gravity(Alignment.BottomCenter).fillMaxWidth(), children = divider)
+        Box(Modifier.matchParentSize()) {
             indicatorContainer(tabPositions)
         }
     }
@@ -230,16 +234,16 @@ private fun ScrollableTabRow(
     }
 
     HorizontalScroller(
-        scrollerPosition = scrollableTabData.position,
-        modifier = LayoutWidth.Fill
+        scrollerPosition = scrollableTabData.scrollerPosition,
+        modifier = Modifier.fillMaxWidth()
     ) {
         val indicatorTag = "indicator"
         val dividerTag = "divider"
         Layout(
             {
                 tabs()
-                Box(LayoutTag(indicatorTag), children = indicator)
-                Box(LayoutTag(dividerTag), children = divider)
+                Box(Modifier.tag(indicatorTag), children = indicator)
+                Box(Modifier.tag(dividerTag), children = divider)
             }
         ) { measurables, constraints, _ ->
             val tabPlaceables = mutableListOf<Pair<Placeable, IntPx>>()
@@ -300,10 +304,10 @@ private fun ScrollableTabData(
     tabPositions: List<TabPosition>,
     visibleWidth: IntPx,
     edgeOffset: IntPx
-) = ScrollerPosition().let {
-    remember(it) {
+): ScrollableTabData = ScrollerPosition().let { scrollerPosition ->
+    remember(scrollerPosition) {
         ScrollableTabData(
-            position = it,
+            scrollerPosition = scrollerPosition,
             initialSelectedTab = initialSelectedTab,
             tabPositions = tabPositions,
             visibleWidth = visibleWidth,
@@ -316,7 +320,7 @@ private fun ScrollableTabData(
  * Class holding onto state needed for [ScrollableTabRow]
  */
 private class ScrollableTabData(
-    val position: ScrollerPosition,
+    val scrollerPosition: ScrollerPosition,
     initialSelectedTab: Int,
     var tabPositions: List<TabPosition>,
     var visibleWidth: IntPx,
@@ -324,32 +328,36 @@ private class ScrollableTabData(
 ) {
     var selectedTab: Int = initialSelectedTab
         set(value) {
-            if (field != value && !isTabFullyVisible(value)) {
-                val calculatedOffset = calculateTabOffset(value)
-                position.smoothScrollTo(calculatedOffset.value)
+            if (field != value) {
+                tabPositions.getOrNull(value)?.let { scrollToTab(it) }
+                field = value
             }
-            field = value
         }
 
-    private fun isTabFullyVisible(index: Int): Boolean {
-        val tabPosition = tabPositions[index]
-        val leftEdgeStart = position.value.px
-        val leftEdgeVisible = leftEdgeStart <= tabPosition.left.toPx()
-        val rightEdgeEnd = leftEdgeStart + visibleWidth
-        val rightEdgeVisible = rightEdgeEnd >= tabPosition.right.toPx()
-        return leftEdgeVisible && rightEdgeVisible
+    /**
+     * Scrolls to the tab with [tabPosition], trying to place it in the center of the screen or as
+     * close to the center as possible.
+     */
+    private fun scrollToTab(tabPosition: TabPosition) {
+        val calculatedOffset = tabPosition.calculateTabOffset()
+        scrollerPosition.smoothScrollTo(calculatedOffset)
     }
 
-    // TODO: this currently always centers the tab (if possible), should we support only scrolling
-    // until the tab just becomes visible?
-    private fun calculateTabOffset(index: Int): Px {
-        val tabPosition = tabPositions[index]
-        val tabOffset = tabPosition.left
+    /**
+     * @return the offset required to horizontally center the tab inside this TabRow.
+     * If the tab is at the start / end, and there is not enough space to fully centre the tab, this
+     * will just clamp to the min / max position given the max width.
+     */
+    private fun TabPosition.calculateTabOffset(): Float {
+        val tabOffset = left
         val scrollerCenter = visibleWidth / 2
-        val tabWidth = tabPosition.width
+        val tabWidth = width
         val centeredTabOffset = tabOffset - (scrollerCenter - tabWidth / 2)
         val totalTabRowWidth = tabPositions.last().right + edgeOffset
-        return centeredTabOffset.coerceIn(IntPx.Zero, totalTabRowWidth - visibleWidth).toPx()
+        // How much space we have to scroll. If the visible width is <= to the total width, then
+        // we have no space to scroll as everything is always visible.
+        val availableSpace = (totalTabRowWidth - visibleWidth).coerceAtLeast(IntPx.Zero)
+        return centeredTabOffset.coerceIn(IntPx.Zero, availableSpace).toPx().value
     }
 }
 
@@ -382,11 +390,11 @@ object TabRow {
             tabPositions[selectedIndex].width.toDp()
         }
 
-        Box(LayoutSize.Fill, gravity = ContentGravity.BottomStart) {
+        Box(Modifier.fillMaxSize(), gravity = ContentGravity.BottomStart) {
             IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
                 val offset = with(DensityAmbient.current) { indicatorOffset.toDp() }
                 Box(
-                    modifier = LayoutPadding(start = offset) + LayoutWidth(currentTabWidth),
+                    Modifier.padding(start = offset).preferredWidth(currentTabWidth),
                     children = indicator
                 )
             }
@@ -402,7 +410,7 @@ object TabRow {
      */
     @Composable
     fun Indicator(modifier: Modifier = Modifier.None, color: Color = contentColor()) {
-        ColoredRect(color = color, height = IndicatorHeight, modifier = modifier)
+        Box(modifier.fillMaxWidth().preferredHeight(IndicatorHeight).drawBackground(color))
     }
 
     /**
@@ -412,7 +420,7 @@ object TabRow {
     internal fun IndicatorTransition(
         tabPositions: List<TabPosition>,
         selectedIndex: Int,
-        children: @Composable() (indicatorOffset: Px) -> Unit
+        indicator: @Composable() (indicatorOffset: Px) -> Unit
     ) {
         val transitionDefinition = remember(tabPositions) {
             transitionDefinition {
@@ -442,7 +450,7 @@ object TabRow {
         }
 
         Transition(transitionDefinition, selectedIndex) { state ->
-            children(state[IndicatorOffset])
+            indicator(state[IndicatorOffset])
         }
     }
 }
@@ -473,7 +481,7 @@ fun Tab(
     onSelected: () -> Unit,
     modifier: Modifier = Modifier.None,
     activeColor: Color = contentColor(),
-    inactiveColor: Color = MaterialTheme.emphasisLevels.medium.emphasize(activeColor)
+    inactiveColor: Color = EmphasisAmbient.current.medium.emphasize(activeColor)
 ) {
     val styledText = @Composable {
         val style = MaterialTheme.typography.button.copy(textAlign = TextAlign.Center)
@@ -498,17 +506,21 @@ fun Tab(
  * @param selected whether this tab is selected or not
  * @param onSelected the callback to be invoked when this tab is selected
  * @param modifier optional [Modifier] for this tab
- * @param children the content of this tab
+ * @param content the content of this tab
  */
 @Composable
 fun Tab(
     selected: Boolean,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
-    MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
-        Box(modifier + LayoutWidth.Fill, gravity = ContentGravity.Center, children = children)
+    MutuallyExclusiveSetItem(
+        selected = selected,
+        onClick = onSelected,
+        modifier = Modifier.ripple()
+    ) {
+        Box(modifier.fillMaxWidth(), gravity = ContentGravity.Center, children = content)
     }
 }
 
@@ -524,7 +536,7 @@ private fun TabTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
-    children: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     val transitionDefinition = remember(activeColor, inactiveColor) {
         transitionDefinition {
@@ -553,7 +565,7 @@ private fun TabTransition(
         }
     }
     Transition(transitionDefinition, selected) { state ->
-        ProvideContentColor(state[TabTintColor], children = children)
+        ProvideContentColor(state[TabTintColor], children = content)
     }
 }
 
@@ -570,12 +582,12 @@ private fun TabBaselineLayout(
     Layout(
         {
             Box(
-                LayoutTag("text"),
+                Modifier.tag("text"),
                 paddingStart = HorizontalTextPadding,
                 paddingEnd = HorizontalTextPadding,
                 children = text
             )
-            Box(LayoutTag("icon"), children = icon)
+            Box(Modifier.tag("icon"), children = icon)
         }
     ) { measurables, constraints, _ ->
         val textPlaceable = measurables.first { it.tag == "text" }.measure(

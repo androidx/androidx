@@ -63,7 +63,7 @@ final class UseCaseGroupLifecycleController implements LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void onDestroy(LifecycleOwner lifecycleOwner) {
         synchronized (mUseCaseGroupLock) {
-            mUseCaseGroup.clear();
+            mUseCaseGroup.destroy();
         }
     }
 

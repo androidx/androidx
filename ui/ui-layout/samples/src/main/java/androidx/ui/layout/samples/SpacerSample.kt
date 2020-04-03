@@ -18,22 +18,23 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.dp
 
 @Sampled
 @Composable
 fun SpacerExample() {
     Row {
-        Box(LayoutSize(100.dp), backgroundColor = Color.Red)
-        Spacer(modifier = LayoutWidth(20.dp))
-        Box(LayoutSize(100.dp), backgroundColor = Color.Magenta)
-        Spacer(modifier = LayoutWeight(1f))
-        Box(LayoutSize(100.dp), backgroundColor = Color.Black)
+        Box(Modifier.preferredSize(100.dp), backgroundColor = Color.Red)
+        Spacer(Modifier.preferredWidth(20.dp))
+        Box(Modifier.preferredSize(100.dp), backgroundColor = Color.Magenta)
+        Spacer(Modifier.weight(1f))
+        Box(Modifier.preferredSize(100.dp), backgroundColor = Color.Black)
     }
 }

@@ -173,7 +173,7 @@ public class ImageCaptureTest {
     // TODO(b/147698557) Should be removed when the binding of UseCase to Camera is simplified.
     private void bind(UseCase useCase) {
         // Sets bound camera to use case.
-        useCase.onBind(mFakeCamera);
+        useCase.onAttach(mFakeCamera);
         useCase.updateSuggestedResolution(new Size(640, 480));
     }
 }

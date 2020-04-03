@@ -25,7 +25,6 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.core.test.Padding
 import androidx.ui.core.test.background
-
 import androidx.ui.core.test.runOnUiThreadIR
 import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
@@ -44,8 +43,8 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
-import androidx.ui.unit.ipx
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -170,11 +169,16 @@ class PainterModifierTest {
                     // it is to be drawn into
                     Padding(containerWidth.roundToInt().ipx) {
                         AtLeastSize(size = containerWidth.roundToInt().ipx,
-                            modifier = LatchPainter(
-                                containerWidth * 2,
-                                containerHeight * 2,
-                                paintLatch
-                            ).asModifier(alignment = Alignment.Center, scaleFit = ScaleFit.Fit)) {
+                            modifier = Modifier.paint(
+                                LatchPainter(
+                                    containerWidth * 2,
+                                    containerHeight * 2,
+                                    paintLatch
+                                ),
+                                alignment = Alignment.Center,
+                                scaleFit = ScaleFit.Fit
+                            )
+                        ) {
                         }
                     }
                 }
@@ -206,14 +210,16 @@ class PainterModifierTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(size = containerWidth.roundToInt().ipx * 2,
-                    modifier = background(Color.White) + LatchPainter(
-                        containerWidth,
-                        containerHeight,
-                        paintLatch
-                    ).asModifier(
+                    modifier = background(Color.White).paint(
+                        LatchPainter(
+                            containerWidth,
+                            containerHeight,
+                            paintLatch
+                        ),
                         alignment = Alignment.BottomEnd,
-                        scaleFit = ScaleFit.Fit)
-                    ) {
+                        scaleFit = ScaleFit.Fit
+                    )
+                ) {
                     // Intentionally empty
                 }
             }
@@ -248,7 +254,7 @@ class PainterModifierTest {
             activity.setContent {
                 NoMinSizeContainer {
                     NoIntrinsicSizeContainer(
-                        LatchPainter(containerWidth, containerHeight, paintLatch).asModifier()
+                        Modifier.paint(LatchPainter(containerWidth, containerHeight, paintLatch))
                     ) {
                         // Intentionally empty
                     }
@@ -285,12 +291,14 @@ class PainterModifierTest {
                             FixedSizeModifier(containerWidth.roundToInt().ipx)
                 ) {
                     NoIntrinsicSizeContainer(
-                    FixedSizeModifier(containerSize.ipx) +
+                        FixedSizeModifier(containerSize.ipx).paint(
                             LatchPainter(
                                 containerWidth,
                                 containerHeight,
                                 paintLatch
-                            ).asModifier(alignment = Alignment.TopStart)
+                            ),
+                            alignment = Alignment.TopStart
+                        )
                     ) {
                         // Intentionally empty
                     }
@@ -331,13 +339,13 @@ class PainterModifierTest {
                             FixedSizeModifier(containerSize.ipx)
                 ) {
                     NoIntrinsicSizeContainer(
-                        FixedSizeModifier(containerSize.ipx) +
-                        LatchPainter
-                            (
-                            containerWidth,
-                            containerHeight,
-                            paintLatch
-                        ).asModifier(sizeToIntrinsics = false, alignment = Alignment.TopStart)
+                        FixedSizeModifier(containerSize.ipx).paint(
+                            LatchPainter(
+                                containerWidth,
+                                containerHeight,
+                                paintLatch
+                            ),
+                            sizeToIntrinsics = false, alignment = Alignment.TopStart)
                     ) {
                         // Intentionally empty
                     }
@@ -372,9 +380,8 @@ class PainterModifierTest {
         with(DensityAmbient.current) {
             val p = LatchPainter(containerWidth, containerHeight, latch, rtl)
             AtLeastSize(
-                modifier = background(Color.White) +
-                        p.asModifier(alpha = alpha, colorFilter =
-                colorFilter, rtl = rtl),
+                modifier = background(Color.White)
+                    .paint(p, alpha = alpha, colorFilter = colorFilter, rtl = rtl),
                 size = containerWidth.roundToInt().ipx
             ) {
                 // Intentionally empty
@@ -456,6 +463,7 @@ class PainterModifierTest {
         }
     }
 
+    @Suppress("Deprecation")
     class FixedSizeModifier(val width: IntPx, val height: IntPx = width) : LayoutModifier {
         override fun Density.modifySize(
             constraints: Constraints,

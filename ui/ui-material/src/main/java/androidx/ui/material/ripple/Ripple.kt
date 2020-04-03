@@ -14,34 +14,39 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.material.ripple
 
 import androidx.animation.AnimationClockObservable
 import androidx.compose.Composable
 import androidx.compose.CompositionLifecycleObserver
 import androidx.compose.StructurallyEqual
+import androidx.compose.frames.modelListOf
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawModifier
+import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.graphics.Canvas
+import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.graphics.Color
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
 import androidx.ui.unit.ipx
 import androidx.ui.unit.toPxSize
+import androidx.ui.util.fastForEach
 
 /**
  * Ripple is a [Modifier] which draws the visual indicator for a pressed state.
@@ -62,7 +67,7 @@ import androidx.ui.unit.toPxSize
  * @param enabled The ripple effect will not start if false is provided.
  */
 @Composable
-fun ripple(
+fun Modifier.ripple(
     bounded: Boolean = true,
     radius: Dp? = null,
     color: Color? = null,
@@ -76,7 +81,7 @@ fun ripple(
     val theme = RippleThemeAmbient.current
     rippleModifier.color = (color ?: theme.defaultColor()).copy(alpha = theme.opacity())
 
-    val pressIndicator = PressIndicatorGestureDetector(
+    val pressIndicator = Modifier.pressIndicatorGestureFilter(
         onStart = { position ->
             if (enabled && transitionsEnabled) {
                 rippleModifier.handleStart(position, theme.factory, density, bounded, radius, clock)
@@ -85,7 +90,7 @@ fun ripple(
         onStop = { rippleModifier.handleFinish(false) },
         onCancel = { rippleModifier.handleFinish(true) }
     )
-    return pressIndicator + rippleModifier
+    return this + pressIndicator + rippleModifier
 }
 
 private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycleObserver {
@@ -93,11 +98,8 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
     var color: Color by mutableStateOf(Color.Transparent, StructurallyEqual)
 
     private var size: IntPxSize = IntPxSize(0.ipx, 0.ipx)
-    private var effects = mutableListOf<RippleEffect>()
+    private var effects = modelListOf<RippleEffect>()
     private var currentEffect: RippleEffect? = null
-
-    private var animationPulse by mutableStateOf(0L)
-    private val redraw: () -> Unit = { animationPulse++ }
 
     override fun Density.modifySize(
         constraints: Constraints,
@@ -130,13 +132,11 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
             radius,
             bounded,
             clock,
-            redraw,
             onAnimationFinished
         )
 
         effects.add(effect)
         currentEffect = effect
-        redraw()
     }
 
     fun handleFinish(canceled: Boolean) {
@@ -144,10 +144,9 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
         currentEffect = null
     }
 
-    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
+    override fun ContentDrawScope.draw() {
         drawContent()
-        animationPulse // model read
-        effects.forEach { it.draw(canvas, this.size, color) }
+        effects.fastForEach { it.draw(this, this@RippleModifier.size, color) }
     }
 
     override fun onEnter() {
@@ -155,7 +154,7 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
     }
 
     override fun onLeave() {
-        effects.forEach { it.dispose() }
+        effects.fastForEach { it.dispose() }
         effects.clear()
         currentEffect = null
     }

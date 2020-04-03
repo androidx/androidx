@@ -44,7 +44,10 @@ private lateinit var pagingSourceFactory: () -> PagingSource<String, String>
 @SuppressLint("SyntheticAccessor")
 fun cachedInSample() {
     class MyViewModel : ViewModel() {
-        val flow = PagingDataFlow(PagingConfig(pageSize = 40), pagingSourceFactory)
+        val flow = PagingDataFlow(
+            config = PagingConfig(pageSize = 40),
+            pagingSourceFactory = pagingSourceFactory
+        )
             // Loads and transformations before the cachedIn operation will be cached, so that
             // multiple observers get the same data. This is true either for simultaneous
             // observers, or e.g. an Activity re-subscribing after being recreated

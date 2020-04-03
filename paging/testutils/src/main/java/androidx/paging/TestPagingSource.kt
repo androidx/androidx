@@ -25,7 +25,10 @@ import kotlinx.coroutines.delay
  * Note: This class has a delay of 1000ms is built into its load method and is meant to be used
  * with APIs from [kotlinx.coroutines.test.DelayController].
  */
-class TestPagingSource(counted: Boolean = true) : PagingSource<Int, Int>() {
+class TestPagingSource(
+    counted: Boolean = true,
+    override val jumpingSupported: Boolean = true
+) : PagingSource<Int, Int>() {
     var errorNextLoad = false
 
     init {

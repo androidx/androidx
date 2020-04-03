@@ -38,9 +38,10 @@ import kotlinx.coroutines.CoroutineScope
 fun <Key : Any, Value : Any> LivePagingData(
     config: PagingConfig,
     initialKey: Key? = null,
+    remoteMediator: RemoteMediator<Key, Value>? = null,
     pagingSourceFactory: () -> PagingSource<Key, Value>
 ): LiveData<PagingData<Value>> =
-    PagingDataFlow(config, initialKey, pagingSourceFactory).asLiveData()
+    PagingDataFlow(config, initialKey, remoteMediator, pagingSourceFactory).asLiveData()
 
 /**
  * Operator which caches a stream of [PagingData] within the scope of a [Lifecycle].

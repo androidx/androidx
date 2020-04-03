@@ -23,7 +23,9 @@ import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
 import androidx.ui.unit.px
+import androidx.ui.unit.toRect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
@@ -78,9 +80,36 @@ class CutCornerShapeTest {
     }
 
     @Test
+    fun createsRectangleOutlineForZeroSizedCorners() {
+        val rounded = CutCornerShape(0.px, 0.px, 0.px, 0.px)
+
+        assertThat(rounded.toOutline())
+            .isEqualTo(Outline.Rectangle(size.toRect()))
+    }
+
+    @Test
     fun cutCornerShapesAreEquals() {
         assertThat(CutCornerShape(10.px))
             .isEqualTo(CutCornerShape(10.px))
+    }
+
+    @Test
+    fun cutCornerUpdateAllCornerSize() {
+        assertThat(CutCornerShape(10.px).copy(CornerSize(5.px)))
+            .isEqualTo(CutCornerShape(5.px))
+    }
+
+    @Test
+    fun cutCornerUpdateTwoCornerSizes() {
+        assertThat(CutCornerShape(10.px).copy(
+            topRight = CornerSize(3.dp),
+            bottomLeft = CornerSize(50)
+        )).isEqualTo(CutCornerShape(
+            topLeft = CornerSize(10.px),
+            topRight = CornerSize(3.dp),
+            bottomRight = CornerSize(10.px),
+            bottomLeft = CornerSize(50)
+        ))
     }
 
     private fun Shape.toOutline() = createOutline(size, density)

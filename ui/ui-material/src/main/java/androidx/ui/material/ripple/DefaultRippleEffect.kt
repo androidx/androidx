@@ -25,6 +25,9 @@ import androidx.animation.TransitionAnimation
 import androidx.animation.TweenBuilder
 import androidx.animation.createAnimation
 import androidx.animation.transitionDefinition
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.ui.animation.PxPositionPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.graphics.Canvas
@@ -58,7 +61,6 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
         radius: Dp?,
         clipped: Boolean,
         clock: AnimationClockObservable,
-        requestRedraw: (() -> Unit),
         onAnimationFinished: ((RippleEffect) -> Unit)
     ): RippleEffect {
         return DefaultRippleEffect(
@@ -68,7 +70,6 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
             radius,
             clipped,
             clock,
-            requestRedraw,
             onAnimationFinished
         )
     }
@@ -92,7 +93,6 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
  * @param radius Effects grow up to this size.
  * @param clipped If true the effect should be clipped by the target layout bounds.
  * @param clock The animation clock observable that will drive this ripple effect
- * @param requestRedraw Call when the ripple should be redrawn to display the next frame.
  * @param onAnimationFinished Call when the effect animation has been finished.
  */
 private class DefaultRippleEffect(
@@ -102,7 +102,6 @@ private class DefaultRippleEffect(
     radius: Dp? = null,
     private val clipped: Boolean,
     clock: AnimationClockObservable,
-    private val requestRedraw: (() -> Unit),
     private val onAnimationFinished: ((RippleEffect) -> Unit)
 ) : RippleEffect {
 
@@ -110,6 +109,7 @@ private class DefaultRippleEffect(
     private var transitionState = RippleTransition.State.Initial
     private var finishRequested = false
     private val paint = Paint()
+    private var animationPulse by mutableStateOf(0L)
 
     init {
         val surfaceSize = size.toPxSize()
@@ -125,7 +125,10 @@ private class DefaultRippleEffect(
             startCenter = startPosition,
             endCenter = center
         ).createAnimation(clock)
-        animation.onUpdate = requestRedraw
+        animation.onUpdate = {
+            // TODO We shouldn't need this animationPulse hack b/152631516
+            animationPulse++
+        }
         animation.onStateChangeFinished = { stage ->
             transitionState = stage
             if (transitionState == RippleTransition.State.Finished) {
@@ -142,6 +145,8 @@ private class DefaultRippleEffect(
     }
 
     override fun draw(canvas: Canvas, size: IntPxSize, color: Color) {
+        animationPulse // model read so we will be redrawn with the next animation values
+
         val alpha = if (transitionState == RippleTransition.State.Initial && finishRequested) {
             // if we still fading-in we should immediately switch to the final alpha.
             1f
@@ -162,10 +167,6 @@ private class DefaultRippleEffect(
         if (clipped) {
             canvas.restore()
         }
-    }
-
-    override fun dispose() {
-        // TODO: Stop animation here. there is no public method for it yet. b/137183289
     }
 }
 

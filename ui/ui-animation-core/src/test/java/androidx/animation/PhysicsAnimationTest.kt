@@ -180,6 +180,14 @@ class PhysicsAnimationTest {
         )
     }
 
+    @Test
+    fun testEndSnapping() {
+        PhysicsBuilder<Float>().build().toWrapper(0f, 0f, 100f).also { animation ->
+            assertEquals(0f, animation.getVelocity(animation.durationMillis).value)
+            assertEquals(100f, animation.getValue(animation.durationMillis))
+        }
+    }
+
     private fun Animation<AnimationVector1D>.toWrapper(
         startValue: Float,
         startVelocity: Float,

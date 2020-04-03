@@ -36,11 +36,11 @@ import androidx.ui.unit.toRect
  * @param bottomRight a size of the bottom left corner
  * @param bottomLeft a size of the bottom right corner
  */
-data class RoundedCornerShape(
-    val topLeft: CornerSize,
-    val topRight: CornerSize,
-    val bottomRight: CornerSize,
-    val bottomLeft: CornerSize
+class RoundedCornerShape(
+    topLeft: CornerSize,
+    topRight: CornerSize,
+    bottomRight: CornerSize,
+    bottomLeft: CornerSize
 ) : CornerBasedShape(topLeft, topRight, bottomRight, bottomLeft) {
 
     override fun createOutline(
@@ -49,7 +49,10 @@ data class RoundedCornerShape(
         topRight: Px,
         bottomRight: Px,
         bottomLeft: Px
-    ) = Outline.Rounded(
+    ) = if (topLeft + topRight + bottomLeft + bottomRight == 0.px) {
+        Outline.Rectangle(size.toRect())
+    } else {
+        Outline.Rounded(
             RRect(
                 rect = size.toRect(),
                 topLeft = topLeft.toRadius(),
@@ -58,6 +61,24 @@ data class RoundedCornerShape(
                 bottomLeft = bottomLeft.toRadius()
             )
         )
+    }
+
+    override fun copy(
+        topLeft: CornerSize,
+        topRight: CornerSize,
+        bottomRight: CornerSize,
+        bottomLeft: CornerSize
+    ) = RoundedCornerShape(
+        topLeft = topLeft,
+        topRight = topRight,
+        bottomRight = bottomRight,
+        bottomLeft = bottomLeft
+    )
+
+    override fun toString(): String {
+        return "RoundedCornerShape(topLeft = $topLeft, topRight = $topRight, bottomRight = " +
+                "$bottomRight, bottomLeft = $bottomLeft)"
+    }
 
     private /*inline*/ fun Px.toRadius() = Radius.circular(this.value)
 }

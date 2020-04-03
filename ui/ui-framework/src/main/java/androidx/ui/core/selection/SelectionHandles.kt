@@ -17,18 +17,18 @@
 package androidx.ui.core.selection
 
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.ui.core.Layout
-import androidx.ui.core.draw
+import androidx.ui.core.Modifier
+import androidx.ui.core.DrawScope
+import androidx.ui.core.drawBehind
 import androidx.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.text.style.TextDirection
-import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 
 internal val HANDLE_WIDTH = 25.dp
@@ -39,7 +39,7 @@ private val HANDLE_COLOR = Color(0xFF2B28F5.toInt())
 private fun SelectionHandle(left: Boolean) {
     val paint = remember { Paint().also { it.isAntiAlias = true } }
     paint.color = HANDLE_COLOR
-    HandleDrawLayout(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) { canvas, _ ->
+    HandleDrawLayout(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
         val path = Path().apply {
             addRect(
                 Rect(
@@ -66,7 +66,7 @@ private fun SelectionHandle(left: Boolean) {
                 )
             )
         }
-        canvas.drawPath(path, paint)
+        drawPath(path, paint)
     }
 }
 
@@ -79,10 +79,9 @@ private fun SelectionHandle(left: Boolean) {
 private fun HandleDrawLayout(
     width: Dp,
     height: Dp,
-    onCanvas: Density.(Canvas, PxSize) -> Unit
+    onCanvas: DrawScope.() -> Unit
 ) {
-    val modifier = draw(onCanvas)
-    Layout({}, modifier) { _, _, _ ->
+    Layout(emptyContent(), Modifier.drawBehind(onCanvas)) { _, _, _ ->
         // take width and height space of the screen and allow draw modifier to draw inside of it
         layout(width.toIntPx(), height.toIntPx()) {
             // this layout has no children, only draw modifier.

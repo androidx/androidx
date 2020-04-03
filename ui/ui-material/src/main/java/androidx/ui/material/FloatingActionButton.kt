@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.material
 
 import androidx.compose.Composable
@@ -27,16 +29,16 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.ui.foundation.shape.corner.CornerSize
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSizeIn
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.ripple.ripple
+import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -60,32 +62,36 @@ import androidx.ui.unit.max
  * @param contentColor The preferred content color for content inside this FAB
  * @param elevation The z-coordinate at which to place this FAB. This controls the size
  * of the shadow below the button.
- * @param children the content of this FAB
+ * @param icon the content of this FAB
  */
 @Composable
 fun FloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
-    shape: Shape = CircleShape,
+    shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp,
-    children: @Composable() () -> Unit
+    icon: @Composable() () -> Unit
 ) {
-    Surface(
-        modifier = modifier,
-        shape = shape,
-        color = backgroundColor,
-        contentColor = contentColor,
-        elevation = elevation
-    ) {
-        Clickable(onClick, modifier = ripple()) {
-            ProvideTextStyle(MaterialTheme.typography.button) {
-                Box(
-                    modifier = MinimumFabSizeModifier,
-                    gravity = ContentGravity.Center,
-                    children = children
-                )
+    // Since we're adding layouts in between the clickable layer and the content, we need to
+    // merge all descendants, or we'll get multiple nodes
+    Semantics(container = true, mergeAllDescendants = true) {
+        Surface(
+            modifier = modifier,
+            shape = shape,
+            color = backgroundColor,
+            contentColor = contentColor,
+            elevation = elevation
+        ) {
+            Clickable(onClick, modifier = Modifier.ripple()) {
+                ProvideTextStyle(MaterialTheme.typography.button) {
+                    Box(
+                        modifier = MinimumFabSizeModifier,
+                        gravity = ContentGravity.Center,
+                        children = icon
+                    )
+                }
             }
         }
     }
@@ -118,13 +124,16 @@ fun ExtendedFloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier.None,
     icon: @Composable() (() -> Unit)? = null,
-    shape: Shape = CircleShape,
+    shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp
 ) {
     FloatingActionButton(
-        modifier = modifier + LayoutSize.Min(ExtendedFabSize),
+        modifier = modifier.preferredSizeIn(
+            minWidth = ExtendedFabSize,
+            minHeight = ExtendedFabSize
+        ),
         onClick = onClick,
         shape = shape,
         backgroundColor = backgroundColor,
@@ -132,7 +141,7 @@ fun ExtendedFloatingActionButton(
         elevation = elevation
     ) {
         Box(
-            modifier = LayoutPadding(
+            modifier = Modifier.padding(
                 start = ExtendedFabTextPadding,
                 end = ExtendedFabTextPadding
             ),
@@ -143,7 +152,7 @@ fun ExtendedFloatingActionButton(
             } else {
                 Row {
                     icon()
-                    Spacer(LayoutWidth(ExtendedFabIconPadding))
+                    Spacer(Modifier.preferredWidth(ExtendedFabIconPadding))
                     text()
                 }
             }

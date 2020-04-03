@@ -95,7 +95,7 @@ public final class AppInitializer {
     @NonNull
     @SuppressWarnings("unused")
     public <T> T initializeComponent(@NonNull Class<? extends Initializer<T>> component) {
-        return doInitialize(component, new HashSet<>());
+        return doInitialize(component, new HashSet<Class<?>>());
     }
 
     @NonNull

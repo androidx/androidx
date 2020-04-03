@@ -16,9 +16,9 @@
 
 package androidx.ui.test
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
@@ -43,7 +43,7 @@ class MultipleActivitiesFindTest {
     class Activity1 : TaggedActivity("activity1")
     class Activity2 : TaggedActivity("activity2")
 
-    open class TaggedActivity(private val tag: String) : Activity() {
+    open class TaggedActivity(private val tag: String) : ComponentActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContent {

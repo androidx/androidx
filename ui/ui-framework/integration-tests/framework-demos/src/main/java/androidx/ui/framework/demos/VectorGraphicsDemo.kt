@@ -17,6 +17,8 @@
 package androidx.ui.framework.demos
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Image
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
@@ -33,8 +35,8 @@ import androidx.ui.graphics.vector.PathData
 import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.graphics.vector.VectorScope
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
@@ -42,19 +44,19 @@ import androidx.ui.unit.dp
 
 @Composable
 fun VectorGraphicsDemo() {
-    Column(modifier = LayoutAlign.Center) {
+    Column(modifier = Modifier.wrapContentSize(Alignment.Center)) {
         val vectorAsset = loadVectorResource(R.drawable.ic_crane)
         vectorAsset.resource.resource?.let {
             Image(
                 asset = it,
-                modifier = LayoutSize(200.dp, 200.dp),
+                modifier = Modifier.preferredSize(200.dp, 200.dp),
                 scaleFit = ScaleFit.FillMinDimension
             )
         }
 
         Image(
             painter = vectorShape(120.dp, 120.dp),
-            modifier = LayoutSize(200.dp, 150.dp)
+            modifier = Modifier.preferredSize(200.dp, 150.dp)
         )
     }
 }

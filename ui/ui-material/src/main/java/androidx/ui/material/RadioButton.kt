@@ -23,9 +23,10 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
+import androidx.ui.core.Modifier
+import androidx.ui.core.DrawScope
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.geometry.Offset
@@ -33,11 +34,11 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
@@ -49,7 +50,7 @@ import androidx.ui.unit.dp
  * Because of the nature of mutually exclusive set, when radio button is selected,
  * it can't be unselected by being pressed again.
  *
- * Typical children for RadioGroup will be [RadioGroupScope.RadioGroupItem] and following usage:
+ * Typical content for RadioGroup will be [RadioGroupScope.RadioGroupItem] and following usage:
  *
  * @sample androidx.ui.material.samples.CustomRadioGroupSample
  *
@@ -57,9 +58,9 @@ import androidx.ui.unit.dp
  * consider using version that accepts list of [String] options and doesn't require any children
  */
 @Composable
-fun RadioGroup(children: @Composable RadioGroupScope.() -> Unit) {
+fun RadioGroup(content: @Composable RadioGroupScope.() -> Unit) {
     val scope = remember { RadioGroupScope() }
-    scope.children()
+    scope.content()
 }
 
 /**
@@ -125,14 +126,14 @@ class RadioGroupScope internal constructor() {
     fun RadioGroupItem(
         selected: Boolean,
         onSelect: () -> Unit,
-        children: @Composable() () -> Unit
+        content: @Composable() () -> Unit
     ) {
         Semantics(container = true, mergeAllDescendants = true) {
             Box {
                 MutuallyExclusiveSetItem(
                     selected = selected,
-                    onClick = { if (!selected) onSelect() }, children = children,
-                    modifier = ripple()
+                    onClick = { if (!selected) onSelect() }, children = content,
+                    modifier = Modifier.ripple()
                 )
             }
         }
@@ -160,12 +161,12 @@ class RadioGroupScope internal constructor() {
         RadioGroupItem(selected = selected, onSelect = onSelect) {
             // TODO: remove this Box when Ripple becomes a modifier.
             Box {
-                Row(LayoutWidth.Fill + LayoutPadding(DefaultRadioItemPadding)) {
+                Row(Modifier.fillMaxWidth().padding(DefaultRadioItemPadding)) {
                     RadioButton(selected = selected, onSelect = onSelect, color = radioColor)
                     Text(
                         text = text,
                         style = MaterialTheme.typography.body1.merge(textStyle),
-                        modifier = LayoutPadding(start = DefaultRadioLabelOffset)
+                        modifier = Modifier.padding(start = DefaultRadioLabelOffset)
                     )
                 }
             }
@@ -197,7 +198,7 @@ fun RadioButton(
     Stack {
         MutuallyExclusiveSetItem(
             selected = selected, onClick = { if (!selected) onSelect?.invoke() },
-            modifier = ripple(bounded = false)
+            modifier = Modifier.ripple(bounded = false)
         ) {
             val unselectedColor =
                 MaterialTheme.colors.onSurface.copy(alpha = UnselectedOpacity)
@@ -205,7 +206,7 @@ fun RadioButton(
                 generateTransitionDefinition(color, unselectedColor)
             }
             Transition(definition = definition, toState = selected) { state ->
-                Canvas(modifier = LayoutPadding(RadioButtonPadding) + LayoutSize(RadioButtonSize)) {
+                Canvas(Modifier.padding(RadioButtonPadding).preferredSize(RadioButtonSize)) {
                     drawRadio(
                         state[ColorProp],
                         state[OuterRadiusProp],
@@ -219,7 +220,7 @@ fun RadioButton(
     }
 }
 
-private fun CanvasScope.drawRadio(
+private fun DrawScope.drawRadio(
     color: Color,
     outerRadius: Dp,
     innerRadius: Dp,
@@ -261,10 +262,10 @@ private val InnerRadiusProp = DpPropKey()
 private val GapProp = DpPropKey()
 private val ColorProp = ColorPropKey()
 
-private val RadiusClosureDuration = 150
-private val PulseDuration = 100
-private val GapDuration = 150
-private val TotalDuration = RadiusClosureDuration + PulseDuration + GapDuration
+private const val RadiusClosureDuration = 150
+private const val PulseDuration = 100
+private const val GapDuration = 150
+private const val TotalDuration = RadiusClosureDuration + PulseDuration + GapDuration
 
 private fun generateTransitionDefinition(
     selectedColor: Color,
@@ -328,7 +329,7 @@ private val RadioRadius = RadioButtonSize / 2
 private val RadioStrokeWidth = 2.dp
 // TODO(malkov): random numbers for now to produce radio as in material comp.
 private val DefaultGap = 3.dp
-private val UnselectedOpacity = 0.6f
+private const val UnselectedOpacity = 0.6f
 
 // for animations
 private val OuterOffsetDuringAnimation = 2.dp

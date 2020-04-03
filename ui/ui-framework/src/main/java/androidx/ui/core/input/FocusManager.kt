@@ -17,30 +17,26 @@
 package androidx.ui.core.input
 
 /**
+ * An object for focusable object.
+ *
+ * Any component that will have input focus must implement this FocusNode.
+ */
+class FocusNode
+
+/**
+ * A callback interface for focus transition
+ *
+ * The callback is called when the focused node has changed with the previously focused node and
+ * currently focused node.
+ */
+typealias FocusTransitionObserver = (FocusNode?, FocusNode?) -> Unit
+
+/**
  * Interface of manager of focused composable.
  *
  * Focus manager keeps tracking the input focused node and provides focus transitions.
  */
 interface FocusManager {
-    /**
-     * An interface for focusable object.
-     *
-     * Any component that will have input focus must implement this FocusNode and observe focus
-     * state.
-     */
-    interface FocusNode {
-        /** Called when this component gained the focus */
-        fun onFocus()
-
-        /**
-         *  Called when this component is about to lose the focus
-         *
-         *  @param hasNextClient True if this node loses focus due to focusing in to another node
-         *  . False if this node loses focus due to calling [FocusManager#blur].
-         */
-        fun onBlur(hasNextClient: Boolean)
-    }
-
     /**
      * Request the focus assiciated with the identifier.
      *
@@ -81,6 +77,14 @@ interface FocusManager {
      * @param client A focusable client.
      */
     fun blur(client: FocusNode)
+
+    /**
+     * Observe focus transition for the passed [FocusNode].
+     *
+     * The observer is called AFTER the focus transition happens. So there is no way of
+     * preventing focus gain or focus lose.
+     */
+    fun registerObserver(node: FocusNode, observer: FocusTransitionObserver)
 }
 
 /**
@@ -90,19 +94,21 @@ internal class FocusManagerImpl : FocusManager {
     /**
      * The focused client. Maybe null if nothing is focused.
      */
-    private var focusedClient: FocusManager.FocusNode? = null
+    private var focusedClient: FocusNode? = null
+
+    private val observerMap = mutableMapOf<FocusNode, MutableList<FocusTransitionObserver>>()
 
     /**
      * The identifier to focusable node map.
      */
-    private val focusMap = mutableMapOf<String, FocusManager.FocusNode>()
+    private val focusMap = mutableMapOf<String, FocusNode>()
 
     override fun requestFocusById(identifier: String) {
         // TODO(nona): Good to defer the task for avoiding possible infinity loop.
         focusMap[identifier]?.let { requestFocus(it) }
     }
 
-    override fun registerFocusNode(identifier: String, node: FocusManager.FocusNode) {
+    override fun registerFocusNode(identifier: String, node: FocusNode) {
         focusMap[identifier] = node
     }
 
@@ -110,24 +116,32 @@ internal class FocusManagerImpl : FocusManager {
         focusMap.remove(identifier)
     }
 
-    override fun requestFocus(client: FocusManager.FocusNode) {
+    override fun requestFocus(client: FocusNode) {
         val currentFocus = focusedClient
         if (currentFocus == client) {
             return // focus in to the same component. Do nothing.
         }
-
-        if (currentFocus != null) {
-            currentFocus.onBlur(true)
-        }
-
         focusedClient = client
-        client.onFocus()
+
+        callFocusTransition(currentFocus, client)
     }
 
-    override fun blur(client: FocusManager.FocusNode) {
+    override fun blur(client: FocusNode) {
         if (focusedClient == client) {
             focusedClient = null
-            client.onBlur(false)
+            callFocusTransition(client, null)
         }
+    }
+
+    private fun callFocusTransition(fromNode: FocusNode?, toNode: FocusNode?) {
+        // We create new list so that we can safely call them even if somebody register observer
+        // during calling callbacks.
+        val observers = observerMap[fromNode].orEmpty() + observerMap[toNode].orEmpty()
+
+        observers.forEach { it(fromNode, toNode) }
+    }
+
+    override fun registerObserver(node: FocusNode, observer: FocusTransitionObserver) {
+        observerMap.getOrPut(node, { mutableListOf() }).add(observer)
     }
 }

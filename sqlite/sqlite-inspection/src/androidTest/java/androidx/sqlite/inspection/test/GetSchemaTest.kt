@@ -132,7 +132,7 @@ class GetSchemaTest {
             assertThat(response.hasErrorOccurred()).isEqualTo(true)
             val error = response.errorOccurred.content
             assertThat(error.message).isEqualTo("No database with id=$databaseId")
-            assertThat(error.isRecoverable).isEqualTo(true)
+            assertThat(error.recoverability.isRecoverable).isEqualTo(true)
         }
     }
 

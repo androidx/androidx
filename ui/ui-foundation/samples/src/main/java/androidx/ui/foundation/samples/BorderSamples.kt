@@ -18,15 +18,16 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
-import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBorder
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
 import androidx.ui.graphics.TileMode
-import androidx.ui.layout.LayoutPadding
+import androidx.ui.layout.padding
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
 
@@ -35,8 +36,7 @@ import androidx.ui.unit.px
 fun BorderSample() {
     Text(
         "Text with  square border",
-        modifier = DrawBorder(color = Color.Magenta, size = 4.dp) +
-                LayoutPadding(10.dp)
+        modifier = Modifier.drawBorder(4.dp, Color.Magenta).padding(10.dp)
     )
 }
 
@@ -51,8 +51,8 @@ fun BorderSampleWithBrush() {
     )
     Text(
         "Text with gradient border",
-        modifier = DrawBorder(size = 2.dp, brush = gradientBrush, shape = CircleShape) +
-                LayoutPadding(10.dp)
+        modifier = Modifier.drawBorder(size = 2.dp, brush = gradientBrush, shape = CircleShape)
+            .padding(10.dp)
     )
 }
 
@@ -61,7 +61,10 @@ fun BorderSampleWithBrush() {
 fun BorderSampleWithDataClass() {
     Text(
         "Text with gradient border",
-        modifier = DrawBorder(shape = CutCornerShape(8.dp), border = Border(2.dp, Color.Blue)) +
-                LayoutPadding(10.dp)
+        modifier = Modifier.drawBorder(
+            border = Border(2.dp, Color.Blue),
+            shape = CutCornerShape(8.dp)
+        )
+            .padding(10.dp)
     )
 }

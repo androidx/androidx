@@ -22,14 +22,16 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.animate
+import androidx.ui.core.Modifier
 import androidx.ui.core.drawOpacity
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -41,16 +43,16 @@ enum class VisibilityState {
 @Sampled
 @Composable
 fun VisibilityTransition(visibility: VisibilityState) {
-    Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
+    Box(Modifier.fillMaxSize(), gravity = ContentGravity.Center) {
         val opacity = animate(if (visibility == VisibilityState.Invisible) 0f else 1f)
-        Text("Visibility Transition", modifier = drawOpacity(opacity))
+        Text("Visibility Transition", modifier = Modifier.drawOpacity(opacity))
     }
 }
 
 @Sampled
 @Composable
 fun ColorTransition(enabled: Boolean) {
-    Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
+    Box(Modifier.fillMaxSize(), gravity = ContentGravity.Center) {
         val textColor = animate(if (enabled) Color.Black else Color.Gray)
         Text("Visibility Transition", style = currentTextStyle().copy(color = textColor))
     }
@@ -72,5 +74,5 @@ fun ArbitraryValueTypeTransition(enabled: Boolean) {
         convertToVector = { AnimationVector2D(it.width.value, it.height.value) },
         convertFromVector = { MySize(it.v1.dp, it.v2.dp) }
     ))
-    ColoredRect(Color.Red, width = animSize.width, height = animSize.height)
+    Box(Modifier.preferredSize(animSize.width, animSize.height).drawBackground(Color.Red))
 }

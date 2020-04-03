@@ -14,32 +14,38 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.layout
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.Composable
-import androidx.compose.Immutable
 import androidx.compose.remember
 import androidx.constraintlayout.solver.state.ConstraintReference
-import androidx.constraintlayout.solver.state.Dimension
+import androidx.constraintlayout.solver.state.Dimension.SPREAD_DIMENSION
+import androidx.constraintlayout.solver.state.Dimension.WRAP_DIMENSION
 import androidx.constraintlayout.solver.state.State
 import androidx.constraintlayout.solver.state.helpers.BarrierReference
 import androidx.constraintlayout.solver.widgets.ConstraintWidget
+import androidx.constraintlayout.solver.widgets.ConstraintWidget.DimensionBehaviour.MATCH_CONSTRAINT
+import androidx.constraintlayout.solver.widgets.ConstraintWidget.DimensionBehaviour.WRAP_CONTENT
+import androidx.constraintlayout.solver.widgets.ConstraintWidget.DimensionBehaviour.FIXED
+import androidx.constraintlayout.solver.widgets.ConstraintWidget.MATCH_CONSTRAINT_SPREAD
+import androidx.constraintlayout.solver.widgets.ConstraintWidget.MATCH_CONSTRAINT_WRAP
 import androidx.constraintlayout.solver.widgets.ConstraintWidgetContainer
 import androidx.constraintlayout.solver.widgets.Optimizer
 import androidx.constraintlayout.solver.widgets.analyzer.BasicMeasure
-import androidx.ui.core.AlignmentLine
+import androidx.compose.Immutable
 import androidx.ui.core.Constraints
 import androidx.ui.core.FirstBaseline
-import androidx.ui.core.Layout
-import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
-import androidx.ui.core.ParentDataModifier
+import androidx.ui.core.Modifier
+import androidx.ui.core.MultiMeasureLayout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Placeable.PlacementScope.place
-import androidx.ui.core.hasBoundedHeight
-import androidx.ui.core.hasBoundedWidth
+import androidx.ui.core.hasFixedHeight
+import androidx.ui.core.hasFixedWidth
 import androidx.ui.core.tag
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -52,9 +58,14 @@ import androidx.ui.unit.ipx
  * Layout that positions its children according to the constraints between them.
  */
 @Composable
-fun ConstraintLayout(constraintSet: ConstraintSet, children: @Composable() () -> Unit) {
+fun ConstraintLayout(
+    constraintSet: ConstraintSet,
+    modifier: Modifier = Modifier.None,
+    children: @Composable() () -> Unit
+) {
     val measurer = remember { Measurer() }
-    Layout(children) { measurables, constraints, _ ->
+    @Suppress("Deprecation")
+    MultiMeasureLayout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val layoutSize = measurer.performMeasure(
             constraints,
             constraintSet,
@@ -75,7 +86,7 @@ data class ConstraintSet(internal val description: ConstraintSetBuilderScope.() 
 
 /**
  * Builder scope for a [ConstraintSet]. The scope should not be created directly - the
- * [ConstraintSet] function should be used instead.
+ * [ConstraintSet] class constructor should be used instead.
  */
 // TODO(popam): support RTL
 class ConstraintSetBuilderScope internal constructor(internal val state: State) {
@@ -83,21 +94,185 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Creates a reference corresponding to the constraint layout children with a specific tag,
      * which can be used to define the constraints to be imposed to those children.
      */
-    fun tag(tag: Any) = tags.getOrPut(tag, { ConstrainedLayoutReference(state, tag) })
+    fun tag(tag: Any) = tags.getOrPut(tag, { ConstrainedLayoutReference(tag) })
     private val tags = mutableMapOf<Any, ConstrainedLayoutReference>()
 
     /**
      * Reference to the [ConstraintLayout] itself, which can be used to specify constraints
      * between itself and its children.
      */
-    val parent = ConstrainedLayoutReference(state, State.PARENT)
+    val parent = ConstrainedLayoutReference(State.PARENT)
 
-    class ConstrainedLayoutReference internal constructor(val state: State, val tag: Any) {
+    /**
+     * Represents a dimension that can be assigned to the width or height of a [ConstraintLayout]
+     * [child][ConstrainedLayoutReference].
+     */
+    interface Dimension {
+        /**
+         * A [Dimension] that can be assigned both min and max bounds.
+         */
+        interface Coercible : Dimension
+
+        /**
+         * A [Dimension] that can be assigned a min bound.
+         */
+        interface MinCoercible : Dimension
+
+        /**
+         * A [Dimension] that can be assigned a max bound.
+         */
+        interface MaxCoercible : Dimension
+    }
+
+    /**
+     * Sets the lower bound of the current [Dimension] to be the [Wrap] size of the child.
+     */
+    val Dimension.Coercible.minWrap: Dimension.MaxCoercible
+        get() = (this as DimensionDescription).also { it.minSymbol = WRAP_DIMENSION }
+
+    /**
+     * Sets the lower bound of the current [Dimension] to a fixed [dp] value.
+     */
+    fun Dimension.Coercible.min(dp: Dp): Dimension.MaxCoercible =
+        (this as DimensionDescription).also { it.min = state.convertDimension(dp).ipx }
+
+    /**
+     * Sets the upper bound of the current [Dimension] to a fixed [dp] value.
+     */
+    fun Dimension.Coercible.max(dp: Dp): Dimension.MinCoercible =
+        (this as DimensionDescription).also { it.max = state.convertDimension(dp).ipx }
+
+    /**
+     * Sets the upper bound of the current [Dimension] to be the [Wrap] size of the child.
+     */
+    val Dimension.Coercible.maxWrap: Dimension.MinCoercible
+        get() = (this as DimensionDescription).also { it.maxSymbol = WRAP_DIMENSION }
+
+    /**
+     * Sets the lower bound of the current [Dimension] to a fixed [dp] value.
+     */
+    fun Dimension.MinCoercible.min(dp: Dp): Dimension =
+        (this as DimensionDescription).also { it.min = state.convertDimension(dp).ipx }
+
+    /**
+     * Sets the lower bound of the current [Dimension] to be the [Wrap] size of the child.
+     */
+    val Dimension.MinCoercible.minWrap: Dimension
+        get() = (this as DimensionDescription).also { it.minSymbol = WRAP_DIMENSION }
+
+    /**
+     * Sets the upper bound of the current [Dimension] to a fixed [dp] value.
+     */
+    fun Dimension.MaxCoercible.max(dp: Dp): Dimension =
+        (this as DimensionDescription).also { it.max = state.convertDimension(dp).ipx }
+
+    /**
+     * Sets the upper bound of the current [Dimension] to be the [Wrap] size of the child.
+     */
+    val Dimension.MaxCoercible.maxWrap: Dimension
+        get() = (this as DimensionDescription).also { it.maxSymbol = WRAP_DIMENSION }
+
+    /**
+     * Describes a sizing behavior that can be applied to the width or height of a
+     * [ConstraintLayout] child. The content of this class should not be instantiated
+     * directly; helpers available in the scope such as [wrap], [value]
+     * or [wrapFixed] should be used instead to create a [Dimension].
+     */
+    internal class DimensionDescription internal constructor(
+        private val baseDimension: SolverDimension
+    ) : Dimension.Coercible, Dimension.MinCoercible, Dimension.MaxCoercible, Dimension {
+        var min: IntPx? = null
+        var minSymbol: Any? = null
+        var max: IntPx? = null
+        var maxSymbol: Any? = null
+        internal fun toSolverDimension() = baseDimension.also {
+            if (minSymbol != null) {
+                it.min(minSymbol)
+            } else if (min != null) {
+                it.min(min!!.value)
+            }
+            if (maxSymbol != null) {
+                it.max(maxSymbol)
+            } else if (max != null) {
+                it.max(max!!.value)
+            }
+        }
+    }
+
+    /**
+     * Creates a [Dimension] representing a suggested dp size. The requested size will
+     * be respected unless the constraints in the [ConstraintSet] do not allow it. The min
+     * and max bounds will be respected regardless of the constraints in the [ConstraintSet].
+     * To make the value fixed (respected regardless the [ConstraintSet]), [valueFixed] should
+     * be used instead.
+     */
+    fun value(dp: Dp): Dimension.Coercible =
+        DimensionDescription(SolverDimension.Suggested(state.convertDimension(dp)))
+
+    /**
+     * Creates a [Dimension] representing a fixed dp size. The size will not change
+     * according to the constraints in the [ConstraintSet].
+     */
+    fun valueFixed(dp: Dp): Dimension =
+        DimensionDescription(SolverDimension.Fixed(state.convertDimension(dp)))
+
+    /**
+     * A [Dimension] with suggested wrap content behavior. The wrap content size
+     * will be respected unless the constraints in the [ConstraintSet] do not allow it.
+     * To make the value fixed (respected regardless the [ConstraintSet]), [wrapFixed]
+     * should be used instead.
+     */
+    val wrap: Dimension.Coercible
+        get() = DimensionDescription(SolverDimension.Suggested(WRAP_DIMENSION))
+
+    /**
+     * A [Dimension] with fixed wrap content behavior. The size will not change
+     * according to the constraints in the [ConstraintSet].
+     */
+    val wrapFixed: Dimension
+        get() = DimensionDescription(SolverDimension.Fixed(WRAP_DIMENSION))
+
+    /**
+     * A [Dimension] that spreads to match constraints.
+     */
+    val spread: Dimension
+        get() = DimensionDescription(SolverDimension.Suggested(SPREAD_DIMENSION))
+
+    /**
+     * A [Dimension] that is a percent of the parent in the corresponding direction.
+     */
+    fun percent(percent: Float): Dimension =
+        // TODO(popam): make this nicer when possible in future solver releases
+        DimensionDescription(SolverDimension.Percent(0, percent).suggested(0))
+
+    inner class ConstrainedLayoutReference internal constructor(val tag: Any) {
         val left = VerticalAnchor.ConstrainedLayoutAnchor(state, this, 0)
         val top = HorizontalAnchor.ConstrainedLayoutAnchor(state, this, 0)
         var right = VerticalAnchor.ConstrainedLayoutAnchor(state, this, 1)
         var bottom = HorizontalAnchor.ConstrainedLayoutAnchor(state, this, 1)
         var baseline = ConstrainedLayoutBaselineAnchor(state, this)
+
+        /**
+         * The width of the [ConstraintLayout] child.
+         */
+        var width: Dimension = wrap
+            set(value) {
+                field = value
+                state.constraints(tag).width(
+                    (value as DimensionDescription).toSolverDimension()
+                ).apply()
+            }
+
+        /**
+         * The height of the [ConstraintLayout] child.
+         */
+        var height: Dimension = wrap
+            set(value) {
+                field = value
+                state.constraints(tag).height(
+                    (value as DimensionDescription).toSolverDimension()
+                ).apply()
+            }
 
         /**
          * Adds constraints between left, top, right and bottom corresponding anchors of
@@ -129,7 +304,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
         /**
          * The horizontal bias of the current layout reference.
          */
-        // TODO(popam): keep the source of truth in ConstraintReference
+        // TODO(popam): keep the source of truth in ConstraintReference or make this write only
         var horizontalBias: Float = 0.5f
             set(value) {
                 field = value
@@ -139,7 +314,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
         /**
          * The vertical bias of the current layout reference.
          */
-        // TODO(popam): keep the source of truth in ConstraintReference
+        // TODO(popam): keep the source of truth in ConstraintReference or make this write only
         var verticalBias: Float = 0.5f
             set(value) {
                 field = value
@@ -174,7 +349,6 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
     ) {
         val left: VerticalAnchor.ConstrainedLayoutAnchor get() = first.left
         val right: VerticalAnchor.ConstrainedLayoutAnchor get() = last.right
-
         infix fun constrainTo(other: ConstrainedLayoutReference) {
             left constrainTo other.left
             right constrainTo other.right
@@ -190,7 +364,6 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
     ) {
         val top: HorizontalAnchor.ConstrainedLayoutAnchor get() = first.top
         val bottom: HorizontalAnchor.ConstrainedLayoutAnchor get() = last.bottom
-
         infix fun constrainTo(other: ConstrainedLayoutReference) {
             first.top constrainTo other.top
             last.bottom constrainTo other.bottom
@@ -207,7 +380,6 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
         internal abstract val state: State
         internal abstract val tag: Any
         internal abstract val index: Int
-
         /**
          * Anchor corresponding to the left or right of a child of the [ConstraintLayout].
          */
@@ -217,7 +389,6 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
             override val index: Int
         ) : VerticalAnchor() {
             override val tag: Any get() = constrainedLayoutReference.tag
-
             // TODO(popam): keep the source of truth in ConstraintReference
             /**
              * The margin to be applied to the current [ConstrainedLayoutAnchor].
@@ -283,7 +454,6 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
         internal abstract val state: State
         internal abstract val tag: Any
         internal abstract val index: Int
-
         /**
          * Anchor corresponding to the top or bottom of a child of the [ConstraintLayout].
          */
@@ -293,7 +463,6 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
             override val index: Int
         ) : HorizontalAnchor() {
             override val tag: Any get() = constrainedLayoutReference.tag
-
             // TODO(popam): keep the source of truth in ConstraintReference
             /**
              * The margin to be applied to the current [ConstrainedLayoutAnchor].
@@ -305,7 +474,6 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
                         .let { if (index == 0) it.top() else it.bottom() }
                         .margin(value)
                 }
-
             /**
              * Adds a constraint between a [ConstrainedLayoutAnchor] and a [HorizontalAnchor].
              */
@@ -365,6 +533,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
     /**
      * Creates a horizontal chain including the referenced layouts.
      */
+    @SuppressLint
     fun createHorizontalChain(
         // Suppress lint here to allow vararg parameter for elements. API likely to change.
         @SuppressLint("ArrayReturn")
@@ -560,6 +729,8 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
     private val placeables = mutableMapOf<Measurable, Placeable>()
     private lateinit var density: Density
     private val state = object : State() {
+        lateinit var rootIncomingConstraints: Constraints
+
         override fun convertDimension(value: Any?): Int {
             return if (value is Dp) {
                 with(density) { value.toIntPx().value }
@@ -569,36 +740,133 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         }
     }
 
+    val widthConstraintsHolder = IntArray(2)
+    val heightConstraintsHolder = IntArray(2)
+
     override fun measure(constraintWidget: ConstraintWidget, measure: BasicMeasure.Measure) {
         val measurable = constraintWidget.companionWidget
         if (measurable !is Measurable) return
 
-        var measuredWidth = constraintWidget.width
-        var measuredHeight = constraintWidget.height
-
-        val constraints = Constraints(
-            if (measure.wrapsHorizontal) 0.ipx else constraintWidget.width.ipx,
-            if (measure.wrapsHorizontal) IntPx.Infinity else constraintWidget.width.ipx,
-            if (measure.wrapsVertical) 0.ipx else constraintWidget.height.ipx,
-            if (measure.wrapsVertical) IntPx.Infinity else constraintWidget.height.ipx
-        )
-
-        val placeable = measurable.measure(constraints).also { placeables[measurable] = it }
-
-        if (measure.wrapsHorizontal) {
-            measuredWidth = placeable.width.value
-        }
-        if (measure.wrapsVertical) {
-            measuredHeight = placeable.height.value
+        if (DEBUG) {
+            Log.d("CCL", "Measuring ${measurable.tag} with: " +
+                    constraintWidget.toDebugString() + "\n" + measure.toDebugString())
         }
 
-        measure.measuredWidth = measuredWidth
-        measure.measuredHeight = measuredHeight
-        val baseline = placeable[FirstBaseline]
-        if (baseline != null) {
-            measure.measuredBaseline = baseline.value
-        } else {
-            measure.measuredBaseline = measuredHeight
+        val initialPlaceable = placeables[measurable]
+        val initialWidth = initialPlaceable?.width?.value ?: constraintWidget.width
+        val initialHeight = initialPlaceable?.height?.value ?: constraintWidget.height
+        val initialBaseline =
+            initialPlaceable?.get(FirstBaseline) ?: constraintWidget.baselineDistance
+
+        var constraints = run {
+            obtainConstraints(
+                constraintWidget.horizontalDimensionBehaviour,
+                constraintWidget.width,
+                constraintWidget.mMatchConstraintDefaultWidth,
+                measure.useDeprecated,
+                state.rootIncomingConstraints.maxWidth.value,
+                widthConstraintsHolder
+            )
+            obtainConstraints(
+                constraintWidget.verticalDimensionBehaviour,
+                constraintWidget.height,
+                constraintWidget.mMatchConstraintDefaultHeight,
+                measure.useDeprecated,
+                state.rootIncomingConstraints.maxHeight.value,
+                heightConstraintsHolder
+            )
+
+            Constraints(
+                widthConstraintsHolder[0].ipx,
+                widthConstraintsHolder[1].ipx,
+                heightConstraintsHolder[0].ipx,
+                heightConstraintsHolder[1].ipx
+            )
+        }
+
+        if (constraintWidget.horizontalDimensionBehaviour != MATCH_CONSTRAINT ||
+                constraintWidget.mMatchConstraintDefaultWidth != MATCH_CONSTRAINT_SPREAD ||
+                constraintWidget.verticalDimensionBehaviour != MATCH_CONSTRAINT ||
+                constraintWidget.mMatchConstraintDefaultHeight != MATCH_CONSTRAINT_SPREAD) {
+            if (DEBUG) {
+                Log.d("CCL", "Measuring ${measurable.tag} with $constraints")
+            }
+            val placeable = measurable.measure(constraints).also { placeables[measurable] = it }
+            if (DEBUG) {
+                Log.d("CCL", "${measurable.tag} is size ${placeable.width} ${placeable.height}")
+            }
+
+            val coercedWidth = placeable.width.value.coerceIn(
+                constraintWidget.minWidth.takeIf { it > 0 },
+                constraintWidget.maxWidth.takeIf { it > 0 }
+            )
+            val coercedHeight = placeable.height.value.coerceIn(
+                constraintWidget.minHeight.takeIf { it > 0 },
+                constraintWidget.maxHeight.takeIf { it > 0 }
+            )
+
+            var remeasure = false
+            if (coercedWidth != placeable.width.value) {
+                constraints = constraints.copy(
+                    minWidth = coercedWidth.ipx,
+                    maxWidth = coercedWidth.ipx
+                )
+                remeasure = true
+            }
+            if (coercedHeight != placeable.height.value) {
+                constraints = constraints.copy(
+                    minHeight = coercedHeight.ipx,
+                    maxHeight = coercedHeight.ipx
+                )
+                remeasure = true
+            }
+            if (remeasure) {
+                if (DEBUG) {
+                    Log.d("CCL", "Remeasuring coerced ${measurable.tag} with $constraints")
+                }
+                measurable.measure(constraints).also { placeables[measurable] = it }
+            }
+        }
+
+        val currentPlaceable = placeables[measurable]
+        measure.measuredWidth = currentPlaceable?.width?.value ?: constraintWidget.width
+        measure.measuredHeight = currentPlaceable?.height?.value ?: constraintWidget.height
+        val baseline = currentPlaceable?.get(FirstBaseline)
+        measure.measuredHasBaseline = baseline != null
+        if (baseline != null) measure.measuredBaseline = baseline.value
+        measure.measuredNeedsSolverPass = measure.measuredWidth != initialWidth ||
+                measure.measuredHeight != initialHeight ||
+                measure.measuredBaseline != initialBaseline
+    }
+
+    /**
+     * Calculates the [Constraints] in one direction that should be used to measure a child,
+     * based on the solver measure request.
+     */
+    private fun obtainConstraints(
+        dimensionBehaviour: ConstraintWidget.DimensionBehaviour,
+        dimension: Int,
+        matchConstraintDefaultDimension: Int,
+        useDeprecated: Boolean,
+        rootMaxConstraint: Int,
+        outConstraints: IntArray
+    ) = when (dimensionBehaviour) {
+        FIXED -> {
+            outConstraints[0] = dimension
+            outConstraints[1] = dimension
+        }
+        WRAP_CONTENT -> {
+            outConstraints[0] = 0
+            outConstraints[1] = rootMaxConstraint
+        }
+        MATCH_CONSTRAINT -> {
+            val useDimension =
+                useDeprecated && matchConstraintDefaultDimension == MATCH_CONSTRAINT_WRAP
+            outConstraints[0] = if (useDimension) dimension else 0
+            outConstraints[1] = if (useDimension) dimension else rootMaxConstraint
+        }
+        else -> {
+            error("MATCH_PARENT is not supported")
         }
     }
 
@@ -610,35 +878,67 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
     ): IntPxSize {
         this.density = density
         state.reset()
+        // Add tags.
         measurables.forEach { measurable ->
             state.map(measurable.tag ?: object : Any() {}, measurable)
         }
-        state.width(if (constraints.hasBoundedWidth) {
-            Dimension.Fixed(constraints.maxWidth.value)
+        // Define the size of the ConstraintLayout.
+        state.width(if (constraints.hasFixedWidth) {
+            SolverDimension.Fixed(constraints.maxWidth.value)
         } else {
-            Dimension.Wrap()
+            SolverDimension.Wrap().min(constraints.minWidth.value)
         })
-        state.height(if (constraints.hasBoundedHeight) {
-            Dimension.Fixed(constraints.maxHeight.value)
+        state.height(if (constraints.hasFixedHeight) {
+            SolverDimension.Fixed(constraints.maxHeight.value)
         } else {
-            Dimension.Wrap()
+            SolverDimension.Wrap().min(constraints.minHeight.value)
         })
+        // Build constraint set and apply it to the state.
         constraintSet.description(ConstraintSetBuilderScope(state))
         state.apply(root)
+        root.width = constraints.maxWidth.value
+        root.height = constraints.maxHeight.value
+        state.rootIncomingConstraints = constraints
+        root.updateHierarchy()
 
-        root.minWidth = constraints.minWidth.value
-        root.minHeight = constraints.minHeight.value
-        root.measure(
-            Optimizer.OPTIMIZATION_NONE,
-            if (constraints.hasBoundedWidth) BasicMeasure.EXACTLY else BasicMeasure.WRAP_CONTENT,
-            if (constraints.hasBoundedWidth) constraints.maxWidth.value else 0,
-            if (constraints.hasBoundedHeight) BasicMeasure.EXACTLY else BasicMeasure.WRAP_CONTENT,
-            if (constraints.hasBoundedHeight) constraints.maxHeight.value else 0,
-            0,
-            0,
-            0,
-            0
-        )
+        if (DEBUG) {
+            root.debugName = "ConstraintLayout"
+            root.children.forEach { child ->
+                child.debugName = (child.companionWidget as? Measurable)?.tag?.toString() ?: "NOTAG"
+            }
+            Log.d("CCL", "ConstraintLayout is asked to measure with $constraints")
+            Log.d("CCL", root.toDebugString())
+            for (child in root.children) {
+                Log.d("CCL", child.toDebugString())
+            }
+        }
+
+        // No need to set sizes and size modes as we passed them to the state above.
+        root.measure(Optimizer.OPTIMIZATION_NONE, 0, 0, 0, 0, 0, 0, 0, 0)
+
+        for (child in root.children) {
+            val measurable = child.companionWidget
+            if (measurable !is Measurable) continue
+            val placeable = placeables[measurable]
+            val currentWidth = placeable?.width?.value
+            val currentHeight = placeable?.height?.value
+            if (child.width != currentWidth || child.height != currentHeight) {
+                if (DEBUG) {
+                    Log.d(
+                        "CCL",
+                        "Final measurement for ${measurable.tag} " +
+                                "to confirm size ${child.width} ${child.height}"
+                    )
+                }
+                measurable.measure(
+                    Constraints.fixed(child.width.ipx, child.height.ipx)
+                ).also { placeables[measurable] = it }
+            }
+        }
+        if (DEBUG) {
+            Log.d("CCL", "ConstraintLayout is at the end ${root.width} ${root.height}")
+        }
+
         return IntPxSize(root.width.ipx, root.height.ipx)
     }
 
@@ -652,52 +952,15 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
     }
 
     override fun didMeasures() { }
-
-    private val BasicMeasure.Measure.wrapsHorizontal
-        get() = horizontalBehavior == ConstraintWidget.DimensionBehaviour.WRAP_CONTENT
-    private val BasicMeasure.Measure.wrapsVertical
-        get() = verticalBehavior == ConstraintWidget.DimensionBehaviour.WRAP_CONTENT
 }
 
-private data class TagModifier(val tag: Any) : LayoutModifier, ParentDataModifier {
-    override fun Density.modifyConstraints(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ) = constraints
-    override fun Density.modifySize(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection,
-        childSize: IntPxSize
-    ) =
-        childSize
-    override fun Density.minIntrinsicWidthOf(
-        measurable: Measurable,
-        height: IntPx,
-        layoutDirection: LayoutDirection
-    ) =
-        measurable.minIntrinsicWidth(height)
-    override fun Density.maxIntrinsicWidthOf(
-        measurable: Measurable,
-        height: IntPx,
-        layoutDirection: LayoutDirection
-    ) =
-        measurable.maxIntrinsicWidth(height)
-    override fun Density.minIntrinsicHeightOf(
-        measurable: Measurable,
-        width: IntPx,
-        layoutDirection: LayoutDirection
-    ) =
-        measurable.minIntrinsicHeight(width)
-    override fun Density.maxIntrinsicHeightOf(
-        measurable: Measurable,
-        width: IntPx,
-        layoutDirection: LayoutDirection
-    ) =
-        measurable.maxIntrinsicHeight(width)
-    override fun Density.modifyAlignmentLine(
-        line: AlignmentLine,
-        value: IntPx?,
-        layoutDirection: LayoutDirection
-    ) = value
-    override fun Density.modifyParentData(parentData: Any?) = this@TagModifier
-}
+private typealias SolverDimension = androidx.constraintlayout.solver.state.Dimension
+private val DEBUG = true
+private fun ConstraintWidget.toDebugString() =
+    "$debugName " +
+            "width $width minWidth $minWidth maxWidth $maxWidth " +
+            "height $height minHeight $minHeight maxHeight maxHeight " +
+            "HDB $horizontalDimensionBehaviour VDB $verticalDimensionBehaviour " +
+            "percentH $mMatchConstraintPercentWidth $mMatchConstraintPercentHeight"
+private fun BasicMeasure.Measure.toDebugString() =
+    "use deprecated is $useDeprecated "

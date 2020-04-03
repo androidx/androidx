@@ -28,22 +28,25 @@ import androidx.ui.foundation.TextField
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.DrawBackground
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
+import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.ColumnScope
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
@@ -56,7 +59,7 @@ fun PopupDemo() {
 
     Column {
         Row(
-            LayoutWidth.Fill + LayoutGravity.Center,
+            Modifier.fillMaxWidth().gravity(ColumnAlign.Center),
             arrangement = Arrangement.SpaceBetween
         ) {
             this@Column.ClickableTextWithBackground(
@@ -73,7 +76,7 @@ fun PopupDemo() {
             )
 
             Box(
-                modifier = LayoutWeight(1f),
+                modifier = Modifier.weight(1f),
                 gravity = ContentGravity.Center
             ) {
                 val description: String = {
@@ -131,12 +134,12 @@ fun PopupDemo() {
 private fun ColumnScope.PopupToggle() {
     val showPopup = state { true }
 
-    Column(LayoutGravity.Center) {
-        Box(LayoutSize(100.dp)) {
+    Column(Modifier.gravity(ColumnAlign.Center)) {
+        Box(Modifier.preferredSize(100.dp)) {
             if (showPopup.value) {
                 Popup(alignment = Alignment.Center) {
                     Box(
-                        LayoutSize(70.dp),
+                        Modifier.preferredSize(70.dp),
                         backgroundColor = Color.Green,
                         shape = CircleShape,
                         gravity = ContentGravity.Center
@@ -162,14 +165,14 @@ private fun ColumnScope.PopupToggle() {
 
 @Composable
 private fun ColumnScope.PopupWithChangingContent() {
-    Column(LayoutGravity.Center) {
+    Column(Modifier.gravity(ColumnAlign.Center)) {
         val heightSize = 120.dp
         val widthSize = 160.dp
         val popupContentState = state { 0 }
         val totalContentExamples = 2
         val popupCounter = state { 0 }
 
-        Box(LayoutSize(widthSize, heightSize), backgroundColor = Color.Gray) {
+        Box(Modifier.preferredSize(widthSize, heightSize), backgroundColor = Color.Gray) {
             Popup(Alignment.Center) {
                 when (popupContentState.value % totalContentExamples) {
                     0 -> ClickableTextWithBackground(
@@ -180,7 +183,7 @@ private fun ColumnScope.PopupWithChangingContent() {
                         }
                     )
                     1 -> Box(
-                        LayoutSize(60.dp, 40.dp),
+                        Modifier.preferredSize(60.dp, 40.dp),
                         backgroundColor = Color.Blue,
                         shape = CircleShape
                     )
@@ -188,7 +191,7 @@ private fun ColumnScope.PopupWithChangingContent() {
             }
         }
 
-        Spacer(LayoutHeight(10.dp))
+        Spacer(Modifier.preferredHeight(10.dp))
         ClickableTextWithBackground(
             text = "Change content",
             color = Color.Cyan,
@@ -208,15 +211,21 @@ private fun ColumnScope.PopupWithChangingParent() {
     val parentHeight = state { 60.dp }
     val parentSizeChanged = state { false }
 
-    Column(LayoutGravity.Center) {
-        Box(LayoutSize(containerWidth, containerHeight), gravity = parentGravity.value) {
-            Box(LayoutSize(parentWidth.value, parentHeight.value), backgroundColor = Color.Blue) {
+    Column(Modifier.gravity(ColumnAlign.Center)) {
+        Box(
+            Modifier.preferredSize(containerWidth, containerHeight),
+            gravity = parentGravity.value
+        ) {
+            Box(
+                Modifier.preferredSize(parentWidth.value, parentHeight.value),
+                backgroundColor = Color.Blue
+            ) {
                 Popup(Alignment.BottomCenter) {
-                    Text("Popup", modifier = DrawBackground(color = Color.Green))
+                    Text("Popup", modifier = Modifier.drawBackground(color = Color.Green))
                 }
             }
         }
-        Spacer(LayoutHeight(10.dp))
+        Spacer(Modifier.preferredHeight(10.dp))
         ClickableTextWithBackground(
             text = "Change parent's position",
             color = Color.Cyan,
@@ -228,7 +237,7 @@ private fun ColumnScope.PopupWithChangingParent() {
                         ContentGravity.TopStart
             }
         )
-        Spacer(LayoutHeight(10.dp))
+        Spacer(Modifier.preferredHeight(10.dp))
         ClickableTextWithBackground(
             text = "Change parent's size",
             color = Color.Cyan,
@@ -248,29 +257,29 @@ private fun ColumnScope.PopupWithChangingParent() {
 
 @Composable
 private fun ColumnScope.PopupDropdownAlignment() {
-    Column(LayoutGravity.Center) {
+    Column(Modifier.gravity(ColumnAlign.Center)) {
         val heightSize = 120.dp
         val widthSize = 160.dp
-        val dropDownAlignment = state { DropDownAlignment.Left }
+        val dropDownAlignment = state { DropDownAlignment.Start }
 
         ClickableTextWithBackground(
             text = "Change alignment",
             color = Color.Cyan,
             onClick = {
                 dropDownAlignment.value =
-                    if (dropDownAlignment.value == DropDownAlignment.Left) {
-                        DropDownAlignment.Right
+                    if (dropDownAlignment.value == DropDownAlignment.Start) {
+                        DropDownAlignment.End
                     } else {
-                        DropDownAlignment.Left
+                        DropDownAlignment.Start
                     }
             }
         )
 
-        Spacer(LayoutHeight(10.dp))
+        Spacer(Modifier.preferredHeight(10.dp))
 
-        Box(LayoutSize(widthSize, heightSize), backgroundColor = Color.Gray) {
+        Box(Modifier.preferredSize(widthSize, heightSize), backgroundColor = Color.Gray) {
             DropdownPopup(dropDownAlignment = dropDownAlignment.value) {
-                Box(LayoutSize(40.dp, 70.dp), backgroundColor = Color.Blue)
+                Box(Modifier.preferredSize(40.dp, 70.dp), backgroundColor = Color.Blue)
             }
         }
     }
@@ -278,13 +287,13 @@ private fun ColumnScope.PopupDropdownAlignment() {
 
 @Composable
 private fun ColumnScope.PopupAlignmentDemo() {
-    Column(LayoutGravity.Center) {
+    Column(Modifier.gravity(ColumnAlign.Center)) {
         val heightSize = 200.dp
         val widthSize = 400.dp
         val counter = state { 0 }
         val popupAlignment = state { Alignment.TopStart }
         Box(
-            modifier = LayoutSize(widthSize, heightSize),
+            modifier = Modifier.preferredSize(widthSize, heightSize),
             backgroundColor = Color.Red,
             gravity = ContentGravity.BottomCenter
         ) {
@@ -310,9 +319,9 @@ private fun ColumnScope.PopupAlignmentDemo() {
             }
         }
 
-        Spacer(LayoutHeight(10.dp))
+        Spacer(Modifier.preferredHeight(10.dp))
         Text(
-            modifier = LayoutGravity.Center + DrawBackground(color = Color.White),
+            modifier = Modifier.gravity(ColumnAlign.Center).drawBackground(color = Color.White),
             text = "Alignment : " + popupAlignment.value.toString()
         )
     }
@@ -320,7 +329,7 @@ private fun ColumnScope.PopupAlignmentDemo() {
 
 @Composable
 private fun ColumnScope.PopupWithEditText() {
-    Column(LayoutGravity.Center) {
+    Column(Modifier.gravity(ColumnAlign.Center)) {
         val widthSize = 190.dp
         val heightSize = 120.dp
         val editLineSize = 150.dp
@@ -333,7 +342,7 @@ private fun ColumnScope.PopupWithEditText() {
         Text(text = showEmail.value)
 
         Box(
-            modifier = LayoutSize(widthSize, heightSize) + LayoutGravity.Center,
+            modifier = Modifier.preferredSize(widthSize, heightSize).gravity(ColumnAlign.Center),
             backgroundColor = Color.Red
         ) {
             if (showPopup.value) {
@@ -348,7 +357,7 @@ private fun ColumnScope.PopupWithEditText() {
                     )
                 ) {
                     EditLine(
-                        modifier = LayoutWidth(editLineSize),
+                        modifier = Modifier.preferredWidth(editLineSize),
                         initialText = "",
                         color = Color.White,
                         onValueChange = {
@@ -363,30 +372,30 @@ private fun ColumnScope.PopupWithEditText() {
 
 @Composable
 private fun ColumnScope.PopupWithChangingSize() {
-    Column(LayoutGravity.Center) {
+    Column(Modifier.gravity(ColumnAlign.Center)) {
         val showPopup = state { true }
         val heightSize = 120.dp
         val widthSize = 160.dp
         val rectangleState = state { 0 }
 
-        Spacer(LayoutHeight(15.dp))
+        Spacer(Modifier.preferredHeight(15.dp))
         Box(
-            modifier = LayoutSize(widthSize, heightSize),
+            modifier = Modifier.preferredSize(widthSize, heightSize),
             backgroundColor = Color.Magenta
         ) {
             if (showPopup.value) {
                 Popup(Alignment.Center) {
                     val size = when (rectangleState.value % 4) {
-                        0 -> LayoutSize(30.dp)
-                        1 -> LayoutSize(100.dp)
-                        2 -> LayoutSize(30.dp, 90.dp)
-                        else -> LayoutSize(90.dp, 30.dp)
+                        0 -> Modifier.preferredSize(30.dp)
+                        1 -> Modifier.preferredSize(100.dp)
+                        2 -> Modifier.preferredSize(30.dp, 90.dp)
+                        else -> Modifier.preferredSize(90.dp, 30.dp)
                     }
                     Box(modifier = size, backgroundColor = Color.Gray)
                 }
             }
         }
-        Spacer(LayoutHeight(25.dp))
+        Spacer(Modifier.preferredHeight(25.dp))
         ClickableTextWithBackground(
             text = "Change size",
             color = Color.Cyan,
@@ -399,10 +408,12 @@ private fun ColumnScope.PopupWithChangingSize() {
 
 @Composable
 private fun ColumnScope.PopupInsideScroller() {
-    VerticalScroller(modifier = LayoutSize(200.dp, 400.dp) + LayoutGravity.Center) {
-        Column(LayoutHeight.Fill) {
+    VerticalScroller(
+        modifier = Modifier.preferredSize(200.dp, 400.dp).gravity(ColumnAlign.Center)
+    ) {
+        Column(Modifier.fillMaxHeight()) {
             Box(
-                modifier = LayoutWidth(80.dp) + LayoutHeight(160.dp),
+                modifier = Modifier.preferredSize(80.dp, 160.dp),
                 backgroundColor = Color(0xFF00FF00)
             ) {
                 Popup(alignment = Alignment.Center) {
@@ -411,7 +422,7 @@ private fun ColumnScope.PopupInsideScroller() {
             }
 
             for (i in 0..30) {
-                Text(text = "Scroll #$i", modifier = LayoutGravity.Center)
+                Text(text = "Scroll #$i", modifier = Modifier.gravity(ColumnAlign.Center))
             }
         }
     }
@@ -423,10 +434,10 @@ private fun PopupOnKeyboardUp() {
         val widthSize = 190.dp
         val heightSize = 120.dp
 
-        Spacer(LayoutHeight(350.dp))
+        Spacer(Modifier.preferredHeight(350.dp))
         Text("Start typing in the EditText below the parent(Red rectangle)")
         Box(
-            modifier = LayoutWidth(widthSize) + LayoutHeight(heightSize) + LayoutGravity.Center,
+            modifier = Modifier.preferredSize(widthSize, heightSize).gravity(ColumnAlign.Center),
             backgroundColor = Color.Red
         ) {
             Popup(Alignment.Center) {
@@ -438,7 +449,7 @@ private fun PopupOnKeyboardUp() {
 
         EditLine(initialText = "Continue typing...", color = Color.Gray)
 
-        Spacer(LayoutHeight(24.dp))
+        Spacer(Modifier.preferredHeight(24.dp))
     }
 }
 
@@ -450,7 +461,7 @@ private fun ColumnScope.ClickableTextWithBackground(
     padding: Dp = 0.dp
 ) {
     Clickable(onClick = onClick ?: {}, enabled = onClick != null) {
-        Box(LayoutGravity.Center, backgroundColor = color, padding = padding) {
+        Box(Modifier.gravity(ColumnAlign.Center), backgroundColor = color, padding = padding) {
             Text(text)
         }
     }
@@ -465,15 +476,15 @@ private fun EditLine(
     initialText: String = "",
     color: Color = Color.White
 ) {
-    val state = state { initialText }
+    val state = state { TextFieldValue(initialText) }
     TextField(
         value = state.value,
-        modifier = modifier + DrawBackground(color = color),
+        modifier = modifier.drawBackground(color = color),
         keyboardType = keyboardType,
         imeAction = imeAction,
         onValueChange = {
             state.value = it
-            onValueChange(it)
+            onValueChange(it.text)
         },
         textStyle = TextStyle()
     )

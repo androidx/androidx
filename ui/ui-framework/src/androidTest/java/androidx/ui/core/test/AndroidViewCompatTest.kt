@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.core.test
 
 import android.content.Context
@@ -22,8 +24,8 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Build
 import android.view.View
-import android.view.ViewGroup
 import android.view.View.MeasureSpec
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.compose.Composable
@@ -37,7 +39,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.unit.Density
 import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
 import androidx.ui.core.Ref
@@ -51,6 +52,9 @@ import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.ipx
 import junit.framework.TestCase.assertNotNull
@@ -103,7 +107,7 @@ class AndroidViewCompatTest {
             .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Change view attribute using recomposition.
             squareSize.offset = 200.ipx
             expectedSize = 200
@@ -114,7 +118,7 @@ class AndroidViewCompatTest {
             .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Change view attribute using the View reference.
             squareView!!.size = 300
             expectedSize = 300
@@ -136,7 +140,7 @@ class AndroidViewCompatTest {
         composeTestRule.setContent {
             TestTag("content") {
                 Semantics {
-                    Container(modifier = drawLayer(clipToBounds = false)) {
+                    Container(modifier = Modifier.drawLayer(clipToBounds = false)) {
                         ColoredSquareView(color = colorModel.color, ref = squareRef)
                     }
                 }
@@ -160,7 +164,7 @@ class AndroidViewCompatTest {
             .captureToBitmap()
             .assertPixels(expectedColorProvider = expectedPixelColor)
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Change view attribute using recomposition.
             colorModel.color = Color.Green
             expectedColor = Color.Green
@@ -174,7 +178,7 @@ class AndroidViewCompatTest {
             .captureToBitmap()
             .assertPixels(expectedColorProvider = expectedPixelColor)
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Change view attribute using the View reference.
             colorModel.color = Color.Red
             expectedColor = Color.Red
@@ -210,12 +214,12 @@ class AndroidViewCompatTest {
             constraints: Constraints,
             layoutParams: ViewGroup.LayoutParams
         ) {
-            composeTestRule.runOnUiThread {
+            runOnUiThread {
                 constraintsHolder.constraints = constraints
                 viewRef.value?.layoutParams = layoutParams
             }
 
-            composeTestRule.runOnIdleCompose {
+            runOnIdleCompose {
                 assertEquals(expectedWidthSpec, widthMeasureSpecRef.value)
                 assertEquals(expectedHeightSpec, heightMeasureSpecRef.value)
             }
@@ -306,11 +310,11 @@ class AndroidViewCompatTest {
                 MeasureSpecSaverView(ref = viewRef)
             }
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             constraintsHolder.constraints = Constraints(minWidth = 20.ipx, minHeight = 30.ipx)
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertEquals(20, viewRef.value!!.minimumWidth)
             assertEquals(30, viewRef.value!!.minimumHeight)
         }

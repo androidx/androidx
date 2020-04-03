@@ -30,6 +30,7 @@ android {
         minSdkVersion 21
         versionCode 1
         multiDexEnabled true
+        testInstrumentationRunnerArgument "listener", "leakcanary.FailAnnotatedTestOnLeakRunListener "
     }
 
     sourceSets {
@@ -66,7 +67,12 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(GUAVA_ANDROID)
 
+    // 3P library
+    debugImplementation(LEAKCANARY)
+
     // Testing framework
+    androidTestImplementation(LEAKCANARY)
+    androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -492,16 +491,6 @@ public class ViewCompat {
         return rect;
     }
 
-    @RequiresApi(29)
-    private static class ViewCompatApi29 {
-        public static void saveAttributeDataForStyleable(@NonNull View view,
-                @NonNull Context context, @NonNull int[] styleable, @Nullable AttributeSet attrs,
-                @NonNull TypedArray t, int defStyleAttr, int defStyleRes) {
-            view.saveAttributeDataForStyleable(
-                    context, styleable, attrs, t, defStyleAttr, defStyleRes);
-        }
-    }
-
     /**
      * Stores debugging information about attributes. This should be called in a constructor by
      * every custom {@link View} that uses a custom styleable. If the custom view does not call it,
@@ -522,7 +511,7 @@ public class ViewCompat {
             @Nullable AttributeSet attrs, @NonNull TypedArray t, int defStyleAttr,
             int defStyleRes) {
         if (Build.VERSION.SDK_INT >= 29) {
-            ViewCompatApi29.saveAttributeDataForStyleable(
+            Api29Impl.saveAttributeDataForStyleable(
                     view, context, styleable, attrs, t, defStyleAttr, defStyleRes);
         }
     }
@@ -2470,7 +2459,7 @@ public class ViewCompat {
      * window insets to this view. This will only take effect on devices with API 21 or above.
      */
     public static void setOnApplyWindowInsetsListener(@NonNull View v,
-            final OnApplyWindowInsetsListener listener) {
+            @Nullable final OnApplyWindowInsetsListener listener) {
         if (Build.VERSION.SDK_INT >= 21) {
             if (listener == null) {
                 v.setOnApplyWindowInsetsListener(null);
@@ -2501,15 +2490,18 @@ public class ViewCompat {
      * @param insets Insets to apply
      * @return The supplied insets with any applied insets consumed
      */
+    @NonNull
     public static WindowInsetsCompat onApplyWindowInsets(@NonNull View view,
-            WindowInsetsCompat insets) {
+            @NonNull WindowInsetsCompat insets) {
         if (Build.VERSION.SDK_INT >= 21) {
-            WindowInsets unwrapped = insets.toWindowInsets();
-            WindowInsets result = view.onApplyWindowInsets(unwrapped);
-            if (!result.equals(unwrapped)) {
-                unwrapped = new WindowInsets(result);
+            final WindowInsets unwrapped = insets.toWindowInsets();
+            if (unwrapped != null) {
+                WindowInsets result = view.onApplyWindowInsets(unwrapped);
+                if (!result.equals(unwrapped)) {
+                    // If the value changed, return a newly wrapped instance
+                    return WindowInsetsCompat.toWindowInsetsCompat(result);
+                }
             }
-            return WindowInsetsCompat.toWindowInsetsCompat(unwrapped);
         }
         return insets;
     }
@@ -2526,15 +2518,18 @@ public class ViewCompat {
      * @param insets Insets to apply
      * @return The provided insets minus the insets that were consumed
      */
+    @NonNull
     public static WindowInsetsCompat dispatchApplyWindowInsets(@NonNull View view,
-            WindowInsetsCompat insets) {
+            @NonNull WindowInsetsCompat insets) {
         if (Build.VERSION.SDK_INT >= 21) {
-            WindowInsets unwrapped = insets.toWindowInsets();
-            WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);
-            if (!result.equals(unwrapped)) {
-                unwrapped = new WindowInsets(result);
+            final WindowInsets unwrapped = insets.toWindowInsets();
+            if (unwrapped != null) {
+                final WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);
+                if (!result.equals(unwrapped)) {
+                    // If the value changed, return a newly wrapped instance
+                    return WindowInsetsCompat.toWindowInsetsCompat(unwrapped);
+                }
             }
-            return WindowInsetsCompat.toWindowInsetsCompat(unwrapped);
         }
         return insets;
     }
@@ -2604,8 +2599,7 @@ public class ViewCompat {
     public static WindowInsetsCompat computeSystemWindowInsets(@NonNull View view,
             @NonNull WindowInsetsCompat insets, @NonNull Rect outLocalInsets) {
         if (Build.VERSION.SDK_INT >= 21) {
-            return WindowInsetsCompat.toWindowInsetsCompat(
-                    view.computeSystemWindowInsets(insets.toWindowInsets(), outLocalInsets));
+            return Api21Impl.computeSystemWindowInsets(view, insets, outLocalInsets);
         }
         return insets;
     }
@@ -4425,17 +4419,47 @@ public class ViewCompat {
         }
     }
 
-    /**
-     * Methods added in API level 23.
-     */
-    @TargetApi(23)
-    static class Api23Impl {
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {
+            // private
+        }
+
+        static WindowInsetsCompat computeSystemWindowInsets(@NonNull View v,
+                @NonNull WindowInsetsCompat insets, @NonNull Rect outLocalInsets) {
+            WindowInsets platformInsets = insets.toWindowInsets();
+            if (platformInsets != null) {
+                return WindowInsetsCompat.toWindowInsetsCompat(
+                        v.computeSystemWindowInsets(platformInsets, outLocalInsets));
+            } else {
+                outLocalInsets.setEmpty();
+                return insets;
+            }
+        }
+    }
+
+    @RequiresApi(23)
+    private static class Api23Impl {
         private Api23Impl() {
             // privatex
         }
 
         public static WindowInsets getRootWindowInsets(View v) {
             return v.getRootWindowInsets();
+        }
+    }
+
+    @RequiresApi(29)
+    private static class Api29Impl {
+        private Api29Impl() {
+            // private
+        }
+
+        static void saveAttributeDataForStyleable(@NonNull View view,
+                @NonNull Context context, @NonNull int[] styleable, @Nullable AttributeSet attrs,
+                @NonNull TypedArray t, int defStyleAttr, int defStyleRes) {
+            view.saveAttributeDataForStyleable(
+                    context, styleable, attrs, t, defStyleAttr, defStyleRes);
         }
     }
 }

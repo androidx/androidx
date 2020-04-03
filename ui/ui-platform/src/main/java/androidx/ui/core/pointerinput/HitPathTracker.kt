@@ -66,7 +66,7 @@ internal class HitPathTracker {
 
             // TODO(shepshapard): Is CustomEventDispatcherImpl instantiated even if initHandler is
             //  null?
-            pointerInputFilter.initHandler?.invoke(
+            pointerInputFilter.onInit(
                 CustomEventDispatcherImpl(
                     node,
                     this
@@ -152,7 +152,7 @@ internal class HitPathTracker {
 
     /**
      * Dispatches cancel events to all tracked [PointerInputFilter]s to notify them that
-     * [PointerInputFilter.pointerInputHandler] will not be called again until all pointers have been
+     * [PointerInputFilter.onPointerInput] will not be called again until all pointers have been
      * removed from the application and then at least one is added again, and removes all tracked
      * data.
      */
@@ -373,7 +373,7 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         }
 
         if (this != dispatchingNode) {
-            pointerInputFilter.customEventHandler?.invoke(event, downPass)
+            pointerInputFilter.onCustomEvent(event, downPass)
         }
 
         // Call children recursively with the relevant changes.
@@ -382,7 +382,7 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         }
 
         if (upPass != null && this != dispatchingNode) {
-            pointerInputFilter.customEventHandler?.invoke(event, upPass)
+            pointerInputFilter.onCustomEvent(event, upPass)
         }
     }
 
@@ -390,12 +390,12 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
     //  essentially "no", but given that an order can be consistent... maybe we might as well
     //  set an arbitrary standard and stick to it so user expectations are maintained.
     /**
-     * Does a depth first traversal and invokes [PointerInputFilter.cancelHandler] during
+     * Does a depth first traversal and invokes [PointerInputFilter.onCancel] during
      * backtracking.
      */
     override fun dispatchCancel() {
         children.forEach { it.dispatchCancel() }
-        pointerInputFilter.cancelHandler.invoke()
+        pointerInputFilter.onCancel()
     }
 
     override fun toString(): String {
@@ -408,7 +408,7 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         pass: PointerEventPass,
         size: IntPxSize
     ) {
-        filter.pointerInputHandler(values.toList(), pass, size).forEach {
+        filter.onPointerInput(values.toList(), pass, size).forEach {
             this[it.id] = it
         }
     }

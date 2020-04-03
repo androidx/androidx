@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.Configuration;
@@ -48,6 +49,7 @@ import androidx.collection.ArraySet;
 import androidx.core.os.CancellationSignal;
 import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -72,7 +74,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * you can acquire the {@link FragmentManager} by calling
  * {@link FragmentActivity#getSupportFragmentManager}.
  */
-public abstract class FragmentManager {
+public abstract class FragmentManager implements FragmentResultOwner {
     private static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
     static boolean USE_STATE_MANAGER = false;
@@ -181,6 +183,30 @@ public abstract class FragmentManager {
          */
         @MainThread
         void onBackStackChanged();
+    }
+
+    /**
+     * A {@link FragmentResultListener} that is lifecycle aware so that
+     * the listener can be fired when the lifecycle is {@link Lifecycle.State#STARTED}.
+     */
+    private static class LifecycleAwareResultListener implements FragmentResultListener {
+        private final Lifecycle mLifecycle;
+        private final FragmentResultListener mListener;
+
+        LifecycleAwareResultListener(@NonNull Lifecycle lifecycle,
+                @NonNull FragmentResultListener listener) {
+            mLifecycle = lifecycle;
+            mListener = listener;
+        }
+
+        public boolean isAtLeast(Lifecycle.State state) {
+            return mLifecycle.getCurrentState().isAtLeast(state);
+        }
+
+        @Override
+        public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+            mListener.onFragmentResult(requestKey, result);
+        }
     }
 
     /**
@@ -360,6 +386,10 @@ public abstract class FragmentManager {
             };
 
     private final AtomicInteger mBackStackIndex = new AtomicInteger();
+
+    private final ConcurrentHashMap<String, Bundle> mResults = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, LifecycleAwareResultListener> mResultListeners =
+            new ConcurrentHashMap<>();
 
     private ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
     private ConcurrentHashMap<Fragment, HashSet<CancellationSignal>>
@@ -748,6 +778,65 @@ public abstract class FragmentManager {
                 moveToState(f);
             }
         }
+    }
+
+    @Override
+    public final void setResult(@NonNull String requestKey, @Nullable Bundle result) {
+        if (result == null) {
+            // if the given result is null, remove the result
+            mResults.remove(requestKey);
+            return;
+        }
+
+        // Check if there is a listener waiting for a result with this key
+        LifecycleAwareResultListener resultListener = mResultListeners.get(requestKey);
+        // if there is and it is started, fire the callback
+        if (resultListener != null && resultListener.isAtLeast(Lifecycle.State.STARTED)) {
+            resultListener.onFragmentResult(requestKey, result);
+        } else {
+            // else, save the result for later
+            mResults.put(requestKey, result);
+        }
+    }
+
+    @SuppressLint("SyntheticAccessor")
+    @Override
+    public final void setResultListener(@NonNull final String requestKey,
+            @NonNull final LifecycleOwner lifecycleOwner,
+            @Nullable final FragmentResultListener listener) {
+        if (listener == null) {
+            mResultListeners.remove(requestKey);
+            return;
+        }
+
+        final Lifecycle lifecycle = lifecycleOwner.getLifecycle();
+        if (lifecycle.getCurrentState() == Lifecycle.State.DESTROYED) {
+            return;
+        }
+
+        LifecycleEventObserver observer = new LifecycleEventObserver() {
+            @Override
+            public void onStateChanged(@NonNull LifecycleOwner source,
+                    @NonNull Lifecycle.Event event) {
+                if (event == Lifecycle.Event.ON_START) {
+                    // once we are started, check for any stored results
+                    Bundle storedResult = mResults.get(requestKey);
+                    if (storedResult != null) {
+                        // if there is a result, fire the callback
+                        listener.onFragmentResult(requestKey, storedResult);
+                        // and clear the result
+                        setResult(requestKey, null);
+                    }
+                }
+
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    lifecycle.removeObserver(this);
+                    mResultListeners.remove(requestKey);
+                }
+            }
+        };
+        lifecycle.addObserver(observer);
+        mResultListeners.put(requestKey, new LifecycleAwareResultListener(lifecycle, listener));
     }
 
     /**
@@ -2449,6 +2538,8 @@ public abstract class FragmentManager {
         if (mPrimaryNav != null) {
             fms.mPrimaryNavActiveWho = mPrimaryNav.mWho;
         }
+        fms.mResultKeys.addAll(mResults.keySet());
+        fms.mResults.addAll(mResults.values());
         return fms;
     }
 
@@ -2549,6 +2640,13 @@ public abstract class FragmentManager {
         if (fms.mPrimaryNavActiveWho != null) {
             mPrimaryNav = findActiveFragment(fms.mPrimaryNavActiveWho);
             dispatchParentPrimaryNavigationFragmentChanged(mPrimaryNav);
+        }
+
+        ArrayList<String> savedResultKeys = fms.mResultKeys;
+        if (savedResultKeys != null) {
+            for (int i = 0; i < savedResultKeys.size(); i++) {
+                mResults.put(savedResultKeys.get(i), fms.mResults.get(i));
+            }
         }
     }
 

@@ -17,57 +17,124 @@
 package androidx.ui.layout.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.LayoutTag
+import androidx.ui.core.Modifier
+import androidx.ui.core.tag
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
+import androidx.ui.graphics.Color
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet
-import androidx.ui.layout.ConstraintSetBuilderScope
-import androidx.ui.text.TextStyle
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.dp
-import androidx.ui.unit.sp
 
 /**
  * Simple ConstraintLayout demo
  */
 @Composable
 fun ConstraintLayoutDemo() {
-    ConstraintLayout(ConstraintSet {
-        val text1 = tag("text1")
-        val text2 = tag("text2")
-        val text3 = tag("text3")
-        val text4 = tag("text4")
-        val text5 = tag("text5")
+//    Demo1()
+//    Demo2()
+    Demo3()
+}
 
-        text2.center()
+@Composable
+fun Demo1() {
+    ConstraintLayout(
+        modifier = Modifier.drawBackground(color = Color.Gray),
+        constraintSet = ConstraintSet {
+            val text1 = tag("text1")
+            val text2 = tag("text2")
+            val divider = tag("divider")
 
-        val half = createGuidelineFromLeft(percent = 0.5f)
-        text1.apply {
-            left constrainTo half
-            left.margin = 50.dp
-            bottom constrainTo text2.top
-        }
+            text1.left constrainTo divider.right
+            text1.right constrainTo parent.right
+            text1.bottom constrainTo parent.bottom
+            text1.top constrainTo parent.top
+            divider.top constrainTo parent.top
+            divider.bottom constrainTo parent.bottom
+            divider.left constrainTo parent.left
+            divider.right constrainTo parent.right
+            text2.top constrainTo divider.top
+            text2.bottom constrainTo divider.bottom
+            text2.verticalBias = 0.2f
 
-        text3 constrainHorizontallyTo parent
-        text3.horizontalBias = 0.2f
-        text4 constrainHorizontallyTo parent
-        text4.horizontalBias = 0.8f
-        val chain = createVerticalChain(
-            text3,
-            text4,
-            chainStyle = ConstraintSetBuilderScope.ChainStyle.Spread
+            text1.width = wrap
+            text1.height = wrapFixed
+            divider.width = valueFixed(1.dp)
+            divider.height = spread
+        }) {
+        Text(
+            (0 until 100).fold("") { text, value -> "$text$value " },
+            Modifier.tag("text1")
         )
-        chain.top.margin = 100.dp
-        chain.bottom.margin = 100.dp
+        Text("Short text", Modifier.tag("text2"))
+        Box(
+            modifier = Modifier.tag("divider").preferredWidth(1.dp).fillMaxHeight(),
+            backgroundColor = Color.Green
+        )
+    }
+}
 
-        val barrier = createBottomBarrier(text2, text3)
-        barrier.margin = 50.dp
-        text5.top constrainTo barrier
-        text5.centerHorizontally()
-    }) {
-        Text(modifier = LayoutTag("text1"), text = "Text1", style = TextStyle(fontSize = 10.sp))
-        Text(modifier = LayoutTag("text2"), text = "Text2", style = TextStyle(fontSize = 12.sp))
-        Text(modifier = LayoutTag("text3"), text = "Text3", style = TextStyle(fontSize = 14.sp))
-        Text(modifier = LayoutTag("text4"), text = "Text4", style = TextStyle(fontSize = 16.sp))
-        Text(modifier = LayoutTag("text5"), text = "Text5", style = TextStyle(fontSize = 18.sp))
+@Composable
+fun Demo2() {
+    ConstraintLayout(
+        modifier = Modifier.drawBackground(Color.Cyan),
+        constraintSet = ConstraintSet {
+            val text = tag("text")
+            val divider = tag("divider")
+            val guideline = createGuidelineFromLeft(0.5f)
+
+            text.left constrainTo guideline
+            text.right constrainTo parent.right
+            text.bottom constrainTo parent.bottom
+            text.top constrainTo parent.top
+            divider.top constrainTo parent.top
+            divider.bottom constrainTo parent.bottom
+            divider.left constrainTo parent.left
+            divider.right constrainTo parent.right
+            divider.width = valueFixed(1.dp)
+            divider.height = spread
+        }) {
+        Text("Short text", Modifier.tag("text"))
+        Box(
+            modifier = Modifier.tag("divider").preferredWidth(1.dp).fillMaxHeight(),
+            backgroundColor = Color.Green
+        )
+    }
+}
+
+@Composable
+fun Demo3() {
+    ConstraintLayout(
+        modifier = Modifier.fillMaxSize(),
+        constraintSet = ConstraintSet {
+            val box1 = tag("box1")
+            val box2 = tag("box2")
+            val box3 = tag("box3")
+
+            box1.center()
+
+            val half = createGuidelineFromLeft(percent = 0.5f)
+            box2.apply {
+                left constrainTo half
+                left.margin = 150.dp
+                bottom constrainTo box1.top
+            }
+
+            box3.apply {
+                left constrainTo parent.left
+                left.margin = 150.dp
+                bottom constrainTo parent.bottom
+                bottom.margin = 150.dp
+            }
+        }
+    ) {
+        for (i in 0 until 3) {
+            Box(Modifier.tag("box$i").preferredSize(100.dp, 100.dp), backgroundColor = Color.Blue)
+        }
     }
 }

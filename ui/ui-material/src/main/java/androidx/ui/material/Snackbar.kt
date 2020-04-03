@@ -20,19 +20,19 @@ import androidx.compose.Composable
 import androidx.ui.core.FirstBaseline
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTag
 import androidx.ui.core.Modifier
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.ColumnAlign
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.padding
+import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -58,13 +58,18 @@ import androidx.ui.unit.max
  * @param modifier modifiers for the the Snackbar layout
  * @param actionOnNewLine whether or not action should be put on the separate line. Recommended
  * for action with long action text
+ * @param shape Defines the Snackbar's shape as well as its shadow
+ * @param elevation The z-coordinate at which to place the SnackBar. This controls the size
+ * of the shadow below the SnackBar
  */
 @Composable
 fun Snackbar(
     text: @Composable() () -> Unit,
     action: @Composable() (() -> Unit)? = null,
     modifier: Modifier = Modifier.None,
-    actionOnNewLine: Boolean = false
+    actionOnNewLine: Boolean = false,
+    shape: Shape = MaterialTheme.shapes.small,
+    elevation: Dp = 6.dp
 ) {
     val colors = MaterialTheme.colors
     // Snackbar has a background color of onSurface with an alpha applied blended on top of surface
@@ -72,12 +77,12 @@ fun Snackbar(
     val snackbarColor = snackbarOverlayColor.compositeOver(colors.surface)
     Surface(
         modifier = modifier,
-        shape = SnackbarShape,
-        elevation = SnackbarElevation,
+        shape = shape,
+        elevation = elevation,
         color = snackbarColor,
         contentColor = colors.surface
     ) {
-        ProvideEmphasis(MaterialTheme.emphasisLevels.high) {
+        ProvideEmphasis(EmphasisAmbient.current.high) {
             val textStyle = MaterialTheme.typography.body2
             ProvideTextStyle(value = textStyle) {
                 when {
@@ -94,7 +99,7 @@ fun Snackbar(
 private fun TextOnlySnackbar(text: @Composable() () -> Unit) {
     Layout(
         text,
-        modifier = LayoutPadding(start = HorizontalSpacing, end = HorizontalSpacing)
+        modifier = Modifier.padding(start = HorizontalSpacing, end = HorizontalSpacing)
     ) { measurables, constraints, _ ->
         require(measurables.size == 1) {
             "text for Snackbar expected to have exactly only one child"
@@ -117,18 +122,19 @@ private fun NewLineButtonSnackbar(
     action: @Composable() () -> Unit
 ) {
     Column(
-        modifier = LayoutWidth.Fill + LayoutPadding(
-            start = HorizontalSpacing,
-            end = HorizontalSpacingButtonSide,
-            bottom = SeparateButtonExtraY
-        )
+        modifier = Modifier.fillMaxWidth()
+            .padding(
+                start = HorizontalSpacing,
+                end = HorizontalSpacingButtonSide,
+                bottom = SeparateButtonExtraY
+            )
     ) {
         AlignmentLineOffset(alignmentLine = LastBaseline, after = LongButtonVerticalOffset) {
             AlignmentLineOffset(alignmentLine = FirstBaseline, before = HeightToFirstLine) {
-                Box(LayoutPadding(end = HorizontalSpacingButtonSide), children = text)
+                Box(Modifier.padding(end = HorizontalSpacingButtonSide), children = text)
             }
         }
-        Box(modifier = LayoutGravity.End, children = action)
+        Box(Modifier.gravity(ColumnAlign.End), children = action)
     }
 }
 
@@ -141,10 +147,10 @@ private fun OneRowSnackbar(
     val actionTag = "action"
     Layout(
         {
-            Box(LayoutTag(textTag), children = text)
-            Box(LayoutTag(actionTag), children = action)
+            Box(Modifier.tag(textTag), children = text)
+            Box(Modifier.tag(actionTag), children = action)
         },
-        modifier = LayoutPadding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide)
+        modifier = Modifier.padding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide)
     ) { measurables, constraints, _ ->
         val buttonPlaceable = measurables.first { it.tag == actionTag }.measure(constraints)
         val textMaxWidth =
@@ -214,8 +220,6 @@ fun snackbarPrimaryColorFor(colors: ColorPalette): Color {
 }
 
 private const val SnackbarOverlayAlpha = 0.8f
-private val SnackbarShape = RoundedCornerShape(4.dp)
-private val SnackbarElevation = 6.dp
 
 private val MinHeightOneLine = 48.dp
 private val MinHeightTwoLines = 68.dp

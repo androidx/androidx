@@ -20,25 +20,25 @@ import androidx.animation.AnimatedFloat
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 
 /**
- * High level gesture modifier that provides declarative API for setting up drag within one
- * layout node
+ * Configure touch dragging for the UI element in a single [DragDirection]. The drag distance is
+ * reported to [onDragDeltaConsumptionRequested] as a single [Float] value in pixels.
  *
  * The common usecase for this component is when you need to be able to drag something
  * inside the component on the screen and represent this state via one float value
  *
- * If you need to control the whole dragging flow, consider using [DragGestureDetector] instead.
+ * If you need to control the whole dragging flow, consider using [dragGestureFilter] instead.
  *
- * If you need to achieve scroll/fling behavior, consider using [Scrollable].
+ * If you are implementing scroll/fling behavior, consider using [scrollable].
  *
  * @sample androidx.ui.foundation.samples.DraggableSample
  *
- * By using [AnimatedFloat] as state you can achieve fling behaviour by calling fling on it
+ * [AnimatedFloat] offers a standard implementation of flinging behavior:
  *
  * @sample androidx.ui.foundation.samples.AnchoredDraggableSample
  *
@@ -55,7 +55,7 @@ import androidx.ui.unit.px
  * pressing on it. It's useful to set it when value you're dragging is settling / animating.
  */
 @Composable
-fun draggable(
+fun Modifier.draggable(
     dragDirection: DragDirection,
     onDragStarted: (startedPosition: PxPosition) -> Unit = {},
     onDragStopped: (velocity: Float) -> Unit = {},
@@ -66,7 +66,7 @@ fun draggable(
     val dragState = remember {
         DraggableState()
     }
-    return DragGestureDetector(
+    return dragGestureFilter(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {

@@ -20,8 +20,9 @@ import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.asModifier
-import androidx.ui.core.draw
+import androidx.ui.core.Modifier
+import androidx.ui.core.drawBehind
+import androidx.ui.core.paint
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.framework.test.R
 import androidx.ui.geometry.Rect
@@ -53,15 +54,15 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
                 vectorSize = width.toIntPx().value
                 AtLeastSize(
                     size = width.toIntPx(),
-                    modifier = WhiteBackground + VectorPainter(it).asModifier()) {
+                    modifier = WhiteBackground.paint(VectorPainter(it))) {
                     latch.countDown()
                 }
             }
         }
     }
 
-    val WhiteBackground = draw { canvas, size ->
-        canvas.drawRect(
+    val WhiteBackground = Modifier.drawBehind {
+        drawRect(
             Rect.fromLTWH(
                 0.0f,
                 0.0f,

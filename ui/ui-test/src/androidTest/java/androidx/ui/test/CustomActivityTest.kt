@@ -16,8 +16,8 @@
 
 package androidx.ui.test
 
-import android.app.Activity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.test.filters.MediumTest
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Text
@@ -30,7 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-class CustomActivity : Activity() {
+class CustomActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

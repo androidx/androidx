@@ -18,11 +18,11 @@ package androidx.ui.material
 import androidx.compose.emptyContent
 import androidx.test.filters.LargeTest
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInParent
 import androidx.ui.foundation.Box
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.samples.IconButtonSample
 import androidx.ui.material.samples.IconToggleButtonSample
 import androidx.ui.test.assertIsOff
@@ -31,7 +31,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.find
 import androidx.ui.test.isToggleable
-import androidx.ui.test.positionInParent
 import androidx.ui.unit.dp
 import androidx.ui.unit.toPx
 import com.google.common.truth.Truth
@@ -69,7 +68,7 @@ class IconButtonTest {
             Box {
                 IconButton(onClick = {}) {
                     Box(
-                        LayoutSize(diameter) + onPositioned { iconCoords = it },
+                        Modifier.preferredSize(diameter).onPositioned { iconCoords = it },
                         children = emptyContent()
                     )
                 }
@@ -94,8 +93,7 @@ class IconButtonTest {
             Box {
                 IconButton(onClick = {}) {
                     Box(
-                        LayoutWidth(width) + LayoutHeight(height) +
-                        onPositioned { iconCoords = it },
+                        Modifier.preferredSize(width, height).onPositioned { iconCoords = it },
                         children = emptyContent()
                     )
                 }
@@ -134,7 +132,7 @@ class IconButtonTest {
             Box {
                 IconToggleButton(checked = false, onCheckedChange = {}) {
                     Box(
-                        LayoutSize(diameter) + onPositioned { iconCoords = it },
+                        Modifier.preferredSize(diameter).onPositioned { iconCoords = it },
                         children = emptyContent()
                     )
                 }
@@ -159,8 +157,7 @@ class IconButtonTest {
             Box {
                 IconToggleButton(checked = false, onCheckedChange = {}) {
                     Box(
-                        LayoutWidth(width) + LayoutHeight(height) +
-                                onPositioned { iconCoords = it },
+                        Modifier.preferredSize(width, height).onPositioned { iconCoords = it },
                         children = emptyContent())
                 }
             }

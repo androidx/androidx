@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.ui.core.test
 
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.emptyContent
+import androidx.compose.getValue
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -33,9 +37,9 @@ import androidx.ui.core.MeasureBlock
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
-import androidx.ui.core.asModifier
-import androidx.ui.core.draw
+import androidx.ui.core.drawBehind
 import androidx.ui.core.onPositioned
+import androidx.ui.core.paint
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
@@ -93,7 +97,7 @@ class WithConstraintsTest {
                 WithConstraints { constraints, _ ->
                     topConstraints.value = constraints
                     Padding(size = size) {
-                        val drawModifier = draw { _, _ ->
+                        val drawModifier = Modifier.drawBehind {
                             countDownLatch.countDown()
                         }
                         WithConstraints(drawModifier) { constraints, _ ->
@@ -135,17 +139,17 @@ class WithConstraintsTest {
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 WithConstraints { constraints, _ ->
-                    val outerModifier = draw { canvas, size ->
+                    val outerModifier = Modifier.drawBehind {
                         val paint = Paint()
                         paint.color = model.outerColor
-                        canvas.drawRect(size.toRect(), paint)
+                        drawRect(size.toRect(), paint)
                     }
                     Layout(children = {
-                        val innerModifier = draw { canvas, size ->
+                        val innerModifier = Modifier.drawBehind {
                             drawLatch.countDown()
                             val paint = Paint()
                             paint.color = model.innerColor
-                            canvas.drawRect(size.toRect(), paint)
+                            drawRect(size.toRect(), paint)
                         }
                         Layout(
                             children = {},
@@ -225,11 +229,13 @@ class WithConstraintsTest {
                     // current frame and opens a new one. our model reads during measure()
                     // wasn't possible to survide Frames swicth previously so the model read
                     // within the child Layout wasn't recorded
-                    val background = VectorPainter(
-                        name = "testPainter",
-                        defaultWidth = 10.dp,
-                        defaultHeight = 10.dp) { _, _ -> /* intentionally empty */
-                    }.asModifier()
+                    val background = Modifier.paint(
+                        VectorPainter(
+                            name = "testPainter",
+                            defaultWidth = 10.dp,
+                            defaultHeight = 10.dp) { _, _ -> /* intentionally empty */
+                        }
+                    )
                     Layout(modifier = background, children = {}) { _, _, _ ->
                         // read the model
                         model.value
@@ -313,7 +319,7 @@ class WithConstraintsTest {
         rule.runOnUiThreadIR {
             activity.setContentInFrameLayout {
                 Container(width = 200.ipx, height = 200.ipx) {
-                    WithConstraints(modifier = onPositioned {
+                    WithConstraints(modifier = Modifier.onPositioned {
                         // OnPositioned can be fired multiple times with the same value
                         // for example when requestLayout() was triggered on ComposeView.
                         // if we called twice, let's make sure we got the correct values.
@@ -322,7 +328,7 @@ class WithConstraintsTest {
                         withConstLatch.countDown()
                     }) { _, _ ->
                         Container(width = size.value, height = size.value,
-                            modifier = onPositioned {
+                            modifier = Modifier.onPositioned {
                                 // OnPositioned can be fired multiple times with the same value
                                 // for example when requestLayout() was triggered on ComposeView.
                                 // if we called twice, let's make sure we got the correct values.
@@ -485,7 +491,7 @@ class WithConstraintsTest {
             activity.setContent {
                 val state = state { false }
                 var lastLayoutValue: Boolean = false
-                val drawModifier = draw { _, _ ->
+                val drawModifier = Modifier.drawBehind {
                     // this verifies the layout was remeasured before being drawn
                     assertTrue(lastLayoutValue)
                     drawlatch.countDown()
@@ -688,13 +694,13 @@ class WithConstraintsTest {
         return bitmap
     }
 
-    private fun countdownLatchBackgroundModifier(color: Color) = draw {
-        canvas, size ->
-        val paint = Paint()
-        paint.color = color
-        canvas.drawRect(size.toRect(), paint)
-        drawLatch.countDown()
-    }
+    private fun countdownLatchBackgroundModifier(color: Color) =
+        Modifier.drawBehind {
+            val paint = Paint()
+            paint.color = color
+            drawRect(size.toRect(), paint)
+            drawLatch.countDown()
+        }
 
     private fun layoutDirectionModifier(ld: LayoutDirection) = object : LayoutModifier {
         override fun Density.modifyLayoutDirection(layoutDirection: LayoutDirection) = ld
@@ -783,8 +789,8 @@ private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Compos
     }
 }
 
-fun backgroundModifier(color: Color) = draw { canvas, size ->
+fun backgroundModifier(color: Color) = Modifier.drawBehind {
     val paint = Paint()
     paint.color = color
-    canvas.drawRect(size.toRect(), paint)
+    drawRect(size.toRect(), paint)
 }

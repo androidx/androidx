@@ -17,16 +17,17 @@
 package androidx.ui.material.demos
 
 import androidx.compose.Composable
+import androidx.ui.core.Modifier
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.fillMaxHeight
 import androidx.ui.material.samples.MaterialThemeSample
 import androidx.ui.material.samples.ThemeColorSample
 import androidx.ui.material.samples.ThemeTextStyleSample
 
 @Composable
 fun MaterialThemeDemo() {
-    Column(modifier = LayoutHeight.Fill, arrangement = Arrangement.SpaceAround) {
+    Column(Modifier.fillMaxHeight(), arrangement = Arrangement.SpaceAround) {
         MaterialThemeSample()
         ThemeTextStyleSample()
         ThemeColorSample()

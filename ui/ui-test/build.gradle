@@ -31,6 +31,8 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
+    api "androidx.activity:activity:1.2.0-alpha02"
+
     implementation(KOTLIN_STDLIB)
     implementation(ANDROIDX_TEST_RULES)
     implementation(ANDROIDX_TEST_RUNNER)
@@ -45,6 +47,9 @@ dependencies {
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-platform")
     implementation project(":ui:ui-util")
+    implementation project(":ui:ui-saved-instance-state")
+    implementation "androidx.activity:activity:1.2.0-alpha02"
+    implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
 
     testImplementation(TRUTH)
 

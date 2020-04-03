@@ -258,9 +258,15 @@ public abstract class WorkRequest {
          * @param duration The length of the delay in {@code timeUnit} units
          * @param timeUnit The units of time for {@code duration}
          * @return The current {@link Builder}
+         * @throws IllegalArgumentException if the given initial delay will push the execution time
+         *         past {@code Long.MAX_VALUE} and cause an overflow
          */
         public @NonNull B setInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
             mWorkSpec.initialDelay = timeUnit.toMillis(duration);
+            if (Long.MAX_VALUE - System.currentTimeMillis() <= mWorkSpec.initialDelay) {
+                throw new IllegalArgumentException("The given initial delay is too large and will"
+                        + " cause an overflow!");
+            }
             return getThis();
         }
 
@@ -268,11 +274,17 @@ public abstract class WorkRequest {
          * Sets an initial delay for the {@link WorkRequest}.
          *
          * @param duration The length of the delay
-         * @return The current {@link Builder}
+         * @return The current {@link Builder}         *
+         * @throws IllegalArgumentException if the given initial delay will push the execution time
+         *         past {@code Long.MAX_VALUE} and cause an overflow
          */
         @RequiresApi(26)
         public @NonNull B setInitialDelay(@NonNull Duration duration) {
             mWorkSpec.initialDelay = duration.toMillis();
+            if (Long.MAX_VALUE - System.currentTimeMillis() <= mWorkSpec.initialDelay) {
+                throw new IllegalArgumentException("The given initial delay is too large and will"
+                        + " cause an overflow!");
+            }
             return getThis();
         }
 

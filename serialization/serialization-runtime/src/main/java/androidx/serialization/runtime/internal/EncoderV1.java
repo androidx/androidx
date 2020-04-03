@@ -19,8 +19,6 @@ package androidx.serialization.runtime.internal;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.nio.ByteBuffer;
-
 /**
  * An encoder receives field structure and values from a serializer.
  * <p>
@@ -133,28 +131,12 @@ public interface EncoderV1 {
     void encodeByteArray(int fieldId, @Nullable byte[] value);
 
     /**
-     * Encode a binary field.
-     *
-     * @param fieldId ID of the field.
-     * @param value   Binary field value or null to omit the field.
-     */
-    void encodeByteBuffer(int fieldId, @Nullable ByteBuffer value);
-
-    /**
      * Encode a repeated binary field.
      *
      * @param fieldId ID of the field.
      * @param values  Binary field values or null to omit the field.
      */
     void encodeByteArrayCollection(int fieldId, @Nullable Iterable<byte[]> values);
-
-    /**
-     * Encode a repeated binary field.
-     *
-     * @param fieldId ID of the field.
-     * @param values  Binary field values or null to omit the field.
-     */
-    void encodeByteBufferCollection(int fieldId, @Nullable Iterable<ByteBuffer> values);
 
     /**
      * Encode a double field.

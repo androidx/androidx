@@ -20,7 +20,6 @@ import android.annotation.TargetApi
 import android.graphics.Matrix
 import android.graphics.RenderNode
 import androidx.ui.graphics.Canvas
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.toPxSize
@@ -32,7 +31,8 @@ import androidx.ui.unit.toPxSize
 internal class RenderNodeLayer(
     val ownerView: AndroidComposeView,
     val drawLayerModifier: DrawLayerModifier,
-    val drawBlock: (Canvas, Density) -> Unit
+    val drawBlock: (Canvas) -> Unit,
+    val invalidateParentLayer: () -> Unit
 ) : OwnedLayer {
     /**
      * True when the RenderNodeLayer has been invalidated and not yet drawn.
@@ -41,7 +41,7 @@ internal class RenderNodeLayer(
     private val outlineResolver = OutlineResolver(ownerView.density)
     private var isDestroyed = false
     private var cacheMatrix: Matrix? = null
-    private var elevationRiseListener: (() -> Unit)? = null
+    private var drawnWithZ = false
 
     /**
      * Local copy of the transform origin as DrawLayerModifier can be implemented
@@ -54,16 +54,14 @@ internal class RenderNodeLayer(
         setHasOverlappingRendering(true)
     }
 
-    override val hasElevation: Boolean
-        get() = renderNode.elevation > 0f
-
     override fun updateLayerProperties() {
         transformOrigin = drawLayerModifier.transformOrigin
-        val hadElevation = hasElevation
         val wasClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
         renderNode.scaleX = drawLayerModifier.scaleX
         renderNode.scaleY = drawLayerModifier.scaleY
         renderNode.alpha = drawLayerModifier.alpha
+        renderNode.translationX = drawLayerModifier.translationX
+        renderNode.translationY = drawLayerModifier.translationY
         renderNode.elevation = drawLayerModifier.elevation
         renderNode.rotationZ = drawLayerModifier.rotationZ
         renderNode.rotationX = drawLayerModifier.rotationX
@@ -79,8 +77,8 @@ internal class RenderNodeLayer(
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
             invalidate()
         }
-        if (!hadElevation && hasElevation) {
-            elevationRiseListener?.invoke()
+        if (!drawnWithZ && renderNode.elevation > 0f) {
+            invalidateParentLayer()
         }
     }
 
@@ -118,9 +116,16 @@ internal class RenderNodeLayer(
         val androidCanvas = canvas.nativeCanvas
         if (androidCanvas.isHardwareAccelerated) {
             updateDisplayList()
+            drawnWithZ = renderNode.elevation > 0f
+            if (drawnWithZ) {
+                canvas.enableZ()
+            }
             androidCanvas.drawRenderNode(renderNode)
+            if (drawnWithZ) {
+                canvas.disableZ()
+            }
         } else {
-            drawBlock(canvas, ownerView.density)
+            drawBlock(canvas)
         }
         isDirty = false
     }
@@ -131,7 +136,6 @@ internal class RenderNodeLayer(
             val renderNodeCanvas = renderNode.beginRecording()
             val uiCanvas = Canvas(renderNodeCanvas)
 
-            uiCanvas.enableZ()
             val clipPath = outlineResolver.clipPath
             val manuallyClip = renderNode.clipToOutline && clipPath != null
             if (manuallyClip) {
@@ -139,12 +143,11 @@ internal class RenderNodeLayer(
                 uiCanvas.clipPath(clipPath!!)
             }
             ownerView.observeLayerModelReads(this) {
-                drawBlock(uiCanvas, ownerView.density)
+                drawBlock(uiCanvas)
             }
             if (manuallyClip) {
                 uiCanvas.restore()
             }
-            uiCanvas.disableZ()
             renderNode.endRecording()
         }
     }
@@ -152,16 +155,11 @@ internal class RenderNodeLayer(
     override fun destroy() {
         isDestroyed = true
         ownerView.dirtyLayers -= this
-        elevationRiseListener = null
     }
 
     override fun getMatrix(): Matrix {
         val matrix = cacheMatrix ?: Matrix().also { cacheMatrix = it }
         renderNode.getMatrix(matrix)
         return matrix
-    }
-
-    override fun setElevationRiseListener(block: (() -> Unit)?) {
-        elevationRiseListener = block
     }
 }

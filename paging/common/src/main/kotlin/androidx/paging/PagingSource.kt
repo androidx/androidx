@@ -173,6 +173,22 @@ abstract class PagingSource<Key : Any, Value : Any> {
     }
 
     /**
+     * `true` if this [PagingSource] supports jumping, `false` otherwise.
+     *
+     * Override this to `true` if pseudo-fast scrolling via jumps is supported.
+     *
+     * A jump occurs when a `RecyclerView` scrolls through a number of placeholders defined by
+     * [PagingConfig.jumpThreshold] and triggers a load with [LoadType] [REFRESH].
+     *
+     * [PagingSource]s that support jumps should override [getRefreshKey] to return a [Key] that
+     * would load data fulfilling the viewport given a user's current [PagingState.anchorPosition].
+     *
+     * @see [PagingConfig.jumpThreshold]
+     */
+    open val jumpingSupported: Boolean
+        get() = false
+
+    /**
      * Request a refresh key given the current [PagingState] of the associated [PagingData] used to
      * present loaded data from this [PagingSource].
      *
@@ -198,6 +214,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
     private val onInvalidatedCallbacks = CopyOnWriteArrayList<() -> Unit>()
 
     private val _invalid = AtomicBoolean(false)
+
     /**
      * Whether this [PagingSource] has been invalidated, which should happen when the data this
      * [PagingSource] represents changes since it was first instantiated.

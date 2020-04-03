@@ -30,6 +30,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -165,7 +166,7 @@ class ToggleableTest {
         findByTag("myToggleable")
             .doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(checked).isEqualTo(false)
         }
     }

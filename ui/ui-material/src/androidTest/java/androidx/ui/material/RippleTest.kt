@@ -17,35 +17,40 @@ package androidx.ui.material
 
 import android.os.Build
 import androidx.animation.AnimationClockObservable
+import androidx.animation.AnimationClockObserver
 import androidx.compose.Composable
-import androidx.compose.Model
 import androidx.compose.Providers
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.DrawBackground
+import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
-import androidx.ui.material.ripple.RippleThemeAmbient
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
+import androidx.ui.material.ripple.RippleThemeAmbient
 import androidx.ui.material.ripple.ripple
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
@@ -54,6 +59,7 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.px
 import androidx.ui.unit.toPxSize
 import androidx.ui.unit.toRect
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -80,10 +86,13 @@ class RippleTest {
             DrawRectRippleCallback {
                 TestTag(contentTag) {
                     Box(
-                        modifier = DrawBackground(Color.Blue),
+                        modifier = Modifier.drawBackground(Color.Blue),
                         gravity = ContentGravity.Center
                     ) {
-                        Box(LayoutSize(10.dp) + ripple())
+                        Box(
+                            Modifier.preferredSize(10.dp)
+                                .ripple()
+                        )
                     }
                 }
             }
@@ -112,15 +121,15 @@ class RippleTest {
             DrawRectRippleCallback {
                 TestTag(contentTag) {
                     Box(
-                        modifier = DrawBackground(Color.Blue),
+                        modifier = Modifier.drawBackground(Color.Blue),
                         gravity = ContentGravity.Center
                     ) {
                         Box(
-                            LayoutSize(30.dp) +
-                                    LayoutPadding(5.dp) +
-                                    ripple() +
-                                    // this padding should not affect the size of the ripple
-                                    LayoutPadding(5.dp)
+                            Modifier.preferredSize(30.dp)
+                                .padding(5.dp)
+                                .ripple()
+                                // this padding should not affect the size of the ripple
+                                .padding(5.dp)
                         )
                     }
                 }
@@ -150,10 +159,10 @@ class RippleTest {
             DrawRectRippleCallback {
                 TestTag(contentTag) {
                     Box(
-                        modifier = DrawBackground(Color.Blue),
+                        modifier = Modifier.drawBackground(Color.Blue),
                         gravity = ContentGravity.Center
                     ) {
-                        Box(LayoutSize(10.dp) + ripple(bounded = false))
+                        Box(Modifier.preferredSize(10.dp).ripple(bounded = false))
                     }
                 }
             }
@@ -180,10 +189,14 @@ class RippleTest {
             DrawRectRippleCallback {
                 TestTag(contentTag) {
                     Box(
-                        modifier = DrawBackground(Color.Blue),
+                        modifier = Modifier.drawBackground(Color.Blue),
                         gravity = ContentGravity.Center
                     ) {
-                        Box(LayoutSize(10.dp) + ripple() + DrawBackground(Color.Blue))
+                        Box(
+                            Modifier.preferredSize(10.dp)
+                                .ripple()
+                                .drawBackground(Color.Blue)
+                        )
                     }
                 }
             }
@@ -209,7 +222,7 @@ class RippleTest {
     fun twoEffectsDrawnAndDisposedCorrectly() {
         val drawLatch = CountDownLatch(2)
         val disposeLatch = CountDownLatch(2)
-        val emit = DoEmit(true)
+        var emit by mutableStateOf(true)
 
         composeTestRule.setMaterialContent {
             RippleCallback(
@@ -217,7 +230,7 @@ class RippleTest {
                 onDispose = { disposeLatch.countDown() }
             ) {
                 Card {
-                    if (emit.emit) {
+                    if (emit) {
                         Row {
                             TestTag(tag = contentTag) {
                                 RippleButton()
@@ -237,10 +250,90 @@ class RippleTest {
         // wait for drawEffect to be called
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
-        composeTestRule.runOnUiThread { emit.emit = false }
+        runOnUiThread { emit = false }
 
         // wait for dispose to be called
         assertTrue(disposeLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun animationIsDisposedCorrectly() {
+        var emit by mutableStateOf(true)
+        var effectCreated = false
+        var rippleAnimationTime = 0L
+
+        val factory = object : RippleEffectFactory {
+            override fun create(
+                size: IntPxSize,
+                startPosition: PxPosition,
+                density: Density,
+                radius: Dp?,
+                clipped: Boolean,
+                clock: AnimationClockObservable,
+                onAnimationFinished: (RippleEffect) -> Unit
+            ): RippleEffect {
+                clock.subscribe(object : AnimationClockObserver {
+                    override fun onAnimationFrame(frameTimeMillis: Long) {
+                        rippleAnimationTime = frameTimeMillis
+                    }
+                })
+                effectCreated = true
+                return object : RippleEffect {
+                    override fun draw(canvas: Canvas, size: IntPxSize, color: Color) {}
+                    override fun finish(canceled: Boolean) {}
+                }
+            }
+        }
+
+        composeTestRule.clockTestRule.pauseClock()
+
+        composeTestRule.setMaterialContent {
+            Providers(
+                RippleThemeAmbient provides RippleThemeAmbient.current.copy(
+                    factory = factory
+                )
+            ) {
+                Card {
+                    if (emit) {
+                        Row {
+                            TestTag(tag = contentTag) {
+                                RippleButton()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // create an effect
+        findByTag(contentTag)
+            .doClick()
+
+        // wait for drawEffect to be called
+        assertThat(effectCreated).isTrue()
+        assertThat(rippleAnimationTime).isEqualTo(0)
+
+        // we got a first frame
+        composeTestRule.clockTestRule.advanceClock(100)
+        assertThat(rippleAnimationTime).isNotEqualTo(0)
+        var prevValue = rippleAnimationTime
+
+        // animation is working and we are getting the next frames
+        composeTestRule.clockTestRule.advanceClock(100)
+        assertThat(rippleAnimationTime).isGreaterThan(prevValue)
+        prevValue = rippleAnimationTime
+
+        runOnIdleCompose {
+            emit = false
+        }
+
+        runOnIdleCompose {
+            // wait for the dispose to be applied
+        }
+
+        composeTestRule.clockTestRule.advanceClock(100)
+        // asserts our animation is disposed and not reacting on a new timestamp
+        assertThat(rippleAnimationTime).isEqualTo(prevValue)
     }
 
     @Test
@@ -346,7 +439,7 @@ class RippleTest {
         assertEquals(Color.Yellow, actualColor)
 
         drawLatch = CountDownLatch(1)
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             colorState = Color.Green
         }
 
@@ -358,9 +451,9 @@ class RippleTest {
     private fun RippleButton(size: Dp = 10.dp, color: Color? = null, enabled: Boolean = true) {
         Clickable(
             onClick = {},
-            modifier = ripple(bounded = false, color = color, enabled = enabled)
+            modifier = Modifier.ripple(bounded = false, color = color, enabled = enabled)
         ) {
-            Box(LayoutSize(size))
+            Box(Modifier.preferredSize(size))
         }
     }
 
@@ -406,7 +499,6 @@ class RippleTest {
                 radius: Dp?,
                 clipped: Boolean,
                 clock: AnimationClockObservable,
-                requestRedraw: () -> Unit,
                 onAnimationFinished: (RippleEffect) -> Unit
             ): RippleEffect {
                 onEffectCreated()
@@ -433,6 +525,3 @@ class RippleTest {
             }
         }
 }
-
-@Model
-private data class DoEmit(var emit: Boolean)

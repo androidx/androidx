@@ -15,10 +15,10 @@
  */
 package androidx.ui.layout.test
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import java.util.concurrent.CountDownLatch
 
-class TestActivity : Activity() {
+class TestActivity : ComponentActivity() {
     var hasFocusLatch = CountDownLatch(1)
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

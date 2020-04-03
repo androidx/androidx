@@ -114,7 +114,7 @@ class SwipeWithDurationTest(private val config: TestConfig) {
     @Before
     fun setUp() {
         recorder = MotionEventRecorder()
-        subject = AndroidInputDispatcher(recorder.asCollectedProviders())
+        subject = AndroidInputDispatcher(recorder::sendEvent)
     }
 
     @After
@@ -200,7 +200,7 @@ class SwipeWithKeyTimesTest(private val config: TestConfig) {
     @Before
     fun setUp() {
         recorder = MotionEventRecorder()
-        subject = AndroidInputDispatcher(recorder.asCollectedProviders())
+        subject = AndroidInputDispatcher(recorder::sendEvent)
 
         require(config.keyTimes.distinct() == config.keyTimes.distinct().sorted()) {
             "keyTimes needs to be sorted, not ${config.keyTimes}"
@@ -299,7 +299,7 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
     @Before
     fun setUp() {
         recorder = MotionEventRecorder()
-        subject = AndroidInputDispatcher(recorder.asCollectedProviders())
+        subject = AndroidInputDispatcher(recorder::sendEvent)
 
         require(config.keyTimes.distinct() == config.keyTimes.distinct().sorted()) {
             "keyTimes needs to be sorted, not ${config.keyTimes}"

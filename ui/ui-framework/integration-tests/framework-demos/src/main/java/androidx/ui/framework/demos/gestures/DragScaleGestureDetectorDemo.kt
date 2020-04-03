@@ -18,17 +18,20 @@ package androidx.ui.framework.demos.gestures
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
-import androidx.ui.core.gesture.ScaleGestureDetector
+import androidx.ui.core.gesture.scaleGestureFilter
 import androidx.ui.core.gesture.ScaleObserver
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.tapGestureFilter
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutOffset
-import androidx.ui.layout.LayoutSize
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.offset
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 
@@ -61,22 +64,26 @@ fun DragScaleGestureDetectorDemo() {
 
     val gestures =
         if (dragInScale.value) {
-            ScaleGestureDetector(scaleObserver) +
-                    DragGestureDetector(dragObserver) +
-                    TapGestureDetector(onRelease)
+            Modifier
+                .scaleGestureFilter(scaleObserver)
+                .dragGestureFilter(dragObserver)
+                .tapGestureFilter(onRelease)
         } else {
-            DragGestureDetector(dragObserver) +
-                    ScaleGestureDetector(scaleObserver) +
-                    TapGestureDetector(onRelease)
+            Modifier
+                .dragGestureFilter(dragObserver)
+                .scaleGestureFilter(scaleObserver)
+                .tapGestureFilter(onRelease)
         }
 
     val (offsetX, offsetY) =
         with(DensityAmbient.current) { offset.value.x.toDp() to offset.value.y.toDp() }
 
     Box(
-        LayoutOffset(offsetX, offsetY) +
-                LayoutSize.Fill + LayoutAlign.Center + gestures +
-                LayoutSize(size.value),
+        Modifier.offset(offsetX, offsetY)
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+            .plus(gestures)
+            .preferredSize(size.value),
         backgroundColor = Color(0xFFf44336.toInt())
     )
 }

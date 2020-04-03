@@ -16,8 +16,6 @@ package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @
     method public boolean[] decodeBooleanArray(boolean[]?);
     method public byte[] decodeByteArray();
     method public <C extends java.util.Collection<byte[]>> C decodeByteArrayCollection(C?, androidx.serialization.runtime.internal.CollectionFactory<C!>);
-    method public java.nio.ByteBuffer decodeByteBuffer();
-    method public <C extends java.util.Collection<java.nio.ByteBuffer>> C decodeByteBufferCollection(C?, androidx.serialization.runtime.internal.CollectionFactory<C!>);
     method public double decodeDouble();
     method public double[] decodeDoubleArray(double[]?);
     method public <C extends java.util.Collection<java.lang.Double>> C decodeDoubleCollection(C?, androidx.serialization.runtime.internal.CollectionFactory<C!>);
@@ -47,8 +45,6 @@ package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @
     method public void encodeBooleanCollection(int, Iterable<java.lang.Boolean!>?);
     method public void encodeByteArray(int, byte[]?);
     method public void encodeByteArrayCollection(int, Iterable<byte[]!>?);
-    method public void encodeByteBuffer(int, java.nio.ByteBuffer?);
-    method public void encodeByteBufferCollection(int, Iterable<java.nio.ByteBuffer!>?);
     method public void encodeDouble(int, double);
     method public void encodeDoubleArray(int, double[]?);
     method public void encodeDoubleCollection(int, Iterable<java.lang.Double!>?);

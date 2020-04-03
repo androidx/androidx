@@ -22,6 +22,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.test.BigTestConstraints
 import androidx.ui.test.CollectedSizes
 import androidx.ui.test.ComposeTestRule
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.setContentAndGetPixelSize
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
@@ -32,7 +33,7 @@ fun ComposeTestRule.setMaterialContent(
 ) {
     setContent {
         MaterialTheme {
-            Surface(modifier = modifier, children = composable)
+            Surface(modifier = modifier, content = composable)
         }
     }
 }
@@ -59,6 +60,6 @@ fun ComposeTestRule.setMaterialContentAndGetPixelSize(
     { setMaterialContent(composable = it) }
 ) {
     MaterialTheme {
-        Surface(modifier = modifier, children = children)
+        Surface(modifier = modifier, content = children)
     }
 }

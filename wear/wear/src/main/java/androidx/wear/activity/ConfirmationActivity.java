@@ -47,18 +47,48 @@ import androidx.wear.widget.ConfirmationOverlay;
  * <dd>Displays a generic failure page with an optional message.
  * </dl>
  *
- * An optional message, included in the extra {@link #EXTRA_MESSAGE} will be displayed horizontally
- * centered below the animation.
+ * <p>An optional message, included in the extra {@link #EXTRA_MESSAGE} will be displayed
+ * horizontally centered below the animation.
+ *
+ * <p>An optional duration to keep the confirmation activity visible for, included in the extra
+ * {@link #EXTRA_ANIMATION_DURATION_MS}
+ *
+ * <p>Default duration is {@link #DEFAULT_ANIMATION_DURATION_MS}
  */
 public class ConfirmationActivity extends Activity {
 
+    /**
+     * Used as a string extra field on an intent for this activity to define the message that
+     * should be displayed to the user while the activity is visible.
+     */
     public static final String EXTRA_MESSAGE = "androidx.wear.activity.extra.MESSAGE";
+
+    /**
+     * The lookup key for an optional int that defines the animation type that should be
+     * displayed. Should be one of  {@link #SUCCESS_ANIMATION}, {@link #OPEN_ON_PHONE_ANIMATION},
+     * or {@link #FAILURE_ANIMATION}
+     *
+     * <p>If no value is specified it will default to {@link #SUCCESS_ANIMATION}
+     */
     public static final String EXTRA_ANIMATION_TYPE =
             "androidx.wear.activity.extra.ANIMATION_TYPE";
+
+    /**
+     * The lookup key for an optional int that defines the duration in milliseconds that the
+     * confirmation activity should be displayed.
+     *
+     * If no value is specified it will default to {@value #DEFAULT_ANIMATION_DURATION_MS}
+     */
+    public static final String EXTRA_ANIMATION_DURATION_MS =
+            "androidx.wear.activity.extra.ANIMATION_DURATION_MS";
 
     public static final int SUCCESS_ANIMATION = 1;
     public static final int OPEN_ON_PHONE_ANIMATION = 2;
     public static final int FAILURE_ANIMATION = 3;
+
+    /** Default animation duration in ms. **/
+    public static final int DEFAULT_ANIMATION_DURATION_MS =
+            ConfirmationOverlay.DEFAULT_ANIMATION_DURATION_MS;
 
     private static final SparseIntArray CONFIRMATION_OVERLAY_TYPES = new SparseIntArray();
 
@@ -77,6 +107,8 @@ public class ConfirmationActivity extends Activity {
         Intent intent = getIntent();
 
         int requestedType = intent.getIntExtra(EXTRA_ANIMATION_TYPE, SUCCESS_ANIMATION);
+        int animationDurationMillis = intent.getIntExtra(EXTRA_ANIMATION_DURATION_MS,
+                DEFAULT_ANIMATION_DURATION_MS);
         if (CONFIRMATION_OVERLAY_TYPES.indexOfKey(requestedType) < 0) {
             throw new IllegalArgumentException("Unknown type of animation: " + requestedType);
         }
@@ -87,6 +119,7 @@ public class ConfirmationActivity extends Activity {
         new ConfirmationOverlay()
                 .setType(type)
                 .setMessage(message)
+                .setDuration(animationDurationMillis)
                 .setOnAnimationFinishedListener(
                         new ConfirmationOverlay.OnAnimationFinishedListener() {
                             @Override

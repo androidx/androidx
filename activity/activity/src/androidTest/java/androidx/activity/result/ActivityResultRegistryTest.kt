@@ -19,6 +19,7 @@ package androidx.activity.result
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.core.app.ActivityOptionsCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.Test
@@ -31,7 +32,8 @@ class ActivityResultRegistryTest {
         override fun <I : Any?, O : Any?> invoke(
             requestCode: Int,
             contract: ActivityResultContract<I, O>,
-            input: I
+            input: I,
+            options: ActivityOptionsCompat?
         ) {}
     }
 

@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.map
 
 class Item(
     @JvmField
+    val id: String,
+    @JvmField
     val label: String
 )
 

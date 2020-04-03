@@ -16,12 +16,13 @@
 
 package androidx.tracing
 
+import android.annotation.SuppressLint
+
 /**
  * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [label])
  * and [Trace.endSection].
  *
- * @param label A name of the code section to appear in the trace. This may
- * be at most 127 Unicode code units long.
+ * @param label A name of the code section to appear in the trace.
  * @param block A block of code which is being traced.
  */
 inline fun <T> trace(label: String, crossinline block: () -> T): T {
@@ -34,20 +35,18 @@ inline fun <T> trace(label: String, crossinline block: () -> T): T {
 }
 
 /**
- * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [label] producer)
- * and [Trace.endSection].
+ * Wrap the specified [block] in calls to [Trace.beginAsyncSection] (with the supplied [methodName]
+ * and [cookie]) and [Trace.endAsyncSection].
  *
- * @param label Produces a name of the code section to appear in the trace. This may
- * be at most 127 Unicode code units long.
- * @param block A block of code which is being traced.
+ * @param methodName The method name to appear in the trace.
+ * @param cookie Unique identifier for distinguishing simultaneous events
  */
-inline fun <T> trace(crossinline label: () -> String, crossinline block: () -> T): T {
+@SuppressLint("MissingNullability") // b/152801955
+suspend fun <T> traceAsync(methodName: String, cookie: Int, block: suspend () -> T): T {
     try {
-        if (Trace.isEnabled()) {
-            Trace.beginSection(label())
-        }
+        Trace.beginAsyncSection(methodName, cookie)
         return block()
     } finally {
-        Trace.endSection()
+        Trace.endAsyncSection(methodName, cookie)
     }
 }

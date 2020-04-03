@@ -58,7 +58,7 @@ const val HILT_ANDROID = "com.google.dagger:hilt-android:DEV-SNAPSHOT"
 const val HILT_ANDROID_COMPILER = "com.google.dagger:hilt-android-compiler:DEV-SNAPSHOT"
 const val HILT_ANDROID_GRADLE_PLUGIN = "com.google.dagger:hilt-android-gradle-plugin:DEV-SNAPSHOT"
 const val INTELLIJ_ANNOTATIONS = "com.intellij:annotations:12.0"
-const val JAVAPOET = "com.squareup:javapoet:1.8.0"
+const val JAVAPOET = "com.squareup:javapoet:1.12.1"
 const val JSR250 = "javax.annotation:javax.annotation-api:1.2"
 const val JUNIT = "junit:junit:4.12"
 const val KOTLINPOET = "com.squareup:kotlinpoet:1.4.0"
@@ -66,18 +66,6 @@ const val KOTLIN_GRADLE_PLUGIN = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.
 
 const val KOTLIN_METADATA = "me.eugeniomarletti.kotlin.metadata:kotlin-metadata:1.4.0"
 const val KOTLIN_METADATA_JVM = "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.1.0"
-
-private const val KOTLIN_COROUTINES_VERSION = "1.3.4"
-const val KOTLIN_COROUTINES_ANDROID =
-    "org.jetbrains.kotlinx:kotlinx-coroutines-android:$KOTLIN_COROUTINES_VERSION"
-const val KOTLIN_COROUTINES_CORE =
-    "org.jetbrains.kotlinx:kotlinx-coroutines-core:$KOTLIN_COROUTINES_VERSION"
-const val KOTLIN_COROUTINES_GUAVA =
-    "org.jetbrains.kotlinx:kotlinx-coroutines-guava:$KOTLIN_COROUTINES_VERSION"
-const val KOTLIN_COROUTINES_TEST =
-    "org.jetbrains.kotlinx:kotlinx-coroutines-test:$KOTLIN_COROUTINES_VERSION"
-const val KOTLIN_COROUTINES_RX2 =
-    "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:$KOTLIN_COROUTINES_VERSION"
 
 const val LEAKCANARY = "com.squareup.leakcanary:leakcanary-android:2.2"
 const val LEAKCANARY_INSTRUMENTATION =
@@ -97,7 +85,7 @@ const val XMLPULL = "xmlpull:xmlpull:1.1.3.1"
 const val RETROFIT = "com.squareup.retrofit2:retrofit:2.7.2"
 const val OKHTTP_MOCKWEBSERVER = "com.squareup.okhttp3:mockwebserver:3.14.7"
 
-const val ROBOLECTRIC = "org.robolectric:robolectric:4.3"
+const val ROBOLECTRIC = "org.robolectric:robolectric:4.3.1"
 
 const val PROTOBUF = "com.google.protobuf:protobuf-java:3.4.0"
 
@@ -122,6 +110,19 @@ val KOTLIN_TEST_ANNOTATIONS_COMMON get() =
 val KOTLIN_TEST_JUNIT get() = "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 val KOTLIN_TEST_JS get() = "org.jetbrains.kotlin:kotlin-test-js:$kotlinVersion"
 val KOTLIN_REFLECT get() = "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+
+internal lateinit var kotlinCoroutinesVersion: String
+
+val KOTLIN_COROUTINES_ANDROID
+    get() = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
+val KOTLIN_COROUTINES_CORE
+    get() = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+val KOTLIN_COROUTINES_GUAVA
+    get() = "org.jetbrains.kotlinx:kotlinx-coroutines-guava:$kotlinCoroutinesVersion"
+val KOTLIN_COROUTINES_TEST
+    get() = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
+val KOTLIN_COROUTINES_RX2
+    get() = "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:$kotlinCoroutinesVersion"
 
 internal lateinit var agpVersion: String
 

@@ -24,6 +24,7 @@ import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
+import androidx.ui.unit.toRect
 
 /**
  * A shape describing the rectangle with cut corners.
@@ -34,11 +35,11 @@ import androidx.ui.unit.px
  * @param bottomRight a size of the bottom left corner
  * @param bottomLeft a size of the bottom right corner
  */
-data class CutCornerShape(
-    val topLeft: CornerSize,
-    val topRight: CornerSize,
-    val bottomRight: CornerSize,
-    val bottomLeft: CornerSize
+class CutCornerShape(
+    topLeft: CornerSize,
+    topRight: CornerSize,
+    bottomRight: CornerSize,
+    bottomLeft: CornerSize
 ) : CornerBasedShape(topLeft, topRight, bottomRight, bottomLeft) {
 
     override fun createOutline(
@@ -47,7 +48,9 @@ data class CutCornerShape(
         topRight: Px,
         bottomRight: Px,
         bottomLeft: Px
-    ) = Outline.Generic(Path().apply {
+    ) = if (topLeft + topRight + bottomLeft + bottomRight == 0.px) {
+        Outline.Rectangle(size.toRect())
+    } else Outline.Generic(Path().apply {
         var cornerSize = topLeft.value
         moveTo(0f, cornerSize)
         lineTo(cornerSize, 0f)
@@ -62,6 +65,23 @@ data class CutCornerShape(
         lineTo(0f, size.height.value - cornerSize)
         close()
     })
+
+    override fun copy(
+        topLeft: CornerSize,
+        topRight: CornerSize,
+        bottomRight: CornerSize,
+        bottomLeft: CornerSize
+    ) = CutCornerShape(
+        topLeft = topLeft,
+        topRight = topRight,
+        bottomRight = bottomRight,
+        bottomLeft = bottomLeft
+    )
+
+    override fun toString(): String {
+        return "CutCornerShape(topLeft = $topLeft, topRight = $topRight, bottomRight = " +
+                "$bottomRight, bottomLeft = $bottomLeft)"
+    }
 }
 
 /**

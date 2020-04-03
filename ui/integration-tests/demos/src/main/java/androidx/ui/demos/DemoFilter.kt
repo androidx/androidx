@@ -19,18 +19,20 @@ package androidx.ui.demos
 import androidx.compose.Composable
 import androidx.compose.key
 import androidx.compose.onCommit
+import androidx.ui.core.Alignment
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextField
 import androidx.ui.demos.common.Demo
 import androidx.ui.foundation.Icon
+import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextField
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
+import androidx.ui.layout.RowAlign
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.material.IconButton
 import androidx.ui.material.ListItem
 import androidx.ui.material.MaterialTheme
@@ -68,7 +70,11 @@ fun DemoFilter(launchableDemos: List<Demo>, filterText: String, onNavigate: (Dem
  * [TopAppBar] with a text field allowing filtering all the demos.
  */
 @Composable
-fun FilterAppBar(filterText: String, onFilter: (String) -> Unit, onClose: () -> Unit) {
+fun FilterAppBar(
+    filterText: TextFieldValue,
+    onFilter: (TextFieldValue) -> Unit,
+    onClose: () -> Unit
+) {
     with(MaterialTheme.colors) {
         val appBarColor = if (isLight) {
             surface
@@ -77,11 +83,11 @@ fun FilterAppBar(filterText: String, onFilter: (String) -> Unit, onClose: () -> 
             // surfaces in dark theme
             primary.copy(alpha = 0.08f).compositeOver(surface)
         }
-        TopAppBar(color = appBarColor, contentColor = onSurface) {
-            IconButton(modifier = LayoutGravity.Center, onClick = onClose) {
+        TopAppBar(backgroundColor = appBarColor, contentColor = onSurface) {
+            IconButton(modifier = Modifier.gravity(RowAlign.Center), onClick = onClose) {
                 Icon(Icons.Filled.Close)
             }
-            FilterField(filterText, onFilter, LayoutGravity.Center)
+            FilterField(filterText, onFilter, Modifier.gravity(RowAlign.Center))
         }
     }
 }
@@ -91,8 +97,8 @@ fun FilterAppBar(filterText: String, onFilter: (String) -> Unit, onClose: () -> 
  */
 @Composable
 private fun FilterField(
-    filterText: String,
-    onFilter: (String) -> Unit,
+    filterText: TextFieldValue,
+    onFilter: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier.None
 ) {
     val identifier = "filter"
@@ -142,7 +148,7 @@ private fun FilteredDemoListItem(
         ListItem(
             text = {
                 Text(
-                    modifier = LayoutHeight(56.dp) + LayoutAlign.Center,
+                    modifier = Modifier.preferredHeight(56.dp).wrapContentSize(Alignment.Center),
                     text = annotatedString
                 )
             },

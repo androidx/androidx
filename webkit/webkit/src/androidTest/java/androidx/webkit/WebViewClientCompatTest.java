@@ -54,8 +54,17 @@ public class WebViewClientCompatTest {
     private MockWebServer mWebServer;
 
     private static final String TEST_URL = "http://www.example.com/";
-    private static final String TEST_SAFE_BROWSING_URL =
-            "chrome://safe-browsing/match?type=malware";
+
+    private static final String TEST_SAFE_BROWSING_URL_PREFIX =
+            "chrome://safe-browsing/match?type=";
+    private static final String TEST_SAFE_BROWSING_MALWARE_URL =
+            TEST_SAFE_BROWSING_URL_PREFIX + "malware";
+    private static final String TEST_SAFE_BROWSING_PHISHING_URL =
+            TEST_SAFE_BROWSING_URL_PREFIX + "phishing";
+    private static final String TEST_SAFE_BROWSING_UNWANTED_SOFTWARE_URL =
+            TEST_SAFE_BROWSING_URL_PREFIX + "unwanted";
+    private static final String TEST_SAFE_BROWSING_BILLING_URL =
+            TEST_SAFE_BROWSING_URL_PREFIX + "billing";
 
     @Before
     public void setUp() {
@@ -293,7 +302,82 @@ public class WebViewClientCompatTest {
         enableSafeBrowsingAndLoadUnsafePage(proceedWebViewClient);
 
         // Check that we actually proceeded
-        Assert.assertEquals(TEST_SAFE_BROWSING_URL, mWebViewOnUiThread.getUrl());
+        Assert.assertEquals(TEST_SAFE_BROWSING_MALWARE_URL, mWebViewOnUiThread.getUrl());
+    }
+
+    private void testOnSafeBrowsingCode(String expectedUrl, int expectedThreatType)
+            throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_HIT);
+        WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
+        WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY);
+
+        // Load any page
+        String data = "<html><body>some safe page</body></html>";
+        mWebViewOnUiThread.loadDataAndWaitForCompletion(data, "text/html", null);
+
+        final SafeBrowsingBackToSafetyClient backToSafetyWebViewClient =
+                new SafeBrowsingBackToSafetyClient();
+        mWebViewOnUiThread.setWebViewClient(backToSafetyWebViewClient);
+        WebSettingsCompat.setSafeBrowsingEnabled(mWebViewOnUiThread.getSettings(), true);
+
+        // Note: Safe Browsing depends on user opt-in as well, so we can't assume it's actually
+        // enabled. #getSafeBrowsingEnabled will tell us the true state of whether Safe Browsing is
+        // enabled.
+        if (WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings())) {
+            mWebViewOnUiThread.loadUrlAndWaitForCompletion(expectedUrl);
+
+            Assert.assertEquals("Safe Browsing hit is for unexpected URL",
+                    expectedUrl,
+                    backToSafetyWebViewClient.getOnSafeBrowsingHitRequest().getUrl().toString());
+
+            Assert.assertEquals("Safe Browsing hit has unexpected threat type",
+                    expectedThreatType,
+                    backToSafetyWebViewClient.getOnSafeBrowsingHitThreatType());
+        }
+    }
+
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testOnSafeBrowsingMalwareCode. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
+    @Test
+    public void testOnSafeBrowsingMalwareCode() throws Throwable {
+        testOnSafeBrowsingCode(TEST_SAFE_BROWSING_MALWARE_URL,
+                WebViewClient.SAFE_BROWSING_THREAT_MALWARE);
+    }
+
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testOnSafeBrowsingPhishingCode. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
+    @Test
+    public void testOnSafeBrowsingPhishingCode() throws Throwable {
+        testOnSafeBrowsingCode(TEST_SAFE_BROWSING_PHISHING_URL,
+                WebViewClient.SAFE_BROWSING_THREAT_PHISHING);
+    }
+
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testOnSafeBrowsingUnwantedSoftwareCode. Modifications to
+     * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
+    @Test
+    public void testOnSafeBrowsingUnwantedSoftwareCode() throws Throwable {
+        testOnSafeBrowsingCode(TEST_SAFE_BROWSING_UNWANTED_SOFTWARE_URL,
+                WebViewClient.SAFE_BROWSING_THREAT_UNWANTED_SOFTWARE);
+    }
+
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testOnSafeBrowsingBillingCode. Modifications to this
+     * test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
+    @Test
+    public void testOnSafeBrowsingBillingCode() throws Throwable {
+        testOnSafeBrowsingCode(TEST_SAFE_BROWSING_BILLING_URL,
+                WebViewClient.SAFE_BROWSING_THREAT_BILLING);
     }
 
     private void enableSafeBrowsingAndLoadUnsafePage(SafeBrowsingClient client) throws Throwable {
@@ -306,9 +390,9 @@ public class WebViewClientCompatTest {
         Assume.assumeTrue(msg, deviceSupportsSafeBrowsing);
 
         Assert.assertNull(client.getOnReceivedResourceError());
-        mWebViewOnUiThread.loadUrlAndWaitForCompletion(TEST_SAFE_BROWSING_URL);
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion(TEST_SAFE_BROWSING_MALWARE_URL);
 
-        Assert.assertEquals(TEST_SAFE_BROWSING_URL,
+        Assert.assertEquals(TEST_SAFE_BROWSING_MALWARE_URL,
                 client.getOnSafeBrowsingHitRequest().getUrl().toString());
         Assert.assertTrue(client.getOnSafeBrowsingHitRequest().isForMainFrame());
     }

@@ -16,18 +16,20 @@
 
 package androidx.ui.material.icons.test
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Alignment
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
-import androidx.ui.core.asModifier
+import androidx.ui.core.paint
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
@@ -35,9 +37,8 @@ import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.res.vectorResource
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.captureToBitmap
@@ -69,7 +70,7 @@ class IconComparisonTest {
      * to run this test ~tenfold.
      */
     @get:Rule
-    val activityTestRule = ActivityTestRule(Activity::class.java)
+    val activityTestRule = ActivityTestRule(ComponentActivity::class.java)
 
     @Test
     fun compareVectorAssets() {
@@ -169,24 +170,22 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
         // Using ipx directly ensures that we will always have a consistent layout / drawing
         // story, so anti-aliasing should be identical.
         val layoutSize = with(DensityAmbient.current) {
-            LayoutSize(72.ipx.toDp())
+            Modifier.preferredSize(72.ipx.toDp())
         }
-        Column(LayoutGravity.Center) {
+        Column(Modifier.gravity(Alignment.Center)) {
             TestTag(ProgrammaticTestTag) {
                 Semantics(container = true) {
                     Box(
-                        modifier = layoutSize +
-                                VectorPainter(programmaticVector)
-                                    .asModifier(colorFilter = ColorFilter.tint(Color.Red))
+                        modifier = layoutSize.paint(VectorPainter(programmaticVector),
+                            colorFilter = ColorFilter.tint(Color.Red))
                     )
                 }
             }
             TestTag(XmlTestTag) {
                 Semantics(container = true) {
                     Box(
-                        modifier = layoutSize +
-                                VectorPainter(xmlVector)
-                                    .asModifier(colorFilter = ColorFilter.tint(Color.Red))
+                        modifier = layoutSize.paint(VectorPainter(xmlVector),
+                            colorFilter = ColorFilter.tint(Color.Red))
                     )
                 }
             }

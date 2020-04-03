@@ -119,7 +119,7 @@ class TrackDatabasesTest {
             val error = event.errorOccurred.content
             assertThat(error.message).contains("Database is already tracked")
             assertThat(error.message).contains(database.path)
-            assertThat(error.isRecoverable).isEqualTo(false)
+            assertThat(error.recoverability.isRecoverable).isEqualTo(false)
         }
     }
 }

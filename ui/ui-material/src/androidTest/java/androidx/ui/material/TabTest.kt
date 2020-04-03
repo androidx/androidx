@@ -16,17 +16,23 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.LargeTest
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.samples.ScrollingTextTabs
@@ -38,6 +44,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findAll
 import androidx.ui.test.isInMutuallyExclusiveGroup
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -112,15 +119,16 @@ class TabTest {
 
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
                 TabRow.IndicatorContainer(tabPositions, state) {
-                    ColoredRect(
-                        Color.Red,
-                        onPositioned { indicatorCoords = it },
-                        height = indicatorHeight
+                    Box(Modifier
+                        .onPositioned { indicatorCoords = it }
+                        .fillMaxWidth()
+                        .preferredHeight(indicatorHeight)
+                        .drawBackground(Color.Red)
                     )
                 }
             }
 
-            Box(onChildPositioned { tabRowCoords = it }) {
+            Box(Modifier.onChildPositioned { tabRowCoords = it }) {
                 TabRow(
                     items = titles,
                     selectedIndex = state,
@@ -155,7 +163,7 @@ class TabTest {
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             with(composeTestRule.density) {
                 val indicatorPositionX = indicatorCoords.localToGlobal(PxPosition.Origin).x
                 val expectedPositionX = tabRowWidth / 2
@@ -180,13 +188,13 @@ class TabTest {
 
             Box {
                 TabRow(
-                    modifier = onPositioned { tabRowCoords = it },
+                    modifier = Modifier.onPositioned { tabRowCoords = it },
                     items = titles,
                     selectedIndex = state
                 ) { index, text ->
                     Tab(
                         text = {
-                            Text(text, onPositioned { coords ->
+                            Text(text, Modifier.onPositioned { coords: LayoutCoordinates ->
                                 textCoords = coords
                                 textBaseline = coords[LastBaseline]!!.toPx()
                             })
@@ -225,13 +233,13 @@ class TabTest {
 
             Box {
                 TabRow(
-                    modifier = onPositioned { tabRowCoords = it },
+                    modifier = Modifier.onPositioned { tabRowCoords = it },
                     items = titles,
                     selectedIndex = state
                 ) { index, text ->
                     Tab(
                         text = {
-                            Text(text, onPositioned { coords ->
+                            Text(text, Modifier.onPositioned { coords: LayoutCoordinates ->
                                 textCoords = coords
                                 textBaseline = coords[LastBaseline]!!.toPx()
                             })
@@ -271,13 +279,13 @@ class TabTest {
 
             Box {
                 TabRow(
-                    modifier = onPositioned { tabRowCoords = it },
+                    modifier = Modifier.onPositioned { tabRowCoords = it },
                     items = titles,
                     selectedIndex = state
                 ) { index, text ->
                     Tab(
                         text = {
-                            Text(text, onPositioned { coords ->
+                            Text(text, Modifier.preferredWidth(100.dp).onPositioned { coords ->
                                 textCoords = coords
                                 textBaseline = coords[LastBaseline]!!.toPx()
                             }, maxLines = 2)
@@ -318,17 +326,18 @@ class TabTest {
 
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
                 TabRow.IndicatorContainer(tabPositions, state) {
-                    ColoredRect(
-                        Color.Red,
-                        onPositioned { indicatorCoords = it },
-                        height = indicatorHeight
+                    Box(Modifier
+                        .onPositioned { indicatorCoords = it }
+                        .fillMaxWidth()
+                        .preferredHeight(indicatorHeight)
+                        .drawBackground(Color.Red)
                     )
                 }
             }
 
             Box {
                 TabRow(
-                    modifier = onPositioned { tabRowCoords = it },
+                    modifier = Modifier.onPositioned { tabRowCoords = it },
                     items = titles,
                     scrollable = true,
                     selectedIndex = state,

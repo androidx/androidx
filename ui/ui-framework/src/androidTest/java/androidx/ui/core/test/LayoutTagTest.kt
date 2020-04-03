@@ -20,7 +20,7 @@ import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTag
+import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
@@ -55,14 +55,14 @@ class LayoutTagTest {
             activity.setContent {
                 Layout(
                     {
-                        AtLeastSize(0.ipx, LayoutTag("first"), children = emptyContent())
-                        Stack(LayoutTag("second")) {
+                        AtLeastSize(0.ipx, Modifier.tag("first"), children = emptyContent())
+                        Stack(Modifier.tag("second")) {
                             AtLeastSize(
                                 0.ipx,
                                 children = emptyContent()
                             )
                         }
-                        Stack(LayoutTag("third")) {
+                        Stack(Modifier.tag("third")) {
                             AtLeastSize(0.ipx, children = emptyContent())
                         }
                     }

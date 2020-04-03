@@ -2045,7 +2045,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
 
         @SuppressWarnings("JavaReflectionMemberAccess")
-        @SuppressLint("DiscouragedPrivateApi")
+        @SuppressLint({"DiscouragedPrivateApi", "SoonBlockedPrivateApi"})
         PreQAutoCompleteTextViewReflector() {
             preApi29Check();
             try {

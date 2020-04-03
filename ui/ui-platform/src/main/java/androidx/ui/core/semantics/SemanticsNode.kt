@@ -22,12 +22,14 @@ import androidx.ui.core.boundsInRoot
 import androidx.ui.core.findChildSemanticsComponentNodes
 import androidx.ui.core.findFirstLayoutNodeInTree
 import androidx.ui.core.globalBounds
+import androidx.ui.core.globalPosition
 import androidx.ui.core.ifDebug
 import androidx.ui.core.requireFirstLayoutNodeInTree
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxBounds
+import androidx.ui.unit.PxPosition
 
 /**
  * Signature for a function that is called for each [SemanticsNode].
@@ -119,6 +121,12 @@ class SemanticsNode internal constructor(
         get() {
             val layoutNode = componentNode.requireFirstLayoutNodeInTree()
             return layoutNode.coordinates.globalBounds
+        }
+
+    val globalPosition: PxPosition
+        get() {
+            val layoutNode = componentNode.requireFirstLayoutNodeInTree()
+            return layoutNode.coordinates.globalPosition
         }
 
     // MERGING

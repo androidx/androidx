@@ -24,6 +24,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.dp
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -94,7 +95,7 @@ class SliderTest {
         findByTag(tag)
             .assertValueEquals("0.0")
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             position.value = 0.5f
         }
 

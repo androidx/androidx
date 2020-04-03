@@ -17,24 +17,36 @@
 package androidx.sqlite.inspection;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.inspection.Connection;
 import androidx.inspection.InspectorEnvironment;
 import androidx.inspection.InspectorFactory;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Factory for SqliteInspector
  */
 public final class SqliteInspectorFactory extends InspectorFactory<SqliteInspector> {
     private static final String SQLITE_INSPECTOR_ID = "androidx.sqlite.inspection";
+    private final Executor mIOExecutor;
 
-    public SqliteInspectorFactory() {
+    @VisibleForTesting
+    public SqliteInspectorFactory(@NonNull Executor ioExecutor) {
         super(SQLITE_INSPECTOR_ID);
+        mIOExecutor = ioExecutor;
+    }
+
+    @SuppressWarnings("unused") // called by ServiceLoader
+    public SqliteInspectorFactory() {
+        this(Executors.newCachedThreadPool());
     }
 
     @NonNull
     @Override
     public SqliteInspector createInspector(@NonNull Connection connection,
             @NonNull InspectorEnvironment environment) {
-        return new SqliteInspector(connection, environment);
+        return new SqliteInspector(connection, environment, mIOExecutor);
     }
 }

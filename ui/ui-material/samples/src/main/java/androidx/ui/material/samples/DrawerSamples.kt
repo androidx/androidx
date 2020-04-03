@@ -19,17 +19,20 @@ package androidx.ui.material.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredWidth
 import androidx.ui.material.BottomDrawerLayout
 import androidx.ui.material.Button
 import androidx.ui.material.DrawerState
@@ -40,11 +43,11 @@ import androidx.ui.unit.dp
 @Sampled
 @Composable
 fun StaticDrawerSample() {
-    Row(LayoutWidth.Fill) {
+    Row(Modifier.fillMaxWidth()) {
         StaticDrawer {
             Text("Drawer Content")
         }
-        ColoredRect(Color.Black, width = 1.dp)
+        Box(Modifier.fillMaxHeight().preferredWidth(1.dp).drawBackground(Color.Black))
         Text("Rest of App")
     }
 }
@@ -79,10 +82,10 @@ fun BottomDrawerSample() {
 
 @Composable
 private fun YourDrawerContent(onStateChange: (DrawerState) -> Unit) {
-    Box(LayoutSize.Fill, gravity = ContentGravity.Center) {
-        Column(LayoutHeight.Fill) {
+    Box(Modifier.fillMaxSize(), gravity = ContentGravity.Center) {
+        Column(Modifier.fillMaxHeight()) {
             Text(text = "Drawer Content")
-            Spacer(LayoutHeight(20.dp))
+            Spacer(Modifier.preferredHeight(20.dp))
             Button(onClick = { onStateChange(DrawerState.Closed) }) {
                 Text("Close Drawer")
             }
@@ -92,9 +95,9 @@ private fun YourDrawerContent(onStateChange: (DrawerState) -> Unit) {
 
 @Composable
 private fun YourAppContent(text: String, onDrawerStateChange: (DrawerState) -> Unit) {
-    Column(LayoutHeight.Fill) {
+    Column(Modifier.fillMaxHeight()) {
         Text(text = text)
-        Spacer(LayoutHeight(20.dp))
+        Spacer(Modifier.preferredHeight(20.dp))
         Button(onClick = { onDrawerStateChange(DrawerState.Opened) }) {
             Text("Click to open")
         }

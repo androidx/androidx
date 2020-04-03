@@ -73,6 +73,17 @@ fun Row(
 }
 
 /**
+ * Vertical alignments for use with [RowScope.gravity].
+ *
+ * TODO: Unify with other alignment API
+ */
+enum class RowAlign {
+    Top,
+    Center,
+    Bottom
+}
+
+/**
  * Scope for the children of [Row].
  */
 @LayoutScopeMarker
@@ -82,19 +93,52 @@ object RowScope {
      * A layout modifier within a [Row] that positions its target component vertically
      * such that its top edge is aligned to the top edge of the [Row].
      */
+    @Deprecated(
+        "Use Modifier.gravity(RowAlign.Top)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(RowAlign.Top)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.layout.ColumnAlign"
+        )
+    )
     val LayoutGravity.Top: ParentDataModifier get() = TopGravityModifier
 
     /**
      * A layout modifier within a Row that positions target component vertically
      * such that its center is in the middle of the [Row].
      */
+    @Deprecated(
+        "Use Modifier.gravity(RowAlign.Center)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(RowAlign.Center)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.layout.ColumnAlign"
+        )
+    )
     val LayoutGravity.Center: ParentDataModifier get() = CenterGravityModifier
 
     /**
      * A layout modifier within a Row that positions target component vertically
      * such that its bottom edge is aligned to the bottom edge of the [Row].
      */
+    @Deprecated(
+        "Use Modifier.gravity(RowAlign.Bottom)",
+        replaceWith = ReplaceWith(
+            "Modifier.gravity(RowAlign.Bottom)",
+            "androidx.ui.core.Modifier",
+            "androidx.ui.layout.ColumnAlign"
+        )
+    )
     val LayoutGravity.Bottom: ParentDataModifier get() = BottomGravityModifier
+
+    /**
+     * Position the element vertically within the [Row] according to [align].
+     */
+    fun Modifier.gravity(align: RowAlign) = this + when (align) {
+        RowAlign.Top -> TopGravityModifier
+        RowAlign.Center -> CenterGravityModifier
+        RowAlign.Bottom -> BottomGravityModifier
+    }
 
     /**
      * A layout modifier within a [Row] that positions its target component vertically
@@ -113,9 +157,26 @@ object RowScope {
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInRow
      */
+    @Deprecated(
+        "Use Modifier.alignWithSiblings",
+        replaceWith = ReplaceWith(
+            "Modifier.alignWithSiblings(alignmentLine)",
+            "androidx.ui.core.Modifier"
+        )
+    )
     fun LayoutGravity.RelativeToSiblings(
         alignmentLine: HorizontalAlignmentLine
     ): ParentDataModifier = SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
+
+    /**
+     * Position the element vertically such that its [alignmentLine] aligns with sibling elements
+     * also configured to [alignWithSiblings] with the same [alignmentLine].
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInRow
+     */
+    fun Modifier.alignWithSiblings(alignmentLine: HorizontalAlignmentLine) =
+        this + SiblingsAlignedModifier.WithAlignmentLine(alignmentLine)
 
     /**
      * A scoped modifier within a [Row] that sets the horizontal weight of the layout.
@@ -133,12 +194,32 @@ object RowScope {
      *
      * @sample androidx.ui.layout.samples.SimpleRow
      */
+    @Deprecated(
+        "Use Modifier.weight",
+        replaceWith = ReplaceWith(
+            "Modifier.weight(weight, fill)",
+            "androidx.ui.core.Modifier"
+        )
+    )
     fun LayoutWeight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
         fill: Boolean = true
     ): ParentDataModifier {
         require(weight > 0.0) { "Weight values should be strictly greater than zero." }
         return LayoutWeightImpl(weight, fill)
+    }
+
+    /**
+     * Size the element's width proportional to its [weight] relative to other weighted sibling
+     * elements in the [Row]. The parent will divide the horizontal space remaining after measuring
+     * unweighted child elements and distribute it according to this weight.
+     */
+    fun Modifier.weight(
+        @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
+        fill: Boolean = true
+    ): Modifier {
+        require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
+        return this + LayoutWeightImpl(weight, fill)
     }
 
     /**
@@ -158,10 +239,29 @@ object RowScope {
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
      */
+    @Deprecated(
+        "Use Modifier.alignWithSiblings",
+        replaceWith = ReplaceWith(
+            "Modifier.alignWithSiblings(alignmentLineBlock)",
+            "androidx.ui.core.Modifier"
+        )
+    )
     @Suppress("unused")
     fun LayoutGravity.RelativeToSiblings(
         alignmentLineBlock: (Placeable) -> IntPx
     ): ParentDataModifier = SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
+
+    /**
+     * Position the element vertically such that the alignment line for the content as
+     * determined by [alignmentLineBlock] aligns with sibling elements also configured to
+     * [alignWithSiblings] with an [alignmentLineBlock].
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
+     */
+    fun Modifier.alignWithSiblings(
+        alignmentLineBlock: (Placeable) -> IntPx
+    ) = this + SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
 }
 
 private val TopGravityModifier = GravityModifier(CrossAxisAlignment.Start)

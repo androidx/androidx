@@ -20,6 +20,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -32,7 +33,6 @@ import javax.crypto.KeyGenerator;
  * Convenient methods to create and obtain master keys in Android Keystore.
  *
  * <p>The master keys are used to encrypt data encryption keys for encrypting files and preferences.
- *
  */
 public final class MasterKeys {
     private MasterKeys() {
@@ -90,14 +90,14 @@ public final class MasterKeys {
         return keyGenParameterSpec.getKeystoreAlias();
     }
 
-    @SuppressWarnings("ArrayEquals") // TODO(b/141960406): Suppressed during upgrade to AGP 3.6.
-    private static void validate(KeyGenParameterSpec spec) {
+    @VisibleForTesting
+    static void validate(KeyGenParameterSpec spec) {
         if (spec.getKeySize() != KEY_SIZE) {
             throw new IllegalArgumentException(
                     "invalid key size, want " + KEY_SIZE + " bits got " + spec.getKeySize()
                             + " bits");
         }
-        if (spec.getBlockModes().equals(new String[] { KeyProperties.BLOCK_MODE_GCM })) {
+        if (!Arrays.equals(spec.getBlockModes(), new String[]{KeyProperties.BLOCK_MODE_GCM})) {
             throw new IllegalArgumentException(
                     "invalid block mode, want " + KeyProperties.BLOCK_MODE_GCM + " got "
                             + Arrays.toString(spec.getBlockModes()));
@@ -107,11 +107,17 @@ public final class MasterKeys {
                     "invalid purposes mode, want PURPOSE_ENCRYPT | PURPOSE_DECRYPT got "
                             + spec.getPurposes());
         }
-        if (spec.getEncryptionPaddings().equals(new String[]
-                { KeyProperties.ENCRYPTION_PADDING_NONE })) {
+        if (!Arrays.equals(spec.getEncryptionPaddings(), new String[]
+                {KeyProperties.ENCRYPTION_PADDING_NONE})) {
             throw new IllegalArgumentException(
                     "invalid padding mode, want " + KeyProperties.ENCRYPTION_PADDING_NONE + " got "
                             + Arrays.toString(spec.getEncryptionPaddings()));
+        }
+        if (spec.isUserAuthenticationRequired()
+                && spec.getUserAuthenticationValidityDurationSeconds() < 1) {
+            throw new IllegalArgumentException(
+                    "per-operation authentication is not supported "
+                            + "(UserAuthenticationValidityDurationSeconds must be >0)");
         }
     }
 

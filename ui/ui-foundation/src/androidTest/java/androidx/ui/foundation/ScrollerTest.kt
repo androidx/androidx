@@ -23,13 +23,14 @@ import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.GestureScope
 import androidx.ui.test.SemanticsNodeInteraction
@@ -42,6 +43,8 @@ import androidx.ui.test.doGesture
 import androidx.ui.test.doScrollTo
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
 import androidx.ui.test.sendSwipeDown
 import androidx.ui.test.sendSwipeLeft
@@ -105,7 +108,7 @@ class ScrollerTest {
 
         composeVerticalScroller(scrollerPosition)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertTrue(scrollerPosition.maxPosition == 0f)
         }
     }
@@ -134,12 +137,12 @@ class ScrollerTest {
 
         validateVerticalScroller(height = height)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertEquals(scrollDistance.toFloat(), scrollerPosition.maxPosition)
             scrollerPosition.scrollTo(scrollDistance.toFloat())
         }
 
-        composeTestRule.runOnIdleCompose {} // Just so the block below is correct
+        runOnIdleCompose {} // Just so the block below is correct
         validateVerticalScroller(offset = scrollDistance, height = height)
     }
 
@@ -178,12 +181,12 @@ class ScrollerTest {
 
         validateHorizontalScroller(width = width)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertEquals(scrollDistance.toFloat(), scrollerPosition.maxPosition)
             scrollerPosition.scrollTo(scrollDistance.toFloat())
         }
 
-        composeTestRule.runOnIdleCompose {} // Just so the block below is correct
+        runOnIdleCompose {} // Just so the block below is correct
         validateHorizontalScroller(offset = scrollDistance, width = width)
     }
 
@@ -257,38 +260,38 @@ class ScrollerTest {
 
         createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
             assertThat(scrollerPosition.maxPosition).isGreaterThan(0f)
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scrollerPosition.scrollTo(-100f)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scrollerPosition.scrollBy(-100f)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scrollerPosition.scrollTo(scrollerPosition.maxPosition)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scrollerPosition.scrollTo(scrollerPosition.maxPosition + 1000)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scrollerPosition.scrollBy(100f)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
         }
     }
@@ -303,7 +306,7 @@ class ScrollerTest {
 
         createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
 
-        val max = composeTestRule.runOnIdleCompose {
+        val max = runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
             assertThat(scrollerPosition.maxPosition).isGreaterThan(0f)
             scrollerPosition.maxPosition
@@ -339,7 +342,7 @@ class ScrollerTest {
 
         createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
             assertThat(scrollerPosition.isAnimating).isEqualTo(false)
         }
@@ -347,7 +350,7 @@ class ScrollerTest {
         findByTag(scrollerTag)
             .doGesture { sendSwipeUp() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clock.clockTimeMillis += 100
             assertThat(scrollerPosition.isAnimating).isEqualTo(true)
         }
@@ -356,7 +359,7 @@ class ScrollerTest {
         findByTag(scrollerTag)
             .doGesture { sendClick() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.isAnimating).isEqualTo(false)
         }
     }
@@ -367,14 +370,14 @@ class ScrollerTest {
         clock: ManualAnimationClock,
         uiAction: () -> Unit
     ) {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             uiAction.invoke()
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clock.clockTimeMillis += 5000
         }
         findByTag(scrollerTag).awaitScrollAnimation(scrollerPosition)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(assertValue)
         }
     }
@@ -392,21 +395,21 @@ class ScrollerTest {
 
         createScrollableContent(isVertical, scrollerPosition = scrollerPosition)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
         }
 
         findByTag(scrollerTag)
             .doGesture { firstSwipe() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clock.clockTimeMillis += 5000
         }
 
         findByTag(scrollerTag)
             .awaitScrollAnimation(scrollerPosition)
 
-        val scrolledValue = composeTestRule.runOnIdleCompose {
+        val scrolledValue = runOnIdleCompose {
             scrollerPosition.value
         }
         assertThat(scrolledValue).isGreaterThan(0f)
@@ -414,14 +417,14 @@ class ScrollerTest {
         findByTag(scrollerTag)
             .doGesture { secondSwipe() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clock.clockTimeMillis += 5000
         }
 
         findByTag(scrollerTag)
             .awaitScrollAnimation(scrollerPosition)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isLessThan(scrolledValue)
         }
     }
@@ -442,12 +445,12 @@ class ScrollerTest {
                     TestTag(scrollerTag) {
                         VerticalScroller(
                             scrollerPosition = scrollerPosition,
-                            modifier = LayoutSize(width.toDp(), height.toDp())
+                            modifier = Modifier.preferredSize(width.toDp(), height.toDp())
                         ) {
                             Column {
                                 colors.forEach { color ->
                                     Box(
-                                        LayoutSize(width.toDp(), rowHeight.toDp()),
+                                        Modifier.preferredSize(width.toDp(), rowHeight.toDp()),
                                         backgroundColor = color
                                     )
                                 }
@@ -475,12 +478,12 @@ class ScrollerTest {
                     TestTag(scrollerTag) {
                         HorizontalScroller(
                             scrollerPosition = scrollerPosition,
-                            modifier = LayoutSize(width.toDp(), height.toDp())
+                            modifier = Modifier.preferredSize(width.toDp(), height.toDp())
                         ) {
                             Row {
                                 colors.forEach { color ->
                                     Box(
-                                        LayoutSize(columnWidth.toDp(), height.toDp()),
+                                        Modifier.preferredSize(columnWidth.toDp(), height.toDp()),
                                         backgroundColor = color
                                     )
                                 }
@@ -541,7 +544,7 @@ class ScrollerTest {
                 }
             }
             Stack {
-                Box(LayoutSize(width, height), backgroundColor = Color.White) {
+                Box(Modifier.preferredSize(width, height), backgroundColor = Color.White) {
                     TestTag(scrollerTag) {
                         Semantics(container = true) {
                             if (isVertical) {

@@ -16,10 +16,10 @@
 
 package androidx.ui.test
 
-import android.app.Activity
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.ComponentActivity
 import androidx.compose.Model
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -60,7 +60,7 @@ class CheckboxState(var value: ToggleableState = ToggleableState.Off) {
 class MultipleComposeRootsTest {
 
     @get:Rule
-    val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
+    val activityTestRule = ActivityTestRule<ComponentActivity>(ComponentActivity::class.java)
 
     @get:Rule
     val disableTransitions = DisableTransitions()

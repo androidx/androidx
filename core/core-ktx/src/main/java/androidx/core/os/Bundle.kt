@@ -16,9 +16,9 @@
 
 package androidx.core.os
 
-import android.os.Binder
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.os.Parcelable
 import android.util.Size
 import android.util.SizeF
@@ -88,7 +88,7 @@ fun bundleOf(vararg pairs: Pair<String, Any?>) = Bundle(pairs.size).apply {
             is Serializable -> putSerializable(key, value)
 
             else -> {
-                if (Build.VERSION.SDK_INT >= 18 && value is Binder) {
+                if (Build.VERSION.SDK_INT >= 18 && value is IBinder) {
                     putBinder(key, value)
                 } else if (Build.VERSION.SDK_INT >= 21 && value is Size) {
                     putSize(key, value)

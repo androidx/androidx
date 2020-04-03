@@ -21,6 +21,7 @@ import androidx.compose.Providers
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Alignment
+import androidx.ui.core.ClipboardManagerAmbient
 import androidx.ui.core.Constraints
 import androidx.ui.core.HapticFeedBackAmbient
 import androidx.ui.core.Layout
@@ -29,9 +30,9 @@ import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Popup
 import androidx.ui.core.enforce
-import androidx.ui.core.gesture.DragGestureDetector
-import androidx.ui.core.gesture.LongPressDragGestureDetector
-import androidx.ui.core.gesture.TapGestureDetector
+import androidx.ui.core.gesture.longPressDragGestureFilter
+import androidx.ui.core.gesture.tapGestureFilter
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
 import androidx.ui.core.onPositioned
@@ -76,16 +77,19 @@ fun SelectionContainer(
     val manager = remember { SelectionManager(registrarImpl) }
 
     manager.hapticFeedBack = HapticFeedBackAmbient.current
+    manager.clipboardManager = ClipboardManagerAmbient.current
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
 
-    val gestureModifiers = TapGestureDetector({ manager.onRelease() }) +
-            LongPressDragGestureDetector(manager.longPressDragObserver)
+    val gestureModifiers =
+        Modifier
+            .tapGestureFilter({ manager.onRelease() })
+            .longPressDragGestureFilter(manager.longPressDragObserver)
 
     Providers(SelectionRegistrarAmbient provides registrarImpl) {
         // Get the layout coordinates of the selection container. This is for hit test of
         // cross-composable selection.
-        Wrap(gestureModifiers + onPositioned { manager.containerLayoutCoordinates = it }) {
+        Wrap(gestureModifiers.onPositioned { manager.containerLayoutCoordinates = it }) {
             children()
             addHandles(
                 manager = manager,
@@ -133,7 +137,7 @@ private fun addHandles(
                 },
                 offset = IntPxPosition(startOffset.x.value.toIntPx(), startOffset.y.value.toIntPx())
             ) {
-                val drag = DragGestureDetector(
+                val drag = Modifier.dragGestureFilter(
                     dragObserver = manager.handleDragObserver(isStartHandle = true)
                 )
                 // TODO(b/150706555): This layout is temporary and should be removed once Semantics
@@ -153,7 +157,7 @@ private fun addHandles(
                 },
                 offset = IntPxPosition(endOffset.x.value.toIntPx(), endOffset.y.value.toIntPx())
             ) {
-                val drag = DragGestureDetector(
+                val drag = Modifier.dragGestureFilter(
                     dragObserver = manager.handleDragObserver(isStartHandle = false)
                 )
                 // TODO(b/150706555): This layout is temporary and should be removed once Semantics
@@ -244,7 +248,7 @@ internal fun SimpleContainer(
                         containerHeight - it.height
                     )
                 )
-                it.placeAbsolute(
+                it.place(
                     position.x,
                     position.y
                 )

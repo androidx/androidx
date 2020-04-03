@@ -16,9 +16,12 @@
 
 package androidx.paging
 
+import androidx.paging.LoadType.END
+import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.flow.collect
@@ -37,7 +40,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
-@InternalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PageFetcherTest {
     private val testScope = TestCoroutineScope()
@@ -208,6 +211,104 @@ class PageFetcherTest {
         assertThat(fetcherState.pageEventLists.first()).isNotEmpty()
         assertThat(fetcherState2.pageEventLists.first()).isNotEmpty()
     }
+
+    @Test
+    fun remoteMediator_initializeSkip() = testScope.runBlockingTest {
+        val remoteMediatorMock = RemoteMediatorMock().apply {
+            initializeResult = SKIP_INITIAL_REFRESH
+        }
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config, remoteMediatorMock)
+
+        advanceUntilIdle()
+
+        // Assert onInitialize is not called until collection.
+        assertTrue { remoteMediatorMock.initializeEvents.isEmpty() }
+
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        assertEquals(1, remoteMediatorMock.initializeEvents.size)
+        assertEquals(0, remoteMediatorMock.loadEvents.size)
+
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun remoteMediator_initializeLaunch() = testScope.runBlockingTest {
+        val remoteMediatorMock = RemoteMediatorMock().apply {
+            initializeResult = LAUNCH_INITIAL_REFRESH
+        }
+        val pageFetcher = PageFetcher(pagingSourceFactory, 50, config, remoteMediatorMock)
+
+        advanceUntilIdle()
+
+        // Assert onInitialize is not called until collection.
+        assertTrue { remoteMediatorMock.initializeEvents.isEmpty() }
+
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        assertEquals(1, remoteMediatorMock.initializeEvents.size)
+        assertEquals(1, remoteMediatorMock.loadEvents.size)
+
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun remoteMediator_load() = testScope.runBlockingTest {
+        val remoteMediatorMock = RemoteMediatorMock()
+        val pageFetcher = PageFetcher(pagingSourceFactory, 97, config, remoteMediatorMock)
+        val fetcherState = collectFetcherState(pageFetcher)
+
+        advanceUntilIdle()
+
+        // Assert onBoundary is not called for non-terminal page load.
+        assertTrue { remoteMediatorMock.loadEvents.isEmpty() }
+
+        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
+
+        advanceUntilIdle()
+
+        // Assert onBoundary is called for terminal page load.
+        assertEquals(1, remoteMediatorMock.loadEvents.size)
+        assertEquals(END, remoteMediatorMock.loadEvents[0].loaddType)
+
+        fetcherState.job.cancel()
+    }
+
+    @Test
+    fun jump() = testScope.runBlockingTest {
+        pauseDispatcher {
+            var pagingSources = mutableListOf<PagingSource<Int, Int>>()
+            val pagingSourceFactory = { TestPagingSource().also { pagingSources.add(it) } }
+            val config = PagingConfig(
+                pageSize = 1,
+                prefetchDistance = 1,
+                enablePlaceholders = true,
+                initialLoadSize = 2,
+                maxSize = 3,
+                jumpThreshold = 10
+            )
+            val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
+            val fetcherState = collectFetcherState(pageFetcher)
+
+            advanceUntilIdle()
+
+            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, -50))
+            advanceUntilIdle()
+
+            val expected: List<PageEvent<Int>> = listOf(
+                PageEvent.LoadStateUpdate(LoadType.REFRESH, LoadState.Loading),
+                createRefresh(range = 50..51)
+            )
+            assertEvents(expected, fetcherState.pageEventLists[0])
+            assertTrue { pagingSources[0].invalid }
+
+            fetcherState.job.cancel()
+        }
+    }
 }
 
 internal class FetcherState<T : Any>(
@@ -221,6 +322,7 @@ internal fun CoroutineScope.collectFetcherState(fetcher: PageFetcher<Int, Int>):
     val pageEventLists: ArrayList<ArrayList<PageEvent<Int>>> = ArrayList()
 
     val job = launch {
+        @OptIn(ExperimentalCoroutinesApi::class)
         fetcher.flow.collectIndexed { index, pagingData ->
             pagingDataList.add(index, pagingData)
             pageEventLists.add(index, ArrayList())

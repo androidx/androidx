@@ -46,6 +46,8 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
@@ -122,11 +124,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         public <I, O> void invoke(
                 final int requestCode,
                 @NonNull ActivityResultContract<I, O> contract,
-                I input) {
+                I input,
+                @Nullable ActivityOptionsCompat options) {
+            ComponentActivity activity = ComponentActivity.this;
 
             // Immediate result path
             final ActivityResultContract.SynchronousResult<O> synchronousResult =
-                    contract.getSynchronousResult(ComponentActivity.this, input);
+                    contract.getSynchronousResult(activity, input);
             if (synchronousResult != null) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
@@ -138,13 +142,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             }
 
             // Start activity path
-            Intent intent = contract.createIntent(ComponentActivity.this, input);
+            Intent intent = contract.createIntent(activity, input);
             if (ACTION_REQUEST_PERMISSIONS.equals(intent.getAction())) {
 
                 // requestPermissions path
                 String[] permissions = intent.getStringArrayExtra(EXTRA_PERMISSIONS);
 
-                if (SDK_INT < Build.VERSION_CODES.M || permissions == null) {
+                if (permissions == null) {
                     return;
                 }
 
@@ -158,12 +162,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
 
                 if (!nonGrantedPermissions.isEmpty()) {
-                    requestPermissions(nonGrantedPermissions.toArray(new String[0]), requestCode);
+                    ActivityCompat.requestPermissions(activity,
+                            nonGrantedPermissions.toArray(new String[0]), requestCode);
                 }
             } else {
-
                 // startActivityForResult path
-                ComponentActivity.this.startActivityForResult(intent, requestCode);
+                ActivityCompat.startActivityForResult(activity, intent, requestCode,
+                        options != null ? options.toBundle() : null);
             }
         }
     };
@@ -483,7 +488,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @NonNull
     @Override
-    public <I, O> ActivityResultLauncher<I> prepareCall(
+    public final <I, O> ActivityResultLauncher<I> prepareCall(
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultRegistry registry,
             @NonNull final ActivityResultCallback<O> callback) {
@@ -493,7 +498,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @NonNull
     @Override
-    public <I, O> ActivityResultLauncher<I> prepareCall(
+    public final <I, O> ActivityResultLauncher<I> prepareCall(
             @NonNull ActivityResultContract<I, O> contract,
             @NonNull ActivityResultCallback<O> callback) {
         return prepareCall(contract, mActivityResultRegistry, callback);
@@ -505,7 +510,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * @return the {@link ActivityResultRegistry}
      */
     @NonNull
-    public ActivityResultRegistry getActivityResultRegistry() {
+    public final ActivityResultRegistry getActivityResultRegistry() {
         return mActivityResultRegistry;
     }
 }

@@ -24,7 +24,6 @@ import androidx.ui.material.samples.EmphasisSample
 import androidx.ui.material.samples.ModalDrawerSample
 import androidx.ui.material.samples.ScaffoldWithBottomBarAndCutout
 import androidx.ui.material.samples.SideBySideAlertDialogSample
-import androidx.ui.material.samples.SimpleDataTable
 import androidx.ui.material.samples.StaticDrawerSample
 
 val MaterialDemos = DemoCategory("Material", listOf(
@@ -32,7 +31,6 @@ val MaterialDemos = DemoCategory("Material", listOf(
     ComposableDemo("App Bars") { AppBarDemo() },
     ComposableDemo("Bottom Navigation") { BottomNavigationDemo() },
     ComposableDemo("Buttons & FABs") { ButtonDemo() },
-    ComposableDemo("Data Table") { SimpleDataTable() },
     DemoCategory("Drawer", listOf(
         ComposableDemo("Modal") { ModalDrawerSample() },
         ComposableDemo("Bottom") { BottomDrawerSample() },
@@ -41,6 +39,7 @@ val MaterialDemos = DemoCategory("Material", listOf(
     ComposableDemo("Elevation") { ElevationDemo() },
     ComposableDemo("Emphasis") { EmphasisSample() },
     ComposableDemo("ListItems") { ListItemDemo() },
+    ComposableDemo("Material TextFields") { MaterialTextFieldsDemo() },
     ComposableDemo("Material Theme") { MaterialThemeDemo() },
     DemoCategory("Playground", listOf(
         ComposableDemo("Color Picker") { ColorPickerDemo() },

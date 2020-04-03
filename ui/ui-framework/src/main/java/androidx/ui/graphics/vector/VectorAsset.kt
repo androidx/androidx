@@ -19,7 +19,7 @@ package androidx.ui.graphics.vector
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.core.asModifier
+import androidx.ui.core.paint
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
@@ -244,9 +244,7 @@ data class VectorPath(
  * @param[tintColor] Optional color used to tint this vector graphic
  * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  */
-@Deprecated("Use VectorPainter instead",
-    ReplaceWith("VectorPainter(vectorAsset)")
-)
+@Deprecated("Use VectorPainter and Modifier.paint instead")
 @Composable
 fun drawVector(
     vectorImage: VectorAsset,
@@ -254,11 +252,13 @@ fun drawVector(
     tintBlendMode: BlendMode = DefaultTintBlendMode,
     alignment: Alignment = Alignment.Center,
     fit: ScaleFit = ScaleFit.Fit
-): Modifier = VectorPainter(vectorImage).asModifier(
+) = Modifier.paint(
+    VectorPainter(vectorImage),
     alignment = alignment,
     scaleFit = fit,
     colorFilter = if (tintColor != Color.Transparent) {
         ColorFilter(tintColor, tintBlendMode)
     } else {
         null
-    })
+    }
+)

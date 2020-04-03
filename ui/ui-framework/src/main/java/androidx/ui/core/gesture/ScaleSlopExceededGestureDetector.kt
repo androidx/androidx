@@ -33,9 +33,9 @@ import kotlin.math.absoluteValue
 /**
  * This gesture detector detects when a user's pointer input is intended to include scaling.
  *
- * This gesture detector is very similar to [RawScaleGestureDetector] except that instead of
+ * This gesture detector is very similar to [rawScaleGestureFilter] except that instead of
  * providing callbacks for scaling, it instead provides one callback for when a user is intending
- * to scale.  It does so using the same semantics as [RawScaleGestureDetector], and simply waits
+ * to scale.  It does so using the same semantics as [rawScaleGestureFilter], and simply waits
  * until the user has scaled just enough to suggest the user is truly intended to scale.
  *
  * The gesture is considered to include scaling when the absolute cumulative average change in
@@ -48,21 +48,21 @@ import kotlin.math.absoluteValue
  * the average of the pointers than they were).
  */
 @Composable
-fun ScaleSlopExceededGestureDetector(
+fun Modifier.scaleSlopExceededGestureFilter(
     onScaleSlopExceeded: () -> Unit
 ): Modifier {
     val scaleSlop = with(DensityAmbient.current) { ScaleSlop.toPx() }
     val recognizer = remember { ScaleSlopExceededGestureRecognizer(scaleSlop) }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     recognizer.onScaleSlopExceeded = onScaleSlopExceeded
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 /**
  * @param scaleSlop The absolute cumulative average change in distance of all pointers from the
  * average pointer over time that must be surpassed to indicate the user is trying to scale.
  *
- * @see ScaleSlopExceededGestureDetector
+ * @see scaleSlopExceededGestureFilter
  */
 internal class ScaleSlopExceededGestureRecognizer(private val scaleSlop: Px) : PointerInputFilter
     () {
@@ -71,8 +71,11 @@ internal class ScaleSlopExceededGestureRecognizer(private val scaleSlop: Px) : P
     var passedSlop = false
     var scaleDiffTotal = 0f
 
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
 
             if (pass == PointerEventPass.PostUp) {
 
@@ -104,10 +107,10 @@ internal class ScaleSlopExceededGestureRecognizer(private val scaleSlop: Px) : P
                 scaleDiffTotal = 0f
             }
 
-            changes
+            return changes
         }
 
-    override val cancelHandler = {
+    override fun onCancel() {
         passedSlop = false
         scaleDiffTotal = 0f
     }

@@ -17,15 +17,16 @@
 package androidx.ui.test
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
+import androidx.ui.layout.ColumnAlign
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -52,12 +53,14 @@ class LayoutCoordinatesHelperTest {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setContent {
-            Column(onPositioned { coordinates ->
+            Column(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                 parentCoordinates = coordinates
                 latch.countDown()
             }) {
-                Box(LayoutSize(10.dp) + LayoutGravity.Start +
-                        onPositioned { coordinates ->
+                Box(
+                    Modifier.preferredSize(10.dp)
+                        .gravity(ColumnAlign.Start)
+                        .onPositioned { coordinates ->
                             childCoordinates = coordinates
                             latch.countDown()
                         }
@@ -79,14 +82,18 @@ class LayoutCoordinatesHelperTest {
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setContent {
             with(DensityAmbient.current) {
-                Box(LayoutWidth(40.ipx.toDp()), gravity = ContentGravity.Center) {
-                    Column(LayoutWidth(20.ipx.toDp()) +
-                            onPositioned { coordinates ->
+                Box(Modifier.preferredWidth(40.ipx.toDp()), gravity = ContentGravity.Center) {
+                    Column(
+                        Modifier.preferredWidth(20.ipx.toDp())
+                            .onPositioned { coordinates: LayoutCoordinates ->
                                 parentCoordinates = coordinates
                                 latch.countDown()
-                            }) {
-                        Box(LayoutSize(10.ipx.toDp()) + LayoutGravity.Center +
-                                onPositioned { coordinates ->
+                            }
+                    ) {
+                        Box(
+                            Modifier.preferredSize(10.ipx.toDp())
+                                .gravity(ColumnAlign.Center)
+                                .onPositioned { coordinates ->
                                     childCoordinates = coordinates
                                     latch.countDown()
                                 }

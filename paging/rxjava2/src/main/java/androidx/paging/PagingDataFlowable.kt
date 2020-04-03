@@ -40,7 +40,9 @@ import kotlinx.coroutines.rx2.asFlowable
 fun <Key : Any, Value : Any> PagingDataFlowable(
     config: PagingConfig,
     initialKey: Key? = null,
+    remoteMediator: RemoteMediator<Key, Value>? = null,
     pagingSourceFactory: () -> PagingSource<Key, Value>
-): Flowable<PagingData<Value>> = PagingDataFlow(config, initialKey, pagingSourceFactory)
-    .conflate()
-    .asFlowable()
+): Flowable<PagingData<Value>> =
+    PagingDataFlow(config, initialKey, remoteMediator, pagingSourceFactory)
+        .conflate()
+        .asFlowable()

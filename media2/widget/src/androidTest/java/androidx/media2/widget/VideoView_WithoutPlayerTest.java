@@ -52,7 +52,7 @@ public class VideoView_WithoutPlayerTest extends MediaWidgetTestBase {
 
     @UiThreadTest
     @Test
-    public void testConstructor() {
+    public void constructor() {
         new VideoView(mActivity);
         new VideoView(mActivity, null);
         new VideoView(mActivity, null, 0);

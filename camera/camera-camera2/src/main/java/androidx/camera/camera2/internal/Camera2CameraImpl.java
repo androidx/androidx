@@ -538,7 +538,7 @@ final class Camera2CameraImpl implements CameraInternal {
             Log.d(TAG, "Use case " + useCase + " ACTIVE for camera "
                     + mCameraInfoInternal.getCameraId());
 
-            // TODO(b/150208070)Race condition where onUseCaseActive can bee called, even after a
+            // TODO(b/150208070)Race condition where onUseCaseActive can be called, even after a
             //  UseCase has been unbound. The try-catch is to retain existing behavior where an
             //  unbound UseCase is silently ignored.
             try {
@@ -750,6 +750,9 @@ final class Camera2CameraImpl implements CameraInternal {
         if (allUseCasesOffline) {
             mCameraControlInternal.setActive(false);
             resetCaptureSession(/*abortInFlightCaptures=*/false);
+            // If all offline, manual nullify session config to avoid
+            // memory leak. See: https://issuetracker.google.com/issues/141188637
+            mCaptureSession = mCaptureSessionBuilder.build();
             closeInternal();
         } else {
             updateCaptureSessionConfig();

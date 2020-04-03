@@ -50,7 +50,7 @@ import androidx.ui.unit.PxPosition
  * react to and consume down changes.  Defaults to [PointerEventPass.PostUp].
  */
 @Composable
-fun RawPressStartStartGestureDetector(
+fun Modifier.rawPressStartGestureFilter(
     onPressStart: (PxPosition) -> Unit,
     enabled: Boolean = false,
     executionPass: PointerEventPass = PointerEventPass.PostUp
@@ -59,7 +59,7 @@ fun RawPressStartStartGestureDetector(
     recognizer.onPressStart = onPressStart
     recognizer.setEnabled(enabled = enabled)
     recognizer.setExecutionPass(executionPass)
-    return PointerInputModifierImpl(recognizer)
+    return this + PointerInputModifierImpl(recognizer)
 }
 
 internal class RawPressStartGestureRecognizer : PointerInputFilter() {
@@ -70,8 +70,11 @@ internal class RawPressStartGestureRecognizer : PointerInputFilter() {
 
     private var active = false
 
-    override val pointerInputHandler =
-        { changes: List<PointerInputChange>, pass: PointerEventPass, _: IntPxSize ->
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
 
             var internalChanges = changes
 
@@ -92,10 +95,10 @@ internal class RawPressStartGestureRecognizer : PointerInputFilter() {
                 }
             }
 
-            internalChanges
+            return internalChanges
         }
 
-    override val cancelHandler = {
+    override fun onCancel() {
         active = false
     }
 
@@ -104,7 +107,7 @@ internal class RawPressStartGestureRecognizer : PointerInputFilter() {
         // Whenever we are disabled, we can just go ahead and become inactive (which is the state we
         // should be in if we are to pretend that we aren't in the hierarchy.
         if (!enabled) {
-            cancelHandler()
+            onCancel()
         }
     }
 

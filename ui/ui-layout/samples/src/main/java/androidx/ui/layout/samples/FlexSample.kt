@@ -19,15 +19,16 @@ package androidx.ui.layout.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.FirstBaseline
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidth
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -37,12 +38,12 @@ import androidx.ui.unit.ipx
 fun SimpleRow() {
     Row {
         // The child with no weight will have the specified size.
-        Box(LayoutSize(40.dp, 80.dp), backgroundColor = Color.Magenta)
+        Box(Modifier.preferredSize(40.dp, 80.dp), backgroundColor = Color.Magenta)
         // Has weight, the child will occupy half of the remaining width.
-        Box(LayoutHeight(40.dp) + LayoutWeight(1f), backgroundColor = Color.Yellow)
+        Box(Modifier.preferredHeight(40.dp).weight(1f), backgroundColor = Color.Yellow)
         // Has weight and does not fill, the child will occupy at most half of the remaining width.
         Box(
-            LayoutHeight(80.dp) + LayoutWeight(1f, fill = false),
+            Modifier.preferredHeight(80.dp).weight(1f, fill = false),
             backgroundColor = Color.Green
         )
     }
@@ -53,12 +54,13 @@ fun SimpleRow() {
 fun SimpleColumn() {
     Column {
         // The child with no weight will have the specified size.
-        Box(LayoutSize(40.dp, 80.dp), backgroundColor = Color.Magenta)
+        Box(Modifier.preferredSize(40.dp, 80.dp), backgroundColor = Color.Magenta)
         // Has weight, the child will occupy half of the remaining height.
-        Box(LayoutWidth(40.dp) + LayoutWeight(1f), backgroundColor = Color.Yellow)
+        Box(Modifier.preferredWidth(40.dp).weight(1f), backgroundColor = Color.Yellow)
         // Has weight and does not fill, the child will occupy at most half of the remaining height.
         Box(
-            LayoutHeight(80.dp) + LayoutWeight(1f, fill = false),
+            Modifier.preferredHeight(80.dp)
+                .weight(1f, fill = false),
             backgroundColor = Color.Green
         )
     }
@@ -71,15 +73,15 @@ fun SimpleRelativeToSiblings() {
         // Center of the first rectangle is aligned to the right edge of the second rectangle and
         // left edge of the third one.
         Box(
-            LayoutSize(80.dp, 40.dp) + LayoutGravity.RelativeToSiblings { it.width * 0.5 },
+            Modifier.preferredSize(80.dp, 40.dp).alignWithSiblings { it.width * 0.5 },
             backgroundColor = Color.Blue
         )
         Box(
-            LayoutSize(80.dp, 40.dp) + LayoutGravity.RelativeToSiblings { it.width },
+            Modifier.preferredSize(80.dp, 40.dp).alignWithSiblings { it.width },
             backgroundColor = Color.Magenta
         )
         Box(
-            LayoutSize(80.dp, 40.dp) + LayoutGravity.RelativeToSiblings { 0.ipx },
+            Modifier.preferredSize(80.dp, 40.dp).alignWithSiblings { 0.ipx },
             backgroundColor = Color.Red
         )
     }
@@ -88,14 +90,14 @@ fun SimpleRelativeToSiblings() {
 @Sampled
 @Composable
 fun SimpleRelativeToSiblingsInRow() {
-    Row(LayoutHeight.Fill) {
+    Row(Modifier.fillMaxHeight()) {
         // Center of the colored rectangle is aligned to first baseline of the text.
         Box(
             backgroundColor = Color.Red,
-            modifier = LayoutSize(80.dp, 40.dp) +
-                    LayoutGravity.RelativeToSiblings { it.height * 0.5 }
+            modifier = Modifier.preferredSize(80.dp, 40.dp)
+                .alignWithSiblings { it.height * 0.5 }
         )
-        Box(LayoutWidth(80.dp) + LayoutGravity.RelativeToSiblings(FirstBaseline)) {
+        Box(Modifier.preferredWidth(80.dp).alignWithSiblings(FirstBaseline)) {
             Text(text = "Text.", style = TextStyle(background = Color.Cyan))
         }
     }
@@ -108,17 +110,17 @@ fun SimpleRelativeToSiblingsInColumn() {
         // Center of the first rectangle is aligned to the right edge of the second rectangle and
         // left edge of the third one.
         Box(
-            LayoutSize(80.dp, 40.dp) + LayoutGravity.RelativeToSiblings { it.width * 0.5 },
+            Modifier.preferredSize(80.dp, 40.dp).alignWithSiblings { it.width * 0.5 },
             backgroundColor = Color.Blue
         )
         SizedRectangleWithLines(
-            LayoutGravity.RelativeToSiblings(End),
+            Modifier.alignWithSiblings(End),
             color = Color.Magenta,
             width = 80.dp,
             height = 40.dp
         )
         SizedRectangleWithLines(
-            LayoutGravity.RelativeToSiblings(Start),
+            Modifier.alignWithSiblings(Start),
             color = Color.Red,
             width = 80.dp,
             height = 40.dp

@@ -75,11 +75,7 @@ public class WebViewCompat {
     /**
      * This listener receives messages sent on the JavaScript object which was injected by {@link
      * #addWebMessageListener(WebView, String, List, WebViewCompat.WebMessageListener)}.
-     *
-     * TODO(ctzsm): unhide.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface WebMessageListener {
         /**
          * Receives a message sent by a {@code postMessage()} on the injected JavaScript object.
@@ -605,11 +601,7 @@ public class WebViewCompat {
      *
      * @see JavaScriptReplyProxy
      * @see WebMessageListener
-     *
-     * //TODO(ctzsm): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void addWebMessageListener(@NonNull WebView webView, @NonNull String jsObjectName,
@@ -641,11 +633,7 @@ public class WebViewCompat {
      *         #addWebMessageListener(WebView, String,  List, WebMessageListener)}.
      *
      * @see #addWebMessageListener(WebView, String, List, WebMessageListener)
-     *
-     * //TODO(ctzsm): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void removeWebMessageListener(

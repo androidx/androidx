@@ -47,6 +47,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import leakcanary.FailTestOnLeak;
+
 // Tests basic UI operation when using CoreTest app.
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -92,6 +94,7 @@ public final class BasicUITest {
     }
 
     @Test
+    @FailTestOnLeak
     public void testAnalysisButton() {
         IdlingRegistry.getInstance().register(
                 mActivityRule.getActivity().getAnalysisIdlingResource());
@@ -112,6 +115,7 @@ public final class BasicUITest {
     }
 
     @Test
+    @FailTestOnLeak
     public void testPreviewButton() {
         IdlingRegistry.getInstance().register(mActivityRule.getActivity().getViewIdlingResource());
 

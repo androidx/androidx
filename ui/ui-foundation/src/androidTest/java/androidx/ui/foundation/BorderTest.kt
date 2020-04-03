@@ -21,6 +21,7 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
@@ -28,8 +29,8 @@ import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
-import androidx.ui.layout.LayoutSize
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -65,9 +66,9 @@ class BorderTest(val shape: Shape) {
         composeTestRule.setContent {
             SemanticParent {
                 Stack(
-                    modifier = LayoutSize(40.px.toDp(), 40.px.toDp()) +
-                            DrawBackground(Color.Blue, shape) +
-                            DrawBorder(Border(10.px.toDp(), Color.Red), shape)
+                    Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
+                        .drawBackground(Color.Blue, shape)
+                        .drawBorder(Border(10.px.toDp(), Color.Red), shape)
 
                 ) {}
             }
@@ -90,9 +91,12 @@ class BorderTest(val shape: Shape) {
         composeTestRule.setContent {
             SemanticParent {
                 Stack(
-                    modifier = LayoutSize(40.px.toDp(), 40.px.toDp()) +
-                            DrawBackground(Color.Blue, shape) +
-                            DrawBorder(Border(10.px.toDp(), SolidColor(Color.Red)), shape)
+                    Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
+                        .drawBackground(Color.Blue, shape)
+                        .drawBorder(
+                            Border(10.px.toDp(), SolidColor(Color.Red)),
+                            shape
+                        )
                 ) {}
             }
         }
@@ -114,10 +118,9 @@ class BorderTest(val shape: Shape) {
         composeTestRule.setContent {
             SemanticParent {
                 Stack(
-                    modifier = LayoutSize(40.px.toDp(), 40.px.toDp()) +
-                            DrawBackground(Color.Blue, shape) +
-                            DrawBorder(Border(1500.px.toDp(), Color.Red), shape)
-
+                    Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
+                        .drawBackground(Color.Blue, shape)
+                        .drawBorder(Border(1500.px.toDp(), Color.Red), shape)
                 ) {}
             }
         }
@@ -137,10 +140,9 @@ class BorderTest(val shape: Shape) {
         composeTestRule.setContent {
             SemanticParent {
                 Stack(
-                    modifier = LayoutSize(40.px.toDp(), 40.px.toDp()) +
-                            DrawBackground(Color.Blue, shape) +
-                            DrawBorder(Border(-5.px.toDp(), Color.Red), shape)
-
+                    Modifier.preferredSize(40.px.toDp(), 40.px.toDp())
+                        .drawBackground(Color.Blue, shape)
+                        .drawBorder(Border(-5.px.toDp(), Color.Red), shape)
                 ) {}
             }
         }
@@ -159,10 +161,13 @@ class BorderTest(val shape: Shape) {
     fun border_zeroSizeLayout_drawsNothing() {
         composeTestRule.setContent {
             SemanticParent {
-                Box(LayoutSize(40.px.toDp(), 40.px.toDp()), backgroundColor = Color.White) {
+                Box(
+                    Modifier.preferredSize(40.px.toDp(), 40.px.toDp()),
+                    backgroundColor = Color.White
+                ) {
                     Stack(
-                        modifier = LayoutSize(0.px.toDp(), 40.px.toDp()) +
-                                DrawBorder(Border(4.px.toDp(), Color.Red), shape)
+                        Modifier.preferredSize(0.px.toDp(), 40.px.toDp())
+                            .drawBorder(Border(4.px.toDp(), Color.Red), shape)
                     ) {}
                 }
             }

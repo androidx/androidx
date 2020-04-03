@@ -81,21 +81,13 @@ abstract class ListTaskOutputsTask() : DefaultTask() {
 
 // TODO(149103692): remove all elements of this set
 val taskNamesKnownToDuplicateOutputs = setOf(
-    "generateReleaseNotes",
     "jarRelease",
     "jarDebug",
     "kotlinSourcesJar",
     "lint",
     "lintFix",
     "lintVital",
-    "sourceJar",
-    "zipResultsOfJvmTest",
-    "zipResultsOfTestDebugUnitTest",
-    "zipResultsOfTestReleaseUnitTest",
-    "zipResultsOfTestTipOfTreeDebugUnitTest",
-    "zipResultsOfTestTipOfTreeReleaseUnitTest",
-    "zipResultsOfTestPublicDebugUnitTest",
-    "zipResultsOfTestPublicReleaseUnitTest"
+    "sourceJar"
 )
 
 // For this project and all subprojects, collects all tasks and creates a map keyed by their output files

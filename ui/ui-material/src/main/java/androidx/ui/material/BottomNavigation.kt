@@ -25,7 +25,6 @@ import androidx.ui.animation.animate
 import androidx.ui.core.Constraints
 import androidx.ui.core.LastBaseline
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutTag
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
@@ -40,10 +39,10 @@ import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Arrangement
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.ripple.ripple
 import androidx.ui.text.style.TextAlign
 import androidx.ui.unit.Dp
@@ -70,32 +69,33 @@ import androidx.ui.unit.max
  * For more information, see [Bottom Navigation](https://material.io/components/bottom-navigation/)
  *
  * @param modifier optional [Modifier] for this BottomNavigation
- * @param color The background color for this BottomNavigation
+ * @param backgroundColor The background color for this BottomNavigation
  * @param contentColor The preferred content color provided by this BottomNavigation to its
- * children. Defaults to either the matching `onFoo` color for [color], or if [color] is not a
- * color from the theme, this will keep the same value set above this BottomNavigation.
+ * children. Defaults to either the matching `onFoo` color for [backgroundColor], or if
+ * [backgroundColor] is not a color from the theme, this will keep the same value set above this
+ * BottomNavigation.
  * @param elevation elevation for this BottomNavigation
- * @param children destinations inside this BottomNavigation, this should contain multiple
+ * @param content destinations inside this BottomNavigation, this should contain multiple
  * [BottomNavigationItem]s
  */
 @Composable
 fun BottomNavigation(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = BottomNavigationElevation,
-    children: @Composable() RowScope.() -> Unit
+    content: @Composable() RowScope.() -> Unit
 ) {
     Surface(
-        color = color,
+        color = backgroundColor,
         contentColor = contentColor,
         elevation = elevation,
         modifier = modifier
     ) {
         Row(
-            LayoutWidth.Fill + LayoutHeight(BottomNavigationHeight),
+            Modifier.fillMaxWidth().preferredHeight(BottomNavigationHeight),
             arrangement = Arrangement.SpaceBetween,
-            children = children
+            children = content
         )
     }
 }
@@ -134,14 +134,19 @@ fun BottomNavigationItem(
     modifier: Modifier = Modifier.None,
     alwaysShowLabels: Boolean = true,
     activeColor: Color = contentColor(),
-    inactiveColor: Color = MaterialTheme.emphasisLevels.medium.emphasize(activeColor)
+    inactiveColor: Color = EmphasisAmbient.current.medium.emphasize(activeColor)
 ) {
     val styledText = @Composable {
         val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
         ProvideTextStyle(style, children = text)
     }
-    MutuallyExclusiveSetItem(selected = selected, onClick = onSelected, modifier = ripple()) {
-        Box(modifier + RowScope.LayoutWeight(1f), gravity = ContentGravity.Center) {
+    MutuallyExclusiveSetItem(
+        selected = selected,
+        onClick = onSelected,
+        modifier = Modifier.ripple()
+    ) {
+        // TODO This composable has magic behavior within a Row; reconsider this behavior later
+        Box(with(RowScope) { modifier.weight(1f) }, gravity = ContentGravity.Center) {
             BottomNavigationTransition(activeColor, inactiveColor, selected) { progress ->
                 val animationProgress = if (alwaysShowLabels) 1f else progress
 
@@ -157,14 +162,14 @@ fun BottomNavigationItem(
 
 /**
  * Transition that animates [contentColor] between [inactiveColor] and [activeColor], depending
- * on [selected]. This component also provides the animation fraction as a parameter to [children],
+ * on [selected]. This component also provides the animation fraction as a parameter to [content],
  * to allow animating the position of the icon and the scale of the text alongside this color
  * animation.
  *
  * @param activeColor [contentColor] when this item is [selected]
  * @param inactiveColor [contentColor] when this item is not [selected]
  * @param selected whether this item is selected
- * @param children the content of the [BottomNavigationItem] to animate [contentColor] for, where
+ * @param content the content of the [BottomNavigationItem] to animate [contentColor] for, where
  * the animationProgress is the current progress of the animation from 0f to 1f.
  */
 @Composable
@@ -172,7 +177,7 @@ private fun BottomNavigationTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
-    children: @Composable() (animationProgress: Float) -> Unit
+    content: @Composable() (animationProgress: Float) -> Unit
 ) {
     val animationProgress = animate(
         target = if (selected) 1f else 0f,
@@ -182,7 +187,7 @@ private fun BottomNavigationTransition(
     val color = lerp(inactiveColor, activeColor, animationProgress)
 
     ProvideContentColor(color) {
-        children(animationProgress)
+        content(animationProgress)
     }
 }
 
@@ -204,9 +209,9 @@ private fun BottomNavigationItemBaselineLayout(
 ) {
     Layout(
         {
-            Box(LayoutTag("icon"), children = icon)
+            Box(Modifier.tag("icon"), children = icon)
             Box(
-                LayoutTag("text") + drawOpacity(iconPositionAnimationProgress),
+                Modifier.tag("text").drawOpacity(iconPositionAnimationProgress),
                 paddingStart = BottomNavigationItemHorizontalPadding,
                 paddingEnd = BottomNavigationItemHorizontalPadding,
                 children = text
@@ -241,7 +246,7 @@ private fun BottomNavigationItemBaselineLayout(
 private fun MeasureScope.placeIcon(
     iconPlaceable: Placeable,
     constraints: Constraints
-): MeasureScope.LayoutResult {
+): MeasureScope.MeasureResult {
     val height = constraints.maxHeight
     val iconY = (height - iconPlaceable.height) / 2
     return layout(iconPlaceable.width, height) {
@@ -274,7 +279,7 @@ private fun MeasureScope.placeTextAndIcon(
     iconPlaceable: Placeable,
     constraints: Constraints,
     @FloatRange(from = 0.0, to = 1.0) iconPositionAnimationProgress: Float
-): MeasureScope.LayoutResult {
+): MeasureScope.MeasureResult {
     val height = constraints.maxHeight
 
     // TODO: consider multiple lines of text here, not really supported by spec but we should

@@ -19,39 +19,41 @@ package androidx.paging
 import androidx.paging.PagingSource.LoadResult.Page
 
 /**
- * State of Paging system passed to [PagingSource.getRefreshKey] when fetching key for refresh.
+ * Snapshot state of Paging system including the loaded [pages], the last accessed [anchorPosition],
+ * and the [config] used.
  */
 class PagingState<Key : Any, Value : Any> internal constructor(
     /**
      * Loaded pages of data in the list.
-     *
-     * This is guaranteed to never be empty as [PagingSource.getRefreshKey] will never be called
-     * unless the initial load succeeds.
      */
     val pages: List<Page<Key, Value>>,
     /**
      * Most recently accessed index in the list, including placeholders.
+     *
+     * `null` if no access in the [PagingData] has been made yet. E.g., if this snapshot was
+     * generated before or during the first load.
      */
-    val anchorPosition: Int,
+    val anchorPosition: Int?,
     /**
-     * The initial load size set in [PagingConfig.initialLoadSize].
+     * [PagingConfig] that was given when initializing the [PagingData] stream.
      */
-    val initialLoadSize: Int,
+    val config: PagingConfig,
     private val placeholdersStart: Int
 ) {
-    init {
-        require(pages.isNotEmpty()) {
-            "Cannot instantiate PagingState without any loaded pages."
-        }
-    }
-
     /**
      * Coerces [anchorPosition] to closest loaded value in [pages].
      *
      * This function can be called with [anchorPosition] to fetch the loaded item that is closest
      * to the last accessed index in the list.
+     *
+     * @param anchorPosition Index in the list, including placeholders.
+     *
+     * @return The closest loaded [Value] in [pages] to the provided [anchorPosition]. `null` if
+     * all loaded [pages] are empty.
      */
-    fun closestItemToPosition(anchorPosition: Int): Value {
+    fun closestItemToPosition(anchorPosition: Int): Value? {
+        if (pages.all { it.data.isEmpty() }) return null
+
         anchorPositionToPagedIndices(anchorPosition) { pageIndex, index ->
             return when {
                 index < 0 -> pages.first().data.first()
@@ -68,8 +70,15 @@ class PagingState<Key : Any, Value : Any> internal constructor(
      *
      * This function can be called with [anchorPosition] to fetch the loaded page that is closest
      * to the last accessed index in the list.
+     *
+     * @param anchorPosition Index in the list, including placeholders.
+     *
+     * @return The closest loaded [Value] in [pages] to the provided [anchorPosition]. `null` if
+     * all loaded [pages] are empty.
      */
-    fun closestPageToPosition(anchorPosition: Int): Page<Key, Value> {
+    fun closestPageToPosition(anchorPosition: Int): Page<Key, Value>? {
+        if (pages.all { it.data.isEmpty() }) return null
+
         anchorPositionToPagedIndices(anchorPosition) { pageIndex, index ->
             return when {
                 index < 0 -> pages.first()

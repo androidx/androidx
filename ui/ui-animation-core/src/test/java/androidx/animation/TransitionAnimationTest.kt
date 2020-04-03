@@ -29,21 +29,18 @@ class TransitionAnimationTest {
         val anim = TransitionAnimation(def1, clock)
         anim.toState(AnimState.B)
         val physicsAnim = SpringAnimation()
-        var playTime = 0L
-        clock.clockTimeMillis = playTime
-        do {
+        for (playTime in 0L until physicsAnim.getDurationMillis(0f, 1f, 0f) step 20L) {
+            clock.clockTimeMillis = playTime
             assertEquals(anim[prop1],
                 physicsAnim.getValue(playTime, 0f, 1f, 0f),
-                0.01f) // TODO(b/151115895) Replace placeholder delta with epsilon
-
+                epsilon)
+        }
+        for (playTime in 0L until physicsAnim.getDurationMillis(100f, -100f, 0f) step 20L) {
+            clock.clockTimeMillis = playTime
             assertEquals(anim[prop2],
                 physicsAnim.getValue(playTime, 100f, -100f, 0f),
                 epsilon)
-
-            // Increment the time stamp until the animation finishes
-            playTime += 20L
-            clock.clockTimeMillis = playTime
-        } while (anim.isRunning)
+        }
     }
 
     @Test

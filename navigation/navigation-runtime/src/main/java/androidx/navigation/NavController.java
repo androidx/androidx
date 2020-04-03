@@ -754,7 +754,9 @@ public class NavController {
         NavGraph graph = mGraph;
         for (int i = 0; i < deepLink.length; i++) {
             int destinationId = deepLink[i];
-            NavDestination node = i == 0 ? mGraph : graph.findNode(destinationId);
+            NavDestination node = i == 0
+                    ? (mGraph.getId() == destinationId ? mGraph : null)
+                    : graph.findNode(destinationId, false);
             if (node == null) {
                 return NavDestination.getDisplayName(mContext, destinationId);
             }

@@ -19,18 +19,21 @@ package androidx.ui.integration.test.foundation
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.core.Modifier
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
-import androidx.ui.layout.LayoutGravity
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
+import androidx.ui.layout.fillMaxHeight
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredSize
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
@@ -69,37 +72,31 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
     fun SquareRow(useScrollerPosition: Boolean) {
         val playStoreColor = Color(red = 0x00, green = 0x00, blue = 0x80)
         val content = @Composable {
-            Row(LayoutWidth.Fill) {
+            Row(Modifier.fillMaxWidth()) {
                 repeat(6) {
                     with(DensityAmbient.current) {
-                        Column(LayoutHeight.Fill) {
+                        Column(Modifier.fillMaxHeight()) {
                             val color = remember {
                                 val red = Random.nextInt(256)
                                 val green = Random.nextInt(256)
                                 val blue = Random.nextInt(256)
                                 Color(red = red, green = green, blue = blue)
                             }
-                            ColoredRect(
-                                width = 350.px.toDp(),
-                                height = 350.px.toDp(),
-                                color = color
-                            )
+                            Box(Modifier.preferredSize(350.px.toDp()).drawBackground(color))
                             Text(
                                 text = "Some title",
                                 style = TextStyle(Color.Black, 60.px.toSp())
                             )
-                            Row(LayoutWidth.Fill) {
+                            Row(Modifier.fillMaxWidth()) {
                                 Text(
                                     "3.5 ★",
                                     style = TextStyle(fontSize = 40.px.toSp()),
-                                    modifier = LayoutGravity.Center
+                                    modifier = Modifier.gravity(RowAlign.Center)
                                 )
-                                ColoredRect(
-                                    width = 40.px.toDp(),
-                                    height = 40.px.toDp(),
-                                    color = playStoreColor,
-                                    modifier = LayoutGravity.Center
-                                )
+                                Box(Modifier
+                                    .gravity(RowAlign.Center)
+                                    .preferredSize(40.px.toDp())
+                                    .drawBackground(playStoreColor))
                             }
                         }
                     }

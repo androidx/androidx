@@ -36,7 +36,14 @@ class TextViewCompoundDrawablesXmlDetectorTest {
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:drawableStartCompat="@android:drawable/ic_delete" />
+        app:drawableStartCompat="@android:drawable/ic_delete"
+        app:drawableLeftCompat="@android:drawable/ic_delete"
+        app:drawableEndCompat="@android:drawable/ic_delete"
+        app:drawableRightCompat="@android:drawable/ic_delete"
+        app:drawableTopCompat="@android:drawable/ic_delete"
+        app:drawableBottomCompat="@android:drawable/ic_delete"
+        app:drawableTint="@android:color/black"
+        app:drawableTintMode="src_in" />
 </LinearLayout>
         """
         ).indented().within("res")
@@ -49,8 +56,19 @@ class TextViewCompoundDrawablesXmlDetectorTest {
             .expectClean()
     }
 
-    @Test
-    fun testUsingAndroidCompoundDrawableAttributes() {
+    // Helper function to verify that our Lint rule works for a single compound drawable
+    // attribute. We have 8 such attributes, and the test logic is highly repetitive:
+    // 1. Create a single TextView with the attribute in the android: namespace
+    // 2. Run the rule
+    // 3. Verify that the attribute definition is flagged and the suggestion is to use app:
+    // 4. And that the fix deletes the android: attribute and adds the app: one
+    private fun verifyCompoundDrawableLintPass(
+        androidAttrName: String,
+        appAttrName: String,
+        attrValue: String
+    ) {
+        val originalAttrDefinition = "android:$androidAttrName=\"$attrValue\""
+
         val layout = LintDetectorTest.xml(
             "layout-v23/text_view.xml",
             """
@@ -62,10 +80,14 @@ class TextViewCompoundDrawablesXmlDetectorTest {
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:drawableStart="@android:drawable/ic_delete" />
+        $originalAttrDefinition />
 </LinearLayout>
         """
         ).indented().within("res")
+
+        // The highlight part (~~~~~) that marks the problematic part of the XML is
+        // dynamic in length, dependning on the attribute name and value
+        val highlight = "~".repeat(originalAttrDefinition.length)
 
         // We expect the definition of the text view to be flagged since it is using
         // android: namespaced compound drawables attributes. We also expect a matching
@@ -76,19 +98,65 @@ class TextViewCompoundDrawablesXmlDetectorTest {
         ).issues(TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS)
             .run()
             .expect("""
-res/layout-v23/text_view.xml:9: Warning: Use app:drawableStartCompat instead of android:drawableStart [UseCompatTextViewDrawableXml]
-        android:drawableStart="@android:drawable/ic_delete" />
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+res/layout-v23/text_view.xml:9: Warning: Use app:$appAttrName instead of android:$androidAttrName [UseCompatTextViewDrawableXml]
+        $originalAttrDefinition />
+        $highlight
 0 errors, 1 warnings
          """.trimIndent())
             .expectFixDiffs("""
-Fix for res/layout-v23/text_view.xml line 9: Set drawableStartCompat="@android:drawable/ic_delete":
+Fix for res/layout-v23/text_view.xml line 9: Set $appAttrName="$attrValue":
 @@ -3 +3
 +     xmlns:app="http://schemas.android.com/apk/res-auto"
 @@ -10 +11
--         android:drawableStart="@android:drawable/ic_delete" />
-+         app:drawableStartCompat="@android:drawable/ic_delete" />
+-         android:$androidAttrName="$attrValue" />
++         app:$appAttrName="$attrValue" />
             """.trimIndent())
         /* ktlint-enable max-line-length */
+    }
+
+    @Test
+    fun testUsingAndroidCompoundDrawableStartAttribute() {
+        verifyCompoundDrawableLintPass("drawableStart", "drawableStartCompat",
+            "@android:drawable/ic_delete")
+    }
+
+    @Test
+    fun testUsingAndroidCompoundDrawableLeftAttribute() {
+        verifyCompoundDrawableLintPass("drawableLeft", "drawableLeftCompat",
+            "@android:drawable/ic_delete")
+    }
+
+    @Test
+    fun testUsingAndroidCompoundDrawableEndAttribute() {
+        verifyCompoundDrawableLintPass("drawableEnd", "drawableEndCompat",
+            "@android:drawable/ic_delete")
+    }
+
+    @Test
+    fun testUsingAndroidCompoundDrawableRightAttribute() {
+        verifyCompoundDrawableLintPass("drawableRight", "drawableRightCompat",
+            "@android:drawable/ic_delete")
+    }
+
+    @Test
+    fun testUsingAndroidCompoundDrawableTopAttribute() {
+        verifyCompoundDrawableLintPass("drawableTop", "drawableTopCompat",
+            "@android:drawable/ic_delete")
+    }
+
+    @Test
+    fun testUsingAndroidCompoundDrawableBottomAttribute() {
+        verifyCompoundDrawableLintPass("drawableBottom", "drawableBottomCompat",
+            "@android:drawable/ic_delete")
+    }
+
+    @Test
+    fun testUsingAndroidCompoundDrawableTintAttribute() {
+        verifyCompoundDrawableLintPass("drawableTint", "drawableTint", "@android:color/black")
+    }
+
+    @Test
+    fun testUsingAndroidCompoundDrawableTintModeAttribute() {
+        verifyCompoundDrawableLintPass("drawableTintMode", "drawableTintMode", "src_in")
     }
 }

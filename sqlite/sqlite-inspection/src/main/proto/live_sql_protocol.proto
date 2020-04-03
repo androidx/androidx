@@ -143,8 +143,19 @@ message ErrorContent {
   string message = 1;
   // Optional stack trace.
   string stack_trace = 2;
-  // True for e.g. a query syntax error; False for e.g. corrupt internal inspector state.
-  bool is_recoverable = 3;
+  // Recoverability information
+  ErrorRecoverability recoverability = 3;
+}
+
+// Recoverability of an error:
+// - is_recoverable = true -> an error is recoverable (e.g. query syntax error)
+// - is_recoverable = false -> an error is not recoverable (e.g. corrupt internal inspector state)
+// - unset -> not enough information to determine recoverability (e.g. an issue that may or may not
+//   prevent a user from continuing the session - and is left for the user to decide how to act on)
+message ErrorRecoverability {
+  oneof OneOf {
+    bool is_recoverable = 1;
+  }
 }
 
 // --- Events ---

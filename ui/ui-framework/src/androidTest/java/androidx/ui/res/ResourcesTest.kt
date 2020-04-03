@@ -25,6 +25,7 @@ import androidx.ui.framework.test.R
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.imageFromResource
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.runOnIdleCompose
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -71,7 +72,7 @@ class ResourcesTest {
         composeTestRule.setContent {
             Providers(ContextAmbient provides context) {
                 res = loadResourceInternal(
-                    id = R.drawable.loaded_image,
+                    key = "random key string",
                     pendingResource = pendingImage,
                     failedResource = failedImage,
                     executor = pendingExecutor,
@@ -79,26 +80,26 @@ class ResourcesTest {
                     cacheLock = cacheLock,
                     requestCache = requestCache,
                     resourceCache = resourceCache,
-                    loader = { imageFromResource(resource, it) }
+                    loader = { imageFromResource(resource, R.drawable.loaded_image) }
                 )
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(pendingExecutor.runnable).isNotNull()
             assertThat(res!!.resource).isInstanceOf(PendingResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()
             assertThat(res!!.resource.resource!!.nativeImage.sameAs(pendingImage.nativeImage))
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             pendingExecutor.runNow() // load the resource
             assertThat(uiThreadWork).isNotNull()
             // update @Model object so that recompose is expected to be triggered.
             uiThreadWork?.invoke()
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(pendingExecutor.runnable).isNull()
             assertThat(res!!.resource).isInstanceOf(LoadedResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()
@@ -125,7 +126,7 @@ class ResourcesTest {
         composeTestRule.setContent {
             Providers(ContextAmbient provides context) {
                 res = loadResourceInternal(
-                    id = R.drawable.loaded_image,
+                    key = "random key string",
                     pendingResource = pendingImage,
                     failedResource = failedImage,
                     executor = pendingExecutor,
@@ -138,7 +139,7 @@ class ResourcesTest {
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(pendingExecutor.runnable).isNotNull()
             assertThat(res!!.resource).isInstanceOf(PendingResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()
@@ -146,14 +147,14 @@ class ResourcesTest {
                 .isTrue()
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             pendingExecutor.runNow() // load the resource
             assertThat(uiThreadWork).isNotNull()
             // update @Model object so that recompose is expected to be triggered.
             uiThreadWork?.invoke()
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(pendingExecutor.runnable).isNull()
             assertThat(res!!.resource).isInstanceOf(FailedResource::class.java)
             assertThat(res!!.resource.resource).isNotNull()

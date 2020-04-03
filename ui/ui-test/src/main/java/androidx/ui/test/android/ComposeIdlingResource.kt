@@ -20,9 +20,12 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.Recomposer
 import androidx.compose.frames.currentFrame
+import androidx.compose.frames.inFrame
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.ui.test.TestAnimationClock
+import androidx.ui.test.runOnUiThread
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Register compose's idling check to Espresso.
@@ -34,6 +37,7 @@ import androidx.ui.test.TestAnimationClock
  */
 fun registerComposeWithEspresso() {
     ComposeIdlingResource.registerSelfIntoEspresso()
+    FirstDrawIdlingResource.registerSelfIntoEspresso()
 }
 
 /**
@@ -41,6 +45,21 @@ fun registerComposeWithEspresso() {
  */
 fun unregisterComposeFromEspresso() {
     ComposeIdlingResource.unregisterSelfFromEspresso()
+    FirstDrawIdlingResource.unregisterSelfFromEspresso()
+}
+
+/**
+ * Registers the given [clock] so Espresso can await the animations subscribed to that clock.
+ */
+fun registerTestClock(clock: TestAnimationClock) {
+    ComposeIdlingResource.registerTestClock(clock)
+}
+
+/**
+ * Unregisters the [clock] that was registered with [registerTestClock].
+ */
+fun unregisterTestClock(clock: TestAnimationClock) {
+    ComposeIdlingResource.unregisterTestClock(clock)
 }
 
 /**
@@ -51,13 +70,9 @@ fun unregisterComposeFromEspresso() {
  * [AndroidComposeTestRule]. If you for some reasons want to only use Espresso but still have it
  * wait for Compose being idle you can register this yourself via [registerSelfIntoEspresso].
  */
-internal object ComposeIdlingResource : IdlingResource {
+internal object ComposeIdlingResource : BaseIdlingResource() {
 
     override fun getName(): String = "ComposeIdlingResource"
-
-    private var callback: IdlingResource.ResourceCallback? = null
-
-    private var isRegistered = false
 
     private var isIdleCheckScheduled = false
 
@@ -69,8 +84,8 @@ internal object ComposeIdlingResource : IdlingResource {
      * Returns whether or not Compose is idle, without starting to poll if it is not.
      */
     fun isIdle(): Boolean {
-        return handler.runAndAwait {
-            !currentFrame().hasPendingChanges() &&
+        return runOnUiThread {
+            !(inFrame && currentFrame().hasPendingChanges()) &&
                     !Recomposer.hasPendingChanges() &&
                     areAllClocksIdle()
         }
@@ -95,9 +110,7 @@ internal object ComposeIdlingResource : IdlingResource {
             handler.post {
                 isIdleCheckScheduled = false
                 if (isIdle()) {
-                    if (callback != null) {
-                        callback!!.onTransitionToIdle()
-                    }
+                    transitionToIdle()
                 } else {
                     scheduleIdleCheck()
                 }
@@ -105,43 +118,13 @@ internal object ComposeIdlingResource : IdlingResource {
         }
     }
 
-    override fun registerIdleTransitionCallback(callback: IdlingResource.ResourceCallback?) {
-        this.callback = callback
-    }
-
-    /**
-     * Registers this resource into Espresso.
-     *
-     * Can be called multiple times.
-     */
-    fun registerSelfIntoEspresso() {
-        if (isRegistered) {
-            return
-        }
-        IdlingRegistry.getInstance().register(ComposeIdlingResource)
-        isRegistered = true
-    }
-
-    /**
-     * Unregisters this resource from Espresso.
-     *
-     * Can be called multiple times.
-     */
-    fun unregisterSelfFromEspresso() {
-        if (!isRegistered) {
-            return
-        }
-        IdlingRegistry.getInstance().unregister(ComposeIdlingResource)
-        isRegistered = false
-    }
-
-    fun registerTestClock(clock: TestAnimationClock) {
+    internal fun registerTestClock(clock: TestAnimationClock) {
         synchronized(clocks) {
             clocks.add(clock)
         }
     }
 
-    fun unregisterTestClock(clock: TestAnimationClock) {
+    internal fun unregisterTestClock(clock: TestAnimationClock) {
         synchronized(clocks) {
             clocks.remove(clock)
         }
@@ -150,6 +133,58 @@ internal object ComposeIdlingResource : IdlingResource {
     private fun areAllClocksIdle(): Boolean {
         return synchronized(clocks) {
             clocks.all { it.isIdle }
+        }
+    }
+}
+
+private object FirstDrawIdlingResource : BaseIdlingResource() {
+    override fun getName(): String = "FirstDrawIdlingResource"
+
+    override fun isIdleNow(): Boolean {
+        return AndroidOwnerRegistry.haveAllDrawn().also {
+            if (!it) {
+                AndroidOwnerRegistry.setOnDrawnCallback(::transitionToIdle)
+            }
+        }
+    }
+
+    override fun unregisterSelfFromEspresso() {
+        super.unregisterSelfFromEspresso()
+        AndroidOwnerRegistry.setOnDrawnCallback(null)
+    }
+}
+
+internal sealed class BaseIdlingResource : IdlingResource {
+    private val isRegistered = AtomicBoolean(false)
+    private var resourceCallback: IdlingResource.ResourceCallback? = null
+
+    final override fun registerIdleTransitionCallback(callback: IdlingResource.ResourceCallback?) {
+        resourceCallback = callback
+    }
+
+    protected fun transitionToIdle() {
+        resourceCallback?.onTransitionToIdle()
+    }
+
+    /**
+     * Registers this resource into Espresso.
+     *
+     * Can be called multiple times.
+     */
+    internal fun registerSelfIntoEspresso() {
+        if (isRegistered.compareAndSet(false, true)) {
+            IdlingRegistry.getInstance().register(this)
+        }
+    }
+
+    /**
+     * Unregisters this resource from Espresso.
+     *
+     * Can be called multiple times.
+     */
+    internal open fun unregisterSelfFromEspresso() {
+        if (isRegistered.compareAndSet(true, false)) {
+            IdlingRegistry.getInstance().unregister(this)
         }
     }
 }

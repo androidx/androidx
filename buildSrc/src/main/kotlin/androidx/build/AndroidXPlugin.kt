@@ -40,11 +40,9 @@ import androidx.build.license.configureExternalDependencyLicenseCheck
 import androidx.build.metalava.MetalavaTasks.configureAndroidProjectForMetalava
 import androidx.build.metalava.MetalavaTasks.configureJavaProjectForMetalava
 import androidx.build.metalava.UpdateApiTask
-import androidx.build.releasenotes.GenerateArtifactReleaseNotesTask
-import androidx.build.releasenotes.GenerateAllReleaseNotesTask
 import androidx.build.studio.StudioTask.Companion.registerStudioTask
-import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.uptodatedness.TaskUpToDateValidator
+import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryExtension
@@ -56,7 +54,6 @@ import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.logging.configuration.ShowStacktrace
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
@@ -150,7 +147,6 @@ class AndroidXPlugin : Plugin<Project> {
                         }
                     }
                     project.addToProjectMap(androidXExtension)
-                    project.createArtifactIdReleaseNotesTask()
 
                     // workaround for b/120487939
                     project.configurations.all { configuration ->
@@ -197,7 +193,6 @@ class AndroidXPlugin : Plugin<Project> {
                     project.configureAndroidProjectForDokka(extension, androidXExtension)
                     project.configureAndroidProjectForMetalava(extension, androidXExtension)
                     project.addToProjectMap(androidXExtension)
-                    project.createArtifactIdReleaseNotesTask()
                 }
                 is AppPlugin -> {
                     project.extensions.getByType<AppExtension>().apply {
@@ -241,11 +236,9 @@ class AndroidXPlugin : Plugin<Project> {
                     Zip::class.java
                 ) {
                     it.destinationDirectory.set(project.getHostTestResultDirectory())
-                    // first one is always :, drop it.
-                    it.archiveFileName.set(
-                        "${project.path.split(":").joinToString("_").substring(1)}.zip")
+                    it.archiveFileName.set("${project.asFilenamePrefix()}_${task.name}.zip")
                 }
-                if (isRunningOnBuildServer()) {
+                if (project.hasProperty(TEST_FAILURES_DO_NOT_FAIL_TEST_TASK)) {
                     task.ignoreFailures = true
                 }
                 task.finalizedBy(zipTask)
@@ -271,9 +264,6 @@ class AndroidXPlugin : Plugin<Project> {
         configureKtlintCheckFile()
         configureCheckInvalidSuppress()
 
-        if (isRunningOnBuildServer()) {
-            gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
-        }
         val buildOnServerTask = tasks.create(BUILD_ON_SERVER_TASK, BuildOnServer::class.java)
         buildOnServerTask.dependsOn(
             tasks.register(
@@ -284,9 +274,6 @@ class AndroidXPlugin : Plugin<Project> {
         buildOnServerTask.dependsOn(
             tasks.register(CREATE_LIBRARY_BUILD_INFO_FILES_TASK)
         )
-        // Create the aggregating release note task in the root project so it can depend on all
-        // release note subproject tasks
-        createGenerateAllReleaseNotesTask()
 
         extra.set("versionChecker", GMavenVersionChecker(logger))
         val createArchiveTask = Release.getGlobalFullZipTask(this)
@@ -417,13 +404,7 @@ class AndroidXPlugin : Plugin<Project> {
         buildTypes.getByName("debug").isTestCoverageEnabled =
             !project.hasProperty("android.injected.invoked.from.ide")
 
-        // Pass the --no-window-animation flag with a hack (b/138120842)
-        // NOTE - We're exploiting the fact that anything after a space in the value of a
-        // instrumentation runner argument is passed raw to the `am instrument` command.
-        // NOTE - instrumentation args aren't respected by CI - window animations are
-        // disabled there separately
-        defaultConfig.testInstrumentationRunnerArgument("thisisignored",
-            "thisisignored --no-window-animation")
+        testOptions.animationsDisabled = true
         testOptions.unitTests.isReturnDefaultValues = true
 
         defaultConfig.minSdkVersion(DEFAULT_MIN_SDK_VERSION)
@@ -543,11 +524,7 @@ class AndroidXPlugin : Plugin<Project> {
                             // Exclude '-benchmark' modules from correctness tests
                             fileName.replace("-androidTest", "-androidBenchmark")
                         } else {
-                            // multiple modules may have the same name so prefix the name with
-                            // the module's path to ensure it is unique.
-                            // e.g. palette-v7-debug-androidTest.apk becomes
-                            // support-palette-v7_palette-v7-debug-androidTest.apk
-                            "${project.path.replace(':', '-').substring(1)}_$fileName"
+                            "${project.asFilenamePrefix()}_$fileName"
                         }
                     }
                 }
@@ -645,71 +622,6 @@ class AndroidXPlugin : Plugin<Project> {
         return taskProvider
     }
 
-    private fun Project.createGenerateAllReleaseNotesTask() {
-        tasks.register(
-            GENERATE_ALL_RELEASE_NOTES_TASK,
-            GenerateAllReleaseNotesTask::class.java
-        ) { task ->
-            val artifactToCommitMapFileName = if (project.hasProperty("artifactToCommitMap")) {
-                project.property("artifactToCommitMap").toString()
-            } else {
-                ""
-            }
-            task.artifactToCommitMapFile.set(File(artifactToCommitMapFileName))
-        }
-    }
-
-    private fun Project.createArtifactIdReleaseNotesTask() {
-        val generateArtifactReleaseNotesTask: TaskProvider<GenerateArtifactReleaseNotesTask> =
-        tasks.register(
-            GENERATE_ARTIFACT_RELEASE_NOTES_TASK,
-            GenerateArtifactReleaseNotesTask::class.java
-        ) { task ->
-            val artifactToCommitMapFileName = if (project.hasProperty("artifactToCommitMap")) {
-                    project.property("artifactToCommitMap").toString()
-                } else if (rootProject.hasProperty("artifactToCommitMap")) {
-                    rootProject.property("artifactToCommitMap").toString()
-                } else {
-                    ""
-                }
-            task.artifactToCommitMapFile.set(File(artifactToCommitMapFileName))
-
-            val outputDirectory: File = File(project.getReleaseNotesDirectory(), "$group")
-            task.outputDirectory.set(outputDirectory)
-
-            val outputFile = File(
-                project.getReleaseNotesDirectory(),
-                "$group/${group}_${name}_release_notes.txt"
-            )
-            task.outputFile.set(outputFile)
-
-            val outputJsonFile = File(
-                project.getReleaseNotesDirectory(),
-                "$group/${group}_${name}_release_notes.json"
-            )
-            task.outputJsonFile.set(outputJsonFile)
-        }
-
-        addTaskToAggregrateReleaseNotesTask(generateArtifactReleaseNotesTask)
-    }
-
-    private fun Project.addTaskToAggregrateReleaseNotesTask(
-        generateArtifactReleaseNotesTask: TaskProvider<GenerateArtifactReleaseNotesTask>
-    ) {
-
-        rootProject.tasks.named(GENERATE_ALL_RELEASE_NOTES_TASK).configure {
-            val generateAllReleaseNotesTask: GenerateAllReleaseNotesTask = it
-                    as GenerateAllReleaseNotesTask
-            generateAllReleaseNotesTask.dependsOn(generateArtifactReleaseNotesTask)
-            generateAllReleaseNotesTask.artifactReleaseNoteFiles.add(
-                generateArtifactReleaseNotesTask.flatMap { task -> task.outputJsonFile }
-            )
-            generateAllReleaseNotesTask.artifactReleaseNoteOutputDirectories.add(
-                generateArtifactReleaseNotesTask.flatMap { task -> task.outputDirectory }
-            )
-        }
-    }
-
     // Task that creates a json file of a project's dependencies
     private fun Project.addCreateLibraryBuildInfoFileTask(extension: AndroidXExtension) {
         afterEvaluate {
@@ -759,7 +671,7 @@ class AndroidXPlugin : Plugin<Project> {
                 it.csv.isEnabled = false
 
                 it.xml.destination = File(getHostTestCoverageDirectory(),
-                    "${path.replace(':', '-').substring(1)}.xml")
+                    "${project.asFilenamePrefix()}.xml")
             }
         }
     }
@@ -908,6 +820,15 @@ private fun Project.setDependencyVersions() {
         }.toString()
 
     androidx.build.dependencies.kotlinVersion = getVersion("kotlin")
+    androidx.build.dependencies.kotlinCoroutinesVersion = getVersion("kotlin_coroutines")
     androidx.build.dependencies.agpVersion = getVersion("agp")
     androidx.build.dependencies.lintVersion = getVersion("lint")
+}
+
+/**
+ * Returns a string that is a valid filename and loosely based on the project name
+ * The value returned for each project will be distinct
+ */
+private fun Project.asFilenamePrefix(): String {
+    return project.path.substring(1).replace(':', '-')
 }

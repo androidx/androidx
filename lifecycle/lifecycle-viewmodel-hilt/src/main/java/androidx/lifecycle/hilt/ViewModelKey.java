@@ -27,18 +27,19 @@ import java.lang.annotation.Target;
 import dagger.MapKey;
 
 /**
- * Dagger multibinding key for View Models
+ * Dagger multibinding key for ViewModels
  *
  * @hide
  */
 @MapKey
 @Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.RUNTIME)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public @interface ViewModelKey {
     /**
      * The ViewModel class used as key.
      * @return the class.
      */
+    // TODO(danysantiago): Change to use strings and add optimizer rule to avoid class loading.
     Class<? extends ViewModel> value();
 }
