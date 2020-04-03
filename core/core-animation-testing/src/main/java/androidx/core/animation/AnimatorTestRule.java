@@ -56,7 +56,7 @@ import org.junit.runners.model.Statement;
  * }
  * </pre>
  */
-public class AnimatorTestRule implements TestRule {
+public final class AnimatorTestRule implements TestRule {
 
     final AnimationHandler mTestHandler;
     final long mStartTime;
