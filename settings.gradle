@@ -90,7 +90,12 @@ includeProject(":benchmark:integration-tests:dry-run-benchmark", "benchmark/inte
 includeProject(":benchmark:integration-tests:startup-benchmark", "benchmark/integration-tests/startup-benchmark")
 includeProject(":biometric:biometric", "biometric/biometric")
 includeProject(":browser:browser", "browser/browser")
-includeProject(":buildSrc-tests")
+includeProject(":buildSrc-tests", "buildSrc-tests")
+// these projects intentionally fail to compile unless useMaxDepVersions is enabled
+if (startParameter.projectProperties.containsKey('useMaxDepVersions')) {
+    includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-dep")
+    includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-main")
+}
 includeProject(":camera:camera-camera2", "camera/camera-camera2")
 includeProject(":camera:camera-core", "camera/camera-core")
 includeProject(":camera:camera-extensions", "camera/camera-extensions")
