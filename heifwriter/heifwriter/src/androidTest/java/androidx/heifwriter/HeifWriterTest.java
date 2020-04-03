@@ -122,7 +122,7 @@ public class HeifWriterTest {
     @Before
     public void setUp() throws Exception {
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
-            String outputPath = new File(Environment.getExternalStorageDirectory(),
+            String outputPath = new File(getApplicationContext().getExternalFilesDir(null),
                     IMAGE_FILENAMES[i]).getAbsolutePath();
 
             InputStream inputStream = null;
@@ -147,9 +147,8 @@ public class HeifWriterTest {
     @After
     public void tearDown() throws Exception {
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
-            String imageFilePath =
-                    new File(Environment.getExternalStorageDirectory(), IMAGE_FILENAMES[i])
-                            .getAbsolutePath();
+            String imageFilePath = new File(getApplicationContext().getExternalFilesDir(null),
+                    IMAGE_FILENAMES[i]).getAbsolutePath();
             File imageFile = new File(imageFilePath);
             if (imageFile.exists()) {
                 imageFile.delete();
@@ -236,7 +235,7 @@ public class HeifWriterTest {
 
         TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BITMAP, false, false);
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
-            String inputPath = new File(Environment.getExternalStorageDirectory(),
+            String inputPath = new File(getApplicationContext().getExternalFilesDir(null),
                     IMAGE_FILENAMES[i]).getAbsolutePath();
             doTestForVariousNumberImages(builder.setInputPath(inputPath));
         }
@@ -249,7 +248,7 @@ public class HeifWriterTest {
 
         TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BITMAP, true, false);
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
-            String inputPath = new File(Environment.getExternalStorageDirectory(),
+            String inputPath = new File(getApplicationContext().getExternalFilesDir(null),
                     IMAGE_FILENAMES[i]).getAbsolutePath();
             doTestForVariousNumberImages(builder.setInputPath(inputPath));
         }
@@ -262,7 +261,7 @@ public class HeifWriterTest {
 
         TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BITMAP, false, true);
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
-            String inputPath = new File(Environment.getExternalStorageDirectory(),
+            String inputPath = new File(getApplicationContext().getExternalFilesDir(null),
                     IMAGE_FILENAMES[i]).getAbsolutePath();
             doTestForVariousNumberImages(builder.setInputPath(inputPath));
         }
@@ -275,7 +274,7 @@ public class HeifWriterTest {
 
         TestConfig.Builder builder = new TestConfig.Builder(INPUT_MODE_BITMAP, true, true);
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
-            String inputPath = new File(Environment.getExternalStorageDirectory(),
+            String inputPath = new File(getApplicationContext().getExternalFilesDir(null),
                     IMAGE_FILENAMES[i]).getAbsolutePath();
             doTestForVariousNumberImages(builder.setInputPath(inputPath));
         }
@@ -389,7 +388,7 @@ public class HeifWriterTest {
                 mHeight = 1080;
                 mRotation = 0;
                 mQuality = 100;
-                mOutputPath = new File(Environment.getExternalStorageDirectory(),
+                mOutputPath = new File(getApplicationContext().getExternalFilesDir(null),
                         OUTPUT_FILENAME).getAbsolutePath();
             }
 
