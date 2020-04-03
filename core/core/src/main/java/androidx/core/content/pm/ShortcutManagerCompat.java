@@ -20,6 +20,7 @@ import static androidx.core.graphics.drawable.IconCompat.TYPE_URI;
 import static androidx.core.graphics.drawable.IconCompat.TYPE_URI_ADAPTIVE_BITMAP;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -41,6 +43,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.util.Preconditions;
 
 import java.io.InputStream;
 import java.lang.annotation.Retention;
@@ -98,6 +101,9 @@ public class ShortcutManagerCompat {
             "com.android.launcher.action.INSTALL_SHORTCUT";
     @VisibleForTesting static final String INSTALL_SHORTCUT_PERMISSION =
             "com.android.launcher.permission.INSTALL_SHORTCUT";
+
+    private static final int DEFAULT_MAX_ICON_DIMENSION_DP = 96;
+    private static final int DEFAULT_MAX_ICON_DIMENSION_LOWRAM_DP = 48;
 
     /**
      * Key to get the shortcut ID from extras of a share intent.
@@ -310,12 +316,124 @@ public class ShortcutManagerCompat {
      * can have at a time.
      */
     public static int getMaxShortcutCountPerActivity(@NonNull Context context) {
+        Preconditions.checkNotNull(context);
         if (Build.VERSION.SDK_INT >= 25) {
             return context.getSystemService(ShortcutManager.class).getMaxShortcutCountPerActivity();
         }
 
         // TODO: decide on this limit when ShortcutManager is not available.
         return 0;
+    }
+
+    /**
+     * Return {@code true} when rate-limiting is active for the caller app.
+     *
+     * <p>For details, see <a href="/guide/topics/ui/shortcuts/managing-shortcuts#rate-limiting">
+     * Rate limiting</a>.
+     *
+     * @throws IllegalStateException when the user is locked.
+     */
+    public static boolean isRateLimitingActive(@NonNull final Context context) {
+        Preconditions.checkNotNull(context);
+        if (Build.VERSION.SDK_INT >= 25) {
+            return context.getSystemService(ShortcutManager.class).isRateLimitingActive();
+        }
+
+        return getMaxShortcutCountPerActivity(context) == 0;
+    }
+
+    /**
+     * Return the max width for icons, in pixels.
+     *
+     * <p> Note that this method returns max width of icon's visible part. Hence, it does not take
+     * into account the inset introduced by {@link android.graphics.drawable.AdaptiveIconDrawable}.
+     * To calculate bitmap image to function as
+     * {@link android.graphics.drawable.AdaptiveIconDrawable}, multiply
+     * 1 + 2 * {@link android.graphics.drawable.AdaptiveIconDrawable#getExtraInsetFraction()} to
+     * the returned size.
+     */
+    public static int getIconMaxWidth(@NonNull final Context context) {
+        Preconditions.checkNotNull(context);
+        if (Build.VERSION.SDK_INT >= 25) {
+            return context.getSystemService(ShortcutManager.class).getIconMaxWidth();
+        }
+        return getIconDimensionInternal(context, true);
+    }
+
+    /**
+     * Return the max height for icons, in pixels.
+     */
+    public static int getIconMaxHeight(@NonNull final Context context) {
+        Preconditions.checkNotNull(context);
+        if (Build.VERSION.SDK_INT >= 25) {
+            return context.getSystemService(ShortcutManager.class).getIconMaxHeight();
+        }
+        return getIconDimensionInternal(context, false);
+    }
+
+    /**
+     * Apps that publish shortcuts should call this method whenever the user
+     * selects the shortcut containing the given ID or when the user completes
+     * an action in the app that is equivalent to selecting the shortcut.
+     * For more details, read about
+     * <a href="/guide/topics/ui/shortcuts/managing-shortcuts.html#track-usage">
+     * tracking shortcut usage</a>.
+     *
+     * <p>The information is accessible via {@link android.app.usage.UsageStatsManager#queryEvents}
+     * Typically, launcher apps use this information to build a prediction model
+     * so that they can promote the shortcuts that are likely to be used at the moment.
+     *
+     * @throws IllegalStateException when the user is locked.
+     *
+     * <p>This method is not supported on devices running SDK < 25 since the platform class will
+     * not be available.
+     */
+    public static void reportShortcutUsed(@NonNull final Context context,
+            @NonNull final String shortcutId) {
+        Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(shortcutId);
+        if (Build.VERSION.SDK_INT >= 25) {
+            context.getSystemService(ShortcutManager.class).reportShortcutUsed(shortcutId);
+        }
+    }
+
+    /**
+     * Publish the list of shortcuts.  All existing dynamic shortcuts from the caller app
+     * will be replaced.  If there are already pinned shortcuts with the same IDs,
+     * the mutable pinned shortcuts are updated.
+     *
+     * <p>This API will be rate-limited.
+     *
+     * Compatibility behavior:
+     * <ul>
+     *      <li>API 25 and above, this method matches platform behavior.
+     *      <li>API 24 and earlier, this method is equivalent of calling
+     *      {@link #removeAllDynamicShortcuts} and {@link #addDynamicShortcuts} consecutively.
+     * </ul>
+     *
+     * @return {@code true} if the call has succeeded. {@code false} if the call is rate-limited.
+     *
+     * @throws IllegalArgumentException if {@link #getMaxShortcutCountPerActivity} is exceeded,
+     * or when trying to update immutable shortcuts.
+     *
+     * @throws IllegalStateException when the user is locked.
+     */
+    public static boolean setDynamicShortcuts(@NonNull final Context context,
+            @NonNull final List<ShortcutInfoCompat> shortcutInfoList) {
+        Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(shortcutInfoList);
+        if (Build.VERSION.SDK_INT >= 25) {
+            List<ShortcutInfo> shortcuts = new ArrayList<>(shortcutInfoList.size());
+            for (ShortcutInfoCompat compat : shortcutInfoList) {
+                shortcuts.add(compat.toShortcutInfo());
+            }
+            if (!context.getSystemService(ShortcutManager.class).setDynamicShortcuts(shortcuts)) {
+                return false;
+            }
+        }
+        getShortcutInfoSaverInstance(context).removeAllShortcuts();
+        getShortcutInfoSaverInstance(context).addShortcuts(shortcutInfoList);
+        return true;
     }
 
     /**
@@ -503,6 +621,20 @@ public class ShortcutManagerCompat {
     @VisibleForTesting
     static void setShortcutInfoCompatSaver(final ShortcutInfoCompatSaver<Void> saver) {
         sShortcutInfoCompatSaver = saver;
+    }
+
+    private static int getIconDimensionInternal(@NonNull final Context context,
+            final boolean isHorizontal) {
+        final ActivityManager am = (ActivityManager)
+                context.getSystemService(Context.ACTIVITY_SERVICE);
+        final boolean isLowRamDevice =
+                Build.VERSION.SDK_INT < 19 || am == null || am.isLowRamDevice();
+        final int iconDimensionDp = Math.max(1, isLowRamDevice
+                ? DEFAULT_MAX_ICON_DIMENSION_LOWRAM_DP : DEFAULT_MAX_ICON_DIMENSION_DP);
+        final DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float density = (isHorizontal ? displayMetrics.xdpi : displayMetrics.ydpi)
+                / DisplayMetrics.DENSITY_MEDIUM;
+        return (int) (iconDimensionDp * density);
     }
 
     private static ShortcutInfoCompatSaver<?> getShortcutInfoSaverInstance(Context context) {
