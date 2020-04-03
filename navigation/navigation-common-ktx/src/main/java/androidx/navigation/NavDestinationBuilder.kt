@@ -17,6 +17,7 @@
 package androidx.navigation
 
 import androidx.annotation.IdRes
+import androidx.core.os.bundleOf
 
 @DslMarker
 annotation class NavDestinationDsl
@@ -105,6 +106,17 @@ class NavActionBuilder {
      */
     var destinationId: Int = 0
 
+    /**
+     * The set of default arguments that should be passed to the destination. The keys
+     * used here should be the same as those used on the [NavDestinationBuilder.argument]
+     * for the destination.
+     *
+     * All values added here should be able to be added to a [android.os.Bundle].
+     *
+     * @see NavAction.getDefaultArguments
+     */
+    val defaultArguments = mutableMapOf<String, Any?>()
+
     private var navOptions: NavOptions? = null
 
     /**
@@ -114,7 +126,11 @@ class NavActionBuilder {
         navOptions = NavOptionsBuilder().apply(optionsBuilder).build()
     }
 
-    internal fun build() = NavAction(destinationId, navOptions)
+    internal fun build() = NavAction(destinationId, navOptions,
+        if (defaultArguments.isEmpty())
+            null
+        else
+            bundleOf(*defaultArguments.toList().toTypedArray()))
 }
 
 /**
