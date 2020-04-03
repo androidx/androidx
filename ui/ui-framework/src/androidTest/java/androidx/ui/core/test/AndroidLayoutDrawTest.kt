@@ -59,9 +59,7 @@ import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
 import androidx.ui.core.drawWithContent
-import androidx.ui.core.globalPosition
 import androidx.ui.core.offset
-import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
@@ -83,7 +81,6 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
 import androidx.ui.unit.px
-import androidx.ui.unit.toPx
 import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -1643,48 +1640,6 @@ class AndroidLayoutDrawTest {
     }
 
     @Test
-    fun layoutNode_handlesChildrenNodeMoveCorrectly() {
-        val size = 50.ipx
-        val model = OffsetModel(0.ipx)
-        var latch = CountDownLatch(2)
-        var wrap1Position = 0.px
-        var wrap2Position = 0.px
-        activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
-                SimpleRow {
-                    for (i in 0 until 2) {
-                        if (model.offset.value == i) {
-                            Wrap(minWidth = size, minHeight = size,
-                                modifier = Modifier.onPositioned { coordinates ->
-                                    wrap1Position = coordinates.globalPosition.x
-                                    latch.countDown()
-                                }) {
-                            }
-                        } else {
-                            Wrap(minWidth = size, minHeight = size,
-                                modifier = Modifier.onPositioned { coordinates ->
-                                    wrap2Position = coordinates.globalPosition.x
-                                    latch.countDown()
-                                }) {
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(0.px, wrap1Position)
-        assertEquals(size.toPx(), wrap2Position)
-        latch = CountDownLatch(2)
-        activityTestRule.runOnUiThreadIR {
-            model.offset = 1.ipx
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(size.toPx(), wrap1Position)
-        assertEquals(0.px, wrap2Position)
-    }
-
-    @Test
     fun modifiers_validateCorrectSizes() {
         val layoutModifier = object : LayoutModifier {}
         val parentDataModifier = object : ParentDataModifier {}
@@ -2611,7 +2566,7 @@ fun Wrap(
     modifier: Modifier = Modifier.None,
     minWidth: IntPx = 0.ipx,
     minHeight: IntPx = 0.ipx,
-    children: @Composable() () -> Unit
+    children: @Composable() () -> Unit = {}
 ) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
