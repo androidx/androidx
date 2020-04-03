@@ -26,6 +26,12 @@ plugins {
     id("com.android.library")
 }
 
+android {
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+}
+
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":lifecycle:lifecycle-viewmodel-hilt-common"))
