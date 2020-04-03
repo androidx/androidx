@@ -7,6 +7,10 @@ package androidx.fragment.app {
     method @Deprecated public static inline void transaction(androidx.fragment.app.FragmentManager, boolean now = false, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
   }
 
+  public final class FragmentResultOwnerKt {
+    method public static void setResultListener(androidx.fragment.app.FragmentResultOwner, String requestKey, androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function2<? super java.lang.String,? super android.os.Bundle,kotlin.Unit>? listener);
+  }
+
   public final class FragmentTransactionKt {
     method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.FragmentTransaction, @IdRes int containerViewId, String? tag = null, android.os.Bundle? args = null);
     method public static inline <reified F extends androidx.fragment.app.Fragment> androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.FragmentTransaction, String tag, android.os.Bundle? args = null);
