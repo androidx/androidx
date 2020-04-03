@@ -16,7 +16,6 @@
 
 package androidx.ui.core.selection
 
-import android.R
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -27,15 +26,13 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.CoreText
 import androidx.ui.core.HapticFeedBackAmbient
-import androidx.ui.core.gesture.MotionEvent
-import androidx.ui.core.gesture.PointerCoords
-import androidx.ui.core.gesture.PointerProperties
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextStyle
+import androidx.ui.text.compose.test.R
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.ResourceFont
@@ -68,7 +65,7 @@ class SelectionContainerTest {
 
     private val textContent = "Text Demo Text Demo"
     private val fontFamily = ResourceFont(
-        resId = androidx.ui.framework.test.R.font.sample_font,
+        resId = R.font.sample_font,
         weight = FontWeight.Normal,
         style = FontStyle.Normal
     ).asFontFamily()
@@ -104,7 +101,7 @@ class SelectionContainerTest {
                 }
             }
         }
-        view = activity.findViewById<ViewGroup>(R.id.content)
+        view = activity.findViewById<ViewGroup>(android.R.id.content)
     }
 
     @Test

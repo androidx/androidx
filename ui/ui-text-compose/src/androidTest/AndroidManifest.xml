@@ -16,5 +16,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.ui.text.compose.test">
     <application>
+        <activity android:name="androidx.activity.ComponentActivity" />
     </application>
 </manifest>
