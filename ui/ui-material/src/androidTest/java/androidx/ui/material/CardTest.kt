@@ -16,8 +16,10 @@
 
 package androidx.ui.material
 
+import android.os.Build
 import androidx.compose.Providers
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
@@ -43,6 +45,7 @@ class CardTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun shapeAndColorFromThemeIsUsed() {
         val shape = CutCornerShape(8.dp)
