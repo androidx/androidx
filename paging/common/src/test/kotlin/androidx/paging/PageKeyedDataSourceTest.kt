@@ -41,6 +41,7 @@ class PageKeyedDataSourceTest {
 
     internal data class Page(val prev: String?, val data: List<Item>, val next: String?)
 
+    @Suppress("DEPRECATION")
     internal class ItemDataSource(val data: Map<String, Page> = PAGE_MAP) :
         PageKeyedDataSource<String, Item>() {
         private var error = false

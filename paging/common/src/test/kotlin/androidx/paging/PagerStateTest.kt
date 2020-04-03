@@ -20,6 +20,7 @@ import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import androidx.paging.PagingSource.LoadResult.Page
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -27,6 +28,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class PagerStateTest {
     private val testScope = TestCoroutineScope()

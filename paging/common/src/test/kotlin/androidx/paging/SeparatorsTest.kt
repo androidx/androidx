@@ -25,6 +25,7 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.End
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PageEvent.Insert.Companion.Start
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runBlockingTest
@@ -69,6 +70,7 @@ private fun <T : Any> assertInsertData(
     )
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class SeparatorsTest {
     @Test
