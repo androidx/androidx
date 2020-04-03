@@ -47,12 +47,14 @@ import androidx.collection.ArrayMap;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProviderService.MediaRouteProviderServiceImplApi30;
+import androidx.mediarouter.media.MediaRouteProviderService.MediaRouteProviderServiceImplBase.ClientRecord;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @RequiresApi(api = Build.VERSION_CODES.R)
@@ -71,6 +73,9 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
     private static final String KEY_MESSENGER_BINDER = "binder";
 
     private volatile MediaRouteProviderDescriptor mProviderDescriptor;
+    // Use a large enough initial value so that it can't be the same as the controller ID in
+    // RegisteredMediaRouteProvider
+    private final AtomicInteger mNextControllerId = new AtomicInteger(0x20000000);
 
     @SuppressLint("InlinedApi")
     public static final String SERVICE_INTERFACE = MediaRoute2ProviderService.SERVICE_INTERFACE;
@@ -159,6 +164,15 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         // Dynamic grouping info will be notified by the provider.
         RoutingSessionInfo sessionInfo = builder.build();
         notifySessionCreated(requestId, sessionInfo);
+
+        ClientRecord client = mServiceImpl.getClientForPackageName(packageName);
+        if (client == null) {
+            return;
+        }
+        int controllerId = mNextControllerId.getAndIncrement();
+        mSessionIdMap.put(controllerId, sessionId);
+        client.sendDynamicRouteControllerCreatedWithoutRequest(mProviderDescriptor,
+                controller, controllerId, routeId);
     }
 
     @Override

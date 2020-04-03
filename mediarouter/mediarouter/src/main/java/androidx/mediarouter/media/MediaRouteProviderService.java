@@ -16,8 +16,11 @@
 
 package androidx.mediarouter.media;
 
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_CONTROLLER_ID;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_CONTROLLER_INFO;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_MEMBER_ROUTE_ID;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_MEMBER_ROUTE_IDS;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_PROVIDER_DESCRIPTOR;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_ID;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_LIBRARY_GROUP;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_UNSELECT_REASON;
@@ -45,6 +48,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DESCRIPTOR_CHANGED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DYNAMIC_ROUTE_CREATED;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DYNAMIC_ROUTE_CREATED_WITHOUT_REQUEST;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_FAILURE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_SUCCESS;
@@ -65,6 +69,7 @@ import android.os.IBinder.DeathRecipient;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -913,6 +918,15 @@ public abstract class MediaRouteProviderService extends Service {
             return -1;
         }
 
+        ClientRecord getClientForPackageName(String packageName) {
+            for (ClientRecord client : mClients) {
+                if (TextUtils.equals(client.mPackageName, packageName)) {
+                    return client;
+                }
+            }
+            return null;
+        }
+
         //TODO: Reconsider "ClientRecord" structure
         class ClientRecord implements DeathRecipient {
             public final Messenger mMessenger;
@@ -1057,6 +1071,33 @@ public abstract class MediaRouteProviderService extends Service {
                         dynamicRouteBundles);
                 sendReply(mMessenger, SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED,
                         0, controllerId, bundle, null);
+            }
+
+            void sendDynamicRouteControllerCreatedWithoutRequest(
+                    MediaRouteProviderDescriptor descriptor,
+                    DynamicGroupRouteController controller,
+                    int controllerId, String routeId) {
+
+                mControllers.put(controllerId, controller);
+                controller.setOnDynamicRoutesChangedListener(
+                        ContextCompat.getMainExecutor(mService.getApplicationContext()),
+                        mDynamicRoutesChangedListener);
+
+                Bundle bundle = new Bundle();
+                bundle.putBundle(CLIENT_DATA_PROVIDER_DESCRIPTOR,
+                        createDescriptorBundleForClientVersion(descriptor, mVersion));
+
+                Bundle controllerInfo = new Bundle();
+                controllerInfo.putString(CLIENT_DATA_ROUTE_ID, routeId);
+                controllerInfo.putString(DATA_KEY_GROUPABLE_SECION_TITLE,
+                        controller.getGroupableSelectionTitle());
+                controllerInfo.putString(DATA_KEY_TRANSFERABLE_SECTION_TITLE,
+                        controller.getTransferableSectionTitle());
+                controllerInfo.putInt(CLIENT_DATA_CONTROLLER_ID, controllerId);
+                bundle.putBundle(CLIENT_DATA_CONTROLLER_INFO, controllerInfo);
+
+                sendReply(mMessenger, SERVICE_MSG_DYNAMIC_ROUTE_CREATED_WITHOUT_REQUEST,
+                        0, 0, bundle, null);
             }
         }
 
