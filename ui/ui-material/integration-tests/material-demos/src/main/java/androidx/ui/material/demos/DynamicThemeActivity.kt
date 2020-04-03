@@ -16,8 +16,8 @@
 
 package androidx.ui.material.demos
 
-import android.app.Activity
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.animation.FastOutSlowInEasing
 import androidx.compose.Composable
 import androidx.compose.Model
@@ -53,7 +53,7 @@ import kotlin.math.round
  * Demo activity that animates the primary, secondary, and background colours in the [MaterialTheme]
  * as the user scrolls. This has the effect of going from a 'light' theme to a 'dark' theme.
  */
-class DynamicThemeActivity : Activity() {
+class DynamicThemeActivity : ComponentActivity() {
     private val scrollFraction = ScrollFraction()
 
     override fun onCreate(savedInstanceState: Bundle?) {

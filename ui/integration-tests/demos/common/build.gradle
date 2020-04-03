@@ -29,6 +29,7 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
     implementation(KOTLIN_STDLIB)
 
+    api "androidx.activity:activity:1.2.0-alpha02"
     implementation project(":compose:compose-runtime")
 }
 

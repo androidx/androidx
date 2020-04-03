@@ -15,7 +15,6 @@
  */
 package androidx.ui.androidview.demos
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
@@ -27,6 +26,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.activity.ComponentActivity
 import androidx.ui.androidview.adapters.dp
 import androidx.ui.androidview.adapters.setControlledText
 import androidx.ui.androidview.adapters.setLayoutHeight
@@ -46,7 +46,7 @@ class WebParams {
     var url: String = "https://www.google.com"
 }
 
-open class WebComponentActivity : Activity() {
+open class WebComponentActivity : ComponentActivity() {
 
     val webContext = WebContext()
 
