@@ -34,7 +34,7 @@ dependencies {
     implementation project(":compose:compose-runtime")
     api project(":ui:ui-framework")
     api project(":ui:ui-platform")
-    api project(":ui:ui-text")
+    api project(":ui:ui-text-core")
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
