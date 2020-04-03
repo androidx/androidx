@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import android.app.Activity
 import android.graphics.Rect
 import android.util.SparseArray
 import android.view.View
@@ -24,19 +23,24 @@ import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.autofill.AutofillValue
 import androidx.test.filters.SdkSuppress
-import androidx.test.rule.ActivityTestRule
+import androidx.test.filters.SmallTest
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.AutofillNode
 import androidx.ui.autofill.AutofillType
 import androidx.ui.test.android.fake.FakeViewStructure
+import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@SmallTest
+@RunWith(JUnit4::class)
 class AndroidComposeViewTest {
     @get:Rule
-    val activityTestRule = ActivityTestRule<Activity>(Activity::class.java)
+    val composeTestRule = createComposeRule()
 
     private val PACKAGE_NAME = "androidx.ui.platform.test"
     private lateinit var owner: Owner
@@ -44,8 +48,8 @@ class AndroidComposeViewTest {
 
     @Before
     fun setup() {
-        owner = createOwner(activityTestRule.activity)
-        if (owner is ViewGroup) {
+        composeTestRule.setContent {
+            owner = OwnerAmbient.current
             composeView = owner as ViewGroup
         }
     }
