@@ -754,7 +754,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
         // Don't let someone create a cycle.
         for (Fragment check = fragment; check != null; check = check.getTargetFragment()) {
-            if (check == this) {
+            if (check.equals(this)) {
                 throw new IllegalArgumentException("Setting " + fragment + " as the target of "
                         + this + " would create a target cycle");
             }
