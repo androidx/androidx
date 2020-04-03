@@ -26,6 +26,8 @@ import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
  *  * [PagingSource] returns a [PagingSource.LoadResult] which signals start / end boundary.
  *
  * These events together can be used to implement layered pagination - network + local storage.
+ *
+ * @sample androidx.paging.samples.remoteMediatorSample
  */
 abstract class RemoteMediator<Key : Any, Value : Any> {
     /**
