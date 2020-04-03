@@ -24,7 +24,7 @@ import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.ScaleFit
+import androidx.ui.core.ContentScale
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.unit.Dp
@@ -251,11 +251,11 @@ fun drawVector(
     tintColor: Color = Color.Transparent,
     tintBlendMode: BlendMode = DefaultTintBlendMode,
     alignment: Alignment = Alignment.Center,
-    fit: ScaleFit = ScaleFit.Fit
+    contentScale: ContentScale = ContentScale.Inside
 ) = Modifier.paint(
     VectorPainter(vectorImage),
     alignment = alignment,
-    scaleFit = fit,
+    contentScale = contentScale,
     colorFilter = if (tintColor != Color.Transparent) {
         ColorFilter(tintColor, tintBlendMode)
     } else {
