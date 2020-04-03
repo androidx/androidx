@@ -69,10 +69,11 @@ import androidx.ui.unit.max
  * For more information, see [Bottom Navigation](https://material.io/components/bottom-navigation/)
  *
  * @param modifier optional [Modifier] for this BottomNavigation
- * @param color The background color for this BottomNavigation
+ * @param backgroundColor The background color for this BottomNavigation
  * @param contentColor The preferred content color provided by this BottomNavigation to its
- * children. Defaults to either the matching `onFoo` color for [color], or if [color] is not a
- * color from the theme, this will keep the same value set above this BottomNavigation.
+ * children. Defaults to either the matching `onFoo` color for [backgroundColor], or if
+ * [backgroundColor] is not a color from the theme, this will keep the same value set above this
+ * BottomNavigation.
  * @param elevation elevation for this BottomNavigation
  * @param content destinations inside this BottomNavigation, this should contain multiple
  * [BottomNavigationItem]s
@@ -80,13 +81,13 @@ import androidx.ui.unit.max
 @Composable
 fun BottomNavigation(
     modifier: Modifier = Modifier.None,
-    color: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = BottomNavigationElevation,
     content: @Composable() RowScope.() -> Unit
 ) {
     Surface(
-        color = color,
+        color = backgroundColor,
         contentColor = contentColor,
         elevation = elevation,
         modifier = modifier
