@@ -20,7 +20,6 @@ package androidx.paging.samples
 
 import androidx.annotation.Sampled
 import androidx.paging.LoadType
-import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import retrofit2.HttpException
@@ -55,14 +54,14 @@ fun remoteMediatorSample() {
     ) : RemoteMediator<String, Item>() {
         override suspend fun load(
             loadType: LoadType,
-            state: PagingState<String, Item>?
+            state: PagingState<String, Item>
         ): MediatorResult {
             // Get the last accessed item from the current PagingState, which holds all loaded
             // pages from DB.
             val anchorItem = when (loadType) {
-                LoadType.REFRESH -> state?.anchorPosition?.let { state.closestItemToPosition(it) }
+                LoadType.REFRESH -> state.anchorPosition?.let { state.closestItemToPosition(it) }
                 LoadType.START -> return MediatorResult.Success(hasMoreData = false)
-                LoadType.END -> state?.pages?.lastOrNull { it.data.isNotEmpty() }?.data?.last()
+                LoadType.END -> state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.last()
             }
 
             return try {
@@ -70,11 +69,6 @@ fun remoteMediatorSample() {
                 // withContext(Dispatcher.IO) { ... } block since Retrofit's Coroutine
                 // CallAdapter dispatches on a worker thread.
                 val response = networkService.itemsAfter(anchorItem?.id)
-                PagingSource.LoadResult.Page(
-                    data = response.items,
-                    prevKey = response.items.firstOrNull()?.id,
-                    nextKey = response.items.lastOrNull()?.id
-                )
 
                 // Insert items into database, which invalidates the current PagingData,
                 // allowing Paging to present the updates in the DB.
