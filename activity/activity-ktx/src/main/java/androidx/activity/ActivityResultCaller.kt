@@ -21,32 +21,32 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContract
 
 /**
- * A version of [ActivityResultCaller.prepareCall]
+ * A version of [ActivityResultCaller.registerForActivityResult]
  * that additionally takes an input right away, producing a launcher that doesn't take any
  * additional input when called.
  *
- * @see ActivityResultCaller.prepareCall
+ * @see ActivityResultCaller.registerForActivityResult
  */
-inline fun <I, O> ActivityResultCaller.prepareCall(
+inline fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
     registry: ActivityResultRegistry,
     crossinline callback: (O) -> Unit
 ): () -> Unit {
-    return { prepareCall(contract, registry) { callback(it) }.launch(input) }
+    return { registerForActivityResult(contract, registry) { callback(it) }.launch(input) }
 }
 
 /**
- * A version of [ActivityResultCaller.prepareCall]
+ * A version of [ActivityResultCaller.registerForActivityResult]
  * that additionally takes an input right away, producing a launcher that doesn't take any
  * additional input when called.
  *
- * @see ActivityResultCaller.prepareCall
+ * @see ActivityResultCaller.registerForActivityResult
  */
-inline fun <I, O> ActivityResultCaller.prepareCall(
+inline fun <I, O> ActivityResultCaller.registerForActivityResult(
     contract: ActivityResultContract<I, O>,
     input: I,
     crossinline callback: (O) -> Unit
 ): () -> Unit {
-    return { prepareCall(contract) { callback(it) }.launch(input) }
+    return { registerForActivityResult(contract) { callback(it) }.launch(input) }
 }

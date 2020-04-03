@@ -58,7 +58,7 @@ public final class ActivityResultContracts {
      * An {@link ActivityResultContract} that doesn't do any type conversion, taking raw
      * {@link Intent} as an input and {@link ActivityResult} as an output.
      *
-     * Can be used with {@link ActivityResultCaller#prepareCall} to avoid
+     * Can be used with {@link ActivityResultCaller#registerForActivityResult} to avoid
      * having to manage request codes when calling an activity API for which a type-safe contract is
      * not available.
      */
