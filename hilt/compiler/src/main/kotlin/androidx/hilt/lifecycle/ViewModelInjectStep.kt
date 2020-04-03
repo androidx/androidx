@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.hilt
+package androidx.hilt.lifecycle
 
+import androidx.hilt.ClassNames
 import androidx.hilt.ext.hasAnnotation
-import androidx.hilt.lifecycle.HiltViewModelElements
-import androidx.hilt.lifecycle.HiltViewModelGenerator
-import androidx.hilt.lifecycle.ViewModelInject
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.MoreElements
-import com.google.auto.service.AutoService
 import com.google.common.collect.SetMultimap
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
-import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
 import javax.annotation.processing.ProcessingEnvironment
-import javax.annotation.processing.Processor
-import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
@@ -38,20 +31,8 @@ import javax.lang.model.util.ElementFilter
 import javax.tools.Diagnostic
 
 /**
- * Annotation processor that generates code enabling assisted injection of ViewModels using Hilt.
+ * Processing step that generates code enabling assisted injection of ViewModels using Hilt.
  */
-@AutoService(Processor::class)
-@IncrementalAnnotationProcessor(ISOLATING)
-class HiltViewModelProcessor : BasicAnnotationProcessor() {
-    override fun initSteps() = listOf(
-        ViewModelInjectStep(
-            processingEnv
-        )
-    )
-
-    override fun getSupportedSourceVersion() = SourceVersion.latest()
-}
-
 class ViewModelInjectStep(
     private val processingEnv: ProcessingEnvironment
 ) : BasicAnnotationProcessor.ProcessingStep {
@@ -71,7 +52,7 @@ class ViewModelInjectStep(
             val typeElement = MoreElements.asType(constructorElement.enclosingElement)
             if (parsedElements.add(typeElement)) {
                 parse(typeElement, constructorElement)?.let { viewModel ->
-                    HiltViewModelGenerator(
+                    ViewModelGenerator(
                         processingEnv,
                         viewModel
                     ).generate()
@@ -84,7 +65,7 @@ class ViewModelInjectStep(
     private fun parse(
         typeElement: TypeElement,
         constructorElement: ExecutableElement
-    ): HiltViewModelElements? {
+    ): ViewModelInjectElements? {
         var valid = true
 
         if (!types.isSubtype(typeElement.asType(),
@@ -116,7 +97,7 @@ class ViewModelInjectStep(
 
         if (!valid) return null
 
-        return HiltViewModelElements(
+        return ViewModelInjectElements(
             typeElement,
             constructorElement
         )
