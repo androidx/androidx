@@ -16,10 +16,10 @@
 
 package androidx.ui.benchmark.test.autofill
 
-import android.app.Activity
 import android.graphics.Rect
 import android.util.SparseArray
 import android.view.autofill.AutofillValue
+import androidx.activity.ComponentActivity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.annotation.UiThreadTest
@@ -41,7 +41,7 @@ import org.junit.runners.JUnit4
 class AndroidAutofillBenchmark {
 
     @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
+    val activityRule = ActivityTestRule(ComponentActivity::class.java)
 
     @get:Rule
     val benchmarkRule = BenchmarkRule()

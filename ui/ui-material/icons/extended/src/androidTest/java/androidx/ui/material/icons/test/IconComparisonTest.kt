@@ -16,9 +16,9 @@
 
 package androidx.ui.material.icons.test
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.test.filters.LargeTest
@@ -70,7 +70,7 @@ class IconComparisonTest {
      * to run this test ~tenfold.
      */
     @get:Rule
-    val activityTestRule = ActivityTestRule(Activity::class.java)
+    val activityTestRule = ActivityTestRule(ComponentActivity::class.java)
 
     @Test
     fun compareVectorAssets() {

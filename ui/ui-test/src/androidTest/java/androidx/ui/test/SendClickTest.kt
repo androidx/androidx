@@ -16,10 +16,10 @@
 
 package androidx.ui.test
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.FrameLayout
+import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.test.filters.MediumTest
@@ -60,7 +60,7 @@ private data class ClickData(
 )
 
 // The presence of an ActionBar follows from the theme set in AndroidManifest.xml
-class ActivityWithActionBar : Activity() {
+class ActivityWithActionBar : ComponentActivity() {
     private lateinit var composeHolder: FrameLayout
     private var composition: Composition? = null
 
@@ -88,7 +88,7 @@ class ActivityWithActionBar : Activity() {
     }
 }
 
-private fun <T : Activity> AndroidComposeTestRule<T>.setContent(
+private fun <T : ComponentActivity> AndroidComposeTestRule<T>.setContent(
     recordedClicks: MutableList<ClickData>
 ) {
     val activity = activityTestRule.activity
@@ -147,14 +147,14 @@ private fun Ui(recordedClicks: MutableList<ClickData>) {
 @RunWith(Parameterized::class)
 class SendClickWithoutArgumentsTest(config: TestConfig) {
     data class TestConfig(
-        val activityClass: Class<out Activity>
+        val activityClass: Class<out ComponentActivity>
     )
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> = listOf(
-            TestConfig(Activity::class.java),
+            TestConfig(ComponentActivity::class.java),
             TestConfig(ActivityWithActionBar::class.java)
         )
     }
@@ -189,7 +189,7 @@ class SendClickWithoutArgumentsTest(config: TestConfig) {
 class SendClickWithArgumentsTest(private val config: TestConfig) {
     data class TestConfig(
         val position: PxPosition,
-        val activityClass: Class<out Activity>
+        val activityClass: Class<out ComponentActivity>
     )
 
     companion object {
@@ -199,7 +199,7 @@ class SendClickWithArgumentsTest(private val config: TestConfig) {
             return mutableListOf<TestConfig>().apply {
                 for (x in listOf(0.px, squareSize - 1.px)) {
                     for (y in listOf(0.px, squareSize - 1.px)) {
-                        add(TestConfig(PxPosition(x, y), Activity::class.java))
+                        add(TestConfig(PxPosition(x, y), ComponentActivity::class.java))
                         add(TestConfig(PxPosition(x, y), ActivityWithActionBar::class.java))
                     }
                 }
