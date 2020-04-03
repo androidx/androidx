@@ -52,7 +52,7 @@ class OpacityTest {
     val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
-    private val unlatch = Modifier.drawBehind { _, _ -> drawLatch.countDown() }
+    private val unlatch = Modifier.drawBehind { drawLatch.countDown() }
 
     @Before
     fun setup() {

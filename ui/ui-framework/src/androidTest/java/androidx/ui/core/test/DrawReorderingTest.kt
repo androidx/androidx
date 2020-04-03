@@ -563,14 +563,14 @@ class DrawReorderingTest {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
     }
 
-    fun Modifier.drawLatchModifier() = drawBehind { _, _ -> drawLatch.countDown() }
+    fun Modifier.drawLatchModifier() = drawBehind { drawLatch.countDown() }
 }
 
 private fun Modifier.background(
     color: State<Color>
-) = drawBehind { canvas, parentSize ->
+) = drawBehind {
     if (color.value != Color.Transparent) {
-        canvas.drawRect(parentSize.toRect(), Paint().apply {
+        drawRect(size.toRect(), Paint().apply {
             this.color = color.value
         })
     }

@@ -20,7 +20,6 @@ import android.annotation.TargetApi
 import android.graphics.Matrix
 import android.graphics.RenderNode
 import androidx.ui.graphics.Canvas
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.toPxSize
@@ -32,7 +31,7 @@ import androidx.ui.unit.toPxSize
 internal class RenderNodeLayer(
     val ownerView: AndroidComposeView,
     val drawLayerModifier: DrawLayerModifier,
-    val drawBlock: (Canvas, Density) -> Unit,
+    val drawBlock: (Canvas) -> Unit,
     val invalidateParentLayer: () -> Unit
 ) : OwnedLayer {
     /**
@@ -126,7 +125,7 @@ internal class RenderNodeLayer(
                 canvas.disableZ()
             }
         } else {
-            drawBlock(canvas, ownerView.density)
+            drawBlock(canvas)
         }
         isDirty = false
     }
@@ -144,7 +143,7 @@ internal class RenderNodeLayer(
                 uiCanvas.clipPath(clipPath!!)
             }
             ownerView.observeLayerModelReads(this) {
-                drawBlock(uiCanvas, ownerView.density)
+                drawBlock(uiCanvas)
             }
             if (manuallyClip) {
                 uiCanvas.restore()

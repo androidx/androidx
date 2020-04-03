@@ -15,17 +15,32 @@
  */
 package androidx.ui.core
 
+import androidx.ui.graphics.Canvas
 import androidx.ui.unit.Density
+import androidx.ui.unit.PxSize
 
 /**
- * Receiver scope for [Draw] lambda that allows ordering the child drawing between
- * canvas operations. Most Draw calls don't accept children, but in some rare cases
- * a [Canvas] should be modified for the children. [DrawReceiver] is the receiver scope for
- * the `onPaint` to give access to [drawChildren].
+ * Receiver scope for drawing content into a layout.
+ * @see Modifier.drawBehind
+ * @see androidx.ui.foundation.Canvas
  */
-interface DrawReceiver : Density {
+interface DrawScope : Canvas, Density {
+    /**
+     * The size of layout being drawn in.
+     */
+    val size: PxSize
+}
+
+/**
+ * Receiver scope for drawing content into a layout, where the content can
+ * be drawn between other canvas operations. If [drawContent] is not called,
+ * the contents of the layout will not be drawn.
+ *
+ * @see DrawModifier
+ */
+interface ContentDrawScope : DrawScope {
     /**
      * Causes child drawing operations to run during the `onPaint` lambda.
      */
-    fun drawChildren()
+    fun drawContent()
 }

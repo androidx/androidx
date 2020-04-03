@@ -18,7 +18,6 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.ScaleFit
@@ -210,12 +209,7 @@ private data class PainterModifier(
         return max(painterIntrinsicHeight, layoutHeight)
     }
 
-    override fun draw(
-        density: Density,
-        drawContent: () -> Unit,
-        canvas: Canvas,
-        size: PxSize
-    ) {
+    override fun ContentDrawScope.draw() {
         val intrinsicSize = painter.intrinsicSize
         val srcWidth = if (intrinsicSize.width.value != Float.POSITIVE_INFINITY) {
             intrinsicSize.width
@@ -241,17 +235,17 @@ private data class PainterModifier(
         val dx = alignedPosition.x.value.toFloat()
         val dy = alignedPosition.y.value.toFloat()
 
-        canvas.save()
-        canvas.translate(dx, dy)
-        canvas.scale(scale, scale)
+        save()
+        translate(dx, dy)
+        scale(scale, scale)
 
         painter.draw(
-            canvas = canvas,
+            canvas = this,
             bounds = PxSize(srcWidth, srcHeight),
             alpha = alpha,
             colorFilter = colorFilter,
             rtl = rtl)
 
-        canvas.restore()
+        restore()
     }
 }

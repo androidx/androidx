@@ -405,12 +405,12 @@ private fun TextFieldLayout(
 @Composable
 private fun Modifier.drawIndicatorLine(lineWidth: Dp, color: Color): Modifier {
     val paint = remember { Paint() }
-    return drawBehind { canvas, size ->
+    return drawBehind {
         val strokeWidth = lineWidth.value * density
         paint.strokeWidth = strokeWidth
         paint.color = color
         val y = size.height.value - strokeWidth / 2
-        canvas.drawLine(
+        drawLine(
             Offset(0f, y),
             Offset(size.width.value, y),
             paint

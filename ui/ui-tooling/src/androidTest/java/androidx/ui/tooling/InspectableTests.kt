@@ -47,9 +47,9 @@ class InspectableTests : ToolingTest() {
         show {
             Inspectable {
                 Column {
-                    Box(Modifier.preferredSize(100.dp).drawBehind { canvas, size ->
+                    Box(Modifier.preferredSize(100.dp).drawBehind {
                         val paint = Paint().also { it.color = Color(0xFF) }
-                        canvas.drawRect(size.toRect(), paint)
+                        drawRect(size.toRect(), paint)
                     })
                 }
             }

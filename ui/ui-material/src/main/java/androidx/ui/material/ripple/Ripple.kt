@@ -33,20 +33,20 @@ import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawModifier
+import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
-import androidx.ui.unit.PxSize
 import androidx.ui.unit.center
 import androidx.ui.unit.ipx
 import androidx.ui.unit.toPxSize
+import androidx.ui.util.fastForEach
 
 /**
  * Ripple is a [Modifier] which draws the visual indicator for a pressed state.
@@ -144,9 +144,9 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
         currentEffect = null
     }
 
-    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
+    override fun ContentDrawScope.draw() {
         drawContent()
-        effects.forEach { it.draw(canvas, this.size, color) }
+        effects.fastForEach { it.draw(this, this@RippleModifier.size, color) }
     }
 
     override fun onEnter() {
@@ -154,7 +154,7 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
     }
 
     override fun onLeave() {
-        effects.forEach { it.dispose() }
+        effects.fastForEach { it.dispose() }
         effects.clear()
         currentEffect = null
     }

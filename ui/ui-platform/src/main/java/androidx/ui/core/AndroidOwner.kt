@@ -490,20 +490,24 @@ internal class AndroidComposeView constructor(context: Context) :
                     val onPaintWithChildren = node.onPaintWithChildren
                     if (onPaintWithChildren != null) {
                         val ownerData = node.ownerData
-                        val receiver: DrawReceiverImpl
+                        val receiver: DrawScopeImpl
                         if (ownerData == null) {
-                            receiver = DrawReceiverImpl(node, canvas, parentSize, density)
+                            receiver = DrawScopeImpl(node, canvas, parentSize, density)
                             node.ownerData = receiver
                         } else {
-                            receiver = ownerData as DrawReceiverImpl
+                            receiver = ownerData as DrawScopeImpl
                             receiver.childDrawn = false
                             receiver.canvas = canvas
-                            receiver.parentSize = parentSize
+                            receiver.size = parentSize
                             receiver.currentDensity = density
                         }
                         onPaintWithChildren(receiver, canvas, parentSize)
                         if (!receiver.childDrawn) {
-                            receiver.drawChildren()
+                            with(receiver) {
+                                with(density) {
+                                    drawContent()
+                                }
+                            }
                         }
                     } else {
                         val onPaint = node.onPaint!!
@@ -515,7 +519,7 @@ internal class AndroidComposeView constructor(context: Context) :
                     if (node.isPlaced) {
                         require(!node.needsRemeasure) { "$node is not measured, draw requested" }
                         require(!node.needsRelayout) { "$node is not laid out, draw requested" }
-                        node.draw(canvas, density)
+                        node.draw(canvas)
                     }
                 }
                 else -> node.visitChildren {
@@ -527,7 +531,7 @@ internal class AndroidComposeView constructor(context: Context) :
 
     override fun createLayer(
         drawLayerModifier: DrawLayerModifier,
-        drawBlock: (Canvas, Density) -> Unit,
+        drawBlock: (Canvas) -> Unit,
         invalidateParentLayer: () -> Unit
     ): OwnedLayer {
         val layer = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P || isInEditMode()) {
@@ -556,7 +560,7 @@ internal class AndroidComposeView constructor(context: Context) :
         // we don't have to observe here because the root has a layer modifier
         // that will observe all children. The AndroidComposeView has only the
         // root, so it doesn't have to invalidate itself based on model changes.
-        root.draw(uiCanvas, density)
+        root.draw(uiCanvas)
 
         if (dirtyLayers.isNotEmpty()) {
             for (i in 0 until dirtyLayers.size) {
@@ -692,24 +696,21 @@ internal class AndroidComposeView constructor(context: Context) :
         onRestoreInstanceState(superState)
     }
 
-    private inner class DrawReceiverImpl(
+    private inner class DrawScopeImpl(
         private val drawNode: DrawNode,
         var canvas: Canvas,
-        var parentSize: PxSize,
+        override var size: PxSize,
         var currentDensity: Density
-    ) : DrawReceiver {
+    ) : Canvas by canvas, Density by currentDensity, ContentDrawScope {
         internal var childDrawn = false
 
-        override val density: Float get() = currentDensity.density
-        override val fontScale: Float get() = currentDensity.fontScale
-
-        override fun drawChildren() {
+        override fun drawContent() {
             if (childDrawn) {
-                throw IllegalStateException("Cannot call drawChildren() twice within Draw element")
+                throw IllegalStateException("Cannot call drawContent() twice within Draw element")
             }
             childDrawn = true
             drawNode.visitChildren { child ->
-                callDraw(canvas, child, parentSize)
+                callDraw(canvas, child, size)
             }
         }
     }

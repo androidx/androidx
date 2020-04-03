@@ -220,8 +220,8 @@ class DrawShadowTest {
         assertNotEquals(color(width / 2, height - 1), Color.White)
     }
 
-    private fun background(color: Color) = Modifier.drawBehind { canvas, size ->
-        canvas.drawRect(size.toRect(), Paint().apply {
+    private fun background(color: Color) = Modifier.drawBehind {
+        drawRect(size.toRect(), Paint().apply {
             this.color = color
         })
         drawLatch.countDown()

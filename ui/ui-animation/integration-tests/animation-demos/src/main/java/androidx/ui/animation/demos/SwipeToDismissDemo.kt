@@ -27,12 +27,12 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.DrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.CanvasScope
 import androidx.ui.foundation.Text
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
@@ -146,7 +146,7 @@ private fun SwipeToDismiss() {
     }
 }
 
-private fun CanvasScope.drawLeftItems(
+private fun DrawScope.drawLeftItems(
     paint: Paint,
     horizontalOffset: Float,
     width: Float,
@@ -172,7 +172,7 @@ private fun CanvasScope.drawLeftItems(
     }
 }
 
-private fun CanvasScope.drawDismissingItem(
+private fun DrawScope.drawDismissingItem(
     paint: Paint,
     bottom: Float,
     width: Float,

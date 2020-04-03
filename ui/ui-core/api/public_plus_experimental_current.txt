@@ -100,6 +100,10 @@ package androidx.ui.core {
     method public androidx.ui.unit.PxPosition getPositionChange();
   }
 
+  public interface ContentDrawScope extends androidx.ui.core.DrawScope {
+    method public void drawContent();
+  }
+
   public interface CustomEvent {
   }
 
@@ -150,17 +154,18 @@ package androidx.ui.core {
   }
 
   public interface DrawModifier extends androidx.ui.core.Modifier.Element {
-    method public void draw(androidx.ui.unit.Density density, kotlin.jvm.functions.Function0<kotlin.Unit> drawContent, androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize size);
+    method public void draw(androidx.ui.core.ContentDrawScope);
   }
 
   public final class DrawModifierKt {
-    method @Deprecated public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
-    method public static androidx.ui.core.Modifier drawBehind(androidx.ui.core.Modifier, kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
-    method public static androidx.ui.core.DrawModifier drawWithContent(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onDraw);
+    method @Deprecated public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function1<? super androidx.ui.core.DrawScope,kotlin.Unit> onDraw);
+    method public static androidx.ui.core.Modifier drawBehind(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.DrawScope,kotlin.Unit> onDraw);
+    method public static androidx.ui.core.DrawModifier drawWithContent(kotlin.jvm.functions.Function1<? super androidx.ui.core.ContentDrawScope,kotlin.Unit> onDraw);
   }
 
-  public interface DrawReceiver extends androidx.ui.unit.Density {
-    method public void drawChildren();
+  public interface DrawScope extends androidx.ui.graphics.Canvas androidx.ui.unit.Density {
+    method public androidx.ui.unit.PxSize getSize();
+    property public abstract androidx.ui.unit.PxSize size;
   }
 
   public final class HorizontalAlignmentLine extends androidx.ui.core.AlignmentLine {

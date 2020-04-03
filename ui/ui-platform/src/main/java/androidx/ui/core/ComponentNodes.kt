@@ -655,7 +655,7 @@ class FocusNode : ComponentNode() {
  * Backing node for the Draw component.
  */
 class DrawNode : ComponentNode() {
-    var onPaintWithChildren: (DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
+    var onPaintWithChildren: (ContentDrawScope.(canvas: Canvas, parentSize: PxSize) -> Unit)? = null
         set(value) {
             field = value
             invalidate()
@@ -1199,7 +1199,7 @@ class LayoutNode : ComponentNode(), Measurable {
         }
     }
 
-    fun draw(canvas: Canvas, density: Density) = layoutNodeWrapper.draw(canvas, density)
+    fun draw(canvas: Canvas) = layoutNodeWrapper.draw(canvas)
 
     /**
      * Carries out a hit test on the [PointerInputModifier]s associated with this [LayoutNode] and

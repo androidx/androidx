@@ -19,6 +19,7 @@ package androidx.ui.foundation
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DrawModifier
+import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.geometry.Offset
@@ -171,7 +172,9 @@ class DrawBorder internal constructor(
         cache.borderSize = borderWidth
     }
 
-    override fun draw(density: Density, drawContent: () -> Unit, canvas: Canvas, size: PxSize) {
+    override fun ContentDrawScope.draw() {
+        val density = this
+        val canvas = this
         with(cache) {
             drawContent()
             modifierSize = size
@@ -191,7 +194,7 @@ class DrawBorder internal constructor(
             } else {
                 val path = borderPath(density, borderSize)
                 paint.style = PaintingStyle.fill
-                canvas.drawPath(path, paint)
+                drawPath(path, paint)
             }
         }
     }

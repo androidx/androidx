@@ -149,10 +149,10 @@ class ParentDataModifierTest {
 
 @Composable
 fun SimpleDrawChild(drawLatch: CountDownLatch) {
-    AtLeastSize(size = 10.ipx, modifier = Modifier.drawBehind { canvas, size ->
+    AtLeastSize(size = 10.ipx, modifier = Modifier.drawBehind {
         val paint = Paint()
         paint.color = Color(0xFF008000)
-        canvas.drawRect(size.toRect(), paint)
+        drawRect(size.toRect(), paint)
         drawLatch.countDown()
     }) {}
 }

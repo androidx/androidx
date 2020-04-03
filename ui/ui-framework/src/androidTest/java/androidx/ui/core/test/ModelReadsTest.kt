@@ -56,7 +56,7 @@ class ModelReadsTest {
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                Layout({}, modifier = Modifier.drawBehind { _, _ ->
+                Layout({}, modifier = Modifier.drawBehind {
                     // read from the model
                     model.offset
                     drawLatch.countDown()
@@ -99,7 +99,7 @@ class ModelReadsTest {
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                Layout({}, modifier = Modifier.drawBehind { _, _ ->
+                Layout({}, modifier = Modifier.drawBehind {
                     // read from the model
                     drawModel.offset
                     drawLatch.countDown()
@@ -141,7 +141,7 @@ class ModelReadsTest {
         var drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                Layout({}, modifier = Modifier.drawBehind { _, _ ->
+                Layout({}, modifier = Modifier.drawBehind {
                     // read from the model
                     model.offset
                     drawLatch.countDown()
@@ -222,7 +222,7 @@ class ModelReadsTest {
         val model = ValueModel(0)
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
-                AtLeastSize(10.ipx, modifier = Modifier.drawBehind { _, _ ->
+                AtLeastSize(10.ipx, modifier = Modifier.drawBehind {
                     if (enabled.value) {
                         // read the model
                         model.value
@@ -285,7 +285,7 @@ class ModelReadsTest {
         rule.runOnUiThread {
             activity.setContentInFrameLayout {
                 val modifier = if (enabled.value) {
-                    Modifier.drawBehind { _, _ ->
+                    Modifier.drawBehind {
                         // read the model
                         model.value
                         latch.countDown()
