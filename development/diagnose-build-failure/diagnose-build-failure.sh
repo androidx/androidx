@@ -38,7 +38,7 @@ fi
 scriptPath="$(cd $(dirname $0) && pwd)"
 supportRoot="$(cd $scriptPath/../.. && pwd)"
 checkoutRoot="$(cd $supportRoot/../.. && pwd)"
-tempDir="/tmp/diagnose-build-failure"
+tempDir="$checkoutRoot/diagnose-build-failure/"
 if [ "${GRADLE_USER_HOME:-}" == "" ]; then
   GRADLE_USER_HOME="$(cd ~ && pwd)/.gradle"
 fi
@@ -149,6 +149,7 @@ else
   echo "The clean build also failed."
   echo "This may mean that the build is failing for everyone"
   echo "This may mean that something about your checkout is different from others'"
+  echo "You may be interested in running development/simplify-build-failure/simplify-build-failure.sh to identify the minimal set of source files required to reproduce this error"
   echo "Checking the status of your checkout:"
   checkStatus
   exit 1
@@ -191,7 +192,7 @@ echo
 echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
 echo "This may take a while."
 echo
-if runBuild "$supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct $successState $tempDir/prev \"$scriptPath/impl/restore-state.sh . $workingDir && cd $supportRoot && ./gradlew --no-daemon $gradleArgs\""; then
+if runBuild "$supportRoot/development/file-utils/diff-filterer.py --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev \"$scriptPath/impl/restore-state.sh . $workingDir && cd $supportRoot && ./gradlew --no-daemon $gradleArgs\""; then
   echo
   echo "There should be something wrong with the above file state"
   echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong"
