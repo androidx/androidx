@@ -16,12 +16,15 @@
 
 package androidx.camera.lifecycle
 
+import androidx.camera.core.CameraSelector
 import androidx.camera.testing.fakes.FakeAppConfig
+import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -29,6 +32,7 @@ import org.junit.Test
 class ProcessCameraProviderTest {
 
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
+    private val lifecycleOwner = FakeLifecycleOwner()
 
     @Test
     fun uninitializedGetInstance_throwsISE() {
@@ -45,6 +49,18 @@ class ProcessCameraProviderTest {
         runBlocking {
             val provider = ProcessCameraProvider.getInstance(context).await()
             assertThat(provider).isNotNull()
+            provider.shutdown().await()
+        }
+    }
+
+    @Test
+    fun canRetrieveCamera_withZeroUseCases() {
+        ProcessCameraProvider.initializeInstance(context, FakeAppConfig.create())
+        runBlocking(MainScope().coroutineContext) {
+            val provider = ProcessCameraProvider.getInstance(context).await()
+            val camera =
+                provider.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA)
+            assertThat(camera).isNotNull()
             provider.shutdown().await()
         }
     }
