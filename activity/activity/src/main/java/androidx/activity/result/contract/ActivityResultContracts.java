@@ -44,6 +44,7 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -413,14 +414,22 @@ public final class ActivityResultContracts {
 
         @NonNull
         static List<Uri> getClipDataUris(@NonNull Intent intent) {
-            ClipData clipData = intent.getClipData();
-            if (clipData == null) return Collections.emptyList();
-            ArrayList<Uri> result = new ArrayList<>();
-            int size = clipData.getItemCount();
-            for (int i = 0; i < size; i++) {
-                result.add(clipData.getItemAt(i).getUri());
+            HashSet<Uri> resultSet = new HashSet<>();
+            if (intent.getData() != null) {
+                resultSet.add(intent.getData());
             }
-            return result;
+            ClipData clipData = intent.getClipData();
+            if (clipData == null && resultSet.isEmpty()) {
+                return Collections.emptyList();
+            } else if (clipData != null) {
+                for (int i = 0; i < clipData.getItemCount(); i++) {
+                    Uri uri = clipData.getItemAt(i).getUri();
+                    if (uri != null) {
+                        resultSet.add(uri);
+                    }
+                }
+            }
+            return new ArrayList<>(resultSet);
         }
     }
 
@@ -496,8 +505,7 @@ public final class ActivityResultContracts {
         @Nullable
         @Override
         public final List<Uri> parseResult(int resultCode, @Nullable Intent intent) {
-            if (resultCode != Activity.RESULT_OK) return null;
-            if (intent == null) return null;
+            if (resultCode != Activity.RESULT_OK || intent == null) return null;
             return GetContents.getClipDataUris(intent);
         }
     }
