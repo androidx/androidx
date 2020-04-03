@@ -110,6 +110,7 @@ open class ScreenshotTestRule(
         override fun evaluate() {
             // We currently only support Cuttlefish API 29 because of the storage access.
             Assume.assumeTrue(Build.MODEL.contains("Cuttlefish"))
+            Assume.assumeTrue(Build.VERSION.SDK_INT == 29)
             base.evaluate()
         }
     }
