@@ -73,6 +73,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -2505,7 +2506,8 @@ public final class MediaRouter {
 
             if (callbackExists) {
                 RouteDiscoveryPreference preference = new RouteDiscoveryPreference.Builder(
-                        new ArrayList<>(controlCategories), /* activeScan= */ false).build();
+                        controlCategories.stream().map(MediaRouter2Utils::toRouteFeature)
+                                .collect(Collectors.toList()), /* activeScan= */ false).build();
                 mMediaRouter2Fwk.registerRouteCallback(
                         mMr2CbExecutor, mMr2RouteCallbackFwk, preference);
             } else {
