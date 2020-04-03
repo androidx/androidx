@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 public class SubtitleDataTest {
 
     @Test
-    public void testConstructor() {
+    public void constructor() {
         byte[] testData = {4, 3, 2, 1};
         final MediaFormat format = new MediaFormat();
         SubtitleData data = new SubtitleData(123, 456, testData);

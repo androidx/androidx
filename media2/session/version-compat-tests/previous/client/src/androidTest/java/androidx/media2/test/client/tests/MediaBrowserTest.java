@@ -74,7 +74,7 @@ public class MediaBrowserTest extends MediaControllerTest {
      * Test if the {@link TestBrowserCallback} wraps the callback proxy without missing any method.
      */
     @Test
-    public void testTestBrowserCallback() {
+    public void testBrowserCallback() {
         prepareLooper();
         Method[] methods = TestBrowserCallback.class.getMethods();
         assertNotNull(methods);

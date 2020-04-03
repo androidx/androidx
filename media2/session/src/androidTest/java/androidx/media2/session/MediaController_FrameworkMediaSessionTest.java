@@ -69,7 +69,7 @@ public class MediaController_FrameworkMediaSessionTest extends MediaSessionTestB
     }
 
     @Test
-    public void testConnect() throws Exception {
+    public void connect() throws Exception {
         CountDownLatch connectedLatch = new CountDownLatch(1);
         MediaController.ControllerCallback callback = new MediaController.ControllerCallback() {
             @Override
@@ -88,7 +88,7 @@ public class MediaController_FrameworkMediaSessionTest extends MediaSessionTestB
     }
 
     @Test
-    public void testPlayerStateChanged() throws Exception {
+    public void playerStateChanged() throws Exception {
         CountDownLatch connectedLatch = new CountDownLatch(1);
         CountDownLatch playerStateChangedLatch = new CountDownLatch(1);
         MediaController.ControllerCallback callback = new MediaController.ControllerCallback() {

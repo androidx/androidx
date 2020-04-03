@@ -59,7 +59,7 @@ import java.util.Set;
 @MediumTest
 public class MediaMetadataTest {
     @Test
-    public void testBuilder() {
+    public void builder() {
         final String title = "title";
         final long discNumber = 10;
         final Rating rating = new ThumbRating(true);
@@ -76,7 +76,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testSetExtra() {
+    public void setExtra() {
         final Bundle extras = new Bundle();
         extras.putString("MediaMetadataTest", "testBuilder");
 
@@ -93,7 +93,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testParcelingWithSmallBitmaps() {
+    public void parcelingWithSmallBitmaps() {
         final int bitmapCount = 100;
         final List<String> keyList = new ArrayList<>(bitmapCount);
         final String bitmapKeyPrefix = "bitmap_";
@@ -144,7 +144,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testParcelingWithLargeBitmaps() {
+    public void parcelingWithLargeBitmaps() {
         final int bitmapCount = 100;
         final List<String> keyList = new ArrayList<>(bitmapCount);
         final String bitmapKeyPrefix = "bitmap_";
@@ -195,7 +195,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testMediaUtils_convertToMediaMetadataCompat() {
+    public void mediaUtils_convertToMediaMetadataCompat() {
         HeartRating testRating = new HeartRating(true);
         long testState = MediaMetadata.STATUS_DOWNLOADING;
         String testCustomKey = "android.media.test";
@@ -217,7 +217,7 @@ public class MediaMetadataTest {
     }
 
     @Test
-    public void testMediaUtils_convertToMediaItem() {
+    public void mediaUtils_convertToMediaItem() {
         RatingCompat testRating = RatingCompat.newHeartRating(true);
         long testState = MediaDescriptionCompat.STATUS_DOWNLOADING;
         String testCustomKey = "android.media.test";

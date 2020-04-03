@@ -114,7 +114,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayNullSourcePath() throws Exception {
+    public void playNullSourcePath() throws Exception {
         final Monitor onSetDataSourceCalled = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
@@ -138,7 +138,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayAudioFromDataURI() throws Exception {
+    public void playAudioFromDataURI() throws Exception {
         final int mp3Duration = 34909;
         final int tolerance = 100;
         final int seekDuration = 100;
@@ -249,7 +249,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayAudio() throws Exception {
+    public void playAudio() throws Exception {
         final int resid = R.raw.testmp3_2;
         final int mp3Duration = 34909;
         final int tolerance = 100;
@@ -351,7 +351,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     /*
-    public void testConcurentPlayAudio() throws Exception {
+    public void concurrentPlayAudio() throws Exception {
         final int resid = R.raw.test1m1s; // MP3 longer than 1m are usualy offloaded
         final int tolerance = 70;
 
@@ -413,7 +413,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayAudioLooping() throws Exception {
+    public void playAudioLooping() throws Exception {
         final int resid = R.raw.testmp3;
 
         MediaPlayer2 mp = createMediaPlayer2(mContext, resid);
@@ -540,7 +540,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
     }
 
-    public void testPlayAudioTwice() throws Exception {
+    public void playAudioTwice() throws Exception {
 
         final int resid = R.raw.camera_click;
 
@@ -575,14 +575,14 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayVideo() throws Exception {
+    public void playVideo() throws Exception {
         playVideoTest(R.raw.testvideo, 352, 288);
     }
 
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetDuration() throws Exception {
+    public void getDuration() throws Exception {
         if (!checkLoadResource(R.raw.testvideo)) {
             return;
         }
@@ -617,7 +617,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetCurrentPosition() throws Exception {
+    public void getCurrentPosition() throws Exception {
         assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
         try {
             assertTrue(mPlayer.getCurrentPosition() <= 0);
@@ -629,7 +629,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetBufferedPosition() throws Exception {
+    public void getBufferedPosition() throws Exception {
         assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
         try {
             assertTrue(mPlayer.getBufferedPosition() <= 0);
@@ -641,7 +641,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetPlayerParams() throws Exception {
+    public void getPlayerParams() throws Exception {
         assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
         assertNotNull(mPlayer.getPlaybackParams());
     }
@@ -654,7 +654,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testVideoSurfaceResetting() throws Exception {
+    public void videoSurfaceResetting() throws Exception {
         final int tolerance = 150;
         final int audioLatencyTolerance = 1000;  /* covers audio path latency variability */
         final int seekPos = 1840;  // This is the I-frame position
@@ -725,28 +725,28 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @Ignore("Fails to connect to camera service")
-    public void testRecordedVideoPlayback0() throws Exception {
+    public void recordedVideoPlayback0() throws Exception {
         testRecordedVideoPlaybackWithAngle(0);
     }
 
     @Test
     @LargeTest
     @Ignore("Fails to connect to camera service")
-    public void testRecordedVideoPlayback90() throws Exception {
+    public void recordedVideoPlayback90() throws Exception {
         testRecordedVideoPlaybackWithAngle(90);
     }
 
     @Test
     @LargeTest
     @Ignore("Fails to connect to camera service")
-    public void testRecordedVideoPlayback180() throws Exception {
+    public void recordedVideoPlayback180() throws Exception {
         testRecordedVideoPlaybackWithAngle(180);
     }
 
     @Test
     @LargeTest
     @Ignore("Fails to connect to camera service")
-    public void testRecordedVideoPlayback270() throws Exception {
+    public void recordedVideoPlayback270() throws Exception {
         testRecordedVideoPlaybackWithAngle(270);
     }
 
@@ -844,21 +844,21 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSkipToNext() throws Exception {
+    public void skipToNext() throws Exception {
         testSetNextDataSources(true, true);
     }
 
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSetNextDataSourcesWithVideos() throws Exception {
+    public void setNextDataSourcesWithVideos() throws Exception {
         testSetNextDataSources(true, false);
     }
 
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSetNextDataSourcesWithAudios() throws Exception {
+    public void setNextDataSourcesWithAudios() throws Exception {
         testSetNextDataSources(false, false);
     }
 
@@ -935,7 +935,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSetNextDataSource() throws Exception {
+    public void setNextDataSource() throws Exception {
         final MediaItem item1 = createDataSourceDesc(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
         final MediaItem item2 = createDataSourceDesc(R.raw.testvideo);
@@ -995,7 +995,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSetNextDataSourceBeforeSetDataSource() throws Exception {
+    public void setNextDataSourceBeforeSetDataSource() throws Exception {
         final MediaItem item1 = createDataSourceDesc(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
         final MediaItem item2 = createDataSourceDesc(
@@ -1036,7 +1036,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     // setPlaybackParams() with non-zero speed should NOT start playback.
     // TODO: enable this test when MediaPlayer2.setPlaybackParams() is fixed
     /*
-    public void testSetPlaybackParamsPositiveSpeed() throws Exception {
+    public void setPlaybackParamsPositiveSpeed() throws Exception {
         if (!checkLoadResource(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz)) {
             return; // skip
@@ -1107,7 +1107,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlaybackRate() throws Exception {
+    public void playbackRate() throws Exception {
         final int toleranceMs = 1000;
         if (!checkLoadResource(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz)) {
@@ -1184,7 +1184,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSeekModes() throws Exception {
+    public void seekModes() throws Exception {
         // This clip has 2 I frames at 66687us and 4299687us.
         if (!checkLoadResource(
                 R.raw.bbb_s1_320x240_mp4_h264_mp2_800kbps_30fps_aac_lc_5ch_240kbps_44100hz)) {
@@ -1279,7 +1279,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetTimestamp() throws Exception {
+    public void getTimestamp() throws Exception {
         final int toleranceUs = 100000;
         final float playbackRate = 1.0f;
         if (!checkLoadResource(
@@ -1356,7 +1356,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_MKV_H265_1280x720_500kbps_25fps_AAC_Stereo_128kbps_44100Hz()
+    public void localVideo_MKV_H265_1280x720_500kbps_25fps_AAC_Stereo_128kbps_44100Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_1280x720_mkv_h265_500kbps_25fps_aac_stereo_128kbps_44100hz, 1280, 720);
@@ -1366,7 +1366,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_MP4_H264_480x360_500kbps_25fps_AAC_Stereo_128kbps_44110Hz()
+    public void localVideo_MP4_H264_480x360_500kbps_25fps_AAC_Stereo_128kbps_44110Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_480x360_mp4_h264_500kbps_25fps_aac_stereo_128kbps_44100hz, 480, 360);
@@ -1376,7 +1376,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_MP4_H264_480x360_500kbps_30fps_AAC_Stereo_128kbps_44110Hz()
+    public void localVideo_MP4_H264_480x360_500kbps_30fps_AAC_Stereo_128kbps_44110Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_480x360_mp4_h264_500kbps_30fps_aac_stereo_128kbps_44100hz, 480, 360);
@@ -1386,7 +1386,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_MP4_H264_480x360_1000kbps_25fps_AAC_Stereo_128kbps_44110Hz()
+    public void localVideo_MP4_H264_480x360_1000kbps_25fps_AAC_Stereo_128kbps_44110Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_480x360_mp4_h264_1000kbps_25fps_aac_stereo_128kbps_44100hz, 480, 360);
@@ -1396,7 +1396,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_MP4_H264_480x360_1000kbps_30fps_AAC_Stereo_128kbps_44110Hz()
+    public void localVideo_MP4_H264_480x360_1000kbps_30fps_AAC_Stereo_128kbps_44110Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz, 480, 360);
@@ -1406,7 +1406,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_MP4_H264_480x360_1350kbps_25fps_AAC_Stereo_128kbps_44110Hz()
+    public void localVideo_MP4_H264_480x360_1350kbps_25fps_AAC_Stereo_128kbps_44110Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_480x360_mp4_h264_1350kbps_25fps_aac_stereo_128kbps_44100hz, 480, 360);
@@ -1416,7 +1416,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_MP4_H264_480x360_1350kbps_30fps_AAC_Stereo_128kbps_44110Hz()
+    public void localVideo_MP4_H264_480x360_1350kbps_30fps_AAC_Stereo_128kbps_44110Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_128kbps_44100hz, 480, 360);
@@ -1426,7 +1426,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_MP4_H264_480x360_1350kbps_30fps_AAC_Stereo_128kbps_44110Hz_frag()
+    public void localVideo_MP4_H264_480x360_1350kbps_30fps_AAC_Stereo_128kbps_44110Hz_frag()
             throws Exception {
         playVideoTest(
                 R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_128kbps_44100hz_fragmented,
@@ -1437,7 +1437,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_MP4_H264_480x360_1350kbps_30fps_AAC_Stereo_192kbps_44110Hz()
+    public void localVideo_MP4_H264_480x360_1350kbps_30fps_AAC_Stereo_192kbps_44110Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz, 480, 360);
@@ -1447,7 +1447,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_12fps_AAC_Mono_24kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_12fps_AAC_Mono_24kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_12fps_aac_mono_24kbps_11025hz, 176, 144);
@@ -1457,7 +1457,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_12fps_AAC_Mono_24kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_12fps_AAC_Mono_24kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_12fps_aac_mono_24kbps_22050hz, 176, 144);
@@ -1467,7 +1467,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_12fps_AAC_Stereo_24kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_12fps_AAC_Stereo_24kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_12fps_aac_stereo_24kbps_11025hz, 176, 144);
@@ -1477,7 +1477,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_12fps_AAC_Stereo_24kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_12fps_AAC_Stereo_24kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_12fps_aac_stereo_24kbps_11025hz, 176, 144);
@@ -1487,7 +1487,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_12fps_AAC_Stereo_128kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_12fps_AAC_Stereo_128kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_12fps_aac_stereo_128kbps_11025hz, 176, 144);
@@ -1497,7 +1497,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_12fps_AAC_Stereo_128kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_12fps_AAC_Stereo_128kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_12fps_aac_stereo_128kbps_11025hz, 176, 144);
@@ -1507,7 +1507,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_25fps_AAC_Mono_24kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_25fps_AAC_Mono_24kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_25fps_aac_mono_24kbps_11025hz, 176, 144);
@@ -1517,7 +1517,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_25fps_AAC_Mono_24kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_25fps_AAC_Mono_24kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_25fps_aac_mono_24kbps_22050hz, 176, 144);
@@ -1527,7 +1527,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_25fps_AAC_Stereo_24kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_25fps_AAC_Stereo_24kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_25fps_aac_stereo_24kbps_11025hz, 176, 144);
@@ -1537,7 +1537,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_25fps_AAC_Stereo_24kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_25fps_AAC_Stereo_24kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_25fps_aac_stereo_24kbps_11025hz, 176, 144);
@@ -1547,7 +1547,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_25fps_AAC_Stereo_128kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_25fps_AAC_Stereo_128kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_25fps_aac_stereo_128kbps_11025hz, 176, 144);
@@ -1557,7 +1557,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_56kbps_25fps_AAC_Stereo_128kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_56kbps_25fps_AAC_Stereo_128kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_56kbps_25fps_aac_stereo_128kbps_11025hz, 176, 144);
@@ -1567,7 +1567,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_12fps_AAC_Mono_24kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_12fps_AAC_Mono_24kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_12fps_aac_mono_24kbps_11025hz, 176, 144);
@@ -1577,7 +1577,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_12fps_AAC_Mono_24kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_12fps_AAC_Mono_24kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_12fps_aac_mono_24kbps_22050hz, 176, 144);
@@ -1587,7 +1587,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_12fps_AAC_Stereo_24kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_12fps_AAC_Stereo_24kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_12fps_aac_stereo_24kbps_11025hz, 176, 144);
@@ -1597,7 +1597,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_12fps_AAC_Stereo_24kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_12fps_AAC_Stereo_24kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_12fps_aac_stereo_24kbps_11025hz, 176, 144);
@@ -1607,7 +1607,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_12fps_AAC_Stereo_128kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_12fps_AAC_Stereo_128kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_12fps_aac_stereo_128kbps_11025hz, 176, 144);
@@ -1617,7 +1617,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_12fps_AAC_Stereo_128kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_12fps_AAC_Stereo_128kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_12fps_aac_stereo_128kbps_11025hz, 176, 144);
@@ -1627,7 +1627,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_25fps_AAC_Mono_24kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_25fps_AAC_Mono_24kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_25fps_aac_mono_24kbps_11025hz, 176, 144);
@@ -1637,7 +1637,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_25fps_AAC_Mono_24kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_25fps_AAC_Mono_24kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_25fps_aac_mono_24kbps_22050hz, 176, 144);
@@ -1647,7 +1647,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_25fps_AAC_Stereo_24kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_25fps_AAC_Stereo_24kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_25fps_aac_stereo_24kbps_11025hz, 176, 144);
@@ -1657,7 +1657,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_25fps_AAC_Stereo_24kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_25fps_AAC_Stereo_24kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_25fps_aac_stereo_24kbps_11025hz, 176, 144);
@@ -1667,7 +1667,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_25fps_AAC_Stereo_128kbps_11025Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_25fps_AAC_Stereo_128kbps_11025Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_25fps_aac_stereo_128kbps_11025hz, 176, 144);
@@ -1677,7 +1677,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @LargeTest
     @SdkSuppress(
             minSdkVersion = Build.VERSION_CODES.KITKAT, maxSdkVersion = Build.VERSION_CODES.O_MR1)
-    public void testLocalVideo_3gp_H263_176x144_300kbps_25fps_AAC_Stereo_128kbps_22050Hz()
+    public void localVideo_3gp_H263_176x144_300kbps_25fps_AAC_Stereo_128kbps_22050Hz()
             throws Exception {
         playVideoTest(
                 R.raw.video_176x144_3gp_h263_300kbps_25fps_aac_stereo_128kbps_22050hz, 176, 144);
@@ -1718,7 +1718,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testDeselectTrackForSubtitleTracks() throws Throwable {
+    public void deselectTrackForSubtitleTracks() throws Throwable {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
         }
@@ -1810,7 +1810,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testChangeSubtitleTrack() throws Throwable {
+    public void changeSubtitleTrack() throws Throwable {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
         }
@@ -1893,7 +1893,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetTrackInfoForVideoWithSubtitleTracks() throws Throwable {
+    public void getTrackInfoForVideoWithSubtitleTracks() throws Throwable {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
         }
@@ -1956,7 +1956,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetTrackInfoForVideoWithoutSubtitleTracks() throws Throwable {
+    public void getTrackInfoForVideoWithoutSubtitleTracks() throws Throwable {
         if (!checkLoadResource(R.raw.testvideo)) {
             return; // skip;
         }
@@ -1999,7 +1999,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testMediaTimeDiscontinuity() throws Exception {
+    public void mediaTimeDiscontinuity() throws Exception {
         if (!checkLoadResource(
                 R.raw.bbb_s1_320x240_mp4_h264_mp2_800kbps_30fps_aac_lc_5ch_240kbps_44100hz)) {
             return; // skip
@@ -2071,7 +2071,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     //@Test
     //@LargeTest
     //@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testResumeAtEnd() throws Throwable {
+    public void resumeAtEnd() throws Throwable {
         int testsRun = testResumeAtEnd(R.raw.loudsoftmp3)
                 + testResumeAtEnd(R.raw.loudsoftwav)
                 + testResumeAtEnd(R.raw.loudsoftogg)
@@ -2120,7 +2120,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPositionAtEnd() throws Throwable {
+    public void positionAtEnd() throws Throwable {
         testPositionAtEnd(R.raw.test1m1shighstereo);
         testPositionAtEnd(R.raw.loudsoftmp3);
         testPositionAtEnd(R.raw.loudsoftwav);
@@ -2183,7 +2183,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testMediaPlayer2Callback() throws Throwable {
+    public void mediaPlayer2Callback() throws Throwable {
         final int mp4Duration = 8484;
 
         if (!checkLoadResource(R.raw.testvideo)) {
@@ -2253,7 +2253,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlayerStates() throws Throwable {
+    public void playerStates() throws Throwable {
         final int mp4Duration = 8484;
 
         if (!checkLoadResource(R.raw.testvideo)) {
@@ -2305,7 +2305,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @Ignore("MediaRecorder.setAudioSource fails")
-    public void testRecordAndPlay() throws Exception {
+    public void recordAndPlay() throws Exception {
         if (!hasMicrophone()) {
             return;
         }
@@ -2386,7 +2386,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlaybackFromAMedia2DataSource() throws Exception {
+    public void playbackFromAMedia2DataSource() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final int duration = 10000;
 
@@ -2458,7 +2458,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testNullMedia2DataSourceIsRejected() throws Exception {
+    public void nullMedia2DataSourceIsRejected() throws Exception {
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
@@ -2480,7 +2480,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testMedia2DataSourceIsClosedOnReset() throws Exception {
+    public void media2DataSourceIsClosedOnReset() throws Exception {
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
@@ -2503,7 +2503,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlaybackFailsIfMedia2DataSourceThrows() throws Exception {
+    public void playbackFailsIfMedia2DataSourceThrows() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         /* FIXME: check the codec exists.
         if (!MediaUtils.hasCodecsForResource(mContext, resid)) {
@@ -2541,7 +2541,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testClearPendingCommands() throws Exception {
+    public void clearPendingCommands() throws Exception {
         final Monitor readRequested = new Monitor();
         final Monitor readAllowed = new Monitor();
         DataSourceCallback dataSource = new DataSourceCallback() {
@@ -2623,7 +2623,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testDataSourceStartEnd() throws Exception {
+    public void dataSourceStartEnd() throws Exception {
         final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final long start1 = 6000;
         final long end1 = 8000;
@@ -2700,7 +2700,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testDataSourceStartEndWithLooping() throws Exception {
+    public void dataSourceStartEndWithLooping() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final long start = 6000;
         final long end = 8000;
@@ -2771,7 +2771,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPreservePlaybackProperties() throws Exception {
+    public void preservePlaybackProperties() throws Exception {
         final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final long start1 = 6000;
         final long end1 = 7000;
@@ -2847,7 +2847,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testDefaultPlaybackParams() throws Exception {
+    public void defaultPlaybackParams() throws Exception {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
         }
@@ -2879,7 +2879,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testGetWidthAndHeightWithNonSquarePixels() throws Exception {
+    public void getWidthAndHeightWithNonSquarePixels() throws Exception {
         assertTrue(loadResource(R.raw.testvideo_with_2_subtitle_tracks));
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
@@ -2904,7 +2904,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSkipUnnecessarySeek() throws Exception {
+    public void skipUnnecessarySeek() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final TestDataSourceCallback source =
                 TestDataSourceCallback.fromAssetFd(mResources.openRawResourceFd(resid));
@@ -3008,7 +3008,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testCancelPendingCommands() throws Exception {
+    public void cancelPendingCommands() throws Exception {
         final Monitor readRequested = new Monitor();
         final Monitor readAllowed = new Monitor();
         DataSourceCallback dataSource = new DataSourceCallback() {
@@ -3100,7 +3100,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testClose() throws Exception {
+    public void close() throws Exception {
         assertTrue(loadResource(R.raw.testmp3_2));
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
@@ -3118,7 +3118,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testReset() throws Exception {
+    public void reset() throws Exception {
         assertTrue(loadResource(R.raw.testmp3_2));
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)

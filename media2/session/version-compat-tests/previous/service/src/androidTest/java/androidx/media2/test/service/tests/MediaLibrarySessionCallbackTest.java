@@ -69,7 +69,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnSubscribe() throws InterruptedException {
+    public void onSubscribe() throws InterruptedException {
         prepareLooper();
         final String testParentId = "testSubscribeId";
         final LibraryParams testParams = MediaTestUtils.createLibraryParams();
@@ -102,7 +102,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnUnsubscribe() throws InterruptedException {
+    public void onUnsubscribe() throws InterruptedException {
         prepareLooper();
         final String testParentId = "testUnsubscribeId";
 

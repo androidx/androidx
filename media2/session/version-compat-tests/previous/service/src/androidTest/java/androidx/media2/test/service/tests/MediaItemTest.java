@@ -155,7 +155,7 @@ public class MediaItemTest {
     }
 
     @Test
-    public void testSubclass_sameProcess() {
+    public void subclass_sameProcess() {
         final ParcelImpl parcel = MediaParcelUtils.toParcelable(mTestItem);
 
         final MediaItem testRemoteItem = MediaParcelUtils.fromParcelable(parcel);
@@ -163,7 +163,7 @@ public class MediaItemTest {
     }
 
     @Test
-    public void testSubclass_acrossProcessWithMediaUtils() {
+    public void subclass_acrossProcessWithMediaUtils() {
         final Parcel p = Parcel.obtain();
         try {
             // Mocks the binder call across the processes by using writeParcelable/readParcelable
@@ -185,7 +185,7 @@ public class MediaItemTest {
     }
 
     @Test
-    public void testSubclass_acrossProcessWithParcelUtils() {
+    public void subclass_acrossProcessWithParcelUtils() {
         if (mTestItem.getClass() == MediaItem.class) {
             return;
         }
@@ -208,7 +208,7 @@ public class MediaItemTest {
      * them all.
      */
     @Test
-    public void testSubclass_overriddenAllMethods() throws Exception {
+    public void subclass_overriddenAllMethods() throws Exception {
         Method[] mediaItemBuilderMethods = MediaItem.Builder.class.getDeclaredMethods();
         for (int i = 0; i < mediaItemBuilderMethods.length; i++) {
             Method mediaItemBuilderMethod = mediaItemBuilderMethods[i];

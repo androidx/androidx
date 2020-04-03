@@ -1116,7 +1116,7 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    public void testOperation() throws Exception {
+    public void operation() throws Exception {
         if (!CHECK_INVALID_STATE && !mIsValidOperation) {
             return;
         }

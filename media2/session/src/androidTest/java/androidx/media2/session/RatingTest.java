@@ -39,14 +39,14 @@ import org.junit.runner.RunWith;
 @SmallTest
 public class RatingTest extends MediaTestBase {
     @Test
-    public void testUnratedHeartRating() {
+    public void unratedHeartRating() {
         HeartRating rating = new HeartRating();
         assertEquals(false, rating.isRated());
         assertEquals(rating, writeToParcelAndCreateRating(rating));
     }
 
     @Test
-    public void testRatedHeartRating() {
+    public void ratedHeartRating() {
         final boolean hasHeart = true;
         HeartRating rating = new HeartRating(hasHeart);
         assertEquals(true, rating.isRated());
@@ -55,14 +55,14 @@ public class RatingTest extends MediaTestBase {
     }
 
     @Test
-    public void testUnratedPercentageRating() {
+    public void unratedPercentageRating() {
         PercentageRating rating = new PercentageRating();
         assertEquals(false, rating.isRated());
         assertEquals(rating, writeToParcelAndCreateRating(rating));
     }
 
     @Test
-    public void testRatedPercentageRating() {
+    public void ratedPercentageRating() {
         double delta = 0.000001;
         float percentage = 20.5f;
         PercentageRating rating = new PercentageRating(percentage);
@@ -72,14 +72,14 @@ public class RatingTest extends MediaTestBase {
     }
 
     @Test
-    public void testUnratedThumbRating() {
+    public void unratedThumbRating() {
         ThumbRating rating = new ThumbRating();
         assertEquals(false, rating.isRated());
         assertEquals(rating, writeToParcelAndCreateRating(rating));
     }
 
     @Test
-    public void testRatedThumbRating() {
+    public void ratedThumbRating() {
         boolean isThumbUp = true;
         ThumbRating rating = new ThumbRating(isThumbUp);
         assertEquals(true, rating.isRated());
@@ -88,7 +88,7 @@ public class RatingTest extends MediaTestBase {
     }
 
     @Test
-    public void testUnratedStarRating() {
+    public void unratedStarRating() {
         int maxStars = 5;
         StarRating rating = new StarRating(maxStars);
         assertEquals(false, rating.isRated());
@@ -97,7 +97,7 @@ public class RatingTest extends MediaTestBase {
     }
 
     @Test
-    public void testRatedStarRating() {
+    public void ratedStarRating() {
         double delta = 0.000001;
         int maxStars = 5;
         float starRating = 3.1f;
