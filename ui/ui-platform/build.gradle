@@ -88,4 +88,8 @@ android {
             includeAndroidResources = true
         }
     }
+
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
 }

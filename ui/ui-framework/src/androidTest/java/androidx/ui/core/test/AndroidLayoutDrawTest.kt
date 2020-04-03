@@ -33,7 +33,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.Model
-import androidx.compose.State
 import androidx.compose.emptyContent
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
@@ -2225,230 +2224,6 @@ class AndroidLayoutDrawTest {
         }
     }
 
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testSiblingZOrder() {
-        activityTestRule.runOnUiThread {
-            activity.setContentInFrameLayout {
-                FixedSize(
-                    size = 30.ipx
-                ) {
-                    FixedSize(10.ipx, PaddingModifier(10.ipx) + Modifier.drawLayer(elevation = 1f) +
-                            background(Color.White))
-                    FixedSize(30.ipx, Modifier.drawLayer() + background(Color.Red) +
-                            drawLatchModifier())
-                }
-            }
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testUncleZOrder() {
-        activityTestRule.runOnUiThread {
-            activity.setContentInFrameLayout {
-                FixedSize(
-                    size = 30.ipx
-                ) {
-                    FixedSize(10.ipx, PaddingModifier(10.ipx) + Modifier.drawLayer(elevation = 1f) +
-                            background(Color.White))
-                    FixedSize(30.ipx, background(Color.Red) + drawLatchModifier())
-                }
-            }
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testCousinZOrder() {
-        activityTestRule.runOnUiThread {
-            activity.setContentInFrameLayout {
-                FixedSize(
-                    size = 30.ipx
-                ) {
-                    FixedSize(10.ipx, PaddingModifier(10.ipx)) {
-                        FixedSize(10.ipx, Modifier.drawLayer(elevation = 1f) +
-                                background(Color.Green))
-                    }
-                    FixedSize(30.ipx, background(Color.Red))
-                    FixedSize(10.ipx, PaddingModifier(10.ipx)) {
-                        FixedSize(
-                            10.ipx, background(Color.White) + drawLatchModifier())
-                    }
-                }
-            }
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testCousinZOrder2() {
-        activityTestRule.runOnUiThread {
-            activity.setContentInFrameLayout {
-                FixedSize(
-                    size = 30.ipx
-                ) {
-                    FixedSize(10.ipx, PaddingModifier(10.ipx)) {
-                        FixedSize(10.ipx, Modifier.drawLayer(elevation = 1f) +
-                                background(Color.Green))
-                    }
-                    FixedSize(30.ipx, background(Color.Red) + drawLatchModifier())
-                }
-            }
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.Red, size = 10)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testChangingZOrder() {
-        val state = mutableStateOf(0f)
-        val elevation = object : DrawLayerModifier {
-            override val elevation: Float
-                get() = state.value
-        }
-        val view = View(activity)
-        activityTestRule.runOnUiThread {
-            activity.setContentInFrameLayout {
-                FixedSize(
-                    size = 30.ipx
-                ) {
-                    FixedSize(10.ipx, PaddingModifier(10.ipx) + elevation + background(Color.Black))
-                    FixedSize(30.ipx, background(Color.Red) + drawLatchModifier())
-                    FixedSize(10.ipx, PaddingModifier(10.ipx) + background(Color.White))
-                }
-            }
-            activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-        val onDrawListener = object :
-            ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                drawLatch.countDown()
-            }
-        }
-        drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            view.viewTreeObserver.addOnDrawListener(onDrawListener)
-            state.value = 1f
-            view.invalidate()
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.Black, size = 10)
-        drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            state.value = 0f
-            view.invalidate()
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testChangingZOrderUncle() {
-        val state = mutableStateOf(0f)
-        val elevation = object : DrawLayerModifier {
-            override val elevation: Float
-                get() = state.value
-        }
-        val view = View(activity)
-        activityTestRule.runOnUiThread {
-            activity.setContentInFrameLayout {
-                FixedSize(
-                    size = 30.ipx
-                ) {
-                    FixedSize(30.ipx) {
-                        FixedSize(
-                            10.ipx,
-                            PaddingModifier(10.ipx) + elevation + background(Color.Black)
-                        )
-                    }
-                    FixedSize(30.ipx, background(Color.Red) + drawLatchModifier())
-                    FixedSize(10.ipx, PaddingModifier(10.ipx) + background(Color.White))
-                }
-            }
-            activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-        val onDrawListener = object :
-            ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                drawLatch.countDown()
-            }
-        }
-        drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            view.viewTreeObserver.addOnDrawListener(onDrawListener)
-            state.value = 1f
-            view.invalidate()
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testChangingInjectedLayerSize() {
-        val size = mutableStateOf(10.ipx)
-        val view = View(activity)
-        activityTestRule.runOnUiThread {
-            activity.setContentInFrameLayout {
-                AtLeastSize(
-                    size = 30.ipx,
-                    modifier = background(Color.Red)
-                ) {
-                    FixedSize(
-                        size,
-                        PaddingModifier(10.ipx).drawLayer(elevation = 1f) +
-                                background(Color.White)
-                    )
-                    FixedSize(30.ipx, background(Color.Red) + drawLatchModifier())
-                }
-            }
-            activity.addContentView(view, ViewGroup.LayoutParams(1, 1))
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-        val onDrawListener = object :
-            ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                drawLatch.countDown()
-            }
-        }
-        drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            view.viewTreeObserver.addOnDrawListener(onDrawListener)
-            size.value = 20.ipx
-            view.invalidate()
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 20,
-            totalSize = 40)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testInvalidateIntroducedLayer() {
-        val color = mutableStateOf(Color.Red)
-        activityTestRule.runOnUiThread {
-            activity.setContentInFrameLayout {
-                FixedSize(size = 30.ipx) {
-                    FixedSize(
-                        10.ipx,
-                        PaddingModifier(10.ipx).drawLayer(elevation = 1f) +
-                                background(Color.White)
-                    )
-                    FixedSize(30.ipx, background(color.value) + drawLatchModifier())
-                }
-            }
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-        drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            color.value = Color.Blue
-        }
-        validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
-    }
-
     private val AlignTopLeft = object : LayoutModifier {
         override fun Density.modifyConstraints(
             constraints: Constraints,
@@ -2566,26 +2341,14 @@ class AndroidLayoutDrawTest {
         offset: Int = 0,
         totalSize: Int = size * 3
     ) {
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val bitmap = activityTestRule.waitAndScreenShot()
-        assertEquals(totalSize, bitmap.width)
-        assertEquals(totalSize, bitmap.height)
-        val squareStart = (totalSize - size) / 2 + offset
-        val squareEnd = totalSize - ((totalSize - size) / 2) + offset
-        for (x in 0 until totalSize) {
-            for (y in 0 until totalSize) {
-                val pixel = Color(bitmap.getPixel(x, y))
-                val expected =
-                    if (!(x < squareStart || x >= squareEnd || y < squareStart || y >= squareEnd)) {
-                        innerColor
-                    } else {
-                        outerColor
-                    }
-                assertColorsEqual(expected, pixel) {
-                    "Pixel within drawn rect[$x, $y] is $expected, but was $pixel"
-                }
-            }
-        }
+        activityTestRule.validateSquareColors(
+            drawLatch,
+            outerColor,
+            innerColor,
+            size,
+            offset,
+            totalSize
+        )
     }
 
     @Composable
@@ -2635,6 +2398,36 @@ fun Bitmap.assertRect(
             ) {
                 val currentColor = Color(getPixel(x, y))
                 assertColorsEqual(color, currentColor)
+            }
+        }
+    }
+}
+
+fun ActivityTestRule<*>.validateSquareColors(
+    drawLatch: CountDownLatch,
+    outerColor: Color,
+    innerColor: Color,
+    size: Int,
+    offset: Int = 0,
+    totalSize: Int = size * 3
+) {
+    assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+    val bitmap = waitAndScreenShot()
+    assertEquals(totalSize, bitmap.width)
+    assertEquals(totalSize, bitmap.height)
+    val squareStart = (totalSize - size) / 2 + offset
+    val squareEnd = totalSize - ((totalSize - size) / 2) + offset
+    for (x in 0 until totalSize) {
+        for (y in 0 until totalSize) {
+            val pixel = Color(bitmap.getPixel(x, y))
+            val expected =
+                if (!(x < squareStart || x >= squareEnd || y < squareStart || y >= squareEnd)) {
+                    innerColor
+                } else {
+                    outerColor
+                }
+            assertColorsEqual(expected, pixel) {
+                "Pixel within drawn rect[$x, $y] is $expected, but was $pixel"
             }
         }
     }
@@ -2698,25 +2491,6 @@ fun FixedSize(
             m.measure(newConstraints)
         }
         layout(size, size) {
-            placeables.forEach { child ->
-                child.place(0.ipx, 0.ipx)
-            }
-        }
-    }
-}
-
-@Composable
-fun FixedSize(
-    size: State<IntPx>,
-    modifier: Modifier = Modifier.None,
-    children: @Composable() () -> Unit = emptyContent()
-) {
-    Layout(children = children, modifier = modifier) { measurables, _, _ ->
-        val newConstraints = Constraints.fixed(size.value, size.value)
-        val placeables = measurables.map { m ->
-            m.measure(newConstraints)
-        }
-        layout(size.value, size.value) {
             placeables.forEach { child ->
                 child.place(0.ipx, 0.ipx)
             }

@@ -326,9 +326,11 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
 
     private fun drawPoints(points: List<Offset>, paint: Paint) {
         for (point in points) {
-            internalCanvas.drawPoint(point.dx,
+            internalCanvas.drawPoint(
+                point.dx,
                 point.dy,
-                paint.asFrameworkPaint())
+                paint.asFrameworkPaint()
+            )
         }
     }
 
