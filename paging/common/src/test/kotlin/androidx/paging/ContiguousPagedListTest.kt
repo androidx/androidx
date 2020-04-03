@@ -57,7 +57,9 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     private inner class TestPagingSource(val listData: List<Item> = ITEMS) :
         PagingSource<Int, Item>() {
         override fun getRefreshKey(state: PagingState<Int, Item>): Int? {
-            return state.closestItemToPosition(state.anchorPosition).pos
+            return state.anchorPosition
+                ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition)?.pos }
+                ?: 0
         }
 
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
@@ -932,6 +934,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     @Test
     fun boundaryCallback_singleInitialLoad() {
         val shortList = ITEMS.subList(0, 4)
+
         @Suppress("UNCHECKED_CAST")
         val boundaryCallback = mock<BoundaryCallback<Item>>()
         val pagedList = createCountedPagedList(
