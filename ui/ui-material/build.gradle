@@ -61,6 +61,7 @@ dependencies {
     androidTestImplementation project(":ui:ui-material:samples")
     androidTestImplementation project(":ui:ui-platform")
     androidTestImplementation project(":ui:ui-test")
+    androidTestImplementation project(":test-screenshot")
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
@@ -81,4 +82,13 @@ tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         useIR = true
     }
+}
+
+// Screenshot tests related setup
+android {
+    defaultConfig {
+        testInstrumentationRunnerArgument("thisisignored", "thisisignored --no-isolated-storage")
+    }
+    sourceSets.androidTest.assets.srcDirs +=
+            project.rootDir.absolutePath + "/../../../golden/ui/ui-material"
 }
