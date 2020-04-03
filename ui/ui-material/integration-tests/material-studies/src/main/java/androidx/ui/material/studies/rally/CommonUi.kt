@@ -18,8 +18,9 @@ package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
@@ -27,6 +28,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.RowAlign
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.Divider
 import androidx.ui.material.MaterialTheme
@@ -110,7 +112,7 @@ private fun BaseRow(
  */
 @Composable
 private fun AccountIndicator(color: Color, modifier: Modifier = Modifier.None) {
-    ColoredRect(color = color, width = 4.dp, height = 36.dp, modifier = modifier)
+    Box(modifier.preferredSize(4.dp, 36.dp).drawBackground(color))
 }
 
 @Composable

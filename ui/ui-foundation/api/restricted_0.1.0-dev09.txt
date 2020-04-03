@@ -43,8 +43,8 @@ package androidx.ui.foundation {
   }
 
   public final class ColoredRectKt {
-    method public static void ColoredRect(androidx.ui.graphics.Brush brush, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
-    method public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
+    method @Deprecated public static void ColoredRect(androidx.ui.graphics.Brush brush, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
+    method @Deprecated public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
   }
 
   public final class ContentColorKt {

@@ -21,11 +21,14 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onPositioned
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.preferredHeight
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.semantics.Semantics
@@ -94,20 +97,23 @@ class ScaffoldTest {
         composeTestRule.setMaterialContent {
             Scaffold(
                 topAppBar = {
-                        ColoredRect(
-                            Color.Red,
-                            Modifier.onPositioned { positioned: LayoutCoordinates ->
-                                appbarPosition = positioned.localToGlobal(PxPosition.Origin)
-                                appbarSize = positioned.size
-                            },
-                            height = 50.dp
-                        )
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
+                            appbarPosition = positioned.localToGlobal(PxPosition.Origin)
+                            appbarSize = positioned.size
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(50.dp)
+                        .drawBackground(Color.Red)
+                    )
                 }
             ) {
-                ColoredRect(
-                    Color.Blue,
-                    Modifier.onPositioned { contentPosition = it.localToGlobal(PxPosition.Origin) },
-                    height = 50.dp)
+                Box(Modifier
+                    .onPositioned { contentPosition = it.localToGlobal(PxPosition.Origin) }
+                    .fillMaxWidth()
+                    .preferredHeight(50.dp)
+                    .drawBackground(Color.Blue)
+                )
             }
         }
         assertThat(appbarPosition.y + appbarSize.height).isEqualTo(contentPosition.y)
@@ -122,23 +128,25 @@ class ScaffoldTest {
         composeTestRule.setMaterialContent {
             Scaffold(
                 bottomAppBar = {
-                    ColoredRect(
-                        Color.Red,
-                        Modifier.onPositioned { positioned: LayoutCoordinates ->
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
                             appbarPosition = positioned.positionInParent
                             appbarSize = positioned.size
-                        },
-                        height = 50.dp
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(50.dp)
+                        .drawBackground(Color.Red)
                     )
                 }
             ) {
-                ColoredRect(
-                    Color.Blue,
-                    Modifier.onPositioned { positioned: LayoutCoordinates ->
+                Box(Modifier
+                    .onPositioned { positioned: LayoutCoordinates ->
                         contentPosition = positioned.positionInParent
                         contentSize = positioned.size
-                    },
-                    height = 50.dp
+                    }
+                    .fillMaxWidth()
+                    .preferredHeight(50.dp)
+                    .drawBackground(Color.Blue)
                 )
             }
         }
@@ -158,16 +166,22 @@ class ScaffoldTest {
                     Scaffold(
                         scaffoldState = scaffoldState,
                         drawerContent = {
-                            ColoredRect(
-                                Color.Blue,
-                                Modifier.onPositioned { positioned: LayoutCoordinates ->
+                            Box(Modifier
+                                .onPositioned { positioned: LayoutCoordinates ->
                                     drawerChildPosition = positioned.positionInParent
-                                },
-                                height = 50.dp
+                                }
+                                .fillMaxWidth()
+                                .preferredHeight(50.dp)
+                                .drawBackground(Color.Blue)
                             )
                         }
                     ) {
-                        ColoredRect(Color.Blue, height = 50.dp)
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .preferredHeight(50.dp)
+                                .drawBackground(Color.Blue)
+                        )
                     }
                 }
             }
@@ -207,16 +221,22 @@ class ScaffoldTest {
                     Scaffold(
                         scaffoldState = scaffoldState,
                         drawerContent = {
-                            ColoredRect(
-                                Color.Blue,
-                                Modifier.onPositioned { positioned: LayoutCoordinates ->
+                            Box(Modifier
+                                .onPositioned { positioned: LayoutCoordinates ->
                                     drawerChildPosition = positioned.positionInParent
-                                },
-                                height = 50.dp
+                                }
+                                .fillMaxWidth()
+                                .preferredHeight(50.dp)
+                                .drawBackground(Color.Blue)
                             )
                         }
                     ) {
-                        ColoredRect(Color.Blue, height = 50.dp)
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .preferredHeight(50.dp)
+                                .drawBackground(Color.Blue)
+                        )
                     }
                 }
             }
@@ -283,13 +303,14 @@ class ScaffoldTest {
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
                 bottomAppBar = {
-                    ColoredRect(
-                        Color.Red,
-                        Modifier.onPositioned { positioned: LayoutCoordinates ->
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
                             bottomBarPosition =
                                 positioned.localToGlobal(positioned.positionInParent)
-                        },
-                        height = 100.dp
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(100.dp)
+                        .drawBackground(Color.Red)
                     )
                 }
             ) {
@@ -320,13 +341,14 @@ class ScaffoldTest {
                 },
                 floatingActionButtonPosition = Scaffold.FabPosition.EndDocked,
                 bottomAppBar = {
-                    ColoredRect(
-                        Color.Red,
-                        Modifier.onPositioned { positioned: LayoutCoordinates ->
+                    Box(Modifier
+                        .onPositioned { positioned: LayoutCoordinates ->
                             bottomBarPosition =
                                 positioned.localToGlobal(positioned.positionInParent)
-                        },
-                        height = 100.dp
+                        }
+                        .fillMaxWidth()
+                        .preferredHeight(100.dp)
+                        .drawBackground(Color.Red)
                     )
                 }
             ) {

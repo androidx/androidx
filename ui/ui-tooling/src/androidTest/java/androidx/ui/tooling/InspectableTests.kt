@@ -22,7 +22,7 @@ import androidx.ui.core.DrawNode
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
@@ -84,7 +84,7 @@ class InspectableTests : ToolingTest() {
             Inspectable {
                 Column {
                     InInspectionModeOnly {
-                        ColoredRect(color = Color(0xFF), width = 100.dp, height = 100.dp)
+                        Box(Modifier.preferredSize(100.dp).drawBackground(Color(0xFF)))
                         displayed = true
                     }
                 }
@@ -100,7 +100,7 @@ class InspectableTests : ToolingTest() {
         show {
             Column {
                 InInspectionModeOnly {
-                    ColoredRect(color = Color(0xFF), width = 100.dp, height = 100.dp)
+                    Box(Modifier.preferredSize(100.dp).drawBackground(Color(0xFF)))
                     displayed = true
                 }
             }

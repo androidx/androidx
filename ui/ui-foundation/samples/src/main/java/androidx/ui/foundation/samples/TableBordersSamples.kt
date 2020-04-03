@@ -20,11 +20,12 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBorders
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Table
 import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.unit.dp
 
@@ -46,9 +47,9 @@ fun TableWithBorders() {
         repeat(8) {
             tableRow {
                 repeat(8) {
-                    ColoredRect(
-                        color = Color.Magenta,
-                        modifier = Modifier.padding(2.dp).aspectRatio(1f)
+                    Box(
+                        Modifier.padding(2.dp).aspectRatio(1f).fillMaxSize(),
+                        backgroundColor = Color.Magenta
                     )
                 }
             }

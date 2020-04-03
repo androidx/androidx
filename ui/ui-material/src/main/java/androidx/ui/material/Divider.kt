@@ -18,9 +18,12 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.ColoredRect
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
@@ -43,5 +46,5 @@ fun Divider(
     } else {
         Modifier.None
     }
-    ColoredRect(color, modifier + indentMod, height = thickness)
+    Box(modifier.plus(indentMod).fillMaxWidth().preferredHeight(thickness).drawBackground(color))
 }
