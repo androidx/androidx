@@ -56,7 +56,7 @@ dependencies {
     }
 
     androidTestImplementation project(":ui:ui-test")
-
+    androidTestImplementation project(":ui:ui-test-font")
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)

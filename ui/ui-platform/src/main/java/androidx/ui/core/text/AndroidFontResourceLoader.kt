@@ -20,7 +20,6 @@ import android.content.Context
 import android.graphics.Typeface
 import androidx.core.content.res.ResourcesCompat
 import androidx.ui.text.font.Font
-import androidx.ui.text.font.font
 import androidx.ui.text.font.ResourceFont
 
 /**

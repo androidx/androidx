@@ -36,6 +36,8 @@ dependencies {
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
 
+    androidTestImplementation "androidx.core:core:1.0.2"
+    androidTestImplementation project(":ui:ui-test-font")
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker

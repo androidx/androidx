@@ -21,8 +21,10 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.ScaleXSpan
+import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.ui.text.font.test.R
 import androidx.ui.text.platform.style.BaselineShiftSpan
 import androidx.ui.text.platform.style.SkewXSpan
 import com.google.common.truth.Truth.assertThat
@@ -47,8 +49,7 @@ class TextLayoutSpanTest {
         // 2. The LTR/RTL characters are rendered as ▶/◀.
         // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
         // 4. The fontMetrics passed to TextPaint has ascend equal to fontSize.
-        sampleTypeface = Typeface.createFromAsset(
-            instrumentation.context.assets, "sample_font.ttf")!!
+        sampleTypeface = ResourcesCompat.getFont(instrumentation.context, R.font.sample_font)!!
     }
 
     @Test
