@@ -21,6 +21,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInParent
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
@@ -35,7 +36,6 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
-import androidx.ui.test.positionInParent
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
 import androidx.ui.unit.IntPxSize

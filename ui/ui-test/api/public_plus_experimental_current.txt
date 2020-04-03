@@ -208,10 +208,6 @@ package androidx.ui.test {
     method public static androidx.ui.core.semantics.SemanticsConfiguration createFullSemantics(Boolean? isEnabled = null, String? value = null, androidx.ui.foundation.selection.ToggleableState? toggleableState = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? isSelected = null);
   }
 
-  public final class LayoutCoordinatesHelperKt {
-    method public static androidx.ui.unit.PxPosition getPositionInParent(androidx.ui.core.LayoutCoordinates);
-  }
-
   public final class OutputKt {
     method public static String dumpToString(androidx.ui.test.SemanticsNodeInteraction);
     method public static String dumpToString(java.util.Collection<androidx.ui.test.SemanticsNodeInteraction>);
