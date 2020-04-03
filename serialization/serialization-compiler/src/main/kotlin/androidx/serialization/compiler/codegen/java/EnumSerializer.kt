@@ -17,23 +17,37 @@
 package androidx.serialization.compiler.codegen.java
 
 import androidx.serialization.EnumValue
+import androidx.serialization.compiler.codegen.GeneratedAnnotation
+import androidx.serialization.compiler.codegen.java.ext.buildClass
+import androidx.serialization.compiler.codegen.java.ext.controlFlow
+import androidx.serialization.compiler.codegen.java.ext.field
+import androidx.serialization.compiler.codegen.java.ext.nonNull
+import androidx.serialization.compiler.codegen.java.ext.overrideMethod
+import androidx.serialization.compiler.codegen.java.ext.parameterized
+import androidx.serialization.compiler.codegen.java.ext.switchCase
+import androidx.serialization.compiler.codegen.java.ext.switchDefault
+import androidx.serialization.compiler.codegen.java.ext.toClassName
 import androidx.serialization.compiler.schema.Enum
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
-import java.lang.IllegalArgumentException
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PUBLIC
 import javax.lang.model.element.Modifier.STATIC
 
 /** Generate an enum serializer implementation. */
-internal fun JavaGenerator.enumSerializer(enum: Enum): JavaFile {
-    val enumClass = ClassName.get(enum.element)
+internal fun javaEnumSerializer(
+    enum: Enum,
+    generatedAnnotation: GeneratedAnnotation? = null
+): JavaFile {
+    val enumClass = enum.element.toClassName()
     val serializer = serializerName(enumClass)
 
     val values = enum.values.sortedBy { it.id }
 
-    return buildClass(serializer, enum.element, PUBLIC, FINAL) {
+    return buildClass(serializer, PUBLIC, FINAL) {
+        generatedAnnotation?.let { addAnnotation(it.toJavaAnnotationSpec()) }
+        addOriginatingElement(enum.element)
         addSuperinterface(ENUM_SERIALIZER.parameterized(enumClass))
 
         field(serializer.nonNull, "INSTANCE", PUBLIC, STATIC, FINAL) {
@@ -53,7 +67,7 @@ internal fun JavaGenerator.enumSerializer(enum: Enum): JavaFile {
 
                 switchDefault {
                     addStatement(
-                        "throw new \$T(\"Enum value \" + value.toString() +\$W" +
+                        "throw new \$T(\"Enum value \" + value.toString()\$W+ " +
                                 "\" does not have a serialization ID.\")",
                         IllegalArgumentException::class.java
                     )
@@ -80,3 +94,6 @@ internal fun JavaGenerator.enumSerializer(enum: Enum): JavaFile {
         }
     }
 }
+
+val ENUM_SERIALIZER: ClassName =
+    ClassName.get("androidx.serialization.runtime.internal", "EnumSerializerV1")

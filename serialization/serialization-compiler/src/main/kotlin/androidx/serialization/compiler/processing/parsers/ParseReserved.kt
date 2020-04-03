@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.serialization.compiler.processing
+package androidx.serialization.compiler.processing.parsers
 
 import androidx.serialization.Reserved.IdRange
+import androidx.serialization.compiler.processing.ext.asAnnotationMirror
+import androidx.serialization.compiler.processing.ext.asInt
+import androidx.serialization.compiler.processing.ext.asList
+import androidx.serialization.compiler.processing.ext.asString
+import androidx.serialization.compiler.processing.ext.get
 import androidx.serialization.schema.Reserved
 import javax.lang.model.element.TypeElement
 import androidx.serialization.Reserved as ReservedAnnotation
@@ -28,7 +33,7 @@ import androidx.serialization.Reserved as ReservedAnnotation
  * [IdRange] with its `from` greater than its `to`, it reverses them before converting them to an
  * [IntRange], reserving the same range of IDs as if they had been correctly placed.
  */
-internal fun processReserved(element: TypeElement): Reserved {
+internal fun parseReserved(element: TypeElement): Reserved {
     return when (val reserved = element[ReservedAnnotation::class]) {
         null -> Reserved.empty()
         else -> Reserved(

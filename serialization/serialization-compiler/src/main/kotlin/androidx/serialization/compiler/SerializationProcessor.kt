@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.serialization
+package androidx.serialization.compiler
 
-import androidx.serialization.compiler.codegen.java.JavaGenerator
+import androidx.serialization.compiler.codegen.CodeGenerator
 import androidx.serialization.compiler.processing.steps.EnumProcessingStep
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.service.AutoService
@@ -32,13 +32,16 @@ import javax.lang.model.SourceVersion
 @IncrementalAnnotationProcessor(ISOLATING)
 class SerializationProcessor : BasicAnnotationProcessor() {
     override fun initSteps(): List<ProcessingStep> {
-        val javaGenerator = JavaGenerator(
+        val codeGenerator = CodeGenerator(
             processingEnv,
-            "androidx.serialization.SerializationProcessor")
-
-        return listOf(
-            EnumProcessingStep(processingEnv, javaGenerator)
+            "androidx.serialization.compiler.SerializationProcessor"
         )
+
+        val enumStep = EnumProcessingStep(processingEnv) { enum ->
+            codeGenerator.generateEnumSerializer(enum).writeTo(processingEnv)
+        }
+
+        return listOf(enumStep)
     }
 
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latest()

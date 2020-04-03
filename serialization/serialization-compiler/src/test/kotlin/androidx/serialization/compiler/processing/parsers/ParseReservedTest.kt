@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.serialization.compiler.processing
+package androidx.serialization.compiler.processing.parsers
 
-import androidx.serialization.compiler.testTypeElement
+import androidx.serialization.compiler.processing.ext.asTypeElement
 import androidx.serialization.schema.Reserved
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.BasicAnnotationProcessor.ProcessingStep
@@ -29,14 +29,8 @@ import org.junit.Test
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Element
 
-/** Unit tests for [processReserved]. */
-class ProcessReservedTest {
-    @Test
-    fun testEmpty() {
-        val typeElement = testTypeElement("com.example", "Test")
-        assertThat(processReserved(typeElement)).isSameInstanceAs(Reserved.empty())
-    }
-
+/** Unit tests for [parseReserved]. */
+class ParseReservedTest {
     @Test
     fun testIds() {
         assertThat(compile("@Reserved(ids = {1, 2, 3})").ids).containsExactly(1, 2, 3)
@@ -60,7 +54,8 @@ class ProcessReservedTest {
     }
 
     private fun compile(reserved: String): Reserved {
-        val processor = ReservedProcessor()
+        val processor =
+            ReservedProcessor()
         val source = JavaFileObjects.forSourceString("TestClass", """
             import androidx.serialization.Reserved;
             
@@ -82,7 +77,7 @@ class ProcessReservedTest {
             elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
         ): Set<Element> {
             elementsByAnnotation[androidx.serialization.Reserved::class.java].forEach {
-                onReserved(processReserved(it.asTypeElement()))
+                onReserved(parseReserved(it.asTypeElement()))
             }
 
             return emptySet()
