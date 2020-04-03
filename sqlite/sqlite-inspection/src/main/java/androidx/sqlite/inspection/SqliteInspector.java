@@ -123,12 +123,17 @@ final class SqliteInspector extends Inspector {
     private final DatabaseRegistry mDatabaseRegistry = new DatabaseRegistry();
     private final InspectorEnvironment mEnvironment;
     private final Executor mIOExecutor;
+    /**
+     * Utility instance that handles communication with Room's InvalidationTracker instances.
+     */
+    private final RoomInvalidationRegistry mRoomInvalidationRegistry;
 
     SqliteInspector(@NonNull Connection connection, InspectorEnvironment environment,
             Executor ioExecutor) {
         super(connection);
         mEnvironment = environment;
         mIOExecutor = ioExecutor;
+        mRoomInvalidationRegistry = new RoomInvalidationRegistry(mEnvironment);
     }
 
     @Override
@@ -222,6 +227,7 @@ final class SqliteInspector extends Inspector {
                             .build()
                             .toByteArray()
                     );
+                    mRoomInvalidationRegistry.triggerInvalidationChecks();
                 } catch (SQLiteException | IllegalArgumentException exception) {
                     callback.reply(createErrorOccurredResponse(exception, true).toByteArray());
                 } finally {
@@ -405,6 +411,7 @@ final class SqliteInspector extends Inspector {
             int id = mDatabaseRegistry.addDatabase(database);
             String name = database.getPath();
             response = createDatabaseOpenedEvent(id, name);
+            mRoomInvalidationRegistry.invalidateCache();
         } catch (IllegalArgumentException exception) {
             String message = exception.getMessage();
             // TODO: clean up, e.g. replace Exception message check with a custom Exception class
