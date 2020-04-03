@@ -49,7 +49,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
 import androidx.ui.unit.px
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -105,32 +104,7 @@ internal class TextFieldDelegate {
             layoutDirection: LayoutDirection,
             prevResultText: TextLayoutResult? = null
         ): Triple<IntPx, IntPx, TextLayoutResult> {
-            val layoutResult = if (constraints.maxWidth.isFinite()) {
-                textDelegate.layout(
-                    Constraints(
-                        constraints.maxWidth, // We want to fill width. See below.
-                        constraints.maxWidth,
-                        constraints.minHeight,
-                        constraints.maxHeight
-                    ),
-                    layoutDirection,
-                    prevResultText
-                )
-            } else {
-                // TextField want to fill the required width but if infinite width is passed,
-                // falling back to wrap-content behavior since it may be in the horizontal scroller.
-                textDelegate.layoutIntrinsics(layoutDirection)
-                textDelegate.layout(
-                    Constraints(
-                        textDelegate.maxIntrinsicWidth,
-                        textDelegate.maxIntrinsicWidth,
-                        constraints.minHeight,
-                        constraints.maxHeight
-                    ),
-                    layoutDirection,
-                    prevResultText
-                )
-            }
+            val layoutResult = textDelegate.layout(constraints, layoutDirection, prevResultText)
 
             val isEmptyText = textDelegate.text.text.isEmpty()
             val height = if (isEmptyText) {
