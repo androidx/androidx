@@ -1381,13 +1381,13 @@ package androidx.core.os {
     method @Deprecated public T![]! newArray(int);
   }
 
-  public final class TraceCompat {
-    method public static void beginAsyncSection(String, int);
-    method public static void beginSection(String);
-    method public static void endAsyncSection(String, int);
-    method public static void endSection();
-    method public static boolean isEnabled();
-    method public static void setCounter(String, int);
+  @Deprecated public final class TraceCompat {
+    method @Deprecated public static void beginAsyncSection(String, int);
+    method @Deprecated public static void beginSection(String);
+    method @Deprecated public static void endAsyncSection(String, int);
+    method @Deprecated public static void endSection();
+    method @Deprecated public static boolean isEnabled();
+    method @Deprecated public static void setCounter(String, int);
   }
 
   public class UserManagerCompat {

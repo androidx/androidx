@@ -321,7 +321,7 @@ package androidx.core.os {
   }
 
   public final class TraceKt {
-    method public static inline <T> T! trace(String sectionName, kotlin.jvm.functions.Function0<? extends T> block);
+    method @Deprecated public static inline <T> T! trace(String sectionName, kotlin.jvm.functions.Function0<? extends T> block);
   }
 
 }

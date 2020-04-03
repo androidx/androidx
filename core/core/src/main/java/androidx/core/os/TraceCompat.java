@@ -31,7 +31,10 @@ import java.lang.reflect.Method;
  * tracing of events that occur across multiple processes.
  * <p>For information about using the Systrace tool, read <a
  * href="{@docRoot}studio/profile/systrace/">Overview of system tracing</a>.
+ *
+ * @deprecated TraceCompat is deprecated in favor of androidx.trace.Trace. Please use that instead.
  */
+@Deprecated
 public final class TraceCompat {
 
     private static final String TAG = "TraceCompat";
