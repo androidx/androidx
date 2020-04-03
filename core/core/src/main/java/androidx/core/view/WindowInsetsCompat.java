@@ -636,6 +636,26 @@ public class WindowInsetsCompat {
         WindowInsetsCompat inset(int left, int top, int right, int bottom) {
             return CONSUMED;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            // On API < 28 we can not rely on WindowInsets.equals(), so we handle it manually
+            if (this == o) return true;
+            if (!(o instanceof Impl)) return false;
+            final Impl impl = (Impl) o;
+            return isRound() == impl.isRound()
+                    && isConsumed() == impl.isConsumed()
+                    && ObjectsCompat.equals(getSystemWindowInsets(), impl.getSystemWindowInsets())
+                    && ObjectsCompat.equals(getStableInsets(), impl.getStableInsets())
+                    && ObjectsCompat.equals(getDisplayCutout(), impl.getDisplayCutout());
+        }
+
+        @Override
+        public int hashCode() {
+            // On API < 28 we can not rely on WindowInsets.hashCode(), so we handle it manually
+            return ObjectsCompat.hash(isRound(), isConsumed(), getSystemWindowInsets(),
+                    getStableInsets(), getDisplayCutout());
+        }
     }
 
     @RequiresApi(20)
@@ -680,20 +700,6 @@ public class WindowInsetsCompat {
             b.setSystemWindowInsets(insetInsets(getSystemWindowInsets(), left, top, right, bottom));
             b.setStableInsets(insetInsets(getStableInsets(), left, top, right, bottom));
             return b.build();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Impl20)) return false;
-            if (!super.equals(o)) return false;
-            Impl20 impl20 = (Impl20) o;
-            return mPlatformInsets.equals(impl20.mPlatformInsets);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(mPlatformInsets);
         }
     }
 
@@ -760,6 +766,20 @@ public class WindowInsetsCompat {
         @Override
         WindowInsetsCompat consumeDisplayCutout() {
             return toWindowInsetsCompat(mPlatformInsets.consumeDisplayCutout());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Impl28)) return false;
+            Impl28 otherImpl28 = (Impl28) o;
+            // On API 28+ we can rely on WindowInsets.equals()
+            return Objects.equals(mPlatformInsets, otherImpl28.mPlatformInsets);
+        }
+
+        @Override
+        public int hashCode() {
+            return mPlatformInsets.hashCode();
         }
     }
 
