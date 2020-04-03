@@ -25,17 +25,22 @@ import androidx.ui.unit.Density
  *
  * @param annotatedString the text to be laid out
  * @param style the [TextStyle] to be applied to the whole text
+ * @param placeholders a list of [Placeholder]s that specify ranges of text which will be
+ * skipped during layout and replaced with [Placeholder]. It's required that the range of each
+ * [Placeholder] doesn't cross paragraph boundary, otherwise [IllegalArgumentException] is thrown.
  * @param density density of the device
  * @param resourceLoader [Font.ResourceLoader] to be used to load the font given in [SpanStyle]s
 
  * @see MultiParagraph
+ * @see Placeholder
  *
- * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set
- *
+ * @throws IllegalArgumentException if [ParagraphStyle.textDirectionAlgorithm] is not set, or any
+ * of the [placeholders] crosses paragraph boundary.
  */
 class MultiParagraphIntrinsics(
     val annotatedString: AnnotatedString,
     style: TextStyle,
+    val placeholders: List<AnnotatedString.Item<Placeholder>>,
     density: Density,
     resourceLoader: Font.ResourceLoader
 ) : ParagraphIntrinsics {
@@ -66,8 +71,12 @@ class MultiParagraphIntrinsics(
                 ParagraphIntrinsicInfo(
                     intrinsics = ParagraphIntrinsics(
                         text = annotatedString.text,
-                        spanStyles = annotatedString.spanStyles,
                         style = style.merge(currentParagraphStyle),
+                        spanStyles = annotatedString.spanStyles,
+                        placeholders = placeholders.getLocalPlaceholders(
+                            paragraphStyleItem.start,
+                            paragraphStyleItem.end
+                        ),
                         density = density,
                         resourceLoader = resourceLoader
                     ),
@@ -102,6 +111,14 @@ class MultiParagraphIntrinsics(
         )
     }
 }
+
+private fun List<AnnotatedString.Item<Placeholder>>.getLocalPlaceholders(start: Int, end: Int) =
+    filter { intersect(start, end, it.start, it.end) }.map {
+        require(start <= it.start && it.end <= end) {
+            "placeholder can not overlap with paragraph."
+        }
+        AnnotatedString.Item(it.item, it.start - start, it.end - start)
+    }
 
 internal data class ParagraphIntrinsicInfo(
     val intrinsics: ParagraphIntrinsics,
