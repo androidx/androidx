@@ -246,7 +246,7 @@ internal fun SimpleContainer(
                         containerHeight - it.height
                     )
                 )
-                it.placeAbsolute(
+                it.place(
                     position.x,
                     position.y
                 )

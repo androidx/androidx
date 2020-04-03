@@ -57,7 +57,7 @@ fun DropdownPopupSample() {
         val cornerSize = 16.dp
 
         // The popup will appear below the parent
-        DropdownPopup(dropDownAlignment = DropDownAlignment.Left) {
+        DropdownPopup(dropDownAlignment = DropDownAlignment.Start) {
             // Draw a rectangle shape with rounded corners inside the popup
             Box(
                 Modifier.preferredSize(popupWidth, popupHeight),

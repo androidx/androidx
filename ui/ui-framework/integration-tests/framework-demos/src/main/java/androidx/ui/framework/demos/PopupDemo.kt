@@ -260,17 +260,17 @@ private fun ColumnScope.PopupDropdownAlignment() {
     Column(Modifier.gravity(ColumnAlign.Center)) {
         val heightSize = 120.dp
         val widthSize = 160.dp
-        val dropDownAlignment = state { DropDownAlignment.Left }
+        val dropDownAlignment = state { DropDownAlignment.Start }
 
         ClickableTextWithBackground(
             text = "Change alignment",
             color = Color.Cyan,
             onClick = {
                 dropDownAlignment.value =
-                    if (dropDownAlignment.value == DropDownAlignment.Left) {
-                        DropDownAlignment.Right
+                    if (dropDownAlignment.value == DropDownAlignment.Start) {
+                        DropDownAlignment.End
                     } else {
-                        DropDownAlignment.Left
+                        DropDownAlignment.Start
                     }
             }
         )
