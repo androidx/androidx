@@ -22,7 +22,6 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.core.input.FocusManager
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.DeleteSurroundingTextEditOp
 import androidx.ui.input.EditOperation
@@ -66,14 +65,10 @@ class TextFieldOnValueChangeTextFieldValueTest {
 
     @Before
     fun setUp() {
-        val focusManager = mock<FocusManager>()
+        val focusManager = TextFieldTest.FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
-        // Always give focus to the passed node.
-        whenever(focusManager.requestFocus(any())).thenAnswer {
-            (it.arguments[0] as FocusManager.FocusNode).onFocus()
-        }
         whenever(textInputService.startInput(any(), any(), any(), any(), any()))
             .thenReturn(inputSessionToken)
 
