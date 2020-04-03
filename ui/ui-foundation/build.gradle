@@ -42,6 +42,7 @@ dependencies {
     implementation project(':ui:ui-layout')
     implementation project(':ui:ui-platform')
     implementation project(':ui:ui-text')
+    implementation project(':ui:ui-text-compose')
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
