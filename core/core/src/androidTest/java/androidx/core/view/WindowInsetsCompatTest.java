@@ -150,4 +150,34 @@ public class WindowInsetsCompatTest {
         assertNotNull(WindowInsetsCompat.CONSUMED.toWindowInsets());
         assertTrue(WindowInsetsCompat.CONSUMED.isConsumed());
     }
+
+    @Test
+    public void test_equals() {
+        WindowInsetsCompat result = new WindowInsetsCompat.Builder()
+                .setSystemWindowInsets(Insets.of(1, 2, 3, 4))
+                .setStableInsets(Insets.of(11, 12, 13, 14))
+                .build();
+
+        WindowInsetsCompat result2 = new WindowInsetsCompat.Builder()
+                .setSystemWindowInsets(Insets.of(1, 2, 3, 4))
+                .setStableInsets(Insets.of(11, 12, 13, 14))
+                .build();
+
+        assertEquals(result, result2);
+    }
+
+    @Test
+    public void test_hashCode() {
+        WindowInsetsCompat result = new WindowInsetsCompat.Builder()
+                .setSystemWindowInsets(Insets.of(1, 2, 3, 4))
+                .setStableInsets(Insets.of(11, 12, 13, 14))
+                .build();
+
+        WindowInsetsCompat result2 = new WindowInsetsCompat.Builder()
+                .setSystemWindowInsets(Insets.of(1, 2, 3, 4))
+                .setStableInsets(Insets.of(11, 12, 13, 14))
+                .build();
+
+        assertEquals(result.hashCode(), result2.hashCode());
+    }
 }
