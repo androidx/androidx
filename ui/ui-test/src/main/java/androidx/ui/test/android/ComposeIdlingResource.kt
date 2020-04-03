@@ -24,7 +24,7 @@ import androidx.compose.frames.inFrame
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.ui.test.TestAnimationClock
-import androidx.ui.test.runOnUiThreadInternal
+import androidx.ui.test.runOnUiThread
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -84,7 +84,7 @@ internal object ComposeIdlingResource : BaseIdlingResource() {
      * Returns whether or not Compose is idle, without starting to poll if it is not.
      */
     fun isIdle(): Boolean {
-        return runOnUiThreadInternal {
+        return runOnUiThread {
             !(inFrame && currentFrame().hasPendingChanges()) &&
                     !Recomposer.hasPendingChanges() &&
                     areAllClocksIdle()

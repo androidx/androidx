@@ -44,6 +44,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findAll
 import androidx.ui.test.isInMutuallyExclusiveGroup
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -162,7 +163,7 @@ class TabTest {
 
         // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
         // should be in the middle of the TabRow
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             with(composeTestRule.density) {
                 val indicatorPositionX = indicatorCoords.localToGlobal(PxPosition.Origin).x
                 val expectedPositionX = tabRowWidth / 2

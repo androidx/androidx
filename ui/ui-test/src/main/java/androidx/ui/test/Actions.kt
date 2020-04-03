@@ -16,8 +16,6 @@
 
 package androidx.ui.test
 
-import android.os.Handler
-import android.os.Looper
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.findLastLayoutChild
 import androidx.ui.semantics.AccessibilityAction
@@ -25,9 +23,6 @@ import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsPropertyKey
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 /**
  * Performs a click action on the given component.
@@ -152,27 +147,4 @@ fun SemanticsNodeInteraction.callSemanticsAction(
     key: SemanticsPropertyKey<AccessibilityAction<() -> Unit>>
 ) {
     callSemanticsAction(key) { it.invoke() }
-}
-
-// TODO(pavlis): We could expose this to the developers to avoid their dependency on TestRules
-// After that we can build runOnIdleCompose on top of this and move that out of ComposeTestRule
-private fun runOnUiThread(action: () -> Unit) {
-    if (Looper.myLooper() == Looper.getMainLooper()) {
-        action.invoke()
-        return
-    }
-
-    val latch = CountDownLatch(1)
-    val handler = Handler(Looper.getMainLooper())
-    handler.post(object : Runnable {
-        override fun run() {
-            action.invoke()
-            latch.countDown()
-        }
-    })
-
-    val success = latch.await(1_000, TimeUnit.MILLISECONDS)
-    if (!success) {
-        throw TimeoutException("Timeout has occurred when waiting for an action to be performed.")
-    }
 }

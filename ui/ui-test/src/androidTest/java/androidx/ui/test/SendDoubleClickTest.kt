@@ -95,7 +95,7 @@ class SendDoubleClickWithoutArgumentsTest {
         // When we inject a double click
         findByTag(tag).doGesture { sendDoubleClick() }
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Then we record 1 double click
             assertThat(recordedDoubleClicks).hasSize(1)
             // at the expected position
@@ -170,7 +170,7 @@ class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
         // When we inject a double click
         findByTag(tag).doGesture { sendDoubleClick(config.position) }
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Then we record 1 double click
             assertThat(recordedDoubleClicks).hasSize(1)
             // at the expected position

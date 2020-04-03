@@ -32,6 +32,8 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.globalBounds
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -71,7 +73,7 @@ class DrawerTest {
                 })
             }, bodyContent = emptyContent())
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(position!!.x.value).isEqualTo(0f)
         }
     }
@@ -87,7 +89,7 @@ class DrawerTest {
             }, bodyContent = emptyContent())
         }
         val width = composeTestRule.displayMetrics.widthPixels
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(position!!.x.round().value).isEqualTo(-width)
         }
     }
@@ -125,7 +127,7 @@ class DrawerTest {
         val height = composeTestRule.displayMetrics.heightPixels
         // temporary calculation of landscape screen
         val expectedHeight = if (width > height) 0 else (height / 2f).roundToInt()
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(position!!.y.round().value).isEqualTo(expectedHeight)
         }
     }
@@ -141,7 +143,7 @@ class DrawerTest {
             }, bodyContent = emptyContent())
         }
         val height = composeTestRule.displayMetrics.heightPixels
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(position!!.y.round().value).isEqualTo(height)
         }
     }
@@ -194,7 +196,7 @@ class DrawerTest {
 
         // When the drawer state is set to Opened
         openedLatch = CountDownLatch(1)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             drawerState.state = DrawerState.Opened
         }
         // Then the drawer should be opened
@@ -202,7 +204,7 @@ class DrawerTest {
 
         // When the drawer state is set to Closed
         closedLatch = CountDownLatch(1)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             drawerState.state = DrawerState.Closed
         }
         // Then the drawer should be closed
@@ -236,7 +238,7 @@ class DrawerTest {
         // Click in the middle of the drawer (which is the middle of the body)
         findByTag("Drawer").doGesture { sendClick() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(0)
             assertThat(bodyClicks).isEqualTo(1)
 
@@ -251,7 +253,7 @@ class DrawerTest {
             sendClick(PxPosition(left, centerY))
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(1)
             assertThat(bodyClicks).isEqualTo(1)
         }
@@ -296,7 +298,7 @@ class DrawerTest {
 
         // When the drawer state is set to Opened
         openedLatch = CountDownLatch(1)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             drawerState.state = DrawerState.Opened
         }
         // Then the drawer should be opened
@@ -304,7 +306,7 @@ class DrawerTest {
 
         // When the drawer state is set to Closed
         closedLatch = CountDownLatch(1)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             drawerState.state = DrawerState.Closed
         }
         // Then the drawer should be closed
@@ -338,12 +340,12 @@ class DrawerTest {
         // Click in the middle of the drawer (which is the middle of the body)
         findByTag("Drawer").doGesture { sendClick() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(drawerClicks).isEqualTo(0)
             assertThat(bodyClicks).isEqualTo(1)
         }
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             drawerState.state = DrawerState.Opened
         }
         sleep(100) // TODO(147586311): remove this sleep when opening the drawer triggers a wait

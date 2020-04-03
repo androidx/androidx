@@ -43,6 +43,8 @@ import androidx.ui.test.doGesture
 import androidx.ui.test.doScrollTo
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
 import androidx.ui.test.sendSwipeDown
 import androidx.ui.test.sendSwipeLeft
@@ -106,7 +108,7 @@ class ScrollerTest {
 
         composeVerticalScroller(scrollerPosition)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertTrue(scrollerPosition.maxPosition == 0f)
         }
     }
@@ -135,12 +137,12 @@ class ScrollerTest {
 
         validateVerticalScroller(height = height)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertEquals(scrollDistance.toFloat(), scrollerPosition.maxPosition)
             scrollerPosition.scrollTo(scrollDistance.toFloat())
         }
 
-        composeTestRule.runOnIdleCompose {} // Just so the block below is correct
+        runOnIdleCompose {} // Just so the block below is correct
         validateVerticalScroller(offset = scrollDistance, height = height)
     }
 
@@ -179,12 +181,12 @@ class ScrollerTest {
 
         validateHorizontalScroller(width = width)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertEquals(scrollDistance.toFloat(), scrollerPosition.maxPosition)
             scrollerPosition.scrollTo(scrollDistance.toFloat())
         }
 
-        composeTestRule.runOnIdleCompose {} // Just so the block below is correct
+        runOnIdleCompose {} // Just so the block below is correct
         validateHorizontalScroller(offset = scrollDistance, width = width)
     }
 
@@ -258,38 +260,38 @@ class ScrollerTest {
 
         createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
             assertThat(scrollerPosition.maxPosition).isGreaterThan(0f)
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scrollerPosition.scrollTo(-100f)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scrollerPosition.scrollBy(-100f)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scrollerPosition.scrollTo(scrollerPosition.maxPosition)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scrollerPosition.scrollTo(scrollerPosition.maxPosition + 1000)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             scrollerPosition.scrollBy(100f)
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
         }
     }
@@ -304,7 +306,7 @@ class ScrollerTest {
 
         createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
 
-        val max = composeTestRule.runOnIdleCompose {
+        val max = runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
             assertThat(scrollerPosition.maxPosition).isGreaterThan(0f)
             scrollerPosition.maxPosition
@@ -340,7 +342,7 @@ class ScrollerTest {
 
         createScrollableContent(isVertical = true, scrollerPosition = scrollerPosition)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
             assertThat(scrollerPosition.isAnimating).isEqualTo(false)
         }
@@ -348,7 +350,7 @@ class ScrollerTest {
         findByTag(scrollerTag)
             .doGesture { sendSwipeUp() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clock.clockTimeMillis += 100
             assertThat(scrollerPosition.isAnimating).isEqualTo(true)
         }
@@ -357,7 +359,7 @@ class ScrollerTest {
         findByTag(scrollerTag)
             .doGesture { sendClick() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.isAnimating).isEqualTo(false)
         }
     }
@@ -368,14 +370,14 @@ class ScrollerTest {
         clock: ManualAnimationClock,
         uiAction: () -> Unit
     ) {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             uiAction.invoke()
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clock.clockTimeMillis += 5000
         }
         findByTag(scrollerTag).awaitScrollAnimation(scrollerPosition)
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(assertValue)
         }
     }
@@ -393,21 +395,21 @@ class ScrollerTest {
 
         createScrollableContent(isVertical, scrollerPosition = scrollerPosition)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(0f)
         }
 
         findByTag(scrollerTag)
             .doGesture { firstSwipe() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clock.clockTimeMillis += 5000
         }
 
         findByTag(scrollerTag)
             .awaitScrollAnimation(scrollerPosition)
 
-        val scrolledValue = composeTestRule.runOnIdleCompose {
+        val scrolledValue = runOnIdleCompose {
             scrollerPosition.value
         }
         assertThat(scrolledValue).isGreaterThan(0f)
@@ -415,14 +417,14 @@ class ScrollerTest {
         findByTag(scrollerTag)
             .doGesture { secondSwipe() }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             clock.clockTimeMillis += 5000
         }
 
         findByTag(scrollerTag)
             .awaitScrollAnimation(scrollerPosition)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(scrollerPosition.value).isLessThan(scrolledValue)
         }
     }

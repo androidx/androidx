@@ -24,6 +24,7 @@ import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.runOnUiThread
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -38,7 +39,7 @@ class CaptureFocusTest {
 
     @Test
     fun active_captureFocus_changesStateToCaptured() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(Active).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -55,7 +56,7 @@ class CaptureFocusTest {
 
     @Test
     fun activeParent_captureFocus_retainsStateAsActiveParent() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(ActiveParent).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -72,7 +73,7 @@ class CaptureFocusTest {
 
     @Test
     fun captured_captureFocus_retainsStateAsCaptured() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(Captured).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -89,7 +90,7 @@ class CaptureFocusTest {
 
     @Test
     fun disabled_captureFocus_retainsStateAsDisabled() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(Disabled).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -106,7 +107,7 @@ class CaptureFocusTest {
 
     @Test
     fun inactive_captureFocus_retainsStateAsInactive() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(Inactive).also {
                 composeTestRule.setContent { Box(modifier = it) }

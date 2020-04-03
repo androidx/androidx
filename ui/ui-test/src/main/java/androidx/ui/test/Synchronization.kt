@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import android.annotation.SuppressLint
 import android.os.Looper
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.test.android.SynchronizedTreeCollector
@@ -27,7 +28,8 @@ import java.util.concurrent.FutureTask
  *
  * This method is blocking until the action is complete.
  */
-internal fun <T> runOnUiThreadInternal(action: () -> T): T {
+@SuppressLint("DocumentExceptions")
+fun <T> runOnUiThread(action: () -> T): T {
     if (Looper.myLooper() == Looper.getMainLooper()) {
         return action()
     }
@@ -49,9 +51,9 @@ internal fun <T> runOnUiThreadInternal(action: () -> T): T {
  *
  * This method is blocking until the action is complete.
  */
-internal fun <T> runOnIdleComposeInternal(action: () -> T): T {
+fun <T> runOnIdleCompose(action: () -> T): T {
     // Method below make sure that compose is idle.
     SynchronizedTreeCollector.waitForIdle()
     // Execute the action on ui thread in a blocking way.
-    return runOnUiThreadInternal(action)
+    return runOnUiThread(action)
 }

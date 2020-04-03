@@ -173,7 +173,7 @@ class SendClickWithoutArgumentsTest(config: TestConfig) {
         findByTag("${tag}$last").doGesture { sendClick() }
 
         // Then each component has registered a click
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(recordedClicks).isEqualTo(
                 listOf(
                     ClickData(first, center),
@@ -221,7 +221,7 @@ class SendClickWithArgumentsTest(private val config: TestConfig) {
         findByTag("${tag}$last").doGesture { sendClick(config.position) }
 
         // Then each component has registered a click
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(recordedClicks).isEqualTo(
                 listOf(
                     ClickData(first, config.position),

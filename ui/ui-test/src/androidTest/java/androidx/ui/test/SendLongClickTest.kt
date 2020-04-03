@@ -101,7 +101,7 @@ class SendLongClickWithoutArgumentsTest {
         assertThat(recordedLongClicks).hasSize(1)
 
         // And all events are at the click location
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -160,7 +160,7 @@ class SendLongClickWithArgumentsTest(private val config: TestConfig) {
         assertThat(recordedLongClicks).hasSize(1)
 
         // And all events are at the click location
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()

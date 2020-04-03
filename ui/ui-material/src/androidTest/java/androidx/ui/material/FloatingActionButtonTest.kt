@@ -39,6 +39,7 @@ import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.dp
 import androidx.ui.unit.round
 import com.google.common.truth.Truth.assertThat
@@ -89,7 +90,7 @@ class FloatingActionButtonTest {
         findByText(text)
             .doClick()
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(counter).isEqualTo(1)
         }
     }

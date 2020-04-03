@@ -24,6 +24,7 @@ import androidx.ui.focus.FocusDetailedState.Disabled
 import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.runOnUiThread
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -45,7 +46,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun active_isUnchanged() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(Active).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -61,7 +62,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun captured_isUnchanged() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(Captured).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -77,7 +78,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun disabled_isUnchanged() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(Disabled).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -93,7 +94,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test(expected = IllegalArgumentException::class)
     fun activeParent_withNoFocusedChild_throwsException() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(ActiveParent).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -106,7 +107,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun activeParent_propagateFocus() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val focusModifier = createFocusModifier(ActiveParent)
             val childFocusModifier = createFocusModifier(Active)
@@ -138,7 +139,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun inactiveRoot_propagateFocusSendsRequestToOwner_systemCanGrantFocus() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val rootFocusModifier = createFocusModifier(Inactive).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -154,7 +155,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun inactiveRootWithChildren_propagateFocusSendsRequestToOwner_systemCanGrantFocus() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val rootFocusModifier = createFocusModifier(Inactive)
             val childFocusModifier = createFocusModifier(Inactive)
@@ -184,7 +185,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun inactiveNonRootWithChilcren() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val parentFocusModifier = createFocusModifier(Active)
             val focusModifier = createFocusModifier(Inactive)
@@ -218,7 +219,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun rootNode() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val rootFocusModifier = createFocusModifier(Inactive).also {
                 composeTestRule.setContent { Box(modifier = it) }
@@ -234,7 +235,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun rootNodeWithChildren() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val rootFocusModifier = createFocusModifier(Inactive)
             val childFocusModifier = createFocusModifier(Inactive)
@@ -257,7 +258,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun parentNodeWithNoFocusedAncestor() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val grandParentFocusModifier = createFocusModifier(Inactive)
             val parentFocusModifier = createFocusModifier(Inactive)
@@ -283,7 +284,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun parentNodeWithNoFocusedAncestor_childRequestsFocus() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val grandParentFocusModifier = createFocusModifier(Inactive)
             val parentFocusModifier = createFocusModifier(Inactive)
@@ -306,7 +307,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun childNodeWithNoFocusedAncestor() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val grandParentFocusModifier = createFocusModifier(Inactive)
             val parentFocusModifier = createFocusModifier(Inactive)
@@ -329,7 +330,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun requestFocus_parentIsFocused() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val parentFocusModifier = createFocusModifier(Active)
             val focusModifier = createFocusModifier(Inactive)
@@ -350,7 +351,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun requestFocus_childIsFocused() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val parentFocusModifier = createFocusModifier(ActiveParent)
             val focusModifier = createFocusModifier(Active)
@@ -380,7 +381,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun requestFocus_childHasCapturedFocus() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val parentFocusModifier = createFocusModifier(ActiveParent)
             val focusModifier = createFocusModifier(Captured)
@@ -402,7 +403,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun requestFocus_siblingIsFocused() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val parentFocusModifier = createFocusModifier(ActiveParent)
             val focusModifier = createFocusModifier(Inactive)
@@ -427,7 +428,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun requestFocus_siblingHasCapturedFocused() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val parentFocusModifier = createFocusModifier(ActiveParent)
             val focusModifier = createFocusModifier(Inactive)
@@ -452,7 +453,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun requestFocus_cousinIsFocused() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val grandParentModifier = createFocusModifier(ActiveParent)
             val parentModifier = createFocusModifier(Inactive)
@@ -487,7 +488,7 @@ class RequestFocusTest(val propagateFocus: Boolean) {
 
     @Test
     fun requestFocus_grandParentIsFocused() {
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Arrange.
             val grandParentModifier = createFocusModifier(Active)
             val parentModifier = createFocusModifier(Inactive)

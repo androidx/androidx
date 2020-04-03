@@ -22,6 +22,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.ContextAmbient
 import androidx.ui.framework.test.R
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.Typeface
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontWeight
@@ -63,7 +64,7 @@ class FontResourcesTest {
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(result).isNotNull()
             assertThat(result!!.state).isEqualTo(LoadingState.LOADED)
             assertThat(result!!.resource.resource).isEqualTo(

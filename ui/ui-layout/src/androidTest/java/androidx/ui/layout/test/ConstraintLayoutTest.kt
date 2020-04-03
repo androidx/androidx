@@ -24,10 +24,6 @@ import androidx.ui.core.tag
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
-import androidx.ui.layout.LayoutAlign
-import androidx.ui.layout.LayoutDirectionModifier
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.LayoutWidth
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet
 import androidx.ui.layout.aspectRatio
@@ -38,6 +34,7 @@ import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.rtl
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -97,7 +94,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
                 (composeTestRule.displayMetrics.widthPixels / 2).ipx,
@@ -157,7 +154,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
                 (composeTestRule.displayMetrics.widthPixels / 2).ipx,
@@ -218,7 +215,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
                 (composeTestRule.displayMetrics.widthPixels / 2).ipx,
@@ -283,7 +280,7 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // The width of the ConstraintLayout should be twice the width of the aspect ratio box.
             assertEquals(size.toIntPx() * 2, constraintLayoutSize.value!!.width)
             // The height of the ConstraintLayout should be the height of the aspect ratio box.
@@ -346,7 +343,7 @@ class ConstraintLayoutTest : LayoutTest() {
         val displayWidth = composeTestRule.displayMetrics.widthPixels.ipx
         val displayHeight = composeTestRule.displayMetrics.heightPixels.ipx
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertEquals(
                 PxPosition((displayWidth - boxSize) / 2, (displayHeight - boxSize) / 2),
                 position[0].value
@@ -407,7 +404,7 @@ class ConstraintLayoutTest : LayoutTest() {
         val displayWidth = composeTestRule.displayMetrics.widthPixels.ipx
         val displayHeight = composeTestRule.displayMetrics.heightPixels.ipx
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertEquals(
                 PxPosition((displayWidth - boxSize) / 2, (displayHeight - boxSize) / 2),
                 position[0].value

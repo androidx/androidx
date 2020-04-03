@@ -30,6 +30,7 @@ import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendSwipe
 import androidx.ui.test.sendSwipeWithVelocity
 import androidx.ui.unit.PxPosition
@@ -70,7 +71,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        val lastTotal = composeTestRule.runOnIdleCompose {
+        val lastTotal = runOnIdleCompose {
             assertThat(total).isGreaterThan(0)
             total
         }
@@ -81,7 +82,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(lastTotal)
         }
         findByTag(draggableBoxTag).doGesture {
@@ -91,7 +92,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isLessThan(0.01f)
         }
     }
@@ -115,7 +116,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        val lastTotal = composeTestRule.runOnIdleCompose {
+        val lastTotal = runOnIdleCompose {
             assertThat(total).isGreaterThan(0)
             total
         }
@@ -126,7 +127,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(lastTotal)
         }
         findByTag(draggableBoxTag).doGesture {
@@ -136,7 +137,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isLessThan(0.01f)
         }
     }
@@ -159,7 +160,7 @@ class DraggableTest {
                 }
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(startTrigger).isEqualTo(0)
             assertThat(stopTrigger).isEqualTo(0)
         }
@@ -170,7 +171,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(startTrigger).isEqualTo(1)
             assertThat(stopTrigger).isEqualTo(1)
         }
@@ -197,7 +198,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        val prevTotal = composeTestRule.runOnIdleCompose {
+        val prevTotal = runOnIdleCompose {
             assertThat(total).isGreaterThan(0f)
             enabled.value = false
             total
@@ -209,7 +210,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(total).isEqualTo(prevTotal)
         }
     }
@@ -237,7 +238,7 @@ class DraggableTest {
 
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(velocityTriggered - 112f).isLessThan(0.1f)
         }
     }
@@ -262,7 +263,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // should be exactly 100 as there's no slop
             assertThat(total).isEqualTo(100f)
         }
@@ -292,7 +293,7 @@ class DraggableTest {
                 duration = 100.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             // should be exactly 100 as there's no slop
             assertThat(total).isGreaterThan(0f)
             assertThat(dragStopped).isEqualTo(1f)
@@ -336,7 +337,7 @@ class DraggableTest {
                 duration = 300.milliseconds
             )
         }
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertThat(innerDrag).isGreaterThan(0f)
             assertThat(outerDrag).isGreaterThan(0f)
             // we consumed half delta in child, so exactly half should go to the parent

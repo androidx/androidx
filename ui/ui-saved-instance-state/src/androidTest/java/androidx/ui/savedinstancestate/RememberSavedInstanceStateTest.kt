@@ -24,6 +24,8 @@ import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -53,7 +55,7 @@ class RememberSavedInstanceStateTest {
 
         assertThat(array).isEqualTo(intArrayOf(0))
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             array!![0] = 1
             // we null it to ensure recomposition happened
             array = null
@@ -75,7 +77,7 @@ class RememberSavedInstanceStateTest {
 
         assertThat(holder).isEqualTo(Holder(0))
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             holder!!.value = 1
             // we null it to ensure recomposition happened
             holder = null
@@ -184,7 +186,7 @@ class RememberSavedInstanceStateTest {
 
         val latch = CountDownLatch(1)
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             registryFactory = {
                 object : DelegateRegistry(it) {
                     override fun registerProvider(key: String, valueProvider: () -> Any?) {
@@ -231,7 +233,7 @@ class RememberSavedInstanceStateTest {
         assertTrue(registerLatch.await(1, TimeUnit.SECONDS))
         registerLatch = CountDownLatch(1)
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             key = "key2"
         }
 
@@ -252,7 +254,7 @@ class RememberSavedInstanceStateTest {
 
         val latch = CountDownLatch(1)
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             saver = Saver(
                 save = {
                     latch.countDown()
@@ -288,7 +290,7 @@ class RememberSavedInstanceStateTest {
             }
         }
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // assert that unregister is not yet called
             assertThat(latch.count).isEqualTo(1)
             doEmit = false

@@ -52,6 +52,8 @@ import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.ipx
@@ -105,7 +107,7 @@ class AndroidViewCompatTest {
             .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Change view attribute using recomposition.
             squareSize.offset = 200.ipx
             expectedSize = 200
@@ -116,7 +118,7 @@ class AndroidViewCompatTest {
             .check(matches(isDescendantOfA(instanceOf(Owner::class.java))))
             .check(matches(`is`(squareView)))
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Change view attribute using the View reference.
             squareView!!.size = 300
             expectedSize = 300
@@ -162,7 +164,7 @@ class AndroidViewCompatTest {
             .captureToBitmap()
             .assertPixels(expectedColorProvider = expectedPixelColor)
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Change view attribute using recomposition.
             colorModel.color = Color.Green
             expectedColor = Color.Green
@@ -176,7 +178,7 @@ class AndroidViewCompatTest {
             .captureToBitmap()
             .assertPixels(expectedColorProvider = expectedPixelColor)
 
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             // Change view attribute using the View reference.
             colorModel.color = Color.Red
             expectedColor = Color.Red
@@ -212,12 +214,12 @@ class AndroidViewCompatTest {
             constraints: Constraints,
             layoutParams: ViewGroup.LayoutParams
         ) {
-            composeTestRule.runOnUiThread {
+            runOnUiThread {
                 constraintsHolder.constraints = constraints
                 viewRef.value?.layoutParams = layoutParams
             }
 
-            composeTestRule.runOnIdleCompose {
+            runOnIdleCompose {
                 assertEquals(expectedWidthSpec, widthMeasureSpecRef.value)
                 assertEquals(expectedHeightSpec, heightMeasureSpecRef.value)
             }
@@ -308,11 +310,11 @@ class AndroidViewCompatTest {
                 MeasureSpecSaverView(ref = viewRef)
             }
         }
-        composeTestRule.runOnUiThread {
+        runOnUiThread {
             constraintsHolder.constraints = Constraints(minWidth = 20.ipx, minHeight = 30.ipx)
         }
 
-        composeTestRule.runOnIdleCompose {
+        runOnIdleCompose {
             assertEquals(20, viewRef.value!!.minimumWidth)
             assertEquals(30, viewRef.value!!.minimumHeight)
         }

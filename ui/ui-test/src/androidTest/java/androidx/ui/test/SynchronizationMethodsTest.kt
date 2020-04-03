@@ -28,7 +28,7 @@ class SynchronizationMethodsTest {
 
     @Test
     fun runOnUiThread() {
-        val result = runOnUiThreadInternal { "Hello" }
+        val result = runOnUiThread { "Hello" }
         assertThat(result).isEqualTo("Hello")
     }
 
@@ -36,19 +36,19 @@ class SynchronizationMethodsTest {
     fun runOnUiThread_void() {
         var called = false
 
-        runOnUiThreadInternal { called = true }
+        runOnUiThread { called = true }
         assertThat(called).isTrue()
     }
 
     @Test
     fun runOnUiThread_nullable() {
-        val result: String? = runOnUiThreadInternal { null }
+        val result: String? = runOnUiThread { null }
         assertThat(result).isEqualTo(null)
     }
 
     @Test
     fun runOnIdleCompose() {
-        val result = runOnIdleComposeInternal { "Hello" }
+        val result = runOnIdleCompose { "Hello" }
         assertThat(result).isEqualTo("Hello")
     }
 
@@ -56,13 +56,13 @@ class SynchronizationMethodsTest {
     fun runOnIdleCompose_void() {
         var called = false
 
-        runOnIdleComposeInternal { called = true }
+        runOnIdleCompose { called = true }
         assertThat(called).isTrue()
     }
 
     @Test
     fun runOnIdleCompose_nullable() {
-        val result: String? = runOnIdleComposeInternal { null }
+        val result: String? = runOnIdleCompose { null }
         assertThat(result).isEqualTo(null)
     }
 }
