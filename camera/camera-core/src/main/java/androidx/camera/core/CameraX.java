@@ -296,26 +296,29 @@ public final class CameraX {
             }
         }
 
-        if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(originalUseCases,
-                Arrays.asList(useCases))) {
-            throw new IllegalArgumentException("Attempting to bind too many ImageCapture or "
-                    + "VideoCapture instances");
-        }
+        // Only do resolution calculation if UseCases were bound
+        if (useCases.length != 0) {
+            if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(originalUseCases,
+                    Arrays.asList(useCases))) {
+                throw new IllegalArgumentException("Attempting to bind too many ImageCapture or "
+                        + "VideoCapture instances");
+            }
 
-        Map<UseCase, Size> suggestedResolutionsMap = calculateSuggestedResolutions(
-                camera.getCameraInfoInternal(),
-                originalUseCases,
-                Arrays.asList(useCases));
+            Map<UseCase, Size> suggestedResolutionsMap = calculateSuggestedResolutions(
+                    camera.getCameraInfoInternal(),
+                    originalUseCases,
+                    Arrays.asList(useCases));
 
 
-        // At this point the binding will succeed since all the calculations are done
-        // Do all binding related work
-        for (UseCase useCase : useCases) {
-            useCase.onAttach(camera);
-            useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
+            // At this point the binding will succeed since all the calculations are done
+            // Do all binding related work
+            for (UseCase useCase : useCases) {
+                useCase.onAttach(camera);
+                useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
 
-            // Update the UseCaseGroup
-            useCaseGroupToBind.addUseCase(useCase);
+                // Update the UseCaseGroup
+                useCaseGroupToBind.addUseCase(useCase);
+            }
         }
 
         useCaseGroupLifecycleController.notifyState();
