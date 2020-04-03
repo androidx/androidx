@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("KDocUnresolvedReference")
-
 package androidx.paging
 
 import androidx.annotation.IntRange
@@ -247,8 +245,8 @@ abstract class PagedList<T : Any> internal constructor(
      * so that the UI doesn't show an empty list, or placeholders for a few frames, just before
      * showing initial content.
      *
-     * [androidx.paging.LivePagedListBuilder] does this creation on a background thread
-     * automatically, if you want to receive a `LiveData<PagedList<...>>`.
+     * [LivePagedListBuilder][androidx.paging.LivePagedListBuilder] does this creation on a
+     * background thread automatically, if you want to receive a `LiveData<PagedList<...>>`.
      *
      * @param Key Type of key used to load data from the [PagingSource].
      * @param Value Type of items held and loaded by the [PagedList].
