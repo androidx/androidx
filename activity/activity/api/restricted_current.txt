@@ -78,6 +78,22 @@ package androidx.activity.result {
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
   }
 
+  public final class IntentSenderRequest {
+    method public android.content.Intent? getFillInIntent();
+    method public int getFlagsMask();
+    method public int getFlagsValues();
+    method public android.content.IntentSender getIntentSender();
+  }
+
+  public static final class IntentSenderRequest.Builder {
+    ctor public IntentSenderRequest.Builder(android.content.IntentSender);
+    ctor public IntentSenderRequest.Builder(android.app.PendingIntent);
+    method public androidx.activity.result.IntentSenderRequest build();
+    method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent?);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFlagsMask(int);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFlagsValues(int);
+  }
+
 }
 
 package androidx.activity.result.contract {
@@ -166,6 +182,14 @@ package androidx.activity.result.contract {
     ctor public ActivityResultContracts.StartActivityForResult();
     method public android.content.Intent createIntent(android.content.Context, android.content.Intent);
     method public androidx.activity.result.ActivityResult parseResult(int, android.content.Intent?);
+  }
+
+  public static final class ActivityResultContracts.StartIntentSenderForResult extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.IntentSenderRequest,androidx.activity.result.ActivityResult> {
+    ctor public ActivityResultContracts.StartIntentSenderForResult();
+    method public android.content.Intent createIntent(android.content.Context, androidx.activity.result.IntentSenderRequest);
+    method public androidx.activity.result.ActivityResult parseResult(int, android.content.Intent?);
+    field public static final String ACTION_INTENT_SENDER_REQUEST = "androidx.activity.result.contract.action.INTENT_SENDER_REQUEST";
+    field public static final String EXTRA_SEND_INTENT_EXCEPTION = "androidx.activity.result.contract.extra.SEND_INTENT_EXCEPTION";
   }
 
   public static class ActivityResultContracts.TakePicture extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.graphics.Bitmap> {
