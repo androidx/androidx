@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.selection
+package androidx.ui.text.selection
 
 import android.view.MotionEvent
 

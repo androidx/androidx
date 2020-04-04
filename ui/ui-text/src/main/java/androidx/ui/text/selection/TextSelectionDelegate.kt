@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.selection
+package androidx.ui.text.selection
 
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.selection.Selectable
+import androidx.ui.core.selection.Selection
 import androidx.ui.geometry.Offset
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
@@ -140,14 +142,14 @@ internal fun getTextSelectionInfo(
     val containsWholeSelectionEnd =
         bounds.toRect().contains(Offset(endPosition.x.value, endPosition.y.value))
 
-    var rawStartOffset =
+    val rawStartOffset =
         if (containsWholeSelectionStart)
             textLayoutResult.getOffsetForPosition(startPosition).coerceIn(0, lastOffset)
         else
         // If the composable is selected, the start offset cannot be -1 for this composable. If the
         // final start offset is still -1, it means this composable is not selected.
             -1
-    var rawEndOffset =
+    val rawEndOffset =
         if (containsWholeSelectionEnd)
             textLayoutResult.getOffsetForPosition(endPosition).coerceIn(0, lastOffset)
         else
@@ -375,7 +377,7 @@ private fun processCrossComposable(
         start = if (handlesCrossed) endPosition else startPosition,
         end = if (handlesCrossed) startPosition else endPosition
     )
-    var startOffset = if (isSelected && !containsWholeSelectionStart) {
+    val startOffset = if (isSelected && !containsWholeSelectionStart) {
         // If the composable is selected but the start is not in the composable, bound to the border
         // of the text in the composable.
         if (handlesCrossed) max(lastOffset, 0) else 0
@@ -385,7 +387,7 @@ private fun processCrossComposable(
         // the start, the final offset has already been calculated earlier.
         rawStartOffset
     }
-    var endOffset = if (isSelected && !containsWholeSelectionEnd) {
+    val endOffset = if (isSelected && !containsWholeSelectionEnd) {
         // If the composable is selected but the end is not in the composable, bound to the border
         // of the text in the composable.
         if (handlesCrossed) 0 else max(lastOffset, 0)

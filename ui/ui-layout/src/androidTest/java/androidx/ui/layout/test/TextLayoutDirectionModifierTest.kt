@@ -17,8 +17,8 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.CoreText
-import androidx.ui.core.CoreTextField
+import androidx.ui.text.CoreText
+import androidx.ui.text.CoreTextField
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.input.EditorValue

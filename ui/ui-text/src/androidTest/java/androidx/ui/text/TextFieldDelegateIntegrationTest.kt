@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.text
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -22,17 +22,13 @@ import android.graphics.Typeface
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.ui.core.Constraints
+import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.input.EditorValue
 import androidx.ui.input.OffsetMap
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextDelegate
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextPainter
-import androidx.ui.text.TextRange
-import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.ResourceFont
 import androidx.ui.unit.Density

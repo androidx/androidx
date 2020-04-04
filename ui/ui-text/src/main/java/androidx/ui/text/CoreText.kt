@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.core
+package androidx.ui.text
 
 import androidx.compose.Composable
 import androidx.compose.StructurallyEqual
@@ -23,16 +23,20 @@ import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.compose.setValue
+import androidx.ui.core.Constraints
+import androidx.ui.core.DensityAmbient
+import androidx.ui.core.FontLoaderAmbient
+import androidx.ui.core.HorizontalAlignmentLine
+import androidx.ui.core.Layout
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
+import androidx.ui.core.drawBehind
+import androidx.ui.core.onPositioned
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
-import androidx.ui.core.selection.TextSelectionDelegate
 import androidx.ui.graphics.Color
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextDelegate
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextRange
-import androidx.ui.text.TextStyle
 import androidx.ui.text.font.Font
+import androidx.ui.text.selection.TextSelectionDelegate
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
