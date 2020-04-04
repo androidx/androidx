@@ -71,7 +71,7 @@ class PopupTest {
     private fun createPopupWithAlignmentRule(
         alignment: Alignment,
         measureLatch: CountDownLatch,
-        modifier: Modifier = Modifier.None
+        modifier: Modifier = Modifier
     ) {
         with(composeTestRule.density) {
             val popupWidthDp = popupSize.width.toDp()

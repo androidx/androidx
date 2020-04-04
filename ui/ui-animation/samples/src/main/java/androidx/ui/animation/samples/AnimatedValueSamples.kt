@@ -27,7 +27,6 @@ import androidx.ui.core.drawOpacity
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
@@ -54,7 +53,7 @@ fun VisibilityTransition(visibility: VisibilityState) {
 fun ColorTransition(enabled: Boolean) {
     Box(Modifier.fillMaxSize(), gravity = ContentGravity.Center) {
         val textColor = animate(if (enabled) Color.Black else Color.Gray)
-        Text("Visibility Transition", style = currentTextStyle().copy(color = textColor))
+        Text("Visibility Transition", color = textColor)
     }
 }
 

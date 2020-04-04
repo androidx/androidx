@@ -407,12 +407,12 @@ class HiltViewModelGeneratorTest {
 
         import androidx.lifecycle.ViewModel;
         import androidx.lifecycle.hilt.ViewModelAssistedFactory;
-        import androidx.lifecycle.hilt.ViewModelKey;
         import dagger.Binds;
         import dagger.Module;
         import dagger.hilt.InstallIn;
         import dagger.hilt.android.components.ActivityRetainedComponent;
         import dagger.multibindings.IntoMap;
+        import dagger.multibindings.StringKey;
         import $GENERATED_TYPE;
 
         $GENERATED_ANNOTATION
@@ -421,7 +421,7 @@ class HiltViewModelGeneratorTest {
         public interface MyViewModel_HiltModule {
             @Binds
             @IntoMap
-            @ViewModelKey(MyViewModel.class)
+            @StringKey("androidx.lifecycle.hilt.test.MyViewModel")
             ViewModelAssistedFactory<? extends ViewModel> bind(MyViewModel_AssistedFactory factory)
         }
         """.toJFO("androidx.lifecycle.hilt.test.MyViewModel_HiltModule")
@@ -480,12 +480,12 @@ class HiltViewModelGeneratorTest {
 
         import androidx.lifecycle.ViewModel;
         import androidx.lifecycle.hilt.ViewModelAssistedFactory;
-        import androidx.lifecycle.hilt.ViewModelKey;
         import dagger.Binds;
         import dagger.Module;
         import dagger.hilt.InstallIn;
         import dagger.hilt.android.components.ActivityRetainedComponent;
         import dagger.multibindings.IntoMap;
+        import dagger.multibindings.StringKey;
         import $GENERATED_TYPE;
 
         $GENERATED_ANNOTATION
@@ -494,7 +494,7 @@ class HiltViewModelGeneratorTest {
         public interface Outer_InnerViewModel_HiltModule {
             @Binds
             @IntoMap
-            @ViewModelKey(Outer.InnerViewModel.class)
+            @StringKey("androidx.lifecycle.hilt.test.Outer.InnerViewModel")
             ViewModelAssistedFactory<? extends ViewModel> bind(
                     Outer_InnerViewModel_AssistedFactory factory)
         }

@@ -45,7 +45,7 @@ import kotlin.math.sign
 @Composable
 internal fun RowColumnImpl(
     orientation: LayoutOrientation,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     arrangement: Arrangement,
     crossAxisSize: SizeMode,
     crossAxisAlignment: CrossAxisAlignment,

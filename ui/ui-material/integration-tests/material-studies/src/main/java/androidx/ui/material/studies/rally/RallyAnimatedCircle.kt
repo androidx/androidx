@@ -63,7 +63,7 @@ private val CircularTransition = transitionDefinition {
  * because there will be N dividers of size 1.8 degrees */
 @Composable
 fun AnimatedCircle(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     proportions: List<Float>,
     colors: List<Color>
 ) {

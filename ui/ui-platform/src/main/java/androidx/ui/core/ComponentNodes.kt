@@ -1028,7 +1028,7 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The [Modifier] currently applied to this node.
      */
-    var modifier: Modifier = Modifier.None
+    var modifier: Modifier = Modifier
         set(value) {
             if (value == field) return
             field = value
@@ -1593,10 +1593,6 @@ fun ComponentNode.requireOwner(): Owner = owner ?: ErrorMessages.NodeShouldBeAtt
  */
 fun ComponentNode.add(child: ComponentNode) {
     insertAt(count, child)
-}
-
-class Ref<T> {
-    var value: T? = null
 }
 
 /**

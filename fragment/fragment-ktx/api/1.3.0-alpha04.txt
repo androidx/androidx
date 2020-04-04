@@ -1,6 +1,11 @@
 // Signature format: 3.0
 package androidx.fragment.app {
 
+  public final class FragmentKt {
+    method public static void setResult(androidx.fragment.app.Fragment, String requestKey, android.os.Bundle? result);
+    method public static void setResultListener(androidx.fragment.app.Fragment, String requestKey, kotlin.jvm.functions.Function2<? super java.lang.String,? super android.os.Bundle,kotlin.Unit>? listener);
+  }
+
   public final class FragmentManagerKt {
     method public static inline void commit(androidx.fragment.app.FragmentManager, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
     method public static inline void commitNow(androidx.fragment.app.FragmentManager, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);

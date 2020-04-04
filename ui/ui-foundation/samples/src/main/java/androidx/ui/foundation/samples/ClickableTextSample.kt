@@ -44,7 +44,7 @@ fun ClickableText() {
 @Composable
 fun LongClickableText(
     text: AnnotatedString,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
     softWrap: Boolean = false,
     overflow: TextOverflow = TextOverflow.Clip,

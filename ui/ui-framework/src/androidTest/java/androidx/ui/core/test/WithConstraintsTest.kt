@@ -461,7 +461,7 @@ class WithConstraintsTest {
                                 }
                             }
                         }
-                        Container(100.ipx, 100.ipx, Modifier.None, emptyContent())
+                        Container(100.ipx, 100.ipx, Modifier, emptyContent())
                     }
                 }
             }
@@ -736,7 +736,7 @@ private fun NeedsOtherMeasurementComposable(foo: IntPx) {
 fun Container(
     width: IntPx,
     height: IntPx,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () ->
     Unit
 ) {

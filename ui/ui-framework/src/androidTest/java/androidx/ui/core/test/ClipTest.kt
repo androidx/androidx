@@ -422,7 +422,7 @@ class ClipTest {
                     val modifier = if (model.value) {
                         Modifier.clip(rectShape) + FillColor(Color.Cyan)
                     } else {
-                        Modifier.None
+                        Modifier
                     }
                     AtLeastSize(size = 10.ipx, modifier = modifier) {
                     }

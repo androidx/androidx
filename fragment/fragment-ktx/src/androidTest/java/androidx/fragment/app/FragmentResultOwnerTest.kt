@@ -82,16 +82,16 @@ class FragmentResultOwnerTest {
                 .isNull()
         }
     }
-}
 
-class ResultFragment : Fragment() {
-    var actualResult: String? = null
+    class ResultFragment : Fragment() {
+        var actualResult: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
 
-        parentFragmentManager.setResultListener("requestKey", this) { _, bundle ->
-            actualResult = bundle.getString("bundleKey")
+            parentFragmentManager.setResultListener("requestKey", this) { _, bundle ->
+                actualResult = bundle.getString("bundleKey")
+            }
         }
     }
 }

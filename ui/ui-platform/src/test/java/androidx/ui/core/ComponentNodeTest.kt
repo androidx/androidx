@@ -1661,7 +1661,7 @@ class ComponentNodeTest {
         return layoutNodes
     }
 
-    private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier.None) =
+    private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier) =
         LayoutNode().apply {
             this.modifier = modifier
             layoutDirection = LayoutDirection.Ltr

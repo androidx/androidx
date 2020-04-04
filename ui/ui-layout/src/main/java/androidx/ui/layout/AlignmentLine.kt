@@ -46,7 +46,7 @@ import androidx.ui.unit.max
 @Composable
 fun AlignmentLineOffset(
     alignmentLine: AlignmentLine,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     before: Dp = 0.dp,
     after: Dp = 0.dp,
     children: @Composable() () -> Unit
@@ -98,7 +98,7 @@ fun AlignmentLineOffset(
 @Composable
 fun CenterAlignmentLine(
     alignmentLine: AlignmentLine,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit
 ) {
     Layout(children, modifier) { measurables, constraints, _ ->

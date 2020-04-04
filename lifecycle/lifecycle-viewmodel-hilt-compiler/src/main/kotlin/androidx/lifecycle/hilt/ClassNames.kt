@@ -31,6 +31,6 @@ internal object ClassNames {
     val VIEW_MODEL_ASSISTED_FACTORY =
         ClassName.get("androidx.lifecycle.hilt", "ViewModelAssistedFactory")
     val VIEW_MODEL = ClassName.get("androidx.lifecycle", "ViewModel")
-    val VIEW_MODEL_KEY = ClassName.get("androidx.lifecycle.hilt", "ViewModelKey")
     val SAVED_STATE_HANDLE = ClassName.get("androidx.lifecycle", "SavedStateHandle")
+    val STRING_KEY = ClassName.get("dagger.multibindings", "StringKey")
 }

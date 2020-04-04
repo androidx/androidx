@@ -19,9 +19,11 @@ package androidx.navigation {
 
   @androidx.navigation.NavDestinationDsl public final class NavActionBuilder {
     ctor public NavActionBuilder();
+    method public java.util.Map<java.lang.String,java.lang.Object> getDefaultArguments();
     method public int getDestinationId();
     method public void navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> optionsBuilder);
     method public void setDestinationId(int p);
+    property public final java.util.Map<java.lang.String,java.lang.Object> defaultArguments;
     property public final int destinationId;
   }
 

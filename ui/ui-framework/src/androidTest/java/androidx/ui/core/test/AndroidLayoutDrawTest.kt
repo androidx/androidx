@@ -2397,7 +2397,7 @@ fun assertColorsEqual(
 @Composable
 fun AtLeastSize(
     size: IntPx,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit = emptyContent()
 ) {
     Layout(
@@ -2431,7 +2431,7 @@ fun AtLeastSize(
 @Composable
 fun FixedSize(
     size: IntPx,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit = emptyContent()
 ) {
     Layout(children = children, modifier = modifier) { measurables, _, _ ->
@@ -2478,7 +2478,7 @@ fun Align(children: @Composable() () -> Unit) {
 @Composable
 internal fun Padding(
     size: IntPx,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit
 ) {
     Layout(
@@ -2513,7 +2513,7 @@ internal fun Padding(
 fun TwoMeasureLayout(
     size: IntPx,
     latch: CountDownLatch,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit
 ) {
     Layout(modifier = modifier, children = children) { measurables, _, _ ->
@@ -2540,7 +2540,7 @@ fun TwoMeasureLayout(
 fun Position(
     size: IntPx,
     offset: OffsetModel,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit
 ) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
@@ -2557,7 +2557,7 @@ fun Position(
 
 @Composable
 fun Wrap(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     minWidth: IntPx = 0.ipx,
     minHeight: IntPx = 0.ipx,
     children: @Composable() () -> Unit = {}
@@ -2574,7 +2574,7 @@ fun Wrap(
 
 @Composable
 fun Scroller(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     onScrollPositionChanged: (position: IntPx, maxPosition: IntPx) -> Unit,
     offset: OffsetModel,
     child: @Composable() () -> Unit
@@ -2593,7 +2593,7 @@ fun Scroller(
 
 @Composable
 private fun ScrollerLayout(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     @Suppress("UNUSED_PARAMETER") maxPosition: IntPx,
     onMaxPositionChanged: () -> Unit,
     child: @Composable() () -> Unit
@@ -2616,7 +2616,7 @@ private fun ScrollerLayout(
 @Composable
 fun WrapForceRelayout(
     model: OffsetModel,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit
 ) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
@@ -2631,7 +2631,7 @@ fun WrapForceRelayout(
 }
 
 @Composable
-fun SimpleRow(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+fun SimpleRow(modifier: Modifier = Modifier, children: @Composable() () -> Unit) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         var width = 0.ipx
         var height = 0.ipx

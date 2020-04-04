@@ -424,7 +424,7 @@ class LayoutPaddingTest : LayoutTest() {
      * with the same constraints it received.
      */
     @Composable
-    private fun TestBox(modifier: Modifier = Modifier.None, body: @Composable() () -> Unit) {
+    private fun TestBox(modifier: Modifier = Modifier, body: @Composable() () -> Unit) {
         Layout(children = body, modifier = modifier) { measurables, constraints, _ ->
             require(measurables.size == 1) {
                 "TestBox received ${measurables.size} children; must have exactly 1"

@@ -43,7 +43,7 @@ import androidx.ui.unit.max
  */
 @Composable
 fun Stack(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() StackScope.() -> Unit
 ) {
     val stackChildren: @Composable() () -> Unit = { StackScope().children() }

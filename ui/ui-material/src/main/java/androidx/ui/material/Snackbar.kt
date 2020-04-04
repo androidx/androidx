@@ -17,8 +17,8 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.FirstBaseline
-import androidx.ui.core.LastBaseline
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.tag
@@ -66,7 +66,7 @@ import androidx.ui.unit.max
 fun Snackbar(
     text: @Composable() () -> Unit,
     action: @Composable() (() -> Unit)? = null,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     actionOnNewLine: Boolean = false,
     shape: Shape = MaterialTheme.shapes.small,
     elevation: Dp = 6.dp

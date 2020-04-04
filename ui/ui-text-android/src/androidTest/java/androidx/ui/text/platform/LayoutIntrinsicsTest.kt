@@ -16,14 +16,15 @@
 
 package androidx.ui.text.platform
 
-import android.graphics.Typeface
 import android.text.BoringLayout
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.BulletSpan
+import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.ui.text.font.test.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,8 +34,7 @@ import org.junit.runners.JUnit4
 @SmallTest
 class LayoutIntrinsicsTest {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
-    val typeface = Typeface.createFromAsset(
-        instrumentation.context.assets, "sample_font.ttf")!!
+    val typeface = ResourcesCompat.getFont(instrumentation.context, R.font.sample_font)!!
 
     @Test
     fun boringMetrics_returns_nonnull_for_boring_text() {

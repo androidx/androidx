@@ -64,7 +64,7 @@ import androidx.ui.unit.max
 )
 @Composable
 fun Container(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     padding: EdgeInsets = EdgeInsets(0.dp),
     alignment: Alignment = Alignment.Center,
     expanded: Boolean = false,

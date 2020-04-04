@@ -16,8 +16,6 @@
 
 package androidx.tracing
 
-import android.annotation.SuppressLint
-
 /**
  * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [label])
  * and [Trace.endSection].
@@ -41,8 +39,11 @@ inline fun <T> trace(label: String, crossinline block: () -> T): T {
  * @param methodName The method name to appear in the trace.
  * @param cookie Unique identifier for distinguishing simultaneous events
  */
-@SuppressLint("MissingNullability") // b/152801955
-suspend fun <T> traceAsync(methodName: String, cookie: Int, block: suspend () -> T): T {
+suspend inline fun <T> traceAsync(
+    methodName: String,
+    cookie: Int,
+    crossinline block: suspend () -> T
+): T {
     try {
         Trace.beginAsyncSection(methodName, cookie)
         return block()

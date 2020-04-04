@@ -127,7 +127,7 @@ fun MovingTargetExample(clock: ManualAnimationClock) {
 }
 
 @Composable
-fun DrawSeekBar(modifier: Modifier = Modifier.None, x: Float, clock: ManualAnimationClock) {
+fun DrawSeekBar(modifier: Modifier = Modifier, x: Float, clock: ManualAnimationClock) {
     val paint = remember { Paint() }
     Canvas(modifier.fillMaxWidth().preferredHeight(60.dp)) {
         val centerY = size.height.value / 2

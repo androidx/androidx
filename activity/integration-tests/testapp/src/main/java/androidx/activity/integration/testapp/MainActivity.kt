@@ -32,6 +32,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.invoke
 import androidx.activity.prepareCall
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocuments
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
@@ -50,6 +51,14 @@ class MainActivity : ComponentActivity() {
         toast("Got image: $uri")
     }
 
+    val openDocuments = prepareCall(OpenDocuments()) { uris ->
+        var docs = ""
+        uris.forEach {
+            docs += "uri: $it \n"
+        }
+        toast("Got documents: $docs")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,6 +74,9 @@ class MainActivity : ComponentActivity() {
                 }
                 button("Pick an image") {
                     getContent("image/*")
+                }
+                button("Open documents") {
+                    openDocuments(arrayOf("*/*"))
                 }
             }
         }

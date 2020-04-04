@@ -24,6 +24,15 @@ plugins {
     id("dagger.hilt.android.plugin")
 }
 
+android {
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+        }
+    }
+}
+
 dependencies {
     implementation(project(":activity:activity"))
     implementation(project(":fragment:fragment-ktx"))

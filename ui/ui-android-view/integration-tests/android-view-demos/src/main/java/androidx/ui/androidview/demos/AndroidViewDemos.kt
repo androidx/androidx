@@ -21,6 +21,5 @@ import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 
 val AndroidViewDemos = DemoCategory("AndroidView", listOf(
-    ComposableDemo("Views in Compose") { ViewInComposeDemo() },
     ActivityDemo("WebComponent", WebComponentActivity::class)
 ))

@@ -32,12 +32,11 @@ import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.FocusManagerAmbient
-import androidx.ui.core.FirstBaseline
-import androidx.ui.core.LastBaseline
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
-import androidx.ui.foundation.TextField
 import androidx.ui.core.drawBehind
 import androidx.ui.core.offset
 import androidx.ui.core.tag
@@ -46,6 +45,7 @@ import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextField
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.shape.corner.ZeroCornerSize
@@ -95,7 +95,7 @@ import java.util.UUID
 fun FilledTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
     label: @Composable() () -> Unit,
     placeholder: @Composable() () -> Unit = emptyContent(),
@@ -164,7 +164,7 @@ fun FilledTextField(
 fun FilledTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
     label: @Composable() () -> Unit,
     placeholder: @Composable() () -> Unit = emptyContent(),

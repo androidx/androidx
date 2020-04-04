@@ -20,8 +20,9 @@ import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.StructurallyEqual
 import androidx.compose.ambientOf
-import androidx.ui.core.CoreText
+import androidx.ui.text.CoreText
 import androidx.ui.core.Modifier
+import androidx.ui.graphics.Color
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.text.AnnotatedString
@@ -32,11 +33,20 @@ import androidx.ui.text.style.TextOverflow
 /**
  * High level element that displays text and provides semantics / accessibility information.
  *
- * The default [style] uses the [currentTextStyle] defined by a theme. In addition, if no text
- * color is manually specified in [style] then the text color will be [contentColor].
+ * The default [style] uses the [currentTextStyle] defined by a theme. If you are setting your
+ * own style, you may want to consider first retrieving [currentTextStyle], and using
+ * [TextStyle.copy] to keep any theme defined attributes, only modifying the specific attributes
+ * you want to override.
+ *
+ * If [color] is explicitly set, it will always be used instead of the value inside [style]. If
+ * [color] is not set, and [style] does not have a color, then [contentColor] will be used - this
+ * allows this [Text] or element containing this [Text] to adapt to different background
+ * colors and still maintain contrast and accessibility.
  *
  * @param text The text to be displayed.
- * @param modifier Modifier to apply to this layout node.
+ * @param modifier [Modifier] to apply to this layout node.
+ * @param color [Color] to apply to the text. If `null`, and [style] has no color set, this will be
+ * [contentColor].
  * @param style Style configuration for the text such as color, font, line height etc.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
@@ -50,7 +60,8 @@ import androidx.ui.text.style.TextOverflow
 @Composable
 fun Text(
     text: String,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
+    color: Color? = null,
     style: TextStyle = currentTextStyle(),
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
@@ -60,6 +71,7 @@ fun Text(
     Text(
         AnnotatedString(text),
         modifier,
+        color,
         style,
         softWrap,
         overflow,
@@ -71,11 +83,20 @@ fun Text(
 /**
  * High level element that displays text and provides semantics / accessibility information.
  *
- * The default [style] uses the [currentTextStyle] defined by a theme. In addition, if no text
- * color is manually specified in [style] then the text color will be [contentColor].
+ * The default [style] uses the [currentTextStyle] defined by a theme. If you are setting your
+ * own style, you may want to consider first retrieving [currentTextStyle], and using
+ * [TextStyle.copy] to keep any theme defined attributes, only modifying the specific attributes
+ * you want to override.
+ *
+ * If [color] is explicitly set, it will always be used instead of the value inside [style]. If
+ * [color] is not set, and [style] does not have a color, then [contentColor] will be used - this
+ * allows this [Text] or element containing this [Text] to adapt to different background
+ * colors and still maintain contrast and accessibility.
  *
  * @param text The text to be displayed.
- * @param modifier Modifier to apply to this layout node.
+ * @param modifier [Modifier] to apply to this layout node.
+ * @param color [Color] to apply to the text. If `null`, and [style] has no color set, this will be
+ * [contentColor].
  * @param style Style configuration for the text such as color, font, line height etc.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
@@ -89,18 +110,21 @@ fun Text(
 @Composable
 fun Text(
     text: AnnotatedString,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
+    color: Color? = null,
     style: TextStyle = currentTextStyle(),
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
+    val textColor = color ?: style.color ?: contentColor()
+    val mergedStyle = style.merge(TextStyle(color = textColor))
     Semantics(properties = { accessibilityLabel = text.text }) {
         CoreText(
             text,
             modifier,
-            style,
+            mergedStyle,
             softWrap,
             overflow,
             maxLines,
@@ -119,8 +143,7 @@ private val TextStyleAmbient = ambientOf(StructurallyEqual) { TextStyle() }
  */
 @Composable
 fun ProvideTextStyle(value: TextStyle, children: @Composable() () -> Unit) {
-    val style = TextStyleAmbient.current
-    val mergedStyle = style.merge(value)
+    val mergedStyle = currentTextStyle().merge(value)
     Providers(TextStyleAmbient provides mergedStyle, children = children)
 }
 

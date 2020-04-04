@@ -40,7 +40,7 @@ import androidx.ui.semantics.onClick
 @Composable
 fun Clickable(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onClickLabel: String? = null,
     children: @Composable() () -> Unit
@@ -59,7 +59,7 @@ fun Clickable(
         val tap = if (enabled) {
             Modifier.tapGestureFilter(onClick)
         } else {
-            Modifier.None
+            Modifier
         }
         @Suppress("DEPRECATION")
         PassThroughLayout(modifier + tap, children)

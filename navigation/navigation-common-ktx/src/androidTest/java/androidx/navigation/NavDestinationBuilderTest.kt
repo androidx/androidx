@@ -88,6 +88,7 @@ class NavDestinationTest {
                 navOptions {
                     popUpTo = DESTINATION_ID
                 }
+                defaultArguments[ACTION_ARGUMENT_KEY] = ACTION_ARGUMENT_VALUE
             }
         }
         val action = destination.getAction(ACTION_ID)
@@ -97,12 +98,17 @@ class NavDestinationTest {
         assertWithMessage("NavAction should have NavOptions set")
             .that(action?.navOptions?.popUpTo)
             .isEqualTo(DESTINATION_ID)
+        assertWithMessage("NavAction should have its default argument set")
+            .that(action?.defaultArguments?.getString(ACTION_ARGUMENT_KEY))
+            .isEqualTo(ACTION_ARGUMENT_VALUE)
     }
 }
 
 private const val DESTINATION_ID = 1
 private const val LABEL = "TEST"
 private const val ACTION_ID = 1
+private const val ACTION_ARGUMENT_KEY = "KEY"
+private const val ACTION_ARGUMENT_VALUE = "VALUE"
 
 /**
  * Instead of constructing a NavGraph from the NavigatorProvider, construct

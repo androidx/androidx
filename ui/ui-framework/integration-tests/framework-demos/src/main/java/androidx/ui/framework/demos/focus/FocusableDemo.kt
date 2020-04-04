@@ -31,7 +31,6 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
 import androidx.ui.layout.fillMaxWidth
-import androidx.ui.text.TextStyle
 
 @Composable
 fun FocusableDemo() {
@@ -59,13 +58,11 @@ private fun FocusableText(text: String) {
     Text(
         modifier = focusModifier.tapGestureFilter { focusModifier.requestFocus() },
         text = text,
-        style = TextStyle(
-            color = when (focusModifier.focusState) {
-                Focused -> Color.Green
-                NotFocused -> Color.Black
-                NotFocusable -> Color.Gray
-            }
-        )
+        color = when (focusModifier.focusState) {
+            Focused -> Color.Green
+            NotFocused -> Color.Black
+            NotFocusable -> Color.Gray
+        }
     )
 }
 

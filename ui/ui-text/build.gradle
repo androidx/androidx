@@ -33,7 +33,6 @@ dependencies {
     implementation(KOTLIN_STDLIB)
     implementation project(":compose:compose-runtime")
     api project(":ui:ui-framework")
-    api project(":ui:ui-platform")
     api project(":ui:ui-text-core")
 
     testImplementation(ANDROIDX_TEST_RULES)
@@ -47,6 +46,9 @@ dependencies {
     }
 
     androidTestImplementation project(":ui:ui-test")
+    // SelectionContainerTest and TextLayoutTest depends on ui-platform
+    androidTestImplementation project(":ui:ui-platform")
+    androidTestImplementation project(":ui:ui-test-font")
     androidTestImplementation "androidx.core:core:1.0.2"
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

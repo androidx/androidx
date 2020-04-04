@@ -174,7 +174,7 @@ class ScrollerPosition(
 @Composable
 fun VerticalScroller(
     scrollerPosition: ScrollerPosition = ScrollerPosition(),
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     isScrollable: Boolean = true,
     child: @Composable() () -> Unit
 ) {
@@ -204,7 +204,7 @@ fun VerticalScroller(
 @Composable
 fun HorizontalScroller(
     scrollerPosition: ScrollerPosition = ScrollerPosition(),
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     isScrollable: Boolean = true,
     child: @Composable() () -> Unit
 ) {

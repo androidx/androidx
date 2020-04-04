@@ -290,13 +290,6 @@ package androidx.ui.core {
     property public final kotlin.jvm.functions.Function3<java.util.List<androidx.ui.core.PointerInputChange>,androidx.ui.core.PointerEventPass,androidx.ui.unit.IntPxSize,java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler;
   }
 
-  public final class Ref<T> {
-    ctor public Ref();
-    method public T? getValue();
-    method public void setValue(T? p);
-    property public final T? value;
-  }
-
   public final class SavedStateDelegateKt {
   }
 

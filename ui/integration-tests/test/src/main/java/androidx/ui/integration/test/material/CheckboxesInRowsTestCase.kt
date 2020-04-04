@@ -65,7 +65,7 @@ class CheckboxesInRowsTestCase(
     }
 
     @Composable
-    fun CheckboxWithState(modifier: Modifier = Modifier.None) {
+    fun CheckboxWithState(modifier: Modifier = Modifier) {
         val state = state { false }
         states.add(state)
         Checkbox(

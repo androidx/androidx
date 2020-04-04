@@ -22,6 +22,7 @@ import static android.app.slice.SliceProvider.SLICE_TYPE;
 import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 
+import android.annotation.SuppressLint;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -431,6 +432,7 @@ public class SliceProviderCompat {
         }
     }
 
+    @SuppressLint("WrongConstant") // Needed for IconCompat.TYPE_RESOURCE lint failure
     private static Slice parseSlice(final Context context, Bundle res) {
         if (res == null) {
             return null;
