@@ -70,10 +70,12 @@ The modules within UI are structured as follows:
 * `ui-test/`
 
    Testing framework
+* `ui-text/`
+
+   Base Text composables
 * `ui-text-core/`
 
-   Text engine
-
+   Text engine that contains base text components
 * `ui-text-android/`
 
    Android specific text stack dependent implementations

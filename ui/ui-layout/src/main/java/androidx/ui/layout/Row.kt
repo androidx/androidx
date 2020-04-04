@@ -58,7 +58,7 @@ import androidx.ui.unit.IntPx
  */
 @Composable
 fun Row(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     arrangement: Arrangement.Horizontal = Arrangement.Start,
     children: @Composable() RowScope.() -> Unit
 ) {

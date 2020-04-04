@@ -72,7 +72,7 @@ private class DeepHierarchyOnPositionedTestCase :
             val modifier = if (count == 1) {
                 Modifier.onPositioned { it.size }
             } else {
-                Modifier.None
+                Modifier
             }
             Box(Modifier.preferredSize(100.dp) + modifier, gravity = ContentGravity.Center) {
                 StaticChildren(count - 1)

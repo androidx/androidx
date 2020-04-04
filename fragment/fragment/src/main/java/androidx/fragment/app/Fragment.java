@@ -737,8 +737,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param fragment The fragment that is the target of this one.
      * @param requestCode Optional request code, for convenience if you
      * are going to call back with {@link #onActivityResult(int, int, Intent)}.
+     *
+     * @deprecated Instead of using a target fragment to pass results, the fragment requesting a
+     * result should use
+     * {@link FragmentManager#setResultListener(String, LifecycleOwner, FragmentResultListener)}
+     * to register a {@link FragmentResultListener} with a {@code requestKey} using its
+     * {@link #getParentFragmentManager() parent fragment manager}. The
+     * fragment delivering a result should then call
+     * {@link FragmentManager#setResult(String, Bundle)} using the same {@code requestKey}.
+     * Consider using {@link #setArguments} to pass the {@code requestKey} if you need to support
+     * dynamic request keys.
      */
-    @SuppressWarnings("ReferenceEquality")
+    @SuppressWarnings("ReferenceEquality, deprecation")
+    @Deprecated
     public void setTargetFragment(@Nullable Fragment fragment, int requestCode) {
         // Don't allow a caller to set a target fragment in another FragmentManager,
         // but there's a snag: people do set target fragments before fragments get added.
@@ -754,7 +765,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
         // Don't let someone create a cycle.
         for (Fragment check = fragment; check != null; check = check.getTargetFragment()) {
-            if (check == this) {
+            if (check.equals(this)) {
                 throw new IllegalArgumentException("Setting " + fragment + " as the target of "
                         + this + " would create a target cycle");
             }
@@ -776,8 +787,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Return the target fragment set by {@link #setTargetFragment}.
+     *
+     * @deprecated Instead of using a target fragment to pass results, use
+     * {@link FragmentManager#setResult(String, Bundle)} to deliver results to
+     * {@link FragmentResultListener} instances registered by other fragments via
+     * {@link FragmentManager#setResultListener(String, LifecycleOwner, FragmentResultListener)}.
      */
     @Nullable
+    @Deprecated
     final public Fragment getTargetFragment() {
         if (mTarget != null) {
             // Ensure that any Fragment set with setTargetFragment is immediately
@@ -792,7 +809,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Return the target request code set by {@link #setTargetFragment}.
+     *
+     * @deprecated When using the target fragment replacement of
+     * {@link FragmentManager#setResultListener(String, LifecycleOwner, FragmentResultListener)} and
+     * {@link FragmentManager#setResult(String, Bundle)}, consider using {@link #setArguments} to
+     * pass a {@code requestKey} if you need to support dynamic request keys.
      */
+    @Deprecated
     final public int getTargetRequestCode() {
         return mTargetRequestCode;
     }

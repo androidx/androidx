@@ -31,8 +31,8 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.FirstBaseline
-import androidx.ui.core.LastBaseline
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
@@ -137,7 +137,7 @@ import androidx.ui.unit.toPx
 fun <T> TabRow(
     items: List<T>,
     selectedIndex: Int,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     scrollable: Boolean = false,
@@ -409,7 +409,7 @@ object TabRow {
      * @param color color of the indicator
      */
     @Composable
-    fun Indicator(modifier: Modifier = Modifier.None, color: Color = contentColor()) {
+    fun Indicator(modifier: Modifier = Modifier, color: Color = contentColor()) {
         Box(modifier.fillMaxWidth().preferredHeight(IndicatorHeight).drawBackground(color))
     }
 
@@ -479,7 +479,7 @@ fun Tab(
     icon: @Composable() () -> Unit = emptyContent(),
     selected: Boolean,
     onSelected: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     activeColor: Color = contentColor(),
     inactiveColor: Color = EmphasisAmbient.current.medium.emphasize(activeColor)
 ) {
@@ -512,7 +512,7 @@ fun Tab(
 fun Tab(
     selected: Boolean,
     onSelected: () -> Unit,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     content: @Composable() () -> Unit
 ) {
     MutuallyExclusiveSetItem(

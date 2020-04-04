@@ -176,7 +176,7 @@ private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
  * the children.
  */
 @Composable
-private fun Wrap(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+private fun Wrap(modifier: Modifier = Modifier, children: @Composable() () -> Unit) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { measurable ->
             measurable.measure(constraints)
@@ -203,7 +203,7 @@ private fun Wrap(modifier: Modifier = Modifier.None, children: @Composable() () 
  */
 @Composable
 internal fun SimpleContainer(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     width: Dp? = null,
     height: Dp? = null,
     children: @Composable() () -> Unit

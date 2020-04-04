@@ -38,7 +38,7 @@ import androidx.constraintlayout.solver.widgets.Optimizer
 import androidx.constraintlayout.solver.widgets.analyzer.BasicMeasure
 import androidx.compose.Immutable
 import androidx.ui.core.Constraints
-import androidx.ui.core.FirstBaseline
+import androidx.ui.text.FirstBaseline
 import androidx.ui.core.Measurable
 import androidx.ui.core.Modifier
 import androidx.ui.core.MultiMeasureLayout
@@ -60,7 +60,7 @@ import androidx.ui.unit.ipx
 @Composable
 fun ConstraintLayout(
     constraintSet: ConstraintSet,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     children: @Composable() () -> Unit
 ) {
     val measurer = remember { Measurer() }

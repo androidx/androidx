@@ -54,16 +54,14 @@ public final class ViewModelFactoryModules {
 
         @NonNull
         @Multibinds
-        abstract Map<Class<? extends ViewModel>,
-                ViewModelAssistedFactory<? extends ViewModel>> viewModelFactoriesMap();
+        abstract Map<String, ViewModelAssistedFactory<? extends ViewModel>> viewModelFactoriesMap();
 
         @Provides
         @NonNull
         @ActivityViewModelFactory
         static ViewModelFactory provideFactory(
                 @NonNull Activity activity,
-                @NonNull Map<Class<? extends ViewModel>,
-                        Provider<ViewModelAssistedFactory<? extends ViewModel>>>
+                @NonNull Map<String, Provider<ViewModelAssistedFactory<? extends ViewModel>>>
                         viewModelFactories) {
             // Hilt guarantees concrete activity is a subclass of ComponentActivity.
             SavedStateRegistryOwner owner = (ComponentActivity) activity;
@@ -84,8 +82,7 @@ public final class ViewModelFactoryModules {
         @FragmentViewModelFactory
         static ViewModelFactory provideFactory(
                 @NonNull Fragment fragment,
-                @NonNull Map<Class<? extends ViewModel>,
-                        Provider<ViewModelAssistedFactory<? extends ViewModel>>>
+                @NonNull Map<String, Provider<ViewModelAssistedFactory<? extends ViewModel>>>
                         viewModelFactories) {
             Bundle defaultArgs = fragment.getArguments();
             return new ViewModelFactory(fragment, defaultArgs, viewModelFactories);

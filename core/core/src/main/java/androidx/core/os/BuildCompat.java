@@ -53,7 +53,7 @@ public class BuildCompat {
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android O or newer.
+     * Checks if the device is running on a release version of Android O or newer.
      * <p>
      * @return {@code true} if O APIs are available for use, {@code false} otherwise
      * @deprecated Android O is a finalized release and this method is no longer necessary. It will
@@ -66,7 +66,7 @@ public class BuildCompat {
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android O MR1 or newer.
+     * Checks if the device is running on a release version of Android O MR1 or newer.
      * <p>
      * @return {@code true} if O MR1 APIs are available for use, {@code false} otherwise
      * @deprecated Android O MR1 is a finalized release and this method is no longer necessary. It
@@ -79,7 +79,7 @@ public class BuildCompat {
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android P or newer.
+     * Checks if the device is running on a release version of Android P or newer.
      * <p>
      * @return {@code true} if P APIs are available for use, {@code false} otherwise
      * @deprecated Android P is a finalized release and this method is no longer necessary. It
@@ -92,7 +92,7 @@ public class BuildCompat {
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android Q or newer.
+     * Checks if the device is running on release version of Android Q or newer.
      * <p>
      * @return {@code true} if Q APIs are available for use, {@code false} otherwise
      * @deprecated Android Q is a finalized release and this method is no longer necessary. It
@@ -105,17 +105,16 @@ public class BuildCompat {
     }
 
     /**
-     * Checks if the device is running on a pre-release version of Android R or newer.
+     * Checks if the device is running on a pre-release version of Android R or a release
+     * version of Android R or newer.
      * <p>
-     * <strong>Note:</strong> This method will return {@code false} on devices running release
-     * versions of Android. When Android R is finalized for release, this method will be deprecated
-     * and all calls should be replaced with {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.R}.
+     * <strong>Note:</strong> When Android R is finalized for release, this method will be
+     * deprecated and all calls should be replaced with
+     * {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.R}.
      *
      * @return {@code true} if R APIs are available for use, {@code false} otherwise
      */
     public static boolean isAtLeastR() {
-        return VERSION.CODENAME.length() == 1
-                && VERSION.CODENAME.charAt(0) >= 'R'
-                && VERSION.CODENAME.charAt(0) <= 'Z';
+        return VERSION.SDK_INT >= 30 || VERSION.CODENAME.equals("R");
     }
 }

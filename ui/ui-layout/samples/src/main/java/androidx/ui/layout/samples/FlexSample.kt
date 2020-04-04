@@ -18,7 +18,7 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.ui.core.FirstBaseline
+import androidx.ui.text.FirstBaseline
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text

@@ -697,7 +697,7 @@ class LayoutSizeTest : LayoutTest() {
         verifyIntrinsicMeasurements(Modifier.fillMaxSize())
     }
 
-    private fun getSize(modifier: Modifier = Modifier.None): IntPxSize {
+    private fun getSize(modifier: Modifier = Modifier): IntPxSize {
         val width = 100.dp
         val height = 80.dp
 

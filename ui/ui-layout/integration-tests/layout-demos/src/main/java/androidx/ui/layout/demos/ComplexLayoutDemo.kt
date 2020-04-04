@@ -17,7 +17,7 @@
 package androidx.ui.layout.demos
 
 import androidx.compose.Composable
-import androidx.ui.core.FirstBaseline
+import androidx.ui.text.FirstBaseline
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground

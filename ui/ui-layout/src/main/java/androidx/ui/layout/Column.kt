@@ -58,7 +58,7 @@ import androidx.ui.unit.IntPx
  */
 @Composable
 fun Column(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     arrangement: Arrangement.Vertical = Arrangement.Top,
     children: @Composable() ColumnScope.() -> Unit
 ) {

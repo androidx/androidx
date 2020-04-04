@@ -284,7 +284,7 @@ class DraggableTest {
                     onDragStopped = { dragStopped += 1 },
                     startDragImmediately = true
                 )
-            } else Modifier.None
+            } else Modifier
         }
         findByTag(draggableBoxTag).doGesture {
             this.sendSwipe(

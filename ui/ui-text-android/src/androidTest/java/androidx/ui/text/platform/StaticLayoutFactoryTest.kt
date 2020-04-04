@@ -21,9 +21,11 @@ import android.text.Layout
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.text.TextUtils
+import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.ui.text.font.test.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -40,10 +42,7 @@ class StaticLayoutFactoryTest {
     @Before
     fun setUp() {
         val instrumentation: Instrumentation = InstrumentationRegistry.getInstrumentation()
-        sampleFont = Typeface.createFromAsset(
-            instrumentation.getContext().getAssets(),
-            "sample_font.ttf"
-        )
+        sampleFont = ResourcesCompat.getFont(instrumentation.context, R.font.sample_font)!!
     }
 
     @Test

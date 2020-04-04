@@ -20,7 +20,7 @@ import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.test.filters.LargeTest
-import androidx.ui.core.LastBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.onChildPositioned

@@ -21,10 +21,13 @@ import static android.os.Build.VERSION.SDK_INT;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestPermissions.ACTION_REQUEST_PERMISSIONS;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestPermissions.EXTRA_PERMISSIONS;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestPermissions.EXTRA_PERMISSION_GRANT_RESULTS;
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,6 +42,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
@@ -164,6 +168,23 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 if (!nonGrantedPermissions.isEmpty()) {
                     ActivityCompat.requestPermissions(activity,
                             nonGrantedPermissions.toArray(new String[0]), requestCode);
+                }
+            } else if (ACTION_INTENT_SENDER_REQUEST.equals(intent.getAction())) {
+                IntentSenderRequest request = (IntentSenderRequest) input;
+                try {
+                    ActivityCompat.startIntentSenderForResult(activity, request.getIntentSender(),
+                            requestCode, request.getFillInIntent(),
+                            request.getFlagsMask(), request.getFlagsValues(), 0,
+                            options != null ? options.toBundle() : null);
+                } catch (final IntentSender.SendIntentException e) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            dispatchResult(requestCode, RESULT_CANCELED,
+                                    new Intent().setAction(ACTION_INTENT_SENDER_REQUEST)
+                                            .putExtra(EXTRA_SEND_INTENT_EXCEPTION, e));
+                        }
+                    });
                 }
             } else {
                 // startActivityForResult path

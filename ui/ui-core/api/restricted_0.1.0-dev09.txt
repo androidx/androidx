@@ -267,8 +267,8 @@ package androidx.ui.core {
   public static final class Modifier.Companion implements androidx.ui.core.Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
-    method public androidx.ui.core.Modifier getNone();
-    property public final androidx.ui.core.Modifier None;
+    method @Deprecated public androidx.ui.core.Modifier getNone();
+    property @Deprecated public final androidx.ui.core.Modifier None;
   }
 
   public static interface Modifier.Element extends androidx.ui.core.Modifier {
@@ -371,6 +371,13 @@ package androidx.ui.core {
     method public static androidx.ui.unit.PxPosition positionChangeIgnoreConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean positionChanged(androidx.ui.core.PointerInputChange);
     method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.PointerInputChange);
+  }
+
+  public final class Ref<T> {
+    ctor public Ref();
+    method public T? getValue();
+    method public void setValue(T? p);
+    property public final T? value;
   }
 
   public final class TransformOrigin {

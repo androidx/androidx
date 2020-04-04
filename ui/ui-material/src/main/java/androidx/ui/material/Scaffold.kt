@@ -194,7 +194,7 @@ private fun ScaffoldBottom(
         DockedBottomBar(
             modifier = modifier,
             fabPosition = fabPos,
-            fab = { FabContainer(fabPos, Modifier.None, scaffoldState, fab) },
+            fab = { FabContainer(fabPos, Modifier, scaffoldState, fab) },
             bottomBar = { BottomBarContainer(scaffoldState, bottomBar) }
         )
     } else {
@@ -310,7 +310,7 @@ private fun FabContainer(
  * Default slot implementation for Scaffold slots content
  */
 @Composable
-private fun ScaffoldSlot(modifier: Modifier = Modifier.None, content: @Composable() () -> Unit) {
+private fun ScaffoldSlot(modifier: Modifier = Modifier, content: @Composable() () -> Unit) {
     Stack(modifier) { content() }
 }
 

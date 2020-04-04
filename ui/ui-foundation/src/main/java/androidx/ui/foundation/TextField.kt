@@ -18,7 +18,7 @@ package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.CoreTextField
+import androidx.ui.text.CoreTextField
 import androidx.ui.core.Modifier
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.ImeAction
@@ -94,7 +94,7 @@ data class TextFieldValue(
 @Composable
 fun TextField(
     value: TextFieldValue,
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     onValueChange: (TextFieldValue) -> Unit,
     textStyle: TextStyle = currentTextStyle(),
     keyboardType: KeyboardType = KeyboardType.Text,

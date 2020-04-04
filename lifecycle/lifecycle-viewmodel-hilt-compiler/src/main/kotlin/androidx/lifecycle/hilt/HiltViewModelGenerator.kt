@@ -17,6 +17,7 @@
 package androidx.lifecycle.hilt
 
 import androidx.lifecycle.hilt.ext.L
+import androidx.lifecycle.hilt.ext.S
 import androidx.lifecycle.hilt.ext.T
 import androidx.lifecycle.hilt.ext.W
 import androidx.lifecycle.hilt.ext.addGeneratedAnnotation
@@ -42,7 +43,7 @@ import javax.lang.model.element.Modifier
  * public interface $_HiltModule {
  *   @Binds
  *   @IntoMap
- *   @ViewModelKey($.class)
+ *   @StringKey("pkg.$")
  *   ViewModelAssistedFactory<? extends ViewModel> bind($_AssistedFactory factory)
  * }
  * ```
@@ -101,8 +102,8 @@ internal class HiltViewModelGenerator(
                     .addAnnotation(ClassNames.BINDS)
                     .addAnnotation(ClassNames.INTO_MAP)
                     .addAnnotation(
-                        AnnotationSpec.builder(ClassNames.VIEW_MODEL_KEY)
-                            .addMember("value", "$T.class", viewModelElements.className)
+                        AnnotationSpec.builder(ClassNames.STRING_KEY)
+                            .addMember("value", S, viewModelElements.className.canonicalName())
                             .build())
                     .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                     .returns(

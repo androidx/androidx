@@ -78,7 +78,7 @@ import kotlin.math.ln
  */
 @Composable
 fun Surface(
-    modifier: Modifier = Modifier.None,
+    modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
     color: Color = MaterialTheme.colors.surface,
     contentColor: Color = contentColorFor(color),
@@ -88,7 +88,7 @@ fun Surface(
 ) {
     SurfaceLayout(
         modifier.drawShadow(shape = shape, elevation = elevation, clipToOutline = false)
-            .plus(if (border != null) Modifier.drawBorder(border, shape) else Modifier.None)
+            .plus(if (border != null) Modifier.drawBorder(border, shape) else Modifier)
             .drawBackground(
                 color = getBackgroundColorForElevation(color, elevation),
                 shape = shape
@@ -116,7 +116,7 @@ val ColorPalette.primarySurface: Color get() = if (isLight) primary else surface
  */
 // TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
 @Composable
-private fun SurfaceLayout(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+private fun SurfaceLayout(modifier: Modifier = Modifier, children: @Composable() () -> Unit) {
     Layout(children, modifier) { measurables, constraints, _ ->
         if (measurables.size > 1) {
             throw IllegalStateException("Surface can have only one direct measurable child!")
