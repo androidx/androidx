@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.text
 
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.LargeTest
+import androidx.ui.core.FocusManagerAmbient
+import androidx.ui.core.Modifier
+import androidx.ui.core.TestTag
+import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService

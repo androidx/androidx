@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.text
 
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px

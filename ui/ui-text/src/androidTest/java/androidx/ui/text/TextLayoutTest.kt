@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.text
 
 import android.app.Activity
 import androidx.activity.ComponentActivity
@@ -22,9 +22,12 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextStyle
+import androidx.ui.core.Constraints
+import androidx.ui.core.Layout
+import androidx.ui.core.Modifier
+import androidx.ui.core.Ref
+import androidx.ui.core.onPositioned
+import androidx.ui.core.setContent
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily

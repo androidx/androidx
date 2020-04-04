@@ -23,7 +23,7 @@ import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.ui.animation.animate
 import androidx.ui.core.Constraints
-import androidx.ui.core.LastBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier

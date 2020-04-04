@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.text
 
+import androidx.ui.core.Constraints
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.LayoutDirection
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
+import androidx.ui.input.EditorValue
 import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.ImeAction
-import androidx.ui.input.EditorValue
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.OffsetMap
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TransformedText
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.MultiParagraphIntrinsics
-import androidx.ui.text.SpanStyle
-import androidx.ui.text.TextDelegate
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextRange
-import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize

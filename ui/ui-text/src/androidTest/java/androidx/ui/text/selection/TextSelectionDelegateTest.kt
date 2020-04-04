@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.selection
+package androidx.ui.text.selection
 
 import android.content.Context
 import android.graphics.Typeface
@@ -25,6 +25,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.selection.Selectable
+import androidx.ui.core.selection.Selection
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle

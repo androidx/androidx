@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.core
+package androidx.ui.text
 
 import androidx.compose.Composable
 import androidx.compose.emptyContent
@@ -23,21 +23,28 @@ import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
+import androidx.ui.core.DensityAmbient
+import androidx.ui.core.FocusManagerAmbient
+import androidx.ui.core.FontLoaderAmbient
+import androidx.ui.core.Layout
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Modifier
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.TextInputServiceAmbient
+import androidx.ui.core.drawBehind
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.input.FocusNode
+import androidx.ui.core.onPositioned
 import androidx.ui.input.EditProcessor
-import androidx.ui.input.ImeAction
 import androidx.ui.input.EditorValue
+import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.NO_SESSION
 import androidx.ui.input.VisualTransformation
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.onClick
-import androidx.ui.text.TextDelegate
-import androidx.ui.text.TextLayoutResult
-import androidx.ui.text.TextStyle
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.round
 

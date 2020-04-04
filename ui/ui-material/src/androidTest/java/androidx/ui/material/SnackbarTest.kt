@@ -20,8 +20,8 @@ import android.os.Build
 import androidx.compose.Providers
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.core.FirstBaseline
-import androidx.ui.core.LastBaseline
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
