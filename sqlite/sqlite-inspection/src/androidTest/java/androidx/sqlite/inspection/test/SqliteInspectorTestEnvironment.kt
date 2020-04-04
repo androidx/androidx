@@ -172,3 +172,5 @@ sealed class Hook(val originClass: Class<*>, val originMethod: String) {
         @Suppress("unused") val entryHook: InspectorEnvironment.EntryHook
     ) : Hook(originClass, originMethod)
 }
+
+val Hook.asExitHook get() = (this as Hook.ExitHook).exitHook

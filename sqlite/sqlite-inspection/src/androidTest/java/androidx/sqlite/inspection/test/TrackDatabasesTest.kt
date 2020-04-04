@@ -71,7 +71,7 @@ class TrackDatabasesTest {
 
         // evaluate registered hooks
         val hookEntries = testEnvironment.consumeRegisteredHooks()
-        assertThat(hookEntries).hasSize(1)
+        assertThat(hookEntries).hasSize(4)
         hookEntries.first().let { entry ->
             // expect one exit hook tracking database open events
             assertThat(entry).isInstanceOf(Hook.ExitHook::class.java)
@@ -82,8 +82,7 @@ class TrackDatabasesTest {
             // verify that executing the registered hook will result in tracking events
             testEnvironment.assertNoQueuedEvents()
             @Suppress("UNCHECKED_CAST")
-            val exitHook = (entry as Hook.ExitHook).exitHook as
-                    ExitHook<SQLiteDatabase>
+            val exitHook = entry.asExitHook as ExitHook<SQLiteDatabase>
             val database = Database("db3").createInstance(temporaryFolder)
             assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
             testEnvironment.receiveEvent().let { event ->
@@ -98,13 +97,13 @@ class TrackDatabasesTest {
     fun test_track_databases_the_same_database_opened_twice() = runBlocking {
         testEnvironment.sendCommand(createTrackDatabasesCommand())
         val hooks = testEnvironment.consumeRegisteredHooks()
-        assertThat(hooks).hasSize(1)
+        assertThat(hooks).hasSize(4)
 
         val onOpenHook = hooks.first()
         assertThat(onOpenHook.originMethod).isEqualTo(OPEN_DATABASE_COMMAND_SIGNATURE)
         val database = Database("db").createInstance(temporaryFolder)
         @Suppress("UNCHECKED_CAST")
-        val onExit = ((onOpenHook as Hook.ExitHook).exitHook as ExitHook<SQLiteDatabase>)::onExit
+        val onExit = (onOpenHook.asExitHook as ExitHook<SQLiteDatabase>)::onExit
 
         // open event on a database first time
         onExit(database)

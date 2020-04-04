@@ -25,6 +25,7 @@ import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQuery;
+import android.database.sqlite.SQLiteStatement;
 import android.os.CancellationSignal;
 
 import androidx.annotation.GuardedBy;
@@ -37,6 +38,7 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Column;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabasePossiblyChangedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredResponse;
@@ -80,6 +82,12 @@ final class SqliteInspector extends Inspector {
             + "Landroid/database/sqlite/SQLiteDatabase$OpenParams;"
             + ")"
             + "Landroid/database/sqlite/SQLiteDatabase;";
+
+    // SQLiteStatement methods
+    private static final List<String> sSqliteStatementExecuteMethodsSignatures = Arrays.asList(
+            "execute()V",
+            "executeInsert()J",
+            "executeUpdateDelete()I");
 
     // Note: this only works on API26+ because of pragma_* functions
     // TODO: replace with a resource file
@@ -188,10 +196,31 @@ final class SqliteInspector extends Inspector {
                     }
                 });
 
+        registerInvalidationHooks();
+
         List<SQLiteDatabase> instances = mEnvironment.findInstances(SQLiteDatabase.class);
         for (SQLiteDatabase instance : instances) {
             onDatabaseAdded(instance);
         }
+    }
+
+    private void registerInvalidationHooks() {
+        for (String method : sSqliteStatementExecuteMethodsSignatures) {
+            mEnvironment.registerExitHook(SQLiteStatement.class, method,
+                    new InspectorEnvironment.ExitHook<Object>() {
+                        @Override
+                        public Object onExit(Object result) {
+                            sendDatabasePossiblyChangedEvent();
+                            return result;
+                        }
+                    });
+        }
+    }
+
+    private void sendDatabasePossiblyChangedEvent() {
+        // TODO: add throttling
+        getConnection().sendEvent(Event.newBuilder().setDatabasePossiblyChanged(
+                DatabasePossiblyChangedEvent.getDefaultInstance()).build().toByteArray());
     }
 
     private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
