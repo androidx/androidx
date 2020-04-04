@@ -246,6 +246,7 @@ package androidx.ui.core {
     method public androidx.ui.core.semantics.SemanticsOwner getSemanticsOwner();
     method public boolean getShowLayoutBounds();
     method public androidx.ui.input.TextInputService getTextInputService();
+    method public androidx.ui.core.texttoolbar.TextToolbar getTextToolbar();
     method public void measureAndLayout();
     method public void observeLayoutModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public void observeMeasureModelReads(androidx.ui.core.LayoutNode node, kotlin.jvm.functions.Function0<kotlin.Unit> block);
@@ -273,6 +274,7 @@ package androidx.ui.core {
     property public abstract androidx.ui.core.semantics.SemanticsOwner semanticsOwner;
     property public abstract boolean showLayoutBounds;
     property public abstract androidx.ui.input.TextInputService textInputService;
+    property public abstract androidx.ui.core.texttoolbar.TextToolbar textToolbar;
     field public static final androidx.ui.core.Owner.Companion! Companion;
   }
 
@@ -461,6 +463,21 @@ package androidx.ui.core.semantics {
 
   public final class SemanticsOwnerKt {
     method public static java.util.List<androidx.ui.core.semantics.SemanticsNode> getAllSemanticsNodes(androidx.ui.core.semantics.SemanticsOwner);
+  }
+
+}
+
+package androidx.ui.core.texttoolbar {
+
+  public interface TextToolbar {
+    method public void showCopyMenu(androidx.ui.geometry.Rect rect, androidx.ui.text.AnnotatedString text);
+  }
+
+}
+
+package androidx.ui.core.texttoolbar.actionmodecallback {
+
+  public final class TextActionModeCallbackKt {
   }
 
 }

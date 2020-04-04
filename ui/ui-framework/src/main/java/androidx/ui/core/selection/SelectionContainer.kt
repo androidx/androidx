@@ -29,6 +29,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Popup
+import androidx.ui.core.TextToolbarAmbient
 import androidx.ui.core.enforce
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.longPressDragGestureFilter
@@ -36,14 +37,19 @@ import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
 import androidx.ui.core.onPositioned
+import androidx.ui.geometry.Rect
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
 import androidx.ui.unit.round
+import androidx.ui.unit.min
+import androidx.ui.unit.px
 
 /**
  * Default SelectionContainer to be used in order to make composables selectable by default.
@@ -77,6 +83,7 @@ fun SelectionContainer(
 
     manager.hapticFeedBack = HapticFeedBackAmbient.current
     manager.clipboardManager = ClipboardManagerAmbient.current
+    manager.textToolbar = TextToolbarAmbient.current
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
 
@@ -96,18 +103,86 @@ fun SelectionContainer(
         // cross-composable selection.
         Wrap(modifier) {
             children()
-            addHandle(manager, isStartHandle = true) {
+            Handle(manager, isStartHandle = true) {
                 StartSelectionHandle(selection = selection)
             }
-            addHandle(manager, isStartHandle = false) {
+            Handle(manager, isStartHandle = false) {
                 EndSelectionHandle(selection = selection)
             }
+            SelectionFloatingToolBar(manager = manager, selection = selection)
         }
     }
 }
 
 @Composable
-private fun addHandle(
+private fun SelectionFloatingToolBar(manager: SelectionManager, selection: Selection?) {
+    if (selection == null) return
+    manager.showSelectionToolbar(getContentRect(manager = manager, selection = selection))
+}
+
+private fun getContentRect(manager: SelectionManager, selection: Selection): Rect {
+    val startLayoutCoordinates =
+        selection.start.selectable.getLayoutCoordinates() ?: return Rect(0f, 0f, 0f, 0f)
+    val endLayoutCoordinates =
+        selection.end.selectable.getLayoutCoordinates() ?: return Rect(0f, 0f, 0f, 0f)
+
+    val localLayoutCoordinates = manager.containerLayoutCoordinates
+    if (localLayoutCoordinates != null && localLayoutCoordinates.isAttached) {
+        var startOffset = localLayoutCoordinates.childToLocal(
+            startLayoutCoordinates,
+            selection.start.selectable.getHandlePosition(
+                selection = selection,
+                isStartHandle = true
+            )
+        )
+        var endOffset = localLayoutCoordinates.childToLocal(
+            endLayoutCoordinates,
+            selection.end.selectable.getHandlePosition(
+                selection = selection,
+                isStartHandle = false
+            )
+        )
+
+        startOffset = localLayoutCoordinates.localToRoot(startOffset)
+        endOffset = localLayoutCoordinates.localToRoot(endOffset)
+
+        val left = min(startOffset.x, endOffset.x)
+        val right = max(startOffset.x, endOffset.x)
+
+        var startTop = localLayoutCoordinates.childToLocal(
+            startLayoutCoordinates,
+            PxPosition(
+                Px.Zero,
+                selection.start.selectable.getBoundingBox(selection.start.offset).top.px
+            )
+        )
+
+        var endTop = localLayoutCoordinates.childToLocal(
+            endLayoutCoordinates,
+            PxPosition(
+                Px.Zero,
+                selection.end.selectable.getBoundingBox(selection.end.offset).top.px
+            )
+        )
+
+        startTop = localLayoutCoordinates.localToRoot(startTop)
+        endTop = localLayoutCoordinates.localToRoot(endTop)
+
+        val top = min(startTop.y, endTop.y)
+        val bottom = max(startOffset.y, endOffset.y) + (HANDLE_HEIGHT.value * 4.0).px
+
+        return Rect(
+            left.value,
+            top.value,
+            right.value,
+            bottom.value
+        )
+    }
+    return Rect.zero
+}
+
+@Composable
+private fun Handle(
     manager: SelectionManager,
     isStartHandle: Boolean,
     handle: @Composable() () -> Unit
