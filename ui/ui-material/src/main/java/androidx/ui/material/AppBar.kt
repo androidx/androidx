@@ -18,7 +18,7 @@ package androidx.ui.material
 import androidx.compose.Composable
 import androidx.compose.Immutable
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.LastBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity

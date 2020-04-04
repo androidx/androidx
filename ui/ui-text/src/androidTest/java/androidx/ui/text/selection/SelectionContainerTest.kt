@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.selection
+package androidx.ui.text.selection
 
 import android.view.MotionEvent
 import android.view.View
@@ -24,13 +24,15 @@ import androidx.compose.Providers
 import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.CoreText
 import androidx.ui.core.HapticFeedBackAmbient
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
+import androidx.ui.core.selection.Selection
+import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.CoreText
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight

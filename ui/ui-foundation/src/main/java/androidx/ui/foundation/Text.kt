@@ -20,7 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.StructurallyEqual
 import androidx.compose.ambientOf
-import androidx.ui.core.CoreText
+import androidx.ui.text.CoreText
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
 import androidx.ui.semantics.Semantics
