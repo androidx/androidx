@@ -89,6 +89,8 @@ final class SqliteInspector extends Inspector {
             "executeInsert()J",
             "executeUpdateDelete()I");
 
+    private static final int INVALIDATION_MIN_INTERVAL_MS = 1000;
+
     // Note: this only works on API26+ because of pragma_* functions
     // TODO: replace with a resource file
     // language=SQLite
@@ -205,12 +207,21 @@ final class SqliteInspector extends Inspector {
     }
 
     private void registerInvalidationHooks() {
+        final RequestCollapsingThrottler throttler = new RequestCollapsingThrottler(
+                INVALIDATION_MIN_INTERVAL_MS,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        sendDatabasePossiblyChangedEvent();
+                    }
+                });
+
         for (String method : sSqliteStatementExecuteMethodsSignatures) {
             mEnvironment.registerExitHook(SQLiteStatement.class, method,
                     new InspectorEnvironment.ExitHook<Object>() {
                         @Override
                         public Object onExit(Object result) {
-                            sendDatabasePossiblyChangedEvent();
+                            throttler.submitRequest();
                             return result;
                         }
                     });
@@ -218,7 +229,6 @@ final class SqliteInspector extends Inspector {
     }
 
     private void sendDatabasePossiblyChangedEvent() {
-        // TODO: add throttling
         getConnection().sendEvent(Event.newBuilder().setDatabasePossiblyChanged(
                 DatabasePossiblyChangedEvent.getDefaultInstance()).build().toByteArray());
     }
