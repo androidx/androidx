@@ -26,9 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
-import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelUtils;
-import androidx.versionedparcelable.VersionedParcelize;
 
 import java.io.IOException;
 
@@ -42,7 +40,6 @@ import java.io.IOException;
  *
  * @see MediaItem
  */
-@VersionedParcelize(isCustom = true)
 public class FileMediaItem extends MediaItem {
     private static final String TAG = "FileMediaItem";
     /**
@@ -52,33 +49,17 @@ public class FileMediaItem extends MediaItem {
      */
     public static final long FD_LENGTH_UNKNOWN = LONG_MAX;
 
-    @NonParcelField
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    ParcelFileDescriptor mPFD;
-    @NonParcelField
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    long mFDOffset = 0;
-    @NonParcelField
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    long mFDLength = FD_LENGTH_UNKNOWN;
+    private final ParcelFileDescriptor mPFD;
+    private final long mFDOffset;
+    private final long mFDLength;
 
-    @NonParcelField
     private final Object mLock = new Object();
 
-    @NonParcelField
     @GuardedBy("mLock")
     private int mRefCount;
 
-    @NonParcelField
     @GuardedBy("mLock")
     private boolean mClosed;
-
-    /**
-     * Used for VersionedParcelable
-     */
-    FileMediaItem() {
-        // no-op
-    }
 
     FileMediaItem(Builder builder) {
         super(builder);
