@@ -27,6 +27,7 @@ import androidx.ui.graphics.ImageAssetConfig
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.Shadow
+import androidx.ui.graphics.asAndroidBitmap
 import androidx.ui.text.FontTestData.Companion.BASIC_KERN_FONT
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.FontTestData.Companion.FONT_100_REGULAR
@@ -1795,7 +1796,8 @@ class ParagraphIntegrationTest {
 
             paragraphNoMaxLine.paint(Canvas(imageNoMaxLine))
             paragraphWithMaxLine.paint(Canvas(imageWithMaxLine))
-            assertThat(imageNoMaxLine.nativeImage).isNotEqualToBitmap(imageWithMaxLine.nativeImage)
+            assertThat(imageNoMaxLine.asAndroidBitmap()).isNotEqualToBitmap(imageWithMaxLine
+                .asAndroidBitmap())
         }
     }
 

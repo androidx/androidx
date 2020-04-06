@@ -42,6 +42,7 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(TRUTH)
 
+    androidTestImplementation project(":ui:ui-graphics:samples")
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
