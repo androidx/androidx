@@ -20,6 +20,7 @@ import androidx.animation.FastOutSlowInEasing
 import androidx.animation.TweenBuilder
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.emptyContent
 import androidx.ui.animation.animate
 import androidx.ui.core.Constraints
@@ -31,8 +32,8 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.drawOpacity
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
@@ -186,7 +187,7 @@ private fun BottomNavigationTransition(
 
     val color = lerp(inactiveColor, activeColor, animationProgress)
 
-    ProvideContentColor(color) {
+    Providers(ContentColorAmbient provides color) {
         content(animationProgress)
     }
 }
