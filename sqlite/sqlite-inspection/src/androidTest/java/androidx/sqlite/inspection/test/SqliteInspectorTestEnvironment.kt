@@ -173,4 +173,5 @@ sealed class Hook(val originClass: Class<*>, val originMethod: String) {
     ) : Hook(originClass, originMethod)
 }
 
+val Hook.asEntryHook get() = (this as Hook.EntryHook).entryHook
 val Hook.asExitHook get() = (this as Hook.ExitHook).exitHook

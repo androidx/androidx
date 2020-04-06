@@ -71,7 +71,7 @@ class TrackDatabasesTest {
 
         // evaluate registered hooks
         val hookEntries = testEnvironment.consumeRegisteredHooks()
-        assertThat(hookEntries).hasSize(4)
+        assertThat(hookEntries).hasSize(10)
         hookEntries.first().let { entry ->
             // expect one exit hook tracking database open events
             assertThat(entry).isInstanceOf(Hook.ExitHook::class.java)
@@ -97,7 +97,7 @@ class TrackDatabasesTest {
     fun test_track_databases_the_same_database_opened_twice() = runBlocking {
         testEnvironment.sendCommand(createTrackDatabasesCommand())
         val hooks = testEnvironment.consumeRegisteredHooks()
-        assertThat(hooks).hasSize(4)
+        assertThat(hooks).hasSize(10)
 
         val onOpenHook = hooks.first()
         assertThat(onOpenHook.originMethod).isEqualTo(OPEN_DATABASE_COMMAND_SIGNATURE)
