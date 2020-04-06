@@ -20,8 +20,9 @@ import androidx.annotation.FloatRange
 import androidx.compose.Ambient
 import androidx.compose.Composable
 import androidx.compose.Immutable
+import androidx.compose.Providers
 import androidx.compose.staticAmbientOf
-import androidx.ui.foundation.ProvideContentColor
+import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.luminance
@@ -98,7 +99,7 @@ interface EmphasisLevels {
 @Composable
 fun ProvideEmphasis(emphasis: Emphasis, content: @Composable() () -> Unit) {
     val emphasizedColor = emphasis.emphasize(contentColor())
-    ProvideContentColor(emphasizedColor, content)
+    Providers(ContentColorAmbient provides emphasizedColor, children = content)
 }
 
 /**
