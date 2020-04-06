@@ -202,7 +202,7 @@ package androidx.ui.text {
     method public androidx.ui.text.AnnotatedString copy(String text, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> paragraphStyles, java.util.List<androidx.ui.text.AnnotatedString.Item<java.lang.String>> annotations);
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.ParagraphStyle>> getParagraphStyles();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> getSpanStyles();
-    method public java.util.List<androidx.ui.text.AnnotatedString.Item<java.lang.String>> getStringAnnotations(String scope, int start, int end);
+    method public java.util.List<androidx.ui.text.AnnotatedString.Item<java.lang.String>> getStringAnnotations(String tag, int start, int end);
     method public String getText();
     method public operator androidx.ui.text.AnnotatedString plus(androidx.ui.text.AnnotatedString other);
   }
@@ -221,7 +221,7 @@ package androidx.ui.text {
     method public int getLength();
     method public void pop();
     method public void pop(int index);
-    method public int pushStringAnnotation(String scope, String annotation);
+    method public int pushStringAnnotation(String tag, String annotation);
     method public int pushStyle(androidx.ui.text.SpanStyle style);
     method public int pushStyle(androidx.ui.text.ParagraphStyle style);
     method public androidx.ui.text.AnnotatedString toAnnotatedString();
@@ -229,17 +229,17 @@ package androidx.ui.text {
   }
 
   public static final class AnnotatedString.Item<T> {
-    ctor public AnnotatedString.Item(T! item, int start, int end, String scope);
+    ctor public AnnotatedString.Item(T! item, int start, int end, String tag);
     ctor public AnnotatedString.Item(T! item, int start, int end);
     method public T! component1();
     method public int component2();
     method public int component3();
     method public String component4();
-    method public androidx.ui.text.AnnotatedString.Item<T> copy(T! item, int start, int end, String scope);
+    method public androidx.ui.text.AnnotatedString.Item<T> copy(T! item, int start, int end, String tag);
     method public int getEnd();
     method public T! getItem();
-    method public String getScope();
     method public int getStart();
+    method public String getTag();
   }
 
   public final class AnnotatedStringKt {
