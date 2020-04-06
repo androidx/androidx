@@ -18,23 +18,28 @@ package androidx.ui.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.setValue
+import androidx.compose.state
 import androidx.ui.graphics.Color
 import androidx.ui.material.Slider
-import androidx.ui.material.SliderPosition
 
 @Sampled
 @Composable
 fun SliderSample() {
-    Slider(SliderPosition())
+    var sliderPosition by state { 0f }
+    Slider(value = sliderPosition, onValueChange = { sliderPosition = it })
 }
 
 @Sampled
 @Composable
 fun StepsSliderSample() {
-    val position = SliderPosition(
-        initial = 0f,
+    var sliderPosition by state { 0f }
+    Slider(
+        value = sliderPosition,
+        onValueChange = { sliderPosition = it },
         valueRange = 0f..100f,
-        steps = 5
+        steps = 5,
+        color = Color.Black
     )
-    Slider(position, color = Color.Black)
 }
