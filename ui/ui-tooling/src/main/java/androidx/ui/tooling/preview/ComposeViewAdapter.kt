@@ -286,10 +286,30 @@ internal class ComposeViewAdapter : FrameLayout {
         val composableName = attrs.getAttributeValue(TOOLS_NS_URI, "composableName") ?: return
         val className = composableName.substringBeforeLast('.')
         val methodName = composableName.substringAfterLast('.')
+        val parameterProviderIndex = attrs.getAttributeIntValue(
+            TOOLS_NS_URI,
+            "parameterProviderIndex", 0
+        )
+        val parameterProviderClassName = attrs.getAttributeValue(
+            TOOLS_NS_URI,
+            "parameterProviderClass"
+        )
+        val parameterProviderClass = if (parameterProviderClassName != null)
+            try {
+                @Suppress("UNCHECKED_CAST")
+                Class.forName(parameterProviderClassName).kotlin as? KClass<out
+                PreviewParameterProvider<*>>
+            } catch (e: ClassNotFoundException) {
+                Log.e(TAG, "Unable to find provider '$parameterProviderClassName'", e)
+                null
+            }
+        else null
 
         init(
             className = className,
             methodName = methodName,
+            parameterProvider = parameterProviderClass,
+            parameterProviderIndex = parameterProviderIndex,
             debugPaintBounds = attrs.getAttributeBooleanValue(
                 TOOLS_NS_URI,
                 "paintBounds",
