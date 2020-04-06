@@ -35,10 +35,8 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
-import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSizeIn
-import androidx.ui.layout.preferredWidth
 import androidx.ui.material.internal.StateDraggable
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
@@ -66,30 +64,9 @@ enum class DrawerState {
 /**
  * Navigation drawers provide access to destinations in your app.
  *
- * Standard navigation drawers allow interaction with both screen content and the drawer
- * at the same time. They can be used on tablet and desktop,
- * but they are not suitable for mobile due to limited screen size.
- *
- * See [ModalDrawerLayout] and [BottomDrawerLayout] for more mobile friendly options.
- *
- * @sample androidx.ui.material.samples.StaticDrawerSample
- *
- * @param drawerContent composable that represents content inside the drawer
- */
-@Composable
-fun StaticDrawer(
-    drawerContent: @Composable() () -> Unit
-) {
-    Box(StaticDrawerModifier, children = drawerContent)
-}
-
-/**
- * Navigation drawers provide access to destinations in your app.
- *
  * Modal navigation drawers block interaction with the rest of an app’s content with a scrim.
  * They are elevated above most of the app’s UI and don’t affect the screen’s layout grid.
  *
- * See [StaticDrawer] for always visible drawer, suitable for tablet or desktop.
  * See [BottomDrawerLayout] for a layout that introduces a bottom drawer, suitable when
  * using bottom navigation.
  *
@@ -157,7 +134,6 @@ fun ModalDrawerLayout(
  * These drawers open upon tapping the navigation menu icon in the bottom app bar.
  * They are only for use on mobile.
  *
- * See [StaticDrawer] for always visible drawer, suitable for tablet or desktop
  * See [ModalDrawerLayout] for a layout that introduces a classic from-the-side drawer.
  *
  * @sample androidx.ui.material.samples.BottomDrawerSample
@@ -339,7 +315,6 @@ private fun WithOffset(
 private const val ScrimDefaultOpacity = 0.32f
 private val VerticalDrawerPadding = 56.dp
 
-private val StaticDrawerModifier = Modifier.preferredWidth(256.dp).fillMaxHeight()
 private const val DrawerStiffness = 1000f
 
 private val AnimationBuilder =

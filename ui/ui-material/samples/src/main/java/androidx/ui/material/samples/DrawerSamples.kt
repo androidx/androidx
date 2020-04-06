@@ -23,34 +23,16 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
-import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.preferredWidth
 import androidx.ui.material.BottomDrawerLayout
 import androidx.ui.material.Button
 import androidx.ui.material.DrawerState
 import androidx.ui.material.ModalDrawerLayout
-import androidx.ui.material.StaticDrawer
 import androidx.ui.unit.dp
-
-@Sampled
-@Composable
-fun StaticDrawerSample() {
-    Row(Modifier.fillMaxWidth()) {
-        StaticDrawer {
-            Text("Drawer Content")
-        }
-        Box(Modifier.fillMaxHeight().preferredWidth(1.dp).drawBackground(Color.Black))
-        Text("Rest of App")
-    }
-}
 
 @Sampled
 @Composable
