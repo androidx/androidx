@@ -395,24 +395,26 @@ class AlignmentLineTest : LayoutTest() {
         val centerSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Layout({
-                CenterAlignmentLine(testLine,
-                    Modifier.saveLayoutInfo(centerSize, Ref(), layoutLatch)
-                ) {
-                    Layout({ },
-                        Modifier.saveLayoutInfo(Ref(), childPosition, layoutLatch)
-                    ) { _, _, _ ->
-                        layout(
-                            childWidth.toIntPx(),
-                            childHeight.toIntPx(),
-                            mapOf(testLine to lineDp.toIntPx())
-                        ) { }
+            Stack {
+                Layout({
+                    CenterAlignmentLine(testLine,
+                        Modifier.saveLayoutInfo(centerSize, Ref(), layoutLatch)
+                    ) {
+                        Layout({ },
+                            Modifier.saveLayoutInfo(Ref(), childPosition, layoutLatch)
+                        ) { _, _, _ ->
+                            layout(
+                                childWidth.toIntPx(),
+                                childHeight.toIntPx(),
+                                mapOf(testLine to lineDp.toIntPx())
+                            ) { }
+                        }
                     }
-                }
-            }) { measurables, _, _ ->
-                val placeable = measurables.first().measure(Constraints()) // Infinite measuring
-                layout(0.ipx, 0.ipx) {
-                    placeable.place(0.ipx, 0.ipx)
+                }) { measurables, _, _ ->
+                    val placeable = measurables.first().measure(Constraints()) // Infinite measuring
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                    }
                 }
             }
         }
@@ -442,24 +444,26 @@ class AlignmentLineTest : LayoutTest() {
         val centerSize = Ref<IntPxSize>()
         val childPosition = Ref<PxPosition>()
         show {
-            Layout({
-                CenterAlignmentLine(testLine,
-                    Modifier.saveLayoutInfo(centerSize, Ref(), layoutLatch)
-                ) {
-                    Layout({ },
-                        Modifier.saveLayoutInfo(Ref(), childPosition, layoutLatch)
-                    ) { _, _, _ ->
-                        layout(
-                            childWidth.toIntPx(),
-                            childHeight.toIntPx(),
-                            mapOf(testLine to lineDp.toIntPx())
-                        ) { }
+            Stack {
+                Layout({
+                    CenterAlignmentLine(testLine,
+                        Modifier.saveLayoutInfo(centerSize, Ref(), layoutLatch)
+                    ) {
+                        Layout({ },
+                            Modifier.saveLayoutInfo(Ref(), childPosition, layoutLatch)
+                        ) { _, _, _ ->
+                            layout(
+                                childWidth.toIntPx(),
+                                childHeight.toIntPx(),
+                                mapOf(testLine to lineDp.toIntPx())
+                            ) { }
+                        }
                     }
-                }
-            }) { measurables, _, _ ->
-                val placeable = measurables.first().measure(Constraints()) // Infinite measuring
-                layout(0.ipx, 0.ipx) {
-                    placeable.place(0.ipx, 0.ipx)
+                }) { measurables, _, _ ->
+                    val placeable = measurables.first().measure(Constraints()) // Infinite measuring
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                    }
                 }
             }
         }

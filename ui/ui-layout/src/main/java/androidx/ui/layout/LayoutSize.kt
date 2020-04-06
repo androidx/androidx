@@ -51,7 +51,7 @@ import androidx.ui.unit.isFinite
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.SimpleWidthModifier
+ * @sample androidx.ui.layout.samples.SimplePreferredWidthModifier
  */
 fun Modifier.preferredWidth(width: Dp) = preferredSizeIn(minWidth = width, maxWidth = width)
 
@@ -63,7 +63,7 @@ fun Modifier.preferredWidth(width: Dp) = preferredSizeIn(minWidth = width, maxWi
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.SimpleHeightModifier
+ * @sample androidx.ui.layout.samples.SimplePreferredHeightModifier
  */
 fun Modifier.preferredHeight(height: Dp) = preferredSizeIn(minHeight = height, maxHeight = height)
 
@@ -75,7 +75,7 @@ fun Modifier.preferredHeight(height: Dp) = preferredSizeIn(minHeight = height, m
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.SimpleSizeModifier
+ * @sample androidx.ui.layout.samples.SimplePreferredSizeModifier
  */
 fun Modifier.preferredSize(size: Dp) = preferredSizeIn(size, size, size, size)
 
@@ -88,7 +88,7 @@ fun Modifier.preferredSize(size: Dp) = preferredSizeIn(size, size, size, size)
  * See [preferredWidthIn], [preferredHeightIn] or [preferredSizeIn] to set a preferred size range.
  *
  * Example usage:
- * @sample androidx.ui.layout.samples.SimpleSizeModifier
+ * @sample androidx.ui.layout.samples.SimplePreferredSizeModifier
  */
 fun Modifier.preferredSize(width: Dp, height: Dp) = preferredSizeIn(
     minWidth = width,
@@ -146,6 +146,134 @@ fun Modifier.preferredSizeIn(
  * the preferred size.
  */
 fun Modifier.preferredSizeIn(constraints: DpConstraints) = this + SizeModifier(constraints)
+
+/**
+ * Declare the width of the content to be exactly [width]dp. The incoming measurement
+ * [Constraints] will not override this value. If the content chooses a size that does not
+ * satisfy the incoming [Constraints], the parent layout will be reported a size coerced
+ * in the [Constraints], and the position of the content will be automatically offset to be
+ * centered on the space assigned to the child by the parent layout under the assumption that
+ * [Constraints] were respected.
+ *
+ * See [widthIn] and [sizeIn] to set a size range.
+ * See [preferredWidth] to set a preferred width, which is only respected when the incoming
+ * constraints allow it.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleWidthModifier
+ */
+fun Modifier.width(width: Dp) = sizeIn(minWidth = width, maxWidth = width)
+
+/**
+ * Declare the height of the content to be exactly [height]dp. The incoming measurement
+ * [Constraints] will not override this value. If the content chooses a size that does not
+ * satisfy the incoming [Constraints], the parent layout will be reported a size coerced
+ * in the [Constraints], and the position of the content will be automatically offset to be
+ * centered on the space assigned to the child by the parent layout under the assumption that
+ * [Constraints] were respected.
+ *
+ * See [heightIn] and [sizeIn] to set a size range.
+ * See [preferredHeight] to set a preferred height, which is only respected when the incoming
+ * constraints allow it.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleHeightModifier
+ */
+fun Modifier.height(height: Dp) = sizeIn(minHeight = height, maxHeight = height)
+
+/**
+ * Declare the size of the content to be exactly [size]dp width and height. The incoming measurement
+ * [Constraints] will not override this value. If the content chooses a size that does not
+ * satisfy the incoming [Constraints], the parent layout will be reported a size coerced
+ * in the [Constraints], and the position of the content will be automatically offset to be
+ * centered on the space assigned to the child by the parent layout under the assumption that
+ * [Constraints] were respected.
+ *
+ * See [sizeIn] to set a size range.
+ * See [preferredSize] to set a preferred size, which is only respected when the incoming
+ * constraints allow it.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleSizeModifier
+ */
+fun Modifier.size(size: Dp) = sizeIn(size, size, size, size)
+
+/**
+ * Declare the size of the content to be exactly [width]dp and [height]dp. The incoming measurement
+ * [Constraints] will not override this value. If the content chooses a size that does not
+ * satisfy the incoming [Constraints], the parent layout will be reported a size coerced
+ * in the [Constraints], and the position of the content will be automatically offset to be
+ * centered on the space assigned to the child by the parent layout under the assumption that
+ * [Constraints] were respected.
+ *
+ * See [sizeIn] to set a size range.
+ * See [preferredSize] to set a preferred size, which is only respected when the incoming
+ * constraints allow it.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleWidthModifier
+ */
+fun Modifier.size(width: Dp, height: Dp) = sizeIn(
+    minWidth = width,
+    maxWidth = width,
+    minHeight = height,
+    maxHeight = height
+)
+
+/**
+ * Constrain the width of the content to be between [minWidth]dp and [maxWidth]dp.
+ * If the content chooses a size that does not satisfy the incoming [Constraints], the
+ * parent layout will be reported a size coerced in the [Constraints], and the position
+ * of the content will be automatically offset to be centered on the space assigned to
+ * the child by the parent layout under the assumption that [Constraints] were respected.
+ */
+fun Modifier.widthIn(
+    minWidth: Dp = Dp.Unspecified,
+    maxWidth: Dp = Dp.Unspecified
+) = sizeIn(minWidth = minWidth, maxWidth = maxWidth)
+
+/**
+ * Constrain the height of the content to be between [minHeight]dp and [maxHeight]dp.
+ * If the content chooses a size that does not satisfy the incoming [Constraints], the
+ * parent layout will be reported a size coerced in the [Constraints], and the position
+ * of the content will be automatically offset to be centered on the space assigned to
+ * the child by the parent layout under the assumption that [Constraints] were respected.
+ */
+fun Modifier.heightIn(
+    minHeight: Dp = Dp.Unspecified,
+    maxHeight: Dp = Dp.Unspecified
+) = sizeIn(minHeight = minHeight, maxHeight = maxHeight)
+
+/**
+ * Constrain the width of the content to be between [minWidth]dp and [maxWidth]dp, and the
+ * height of the content to be between [minHeight]dp and [maxHeight]dp.
+ * If the content chooses a size that does not satisfy the incoming [Constraints], the
+ * parent layout will be reported a size coerced in the [Constraints], and the position
+ * of the content will be automatically offset to be centered on the space assigned to
+ * the child by the parent layout under the assumption that [Constraints] were respected.
+ */
+fun Modifier.sizeIn(
+    minWidth: Dp = Dp.Unspecified,
+    minHeight: Dp = Dp.Unspecified,
+    maxWidth: Dp = Dp.Unspecified,
+    maxHeight: Dp = Dp.Unspecified
+) = sizeIn(
+    DpConstraints(
+        minWidth = if (minWidth != Dp.Unspecified) minWidth else 0.dp,
+        minHeight = if (minHeight != Dp.Unspecified) minHeight else 0.dp,
+        maxWidth = if (maxWidth != Dp.Unspecified) maxWidth else Dp.Infinity,
+        maxHeight = if (maxHeight != Dp.Unspecified) maxHeight else Dp.Infinity
+    )
+)
+
+/**
+ * Constrain the size of the content to be within [constraints].
+ * If the content chooses a size that does not satisfy the incoming [Constraints], the
+ * parent layout will be reported a size coerced in the [Constraints], and the position
+ * of the content will be automatically offset to be centered on the space assigned to
+ * the child by the parent layout under the assumption that [Constraints] were respected.
+ */
+fun Modifier.sizeIn(constraints: DpConstraints) = this + SizeModifier(constraints, false)
 
 /**
  * Have the content fill the [Constraints.maxWidth] of the incoming measurement constraints
@@ -223,52 +351,50 @@ fun Modifier.wrapContentSize(align: Alignment = Center) = this + when (align) {
     BottomEnd -> LayoutAlign.BottomEnd
 }
 
-private data class SizeModifier(private val modifierConstraints: DpConstraints) : LayoutModifier {
+private data class SizeModifier(
+    private val targetConstraints: DpConstraints,
+    private val enforceIncoming: Boolean = true
+) : LayoutModifier {
     override fun Density.modifyConstraints(
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ) =
-        Constraints(modifierConstraints).enforce(constraints)
+    ) = Constraints(targetConstraints).let { if (enforceIncoming) it.enforce(constraints) else it }
 
     override fun Density.minIntrinsicWidthOf(
         measurable: Measurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx =
-        measurable.minIntrinsicWidth(height).let {
-            val constraints = Constraints(modifierConstraints)
-            it.coerceIn(constraints.minWidth, constraints.maxWidth)
-        }
+    ) = measurable.minIntrinsicWidth(height).let {
+        val constraints = Constraints(targetConstraints)
+        it.coerceIn(constraints.minWidth, constraints.maxWidth)
+    }
 
     override fun Density.maxIntrinsicWidthOf(
         measurable: Measurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx =
-        measurable.maxIntrinsicWidth(height).let {
-            val constraints = Constraints(modifierConstraints)
-            it.coerceIn(constraints.minWidth, constraints.maxWidth)
-        }
+    ) = measurable.maxIntrinsicWidth(height).let {
+        val constraints = Constraints(targetConstraints)
+        it.coerceIn(constraints.minWidth, constraints.maxWidth)
+    }
 
     override fun Density.minIntrinsicHeightOf(
         measurable: Measurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx =
-        measurable.minIntrinsicHeight(width).let {
-            val constraints = Constraints(modifierConstraints)
-            it.coerceIn(constraints.minHeight, constraints.maxHeight)
-        }
+    ) = measurable.minIntrinsicHeight(width).let {
+        val constraints = Constraints(targetConstraints)
+        it.coerceIn(constraints.minHeight, constraints.maxHeight)
+    }
 
     override fun Density.maxIntrinsicHeightOf(
         measurable: Measurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx =
-        measurable.maxIntrinsicHeight(width).let {
-            val constraints = Constraints(modifierConstraints)
-            it.coerceIn(constraints.minHeight, constraints.maxHeight)
-        }
+    ) = measurable.maxIntrinsicHeight(width).let {
+        val constraints = Constraints(targetConstraints)
+        it.coerceIn(constraints.minHeight, constraints.maxHeight)
+    }
 }
 
 /**

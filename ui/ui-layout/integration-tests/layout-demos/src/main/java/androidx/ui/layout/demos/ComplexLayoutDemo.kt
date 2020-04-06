@@ -17,30 +17,22 @@
 package androidx.ui.layout.demos
 
 import androidx.compose.Composable
-import androidx.ui.text.FirstBaseline
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
+import androidx.ui.foundation.drawBorder
 import androidx.ui.graphics.Color
-import androidx.ui.layout.AlignmentLineOffset
-import androidx.ui.layout.Stack
+import androidx.ui.layout.size
 import androidx.ui.unit.dp
 
 @Composable
-private fun AlignmentLineOffsetUsage() {
-    AlignmentLineOffset(
-        FirstBaseline,
-        modifier = Modifier.drawBackground(Color.Gray),
-        before = 20.dp,
-        after = 40.dp
-    ) {
-        Text("Text providing baseline")
-    }
-}
-
-@Composable
 fun ComplexLayoutDemo() {
-    Stack {
-        AlignmentLineOffsetUsage()
-    }
+    Box(
+        Modifier
+            .drawBackground(Color.Blue)
+            .size(100.dp, 100.dp)
+            .drawBorder(1.dp, Color.LightGray)
+            .size(50.dp, 50.dp),
+        backgroundColor = Color.Red
+    )
 }

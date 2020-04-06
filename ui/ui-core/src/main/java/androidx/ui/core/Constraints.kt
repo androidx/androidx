@@ -25,7 +25,7 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 
 /**
- * Immutable constraints used for measuring child [Layout]s. A parent [Layout]
+ * Immutable constraints used for measuring child [Layout]s or [LayoutModifier2]s. A parent layout
  * can measure their children using the measure method on the corresponding [Measurable]s,
  * method which takes the [Constraints] the child has to follow. A measured child is then
  * responsible to choose for themselves and return a size which satisfies the set of [Constraints]
@@ -37,6 +37,12 @@ import androidx.ui.unit.isFinite
  * parent needs to measure the children with appropriate [Constraints], such that whatever valid
  * sizes children choose, they can be laid out in a way that also respects the parent's incoming
  * [Constraints]. Note that different children can be measured with different [Constraints].
+ * A child is allowed to choose a size that does not satisfy its constraints. However, when this
+ * happens, the parent will not read from the [Placeable] the real size of the child, but rather
+ * one that was coerced in the child's constraints; therefore, a parent can assume that its
+ * children will always respect the constraints in their layout algorithm. When this does not
+ * happen in reality, the position assigned to the child will be automatically offset to be centered
+ * on the space assigned by the parent under the assumption that constraints were respected.
  * A set of [Constraints] can have infinite maxWidth and/or maxHeight. This is a trick often
  * used by parents to ask their children for their preferred size: unbounded constraints force
  * children whose default behavior is to fill the available space (always size to

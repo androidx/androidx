@@ -110,13 +110,8 @@ class IsDisplayedTests {
             }
 
             val thirdNode = @Composable {
-                Layout({
+                Stack {
                     lastNode()
-                }) { measurables, constraints, _ ->
-                    val placeable = measurables[0].measure(constraints)
-                    layout(0.ipx, 0.ipx) {
-                        placeable.place(0.ipx, 0.ipx)
-                    }
                 }
             }
 
@@ -126,7 +121,7 @@ class IsDisplayedTests {
                 }) { measurables, constraints, _ ->
                     if (model.value) {
                         val placeable = measurables[0].measure(constraints)
-                        layout(0.ipx, 0.ipx) {
+                        layout(placeable.width, placeable.height) {
                             placeable.place(0.ipx, 0.ipx)
                         }
                     } else {
@@ -141,7 +136,7 @@ class IsDisplayedTests {
                 }) { measurables, constraints, _ ->
                     if (model.value) {
                         val placeable = measurables[0].measure(constraints)
-                        layout(0.ipx, 0.ipx) {
+                        layout(placeable.width, placeable.height) {
                             placeable.place(0.ipx, 0.ipx)
                         }
                     } else {

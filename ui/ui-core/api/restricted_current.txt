@@ -298,12 +298,16 @@ package androidx.ui.core {
   public abstract class Placeable {
     ctor public Placeable();
     method public abstract operator androidx.ui.unit.IntPx? get(androidx.ui.core.AlignmentLine line);
+    method protected final androidx.ui.unit.IntPxPosition getApparentToRealOffset();
     method public final androidx.ui.unit.IntPx getHeight();
-    method public abstract androidx.ui.unit.IntPxSize getSize();
+    method protected abstract androidx.ui.unit.IntPxSize getMeasuredSize();
+    method protected abstract androidx.ui.core.Constraints getMeasurementConstraints();
     method public final androidx.ui.unit.IntPx getWidth();
     method protected abstract void performPlace(androidx.ui.unit.IntPxPosition position);
+    property protected final androidx.ui.unit.IntPxPosition apparentToRealOffset;
     property public final androidx.ui.unit.IntPx height;
-    property public abstract androidx.ui.unit.IntPxSize size;
+    property protected abstract androidx.ui.unit.IntPxSize measuredSize;
+    property protected abstract androidx.ui.core.Constraints measurementConstraints;
     property public final androidx.ui.unit.IntPx width;
     field public static final androidx.ui.core.Placeable.PlacementScope! PlacementScope;
   }
@@ -313,10 +317,10 @@ package androidx.ui.core {
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.Px x, androidx.ui.unit.Px y);
-    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
     method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
     method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
     method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.Px x, androidx.ui.unit.Px y);
+    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
   }
 
   public enum PointerEventPass {

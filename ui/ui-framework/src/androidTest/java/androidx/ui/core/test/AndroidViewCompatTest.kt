@@ -35,6 +35,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
@@ -46,6 +47,7 @@ import androidx.ui.core.TestTag
 import androidx.ui.core.drawLayer
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertPixels
@@ -83,9 +85,12 @@ class AndroidViewCompatTest {
         composeTestRule.setContent {
             TestTag("content") {
                 Semantics {
-                    Layout(@Composable {
-                        ColoredSquareView(size = squareSize.offset.value, ref = squareRef)
-                    }) { measurables, constraints, _ ->
+                    Layout(
+                        @Composable {
+                            ColoredSquareView(size = squareSize.offset.value, ref = squareRef)
+                        },
+                        Modifier.wrapContentSize(Alignment.TopStart)
+                    ) { measurables, constraints, _ ->
                         assertEquals(1, measurables.size)
                         val placeable = measurables.first().measure(
                             constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
@@ -138,10 +143,12 @@ class AndroidViewCompatTest {
         val squareSize = 100
         var expectedColor = Color.Blue
         composeTestRule.setContent {
-            TestTag("content") {
-                Semantics {
-                    Container(modifier = Modifier.drawLayer(clipToBounds = false)) {
-                        ColoredSquareView(color = colorModel.color, ref = squareRef)
+            Align {
+                TestTag("content") {
+                    Semantics {
+                        Container(Modifier.drawLayer(clipToBounds = false)) {
+                            ColoredSquareView(color = colorModel.color, ref = squareRef)
+                        }
                     }
                 }
             }

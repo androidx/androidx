@@ -26,9 +26,9 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.paint
-import androidx.ui.core.setContent
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.core.test.runOnUiThreadIR
+import androidx.ui.core.test.setContentInFrameLayout
 import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
@@ -70,7 +70,7 @@ class VectorTest {
     @Test
     fun testVectorTint() {
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 VectorTint()
             }
         }
@@ -85,7 +85,7 @@ class VectorTest {
     @Test
     fun testVectorAlignment() {
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 VectorTint(minimumSize = 500.ipx, alignment = Alignment.BottomEnd)
             }
         }
@@ -103,7 +103,7 @@ class VectorTest {
         val latch2 = CountDownLatch(1)
         val testCase = VectorInvalidationTestCase(latch1)
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 testCase.createTestVector()
             }
         }

@@ -22,6 +22,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.setContent
 import androidx.ui.core.test.runOnUiThreadIR
+import androidx.ui.core.test.setContentInFrameLayout
 import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
@@ -85,7 +86,7 @@ class SelectionHandlesTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun StartSelectionHandle_left_pointing() {
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 StartSelectionHandle(selection = selectionLtrHandleDirection)
             }
         }
@@ -101,7 +102,7 @@ class SelectionHandlesTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun StartSelectionHandle_right_pointing() {
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 StartSelectionHandle(selection = selectionRtlHandleDirection)
             }
         }
@@ -117,7 +118,7 @@ class SelectionHandlesTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun EndSelectionHandle_right_pointing() {
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 EndSelectionHandle(selection = selectionLtrHandleDirection)
             }
         }
@@ -133,7 +134,7 @@ class SelectionHandlesTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun EndSelectionHandle_left_pointing() {
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 EndSelectionHandle(selection = selectionRtlHandleDirection)
             }
         }

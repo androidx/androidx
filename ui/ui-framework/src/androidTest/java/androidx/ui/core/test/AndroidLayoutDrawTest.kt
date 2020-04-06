@@ -40,7 +40,9 @@ import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.ContentDrawScope
@@ -72,11 +74,14 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
+import androidx.ui.layout.size
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
@@ -456,7 +461,7 @@ class AndroidLayoutDrawTest {
 
         val layoutLatch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 Layout(
                     modifier = Modifier.drawBehind {
                         val paint = Paint()
@@ -487,7 +492,7 @@ class AndroidLayoutDrawTest {
                     })
             }
         }
-        layoutLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
 
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
@@ -1313,14 +1318,18 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child = @Composable {
-                    Layout(children = {}) { _, _, _ ->
-                        layout(0.ipx, 0.ipx, mapOf(TestLine to 10.ipx)) { ++childLayouts }
+                    Layout(children = {}) { _, constraints, _ ->
+                        layout(
+                            constraints.minWidth,
+                            constraints.minHeight,
+                            mapOf(TestLine to 10.ipx)
+                        ) { ++childLayouts }
                     }
                 }
                 val inner = @Composable {
                     Layout({ Wrap { Wrap { child() } } }) { measurables, constraints, _ ->
                         val placeable = measurables[0].measure(constraints)
-                        layout(0.ipx, 0.ipx) {
+                        layout(placeable.width, placeable.height) {
                             placeable.place(0.ipx, 0.ipx)
                             assertEquals(10.ipx, placeable[TestLine])
                         }
@@ -1349,8 +1358,12 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val child = @Composable {
-                    Layout(children = {}) { _, _, _ ->
-                        layout(0.ipx, 0.ipx, mapOf(TestLine to 10.ipx)) {
+                    Layout(children = {}) { _, constraints, _ ->
+                        layout(
+                            constraints.minWidth,
+                            constraints.minHeight,
+                            mapOf(TestLine to 10.ipx)
+                        ) {
                             model.offset // To ensure relayout.
                             ++childLayouts
                         }
@@ -1361,7 +1374,7 @@ class AndroidLayoutDrawTest {
                         WrapForceRelayout(model) { child() }
                     }) { measurables, constraints, _ ->
                         val placeable = measurables[0].measure(constraints)
-                        layout(0.ipx, 0.ipx) {
+                        layout(placeable.width, placeable.height) {
                             if (model.offset > 15.ipx) assertEquals(10.ipx, placeable[TestLine])
                             placeable.place(0.ipx, 0.ipx)
                             if (model.offset > 5.ipx) assertEquals(10.ipx, placeable[TestLine])
@@ -1650,9 +1663,10 @@ class AndroidLayoutDrawTest {
                         FixedSize(size, parentDataModifier)
                     },
                     measureBlock = { measurables, constraints, _ ->
-                        measurables.forEachIndexed { i, child ->
+                        for (i in 0 until measurables.size) {
+                            val child = measurables[i]
                             val placeable = child.measure(constraints)
-                            childSizes[i] = placeable.size
+                            childSizes[i] = IntPxSize(placeable.width, placeable.height)
                             latch.countDown()
                         }
                         layout(0.ipx, 0.ipx) { }
@@ -1814,9 +1828,8 @@ class AndroidLayoutDrawTest {
                 }
                 FixedSize(30.ipx, drawAndOffset) {
                     FixedSize(
-                        size = 10.ipx, modifier = background(
-                            color = innerColor
-                        ) + drawLatchModifier()
+                        size = 10.ipx,
+                        modifier = AlignTopLeft + background(innerColor) + drawLatchModifier()
                     )
                 }
             }
@@ -1959,7 +1972,7 @@ class AndroidLayoutDrawTest {
                 ) {
                     FixedSize(
                         size = 20.ipx,
-                        modifier = PaddingModifier(5.ipx) + scale(0.5f) +
+                        modifier = AlignTopLeft + PaddingModifier(5.ipx) + scale(0.5f) +
                                 background(Color.Red) + latch(drawLatch)
                     ) {}
                 }
@@ -2174,18 +2187,28 @@ class AndroidLayoutDrawTest {
         }
     }
 
-    private val AlignTopLeft = object : LayoutModifier {
-        override fun Density.modifyConstraints(
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
-        ) =
-            constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
-
-        override fun Density.modifySize(
-            constraints: Constraints,
-            layoutDirection: LayoutDirection,
-            childSize: IntPxSize
-        ) = IntPxSize(constraints.maxWidth, constraints.maxHeight)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testInvalidateIntroducedLayer() {
+        val color = mutableStateOf(Color.Red)
+        activityTestRule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                FixedSize(size = 30.ipx) {
+                    FixedSize(
+                        10.ipx,
+                        PaddingModifier(10.ipx).drawLayer(elevation = 1f) +
+                                background(Color.White)
+                    )
+                    FixedSize(30.ipx, background(color.value) + drawLatchModifier())
+                }
+            }
+        }
+        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
+        drawLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread {
+            color.value = Color.Blue
+        }
+        validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
     }
 
     private fun composeSquares(model: SquareModel) {
@@ -2449,8 +2472,9 @@ fun FixedSize(
 }
 
 @Composable
-fun Align(children: @Composable() () -> Unit) {
+fun Align(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
     Layout(
+        modifier = modifier,
         measureBlock = { measurables, constraints, _ ->
             val newConstraints = Constraints(
                 minWidth = IntPx.Zero,
@@ -2739,6 +2763,20 @@ data class PaddingModifier(
         containerSize: IntPxSize,
         layoutDirection: LayoutDirection
     ) = IntPxPosition(left, top)
+}
+
+internal val AlignTopLeft = object : LayoutModifier {
+    override fun Density.modifyConstraints(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ) =
+        constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+
+    override fun Density.modifySize(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection,
+        childSize: IntPxSize
+    ) = IntPxSize(constraints.maxWidth, constraints.maxHeight)
 }
 
 @Model

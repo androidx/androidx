@@ -26,6 +26,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.layout.Stack
 import androidx.ui.unit.Px
 import androidx.ui.unit.ceil
 import com.nhaarman.mockitokotlin2.any
@@ -66,18 +67,20 @@ class ScaleGestureFilterTest {
         val setupLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
-                Layout(
-                    modifier = Modifier.scaleGestureFilter(scaleObserver),
-                    measureBlock = { _, _, _ ->
-                        layout(
-                            (touchSlop * LayoutDimensionFactor).ceil(),
-                            (touchSlop * LayoutDimensionFactor).ceil()
-                        ) {
-                            setupLatch.countDown()
-                        }
-                    }, children = emptyContent()
-                )
+                Stack {
+                    touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
+                    Layout(
+                        modifier = Modifier.scaleGestureFilter(scaleObserver),
+                        measureBlock = { _, _, _ ->
+                            layout(
+                                (touchSlop * LayoutDimensionFactor).ceil(),
+                                (touchSlop * LayoutDimensionFactor).ceil()
+                            ) {
+                                setupLatch.countDown()
+                            }
+                        }, children = emptyContent()
+                    )
+                }
             }
 
             view = activity.findViewById<ViewGroup>(android.R.id.content)
