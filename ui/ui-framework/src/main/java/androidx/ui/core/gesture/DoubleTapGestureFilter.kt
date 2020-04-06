@@ -53,6 +53,7 @@ import kotlin.coroutines.CoroutineContext
 fun Modifier.doubleTapGestureFilter(
     onDoubleTap: (PxPosition) -> Unit
 ): Modifier {
+    @Suppress("DEPRECATION")
     val coroutineContext = CoroutineContextAmbient.current
     // TODO(shepshapard): coroutineContext should be a field
     val filter = remember { DoubleTapGestureFilter(coroutineContext) }
