@@ -154,8 +154,6 @@ public final class IntentSenderRequest {
         /**
          * Build the IntentSenderRequest specified by this builder.
          *
-         * <p>If the intentSender is not set an {@link IllegalStateException} will be thrown.
-         *
          * @return the newly constructed IntentSenderRequest.
          */
         @NonNull
