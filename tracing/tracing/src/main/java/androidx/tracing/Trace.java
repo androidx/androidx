@@ -16,12 +16,14 @@
 
 package androidx.tracing;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -44,26 +46,6 @@ public final class Trace {
     private static Method sAsyncTraceEndMethod;
     private static Method sTraceCounterMethod;
 
-    static {
-        if (Build.VERSION.SDK_INT >= 18 && Build.VERSION.SDK_INT < 29) {
-            try {
-                Field traceTagAppField = android.os.Trace.class.getField("TRACE_TAG_APP");
-                sTraceTagApp = traceTagAppField.getLong(null);
-
-                sIsTagEnabledMethod = android.os.Trace.class.getMethod("isTagEnabled", long.class);
-                sAsyncTraceBeginMethod = android.os.Trace.class.getMethod("asyncTraceBegin",
-                        long.class,
-                        String.class, int.class);
-                sAsyncTraceEndMethod = android.os.Trace.class.getMethod("asyncTraceEnd", long.class,
-                        String.class, int.class);
-                sTraceCounterMethod = android.os.Trace.class.getMethod("traceCounter", long.class,
-                        String.class, int.class);
-            } catch (Exception e) {
-                Log.i(TAG, "Unable to initialize via reflection.", e);
-            }
-        }
-    }
-
     /**
      * Checks whether or not tracing is currently enabled. This is useful to avoid intermediate
      * string creation for trace sections that require formatting. It is not necessary
@@ -73,19 +55,15 @@ public final class Trace {
      *
      * @return true if tracing is currently enabled, false otherwise
      */
+    @SuppressLint("NewApi")
     public static boolean isEnabled() {
-        if (Build.VERSION.SDK_INT >= 29) {
-            return android.os.Trace.isEnabled();
-        } else if (Build.VERSION.SDK_INT >= 18) {
-            try {
-                return (boolean) sIsTagEnabledMethod.invoke(null, sTraceTagApp);
-            } catch (Exception e) {
-                Log.v(TAG, "Unable to invoke isTagEnabled() via reflection.");
+        try {
+            if (sIsTagEnabledMethod == null) {
+                return android.os.Trace.isEnabled();
             }
+        } catch (NoSuchMethodError ignore) {
         }
-
-        // Never enabled on < API 18
-        return false;
+        return isEnabledFallback();
     }
 
     /**
@@ -127,16 +105,16 @@ public final class Trace {
      * @param methodName The method name to appear in the trace.
      * @param cookie     Unique identifier for distinguishing simultaneous events
      */
+    @SuppressLint("NewApi")
     public static void beginAsyncSection(@NonNull String methodName, int cookie) {
-        if (Build.VERSION.SDK_INT >= 29) {
-            TraceApi29Impl.beginAsyncSection(methodName, cookie);
-        } else if (Build.VERSION.SDK_INT >= 18) {
-            try {
-                sAsyncTraceBeginMethod.invoke(null, sTraceTagApp, methodName, cookie);
-            } catch (Exception e) {
-                Log.v(TAG, "Unable to invoke asyncTraceBegin() via reflection.");
+        try {
+            if (sAsyncTraceBeginMethod == null) {
+                TraceApi29Impl.beginAsyncSection(methodName, cookie);
+                return;
             }
+        } catch (NoSuchMethodError ignore) {
         }
+        beginAsyncSectionFallback(methodName, cookie);
     }
 
     /**
@@ -147,18 +125,17 @@ public final class Trace {
      * @param methodName The method name to appear in the trace.
      * @param cookie     Unique identifier for distinguishing simultaneous events
      */
+    @SuppressLint("NewApi")
     public static void endAsyncSection(@NonNull String methodName, int cookie) {
-        if (Build.VERSION.SDK_INT >= 29) {
-            TraceApi29Impl.endAsyncSection(methodName, cookie);
-        } else if (Build.VERSION.SDK_INT >= 18) {
-            try {
-                sAsyncTraceEndMethod.invoke(null, sTraceTagApp, methodName, cookie);
-            } catch (Exception e) {
-                Log.v(TAG, "Unable to invoke endAsyncSection() via reflection.");
+        try {
+            if (sAsyncTraceEndMethod == null) {
+                TraceApi29Impl.endAsyncSection(methodName, cookie);
+                return;
             }
+        } catch (NoSuchMethodError ignore) {
         }
+        endAsyncSectionFallback(methodName, cookie);
     }
-
 
     /**
      * Writes trace message to indicate the value of a given counter.
@@ -166,17 +143,100 @@ public final class Trace {
      * @param counterName  The counter name to appear in the trace.
      * @param counterValue The counter value.
      */
+    @SuppressLint("NewApi")
     public static void setCounter(@NonNull String counterName, int counterValue) {
-        if (Build.VERSION.SDK_INT >= 29) {
-            TraceApi29Impl.setCounter(counterName, counterValue);
-        } else if (Build.VERSION.SDK_INT >= 18) {
+        try {
+            if (sTraceCounterMethod == null) {
+                TraceApi29Impl.setCounter(counterName, counterValue);
+                return;
+            }
+        } catch (NoSuchMethodError ignore) {
+        }
+        setCounterFallback(counterName, counterValue);
+    }
+
+    private static boolean isEnabledFallback() {
+        if (Build.VERSION.SDK_INT >= 18) {
             try {
-                sTraceCounterMethod.invoke(null, sTraceTagApp, counterName, counterValue);
-            } catch (Exception e) {
-                Log.v(TAG, "Unable to invoke traceCounter() via reflection.");
+                if (sIsTagEnabledMethod == null) {
+                    Field traceTagAppField = android.os.Trace.class.getField("TRACE_TAG_APP");
+                    sTraceTagApp = traceTagAppField.getLong(null);
+                    sIsTagEnabledMethod =
+                            android.os.Trace.class.getMethod("isTagEnabled", long.class);
+                }
+                return (boolean) sIsTagEnabledMethod.invoke(null, sTraceTagApp);
+            } catch (Exception exception) {
+                handleException("isTagEnabled", exception);
+            }
+        }
+        // Never enabled on < API 18
+        return false;
+    }
+
+    private static void beginAsyncSectionFallback(@NonNull String methodName, int cookie) {
+        if (Build.VERSION.SDK_INT >= 18) {
+            try {
+                if (sAsyncTraceBeginMethod == null) {
+                    sAsyncTraceBeginMethod = android.os.Trace.class.getMethod(
+                            "asyncTraceBegin",
+                            long.class,
+                            String.class, int.class
+                    );
+                }
+                sAsyncTraceBeginMethod.invoke(null, sTraceTagApp, methodName, cookie);
+            } catch (Exception exception) {
+                handleException("asyncTraceBegin", exception);
             }
         }
     }
 
-    private Trace() {}
+    private static void endAsyncSectionFallback(@NonNull String methodName, int cookie) {
+        if (Build.VERSION.SDK_INT >= 18) {
+            try {
+                if (sAsyncTraceEndMethod == null) {
+                    sAsyncTraceEndMethod = android.os.Trace.class.getMethod(
+                            "asyncTraceEnd",
+                            long.class,
+                            String.class, int.class
+                    );
+                }
+                sAsyncTraceEndMethod.invoke(null, sTraceTagApp, methodName, cookie);
+            } catch (Exception exception) {
+                handleException("asyncTraceEnd", exception);
+            }
+        }
+    }
+
+    private static void setCounterFallback(@NonNull String counterName, int counterValue) {
+        if (Build.VERSION.SDK_INT >= 18) {
+            try {
+                if (sTraceCounterMethod == null) {
+                    sTraceCounterMethod = android.os.Trace.class.getMethod(
+                            "traceCounter",
+                            long.class,
+                            String.class,
+                            int.class
+                    );
+                }
+                sTraceCounterMethod.invoke(null, sTraceTagApp, counterName, counterValue);
+            } catch (Exception exception) {
+                handleException("traceCounter", exception);
+            }
+        }
+    }
+
+    private static void handleException(@NonNull String methodName, @NonNull Exception exception) {
+        if (exception instanceof InvocationTargetException) {
+            Throwable cause = exception.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else {
+                throw new RuntimeException(cause);
+            }
+        }
+        Log.v(TAG, "Unable to call " + methodName + " via reflection", exception);
+    }
+
+    private Trace() {
+    }
 }
