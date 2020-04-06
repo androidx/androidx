@@ -36,6 +36,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.concurrent.RejectedExecutionException;
+
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -88,7 +90,7 @@ public class CameraExecutorTest {
         blockRun1.unblock();
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = RejectedExecutionException.class)
     public void canNotExecuteAfterDeinit() {
         mCameraExecutor.deinit();
         mCameraExecutor.execute(mock(Runnable.class));
