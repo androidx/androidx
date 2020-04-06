@@ -16,6 +16,8 @@
 
 package androidx.ui.material
 
+import android.annotation.SuppressLint
+import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
 import androidx.animation.TargetAnimation
@@ -24,7 +26,6 @@ import androidx.annotation.IntRange
 import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.compose.state
-import androidx.ui.animation.AnimatedFloatModel
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.Alignment
 import androidx.ui.core.AnimationClockAmbient
@@ -62,94 +63,6 @@ import androidx.ui.util.lerp
 import kotlin.math.abs
 
 /**
- * Create and [remember] the state for a [Slider] based on the parameters, using the
- * [ambient animation clock][AnimationClockAmbient].
- *
- * @param initial initial value for the Slider when created. If outside of range provided,
- * initial position will be coerced to this range
- * @param valueRange range of values that Slider value can take
- * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
- * between across the whole value range. If 0, slider will behave as a continuous slider and allow
- * to choose any value from the range specified
- */
-@Composable
-fun SliderPosition(
-    initial: Float = 0f,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    @IntRange(from = 0) steps: Int = 0
-): SliderPosition {
-    val clock = AnimationClockAmbient.current.asDisposableClock()
-    return remember(initial, valueRange, steps, clock) {
-        SliderPosition(initial, valueRange, steps, clock)
-    }
-}
-
-/**
- * State for [Slider] that represents the Slider value, its bounds and optional amount of steps
- * evenly distributed across the Slider range.
- *
- * @param initial initial value for the Slider when created. If outside of range provided,
- * initial position will be coerced to this range
- * @param valueRange range of values that Slider value can take
- * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
- * between across the whole value range. If 0, slider will behave as a continuous slider and allow
- * to choose any value from the range specified
- */
-class SliderPosition(
-    initial: Float = 0f,
-    val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    @IntRange(from = 0) steps: Int = 0,
-    animatedClock: AnimationClockObservable
-) {
-
-    internal val startValue: Float = valueRange.start
-    internal val endValue: Float = valueRange.endInclusive
-
-    init {
-        require(steps >= 0) {
-            "steps should be >= 0"
-        }
-    }
-
-    /**
-     * Current Slider value. If set outside of range provided, value will be coerced to this range
-     */
-    var value: Float
-        get() = scale(startPx, endPx, holder.value, startValue, endValue)
-        set(value) {
-            holder.snapTo(scale(startValue, endValue, value, startPx, endPx))
-        }
-
-    private var endPx = Float.MAX_VALUE
-    private var startPx = Float.MIN_VALUE
-
-    internal fun setBounds(min: Float, max: Float) {
-        if (startPx == min && endPx == max) return
-        val newValue = scale(startPx, endPx, holder.value, min, max)
-        startPx = min
-        endPx = max
-        holder.setBounds(min, max)
-        anchorsPx = tickFractions.map {
-            lerp(
-                startPx,
-                endPx,
-                it
-            )
-        }
-        holder.snapTo(newValue)
-    }
-
-    internal val holder =
-        AnimatedFloatModel(scale(startValue, endValue, initial, startPx, endPx), animatedClock)
-
-    internal val tickFractions: List<Float> =
-        if (steps == 0) emptyList() else List(steps + 2) { it.toFloat() / (steps + 1) }
-
-    internal var anchorsPx: List<Float> = emptyList()
-        private set
-}
-
-/**
  * Sliders allow users to make selections from a range of values.
  *
  * Sliders reflect a range of values along a bar, from which users may select a single value.
@@ -160,16 +73,20 @@ class SliderPosition(
  *
  * @sample androidx.ui.material.samples.SliderSample
  *
- * You can allow the user to choose only between predefined set of values by providing
- * discrete values in [SliderPosition].
- *
- * You can do it by specifying the amount of steps between min and max values:
+ * You can allow the user to choose only between predefined set of values by specifying the amount
+ * of steps between min and max values:
  *
  * @sample androidx.ui.material.samples.StepsSliderSample
  *
- * @param position [SliderPosition] object to represent value of the Slider
+ * @param value current value of the Slider. If outside of [valueRange] provided, value will be
+ * coerced to this range.
  * @param onValueChange lambda in which value should be updated
  * @param modifier modifiers for the Slider layout
+ * @param valueRange range of values that Slider value can take. Passed [value] will be coerced to
+ * this range
+ * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
+ * between across the whole value range. If 0, slider will behave as a continuous slider and allow
+ * to choose any value from the range specified
  * @param onValueChangeEnd lambda to be invoked when value change has ended. This callback
  * shouldn't be used to update the slider value (use [onValueChange] for that), but rather to
  * know when the user has completed selecting a new value by ending a drag or a click.
@@ -177,12 +94,20 @@ class SliderPosition(
  */
 @Composable
 fun Slider(
-    position: SliderPosition,
-    onValueChange: (Float) -> Unit = { position.value = it },
+    value: Float,
+    onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    @IntRange(from = 0) steps: Int = 0,
     onValueChangeEnd: () -> Unit = {},
     color: Color = MaterialTheme.colors.primary
 ) {
+    val clock = AnimationClockAmbient.current.asDisposableClock()
+    val position = remember(valueRange, steps) {
+        SliderPosition(value, valueRange, steps, clock, onValueChange)
+    }
+    position.onValueChange = onValueChange
+    position.scaledValue = value
     Semantics(container = true, mergeAllDescendants = true) {
         Box(modifier = modifier) {
             WithConstraints { constraints, _ ->
@@ -190,18 +115,10 @@ fun Slider(
                 val minPx = 0f
                 position.setBounds(minPx, maxPx)
 
-                fun Float.toSliderPosition(): Float =
-                    scale(minPx, maxPx, this, position.startValue, position.endValue)
-
-                val flingConfig =
-                    if (position.anchorsPx.isNotEmpty()) {
-                        SliderFlingConfig(position, position.anchorsPx) { endValue ->
-                            onValueChange(endValue.toSliderPosition())
-                            onValueChangeEnd()
-                        }
-                    } else {
-                        null
-                    }
+                val flingConfig = SliderFlingConfig(position, position.anchorsPx) { endValue ->
+                    position.holder.snapTo(endValue)
+                    onValueChangeEnd()
+                }
                 val gestureEndAction = { velocity: Float ->
                     if (flingConfig != null) {
                         position.holder.fling(flingConfig, velocity)
@@ -212,7 +129,7 @@ fun Slider(
                 val pressed = state { false }
                 val press = Modifier.pressIndicatorGestureFilter(
                     onStart = { pos ->
-                        onValueChange(pos.x.value.toSliderPosition())
+                        position.holder.snapTo(pos.x.value)
                         pressed.value = true
                     },
                     onStop = {
@@ -223,9 +140,9 @@ fun Slider(
                 val drag = Modifier.draggable(
                     dragDirection = DragDirection.Horizontal,
                     onDragDeltaConsumptionRequested = { delta ->
-                        val old = position.holder.value
-                        onValueChange((position.holder.value + delta).toSliderPosition())
-                        position.holder.value - old
+                        position.holder.snapTo(position.holder.value + delta)
+                        // consume all so slider won't participate in nested scrolling
+                        delta
                     },
                     onDragStarted = { pressed.value = true },
                     onDragStopped = { velocity ->
@@ -234,7 +151,14 @@ fun Slider(
                     },
                     startDragImmediately = position.holder.isRunning
                 )
-                SliderImpl(position, color, maxPx, pressed.value, modifier = press + drag)
+                val coerced = value.coerceIn(position.startValue, position.endValue)
+                val fraction = calcFraction(position.startValue, position.endValue, coerced)
+                Semantics(container = true, properties = { accessibilityValue = "$coerced" }) {
+                    SliderImpl(
+                        fraction, position.tickFractions, color, maxPx, pressed.value,
+                        modifier = press.plus(drag)
+                    )
+                }
             }
         }
     }
@@ -242,7 +166,8 @@ fun Slider(
 
 @Composable
 private fun SliderImpl(
-    position: SliderPosition,
+    positionFraction: Float,
+    tickFractions: List<Float>,
     color: Color,
     width: Float,
     pressed: Boolean,
@@ -251,22 +176,19 @@ private fun SliderImpl(
     val widthDp = with(DensityAmbient.current) {
         width.px.toDp()
     }
-    Semantics(container = true, properties = { accessibilityValue = "${position.value}" }) {
-        Stack(modifier + DefaultSliderConstraints) {
-            val thumbSize = ThumbRadius * 2
-            val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
-            val offset = (widthDp - thumbSize) * fraction
-            val center = Modifier.gravity(Alignment.CenterStart)
-            Track(center.fillMaxSize(), color, position)
-            Box(center.padding(start = offset)) {
-                Surface(
-                    shape = CircleShape,
-                    color = color,
-                    elevation = if (pressed) 6.dp else 1.dp,
-                    modifier = Modifier.ripple(bounded = false)
-                ) {
-                    Spacer(Modifier.preferredSize(thumbSize, thumbSize))
-                }
+    Stack(modifier + DefaultSliderConstraints) {
+        val thumbSize = ThumbRadius * 2
+        val offset = (widthDp - thumbSize) * positionFraction
+        val center = Modifier.gravity(Alignment.CenterStart)
+        Track(center.fillMaxSize(), color, positionFraction, tickFractions)
+        Box(center.padding(start = offset)) {
+            Surface(
+                shape = CircleShape,
+                color = color,
+                elevation = if (pressed) 6.dp else 1.dp,
+                modifier = Modifier.ripple(bounded = false)
+            ) {
+                Spacer(Modifier.preferredSize(thumbSize, thumbSize))
             }
         }
     }
@@ -276,7 +198,8 @@ private fun SliderImpl(
 private fun Track(
     modifier: Modifier,
     color: Color,
-    position: SliderPosition
+    positionFraction: Float,
+    tickFractions: List<Float>
 ) {
     val activeTickColor = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha)
     val inactiveTickColor = color.copy(alpha = TickColorAlpha)
@@ -289,7 +212,6 @@ private fun Track(
     }
     Canvas(modifier) {
         paint.strokeWidth = TrackHeight.toPx().value
-        val fraction = with(position) { calcFraction(startValue, endValue, this.value) }
         val parentRect = size.toRect()
         val thumbPx = ThumbRadius.toPx().value
         val centerHeight = size.height.value / 2
@@ -298,12 +220,12 @@ private fun Track(
         paint.color = color.copy(alpha = InactiveTrackColorAlpha)
         drawLine(sliderStart, sliderMax, paint)
         val sliderValue = Offset(
-            sliderStart.dx + (sliderMax.dx - sliderStart.dx) * fraction,
+            sliderStart.dx + (sliderMax.dx - sliderStart.dx) * positionFraction,
             centerHeight
         )
         paint.color = color
         drawLine(sliderStart, sliderValue, paint)
-        position.tickFractions.groupBy { it > fraction }.forEach { (afterFraction, list) ->
+        tickFractions.groupBy { it > positionFraction }.forEach { (afterFraction, list) ->
             paint.color = if (afterFraction) inactiveTickColor else activeTickColor
             val points = list.map {
                 Offset(Offset.lerp(sliderStart, sliderMax, it).dx, centerHeight)
@@ -326,21 +248,106 @@ private fun SliderFlingConfig(
     value: SliderPosition,
     anchors: List<Float>,
     onSuccessfulEnd: (Float) -> Unit
-): FlingConfig {
-    val adjustTarget: (Float) -> TargetAnimation? = { _ ->
-        val now = value.holder.value
-        val point = anchors.minBy { abs(it - now) }
-        val adjusted = point ?: now
-        TargetAnimation(adjusted, SliderToTickAnimation)
+): FlingConfig? {
+    if (anchors.isEmpty()) {
+        return null
+    } else {
+        val adjustTarget: (Float) -> TargetAnimation? = { _ ->
+            val now = value.holder.value
+            val point = anchors.minBy { abs(it - now) }
+            val adjusted = point ?: now
+            TargetAnimation(adjusted, SliderToTickAnimation)
+        }
+        return FlingConfig(
+            adjustTarget = adjustTarget,
+            onAnimationEnd = { reason, endValue, _ ->
+                if (reason != AnimationEndReason.Interrupted) {
+                    onSuccessfulEnd(endValue)
+                }
+            }
+        )
     }
-    return FlingConfig(
-        adjustTarget = adjustTarget,
-        onAnimationEnd = { reason, endValue, _ ->
-            if (reason != AnimationEndReason.Interrupted) {
-                onSuccessfulEnd(endValue)
+}
+
+/**
+ * Internal state for [Slider] that represents the Slider value, its bounds and optional amount of
+ * steps evenly distributed across the Slider range.
+ *
+ * @param initial initial value for the Slider when created. If outside of range provided,
+ * initial position will be coerced to this range
+ * @param valueRange range of values that Slider value can take
+ * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
+ * between across the whole value range. If 0, slider will behave as a continuous slider and allow
+ * to choose any value from the range specified
+ */
+private class SliderPosition(
+    initial: Float = 0f,
+    val valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    @IntRange(from = 0) steps: Int = 0,
+    animatedClock: AnimationClockObservable,
+    var onValueChange: (Float) -> Unit
+) {
+
+    internal val startValue: Float = valueRange.start
+    internal val endValue: Float = valueRange.endInclusive
+
+    init {
+        require(steps >= 0) {
+            "steps should be >= 0"
+        }
+    }
+
+    internal var scaledValue: Float = initial
+        set(value) {
+            val scaled = scale(startValue, endValue, value, startPx, endPx)
+            // floating point error due to rescaling
+            if ((scaled - holder.value) > floatPointMistakeCorrection) {
+                holder.snapTo(scaled)
             }
         }
-    )
+
+    private val floatPointMistakeCorrection = (valueRange.endInclusive - valueRange.start) / 100
+
+    private var endPx = Float.MAX_VALUE
+    private var startPx = Float.MIN_VALUE
+
+    internal fun setBounds(min: Float, max: Float) {
+        if (startPx == min && endPx == max) return
+        val newValue = scale(startPx, endPx, holder.value, min, max)
+        startPx = min
+        endPx = max
+        holder.setBounds(min, max)
+        anchorsPx = tickFractions.map {
+            lerp(startPx, endPx, it)
+        }
+        holder.snapTo(newValue)
+    }
+
+    internal val tickFractions: List<Float> =
+        if (steps == 0) emptyList() else List(steps + 2) { it.toFloat() / (steps + 1) }
+
+    internal var anchorsPx: List<Float> = emptyList()
+        private set
+
+    @SuppressLint("UnnecessaryLambdaCreation")
+    internal val holder =
+        CallbackBasedAnimatedFloat(
+            scale(startValue, endValue, initial, startPx, endPx),
+            animatedClock
+        ) { onValueChange(scale(startPx, endPx, it, startValue, endValue)) }
+}
+
+private class CallbackBasedAnimatedFloat(
+    initial: Float,
+    clock: AnimationClockObservable,
+    var onValue: (Float) -> Unit
+) : AnimatedFloat(clock) {
+
+    override var value = initial
+        set(value) {
+            onValue(value)
+            field = value
+        }
 }
 
 private val ThumbRadius = 10.dp

@@ -43,8 +43,8 @@ package androidx.ui.foundation {
   }
 
   public final class ContentColorKt {
-    method public static void ProvideContentColor(androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.ui.graphics.Color contentColor();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.graphics.Color> getContentColorAmbient();
   }
 
   public final class DarkThemeKt {
@@ -150,7 +150,7 @@ package androidx.ui.foundation {
   }
 
   public final class TextFieldKt {
-    method public static void TextField(androidx.ui.foundation.TextFieldValue value, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.foundation.TextFieldValue,kotlin.Unit> onValueChange, androidx.ui.text.TextStyle textStyle = currentTextStyle(), androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
+    method public static void TextField(androidx.ui.foundation.TextFieldValue value, androidx.ui.core.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.foundation.TextFieldValue,kotlin.Unit> onValueChange, androidx.ui.graphics.Color? textColor = null, androidx.ui.text.TextStyle textStyle = currentTextStyle(), androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function0<kotlin.Unit> onFocus = {}, kotlin.jvm.functions.Function0<kotlin.Unit> onBlur = {}, String? focusIdentifier = null, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {});
   }
 
   public final class TextFieldValue {

@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.app.Application;
+import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -89,6 +90,10 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
             Option.create(
                     "camerax.core.appConfig.cameraExecutor",
                     Executor.class);
+    static final Option<Handler> OPTION_SCHEDULER_HANDLER =
+            Option.create(
+                    "camerax.core.appConfig.schedulerHandler",
+                    Handler.class);
 
     // *********************************************************************************************
 
@@ -145,6 +150,17 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
     @Nullable
     public Executor getCameraExecutor(@Nullable Executor valueIfMissing) {
         return mConfig.retrieveOption(OPTION_CAMERA_EXECUTOR, valueIfMissing);
+    }
+
+    /**
+     * Returns the scheduling handler.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Handler getSchedulerHandler(@Nullable Handler valueIfMissing) {
+        return mConfig.retrieveOption(OPTION_SCHEDULER_HANDLER, valueIfMissing);
     }
 
     // Start of the default implementation of Config
@@ -324,14 +340,39 @@ public final class CameraXConfig implements TargetConfig<CameraX>, Config {
         }
 
         /**
-         * Sets an executor which CameraX will use to initialize and shutdown.
+         * Sets an executor which CameraX will use to drive the camera stack.
          *
-         * <p>It is not necessary to set an executor for normal use.  If not set, CameraX will
-         * create and use a default internal executor.
+         * <p>This option can be used to override the default internal executor created by
+         * CameraX, and will be used by the implementation to drive all cameras.
+         *
+         * <p>It is not necessary to set an executor for normal use, and should only be used in
+         * applications with very specific threading requirements. If not set, CameraX will
+         * create and use an optimized default internal executor.
          */
         @NonNull
         public Builder setCameraExecutor(@NonNull Executor executor) {
             getMutableConfig().insertOption(OPTION_CAMERA_EXECUTOR, executor);
+            return this;
+        }
+
+        /**
+         * Sets a handler that CameraX will use internally for scheduling future tasks.
+         *
+         * <p>This scheduler may also be used for legacy APIs which require a {@link Handler}. Tasks
+         * that are scheduled with this handler will always be executed by the camera executor. No
+         * business logic will be executed directly by this handler.
+         *
+         * <p>It is not necessary to set a scheduler handler for normal use, and should only be
+         * used in applications with very specific threading requirements. If not set, CameraX
+         * will create and use an optimized default internal handler.
+         *
+         * @see #setCameraExecutor(Executor)
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setSchedulerHandler(@NonNull Handler handler) {
+            getMutableConfig().insertOption(OPTION_SCHEDULER_HANDLER, handler);
             return this;
         }
 

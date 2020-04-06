@@ -90,7 +90,7 @@ public class ImageAnalysisTest {
 
         ShadowImageReader.clear();
 
-        CameraFactory.Provider cameraFactoryProvider = ignored -> {
+        CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2) -> {
             FakeCameraFactory cameraFactory = new FakeCameraFactory();
             cameraFactory.insertDefaultBackCamera(ShadowCameraX.DEFAULT_CAMERA_ID,
                     () -> new FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID));

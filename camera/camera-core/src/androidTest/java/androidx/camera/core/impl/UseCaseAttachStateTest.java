@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,7 +46,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +54,9 @@ import java.util.concurrent.ExecutionException;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class UseCaseAttachStateTest {
-    private final CameraDevice mMockCameraDevice = Mockito.mock(CameraDevice.class);
+    private final CameraDevice mMockCameraDevice = mock(CameraDevice.class);
     private final CameraCaptureSession mMockCameraCaptureSession =
-            Mockito.mock(CameraCaptureSession.class);
+            mock(CameraCaptureSession.class);
 
     private String mCameraId;
     private List<TestUseCase> mTestUseCases = new ArrayList<>();
@@ -65,9 +65,10 @@ public class UseCaseAttachStateTest {
     public void setUp() throws ExecutionException, InterruptedException {
         CameraXConfig cameraXConfig = FakeAppConfig.create();
         Context context = ApplicationProvider.getApplicationContext();
+        CameraThreadConfig mockThreadConfig = mock(CameraThreadConfig.class);
         CameraFactory cameraFactory = Preconditions.checkNotNull(
                 cameraXConfig.getCameraFactoryProvider(/*valueIfMissing=*/ null))
-                .newInstance(context);
+                .newInstance(context, mockThreadConfig);
         CameraX.initialize(context, cameraXConfig).get();
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(CameraSelector.LENS_FACING_BACK);
@@ -352,13 +353,13 @@ public class UseCaseAttachStateTest {
     }
 
     private static class TestUseCase extends FakeUseCase {
-        private final Surface mSurface = Mockito.mock(Surface.class);
+        private final Surface mSurface = mock(Surface.class);
         private final CameraDevice.StateCallback mDeviceStateCallback =
-                Mockito.mock(CameraDevice.StateCallback.class);
+                mock(CameraDevice.StateCallback.class);
         private final CameraCaptureSession.StateCallback mSessionStateCallback =
-                Mockito.mock(CameraCaptureSession.StateCallback.class);
+                mock(CameraCaptureSession.StateCallback.class);
         private final CameraCaptureCallback mCameraCaptureCallback =
-                Mockito.mock(CameraCaptureCallback.class);
+                mock(CameraCaptureCallback.class);
         private DeferrableSurface mDeferrableSurface;
 
         TestUseCase(FakeUseCaseConfig config, CameraSelector selector, String cameraId) {

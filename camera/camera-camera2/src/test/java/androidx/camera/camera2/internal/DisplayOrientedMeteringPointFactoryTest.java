@@ -94,7 +94,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
 
         CameraXConfig cameraXConfig =
                 new CameraXConfig.Builder()
-                        .setCameraFactoryProvider(ignored -> fakeCameraFactory)
+                        .setCameraFactoryProvider((ignored0, ignored1) -> fakeCameraFactory)
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(configFactoryProvider)
                         .build();

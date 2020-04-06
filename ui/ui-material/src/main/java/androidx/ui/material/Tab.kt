@@ -20,6 +20,7 @@ import androidx.animation.FastOutSlowInEasing
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.emptyContent
 import androidx.compose.getValue
 import androidx.compose.remember
@@ -39,9 +40,9 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.HorizontalScroller
-import androidx.ui.foundation.ProvideContentColor
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.contentColor
@@ -528,7 +529,7 @@ private val TabTintColor = ColorPropKey()
 
 /**
  * [Transition] defining how the tint color for a tab animates, when a new tab is selected. This
- * component uses [ProvideContentColor] to provide an interpolated value between [activeColor]
+ * component uses [ContentColorAmbient] to provide an interpolated value between [activeColor]
  * and [inactiveColor] depending on the animation status.
  */
 @Composable
@@ -565,7 +566,7 @@ private fun TabTransition(
         }
     }
     Transition(transitionDefinition, selected) { state ->
-        ProvideContentColor(state[TabTintColor], children = content)
+        Providers(ContentColorAmbient provides state[TabTintColor], children = content)
     }
 }
 

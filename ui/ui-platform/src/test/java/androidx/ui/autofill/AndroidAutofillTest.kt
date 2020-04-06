@@ -53,6 +53,7 @@ class AndroidAutofillTest {
 
     @Before
     fun setup() {
+        @Suppress("DEPRECATION") // Robolectric.setupActivity is deprecated
         val activity = Robolectric.setupActivity(Activity::class.java)
         view = View(activity)
         activity.setContentView(view)

@@ -274,9 +274,17 @@ val ConfigurationAmbient = ambientOf<Configuration>(NeverEqual)
 // TODO(b/139866476): The Owner should not be exposed via ambient
 val OwnerAmbient = staticAmbientOf<Owner>()
 
+/**
+ * The ambient that can be used to trigger autofill actions. Eg. [Autofill.requestAutofillForNode].
+ */
 val AutofillAmbient = ambientOf<Autofill?>()
 
-// This will ultimately be replaced by Autofill Semantics (b/138604305).
+/**
+ * The ambient that can be used to add
+ * [AutofillNode][import androidx.ui.autofill.AutofillNode]s to the autofill tree. The
+ * [AutofillTree] is a temporary data structure that will be replaced by Autofill Semantics
+ * (b/138604305).
+ */
 val AutofillTreeAmbient = staticAmbientOf<AutofillTree>()
 
 val LayoutDirectionAmbient = ambientOf<LayoutDirection>()

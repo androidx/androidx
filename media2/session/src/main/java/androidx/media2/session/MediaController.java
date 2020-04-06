@@ -2187,6 +2187,8 @@ public class MediaController implements AutoCloseable {
         @ParcelField(5)
         AudioAttributesCompat mAudioAttrsCompat;
 
+        // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
         /**
          * The session uses local playback.
          */

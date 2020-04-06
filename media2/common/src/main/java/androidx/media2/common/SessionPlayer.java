@@ -1067,6 +1067,8 @@ public abstract class SessionPlayer implements AutoCloseable {
         @ParcelField(4)
         Bundle mParcelableFormatBundle;
 
+        // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
         /**
          * Used for VersionedParcelable
          */

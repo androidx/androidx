@@ -24,7 +24,6 @@ import androidx.ui.material.samples.EmphasisSample
 import androidx.ui.material.samples.ModalDrawerSample
 import androidx.ui.material.samples.ScaffoldWithBottomBarAndCutout
 import androidx.ui.material.samples.SideBySideAlertDialogSample
-import androidx.ui.material.samples.StaticDrawerSample
 
 val MaterialDemos = DemoCategory("Material", listOf(
     ComposableDemo("AlertDialog") { SideBySideAlertDialogSample() },
@@ -33,8 +32,7 @@ val MaterialDemos = DemoCategory("Material", listOf(
     ComposableDemo("Buttons & FABs") { ButtonDemo() },
     DemoCategory("Drawer", listOf(
         ComposableDemo("Modal") { ModalDrawerSample() },
-        ComposableDemo("Bottom") { BottomDrawerSample() },
-        ComposableDemo("Static") { StaticDrawerSample() }
+        ComposableDemo("Bottom") { BottomDrawerSample() }
     )),
     ComposableDemo("Elevation") { ElevationDemo() },
     ComposableDemo("Emphasis") { EmphasisSample() },

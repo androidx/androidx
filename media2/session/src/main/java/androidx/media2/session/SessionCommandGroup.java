@@ -46,6 +46,8 @@ public final class SessionCommandGroup implements VersionedParcelable {
     @ParcelField(1)
     Set<SessionCommand> mCommands = new HashSet<>();
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Default Constructor.
      */

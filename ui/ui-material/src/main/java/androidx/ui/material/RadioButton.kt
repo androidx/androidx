@@ -106,6 +106,10 @@ fun RadioGroup(
     }
 }
 
+/**
+ * Scope of [RadioGroup] to grant access to [RadioGroupItem] and others. This scope will be
+ * provided automatically to the children of [RadioGroup].
+ */
 @Stable
 class RadioGroupScope internal constructor() {
 

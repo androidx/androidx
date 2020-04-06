@@ -485,6 +485,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
         @ParcelField(4)
         int mSuggested;
 
+        // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
         // For versioned parcelable.
         LibraryParams() {
             // no-op

@@ -27,7 +27,6 @@ import androidx.compose.mutableStateOf
 import androidx.compose.remember
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.LargeTest
-import androidx.test.filters.MediumTest
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
@@ -39,7 +38,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -60,7 +58,6 @@ class AnimationSynchronizationTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
-    private val clockTestRule = composeTestRule.clockTestRule
 
     /**
      * High level test to only verify that [runOnIdleCompose] awaits animations.
@@ -163,85 +160,6 @@ class AnimationSynchronizationTest {
         assertThat(wasIdleAfterCommit).isFalse()
         // After recomposition, it must still be busy
         assertThat(wasIdleAfterRecompose).isFalse()
-    }
-
-    /**
-     * Tests if advancing the clock manually works when the clock is paused, and that idleness is
-     * reported correctly when doing that.
-     */
-    @Test
-    @MediumTest
-    fun testAnimation_manuallyAdvanceClock_paused() {
-        clockTestRule.pauseClock()
-
-        val animationState = mutableStateOf(AnimationStates.From)
-        composeTestRule.setContent { Ui(animationState) }
-
-        runOnIdleCompose {
-            recordedAnimatedValues.clear()
-
-            // Kick off the animation
-            animationRunning = true
-            animationState.value = AnimationStates.To
-
-            // Changes need to trickle down the animation system, so compose should be non-idle
-            assertThat(ComposeIdlingResource.isIdle()).isFalse()
-        }
-
-        // Await recomposition
-        onIdle()
-
-        // Did one recomposition, but no animation frames
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f))
-
-        // Animation doesn't actually start until the next frame.
-        // Advance by 0ms to force dispatching of a frame time.
-        runOnIdleCompose {
-            // Advance clock on main thread so we can assert Compose is not idle afterwards
-            clockTestRule.advanceClock(0)
-            assertThat(ComposeIdlingResource.isIdle()).isFalse()
-        }
-
-        // Await start animation frame
-        onIdle()
-
-        // Did start animation frame
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f))
-
-        // Advance first half of the animation (.5 sec)
-        runOnIdleCompose {
-            clockTestRule.advanceClock(500)
-            assertThat(ComposeIdlingResource.isIdle()).isFalse()
-        }
-
-        // Await next animation frame
-        onIdle()
-
-        // Did one animation frame
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f, 25f))
-
-        // Advance second half of the animation (.5 sec)
-        runOnIdleCompose {
-            clockTestRule.advanceClock(500)
-            assertThat(ComposeIdlingResource.isIdle()).isFalse()
-        }
-
-        // Await next animation frame
-        onIdle()
-
-        // Did last animation frame
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f, 25f, 50f))
-    }
-
-    /**
-     * Tests if advancing the clock manually works when the clock is resumed, and that idleness
-     * is reported correctly when doing that.
-     */
-    @Test
-    @MediumTest
-    @Ignore("b/150357516: not yet implemented")
-    fun testAnimation_manuallyAdvanceClock_resumed() {
-        // TODO(b/150357516): Test advancing the clock while it is resumed
     }
 
     private fun Handler.pollUntil(condition: () -> Boolean, onDone: () -> Unit) {

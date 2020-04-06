@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.work.ListenableWorker.Result
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.futures.SettableFuture
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -30,8 +30,8 @@ import androidx.annotation.NonNull;
 public interface ActivityResultCaller {
 
     /**
-     * Prepare to {@link Activity#startActivityForResult start an activity for result}, designated
-     * by the given {@link ActivityResultContract contract}.
+     * Register a request to {@link Activity#startActivityForResult start an activity for result},
+     * designated by the given {@link ActivityResultContract contract}.
      *
      * This creates a record in the {@link ActivityResultRegistry registry} associated wit this
      * caller, managing request code, as well as conversions to/from {@link Intent} under the hood.
@@ -49,13 +49,13 @@ public interface ActivityResultCaller {
      * @return the launcher that can be used to start the activity or dispose of the prepared call.
      */
     @NonNull
-    <I, O> ActivityResultLauncher<I> prepareCall(
+    <I, O> ActivityResultLauncher<I> registerForActivityResult(
             @NonNull ActivityResultContract<I, O> contract,
             @NonNull ActivityResultCallback<O> callback);
 
     /**
-     * Prepare to {@link Activity#startActivityForResult start an activity for result}, designated
-     * by the given {@link ActivityResultContract contract}.
+     * Register a request to {@link Activity#startActivityForResult start an activity for result},
+     * designated by the given {@link ActivityResultContract contract}.
      *
      * This creates a record in the given {@link ActivityResultRegistry registry}, managing request
      * code, as well as conversions to/from {@link Intent} under the hood.
@@ -74,7 +74,7 @@ public interface ActivityResultCaller {
      * @return the launcher that can be used to start the activity or dispose of the prepared call.
      */
     @NonNull
-    <I, O> ActivityResultLauncher<I> prepareCall(
+    <I, O> ActivityResultLauncher<I> registerForActivityResult(
             @NonNull ActivityResultContract<I, O> contract,
             @NonNull ActivityResultRegistry registry,
             @NonNull ActivityResultCallback<O> callback);

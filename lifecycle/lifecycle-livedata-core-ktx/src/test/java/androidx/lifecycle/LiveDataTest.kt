@@ -30,6 +30,7 @@ class LiveDataTest {
 
     @Test
     fun observe() {
+        @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
         val lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = TestCoroutineDispatcher())
 
         val liveData = MutableLiveData<String>()

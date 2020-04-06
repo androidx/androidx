@@ -18,7 +18,7 @@ package androidx.hilt.integration.viewmodelapp
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.hilt.ViewModelInject
+import androidx.hilt.lifecycle.ViewModelInject
 import javax.inject.Inject
 
 @Suppress("UNUSED_PARAMETER")

@@ -210,6 +210,13 @@ public final class LiveDataObservable<T> implements Observable<T> {
         public Throwable getError() {
             return mError;
         }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "[Result: <" + (completedSuccessfully() ? "Value: " + mValue :
+                    "Error: " + mError) + ">]";
+        }
     }
 
     private static final class LiveDataObserverAdapter<T> implements

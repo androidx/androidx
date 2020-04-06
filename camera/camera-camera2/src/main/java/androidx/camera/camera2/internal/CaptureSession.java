@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
@@ -89,10 +88,26 @@ final class CaptureSession {
     private final CameraCaptureSession.CaptureCallback mCaptureCallback =
             new CaptureCallback() {
                 @Override
-                public void onCaptureCompleted(
-                        @NonNull CameraCaptureSession session,
-                        @NonNull CaptureRequest request,
-                        @NonNull TotalCaptureResult result) {
+                public void onCaptureStarted(
+                        @NonNull CameraCaptureSession session, @NonNull CaptureRequest request,
+                        long timestamp, long frameNumber) {
+                    synchronized (mStateLock) {
+                        if (mStartStreamingCompleter != null) {
+                            mStartStreamingCompleter.set(null);
+                            mStartStreamingCompleter = null;
+                        }
+                    }
+                }
+
+                @Override
+                public void onCaptureSequenceAborted(
+                        @NonNull CameraCaptureSession session, int sequenceId) {
+                    synchronized (mStateLock) {
+                        if (mStartStreamingCompleter != null) {
+                            mStartStreamingCompleter.setCancelled();
+                            mStartStreamingCompleter = null;
+                        }
+                    }
                 }
             };
     private final StateCallback mCaptureSessionStateCallback;
@@ -134,6 +149,15 @@ final class CaptureSession {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mStateLock")
     CallbackToFutureAdapter.Completer<Void> mOpenCaptureSessionCompleter;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    final ListenableFuture<Void> mStartStreamingFuture;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @GuardedBy("mStateLock")
+    CallbackToFutureAdapter.Completer<Void> mStartStreamingCompleter;
+
+    /** Whether the capture session has submitted the repeating request. */
+    @GuardedBy("mStateLock")
+    private boolean mHasSubmittedRepeating;
 
     /**
      * Constructor for CaptureSession.
@@ -153,6 +177,14 @@ final class CaptureSession {
         mScheduleExecutor = scheduledExecutorService;
         mIsLegacyDevice = isLegacyDevice;
         mCaptureSessionStateCallback = new StateCallback(compatHandler);
+        mStartStreamingFuture = CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    synchronized (mStateLock) {
+                        mStartStreamingCompleter = completer;
+                        return "StartStreamingFuture[session="
+                                + CaptureSession.this + "]";
+                    }
+                });
     }
 
     /**
@@ -466,23 +498,26 @@ final class CaptureSession {
      */
     ListenableFuture<Void> release(boolean abortInFlightCaptures) {
         synchronized (mStateLock) {
+            if (!mHasSubmittedRepeating) {
+                // If the release() is called before any repeating requests have been issued,
+                // then the startStreamingFuture should be cancelled.
+                mStartStreamingFuture.cancel(true);
+            }
             switch (mState) {
                 case UNINITIALIZED:
                     throw new IllegalStateException(
                             "release() should not be possible in state: " + mState);
                 case OPENED:
                 case CLOSED:
-                    if (mCaptureSessionCompat != null) {
-                        if (abortInFlightCaptures) {
-                            try {
-                                mCaptureSessionCompat.toCameraCaptureSession().abortCaptures();
-                            } catch (CameraAccessException e) {
-                                // We couldn't abort the captures, but we should continue on to
-                                // release the session.
-                                Log.e(TAG, "Unable to abort captures.", e);
+                    if (mIsLegacyDevice && mHasSubmittedRepeating) {
+                        // Checks the capture session is ready before closing. See: b/146773463.
+                        mStartStreamingFuture.addListener(() -> {
+                            synchronized (mStateLock) {
+                                closeCameraCaptureSession(abortInFlightCaptures);
                             }
-                        }
-                        mCaptureSessionCompat.toCameraCaptureSession().close();
+                        }, mExecutor);
+                    } else {
+                        closeCameraCaptureSession(abortInFlightCaptures);
                     }
                     // Fall through
                 case OPENING:
@@ -521,6 +556,21 @@ final class CaptureSession {
 
         // Already released. Return success immediately.
         return Futures.immediateFuture(null);
+    }
+
+    private void closeCameraCaptureSession(boolean abortInFlightCaptures) {
+        if (mCaptureSessionCompat != null) {
+            if (abortInFlightCaptures) {
+                try {
+                    mCaptureSessionCompat.toCameraCaptureSession().abortCaptures();
+                } catch (CameraAccessException e) {
+                    // We couldn't abort the captures, but we should continue on to
+                    // release the session.
+                    Log.e(TAG, "Unable to abort captures.", e);
+                }
+            }
+            mCaptureSessionCompat.toCameraCaptureSession().close();
+        }
     }
 
     // Force the onClosed() callback to be made. This is necessary because the onClosed()
@@ -587,12 +637,18 @@ final class CaptureSession {
         }
     }
 
+    /** Returns the future which is completed once the session starts streaming frames */
+    ListenableFuture<Void> getStartStreamingFuture() {
+        return mStartStreamingFuture;
+    }
+
     /**
      * Sets the {@link CaptureRequest} so that the camera will start producing data.
      *
      * <p>Will skip setting requests if there are no surfaces since it is illegal to do so.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @GuardedBy("mStateLock")
     void issueRepeatingCaptureRequests() {
         if (mSessionConfig == null) {
             Log.d(TAG, "Skipping issueRepeatingCaptureRequests for no configuration case.");
@@ -633,6 +689,7 @@ final class CaptureSession {
                             captureConfig.getCameraCaptureCallbacks(),
                             mCaptureCallback);
 
+            mHasSubmittedRepeating = true;
             mCaptureSessionCompat.setSingleRepeatingRequest(captureRequest, mExecutor,
                     comboCaptureCallback);
         } catch (CameraAccessException e) {

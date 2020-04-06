@@ -42,6 +42,7 @@ class AndroidPopulateViewStructureTest {
 
     @Before
     fun setup() {
+        @Suppress("DEPRECATION") // Robolectric.setupActivity is deprecated
         val activity = Robolectric.setupActivity(Activity::class.java)
         val view = View(activity)
         activity.setContentView(view)
