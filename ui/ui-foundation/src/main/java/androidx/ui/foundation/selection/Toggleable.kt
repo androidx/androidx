@@ -117,13 +117,19 @@ fun TriStateToggleable(
 
 /**
  * Enum that represents possible toggleable states.
- * @property On components is on
- * @property Off components is off
- * @property Indeterminate means that on/off value cannot be determined
  */
 enum class ToggleableState {
+    /**
+     * State that means a component is on
+     */
     On,
+    /**
+     * State that means a component is off
+     */
     Off,
+    /**
+     * State that means that on/off value of a component cannot be determined
+     */
     Indeterminate
 }
 
