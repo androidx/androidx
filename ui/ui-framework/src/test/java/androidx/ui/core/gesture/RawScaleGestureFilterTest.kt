@@ -42,9 +42,9 @@ import org.junit.runners.JUnit4
 // Verify correct behavior with no canStartScaling callback.
 
 @RunWith(JUnit4::class)
-class RawScaleGestureDetectorTest {
+class RawScaleGestureFilterTest {
 
-    private lateinit var recognizer: RawScaleGestureRecognizer
+    private lateinit var filter: RawScaleGestureFilter
     private lateinit var scaleObserver: MockScaleObserver
     private lateinit var log: MutableList<LogItem>
     private var scaleStartBlocked = true
@@ -53,9 +53,9 @@ class RawScaleGestureDetectorTest {
     fun setup() {
         log = mutableListOf()
         scaleObserver = MockScaleObserver(log)
-        recognizer = RawScaleGestureRecognizer()
-        recognizer.canStartScaling = { !scaleStartBlocked }
-        recognizer.scaleObserver = scaleObserver
+        filter = RawScaleGestureFilter()
+        filter.canStartScaling = { !scaleStartBlocked }
+        filter.scaleObserver = scaleObserver
     }
 
     // Verify the circumstances under which onStart/onScale should not be called.
@@ -65,10 +65,10 @@ class RawScaleGestureDetectorTest {
 
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(1, x = -1f, y = 1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         pointer1 = pointer1.moveBy(10.milliseconds, 1f, 1f)
         pointer2 = pointer1.moveBy(10.milliseconds, -1f, -1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
         assertThat(log.filter { it.methodName == "onScale" }).isEmpty()
@@ -79,12 +79,12 @@ class RawScaleGestureDetectorTest {
 
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(1, x = -1f, y = 1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveBy(10.milliseconds, 0f, 0f)
         pointer2 = pointer1.moveBy(10.milliseconds, 0f, 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
         assertThat(log.filter { it.methodName == "onScale" }).isEmpty()
@@ -94,11 +94,11 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_1PointerExistsAndMoves_onStartAndOnScaleNotCalled() {
 
         val down1 = down(0)
-        recognizer::onPointerInput.invokeOverAllPasses(down1)
+        filter::onPointerInput.invokeOverAllPasses(down1)
         scaleStartBlocked = false
 
         val move1 = down1.moveBy(10.milliseconds, 1f, 1f)
-        recognizer::onPointerInput.invokeOverAllPasses(move1)
+        filter::onPointerInput.invokeOverAllPasses(move1)
 
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
         assertThat(log.filter { it.methodName == "onScale" }).isEmpty()
@@ -132,14 +132,14 @@ class RawScaleGestureDetectorTest {
         var pointer1 = down(1, x = 1f, y = 1f)
         var pointer2 = down(0, x = 3f, y = 3f)
 
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         // The pointers move and rotate, but the average distance to the center doesn't change, so
         // no scaling occurs.
         pointer1 = pointer1.moveTo(10.milliseconds, 3f, 5f)
         pointer2 = pointer2.moveTo(10.milliseconds, 5f, 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
         assertThat(log.filter { it.methodName == "onScale" }).isEmpty()
@@ -175,7 +175,7 @@ class RawScaleGestureDetectorTest {
         var pointer1 = down(0, x = 1f, y = 2f)
         var pointer2 = down(1, x = 2f, y = 1f)
         var pointer3 = down(2, x = 4f, y = 4f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
         scaleStartBlocked = false
 
         // Act
@@ -185,7 +185,7 @@ class RawScaleGestureDetectorTest {
         pointer1 = pointer1.moveTo(10.milliseconds, 2f, 5f)
         pointer2 = pointer2.moveTo(10.milliseconds, 4f, 2f)
         pointer3 = pointer3.moveTo(10.milliseconds, 5f, 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
 
         // Assert
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
@@ -223,7 +223,7 @@ class RawScaleGestureDetectorTest {
         var pointer2 = down(1, x = 4f, y = 1f)
         var pointer3 = down(2, x = 4f, y = 5f)
         var pointer4 = down(3, x = 6f, y = 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3, pointer4)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3, pointer4)
         scaleStartBlocked = false
 
         // Act
@@ -234,7 +234,7 @@ class RawScaleGestureDetectorTest {
         pointer2 = pointer2.moveTo(10.milliseconds, 4f, 1f)
         pointer3 = pointer3.moveTo(10.milliseconds, 4f, 3f)
         pointer4 = pointer4.moveTo(10.milliseconds, 7f, 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3, pointer4)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3, pointer4)
 
         // Assert
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
@@ -268,14 +268,14 @@ class RawScaleGestureDetectorTest {
 
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 =
             pointer1.moveTo(10.milliseconds, 2f, 2f).consume(-1f, -2f)
         pointer2 =
             pointer2.moveTo(10.milliseconds, 5f, 1f).consume(1f, -2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
         assertThat(log.filter { it.methodName == "onScale" }).isEmpty()
@@ -288,12 +288,12 @@ class RawScaleGestureDetectorTest {
 
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(0, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 1f, dy = 0f)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
         assertThat(log.filter { it.methodName == "onScale" }).hasSize(1)
@@ -304,12 +304,12 @@ class RawScaleGestureDetectorTest {
 
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(0, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 0f, dy = 0f)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = -1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
         assertThat(log.filter { it.methodName == "onScale" }).hasSize(1)
@@ -320,12 +320,12 @@ class RawScaleGestureDetectorTest {
 
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(0, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 0f, dy = 0f).consume(dx = -1f)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
         assertThat(log.filter { it.methodName == "onScale" }).hasSize(1)
@@ -336,12 +336,12 @@ class RawScaleGestureDetectorTest {
 
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(0, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 0f, dy = 0f).consume(dy = -1f)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
         assertThat(log.filter { it.methodName == "onScale" }).hasSize(1)
@@ -352,16 +352,16 @@ class RawScaleGestureDetectorTest {
 
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(0, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 1f, dy = 0f)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 1f, dy = 0f)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
     }
@@ -372,12 +372,12 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_2PointersIncreaseDistanceOnXBy50Percent_onScaleCalledWith150Percent() {
         var pointer1 = down(0, x = 0f, y = 0f)
         var pointer2 = down(0, x = 2f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveTo(10.milliseconds, 0f, 0f)
         pointer2 = pointer2.moveTo(10.milliseconds, 3f, 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
         assertThat(onScaleLog).hasSize(1)
@@ -388,12 +388,12 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_2PointersIncreaseDistanceOnYBy50Percent_onScaleCalledWith150Percent() {
         var pointer1 = down(0, x = 0f, y = 0f)
         var pointer2 = down(0, x = 0f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveTo(10.milliseconds, 0f, 0f)
         pointer2 = pointer2.moveTo(10.milliseconds, 0f, 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
         assertThat(onScaleLog).hasSize(1)
@@ -404,12 +404,12 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_2PointersDecreaseDistanceOnXBy50Percent_onScaleCalledWith50Percent() {
         var pointer1 = down(0, x = 0f, y = 0f)
         var pointer2 = down(0, x = 2f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveTo(10.milliseconds, 0f, 0f)
         pointer2 = pointer2.moveTo(10.milliseconds, 1f, 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
         assertThat(onScaleLog).hasSize(1)
@@ -420,12 +420,12 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_2PointersDecreaseDistanceOnYBy50Percent_onScaleCalledWith50Percent() {
         var pointer1 = down(0, x = 0f, y = 0f)
         var pointer2 = down(0, x = 0f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveTo(10.milliseconds, 0f, 0f)
         pointer2 = pointer2.moveTo(10.milliseconds, 0f, 1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
         assertThat(onScaleLog).hasSize(1)
@@ -436,12 +436,12 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_2PointersIncDistOnBothAxisBy300Percent_onScaleCalledWith400Percent() {
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(0, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveTo(10.milliseconds, 0f, 0f)
         pointer2 = pointer2.moveTo(10.milliseconds, 4f, 4f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
         assertThat(onScaleLog).hasSize(1)
@@ -452,12 +452,12 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_2PointersDecDistOnBothAxisBy75Percent_onScaleCalledWith25Percent() {
         var pointer1 = down(0, x = 0f, y = 0f)
         var pointer2 = down(0, x = 4f, y = 4f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveTo(10.milliseconds, 1f, 1f)
         pointer2 = pointer2.moveTo(10.milliseconds, 2f, 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         val onScaleLog = log.filter { it.methodName == "onScale" }
         assertThat(onScaleLog).hasSize(1)
@@ -471,15 +471,15 @@ class RawScaleGestureDetectorTest {
 
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(0, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 1f, dy = 0f)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         pointer1 = pointer1.up(20.milliseconds)
         pointer2 = pointer2.moveBy(0.milliseconds, dx = 0f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
 
         assertThat(log.filter { it.methodName == "onStop" }).hasSize(0)
     }
@@ -488,14 +488,14 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_1PointerDownMoveUp_onStopNotCalled() {
 
         var pointer1 = down(0, x = 1f, y = 1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1)
+        filter::onPointerInput.invokeOverAllPasses(pointer1)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 1f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1)
+        filter::onPointerInput.invokeOverAllPasses(pointer1)
 
         pointer1 = pointer1.up(20.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1)
+        filter::onPointerInput.invokeOverAllPasses(pointer1)
 
         assertThat(log.filter { it.methodName == "onStop" }).hasSize(0)
     }
@@ -506,18 +506,18 @@ class RawScaleGestureDetectorTest {
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(1, x = 1f, y = 2f)
         var pointer3 = down(2, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
         scaleStartBlocked = false
 
         pointer1 = pointer1.moveBy(10.milliseconds, dx = -1f, dy = -1f)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = -1f, dy = 1f)
         pointer3 = pointer3.moveBy(10.milliseconds, dx = 1f, dy = 1f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
 
         pointer1 = pointer1.up(20.milliseconds)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
         pointer3 = pointer3.moveBy(10.milliseconds, dx = 0f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2, pointer3)
 
         assertThat(log.filter { it.methodName == "onStop" }).hasSize(0)
     }
@@ -528,14 +528,14 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_unblocked2DownMove2Up_onStopCalledOnce() {
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         change1 = change1.up(20.milliseconds)
         change2 = change2.up(20.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(log.filter { it.methodName == "onStop" }).hasSize(1)
     }
@@ -544,14 +544,14 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_unblocked2DownMove1Up_onStopNotCalled() {
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         change1 = change1.up(20.milliseconds)
         change2 = change2.moveTo(20.milliseconds, 3f, 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(log.filter { it.methodName == "onStop" }).isEmpty()
     }
@@ -562,14 +562,14 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_unblocked2DownMove2Up_callbacksCalledInCorrectOrder() {
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         change1 = change1.up(20.milliseconds)
         change2 = change2.up(20.milliseconds)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(log).hasSize(3)
         assertThat(log[0].methodName).isEqualTo("onStart")
@@ -581,7 +581,7 @@ class RawScaleGestureDetectorTest {
 
     @Test
     fun onPointerInput_1down_downNotConsumed() {
-        val result = recognizer::onPointerInput.invokeOverAllPasses(down(0))
+        val result = filter::onPointerInput.invokeOverAllPasses(down(0))
         assertThat(result.consumed.downChange).isFalse()
     }
 
@@ -589,7 +589,7 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_2Down_downNotConsumed() {
         val down1 = down(0, x = 1f, y = 1f)
         val down2 = down(1, x = 2f, y = 2f)
-        val result = recognizer::onPointerInput.invokeOverAllPasses(down1, down2)
+        val result = filter::onPointerInput.invokeOverAllPasses(down1, down2)
 
         assertThat(result.count { !it.consumed.downChange }).isEqualTo(2)
     }
@@ -600,10 +600,10 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
-        val result = recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { !it.anyPositionChangeConsumed() }).isEqualTo(2)
     }
@@ -612,11 +612,11 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_unblocked2DownMoveCallBackDoesNotConsume_distanceChangeNotConsumed() {
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
-        val result = recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { !it.anyPositionChangeConsumed() }).isEqualTo(2)
     }
@@ -627,11 +627,11 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
-        val result = recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { !it.anyPositionChangeConsumed() }).isEqualTo(2)
     }
@@ -643,13 +643,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 2f, y = 0f)
         var change2 = down(1, x = 4f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 6f, 0f)
         scaleObserver.resultingScaleChange = 2f
-        var result = recognizer::onPointerInput.invokeOverPasses(
+        var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
@@ -659,7 +659,7 @@ class RawScaleGestureDetectorTest {
             )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer::onPointerInput
+        result = filter::onPointerInput
             .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
@@ -677,13 +677,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 0f, y = 2f)
         var change2 = down(1, x = 0f, y = 4f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 0f, 6f)
         scaleObserver.resultingScaleChange = 2f
-        var result = recognizer::onPointerInput.invokeOverPasses(
+        var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
@@ -693,7 +693,7 @@ class RawScaleGestureDetectorTest {
             )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer::onPointerInput
+        result = filter::onPointerInput
             .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
@@ -710,11 +710,11 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
-        val result = recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.positionChange)
             .isEqualTo(PxPosition(-1.px, -1.px))
@@ -729,13 +729,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 0f, y = 0f)
         var change2 = down(1, x = 8f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
         change1 = change1.moveTo(10.milliseconds, 2f, 0f)
         change2 = change2.moveTo(10.milliseconds, 6f, 0f)
         scaleObserver.resultingScaleChange = .75f
-        var result = recognizer::onPointerInput.invokeOverPasses(
+        var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
@@ -745,7 +745,7 @@ class RawScaleGestureDetectorTest {
             )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer::onPointerInput
+        result = filter::onPointerInput
             .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
@@ -763,13 +763,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 0f, y = 0f)
         var change2 = down(1, x = 0f, y = 8f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
         change1 = change1.moveTo(10.milliseconds, 0f, 2f)
         change2 = change2.moveTo(10.milliseconds, 0f, 6f)
         scaleObserver.resultingScaleChange = .75f
-        var result = recognizer::onPointerInput.invokeOverPasses(
+        var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
@@ -779,7 +779,7 @@ class RawScaleGestureDetectorTest {
             )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer::onPointerInput
+        result = filter::onPointerInput
             .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
@@ -796,11 +796,11 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 0f, y = 0f)
         var change2 = down(1, x = 8f, y = 8f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
         change1 = change1.moveTo(10.milliseconds, 2f, 2f)
         change2 = change2.moveTo(10.milliseconds, 6f, 6f)
-        val result = recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(result[0].consumed.positionChange).isEqualTo(PxPosition(2.px, 2.px))
         assertThat(result[1].consumed.positionChange).isEqualTo(PxPosition(-2.px, -2.px))
@@ -813,13 +813,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 2f, y = 0f)
         var change2 = down(1, x = 4f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
         change1 = change1.moveTo(10.milliseconds, 2f, 0f)
         change2 = change2.moveTo(10.milliseconds, 8f, 0f)
         scaleObserver.resultingScaleChange = 2f
-        var result = recognizer::onPointerInput.invokeOverPasses(
+        var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
@@ -829,7 +829,7 @@ class RawScaleGestureDetectorTest {
             )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer::onPointerInput
+        result = filter::onPointerInput
             .invokeOverPasses(
                 result, listOf(PointerEventPass.PostDown)
             )
@@ -849,13 +849,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 0f, y = 2f)
         var change2 = down(1, x = 0f, y = 4f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
         change1 = change1.moveTo(10.milliseconds, 0f, 2f)
         change2 = change2.moveTo(10.milliseconds, 0f, 8f)
         scaleObserver.resultingScaleChange = 2f
-        var result = recognizer::onPointerInput.invokeOverPasses(
+        var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
@@ -865,7 +865,7 @@ class RawScaleGestureDetectorTest {
             )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer::onPointerInput
+        result = filter::onPointerInput
             .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
@@ -883,13 +883,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 0f, y = 0f)
         var change2 = down(1, x = 8f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 4f, 0f)
         scaleObserver.resultingScaleChange = .75f
-        var result = recognizer::onPointerInput.invokeOverPasses(
+        var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
@@ -899,7 +899,7 @@ class RawScaleGestureDetectorTest {
             )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer::onPointerInput
+        result = filter::onPointerInput
             .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
@@ -917,13 +917,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 0f, y = 0f)
         var change2 = down(1, x = 0f, y = 8f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 0f, 4f)
         scaleObserver.resultingScaleChange = .75f
-        var result = recognizer::onPointerInput.invokeOverPasses(
+        var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
@@ -933,7 +933,7 @@ class RawScaleGestureDetectorTest {
             )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer::onPointerInput
+        result = filter::onPointerInput
             .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
@@ -951,13 +951,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = -1f, y = 0f)
         var change2 = down(1, x = 1f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
         change1 = change1.moveTo(10.milliseconds, 0f, -3f)
         change2 = change2.moveTo(10.milliseconds, 0f, 3f)
         scaleObserver.resultingScaleChange = 2f
-        var result = recognizer::onPointerInput.invokeOverPasses(
+        var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
@@ -967,7 +967,7 @@ class RawScaleGestureDetectorTest {
             )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer::onPointerInput
+        result = filter::onPointerInput
             .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
@@ -985,13 +985,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = -4f, y = 0f)
         var change2 = down(1, x = 4f, y = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
 
         change1 = change1.moveTo(10.milliseconds, 0f, -2f)
         change2 = change2.moveTo(10.milliseconds, 0f, 2f)
         scaleObserver.resultingScaleChange = .75f
-        var result = recognizer::onPointerInput.invokeOverPasses(
+        var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
                 PointerEventPass.InitialDown,
@@ -1001,7 +1001,7 @@ class RawScaleGestureDetectorTest {
             )
         )
         scaleObserver.resultingScaleChange = 1f
-        result = recognizer::onPointerInput
+        result = filter::onPointerInput
             .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
 
         // Assert
@@ -1018,13 +1018,13 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         change1 = change1.up(20.milliseconds)
         change2 = change2.up(20.milliseconds)
-        val result = recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { it.consumed.downChange }).isEqualTo(0)
     }
@@ -1035,11 +1035,11 @@ class RawScaleGestureDetectorTest {
 
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
         change1 = change1.up(20.milliseconds)
         change2 = change2.up(20.milliseconds)
-        val result = recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { it.consumed.downChange }).isEqualTo(0)
     }
@@ -1048,14 +1048,14 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_scale1Up_upChangeConsumed() {
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         change1 = change1.up(20.milliseconds)
         change2 = change2.moveTo(20.milliseconds, 3f, 3f)
-        val result = recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(result.first { it.id == PointerId(0) }.consumed.downChange).isTrue()
     }
@@ -1064,14 +1064,14 @@ class RawScaleGestureDetectorTest {
     fun onPointerInput_scale2Up_onStopConsumesUp() {
         var change1 = down(0, x = 1f, y = 1f)
         var change2 = down(1, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         scaleStartBlocked = false
         change1 = change1.moveTo(10.milliseconds, 0f, 0f)
         change2 = change2.moveTo(10.milliseconds, 3f, 3f)
-        recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        filter::onPointerInput.invokeOverAllPasses(change1, change2)
         change1 = change1.up(20.milliseconds)
         change2 = change2.up(20.milliseconds)
-        val result = recognizer::onPointerInput.invokeOverAllPasses(change1, change2)
+        val result = filter::onPointerInput.invokeOverAllPasses(change1, change2)
 
         assertThat(result.count { it.consumed.downChange }).isEqualTo(2)
     }
@@ -1081,9 +1081,9 @@ class RawScaleGestureDetectorTest {
     @Test
     fun onCancel_downCancel_onCancelNotCalled() {
         val down = down(0)
-        recognizer::onPointerInput.invokeOverAllPasses(down)
+        filter::onPointerInput.invokeOverAllPasses(down)
         scaleStartBlocked = false
-        recognizer.onCancel()
+        filter.onCancel()
 
         assertThat(log.filter { it.methodName == "onCancel" }).isEmpty()
     }
@@ -1092,12 +1092,12 @@ class RawScaleGestureDetectorTest {
     fun onCancel_blockedDownMoveCancel_onCancelNotCalled() {
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(0, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = true
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 1f, dy = 0f)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
-        recognizer.onCancel()
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter.onCancel()
 
         assertThat(log.filter { it.methodName == "onCancel" }).isEmpty()
     }
@@ -1108,12 +1108,12 @@ class RawScaleGestureDetectorTest {
     fun onCancel_downMoveCancel_onCancelCalledOnce() {
         var pointer1 = down(0, x = 1f, y = 1f)
         var pointer2 = down(0, x = 2f, y = 2f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
         scaleStartBlocked = false
         pointer1 = pointer1.moveBy(10.milliseconds, dx = 1f, dy = 0f)
         pointer2 = pointer2.moveBy(10.milliseconds, dx = 0f, dy = 0f)
-        recognizer::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
-        recognizer.onCancel()
+        filter::onPointerInput.invokeOverAllPasses(pointer1, pointer2)
+        filter.onCancel()
 
         assertThat(log.count { it.methodName == "onCancel" }).isEqualTo(1)
     }

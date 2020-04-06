@@ -48,15 +48,15 @@ fun Modifier.touchSlopExceededGestureFilter(
     canDrag: ((Direction) -> Boolean)? = null
 ): Modifier {
     val touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
-    val recognizer = remember { TouchSlopExceededGestureRecognizer(touchSlop) }
-    recognizer.canDrag = canDrag
-    recognizer.onTouchSlopExceeded = onTouchSlopExceeded
-    return this + PointerInputModifierImpl(recognizer)
+    val filter = remember { TouchSlopExceededGestureFilter(touchSlop) }
+    filter.canDrag = canDrag
+    filter.onTouchSlopExceeded = onTouchSlopExceeded
+    return this + PointerInputModifierImpl(filter)
 }
 
 // TODO(shepshapard): Shouldn't touchSlop be Px and not IntPx? What if the density bucket of the
 //  device is not a whole number?
-internal class TouchSlopExceededGestureRecognizer(
+internal class TouchSlopExceededGestureFilter(
     private val touchSlop: Px
 ) : PointerInputFilter() {
     private val pointerTrackers: MutableMap<PointerId, PointerTrackingData> = mutableMapOf()

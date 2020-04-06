@@ -52,10 +52,10 @@ fun Modifier.scaleSlopExceededGestureFilter(
     onScaleSlopExceeded: () -> Unit
 ): Modifier {
     val scaleSlop = with(DensityAmbient.current) { ScaleSlop.toPx() }
-    val recognizer = remember { ScaleSlopExceededGestureRecognizer(scaleSlop) }
+    val filter = remember { ScaleSlopExceededGestureFilter(scaleSlop) }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
-    recognizer.onScaleSlopExceeded = onScaleSlopExceeded
-    return this + PointerInputModifierImpl(recognizer)
+    filter.onScaleSlopExceeded = onScaleSlopExceeded
+    return this + PointerInputModifierImpl(filter)
 }
 
 /**
@@ -64,7 +64,7 @@ fun Modifier.scaleSlopExceededGestureFilter(
  *
  * @see scaleSlopExceededGestureFilter
  */
-internal class ScaleSlopExceededGestureRecognizer(private val scaleSlop: Px) : PointerInputFilter
+internal class ScaleSlopExceededGestureFilter(private val scaleSlop: Px) : PointerInputFilter
     () {
     lateinit var onScaleSlopExceeded: () -> Unit
 

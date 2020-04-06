@@ -55,14 +55,14 @@ fun Modifier.rawPressStartGestureFilter(
     enabled: Boolean = false,
     executionPass: PointerEventPass = PointerEventPass.PostUp
 ): Modifier {
-    val recognizer = remember { RawPressStartGestureRecognizer() }
-    recognizer.onPressStart = onPressStart
-    recognizer.setEnabled(enabled = enabled)
-    recognizer.setExecutionPass(executionPass)
-    return this + PointerInputModifierImpl(recognizer)
+    val filter = remember { RawPressStartGestureFilter() }
+    filter.onPressStart = onPressStart
+    filter.setEnabled(enabled = enabled)
+    filter.setExecutionPass(executionPass)
+    return this + PointerInputModifierImpl(filter)
 }
 
-internal class RawPressStartGestureRecognizer : PointerInputFilter() {
+internal class RawPressStartGestureFilter : PointerInputFilter() {
 
     lateinit var onPressStart: (PxPosition) -> Unit
     private var enabled: Boolean = true

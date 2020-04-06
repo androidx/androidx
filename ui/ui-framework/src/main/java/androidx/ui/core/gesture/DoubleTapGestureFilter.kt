@@ -55,12 +55,12 @@ fun Modifier.doubleTapGestureFilter(
 ): Modifier {
     val coroutineContext = CoroutineContextAmbient.current
     // TODO(shepshapard): coroutineContext should be a field
-    val recognizer = remember { DoubleTapGestureRecognizer(coroutineContext) }
-    recognizer.onDoubleTap = onDoubleTap
-    return this + PointerInputModifierImpl(recognizer)
+    val filter = remember { DoubleTapGestureFilter(coroutineContext) }
+    filter.onDoubleTap = onDoubleTap
+    return this + PointerInputModifierImpl(filter)
 }
 
-internal class DoubleTapGestureRecognizer(
+internal class DoubleTapGestureFilter(
     val coroutineContext: CoroutineContext
 ) : PointerInputFilter() {
     lateinit var onDoubleTap: (PxPosition) -> Unit

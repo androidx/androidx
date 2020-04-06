@@ -55,18 +55,18 @@ fun Modifier.pressIndicatorGestureFilter(
     onCancel: (() -> Unit)? = null,
     enabled: Boolean = true
 ): Modifier {
-    val recognizer = remember { PressIndicatorGestureRecognizer() }
-    recognizer.onStart = onStart
-    recognizer.onStop = onStop
-    recognizer.onCancel = onCancel
-    recognizer.setEnabled(enabled)
-    return this + PointerInputModifierImpl(recognizer)
+    val filter = remember { PressIndicatorGestureFilter() }
+    filter.onStart = onStart
+    filter.onStop = onStop
+    filter.onCancel = onCancel
+    filter.setEnabled(enabled)
+    return this + PointerInputModifierImpl(filter)
 }
 
-internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
+internal class PressIndicatorGestureFilter : PointerInputFilter() {
     /**
      * Called if the first pointer's down change was not consumed by the time this gesture
-     * recognizer receives it in the [PointerEventPass.PostUp] pass.
+     * filter receives it in the [PointerEventPass.PostUp] pass.
      *
      * This callback should be used to indicate that the press state should be shown.  An [Offset]
      * is provided to indicate where the first pointer made contact with this gesrure detector.
@@ -85,9 +85,9 @@ internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
     /**
      * Called if onStart was attempted to be called (it may have been null), and either:
      * 1. Pointer movement was consumed by the time [PointerEventPass.PostDown] reaches this
-     * gesture recognizer.
+     * gesture filter.
      * 2. [setEnabled] is called with false.
-     * 3. This gesture recognizer is removed from the hierarchy, or it has no descendants
+     * 3. This [PointerInputFilter] is removed from the hierarchy, or it has no descendants
      * to define it's position or size.
      * 4. The Compose root is notified that it will no longer receive input, and thus onStop
      * will never be reached (For example, the Android View that hosts compose receives
@@ -101,16 +101,17 @@ internal class PressIndicatorGestureRecognizer : PointerInputFilter() {
     private var state = State.Idle
 
     /**
-     * Sets whether this gesture recognizer is enabled.  True by default.
+     * Sets whether this [PointerInputFilter] is enabled.  True by default.
      *
-     * When enabled, this gesture recognizer will act normally.
+     * When enabled, this [PointerInputFilter] will act normally.
      *
-     * When disabled, this gesture recognizer will not process any input.  No aspects
+     * When disabled, this [PointerInputFilter] will not process any input.  No aspects
      * of any [PointerInputChange]s will be consumed and no callbacks will be called.
      *
      * If the last callback that was attempted to be called was [onStart] ([onStart] may have
      * been false) and [enabled] is false, [onCancel] will be called.
      */
+    // TODO(shepshapard): Remove 'setEnabled'.  It serves no purpose anymore.
     fun setEnabled(enabled: Boolean) {
         if (state == State.Started) {
             // If the state is Started and we were passed true, we don't want to change it to
