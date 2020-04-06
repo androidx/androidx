@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import junit.framework.AssertionFailedError;
 
@@ -31,13 +30,14 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Future;
 
 public class AppSearchManagerTest {
     private final AppSearchManager mAppSearch = new AppSearchManager();
 
     @After
     public void tearDown() throws Exception {
-        ListenableFuture<AppSearchResult<Void>> future = mAppSearch.deleteAll();
+        Future<AppSearchResult<Void>> future = mAppSearch.deleteAll();
         future.get();
     }
 
@@ -73,7 +73,7 @@ public class AppSearchManagerTest {
                 .setBody("This is the body of the testPut email")
                 .build();
 
-        ListenableFuture<AppSearchBatchResult<String, Void>> future =
+        Future<AppSearchBatchResult<String, Void>> future =
                 mAppSearch.putDocuments(ImmutableList.of(email));
         checkIsSuccess(future);
         AppSearchBatchResult<String, Void> result = future.get();
@@ -193,6 +193,13 @@ public class AppSearchManagerTest {
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
+
+        // Test if we delete a nonexistent URI.
+        AppSearchBatchResult<String, Void> deleteResult =
+                mAppSearch.delete(ImmutableList.of("uri1")).get();
+        assertThat(deleteResult.getFailures()).containsExactly("uri1",
+                AppSearchResult.newFailedResult(
+                        AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null));
     }
 
     @Test
@@ -238,7 +245,7 @@ public class AppSearchManagerTest {
     }
 
     private List<AppSearchDocument> doGet(String... uris) throws Exception {
-        ListenableFuture<AppSearchBatchResult<String, AppSearchDocument>> future =
+        Future<AppSearchBatchResult<String, AppSearchDocument>> future =
                 mAppSearch.getDocuments(Arrays.asList(uris));
         checkIsSuccess(future);
         AppSearchBatchResult<String, AppSearchDocument> result = future.get();
@@ -267,7 +274,7 @@ public class AppSearchManagerTest {
         return documents;
     }
 
-    private <T> void checkIsSuccess(ListenableFuture<T> future) throws Exception {
+    private <T> void checkIsSuccess(Future<T> future) throws Exception {
         T futureGet = future.get();
         if (futureGet instanceof AppSearchBatchResult) {
             AppSearchBatchResult<?, ?> result = (AppSearchBatchResult) futureGet;
