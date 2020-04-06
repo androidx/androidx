@@ -30,7 +30,7 @@ import androidx.ui.graphics.vectormath.isIdentity
  * to the provided [ImageAsset]
  */
 /* actual */ fun Canvas(image: ImageAsset): Canvas =
-    AndroidCanvas(android.graphics.Canvas(image.nativeImage))
+    AndroidCanvas(android.graphics.Canvas(image.asAndroidBitmap()))
 
 /**
  * Create a new Canvas instance that targets its drawing commands to the provided
@@ -273,7 +273,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
      */
     override fun drawImage(image: ImageAsset, topLeftOffset: Offset, paint: Paint) {
         internalCanvas.drawBitmap(
-            image.nativeImage,
+            image.asAndroidBitmap(),
             topLeftOffset.dx,
             topLeftOffset.dy,
             paint.asFrameworkPaint()
@@ -285,7 +285,7 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
      */
     override fun drawImageRect(image: ImageAsset, src: Rect, dst: Rect, paint: Paint) {
         internalCanvas.drawBitmap(
-            image.nativeImage,
+            image.asAndroidBitmap(),
             src.toAndroidRect(),
             dst.toAndroidRect(),
             paint.asFrameworkPaint()

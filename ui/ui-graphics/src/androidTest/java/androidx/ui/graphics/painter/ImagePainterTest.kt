@@ -25,7 +25,7 @@ import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.compositeOver
-import androidx.ui.graphics.toArgb
+import androidx.ui.graphics.toPixelMap
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import org.junit.Assert.assertEquals
@@ -38,7 +38,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ImagePainterTest {
 
-    val white = Color.White.toArgb()
+    val white = Color.White
     private val srcSize = PxSize(Px(100.0f), Px(100.0f))
 
     private fun createTestSrcImage(): ImageAsset {
@@ -71,10 +71,11 @@ class ImagePainterTest {
         val dst = createTestDstImage()
         imagePainter.draw(Canvas(dst), srcSize)
 
-        assertEquals(white, dst.nativeImage.getPixel(195, 5))
-        assertEquals(white, dst.nativeImage.getPixel(195, 195))
-        assertEquals(white, dst.nativeImage.getPixel(5, 195))
-        assertEquals(Color.Red.toArgb(), dst.nativeImage.getPixel(30, 70))
+        val pixelmap = dst.toPixelMap()
+        assertEquals(white, pixelmap[195, 5])
+        assertEquals(white, pixelmap[195, 195])
+        assertEquals(white, pixelmap[5, 195])
+        assertEquals(Color.Red, pixelmap[30, 70])
     }
 
     @Test
@@ -96,7 +97,7 @@ class ImagePainterTest {
             blue = Color.Red.blue
         ).compositeOver(Color.White)
 
-        val result = Color(dst.nativeImage.getPixel(50, 50))
+        val result = dst.toPixelMap()[50, 50]
         assertEquals(expected.red, result.red, 0.01f)
         assertEquals(expected.green, result.green, 0.01f)
         assertEquals(expected.blue, result.blue, 0.01f)
@@ -113,12 +114,11 @@ class ImagePainterTest {
             colorFilter = ColorFilter(Color.Cyan, BlendMode.srcIn)
         )
 
-        val argbWhite = Color.White.toArgb()
-        val argbCyan = Color.Cyan.toArgb()
-        assertEquals(argbWhite, dst.nativeImage.getPixel(195, 5))
-        assertEquals(argbWhite, dst.nativeImage.getPixel(195, 195))
-        assertEquals(argbWhite, dst.nativeImage.getPixel(5, 195))
-        assertEquals(argbCyan, dst.nativeImage.getPixel(30, 70))
+        val pixelmap = dst.toPixelMap()
+        assertEquals(Color.White, pixelmap[195, 5])
+        assertEquals(Color.White, pixelmap[195, 195])
+        assertEquals(Color.White, pixelmap[5, 195])
+        assertEquals(Color.Cyan, pixelmap[30, 70])
     }
 
     class LayerFlagCanvas(private val canvas: Canvas) : Canvas by canvas {

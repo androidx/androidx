@@ -51,6 +51,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Shader
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.toArgb
+import androidx.ui.graphics.toPixelMap
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
@@ -341,10 +342,8 @@ private class ColorWheel(diameter: Int) {
 private fun ColorWheel.colorForPosition(position: PxPosition): Color? {
     val x = position.x.value.toInt().coerceAtLeast(0)
     val y = position.y.value.toInt().coerceAtLeast(0)
-    // TODO: b/152061561 use something higher level than the nativeImage for getting
-    // pixel color here
-    with(image.nativeImage) {
+    with(image.toPixelMap()) {
         if (x >= width || y >= height) return null
-        return Color(getPixel(x, y)).takeIf { it.alpha == 1f }
+        return this[x, y].takeIf { it.alpha == 1f }
     }
 }

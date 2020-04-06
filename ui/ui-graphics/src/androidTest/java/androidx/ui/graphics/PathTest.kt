@@ -23,7 +23,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
-import androidx.ui.graphics.toArgb
+import androidx.ui.graphics.toPixelMap
 import androidx.ui.graphics.vectormath.PI
 import androidx.ui.graphics.vectormath.radians
 import org.junit.Assert.assertEquals
@@ -65,19 +65,20 @@ class PathTest {
 
         canvas.drawPath(path2, arcPaint)
 
+        val pixelmap = image.toPixelMap()
         val x = (50.0 * Math.cos(radians(45.0f).toDouble())).toInt()
-        assertEquals(arcColor.toArgb(),
-            image.nativeImage.getPixel(
+        assertEquals(arcColor,
+            pixelmap[
                 width / 2 + x - 1,
                 height / 2 + x - 1
-            )
+            ]
         )
 
-        assertEquals(arcColor.toArgb(),
-            image.nativeImage.getPixel(
+        assertEquals(arcColor,
+            pixelmap[
                 width / 2 - x,
                 height / 2 - x
-            )
+            ]
         )
     }
 }
