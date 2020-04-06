@@ -509,7 +509,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @NonNull
     @Override
-    public final <I, O> ActivityResultLauncher<I> prepareCall(
+    public final <I, O> ActivityResultLauncher<I> registerForActivityResult(
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultRegistry registry,
             @NonNull final ActivityResultCallback<O> callback) {
@@ -519,10 +519,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @NonNull
     @Override
-    public final <I, O> ActivityResultLauncher<I> prepareCall(
+    public final <I, O> ActivityResultLauncher<I> registerForActivityResult(
             @NonNull ActivityResultContract<I, O> contract,
             @NonNull ActivityResultCallback<O> callback) {
-        return prepareCall(contract, mActivityResultRegistry, callback);
+        return registerForActivityResult(contract, mActivityResultRegistry, callback);
     }
 
     /**
