@@ -39,12 +39,17 @@ internal abstract class LayoutNodeWrapper(
 ) : Placeable(), Measurable, LayoutCoordinates {
     internal open val wrapped: LayoutNodeWrapper? = null
     internal var wrappedBy: LayoutNodeWrapper? = null
-    open var position = IntPxPosition.Origin
+    var position = IntPxPosition.Origin
 
-    private var dirtySize: Boolean = false
+    protected var dirtySize: Boolean = false
     fun hasDirtySize(): Boolean = dirtySize || (wrapped?.hasDirtySize() ?: false)
     // TODO(popam): avoid allocation here
-    final override val size: IntPxSize get() = IntPxSize(measureResult.width, measureResult.height)
+    final override val measuredSize: IntPxSize
+        get() = IntPxSize(measureResult.width, measureResult.height)
+    // Size exposed to LayoutCoordinates.
+    final override val size: IntPxSize get() = measuredSize
+
+    final override var measurementConstraints = Constraints()
 
     private var _measureResult: MeasureScope.MeasureResult? = null
     var measureResult: MeasureScope.MeasureResult
@@ -74,9 +79,22 @@ internal abstract class LayoutNodeWrapper(
         //  so calling this is expensive.  Would be nice to cache data such that this is cheap.
         val localPointerPosition = globalToLocal(globalPointerPosition)
         return localPointerPosition.x.value >= 0 &&
-                localPointerPosition.x < size.width &&
+                localPointerPosition.x < measuredSize.width &&
                 localPointerPosition.y.value >= 0 &&
-                localPointerPosition.y < size.height
+                localPointerPosition.y < measuredSize.height
+    }
+
+    /**
+     * Measures the modified child.
+     */
+    abstract fun performMeasure(constraints: Constraints): Placeable
+
+    /**
+     * Measures the modified child.
+     */
+    final override fun measure(constraints: Constraints): Placeable {
+        measurementConstraints = constraints
+        return performMeasure(constraints)
     }
 
     /**
@@ -180,8 +198,8 @@ internal abstract class LayoutNodeWrapper(
         val rect = Rect(
             left = 0.5f,
             top = 0.5f,
-            right = size.width.value.toFloat() - 0.5f,
-            bottom = size.height.value.toFloat() - 0.5f
+            right = measuredSize.width.value.toFloat() - 0.5f,
+            bottom = measuredSize.height.value.toFloat() - 0.5f
         )
         canvas.drawRect(rect, paint)
     }

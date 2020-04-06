@@ -27,7 +27,6 @@ import androidx.ui.core.globalBounds
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
-import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
@@ -72,7 +71,7 @@ class DrawLayerTest {
     @Test
     fun testLayerBoundsPosition() {
         activityTestRule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 FixedSize(30.ipx, PaddingModifier(10.ipx).drawLayer() + positioner) {
                 }
             }
@@ -95,7 +94,7 @@ class DrawLayerTest {
     @Test
     fun testScale() {
         activityTestRule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 Padding(10.ipx) {
                     FixedSize(
                         10.ipx,
@@ -117,7 +116,7 @@ class DrawLayerTest {
     @Test
     fun testRotation() {
         activityTestRule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 Padding(10.ipx) {
                     FixedSize(
                         10.ipx,
@@ -139,7 +138,7 @@ class DrawLayerTest {
     @Test
     fun testRotationPivot() {
         activityTestRule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 Padding(10.ipx) {
                     FixedSize(10.ipx,
                         Modifier.drawLayer(
@@ -162,7 +161,7 @@ class DrawLayerTest {
     @Test
     fun testTranslationXY() {
         activityTestRule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 Padding(10.ipx) {
                     FixedSize(10.ipx,
                         Modifier.drawLayer(
@@ -185,7 +184,7 @@ class DrawLayerTest {
     @Test
     fun testClip() {
         activityTestRule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 Padding(10.ipx) {
                     FixedSize(10.ipx, Modifier.drawLayer(clipToBounds = true)) {
                         FixedSize(
@@ -210,7 +209,7 @@ class DrawLayerTest {
     @Test
     fun testTotalClip() {
         activityTestRule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 Padding(10.ipx) {
                     FixedSize(10.ipx, Modifier.drawLayer(clipToBounds = true)) {
                         FixedSize(

@@ -48,9 +48,9 @@ internal class LayerWrapper(
     // TODO(mount): This cache isn't thread safe at all.
     private var positionCache: FloatArray? = null
 
-    override fun measure(constraints: Constraints): Placeable {
-        val placeable = super.measure(constraints)
-        layer.resize(size)
+    override fun performMeasure(constraints: Constraints): Placeable {
+        val placeable = super.performMeasure(constraints)
+        layer.resize(measuredSize)
         return placeable
     }
 
