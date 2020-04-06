@@ -750,6 +750,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     @ParcelField(2)
     ParcelImplListSlice mBitmapListSlice;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Used for VersionedParcelable
      */
@@ -1259,6 +1261,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
 
         @ParcelField(2)
         Bitmap mBitmap;
+
+        // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 
         /**
          * Used for VersionedParcelable

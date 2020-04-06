@@ -86,6 +86,8 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
     @ParcelField(5)
     ParcelImplListSlice mItemListSlice;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     // For versioned parcelable
     LibraryResult() {
         // no-op.

@@ -51,6 +51,8 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
     @NonParcelField // TODO(sungsoo): Change to @Parcelfield(8) once VersionedParcelable fixed.
     int mSessionVersion;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Constructor for the token. You can only create token for session service or library service
      * to use by {@link MediaController} or {@link MediaBrowser}.
