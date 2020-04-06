@@ -31,6 +31,8 @@ public final class PercentageRating implements Rating {
     @ParcelField(1)
     float mPercent;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Creates a unrated PercentageRating instance.
      */

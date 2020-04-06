@@ -56,6 +56,8 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     @ParcelField(6)
     Bundle mExtras;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     SessionTokenImplLegacy(MediaSessionCompat.Token token, String packageName, int uid,
             Bundle sessionInfo) {
         if (token == null) {

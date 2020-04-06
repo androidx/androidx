@@ -109,6 +109,8 @@ public final class SessionToken implements VersionedParcelable {
     @ParcelField(1)
     SessionTokenImpl mImpl;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Constructor for the token. You can create token of {@link MediaSessionService},
      * {@link MediaLibraryService} or {@link MediaBrowserServiceCompat} for

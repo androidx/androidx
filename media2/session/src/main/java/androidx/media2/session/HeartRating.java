@@ -33,6 +33,8 @@ public final class HeartRating implements Rating {
     @ParcelField(2)
     boolean mHasHeart;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Creates a unrated HeartRating instance.
      */

@@ -35,6 +35,8 @@ public final class StarRating implements Rating {
     @ParcelField(2)
     float mStarRating;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /*
      * Used for VersionedParcelable
      */
