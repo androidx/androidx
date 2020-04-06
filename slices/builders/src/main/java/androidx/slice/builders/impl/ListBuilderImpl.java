@@ -316,6 +316,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         protected SliceAction mPrimaryAction;
         protected int mLayoutDir = -1;
         private int mMode = 0;
+        private Slice mStartItem;
 
         RangeBuilderImpl(Slice.Builder sb, RangeBuilder builder) {
             super(sb, null);
@@ -329,7 +330,20 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
                 mPrimaryAction = builder.getPrimaryAction();
                 mLayoutDir = builder.getLayoutDirection();
                 mMode = builder.getMode();
+                if (builder.getTitleIcon() != null) {
+                    setTitleItem(builder.getTitleIcon(), builder.getTitleImageMode(),
+                            builder.isTitleItemLoading());
+                }
             }
+        }
+
+        void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
+            Slice.Builder sb = new Slice.Builder(getBuilder())
+                    .addIcon(icon, null, parseImageMode(imageMode, isLoading));
+            if (isLoading) {
+                sb.addHints(HINT_PARTIAL);
+            }
+            mStartItem = sb.addHints(HINT_TITLE).build();
         }
 
         @Override
@@ -344,6 +358,9 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
                 + " ensure value falls within (min, max) and min < max.");
             }
 
+            if (mStartItem != null) {
+                builder.addSubSlice(mStartItem);
+            }
             if (mTitle != null) {
                 builder.addText(mTitle, null, HINT_TITLE);
             }
@@ -406,6 +423,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
             }
         }
 
+        @Override
         void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
             Slice.Builder sb = new Slice.Builder(getBuilder())
                     .addIcon(icon, null, parseImageMode(imageMode, isLoading));

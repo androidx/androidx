@@ -95,6 +95,8 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.RangeBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setSubtitle(CharSequence);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setTitle(CharSequence);
+    method public androidx.slice.builders.ListBuilder.RangeBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.ListBuilder.RangeBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int, boolean);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setValue(int);
   }
 

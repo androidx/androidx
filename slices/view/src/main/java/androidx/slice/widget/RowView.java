@@ -699,10 +699,23 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         final boolean isIndeterminate = style != null && style.getInt() == INDETERMINATE_RANGE;
         final boolean isSeekBar = FORMAT_ACTION.equals(mRangeItem.getFormat());
         final boolean renderInNewLine = mStartItem == null;
-        final ProgressBar progressBar = isSeekBar ? (renderInNewLine ? new SeekBar(getContext()) :
-                (SeekBar) LayoutInflater.from(getContext()).inflate(R.layout.abc_slice_seekbar_view,
-                        this, false)) :
-                new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
+        final ProgressBar progressBar;
+        if (isSeekBar) {
+            if (renderInNewLine) {
+                progressBar = new SeekBar(getContext());
+            } else {
+                progressBar = (SeekBar) LayoutInflater.from(getContext()).inflate(
+                        R.layout.abc_slice_seekbar_view, this, false);
+            }
+        } else {
+            if (renderInNewLine) {
+                progressBar = new ProgressBar(getContext(), null,
+                        android.R.attr.progressBarStyleHorizontal);
+            } else {
+                progressBar = (ProgressBar) LayoutInflater.from(getContext()).inflate(
+                        R.layout.abc_slice_progress_inline_view, this, false);
+            }
+        }
         Drawable progressDrawable = isIndeterminate ? DrawableCompat.wrap(
                 progressBar.getIndeterminateDrawable()) :
                 DrawableCompat.wrap(progressBar.getProgressDrawable());
