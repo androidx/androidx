@@ -25,8 +25,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityOptionsCompat;
 
 /**
- * A launcher for a prevoiusly-{@link ActivityResultCaller#prepareCall prepared call} to start
- * the process of executing an {@link ActivityResultContract}.
+ * A launcher for a previously-{@link ActivityResultCaller#registerForActivityResult prepared call}
+ * to start the process of executing an {@link ActivityResultContract}.
  *
  * @param <I> type of the input required to launch
  */

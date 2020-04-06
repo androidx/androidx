@@ -31,7 +31,7 @@ import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.invoke
-import androidx.activity.prepareCall
+import androidx.activity.registerForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocuments
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
@@ -39,19 +39,20 @@ import androidx.activity.result.contract.ActivityResultContracts.TakePicturePrev
 
 class MainActivity : ComponentActivity() {
 
-    val requestLocation = prepareCall(RequestPermission(), ACCESS_FINE_LOCATION) { isGranted ->
+    val requestLocation = registerForActivityResult(
+        RequestPermission(), ACCESS_FINE_LOCATION) { isGranted ->
         toast("Location granted: $isGranted")
     }
 
-    val takePicture = prepareCall(TakePicturePreview()) { bitmap ->
+    val takePicture = registerForActivityResult(TakePicturePreview()) { bitmap ->
         toast("Got picture: $bitmap")
     }
 
-    val getContent = prepareCall(GetContent()) { uri ->
+    val getContent = registerForActivityResult(GetContent()) { uri ->
         toast("Got image: $uri")
     }
 
-    val openDocuments = prepareCall(OpenDocuments()) { uris ->
+    val openDocuments = registerForActivityResult(OpenDocuments()) { uris ->
         var docs = ""
         uris.forEach {
             docs += "uri: $it \n"
