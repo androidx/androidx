@@ -24,7 +24,7 @@ import androidx.test.filters.SmallTest;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.PropertyProto;
-import com.google.protobuf.ByteString;
+import com.google.android.icing.protobuf.ByteString;
 
 import org.junit.Test;
 

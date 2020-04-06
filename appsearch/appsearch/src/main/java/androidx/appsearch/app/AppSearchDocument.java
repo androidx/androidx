@@ -18,7 +18,6 @@ package androidx.appsearch.app;
 
 import android.util.Log;
 
-
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,7 +26,7 @@ import androidx.collection.ArrayMap;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.PropertyProto;
-import com.google.protobuf.ByteString;
+import com.google.android.icing.protobuf.ByteString;
 
 import java.util.ArrayList;
 import java.util.Collections;
