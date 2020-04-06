@@ -34,7 +34,7 @@ public class MultiProcessEnabledActivity extends AppCompatActivity {
         setTitle(R.string.multi_process_enabled_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS_QUERY)) {
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS)) {
             if (WebViewCompat.isMultiProcessEnabled()) {
                 WebkitHelpers.showMessageInActivity(MultiProcessEnabledActivity.this,
                         R.string.multi_process_enabled);
@@ -44,7 +44,7 @@ public class MultiProcessEnabledActivity extends AppCompatActivity {
             }
         } else {
             WebkitHelpers.showMessageInActivity(MultiProcessEnabledActivity.this,
-                    R.string.multi_process_query_unavailable);
+                    R.string.multi_process_unavailable);
         }
     }
 }

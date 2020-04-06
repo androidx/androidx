@@ -331,7 +331,7 @@ public enum WebViewFeatureInternal {
     /**
      * This feature covers {@link WebViewCompat#isMultiProcessEnabled()}.
      */
-    MULTI_PROCESS_QUERY(WebViewFeature.MULTI_PROCESS_QUERY, Features.MULTI_PROCESS_QUERY),
+    MULTI_PROCESS(WebViewFeature.MULTI_PROCESS, Features.MULTI_PROCESS_QUERY),
 
     /**
      * This feature covers
