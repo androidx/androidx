@@ -107,9 +107,8 @@ public final class Camera2CameraControlTest {
         Context context = ApplicationProvider.getApplicationContext();
         CameraManager cameraManager = (CameraManager) context.getSystemService(
                 Context.CAMERA_SERVICE);
-        Camera2CameraFactory camera2CameraFactory = new Camera2CameraFactory(context);
-        mCameraCharacteristics = cameraManager.getCameraCharacteristics(
-                camera2CameraFactory.cameraIdForLensFacing(CameraSelector.LENS_FACING_BACK));
+        mCameraCharacteristics = CameraUtil.getCameraCharacteristics(
+                CameraSelector.LENS_FACING_BACK);
         Boolean hasFlashUnit =
                 mCameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
         mHasFlashUnit = hasFlashUnit != null && hasFlashUnit.booleanValue();

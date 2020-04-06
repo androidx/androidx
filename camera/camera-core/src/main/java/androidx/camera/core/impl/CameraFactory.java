@@ -35,7 +35,8 @@ public interface CameraFactory {
      */
     interface Provider {
         /** Creates a new, initialized instance of a CameraFactory. */
-        @NonNull CameraFactory newInstance(@NonNull Context context);
+        @NonNull CameraFactory newInstance(@NonNull Context context,
+                @NonNull CameraThreadConfig threadConfig);
     }
 
     /**

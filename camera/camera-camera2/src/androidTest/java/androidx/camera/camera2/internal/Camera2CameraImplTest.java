@@ -55,6 +55,7 @@ import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraStateRegistry;
+import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
@@ -68,6 +69,7 @@ import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -76,6 +78,7 @@ import androidx.test.rule.GrantPermissionRule;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -90,6 +93,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -112,6 +116,7 @@ public final class Camera2CameraImplTest {
             CameraInternal.State.RELEASED));
 
     private static CameraFactory sCameraFactory;
+    static ExecutorService sCameraExecutor;
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
@@ -119,8 +124,8 @@ public final class Camera2CameraImplTest {
 
     private ArrayList<FakeUseCase> mFakeUseCases = new ArrayList<>();
     private Camera2CameraImpl mCamera2CameraImpl;
-    private HandlerThread mCameraHandlerThread;
-    private Handler mCameraHandler;
+    private static HandlerThread sCameraHandlerThread;
+    private static Handler sCameraHandler;
     private CameraStateRegistry mCameraStateRegistry;
     Semaphore mSemaphore;
     OnImageAvailableListener mMockOnImageAvailableListener;
@@ -139,7 +144,17 @@ public final class Camera2CameraImplTest {
 
     @BeforeClass
     public static void classSetup() {
-        sCameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
+        sCameraHandlerThread = new HandlerThread("cameraThread");
+        sCameraHandlerThread.start();
+        sCameraHandler = HandlerCompat.createAsync(sCameraHandlerThread.getLooper());
+        sCameraExecutor = CameraXExecutors.newHandlerExecutor(sCameraHandler);
+        sCameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext(),
+                CameraThreadConfig.create(sCameraExecutor, sCameraHandler));
+    }
+
+    @AfterClass
+    public static void classTeardown() {
+        sCameraHandlerThread.quitSafely();
     }
 
     @Before
@@ -149,14 +164,11 @@ public final class Camera2CameraImplTest {
         mSessionStateCallback = new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
 
         mCameraId = getCameraIdForLensFacingUnchecked(DEFAULT_LENS_FACING);
-        mCameraHandlerThread = new HandlerThread("cameraThread");
-        mCameraHandlerThread.start();
-        mCameraHandler = new Handler(mCameraHandlerThread.getLooper());
         mSemaphore = new Semaphore(0);
         mCameraStateRegistry = new CameraStateRegistry(DEFAULT_AVAILABLE_CAMERA_COUNT);
         mCamera2CameraImpl = new Camera2CameraImpl(
                 CameraManagerCompat.from(ApplicationProvider.getApplicationContext()), mCameraId,
-                mCameraStateRegistry, mCameraHandler, mCameraHandler);
+                mCameraStateRegistry, sCameraExecutor, sCameraHandler);
     }
 
     @After
@@ -176,10 +188,6 @@ public final class Camera2CameraImplTest {
 
         for (FakeUseCase fakeUseCase : mFakeUseCases) {
             fakeUseCase.clear();
-        }
-
-        if (mCameraHandlerThread != null) {
-            mCameraHandlerThread.quitSafely();
         }
     }
 
@@ -364,7 +372,7 @@ public final class Camera2CameraImplTest {
         DeferrableSurface surface1 = useCase1.getSessionConfig().getSurfaces().get(0);
 
         unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
         changeUseCaseSurface(useCase1);
         mCamera2CameraImpl.onUseCaseReset(useCase1);
@@ -411,7 +419,7 @@ public final class Camera2CameraImplTest {
         // To make the single request not able to run in 1st capture session.  and verify if it can
         // be carried over to the new capture session and run successfully.
         unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(captureCallback, timeout(3000).times(1))
@@ -446,7 +454,7 @@ public final class Camera2CameraImplTest {
         // To make the single request not able to run in 1st capture session.  and verify if it can
         // be carried to the new capture session and run successfully.
         unblockHandler();
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
         // TODO: b/133710422 should provide a way to detect if request is cancelled.
         Thread.sleep(1000);
@@ -530,7 +538,6 @@ public final class Camera2CameraImplTest {
                 });
         mCameraStateRegistry.tryOpenCamera(mockCamera);
 
-
         mCamera2CameraImpl.getCameraState().addObserver(CameraXExecutors.directExecutor(),
                 mockObserver);
 
@@ -610,7 +617,7 @@ public final class Camera2CameraImplTest {
 
     // Blocks the camera thread handler.
     private void blockHandler() {
-        mCameraHandler.post(new Runnable() {
+        sCameraHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -649,7 +656,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
 
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
         Handler uiThreadHandler = new Handler(Looper.getMainLooper());
         HandlerUtil.waitForLooperToIdle(uiThreadHandler);
@@ -670,7 +677,7 @@ public final class Camera2CameraImplTest {
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1, useCase2, useCase3));
 
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
         Handler uiThreadHandler = new Handler(Looper.getMainLooper());
         HandlerUtil.waitForLooperToIdle(uiThreadHandler);
@@ -704,7 +711,7 @@ public final class Camera2CameraImplTest {
         UseCase useCase1 = createUseCase();
 
         mCamera2CameraImpl.addOnlineUseCase(Collections.singletonList(useCase1));
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
         assertThat(isCameraControlActive(camera2CameraControl)).isTrue();
 
@@ -718,11 +725,11 @@ public final class Camera2CameraImplTest {
         UseCase useCase1 = createUseCase();
 
         mCamera2CameraImpl.addOnlineUseCase(Arrays.asList(useCase1));
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
         assertThat(isCameraControlActive(camera2CameraControl)).isTrue();
 
         mCamera2CameraImpl.removeOnlineUseCase(Arrays.asList(useCase1));
-        HandlerUtil.waitForLooperToIdle(mCameraHandler);
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
         assertThat(isCameraControlActive(camera2CameraControl)).isFalse();
     }

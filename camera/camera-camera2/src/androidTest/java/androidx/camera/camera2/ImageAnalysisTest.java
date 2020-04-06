@@ -18,8 +18,6 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import android.Manifest;
@@ -154,13 +152,14 @@ public final class ImageAnalysisTest {
                 useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
             });
 
-            assertTrue(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS));
+            assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
 
             synchronized (mAnalysisResultLock) {
                 // Check the analyzed image exactly matches 640x480 size. This test can also check
                 // whether the guaranteed resolution 640x480 is really supported for YUV_420_888
                 // format on the devices when running the test.
-                assertEquals(GUARANTEED_RESOLUTION, mAnalysisResults.iterator().next().mResolution);
+                assertThat(GUARANTEED_RESOLUTION).isEqualTo(
+                        mAnalysisResults.iterator().next().mResolution);
             }
 
             // Reset the environment to run test for the other lens facing camera device.

@@ -98,7 +98,7 @@ public final class CameraXTest {
         mFakeCameraFactory.setDefaultCameraIdForLensFacing(CAMERA_LENS_FACING, CAMERA_ID);
         mConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactoryProvider(ignored -> mFakeCameraFactory)
+                        .setCameraFactoryProvider((ignored0, ignored1) -> mFakeCameraFactory)
                         .setDeviceSurfaceManagerProvider(ignored ->
                                 new FakeCameraDeviceSurfaceManager())
                         .setUseCaseConfigFactoryProvider(ignored -> mUseCaseConfigFactory);
@@ -198,9 +198,9 @@ public final class CameraXTest {
     @Test
     public void init_withDifferentCameraXConfig() {
         CameraFactory cameraFactory0 = new FakeCameraFactory();
-        CameraFactory.Provider cameraFactoryProvider0 = ignored -> cameraFactory0;
+        CameraFactory.Provider cameraFactoryProvider0 = (ignored0, ignored1) -> cameraFactory0;
         CameraFactory cameraFactory1 = new FakeCameraFactory();
-        CameraFactory.Provider cameraFactoryProvider1 = ignored -> cameraFactory1;
+        CameraFactory.Provider cameraFactoryProvider1 = (ignored0, ignored1) -> cameraFactory1;
 
         mConfigBuilder.setCameraFactoryProvider(cameraFactoryProvider0);
         CameraX.initialize(mContext, mConfigBuilder.build());
@@ -301,7 +301,7 @@ public final class CameraXTest {
                 () -> cameraInternalFront);
         CameraXConfig.Builder appConfigBuilder =
                 new CameraXConfig.Builder()
-                        .setCameraFactoryProvider(ignored -> mFakeCameraFactory)
+                        .setCameraFactoryProvider((ignored0, ignored1) -> mFakeCameraFactory)
                         .setDeviceSurfaceManagerProvider(ignored ->
                                 new FakeCameraDeviceSurfaceManager())
                         .setUseCaseConfigFactoryProvider(ignored -> mUseCaseConfigFactory);

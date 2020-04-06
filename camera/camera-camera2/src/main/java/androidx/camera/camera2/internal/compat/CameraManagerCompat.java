@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.os.Handler;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
@@ -177,6 +178,9 @@ public final class CameraManagerCompat {
 
         private final Executor mExecutor;
         final CameraManager.AvailabilityCallback mWrappedCallback;
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
+        private boolean mDisabled = false;
 
         AvailabilityCallbackExecutorWrapper(@NonNull Executor executor,
                 @NonNull CameraManager.AvailabilityCallback wrappedCallback) {
@@ -184,35 +188,55 @@ public final class CameraManagerCompat {
             mWrappedCallback = wrappedCallback;
         }
 
+        // Used to ensure that callbacks do not run after "unregisterAvailabilityCallback" has
+        // returned. Once disabled, the wrapper can no longer be used.
+        void setDisabled() {
+            synchronized (mLock) {
+                mDisabled = true;
+            }
+        }
+
         @RequiresApi(29)
         @Override
         public void onCameraAccessPrioritiesChanged() {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mWrappedCallback.onCameraAccessPrioritiesChanged();
+            synchronized (mLock) {
+                if (!mDisabled) {
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mWrappedCallback.onCameraAccessPrioritiesChanged();
+                        }
+                    });
                 }
-            });
+            }
         }
 
         @Override
         public void onCameraAvailable(@NonNull final String cameraId) {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mWrappedCallback.onCameraAvailable(cameraId);
+            synchronized (mLock) {
+                if (!mDisabled) {
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mWrappedCallback.onCameraAvailable(cameraId);
+                        }
+                    });
                 }
-            });
+            }
         }
 
         @Override
         public void onCameraUnavailable(@NonNull final String cameraId) {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mWrappedCallback.onCameraUnavailable(cameraId);
+            synchronized (mLock) {
+                if (!mDisabled) {
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mWrappedCallback.onCameraUnavailable(cameraId);
+                        }
+                    });
                 }
-            });
+            }
         }
     }
 }

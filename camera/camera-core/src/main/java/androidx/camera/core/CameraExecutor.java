@@ -111,8 +111,6 @@ class CameraExecutor implements Executor {
         Preconditions.checkNotNull(runnable);
 
         synchronized (mExecutorLock) {
-            Preconditions.checkState(!mThreadPoolExecutor.isShutdown(),
-                    "CameraExecutor is deinit");
             mThreadPoolExecutor.execute(runnable);
         }
     }

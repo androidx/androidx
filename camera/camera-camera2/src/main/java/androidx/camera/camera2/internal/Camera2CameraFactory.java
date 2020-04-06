@@ -20,19 +20,16 @@ import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
-import android.os.Handler;
-import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraStateRegistry;
-import androidx.core.os.HandlerCompat;
+import androidx.camera.core.impl.CameraThreadConfig;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -44,21 +41,17 @@ import java.util.Set;
  */
 public final class Camera2CameraFactory implements CameraFactory {
     private static final int DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS = 1;
+    private final CameraThreadConfig mThreadConfig;
 
-    private static final HandlerThread sHandlerThread = new HandlerThread(CameraXThreads.TAG);
-    private static final Handler sHandler;
     private final CameraStateRegistry mCameraStateRegistry;
     private final CameraManagerCompat mCameraManager;
 
-    static {
-        sHandlerThread.start();
-        sHandler = HandlerCompat.createAsync(sHandlerThread.getLooper());
-    }
-
     /** Creates a Camera2 implementation of CameraFactory */
-    public Camera2CameraFactory(@NonNull Context context) {
+    public Camera2CameraFactory(@NonNull Context context,
+            @NonNull CameraThreadConfig threadConfig) {
+        mThreadConfig = threadConfig;
         mCameraStateRegistry = new CameraStateRegistry(DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS);
-        mCameraManager = CameraManagerCompat.from(context);
+        mCameraManager = CameraManagerCompat.from(context, mThreadConfig.getSchedulerHandler());
     }
 
     @Override
@@ -69,9 +62,8 @@ public final class Camera2CameraFactory implements CameraFactory {
             throw new IllegalArgumentException(
                     "The given camera id is not on the available camera id list.");
         }
-        Camera2CameraImpl camera2CameraImpl = new Camera2CameraImpl(mCameraManager, cameraId,
-                mCameraStateRegistry, sHandler, sHandler);
-        return camera2CameraImpl;
+        return new Camera2CameraImpl(mCameraManager, cameraId, mCameraStateRegistry,
+                mThreadConfig.getCameraExecutor(), mThreadConfig.getSchedulerHandler());
     }
 
     @Override
