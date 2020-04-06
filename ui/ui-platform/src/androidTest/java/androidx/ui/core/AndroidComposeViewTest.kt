@@ -52,6 +52,7 @@ class AndroidComposeViewTest {
     @Before
     fun setup() {
         composeTestRule.setContent {
+            @Suppress("DEPRECATION")
             ownerView = OwnerAmbient.current as ViewGroup
             autofill = AutofillAmbient.current
             autofillTree = AutofillTreeAmbient.current

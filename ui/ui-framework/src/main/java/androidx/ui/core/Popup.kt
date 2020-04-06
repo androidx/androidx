@@ -139,6 +139,7 @@ private fun Popup(
 ) {
     val context = ContextAmbient.current
     // TODO(b/139866476): Decide if we want to expose the AndroidComposeView
+    @Suppress("DEPRECATION")
     val owner = OwnerAmbient.current
     val providedTestTag = PopupTestTagAmbient.current
 
