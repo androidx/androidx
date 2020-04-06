@@ -253,6 +253,7 @@ private fun WrapWithAmbients(
         HapticFeedBackAmbient provides owner.hapticFeedBack,
         ClipboardManagerAmbient provides owner.clipboardManager,
         AutofillTreeAmbient provides owner.autofillTree,
+        AutofillAmbient provides owner.autofill,
         ConfigurationAmbient provides configuration,
         OwnerAmbient provides owner,
         LayoutDirectionAmbient provides layoutDirection,

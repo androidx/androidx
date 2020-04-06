@@ -25,7 +25,9 @@ import android.view.autofill.AutofillValue
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.autofill.AndroidAutofill
+import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillNode
+import androidx.ui.autofill.AutofillTree
 import androidx.ui.autofill.AutofillType
 import androidx.ui.test.android.fake.FakeViewStructure
 import androidx.ui.test.createComposeRule
@@ -43,33 +45,35 @@ class AndroidComposeViewTest {
     val composeTestRule = createComposeRule()
 
     private val PACKAGE_NAME = "androidx.ui.platform.test"
-    private lateinit var owner: Owner
-    private lateinit var composeView: ViewGroup
+    private var autofill: Autofill? = null
+    private lateinit var autofillTree: AutofillTree
+    private lateinit var ownerView: ViewGroup
 
     @Before
     fun setup() {
         composeTestRule.setContent {
-            owner = OwnerAmbient.current
-            composeView = owner as ViewGroup
+            ownerView = OwnerAmbient.current as ViewGroup
+            autofill = AutofillAmbient.current
+            autofillTree = AutofillTreeAmbient.current
         }
     }
 
     @SdkSuppress(maxSdkVersion = 25)
     @Test
     fun autofillAmbient_belowApi26_isNull() {
-        assertThat(owner.autofill).isNull()
+        assertThat(autofill).isNull()
     }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun autofillAmbient_isNotNull() {
-        assertThat(owner.autofill).isNotNull()
+        assertThat(autofill).isNotNull()
     }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun autofillAmbient_returnsAnInstanceOfAndroidAutofill() {
-        assertThat(owner.autofill).isInstanceOf(AndroidAutofill::class.java)
+        assertThat(autofill).isInstanceOf(AndroidAutofill::class.java)
     }
 
     @SdkSuppress(minSdkVersion = 26)
@@ -82,10 +86,10 @@ class AndroidComposeViewTest {
             autofillTypes = listOf(AutofillType.Name),
             boundingBox = Rect(0, 0, 0, 0)
         )
-        owner.autofillTree += autofillNode
+        autofillTree += autofillNode
 
         // Act.
-        composeView.onProvideAutofillVirtualStructure(viewStructure, 0)
+        ownerView.onProvideAutofillVirtualStructure(viewStructure, 0)
 
         // Assert.
         assertThat(viewStructure).isEqualTo(FakeViewStructure().apply {
@@ -113,10 +117,10 @@ class AndroidComposeViewTest {
         val autofillValues = SparseArray<AutofillValue>().apply {
             append(autofillNode.id, AutofillValue.forText(expectedValue))
         }
-        owner.autofillTree += autofillNode
+        autofillTree += autofillNode
 
         // Act.
-        composeView.autofill(autofillValues)
+        ownerView.autofill(autofillValues)
 
         // Assert.
         assertThat(autofilledValue).isEqualTo(expectedValue)
