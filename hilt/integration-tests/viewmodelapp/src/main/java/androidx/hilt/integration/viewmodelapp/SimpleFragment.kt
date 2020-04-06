@@ -21,8 +21,8 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.hilt.FragmentViewModelFactory
-import androidx.lifecycle.hilt.ViewModelFactory
+import androidx.hilt.lifecycle.FragmentViewModelFactory
+import androidx.hilt.lifecycle.ViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

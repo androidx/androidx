@@ -38,7 +38,7 @@ public final class FakeAppConfig {
     /** Generates a fake {@link CameraXConfig}. */
     @NonNull
     public static CameraXConfig create() {
-        CameraFactory.Provider cameraFactoryProvider = ignored -> {
+        CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2) -> {
             FakeCameraFactory cameraFactory = new FakeCameraFactory();
             cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0,
                     () -> new FakeCamera(CAMERA_ID_0, null,

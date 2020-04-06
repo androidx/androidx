@@ -39,14 +39,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A registry that stores {@link ActivityResultCallback activity result callbacks} for
- * {@link ActivityResultCaller#prepareCall prepared calls}.
+ * {@link ActivityResultCaller#registerForActivityResult registered calls}.
  *
  * You can create your own instance for testing by overriding {@link #invoke} and calling
  * {@link #dispatchResult} immediately within it, thus skipping the actual
  * {@link Activity#startActivityForResult} call.
  *
  * When testing, make sure to explicitly provide a registry instance whenever calling
- * {@link ActivityResultCaller#prepareCall}, to be able to inject a test instance.
+ * {@link ActivityResultCaller#registerForActivityResult}, to be able to inject a test instance.
  */
 public abstract class ActivityResultRegistry {
     private static final String KEY_COMPONENT_ACTIVITY_REGISTERED_RCS =
@@ -86,7 +86,7 @@ public abstract class ActivityResultRegistry {
      * Register a new callback with this registry.
      *
      * This is normally called by a higher level convenience methods like
-     * {@link ActivityResultCaller#prepareCall}.
+     * {@link ActivityResultCaller#registerForActivityResult}.
      *
      * @param key a unique string key identifying this call
      * @param lifecycleOwner a {@link LifecycleOwner} that makes this call.
@@ -157,7 +157,7 @@ public abstract class ActivityResultRegistry {
      * Register a new callback with this registry.
      *
      * This is normally called by a higher level convenience methods like
-     * {@link ActivityResultCaller#prepareCall}.
+     * {@link ActivityResultCaller#registerForActivityResult}.
      *
      * When calling this, you must call {@link ActivityResultLauncher#unregister()} on the
      * returned {@link ActivityResultLauncher} when the launcher is no longer needed to

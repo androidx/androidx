@@ -55,6 +55,7 @@ import androidx.camera.core.impl.UseCaseAttachState;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -159,25 +160,24 @@ final class Camera2CameraImpl implements CameraInternal {
     /**
      * Constructor for a camera.
      *
-     * @param cameraManager              the camera service used to retrieve a camera
-     * @param cameraId                   the name of the camera as defined by the camera service
-     * @param cameraStateRegistry        An registry used to track the state of multiple cameras.
-     *                                   Used as a fence to ensure the number of simultaneously
-     *                                   opened cameras is limited.
-     * @param handler                    the handler for the thread on which all camera
-     *                                   operations run
+     * @param cameraManager       the camera service used to retrieve a camera
+     * @param cameraId            the name of the camera as defined by the camera service
+     * @param cameraStateRegistry An registry used to track the state of multiple cameras.
+     *                            Used as a fence to ensure the number of simultaneously
+     *                            opened cameras is limited.
+     * @param executor            the executor for on which all camera operations run
      * @throws IllegalStateException if the {@link CameraCharacteristics} is unavailable. This
      *                               could occur if the camera was disconnected.
      */
     Camera2CameraImpl(CameraManagerCompat cameraManager, String cameraId,
             @NonNull CameraStateRegistry cameraStateRegistry,
-            @NonNull Handler handler,
+            @NonNull Executor executor,
             @NonNull Handler schedulerHandler) {
         mCameraManager = cameraManager;
         mCameraStateRegistry = cameraStateRegistry;
         ScheduledExecutorService executorScheduler =
                 CameraXExecutors.newHandlerExecutor(schedulerHandler);
-        mExecutor = CameraXExecutors.newHandlerExecutor(handler);
+        mExecutor = CameraXExecutors.newSequentialExecutor(executor);
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mObservableState.postValue(State.CLOSED);
 
@@ -383,15 +383,11 @@ final class Camera2CameraImpl implements CameraInternal {
                         + "error) state. Current state: "
                         + mState + " (error: " + getErrorMessage(mCameraDeviceError) + ")");
 
-        Camera2CameraInfoImpl camera2CameraInfo = (Camera2CameraInfoImpl) getCameraInfoInternal();
-        boolean isLegacyDevice = camera2CameraInfo.getSupportedHardwareLevel()
-                == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
-
         // TODO: Check if any sessions have been previously configured. We can probably skip
         // configAndClose if there haven't been any sessions configured yet.
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M
                 && Build.VERSION.SDK_INT < 29
-                && isLegacyDevice
+                && isLegacyDevice()
                 && mCameraDeviceError == ERROR_NONE) { // Cannot open session on device in error
             // To configure surface again before close camera. This step would
             // disconnect previous connected surface in some legacy device to prevent exception.
@@ -601,6 +597,7 @@ final class Camera2CameraImpl implements CameraInternal {
      *
      * <p>This method should only be used by tests. This will post to the Camera's thread and
      * block until completion.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
@@ -834,8 +831,38 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         CaptureSession captureSession = mCaptureSession;
-        ListenableFuture<Void> openCaptureSession = captureSession.open(validatingBuilder.build(),
-                mCameraDevice);
+        ListenableFuture<Void> openCaptureSession;
+
+        if (!isLegacyDevice()) {
+            openCaptureSession = captureSession.open(validatingBuilder.build(), mCameraDevice);
+        } else {
+            // Opening and releasing the capture session quickly and constantly is a problem for
+            // LEGACY devices. See: b/146773463. It needs to check all the releasing capture
+            // sessions are ready for opening next capture session.
+            List<ListenableFuture<Void>> futureList = new ArrayList<>();
+            for (CaptureSession releasedSession : mReleasedCaptureSessions.keySet()) {
+                futureList.add(releasedSession.getStartStreamingFuture());
+            }
+
+            openCaptureSession = FutureChain.from(
+                    Futures.successfulAsList(futureList)).transformAsync(v -> {
+                        // To close the camera, create the new CaptureSession or receive camera
+                        // error will release the previous CaptureSession. If the state of
+                        // CaptureSession is released, it is mean there are multiple CaptureSession
+                        // actions while waiting for a list of futures to complete. Then only the
+                        // last CaptureSession that we create should actually open a CaptureSession.
+                        if (captureSession.getState() == CaptureSession.State.RELEASED) {
+                            return Futures.immediateFailedFuture(new CancellationException(
+                                    "The capture session has been released before."));
+                        } else {
+                            // The camera state should be opened. Otherwise, this CaptureSession
+                            // should be released.
+                            Preconditions.checkState(mState == InternalState.OPENED);
+                            return captureSession.open(validatingBuilder.build(), mCameraDevice);
+                        }
+                    }, mExecutor);
+        }
+
         Futures.addCallback(openCaptureSession, new FutureCallback<Void>() {
             @Override
             @ExecutedBy("mExecutor")
@@ -870,6 +897,12 @@ final class Camera2CameraImpl implements CameraInternal {
                 }
             }
         }, mExecutor);
+    }
+
+    private boolean isLegacyDevice() {
+        Camera2CameraInfoImpl camera2CameraInfo = (Camera2CameraInfoImpl) getCameraInfoInternal();
+        return camera2CameraInfo.getSupportedHardwareLevel()
+                == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */

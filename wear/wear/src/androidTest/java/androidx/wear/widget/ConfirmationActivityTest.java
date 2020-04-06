@@ -39,7 +39,7 @@ public class ConfirmationActivityTest {
 
     // Number of milliseconds before the end of the duration period that we should check that the
     // ConfirmationActivity still has focus
-    private static final int MILLIS_BEFORE_END_OF_DURATION = 250;
+    private static final int MILLIS_BEFORE_END_OF_DURATION = 450;
 
     // Number of milliseconds after the end of the duration period that we should wait before the
     // ConfirmationActivity still lost focus

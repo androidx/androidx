@@ -45,6 +45,7 @@ class LegacyPagingSourceTest {
 
     @Test
     fun item() {
+        @Suppress("DEPRECATION")
         val dataSource = object : ItemKeyedDataSource<Int, String>() {
             override fun loadInitial(
                 params: LoadInitialParams<Int>,
@@ -78,6 +79,7 @@ class LegacyPagingSourceTest {
 
     @Test
     fun page() {
+        @Suppress("DEPRECATION")
         val dataSource = object : PageKeyedDataSource<Int, String>() {
             override fun loadInitial(
                 params: LoadInitialParams<Int>,
@@ -182,6 +184,7 @@ class LegacyPagingSourceTest {
         assertTrue { dataSource.isInvalid }
     }
 
+    @Suppress("DEPRECATION")
     private fun createTestPositionalDataSource() = object : PositionalDataSource<String>() {
         override fun loadInitial(
             params: LoadInitialParams,

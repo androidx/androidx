@@ -149,17 +149,6 @@ class DrawerTest {
     }
 
     @Test
-    fun staticDrawer_testWidth_whenOpened() {
-        composeTestRule
-            .setMaterialContentAndCollectSizes {
-                StaticDrawer {
-                    Box(Modifier.fillMaxSize())
-                }
-            }
-            .assertWidthEqualsTo(256.dp)
-    }
-
-    @Test
     @Ignore("failing in postsubmit, fix in b/148751721")
     fun modalDrawer_openAndClose() {
         var contentWidth: IntPx? = null

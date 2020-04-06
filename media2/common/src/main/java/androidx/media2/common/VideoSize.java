@@ -33,6 +33,8 @@ public class VideoSize implements VersionedParcelable {
     @ParcelField(2)
     int mHeight;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Used for VersionedParcelable
      */

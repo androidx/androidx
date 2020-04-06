@@ -86,6 +86,8 @@ public class MediaItem extends CustomVersionedParcelable {
     @ParcelField(3)
     long mEndPositionMs = POSITION_UNKNOWN;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     @GuardedBy("mLock")
     @NonParcelField
     private final List<Pair<OnMetadataChangedListener, Executor>> mListeners = new ArrayList<>();

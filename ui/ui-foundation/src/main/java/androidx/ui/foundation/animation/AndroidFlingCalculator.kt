@@ -17,6 +17,7 @@
 package androidx.ui.foundation.animation
 
 import android.view.ViewConfiguration
+import androidx.ui.core.DensityAmbient
 import androidx.ui.unit.Density
 import kotlin.math.exp
 import kotlin.math.ln
@@ -49,6 +50,8 @@ private fun computeDeceleration(friction: Float, density: Float): Float =
 
 /**
  * Configuration for Android-feel flinging motion at the given density.
+ *
+ * @param density density of the screen. Use [DensityAmbient] to get current density in composition.
  */
 class AndroidFlingCalculator(
     val density: Density
@@ -118,6 +121,7 @@ class AndroidFlingCalculator(
             return distance * sign(initialVelocity) *
                     AndroidFlingSpline.flingPosition(splinePos).distanceCoefficient
         }
+
         fun velocity(time: Long): Float {
             val splinePos = if (duration > 0) time / duration.toFloat() else 1f
             return AndroidFlingSpline.flingPosition(splinePos).velocityCoefficient *

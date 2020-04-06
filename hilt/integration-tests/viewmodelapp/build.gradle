@@ -36,8 +36,8 @@ android {
 dependencies {
     implementation(project(":activity:activity"))
     implementation(project(":fragment:fragment-ktx"))
-    implementation(project(":lifecycle:lifecycle-viewmodel-hilt"))
-    kapt(project(":lifecycle:lifecycle-viewmodel-hilt-compiler"))
+    implementation(project(":hilt:hilt-lifecycle-viewmodel"))
+    kapt(project(":hilt:hilt-compiler"))
     implementation(KOTLIN_STDLIB)
     implementation(DAGGER)
     kapt(DAGGER_COMPILER)

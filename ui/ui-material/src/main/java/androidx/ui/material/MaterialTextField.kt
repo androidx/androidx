@@ -21,6 +21,7 @@ import androidx.animation.TransitionSpec
 import androidx.animation.TweenBuilder
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.emptyContent
 import androidx.compose.getValue
 import androidx.compose.remember
@@ -42,7 +43,7 @@ import androidx.ui.core.offset
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.ProvideContentColor
+import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
@@ -319,7 +320,7 @@ private fun Decoration(
     children: @Composable() () -> Unit
 ) {
     ProvideTextStyle(typography) {
-        ProvideContentColor(contentColor) {
+        Providers(ContentColorAmbient provides contentColor) {
             if (emphasis != null) {
                 ProvideEmphasis(emphasis, children)
             } else {

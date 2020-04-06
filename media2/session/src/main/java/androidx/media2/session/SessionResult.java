@@ -92,6 +92,8 @@ public class SessionResult extends CustomVersionedParcelable implements RemoteRe
     @ParcelField(4)
     MediaItem mParcelableItem;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /**
      * Constructor to be used by {@link MediaSession.SessionCallback#onCustomCommand(
      * MediaSession, MediaSession.ControllerInfo, SessionCommand, Bundle)}.

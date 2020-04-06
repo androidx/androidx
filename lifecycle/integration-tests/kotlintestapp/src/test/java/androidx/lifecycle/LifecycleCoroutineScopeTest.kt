@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+
 package androidx.lifecycle
 
 import kotlinx.coroutines.Dispatchers

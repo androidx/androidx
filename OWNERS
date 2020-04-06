@@ -21,3 +21,6 @@ siyamed@google.com
 sjgilbert@google.com
 sumir@google.com
 yboyar@google.com
+
+per-file *settings.gradle = set noparent
+per-file *settings.gradle = nickanthony@google.com, alanv@google.com, aurimas@google.com

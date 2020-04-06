@@ -84,6 +84,9 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
             }
         }
 
+        if (wrapper != null) {
+            wrapper.setDisabled();
+        }
         mCameraManager.unregisterAvailabilityCallback(wrapper);
     }
 

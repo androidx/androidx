@@ -64,6 +64,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
+import androidx.core.os.HandlerCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
@@ -494,6 +495,23 @@ public final class CaptureSessionTest {
     }
 
     @Test
+    public void startStreamingAfterOpenCaptureSession()
+            throws InterruptedException, ExecutionException {
+        CaptureSession captureSession = createCaptureSession(mTestParameters0);
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
+
+        assertTrue(mTestParameters0.waitForData());
+        assertThat(captureSession.getState()).isEqualTo(State.OPENED);
+        assertFutureCompletes(captureSession.getStartStreamingFuture(), 5,
+                TimeUnit.SECONDS);
+
+        verify(mTestParameters0.mCamera2CaptureCallback, timeout(3000).atLeastOnce())
+                .onCaptureStarted(any(CameraCaptureSession.class), any(CaptureRequest.class),
+                        any(Long.class), any(Long.class));
+    }
+
+    @Test
     public void surfaceTerminationFutureIsCalledWhenSessionIsClose()
             throws InterruptedException, ExecutionException {
         mTestParameters0.setCloseSurfaceOnSessionClose(true);
@@ -632,7 +650,7 @@ public final class CaptureSessionTest {
 
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get());
         Future<Void> releaseFuture = captureSession.release(false);
-        assertFutureCompletes(releaseFuture, 5 , TimeUnit.SECONDS);
+        assertFutureCompletes(releaseFuture, 5, TimeUnit.SECONDS);
 
         // The captureSession state should change to RELEASED state
         assertThat(captureSession.getState()).isEqualTo(State.RELEASED);
@@ -802,6 +820,8 @@ public final class CaptureSessionTest {
                 Mockito.mock(CameraCaptureCallback.class);
         private final CameraCaptureCallback mCameraCaptureCallback =
                 Mockito.mock(CameraCaptureCallback.class);
+        private final CameraCaptureSession.CaptureCallback mCamera2CaptureCallback =
+                Mockito.mock(CameraCaptureSession.CaptureCallback.class);
 
         private final DeferrableSurface mDeferrableSurface;
         /**
@@ -822,7 +842,7 @@ public final class CaptureSessionTest {
         CaptureSessionTestParameters(String name) {
             mHandlerThread = new HandlerThread(name);
             mHandlerThread.start();
-            mHandler = new Handler(mHandlerThread.getLooper());
+            mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
             mExecutor = CameraXExecutors.newHandlerExecutor(mHandler);
             mScheduledExecutor = CameraXExecutors.newHandlerExecutor(mHandler);
@@ -837,6 +857,8 @@ public final class CaptureSessionTest {
             builder.addSurface(mDeferrableSurface);
             builder.addSessionStateCallback(mSessionStateCallback);
             builder.addRepeatingCameraCaptureCallback(mSessionCameraCaptureCallback);
+            builder.addRepeatingCameraCaptureCallback(
+                    CaptureCallbackContainer.create(mCamera2CaptureCallback));
 
             MutableOptionsBundle testCallbackConfig = MutableOptionsBundle.create();
             testCallbackConfig.insertOption(Camera2ImplConfig.CAMERA_EVENT_CALLBACK_OPTION,

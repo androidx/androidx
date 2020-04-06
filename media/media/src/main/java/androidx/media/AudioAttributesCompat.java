@@ -241,6 +241,8 @@ public class AudioAttributesCompat implements VersionedParcelable {
     @ParcelField(1)
     public AudioAttributesImpl mImpl;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the
     // constructor.

@@ -78,6 +78,8 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
     @ParcelField(4)
     public int mLegacyStream = INVALID_STREAM_TYPE;
 
+    // WARNING: Adding a new ParcelField may break old library users (b/152830728)
+
     /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the
     // constructor.

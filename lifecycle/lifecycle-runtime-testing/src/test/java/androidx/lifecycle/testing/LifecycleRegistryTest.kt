@@ -26,8 +26,11 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class LifecycleRegistryTest {
-    private val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED,
-        TestCoroutineDispatcher())
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    private val lifecycleOwner = TestLifecycleOwner(
+        Lifecycle.State.INITIALIZED,
+        TestCoroutineDispatcher()
+    )
 
     @Test
     fun getCurrentState() {
