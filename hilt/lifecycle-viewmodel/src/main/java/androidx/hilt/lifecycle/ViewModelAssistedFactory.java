@@ -14,19 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.hilt.integration.viewmodelapp
+package androidx.hilt.lifecycle;
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.hilt.lifecycle.ViewModelInject
-import javax.inject.Inject
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.lifecycle.SavedStateHandle;
+import androidx.lifecycle.ViewModel;
 
-@Suppress("UNUSED_PARAMETER")
-class SimpleViewModel @ViewModelInject constructor(
-    mngr: MyManager,
-    savedState: SavedStateHandle
-) : ViewModel() {
-    fun hi() = "$this - hi"
+/**
+ * Factory interface to be implemented by generated code.
+ *
+ * @param <T> The ViewModel type.
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public interface ViewModelAssistedFactory<T extends ViewModel> {
+    /**
+     * Create the ViewModel.
+     *
+     * @param handle the saved state handle.
+     * @return the created ViewModel.
+     */
+    @NonNull T create(@NonNull SavedStateHandle handle);
 }
-
-class MyManager @Inject constructor()

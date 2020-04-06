@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.hilt.integration.viewmodelapp
+package androidx.hilt.lifecycle;
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.hilt.lifecycle.ViewModelInject
-import javax.inject.Inject
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Suppress("UNUSED_PARAMETER")
-class SimpleViewModel @ViewModelInject constructor(
-    mngr: MyManager,
-    savedState: SavedStateHandle
-) : ViewModel() {
-    fun hi() = "$this - hi"
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import javax.inject.Qualifier;
+
+/**
+ * Qualifier for requesting the activity level {@link ViewModelFactory}
+ */
+@Target({METHOD, PARAMETER, FIELD})
+@Retention(RUNTIME)
+@Qualifier
+public @interface ActivityViewModelFactory {
 }
-
-class MyManager @Inject constructor()

@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.hilt.integration.viewmodelapp
+package androidx.hilt.lifecycle;
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.hilt.lifecycle.ViewModelInject
-import javax.inject.Inject
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Suppress("UNUSED_PARAMETER")
-class SimpleViewModel @ViewModelInject constructor(
-    mngr: MyManager,
-    savedState: SavedStateHandle
-) : ViewModel() {
-    fun hi() = "$this - hi"
+import dagger.hilt.GeneratesRootInput;
+
+/**
+ * Identifies a {@link androidx.lifecycle.ViewModel}'s constructor for injection.
+ */
+@Target(ElementType.CONSTRUCTOR)
+@Retention(RetentionPolicy.CLASS)
+@GeneratesRootInput
+public @interface ViewModelInject {
 }
-
-class MyManager @Inject constructor()
