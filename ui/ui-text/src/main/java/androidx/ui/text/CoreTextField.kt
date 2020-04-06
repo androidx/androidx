@@ -100,8 +100,6 @@ fun CoreTextField(
         state.textDelegate = updateTextDelegate(
             current = state.textDelegate,
             text = visualText,
-            // TODO(143536715): TextField should use currentTextStyle() here, so we need a higher
-            // level TextField
             style = textStyle,
             density = density,
             resourceLoader = resourceLoader
