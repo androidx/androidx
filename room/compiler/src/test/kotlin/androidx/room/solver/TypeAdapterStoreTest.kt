@@ -18,7 +18,6 @@ package androidx.room.solver
 
 import COMMON
 import androidx.paging.DataSource
-import androidx.paging.PositionalDataSource
 import androidx.room.Entity
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.L
@@ -406,8 +405,9 @@ class TypeAdapterStoreTest {
     fun findPositionalDataSource() {
         simpleRun {
             invocation ->
+            @Suppress("DEPRECATION")
             val dataSource = invocation.processingEnv.elementUtils
-                    .getTypeElement(PositionalDataSource::class.java.canonicalName)
+                    .getTypeElement(androidx.paging.PositionalDataSource::class.java.canonicalName)
             assertThat(dataSource, notNullValue())
             assertThat(DataSourceQueryResultBinderProvider(invocation.context).matches(
                     MoreTypes.asDeclared(dataSource.asType())), `is`(true))

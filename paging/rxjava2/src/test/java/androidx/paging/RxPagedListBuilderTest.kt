@@ -105,6 +105,7 @@ class RxPagedListBuilderTest {
             .setFetchScheduler(scheduler)
             .setNotifyScheduler(scheduler)
             .buildObservable()
+        @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
 
         observable.subscribe(observer)
@@ -138,6 +139,7 @@ class RxPagedListBuilderTest {
             .setFetchScheduler(fetchScheduler)
             .setNotifyScheduler(notifyScheduler)
             .buildObservable()
+        @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
         observable.subscribe(observer)
 
@@ -169,6 +171,7 @@ class RxPagedListBuilderTest {
             .setNotifyScheduler(notifyScheduler)
             .buildObservable()
 
+        @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
         observable.subscribe(observer)
 

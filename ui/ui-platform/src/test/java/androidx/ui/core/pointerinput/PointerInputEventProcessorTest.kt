@@ -1930,7 +1930,6 @@ class PointerInputEventProcessorTest {
         // Arrange
 
         val pointerInputFilter: PointerInputFilter = spy()
-        val cancelHandler: () -> Unit = spy()
         val layoutNode = LayoutNode(
             0, 0, 500, 500,
             PointerInputModifierImpl(pointerInputFilter)

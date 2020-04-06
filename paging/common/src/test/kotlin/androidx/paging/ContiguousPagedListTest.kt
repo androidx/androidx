@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@file:Suppress("DEPRECATION")
+
 package androidx.paging
 
 import androidx.paging.ItemKeyedDataSourceTest.ItemDataSource

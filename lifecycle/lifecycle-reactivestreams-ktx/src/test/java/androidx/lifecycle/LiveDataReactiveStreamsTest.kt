@@ -32,6 +32,7 @@ class LiveDataReactiveStreamsTest {
     private lateinit var lifecycleOwner: LifecycleOwner
 
     @Before fun init() {
+        @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
         lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = TestCoroutineDispatcher())
     }
 
