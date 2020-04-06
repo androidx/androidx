@@ -33,16 +33,15 @@ val PressTimeout: Duration = 100.milliseconds
 
 /**
  * Maximum length of time between a tap down and a tap up for the gesture to be
- * considered a tap. (Currently not honored by the TapGestureRecognizer.)
+ * considered a tap. (Currently not honored by the TapGestureFilter.)
  */
-// TODO(shepshapard): Remove this, or implement a hover-tap gesture recognizer which
+// TODO(shepshapard): Remove this, or implement a hover-tap gesture filter which
 // uses this.
 val HoverTapTimeout: Duration = 150.milliseconds
 
 /**
  * Maximum distance between the down and up pointers for a tap. (Currently not
- * honored by the [TapGestureRecognizer]; [PrimaryPointerGestureRecognizer],
- * which TapGestureRecognizer inherits from, uses [kTouchSlop].)
+ * honored by the [TapGestureFilter].
  */
 // TODO(shepshapard): Remove this or implement it correctly.
 val HoverTapSlop = 20.dp
@@ -61,7 +60,7 @@ val DoubleTapTimeout: Duration = 300.milliseconds
 /**
  * The minimum time from the end of the first tap to the start of the second
  * tap in a double-tap gesture. (Currently not honored by the
- * DoubleTapGestureRecognizer.)
+ * DoubleTapGestureFilter.)
  */
 // TODO(shepshapard): Either implement this or remove the constant.
 val DoubleTapMinTime: Duration = 40.milliseconds
@@ -79,7 +78,7 @@ val TouchSlop = 18.dp
 /**
  * The maximum distance that the first touch in a double-tap gesture can travel
  * before deciding that it is not part of a double-tap gesture.
- * DoubleTapGestureRecognizer also restricts the second touch to this distance.
+ * DoubleTapGestureFilter also restricts the second touch to this distance.
  */
 val DoubleTapTouchSlop = TouchSlop
 
@@ -101,7 +100,7 @@ val ZoomControlsTimeout: Duration = 3000.milliseconds
  * the gesture is a paging gesture. (Currently not used, because paging uses a
  * regular drag gesture, which uses kTouchSlop.)
  */
-// TODO(shepshapard): Create variants of HorizontalDragGestureRecognizer et al for
+// TODO(shepshapard): Create variants of HorizontalDragGestureFilter et al for
 // paging, which use this constant.
 val PagingTouchSlop = TouchSlop * 2.dp
 

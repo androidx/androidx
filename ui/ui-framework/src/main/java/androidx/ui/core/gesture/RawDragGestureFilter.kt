@@ -127,13 +127,13 @@ fun Modifier.rawDragGestureFilter(
     dragObserver: DragObserver,
     canStartDragging: (() -> Boolean)? = null
 ): Modifier {
-    val recognizer = remember { RawDragGestureRecognizer() }
-    recognizer.dragObserver = dragObserver
-    recognizer.canStartDragging = canStartDragging
-    return this + PointerInputModifierImpl(recognizer)
+    val filter = remember { RawDragGestureFilter() }
+    filter.dragObserver = dragObserver
+    filter.canStartDragging = canStartDragging
+    return this + PointerInputModifierImpl(filter)
 }
 
-internal class RawDragGestureRecognizer : PointerInputFilter() {
+internal class RawDragGestureFilter : PointerInputFilter() {
     private val velocityTrackers: MutableMap<PointerId, VelocityTracker> = mutableMapOf()
     private val downPositions: MutableMap<PointerId, PxPosition> = mutableMapOf()
     private var started = false
