@@ -38,10 +38,13 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -203,19 +206,35 @@ final class Camera2CameraControl implements CameraControlInternal {
 
     /**
      * Issues a {@link CaptureRequest#CONTROL_AF_TRIGGER_START} request to start auto focus scan.
+     *
+     * @return a {@link ListenableFuture} which completes when the request is completed.
+     * Cancelling the ListenableFuture is a no-op.
      */
     @Override
-    public void triggerAf() {
-        mExecutor.execute(mFocusMeteringControl::triggerAf);
+    @NonNull
+    public ListenableFuture<CameraCaptureResult> triggerAf() {
+        return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    mExecutor.execute(() -> mFocusMeteringControl.triggerAf(completer));
+                    return "triggerAf";
+                }));
     }
 
     /**
      * Issues a {@link CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_START} request to start auto
      * exposure scan.
+     *
+     * @return a {@link ListenableFuture} which completes when the request is completed.
+     * Cancelling the ListenableFuture is a no-op.
      */
     @Override
-    public void triggerAePrecapture() {
-        mExecutor.execute(mFocusMeteringControl::triggerAePrecapture);
+    @NonNull
+    public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
+        return Futures.nonCancellationPropagating(CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    mExecutor.execute(() -> mFocusMeteringControl.triggerAePrecapture(completer));
+                    return "triggerAePrecapture";
+                }));
     }
 
     /**

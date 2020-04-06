@@ -40,6 +40,9 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.Manifest;
+import android.app.Instrumentation;
+import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
@@ -48,27 +51,38 @@ import android.os.Handler;
 import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraX;
+import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
+import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
+import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.core.os.HandlerCompat;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -82,6 +96,10 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2CameraControlTest {
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.CAMERA);
+
     private Camera2CameraControl mCamera2CameraControl;
     private CameraControlInternal.ControlUpdateCallback mControlUpdateCallback;
     private ArgumentCaptor<SessionConfig> mSessionConfigArgumentCaptor =
@@ -93,10 +111,16 @@ public final class Camera2CameraControlTest {
     private Handler mHandler;
     private CameraCharacteristics mCameraCharacteristics;
     private boolean mHasFlashUnit;
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private Camera mCamera;
 
     @Before
     public void setUp() throws InterruptedException {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraXConfig config = Camera2Config.defaultConfig();
+        CameraX.initialize(context, config);
 
         mCameraCharacteristics = CameraUtil.getCameraCharacteristics(
                 CameraSelector.LENS_FACING_BACK);
@@ -122,7 +146,11 @@ public final class Camera2CameraControlTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        if (CameraX.isInitialized()) {
+            mInstrumentation.runOnMainSync(CameraX::unbindAll);
+        }
+        CameraX.shutdown().get();
         if (mHandlerThread != null) {
             mHandlerThread.quitSafely();
         }
@@ -293,6 +321,35 @@ public final class Camera2CameraControlTest {
                 resultCaptureConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_TRIGGER, null))
                 .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START);
+    }
+
+    @Test
+    public void triggerAf_futureSucceeds() throws Exception {
+        Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
+        ListenableFuture<CameraCaptureResult> future = camera2CameraControl.triggerAf();
+        future.get(5, TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void triggerAePrecapture_futureSucceeds() throws Exception {
+        Camera2CameraControl camera2CameraControl = createCamera2CameraControlWithPhysicalCamera();
+        ListenableFuture<CameraCaptureResult> future = camera2CameraControl.triggerAePrecapture();
+        future.get(5, TimeUnit.SECONDS);
+    }
+
+
+    private Camera2CameraControl createCamera2CameraControlWithPhysicalCamera() {
+        FakeLifecycleOwner lifecycleOwner = new FakeLifecycleOwner();
+        lifecycleOwner.startAndResume();
+        CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        // Make ImageAnalysis active.
+        imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), (image) -> image.close());
+        mInstrumentation.runOnMainSync(() ->
+                mCamera =
+                        CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, imageAnalysis));
+        return (Camera2CameraControl) mCamera.getCameraControl();
     }
 
     @Test
