@@ -29,12 +29,34 @@ import java.lang.reflect.Modifier
 private const val DEFAULT_SUFFIX = "\$default"
 
 /**
+ * Returns true if the [methodTypes] and [actualTypes] are compatible. This means that every
+ * `actualTypes[n]` are assignable to `methodTypes[n]`.
+ */
+private fun compatibleTypes(methodTypes: Array<Class<*>>, actualTypes: Array<Class<*>>): Boolean =
+    methodTypes.size == actualTypes.size &&
+            methodTypes.mapIndexed { index, clazz -> clazz.isAssignableFrom(actualTypes[index]) }
+                .all { it }
+
+/**
+ * Same as [Class#getDeclaredMethod] but it accounts for compatible types so the signature does
+ * not need to exactly match. This allows finding method calls that use subclasses as parameters
+ * instead of the exact types.
+ */
+private fun Class<*>.getDeclaredCompatibleMethod(methodName: String, vararg args: Class<*>):
+        Method {
+    val actualTypes: Array<Class<*>> = arrayOf(*args)
+    return declaredMethods.firstOrNull {
+        methodName == it.name && compatibleTypes(it.parameterTypes, actualTypes)
+    } ?: throw NoSuchMethodException("$methodName not found")
+}
+
+/**
  * Find the given method by name. If the method has parameters, this function will try to find
  * the version that accepts default parameters.
  */
 private fun Class<*>.findComposableMethod(methodName: String, vararg args: Any?): Method {
     val method = try {
-        getDeclaredMethod(
+        getDeclaredCompatibleMethod(
             methodName,
             *args.mapNotNull { it?.javaClass }.toTypedArray(),
             Composer::class.java
