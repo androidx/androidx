@@ -22,12 +22,18 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
+import androidx.ui.core.Ref
+import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
+import androidx.ui.core.positionInRoot
+import androidx.ui.layout.Column
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.ltr
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
@@ -41,6 +47,7 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.min
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
+import androidx.ui.unit.toPxSize
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -279,6 +286,48 @@ class LayoutPaddingTest : LayoutTest() {
             childPosition[2]
         )
         assertEquals(IntPxSize(size, size), childSize[2])
+    }
+
+    @Test
+    fun testPaddingRtl_whenBetweenLayoutDirectionModifiers() = with(density) {
+        val padding = 50.ipx
+        val size = 300.ipx
+        val paddingDp = padding.toDp()
+        val latch = CountDownLatch(1)
+        val resultPosition = Ref<PxPosition>()
+        val resultSize = Ref<IntPxSize>()
+
+        show {
+            Column(Modifier.rtl) {
+                Stack(Modifier
+                    .preferredSize(size.toDp())
+                    .ltr
+                    .padding(start = paddingDp)
+                    .rtl
+                    .onChildPositioned {
+                        resultPosition.value = it.positionInRoot
+                        resultSize.value = it.size
+                        latch.countDown()
+                    }
+                ) {
+                    Stack(Modifier.fillMaxSize()) {}
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        val root = findOwnerView()
+        waitForDraw(root)
+        val rootWidth = root.width.ipx
+
+        assertEquals(
+            IntPxSize(size - padding, size).toPxSize(),
+            resultSize.value?.toPxSize()
+        )
+        assertEquals(
+            PxPosition(rootWidth - size + padding, 0.ipx),
+            resultPosition.value
+        )
     }
 
     private fun testPaddingIsAppliedImplementation(
