@@ -16,7 +16,7 @@
 
 package androidx.activity.result.contract;
 
-import static androidx.activity.result.contract.ActivityResultContracts.RequestPermissions.EXTRA_PERMISSION_GRANT_RESULTS;
+import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions.EXTRA_PERMISSION_GRANT_RESULTS;
 
 import static java.util.Collections.emptyMap;
 
@@ -133,7 +133,7 @@ public final class ActivityResultContracts {
     /**
      * An {@link ActivityResultContract} to {@link Activity#requestPermissions request permissions}
      */
-    public static final class RequestPermissions
+    public static final class RequestMultiplePermissions
             extends ActivityResultContract<String[], java.util.Map<String, Boolean>> {
 
 
@@ -231,7 +231,7 @@ public final class ActivityResultContracts {
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull String input) {
-            return RequestPermissions.createIntent(new String[] { input });
+            return RequestMultiplePermissions.createIntent(new String[] { input });
         }
 
         @NonNull
@@ -435,7 +435,7 @@ public final class ActivityResultContracts {
      * extras to the Intent created by {@code super.createIntent()}.
      */
     @TargetApi(18)
-    public static class GetContents extends ActivityResultContract<String, List<Uri>> {
+    public static class GetMultipleContents extends ActivityResultContract<String, List<Uri>> {
 
         @CallSuper
         @NonNull
@@ -534,7 +534,7 @@ public final class ActivityResultContracts {
      * @see DocumentsContract
      */
     @TargetApi(19)
-    public static class OpenDocuments extends ActivityResultContract<String[], List<Uri>> {
+    public static class OpenMultipleDocuments extends ActivityResultContract<String[], List<Uri>> {
 
         @CallSuper
         @NonNull
@@ -557,7 +557,7 @@ public final class ActivityResultContracts {
         @Override
         public final List<Uri> parseResult(int resultCode, @Nullable Intent intent) {
             if (resultCode != Activity.RESULT_OK || intent == null) return null;
-            return GetContents.getClipDataUris(intent);
+            return GetMultipleContents.getClipDataUris(intent);
         }
     }
 
