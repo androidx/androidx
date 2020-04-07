@@ -663,9 +663,9 @@ package androidx.ui.layout {
     method public static androidx.ui.core.Modifier sizeIn(androidx.ui.core.Modifier, androidx.ui.layout.DpConstraints constraints);
     method public static androidx.ui.core.Modifier width(androidx.ui.core.Modifier, androidx.ui.unit.Dp width);
     method public static androidx.ui.core.Modifier widthIn(androidx.ui.core.Modifier, androidx.ui.unit.Dp minWidth = Dp.Unspecified, androidx.ui.unit.Dp maxWidth = Dp.Unspecified);
-    method public static androidx.ui.core.Modifier wrapContentHeight(androidx.ui.core.Modifier, androidx.ui.core.Alignment align = Center);
-    method public static androidx.ui.core.Modifier wrapContentSize(androidx.ui.core.Modifier, androidx.ui.core.Alignment align = Center);
-    method public static androidx.ui.core.Modifier wrapContentWidth(androidx.ui.core.Modifier, androidx.ui.core.Alignment align = Center);
+    method public static androidx.ui.core.Modifier wrapContentHeight(androidx.ui.core.Modifier, androidx.ui.core.Alignment align = Alignment.Center);
+    method public static androidx.ui.core.Modifier wrapContentSize(androidx.ui.core.Modifier, androidx.ui.core.Alignment align = Alignment.Center);
+    method public static androidx.ui.core.Modifier wrapContentWidth(androidx.ui.core.Modifier, androidx.ui.core.Alignment align = Alignment.Center);
   }
 
   public final class LayoutWidth implements androidx.ui.core.LayoutModifier {
@@ -880,7 +880,7 @@ package androidx.ui.layout {
   }
 
   public final class TableKt {
-    method public static void Table(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.core.Alignment> alignment = { Alignment.TopStart }, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> children);
+    method public static void Table(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,androidx.ui.core.Alignment> alignment = { Alignment.TopStart }, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> children);
   }
 
   public final class TableMeasurable {

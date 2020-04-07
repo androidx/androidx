@@ -274,6 +274,7 @@ class StackScope {
         Alignment.BottomStart -> BottomStartGravityModifier
         Alignment.BottomCenter -> BottomCenterGravityModifier
         Alignment.BottomEnd -> BottomEndGravityModifier
+        else -> error("Unexpected alignment")
     }
 
     /**
