@@ -5,8 +5,7 @@ package androidx.wear.activity {
     ctor public ConfirmationActivity();
     method protected void onAnimationFinished();
     method public void onCreate(android.os.Bundle!);
-    field public static final int DEFAULT_ANIMATION_DURATION_MS = 1000; // 0x3e8
-    field public static final String EXTRA_ANIMATION_DURATION_MS = "androidx.wear.activity.extra.ANIMATION_DURATION_MS";
+    field public static final String EXTRA_ANIMATION_DURATION_MILLIS = "androidx.wear.activity.extra.ANIMATION_DURATION_MILLIS";
     field public static final String EXTRA_ANIMATION_TYPE = "androidx.wear.activity.extra.ANIMATION_TYPE";
     field public static final String EXTRA_MESSAGE = "androidx.wear.activity.extra.MESSAGE";
     field public static final int FAILURE_ANIMATION = 3; // 0x3
