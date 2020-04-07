@@ -166,6 +166,7 @@ message Event {
   // Wrapped specialised Event.
   oneof OneOf {
     DatabaseOpenedEvent database_opened = 1;
+    DatabasePossiblyChangedEvent database_possibly_changed = 2;
     ErrorOccurredEvent error_occurred = 400;
   }
 }
@@ -180,6 +181,13 @@ message DatabaseOpenedEvent {
   // a vanilla SQLite database a path to the database. Note: it is not
   // necessarily unique between databases.
   string name = 2;
+}
+
+// An event sent when an operation that could potentially change the contents of a database has
+// been detected. The event might be used in triggering a refresh of currently displayed query
+// results to keep the results current.
+message DatabasePossiblyChangedEvent {
+    // TODO: add database id
 }
 
 // General Error message.
