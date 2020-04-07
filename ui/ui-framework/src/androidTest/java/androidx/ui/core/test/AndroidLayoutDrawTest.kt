@@ -40,9 +40,7 @@ import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.ContentDrawScope
@@ -74,14 +72,14 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
+import androidx.ui.layout.ltr
+import androidx.ui.layout.rtl
 import androidx.ui.layout.size
-import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxSize
-import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
@@ -1696,6 +1694,68 @@ class AndroidLayoutDrawTest {
             }
         }
         validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 10)
+    }
+
+    @Test
+    fun drawModifier_afterRtlModifier_testLayoutDirection() {
+        val drawLatch = CountDownLatch(1)
+        var layoutDirection = Ref<LayoutDirection>()
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(
+                    50.ipx,
+                    Modifier.rtl.drawBehind {
+                        layoutDirection.value = this.layoutDirection
+                        drawLatch.countDown()
+                    }
+                )
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(LayoutDirection.Rtl, layoutDirection.value)
+    }
+
+    @Test
+    fun drawModifier_beforeRtlModifiers_testLayoutDirection() {
+        val drawLatch = CountDownLatch(1)
+        var layoutDirection = Ref<LayoutDirection>()
+
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(
+                    50.ipx,
+                    Modifier.drawBehind {
+                        layoutDirection.value = this.layoutDirection
+                        drawLatch.countDown()
+                    }.ltr.rtl
+                )
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(LayoutDirection.Ltr, layoutDirection.value)
+    }
+
+    @Test
+    fun drawModifier_betweenRtlModifiers_testLayoutDirection() {
+        val drawLatch = CountDownLatch(1)
+        var layoutDirection = Ref<LayoutDirection>()
+
+        activityTestRule.runOnUiThreadIR {
+            activity.setContentInFrameLayout {
+                FixedSize(
+                    50.ipx,
+                    Modifier.rtl.drawBehind {
+                        layoutDirection.value = this.layoutDirection
+                        drawLatch.countDown()
+                    }.ltr
+                )
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(LayoutDirection.Ltr, layoutDirection.value)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

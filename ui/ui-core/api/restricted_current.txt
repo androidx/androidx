@@ -164,7 +164,9 @@ package androidx.ui.core {
   }
 
   public interface DrawScope extends androidx.ui.graphics.Canvas androidx.ui.unit.Density {
+    method public androidx.ui.core.LayoutDirection getLayoutDirection();
     method public androidx.ui.unit.PxSize getSize();
+    property public abstract androidx.ui.core.LayoutDirection layoutDirection;
     property public abstract androidx.ui.unit.PxSize size;
   }
 

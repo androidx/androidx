@@ -742,6 +742,9 @@ internal class AndroidComposeView constructor(
         var currentDensity: Density
     ) : Canvas by canvas, Density by currentDensity, ContentDrawScope {
         internal var childDrawn = false
+        // Draw composable does not support Rtl and will be removed soon anyway.
+        // The only place where Draw is in use is Table which will be updated anyway b/150276337.
+        override val layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
         override fun drawContent() {
             if (childDrawn) {
