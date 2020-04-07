@@ -26,12 +26,58 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @RunWith(JUnit4.class)
 public class SimpleArrayMapTest {
+    @Test
+    @SuppressWarnings({"SimplifiableJUnitAssertion", "EqualsWithItself",
+            "EqualsBetweenInconvertibleTypes"})
+    public void equalsEmpty() {
+        SimpleArrayMap<String, String> empty = new SimpleArrayMap<>();
+
+        assertTrue(empty.equals(empty));
+        assertTrue(empty.equals(Collections.emptyMap()));
+        assertTrue(empty.equals(new SimpleArrayMap<String, String>()));
+        assertTrue(empty.equals(new HashMap<String, String>()));
+
+        assertFalse(empty.equals(Collections.singletonMap("foo", "bar")));
+
+        SimpleArrayMap<String, String> simpleArrayMapNotEmpty = new SimpleArrayMap<>();
+        simpleArrayMapNotEmpty.put("foo", "bar");
+        assertFalse(empty.equals(simpleArrayMapNotEmpty));
+
+        HashMap<String, String> hashMapNotEquals = new HashMap<>();
+        hashMapNotEquals.put("foo", "bar");
+        assertFalse(empty.equals(hashMapNotEquals));
+    }
+
+    @Test
+    @SuppressWarnings({"SimplifiableJUnitAssertion", "EqualsWithItself",
+            "EqualsBetweenInconvertibleTypes"})
+    public void equalsNonEmpty() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("foo", "bar");
+
+        assertTrue(map.equals(map));
+        assertTrue(map.equals(Collections.singletonMap("foo", "bar")));
+
+        SimpleArrayMap<String, String> otherSimpleArrayMap = new SimpleArrayMap<>();
+        otherSimpleArrayMap.put("foo", "bar");
+
+        HashMap<String, String> otherHashMap = new HashMap<>();
+        otherHashMap.put("foo", "bar");
+        assertTrue(map.equals(otherHashMap));
+
+        assertFalse(map.equals(Collections.emptyMap()));
+        assertFalse(map.equals(new SimpleArrayMap<String, String>()));
+        assertFalse(map.equals(new HashMap<String, String>()));
+    }
+
     @Test
     public void getOrDefaultPrefersStoredValue() {
         SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
