@@ -35,7 +35,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
@@ -53,11 +52,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.util.FakeRepeatingUseCase;
-import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -74,6 +71,7 @@ import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCaptureStage;
@@ -129,35 +127,15 @@ public final class ImageCaptureTest {
     private ImageCapture.Builder mDefaultBuilder;
     private FakeRepeatingUseCase mRepeatingUseCase;
     private FakeUseCaseConfig mFakeUseCaseConfig;
-    private String mCameraId;
     private FakeLifecycleOwner mLifecycleOwner;
     private Executor mMainExecutor;
     private ContentResolver mContentResolver;
 
-    private ImageCaptureConfig createNonRotatedConfiguration()
-            throws CameraInfoUnavailableException {
+    private ImageCaptureConfig createNonRotatedConfiguration() {
         // Create a configuration with target rotation that matches the sensor rotation.
         // This assumes a back-facing camera (facing away from screen)
-        String backCameraId = CameraX.getCameraWithLensFacing(BACK_LENS_FACING);
-        int sensorRotation = CameraX.getCameraInfo(backCameraId).getSensorRotationDegrees();
-
-        int surfaceRotation = Surface.ROTATION_0;
-        switch (sensorRotation) {
-            case 0:
-                surfaceRotation = Surface.ROTATION_0;
-                break;
-            case 90:
-                surfaceRotation = Surface.ROTATION_90;
-                break;
-            case 180:
-                surfaceRotation = Surface.ROTATION_180;
-                break;
-            case 270:
-                surfaceRotation = Surface.ROTATION_270;
-                break;
-            default:
-                throw new IllegalStateException("Invalid sensor rotation: " + sensorRotation);
-        }
+        Integer sensorRotation = CameraUtil.getSensorOrientation(BACK_LENS_FACING);
+        int surfaceRotation = CameraOrientationUtil.degreesToSurfaceRotation(sensorRotation);
 
         return new ImageCapture.Builder()
                 .setTargetRotation(surfaceRotation)
@@ -184,8 +162,7 @@ public final class ImageCaptureTest {
 
         // Get the camera ID
         mInstrumentation.runOnMainSync(() -> {
-            Camera camera = CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR);
-            mCameraId = Camera2CameraInfo.extractCameraId(camera.getCameraInfo());
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR);
         });
     }
 
@@ -247,9 +224,8 @@ public final class ImageCaptureTest {
 
             // Checks camera device sensor degrees to set correct target rotation value to make sure
             // the exactly matching result size 640x480 can be selected if the device supports it.
-            String cameraId = CameraX.getCameraFactory().cameraIdForLensFacing(lensFacing);
-            boolean isRotateNeeded = (CameraX.getCameraInfo(cameraId).getSensorRotationDegrees(
-                    Surface.ROTATION_0) % 180) != 0;
+            Integer sensorOrientation = CameraUtil.getSensorOrientation(BACK_LENS_FACING);
+            boolean isRotateNeeded = (sensorOrientation % 180) != 0;
             ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
                     GUARANTEED_RESOLUTION).setTargetRotation(
                     isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
@@ -647,9 +623,9 @@ public final class ImageCaptureTest {
 
     @Test
     public void takePicture_withBufferFormatRaw10()
-            throws CameraAccessException, ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException {
         CameraCharacteristics cameraCharacteristics =
-                CameraUtil.getCameraManager().getCameraCharacteristics(mCameraId);
+                CameraUtil.getCameraCharacteristics(BACK_LENS_FACING);
         StreamConfigurationMap map =
                 cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
         Size[] resolutions = map.getOutputSizes(ImageFormat.RAW10);
@@ -901,8 +877,7 @@ public final class ImageCaptureTest {
 
     @Test
     public void capturedImageHasCorrectCroppingSizeWithoutSettingRotation()
-            throws ExecutionException,
-            InterruptedException, CameraInfoUnavailableException {
+            throws ExecutionException, InterruptedException {
         ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).build();
 
@@ -939,13 +914,11 @@ public final class ImageCaptureTest {
 
     @Test
     public void capturedImageHasCorrectCroppingSizeSetRotationBuilder() throws ExecutionException,
-            InterruptedException, CameraInfoUnavailableException {
+            InterruptedException {
         // Checks camera device sensor degrees to set correct target rotation value to make sure
         // that the initial set target cropping aspect ratio matches the sensor orientation.
-        String cameraId = CameraX.getCameraFactory().cameraIdForLensFacing(
-                CameraSelector.LENS_FACING_BACK);
-        boolean isRotateNeeded = (CameraX.getCameraInfo(cameraId).getSensorRotationDegrees(
-                Surface.ROTATION_0) % 180) != 0;
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(BACK_LENS_FACING);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
         ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).setTargetRotation(
                 isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
@@ -984,13 +957,11 @@ public final class ImageCaptureTest {
     @Test
     public void capturedImageHasCorrectCroppingSize_setUseCaseRotation90FromRotationInBuilder()
             throws ExecutionException,
-            InterruptedException, CameraInfoUnavailableException {
+            InterruptedException {
         // Checks camera device sensor degrees to set correct target rotation value to make sure
         // that the initial set target cropping aspect ratio matches the sensor orientation.
-        String cameraId = CameraX.getCameraFactory().cameraIdForLensFacing(
-                CameraSelector.LENS_FACING_BACK);
-        boolean isRotateNeeded = (CameraX.getCameraInfo(cameraId).getSensorRotationDegrees(
-                Surface.ROTATION_0) % 180) != 0;
+        Integer sensorOrientation = CameraUtil.getSensorOrientation(BACK_LENS_FACING);
+        boolean isRotateNeeded = (sensorOrientation % 180) != 0;
         ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).setTargetRotation(
                 isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();

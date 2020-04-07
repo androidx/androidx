@@ -76,7 +76,6 @@ public final class CameraXTest {
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Context mContext;
-    private String mCameraId;
     private CameraInternal mCameraInternal;
     private FakeLifecycleOwner mLifecycle;
     private CameraXConfig.Builder mConfigBuilder;
@@ -95,7 +94,6 @@ public final class CameraXTest {
         mCameraInternal = new FakeCamera(mock(CameraControlInternal.class),
                 new FakeCameraInfoInternal(0, CAMERA_LENS_FACING));
         mFakeCameraFactory.insertCamera(CAMERA_LENS_FACING, CAMERA_ID, () -> mCameraInternal);
-        mFakeCameraFactory.setDefaultCameraIdForLensFacing(CAMERA_LENS_FACING, CAMERA_ID);
         mConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactoryProvider((ignored0, ignored1) -> mFakeCameraFactory)
@@ -104,8 +102,6 @@ public final class CameraXTest {
                         .setUseCaseConfigFactoryProvider(ignored -> mUseCaseConfigFactory);
 
         mLifecycle = new FakeLifecycleOwner();
-
-        mCameraId = mFakeCameraFactory.cameraIdForLensFacing(CAMERA_LENS_FACING);
     }
 
     @After
@@ -429,17 +425,16 @@ public final class CameraXTest {
                 fakeConfigBuilder.getUseCaseConfig());
 
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, fakeUseCase);
-        Mockito.verify(eventCallback).onBind(mCameraId);
+        Mockito.verify(eventCallback).onBind(CAMERA_ID);
 
         CameraX.unbind(fakeUseCase);
         Mockito.verify(eventCallback).onUnbind();
     }
 
     @Test
-    public void canRetrieveCameraInfo() throws CameraInfoUnavailableException {
+    public void canRetrieveCameraInfo() {
         initCameraX();
-        String cameraId = CameraX.getCameraWithLensFacing(CAMERA_LENS_FACING);
-        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(cameraId);
+        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(CAMERA_ID);
         assertThat(cameraInfoInternal).isNotNull();
         assertThat(cameraInfoInternal.getLensFacing()).isEqualTo(CAMERA_LENS_FACING);
     }

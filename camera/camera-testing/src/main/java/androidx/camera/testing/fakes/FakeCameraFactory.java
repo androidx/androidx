@@ -40,14 +40,8 @@ import java.util.concurrent.Callable;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeCameraFactory implements CameraFactory {
-
-    private static final String DEFAULT_BACK_ID = "0";
-    private static final String DEFAULT_FRONT_ID = "1";
-
     @Nullable
     private Set<String> mCachedCameraIds;
-    private String mFrontCameraId = DEFAULT_FRONT_ID;
-    private String mBackCameraId = DEFAULT_BACK_ID;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Map<String, Pair<Integer, Callable<CameraInternal>>> mCameraMap = new HashMap<>();
@@ -86,8 +80,7 @@ public final class FakeCameraFactory implements CameraFactory {
      * Inserts a camera and sets it as the default front camera.
      *
      * <p>This is a convenience method for calling
-     * {@link #insertCamera(int, String, Callable)}
-     * followed by {@link #setDefaultCameraIdForLensFacing(int, String)} with
+     * {@link #insertCamera(int, String, Callable)} with
      * {@link CameraSelector#LENS_FACING_FRONT} for all lens facing arguments.
      *
      * @param cameraId       Identifier to use for the front camera.
@@ -96,15 +89,13 @@ public final class FakeCameraFactory implements CameraFactory {
     public void insertDefaultFrontCamera(@NonNull String cameraId,
             @NonNull Callable<CameraInternal> cameraInternal) {
         insertCamera(CameraSelector.LENS_FACING_FRONT, cameraId, cameraInternal);
-        setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_FRONT, cameraId);
     }
 
     /**
      * Inserts a camera and sets it as the default back camera.
      *
      * <p>This is a convenience method for calling
-     * {@link #insertCamera(int, String, Callable)}
-     * followed by {@link #setDefaultCameraIdForLensFacing(int, String)} with
+     * {@link #insertCamera(int, String, Callable)} with
      * {@link CameraSelector#LENS_FACING_BACK} for all lens facing arguments.
      *
      * @param cameraId       Identifier to use for the back camera.
@@ -113,27 +104,6 @@ public final class FakeCameraFactory implements CameraFactory {
     public void insertDefaultBackCamera(@NonNull String cameraId,
             @NonNull Callable<CameraInternal> cameraInternal) {
         insertCamera(CameraSelector.LENS_FACING_BACK, cameraId, cameraInternal);
-        setDefaultCameraIdForLensFacing(CameraSelector.LENS_FACING_BACK, cameraId);
-    }
-
-    /**
-     * Sets the camera ID which will be returned by {@link #cameraIdForLensFacing(int)}.
-     *
-     * @param lensFacing The {@link CameraSelector.LensFacing} to set.
-     * @param cameraId   The camera ID which will be returned.
-     */
-    public void setDefaultCameraIdForLensFacing(@CameraSelector.LensFacing int lensFacing,
-            @NonNull String cameraId) {
-        switch (lensFacing) {
-            case CameraSelector.LENS_FACING_FRONT:
-                mFrontCameraId = cameraId;
-                break;
-            case CameraSelector.LENS_FACING_BACK:
-                mBackCameraId = cameraId;
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid lens facing: " + lensFacing);
-        }
     }
 
     @Override
@@ -146,18 +116,5 @@ public final class FakeCameraFactory implements CameraFactory {
         }
 
         return mCachedCameraIds;
-    }
-
-    @Override
-    @Nullable
-    public String cameraIdForLensFacing(@CameraSelector.LensFacing int lensFacing) {
-        switch (lensFacing) {
-            case CameraSelector.LENS_FACING_FRONT:
-                return mFrontCameraId;
-            case CameraSelector.LENS_FACING_BACK:
-                return mBackCameraId;
-            default:
-                return null;
-        }
     }
 }

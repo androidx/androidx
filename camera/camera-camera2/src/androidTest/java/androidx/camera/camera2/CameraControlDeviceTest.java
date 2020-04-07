@@ -22,9 +22,7 @@ import static org.junit.Assume.assumeTrue;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -37,6 +35,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
@@ -110,19 +109,15 @@ public class CameraControlDeviceTest {
         });
     }
 
-    private static CameraCharacteristics getCameraCharacteristic(CameraSelector cameraSelector)
-            throws CameraInfoUnavailableException, CameraAccessException {
-        String cameraId = CameraX.getCameraWithLensFacing(cameraSelector.getLensFacing());
-        CameraManager cameraManager =
-                (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
-                        Context.CAMERA_SERVICE);
-
-        return cameraManager.getCameraCharacteristics(cameraId);
+    private static CameraCharacteristics getCameraCharacteristicWithLensFacing(
+            @CameraSelector.LensFacing int lensFacing) {
+        return CameraUtil.getCameraCharacteristics(lensFacing);
     }
 
     private static boolean isSupportAeRegion(CameraSelector cameraSelector) {
         try {
-            CameraCharacteristics characteristics = getCameraCharacteristic(cameraSelector);
+            CameraCharacteristics characteristics = getCameraCharacteristicWithLensFacing(
+                    cameraSelector.getLensFacing());
             return characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) > 0;
         } catch (Exception e) {
             return false;
@@ -131,7 +126,8 @@ public class CameraControlDeviceTest {
 
     private static boolean isSupportAwbRegion(CameraSelector cameraSelector) {
         try {
-            CameraCharacteristics characteristics = getCameraCharacteristic(cameraSelector);
+            CameraCharacteristics characteristics = getCameraCharacteristicWithLensFacing(
+                    cameraSelector.getLensFacing());
             return characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB) > 0;
         } catch (Exception e) {
             return false;

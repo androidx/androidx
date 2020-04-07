@@ -138,9 +138,9 @@ public final class ImageAnalysisTest {
 
             // Checks camera device sensor degrees to set correct target rotation value to make sure
             // the exactly matching result size 640x480 can be selected if the device supports it.
-            String cameraId = CameraX.getCameraFactory().cameraIdForLensFacing(lensFacing);
-            boolean isRotateNeeded = (CameraX.getCameraInfo(cameraId).getSensorRotationDegrees(
-                    Surface.ROTATION_0) % 180) != 0;
+            Integer sensorOrientation = CameraUtil.getSensorOrientation(
+                    CameraSelector.LENS_FACING_BACK);
+            boolean isRotateNeeded = (sensorOrientation % 180) != 0;
             ImageAnalysis useCase = new ImageAnalysis.Builder().setTargetResolution(
                     GUARANTEED_RESOLUTION).setTargetRotation(
                     isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
