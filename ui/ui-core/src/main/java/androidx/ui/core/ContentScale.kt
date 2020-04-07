@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics
+package androidx.ui.core
 
 import androidx.ui.unit.PxSize
 import kotlin.math.max
@@ -25,7 +25,7 @@ private const val OriginalScale = 1.0f
 /**
  * Represents a rule to apply to scale a source rectangle to be inscribed into a destination
  */
-interface ScaleFit {
+interface ContentScale {
 
     /**
      * Computes the scale factor to apply to both dimensions in order to fit the source
@@ -34,25 +34,32 @@ interface ScaleFit {
     fun scale(srcSize: PxSize, dstSize: PxSize): Float
 
     /**
-     * Companion object containing commonly used [ScaleFit] implementations
+     * Companion object containing commonly used [ContentScale] implementations
      */
     companion object {
 
         /**
-         * Scale the source maintaining the aspect ratio so that the bounds match the maximum of
-         * the destination width or height. This can cover a larger area than the destination.
+         * Scale the source uniformly (maintaining the source's aspect ratio) so that both
+         * dimensions (width and height) of the source will be equal to or larger than the
+         * corresponding dimension of the destination.
+         *
+         * This [ContentScale] implementation in combination with usage of [Alignment.Center]
+         * provides similar behavior to [android.widget.ImageView.ScaleType.CENTER_CROP]
          */
-        val FillMaxDimension = object : ScaleFit {
+        val Crop = object : ContentScale {
             override fun scale(srcSize: PxSize, dstSize: PxSize): Float =
                 computeFillMaxDimension(srcSize, dstSize)
         }
 
         /**
-         * Scale the source maintaining the aspect ratio so that the bounds match the minimum of
-         * the destination width or height. This will always fill an area smaller than or equal to
-         * the destination.
+         * Scale the source uniformly (maintaining the source's aspect ratio) so that both
+         * dimensions (width and height) of the source will be equal to or less than the
+         * corresponding dimension of the destination
+         *
+         * This [ContentScale] implementation in combination with usage of [Alignment.Center]
+         * provides similar behavior to [android.widget.ImageView.ScaleType.FIT_CENTER]
          */
-        val FillMinDimension = object : ScaleFit {
+        val Fit = object : ContentScale {
             override fun scale(srcSize: PxSize, dstSize: PxSize): Float =
                 computeFillMinDimension(srcSize, dstSize)
         }
@@ -62,7 +69,7 @@ interface ScaleFit {
          * height. This can cover a larger area than the destination if the height is larger than
          * the width.
          */
-        val FillHeight = object : ScaleFit {
+        val FillHeight = object : ContentScale {
             override fun scale(srcSize: PxSize, dstSize: PxSize): Float =
                 computeFillHeight(srcSize, dstSize)
         }
@@ -72,18 +79,21 @@ interface ScaleFit {
          * destination width. This can cover a larger area than the destination if the width is
          * larger than the height.
          */
-        val FillWidth = object : ScaleFit {
+        val FillWidth = object : ContentScale {
             override fun scale(srcSize: PxSize, dstSize: PxSize): Float =
                 computeFillWidth(srcSize, dstSize)
         }
 
         /**
-         * Scale the source to maintain the aspect ratio to fit within the destination bounds
+         * Scale the source to maintain the aspect ratio to be inside the destination bounds
          * if the source is larger than the destination. If the source is smaller than or equal
          * to the destination in both dimensions, this behaves similarly to [None]. This will
          * always be contained within the bounds of the destination.
+         *
+         * This [ContentScale] implementation in combination with usage of [Alignment.Center]
+         * provides similar behavior to [android.widget.ImageView.ScaleType.CENTER_INSIDE]
          */
-        val Fit = object : ScaleFit {
+        val Inside = object : ContentScale {
             override fun scale(srcSize: PxSize, dstSize: PxSize): Float =
                 if (srcSize.width <= dstSize.width && srcSize.height <= dstSize.height) {
                     OriginalScale
@@ -100,10 +110,10 @@ interface ScaleFit {
 }
 
 /**
- * [ScaleFit] implementation that always scales the dimension by the provided
+ * [ContentScale] implementation that always scales the dimension by the provided
  * fixed floating point value
  */
-data class FixedScale(val value: Float) : ScaleFit {
+data class FixedScale(val value: Float) : ContentScale {
     override fun scale(srcSize: PxSize, dstSize: PxSize): Float = value
 }
 

@@ -37,7 +37,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.Paint
-import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.toArgb
@@ -178,7 +177,7 @@ class PainterModifierTest {
                                     paintLatch
                                 ),
                                 alignment = Alignment.Center,
-                                scaleFit = ScaleFit.Fit
+                                contentScale = ContentScale.Inside
                             )
                         ) {
                         }
@@ -219,7 +218,7 @@ class PainterModifierTest {
                             paintLatch
                         ),
                         alignment = Alignment.BottomEnd,
-                        scaleFit = ScaleFit.Fit
+                        contentScale = ContentScale.Inside
                     )
                 ) {
                     // Intentionally empty

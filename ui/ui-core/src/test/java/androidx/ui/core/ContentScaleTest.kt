@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.graphics
+package androidx.ui.core
 
 import androidx.test.filters.SmallTest
 import androidx.ui.unit.IntPx
@@ -26,11 +26,11 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class ScaleFitTest {
+class ContentScaleTest {
 
     @Test
     fun testScaleNone() {
-        val scale = ScaleFit.None.scale(
+        val scale = ContentScale.None.scale(
             srcSize = PxSize(IntPx(100), IntPx(100)),
             dstSize = PxSize(IntPx(200), IntPx(200))
         )
@@ -38,8 +38,8 @@ class ScaleFitTest {
     }
 
     @Test
-    fun testScaleFit() {
-        val scale = ScaleFit.Fit.scale(
+    fun testContentScaleFit() {
+        val scale = ContentScale.Fit.scale(
             srcSize = PxSize(IntPx(200), IntPx(100)),
             dstSize = PxSize(IntPx(100), IntPx(200))
         )
@@ -47,8 +47,8 @@ class ScaleFitTest {
     }
 
     @Test
-    fun testScaleFillWidth() {
-        val scale = ScaleFit.FillWidth.scale(
+    fun testContentScaleFillWidth() {
+        val scale = ContentScale.FillWidth.scale(
             srcSize = PxSize(IntPx(400), IntPx(100)),
             dstSize = PxSize(IntPx(100), IntPx(200))
         )
@@ -57,7 +57,7 @@ class ScaleFitTest {
 
     @Test
     fun testScaleFillHeight() {
-        val scale = ScaleFit.FillHeight.scale(
+        val scale = ContentScale.FillHeight.scale(
             srcSize = PxSize(IntPx(400), IntPx(100)),
             dstSize = PxSize(IntPx(100), IntPx(200))
         )
@@ -65,8 +65,8 @@ class ScaleFitTest {
     }
 
     @Test
-    fun testScaleFillMaxDimension() {
-        val scale = ScaleFit.FillMaxDimension.scale(
+    fun testContentScaleCrop() {
+        val scale = ContentScale.Crop.scale(
             srcSize = PxSize(IntPx(400), IntPx(100)),
             dstSize = PxSize(IntPx(100), IntPx(200))
         )
@@ -74,8 +74,8 @@ class ScaleFitTest {
     }
 
     @Test
-    fun testScaleFillMinDimension() {
-        val scale = ScaleFit.FillMinDimension.scale(
+    fun testContentScaleInside() {
+        val scale = ContentScale.Inside.scale(
             srcSize = PxSize(IntPx(400), IntPx(100)),
             dstSize = PxSize(IntPx(100), IntPx(200))
         )
@@ -83,8 +83,27 @@ class ScaleFitTest {
     }
 
     @Test
-    fun testScaleFillMaxDimensionWidth() {
-        val scale = ScaleFit.FillMaxDimension.scale(
+    fun testContentScaleInsideLargeDst() {
+        // If the src is smaller than the destination, ensure no scaling is done
+        val scale = ContentScale.Inside.scale(
+            srcSize = PxSize(IntPx(400), IntPx(100)),
+            dstSize = PxSize(IntPx(900), IntPx(200))
+        )
+        assertEquals(1.0f, scale)
+    }
+
+    @Test
+    fun testContentFitInsideLargeDst() {
+        val scale = ContentScale.Fit.scale(
+            srcSize = PxSize(IntPx(400), IntPx(100)),
+            dstSize = PxSize(IntPx(900), IntPx(200))
+        )
+        assertEquals(2.0f, scale)
+    }
+
+    @Test
+    fun testContentScaleCropWidth() {
+        val scale = ContentScale.Crop.scale(
             srcSize = PxSize(IntPx(100), IntPx(400)),
             dstSize = PxSize(IntPx(200), IntPx(200))
         )
@@ -92,8 +111,8 @@ class ScaleFitTest {
     }
 
     @Test
-    fun testScaleFillMaxDimensionHeight() {
-        val scale = ScaleFit.FillMaxDimension.scale(
+    fun testContentScaleCropHeight() {
+        val scale = ContentScale.Crop.scale(
             srcSize = PxSize(IntPx(300), IntPx(100)),
             dstSize = PxSize(IntPx(200), IntPx(200))
         )
