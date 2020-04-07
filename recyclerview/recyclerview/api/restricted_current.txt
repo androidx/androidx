@@ -450,6 +450,7 @@ package androidx.recyclerview.widget {
     method public boolean isComputingLayout();
     method @Deprecated public boolean isLayoutFrozen();
     method public final boolean isLayoutSuppressed();
+    method public void nestedScrollBy(int, int);
     method public void offsetChildrenHorizontal(@Px int);
     method public void offsetChildrenVertical(@Px int);
     method public void onChildAttachedToWindow(android.view.View);

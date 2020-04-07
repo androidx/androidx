@@ -85,7 +85,7 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
             }
             return;
         }
-        int position = holder.getAdapterPosition();
+        int position = holder.getAbsoluteAdapterPosition();
         long id = holder.getItemId();
         if (position != RecyclerView.NO_POSITION && id != RecyclerView.NO_ID) {
             mPositionToKey.put(position, id);
@@ -102,7 +102,7 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
             }
             return;
         }
-        int position = holder.getAdapterPosition();
+        int position = holder.getAbsoluteAdapterPosition();
         long id = holder.getItemId();
         if (position != RecyclerView.NO_POSITION && id != RecyclerView.NO_ID) {
             mPositionToKey.delete(position);
