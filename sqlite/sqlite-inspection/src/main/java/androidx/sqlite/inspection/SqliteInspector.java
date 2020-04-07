@@ -257,8 +257,8 @@ final class SqliteInspector extends Inspector {
                 mEnvironment);
 
         // TODO: add active pruning via Cursor#close listener
-        final Map<SQLiteCursor, String> cursorToQuery = Collections.synchronizedMap(
-                new WeakHashMap<SQLiteCursor, String>());
+        final Map<SQLiteCursor, Void> trackedCursors = Collections.synchronizedMap(
+                new WeakHashMap<SQLiteCursor, Void>());
 
         final String rawQueryMethodSignature = "rawQueryWithFactory("
                 + "Landroid/database/sqlite/SQLiteDatabase$CursorFactory;"
@@ -273,7 +273,13 @@ final class SqliteInspector extends Inspector {
                     public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
                         SQLiteCursor cursor = (SQLiteCursor) exitFrame.mResult;
                         String query = (String) exitFrame.mArgs.get(1);
-                        cursorToQuery.put(cursor, query);
+
+                        // Only track cursors that might modify the database.
+                        // TODO: handle PRAGMA select queries, e.g. PRAGMA_TABLE_INFO
+                        if (query != null && DatabaseUtils.getSqlStatementType(query)
+                                != DatabaseUtils.STATEMENT_SELECT) {
+                            trackedCursors.put(cursor, null);
+                        }
                     }
                 });
 
@@ -282,14 +288,10 @@ final class SqliteInspector extends Inspector {
                     new EntryExitMatchingHookRegistry.OnExitCallback() {
                         @Override
                         public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
-                            SQLiteCursor c = (SQLiteCursor) exitFrame.mThisObject;
-                            String query = cursorToQuery.get(c);
-                            // TODO: handle PRAGMA select queries, e.g. PRAGMA_TABLE_INFO
-                            if (query == null || DatabaseUtils.getSqlStatementType(query)
-                                    == DatabaseUtils.STATEMENT_SELECT) {
-                                return;
+                            SQLiteCursor cursor = (SQLiteCursor) exitFrame.mThisObject;
+                            if (trackedCursors.containsKey(cursor)) {
+                                throttler.submitRequest();
                             }
-                            throttler.submitRequest();
                         }
                     });
         }
