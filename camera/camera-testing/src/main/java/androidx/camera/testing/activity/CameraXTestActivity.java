@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.Preview;
@@ -81,7 +80,7 @@ public class CameraXTestActivity extends AppCompatActivity {
         if (!CameraUtil.hasCameraWithLensFacing(mLensFacing)) {
             try {
                 mLensFacing = CameraX.getDefaultLensFacing();
-            } catch (CameraInfoUnavailableException e) {
+            } catch (IllegalStateException e) {
                 throw new IllegalArgumentException("Cannot find camera to use", e);
             }
         }

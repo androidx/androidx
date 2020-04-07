@@ -46,7 +46,8 @@ public class FakeIcing {
     private final SparseArray<DocumentProto> mDocStore = new SparseArray<>();
     /** Map of term to posting-list (the set of DocIds containing that term). */
     private final Map<String, Set<Integer>> mIndex = new ArrayMap<>();
-
+    /** Lock object for synchronized. */
+    private final Object mLock = new Object();
     /**
      * Inserts a document into the index.
      *
@@ -55,22 +56,24 @@ public class FakeIcing {
     public void put(@NonNull DocumentProto document) {
         String uri = document.getUri();
 
-        // Update mDocIdMap
-        Integer docId = mUriToDocIdMap.get(uri);
-        if (docId != null) {
-            // Delete the old doc
-            mDocStore.remove(docId);
+        synchronized (mLock) {
+            // Update mDocIdMap
+            Integer docId = mUriToDocIdMap.get(uri);
+            if (docId != null) {
+                // Delete the old doc
+                mDocStore.remove(docId);
+            }
+
+            // Allocate a new docId
+            docId = mNextDocId.getAndIncrement();
+            mUriToDocIdMap.put(uri, docId);
+
+            // Update mDocStore
+            mDocStore.put(docId, document);
+
+            // Update mIndex
+            indexDocument(docId, document);
         }
-
-        // Allocate a new docId
-        docId = mNextDocId.getAndIncrement();
-        mUriToDocIdMap.put(uri, docId);
-
-        // Update mDocStore
-        mDocStore.put(docId, document);
-
-        // Update mIndex
-        indexDocument(docId, document);
     }
 
     /**
@@ -81,11 +84,13 @@ public class FakeIcing {
      */
     @Nullable
     public DocumentProto get(@NonNull String uri) {
-        Integer docId = mUriToDocIdMap.get(uri);
-        if (docId == null) {
-            return null;
+        synchronized (mLock) {
+            Integer docId = mUriToDocIdMap.get(uri);
+            if (docId == null) {
+                return null;
+            }
+            return mDocStore.get(docId);
         }
-        return mDocStore.get(docId);
     }
 
     /**
@@ -104,25 +109,27 @@ public class FakeIcing {
         if (terms.length == 0) {
             return results.build();
         }
-        Set<Integer> docIds = mIndex.get(terms[0]);
-        if (docIds == null || docIds.isEmpty()) {
-            return results.build();
-        }
-        for (int i = 1; i < terms.length; i++) {
-            Set<Integer> termDocIds = mIndex.get(terms[i]);
-            if (termDocIds == null) {
+        synchronized (mLock) {
+            Set<Integer> docIds = mIndex.get(terms[0]);
+            if (docIds == null || docIds.isEmpty()) {
                 return results.build();
             }
-            docIds.retainAll(termDocIds);
-            if (docIds.isEmpty()) {
-                return results.build();
+            for (int i = 1; i < terms.length; i++) {
+                Set<Integer> termDocIds = mIndex.get(terms[i]);
+                if (termDocIds == null) {
+                    return results.build();
+                }
+                docIds.retainAll(termDocIds);
+                if (docIds.isEmpty()) {
+                    return results.build();
+                }
             }
-        }
-        for (int docId : docIds) {
-            DocumentProto document = mDocStore.get(docId);
-            if (document != null) {
-                results.addResults(
-                        SearchResultProto.ResultProto.newBuilder().setDocument(document));
+            for (int docId : docIds) {
+                DocumentProto document = mDocStore.get(docId);
+                if (document != null) {
+                    results.addResults(
+                            SearchResultProto.ResultProto.newBuilder().setDocument(document));
+                }
             }
         }
         return results.build();
@@ -136,34 +143,26 @@ public class FakeIcing {
      */
     public boolean delete(@NonNull String uri) {
         // Update mDocIdMap
-        Integer docId = mUriToDocIdMap.get(uri);
-        if (docId != null) {
-            // Delete the old doc
-            mDocStore.remove(docId);
-            mUriToDocIdMap.remove(uri);
-            return true;
+        synchronized (mLock) {
+            Integer docId = mUriToDocIdMap.get(uri);
+            if (docId != null) {
+                // Delete the old doc
+                mDocStore.remove(docId);
+                mUriToDocIdMap.remove(uri);
+                return true;
+            }
         }
         return false;
     }
 
-    /** Deletes all documents having the given namespace. */
-    public void deleteByNamespace(@NonNull String namespace) {
-        for (int i = 0; i < mDocStore.size(); i++) {
-            DocumentProto document = mDocStore.valueAt(i);
-            if (namespace.equals(document.getNamespace())) {
-                mDocStore.removeAt(i);
-                mUriToDocIdMap.remove(document.getUri());
-                i--;
-            }
-        }
-    }
-
     /** Deletes all document. */
     public void deleteAll() {
-        mDocStore.clear();
-        mUriToDocIdMap.clear();
-        mIndex.clear();
-        mNextDocId.set(0);
+        synchronized (mLock) {
+            mDocStore.clear();
+            mUriToDocIdMap.clear();
+            mIndex.clear();
+            mNextDocId.set(0);
+        }
     }
 
     /**
@@ -173,13 +172,15 @@ public class FakeIcing {
      */
     public boolean deleteByType(@NonNull String type) {
         boolean deletedAny = false;
-        for (int i = 0; i < mDocStore.size(); i++) {
-            DocumentProto document = mDocStore.valueAt(i);
-            if (type.equals(document.getSchema())) {
-                mDocStore.removeAt(i);
-                mUriToDocIdMap.remove(document.getUri());
-                i--;
-                deletedAny = true;
+        synchronized (mLock) {
+            for (int i = 0; i < mDocStore.size(); i++) {
+                DocumentProto document = mDocStore.valueAt(i);
+                if (type.equals(document.getSchema())) {
+                    mDocStore.removeAt(i);
+                    mUriToDocIdMap.remove(document.getUri());
+                    i--;
+                    deletedAny = true;
+                }
             }
         }
         return deletedAny;
@@ -210,12 +211,14 @@ public class FakeIcing {
     }
 
     private void indexTerm(int docId, String term) {
-        Set<Integer> postingList = mIndex.get(term);
-        if (postingList == null) {
-            postingList = new ArraySet<>();
-            mIndex.put(term, postingList);
+        synchronized (mLock) {
+            Set<Integer> postingList = mIndex.get(term);
+            if (postingList == null) {
+                postingList = new ArraySet<>();
+                mIndex.put(term, postingList);
+            }
+            postingList.add(docId);
         }
-        postingList.add(docId);
     }
 
     /** Strips out punctuation and converts to lowercase. */

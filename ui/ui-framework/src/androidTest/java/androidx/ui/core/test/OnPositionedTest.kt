@@ -151,7 +151,7 @@ class OnPositionedTest {
         var childGlobalPosition = PxPosition(0.px, 0.px)
         var latch = CountDownLatch(1)
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 Layout(
                     measureBlock = { measurables, constraints, _ ->
                         layout(10.ipx, 10.ipx) {

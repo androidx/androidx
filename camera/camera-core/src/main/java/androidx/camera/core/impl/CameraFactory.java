@@ -19,9 +19,7 @@ package androidx.camera.core.impl;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfoUnavailableException;
-import androidx.camera.core.CameraSelector;
 
 import java.util.Set;
 
@@ -61,17 +59,4 @@ public interface CameraFactory {
      */
     @NonNull
     Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException;
-
-    /**
-     * Gets the first id of the camera with the given lens facing. Returns null if there's no
-     * camera with given lens facing.
-     *
-     * @param lensFacing the lens facing to query camera id with
-     * @return the first id of the camera with the given lens facing
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due
-     *                                        to insufficient permissions.
-     */
-    @Nullable
-    String cameraIdForLensFacing(@CameraSelector.LensFacing int lensFacing)
-            throws CameraInfoUnavailableException;
 }

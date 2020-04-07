@@ -28,7 +28,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
 import androidx.ui.core.drawShadow
-import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
@@ -78,7 +77,7 @@ class DrawShadowTest {
     @Test
     fun shadowDrawn() {
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 ShadowContainer()
             }
         }
@@ -93,7 +92,7 @@ class DrawShadowTest {
     @Test
     fun shadowDrawnInsideRenderNode() {
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 ShadowContainer(modifier = Modifier.drawLayer(clipToBounds = false))
             }
         }
@@ -110,7 +109,7 @@ class DrawShadowTest {
         val elevation = mutableStateOf(0.dp)
 
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 ShadowContainer(elevation)
             }
         }
@@ -131,7 +130,7 @@ class DrawShadowTest {
         val elevation = mutableStateOf(0.dp)
 
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 ShadowContainer(elevation, modifier = Modifier.drawLayer(clipToBounds = true))
             }
         }
@@ -150,7 +149,7 @@ class DrawShadowTest {
     @Test
     fun opacityAppliedForTheShadow() {
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
                     AtLeastSize(
                         size = 10.ipx,
@@ -178,7 +177,7 @@ class DrawShadowTest {
         val model = ValueModel(false)
 
         rule.runOnUiThreadIR {
-            activity.setContent {
+            activity.setContentInFrameLayout {
                 AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
                     val shadow = if (model.value) {
                         Modifier.drawShadow(rectShape, 8.dp)

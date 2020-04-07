@@ -164,8 +164,7 @@ public final class Camera2ImplCameraXTest {
         // Legacy device would not support two ImageAnalysis use cases combination.
         int hardwareLevelValue;
         CameraCharacteristics cameraCharacteristics =
-                CameraUtil.getCameraManager().getCameraCharacteristics(
-                        CameraX.getCameraWithLensFacing(DEFAULT_LENS_FACING));
+                CameraUtil.getCameraCharacteristics(DEFAULT_LENS_FACING);
         hardwareLevelValue = cameraCharacteristics.get(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
         assumeTrue(

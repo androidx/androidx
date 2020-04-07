@@ -243,6 +243,7 @@ private fun WrapWithAmbients(
 
     val uriHandler = remember { AndroidUriHandler(context) }
 
+    @Suppress("DEPRECATION")
     Providers(
         ContextAmbient provides context,
         CoroutineContextAmbient provides coroutineContext,
@@ -253,6 +254,7 @@ private fun WrapWithAmbients(
         HapticFeedBackAmbient provides owner.hapticFeedBack,
         ClipboardManagerAmbient provides owner.clipboardManager,
         AutofillTreeAmbient provides owner.autofillTree,
+        AutofillAmbient provides owner.autofill,
         ConfigurationAmbient provides configuration,
         OwnerAmbient provides owner,
         LayoutDirectionAmbient provides layoutDirection,
@@ -263,15 +265,39 @@ private fun WrapWithAmbients(
     )
 }
 
+/**
+ * Provides a [Context] that can be used by Android applications.
+ */
 val ContextAmbient = staticAmbientOf<Context>()
 
+/**
+ * Provides the [Density] to be used to transform between [density-independent pixel
+ * units (DP)][androidx.ui.unit.Dp] and [pixel units][androidx.ui.unit.Px] or
+ * [scale-independent pixel units (SP)][androidx.ui.unit.TextUnit] and
+ * [pixel units][androidx.ui.unit.Px]. This is typically used when a [DP][androidx.ui.unit.Dp]
+ * is provided and it must be converted in the body of [Layout] or [DrawModifier].
+ */
 val DensityAmbient = ambientOf<Density>(StructurallyEqual)
 
+/**
+ * Don't use this.
+ * @suppress
+ */
+@Deprecated(message = "This will be replaced with something more appropriate when suspend works.")
 val CoroutineContextAmbient = ambientOf<CoroutineContext>()
 
+/**
+ * The Android [Configuration]. The [Configuration] is useful for determining how to organize the
+ * UI.
+ */
 val ConfigurationAmbient = ambientOf<Configuration>(NeverEqual)
 
+/**
+ * Don't use this
+ * @suppress
+ */
 // TODO(b/139866476): The Owner should not be exposed via ambient
+@Deprecated(message = "This will be removed as of b/139866476")
 val OwnerAmbient = staticAmbientOf<Owner>()
 
 /**
@@ -293,6 +319,9 @@ val FocusManagerAmbient = ambientOf<FocusManager>()
 
 val TextInputServiceAmbient = staticAmbientOf<TextInputService?>()
 
+/**
+ * The default animation clock used for animations when an explicit clock isn't provided.
+ */
 val AnimationClockAmbient = staticAmbientOf<AnimationClockObservable>()
 
 val FontLoaderAmbient = staticAmbientOf<Font.ResourceLoader>()

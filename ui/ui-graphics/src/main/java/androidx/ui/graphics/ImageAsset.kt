@@ -17,11 +17,7 @@
 package androidx.ui.graphics
 
 import androidx.ui.graphics.colorspace.ColorSpace
-
-/**
- * Handle for the underlying platform primitive for the [ImageAsset] implementation
-  */
-/* expect */ typealias NativeImageAsset = android.graphics.Bitmap
+import androidx.ui.graphics.colorspace.ColorSpaces
 
 /**
  * Graphics object that represents a 2 dimensional array of pixel information represented
@@ -51,15 +47,87 @@ interface ImageAsset {
     val config: ImageAssetConfig
 
     /**
-     * Return backing object that implements the ImageAsset interface
+     * Copies the pixel data within the ImageAsset into the given array. Each value is
+     * represented as ARGB values packed into an Int.
+     * The stride parameter allows the caller to allow for gaps in the returned pixels array
+     * between rows. For normal packed, results, the stride value is equivalent to the width of
+     * the [ImageAsset]. The returned colors are non-premultiplied ARGB values in the
+     * [ColorSpaces.Srgb] color space.
+     *
+     * Note this method can block so it is recommended to not invoke this method in performance
+     * critical code paths
+     *
+     * @sample androidx.ui.graphics.samples.ImageAssetReadPixelsSample
+     *
+     * @param buffer The array to store the [ImageAsset]'s colors. By default this allocates an
+     * [IntArray] large enough to store all the pixel information. Consumers of this API are
+     * advised to use the smallest [IntArray] necessary to extract relevant pixel information, that
+     * is the 2 dimensional area of the section of the [ImageAsset] to be queried.
+     *
+     * @param startX The x-coordinate of the first pixel to read from the [ImageAsset]
+     * @param startY The y-coordinate of the first pixel to read from the [ImageAsset]
+     * @param width The number of pixels to read from each row
+     * @param height The number of rows to read
+     * @param bufferOffset The first index to write into the buffer array, this defaults to 0
+     * @param stride The number of entries in [buffer] to skip between rows (must be >= [width]
      */
-    val nativeImage: NativeImageAsset
+    fun readPixels(
+        buffer: IntArray,
+        startX: Int = 0,
+        startY: Int = 0,
+        width: Int = this.width,
+        height: Int = this.height,
+        bufferOffset: Int = 0,
+        stride: Int = width
+    )
 
     /**
      * Builds caches associated with the ImageAsset that are used for drawing it. This method can
      * be used as a signal to upload textures to the GPU to eventually be rendered
      */
     fun prepareToDraw()
+}
+
+/**
+ * Convenience method to extract pixel information from the given ImageAsset into a [PixelMap]
+ * that supports for querying pixel information based on
+ *
+ * Note this method can block so it is recommended to not invoke this method in performance
+ * critical code paths
+ *
+ * @sample androidx.ui.graphics.samples.ImageAssetToPixelMapSample
+ *
+ * @param startX The x-coordinate of the first pixel to read from the [ImageAsset]
+ * @param startY The y-coordinate of the first pixel to read from the [ImageAsset]
+ * @param width The number of pixels to read from each row
+ * @param height The number of rows to read
+ * @param buffer The array to store the [ImageAsset]'s colors. By default this allocates an
+ * [IntArray] large enough to store all the pixel information. Consumers of this API are
+ * advised to use the smallest [IntArray] necessary to extract relevant pixel information
+ * @param bufferOffset The first index to write into the buffer array, this defaults to 0
+ * @param stride The number of entries in [buffer] to skip between rows (must be >= [width]
+ *
+ * @see ImageAsset.readPixels
+ */
+fun ImageAsset.toPixelMap(
+    startX: Int = 0,
+    startY: Int = 0,
+    width: Int = this.width,
+    height: Int = this.height,
+    buffer: IntArray = IntArray(width * height),
+    bufferOffset: Int = 0,
+    stride: Int = width
+): PixelMap {
+    readPixels(
+        buffer,
+        startX,
+        startY,
+        width,
+        height,
+        bufferOffset,
+        stride
+    )
+    return PixelMap(buffer, width, height, bufferOffset, stride)
 }
 
 /**

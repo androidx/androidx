@@ -40,7 +40,6 @@ import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
@@ -55,7 +54,8 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Similar in behavior to {@link FragmentStatePagerAdapter}
+ * Similar in behavior to {@link androidx.fragment.app.FragmentStatePagerAdapter
+ * FragmentStatePagerAdapter}
  * <p>
  * Lifecycle within {@link RecyclerView}:
  * <ul>

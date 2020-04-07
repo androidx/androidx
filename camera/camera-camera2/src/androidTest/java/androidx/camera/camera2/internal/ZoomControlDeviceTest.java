@@ -30,7 +30,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -91,10 +90,8 @@ public final class ZoomControlDeviceTest {
         CameraXConfig config = Camera2Config.defaultConfig();
         CameraX.initialize(context, config);
 
-        String cameraId = CameraX.getCameraWithLensFacing(CameraSelector.LENS_FACING_BACK);
-        CameraManager cameraManager = (CameraManager) context.getSystemService(
-                Context.CAMERA_SERVICE);
-        mCameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
+        mCameraCharacteristics =
+                CameraUtil.getCameraCharacteristics(CameraSelector.LENS_FACING_BACK);
 
         assumeTrue(getMaxDigitalZoom() >= 2.0);
 

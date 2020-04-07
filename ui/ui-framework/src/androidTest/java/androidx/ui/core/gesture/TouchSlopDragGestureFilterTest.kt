@@ -25,6 +25,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.layout.Stack
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
@@ -251,18 +252,20 @@ class TouchSlopDragGestureFilterTest {
         val setupLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
-                Layout(
-                    modifier = Modifier.dragGestureFilter(
-                        dragObserver,
-                        startDragImmediately = startDragImmediately
-                    ),
-                    measureBlock = { _, _, _ ->
-                        layout(100.ipx, 100.ipx) {
-                            setupLatch.countDown()
-                        }
-                    }, children = {}
-                )
+                Stack {
+                    touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
+                    Layout(
+                        modifier = Modifier.dragGestureFilter(
+                            dragObserver,
+                            startDragImmediately = startDragImmediately
+                        ),
+                        measureBlock = { _, _, _ ->
+                            layout(100.ipx, 100.ipx) {
+                                setupLatch.countDown()
+                            }
+                        }, children = {}
+                    )
+                }
             }
 
             view = activity.findViewById<ViewGroup>(android.R.id.content)

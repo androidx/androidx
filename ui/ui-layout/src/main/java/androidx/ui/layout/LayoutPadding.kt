@@ -159,8 +159,12 @@ constructor(
         val height = (placeable.height + vertical)
             .coerceIn(constraints.minHeight, constraints.maxHeight)
         return layout(width, height) {
-            // Place will automatically mirror based on the incoming layout direction.
-            placeable.place(start.toIntPx(), top.toIntPx())
+            // TODO (b/153317665) use place() instead when bug is fixed
+            if (layoutDirection == LayoutDirection.Ltr) {
+                placeable.placeAbsolute(start.toIntPx(), top.toIntPx())
+            } else {
+                placeable.placeAbsolute(width - placeable.width - start.toIntPx(), top.toIntPx())
+            }
         }
     }
 }

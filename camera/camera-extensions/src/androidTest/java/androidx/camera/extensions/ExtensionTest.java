@@ -34,9 +34,7 @@ import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.util.Size;
 
@@ -114,8 +112,7 @@ public class ExtensionTest {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
         assumeTrue(ExtensionsTestUtil.initExtensions());
         assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
-        assumeTrue(isTargetDeviceAvailableForExtensions(context,
-                CameraX.getCameraWithLensFacing(mLensFacing)));
+        assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
 
         mLifecycleOwner = new FakeLifecycleOwner();
         mLifecycleOwner.startAndResume();
@@ -210,22 +207,15 @@ public class ExtensionTest {
      * target devices need to be LIMITED hardware level at least to support two YUV_420_888
      * streams at the same time.
      *
-     * @param context  The context to obtain CameraCharacteristics.
-     * @param cameraId The id of the testing target camera device.
      * @return true if the testing target camera device is LIMITED hardware level at least.
+     * @throws IllegalArgumentException if unable to retrieve {@link CameraCharacteristics} for
+     *                                  given lens facing.
      */
-    private boolean isTargetDeviceAvailableForExtensions(@NonNull Context context,
-            @NonNull String cameraId) {
+    private boolean isTargetDeviceAvailableForExtensions(
+            @CameraSelector.LensFacing int lensFacing) {
         boolean isAvailable = false;
-        CameraManager cameraManager = (CameraManager) context.getSystemService(
-                Context.CAMERA_SERVICE);
-        CameraCharacteristics cameraCharacteristics = null;
-        try {
-            cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
-        } catch (CameraAccessException e) {
-            throw new IllegalArgumentException(
-                    "Unable to retrieve info for camera with id " + cameraId + ".", e);
-        }
+        CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(
+                lensFacing);
 
         if (cameraCharacteristics != null) {
             Integer keyValue = cameraCharacteristics.get(
@@ -235,6 +225,9 @@ public class ExtensionTest {
                 isAvailable =
                         keyValue != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
             }
+        } else {
+            throw new IllegalArgumentException(
+                    "Unable to retrieve info for " + lensFacing + " camera.");
         }
 
         return isAvailable;

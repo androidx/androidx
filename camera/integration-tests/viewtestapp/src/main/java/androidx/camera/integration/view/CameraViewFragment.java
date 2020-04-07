@@ -33,7 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
-import androidx.camera.view.CameraView.ScaleType;
+import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -156,18 +156,15 @@ public class CameraViewFragment extends Fragment {
                     });
         }
 
-        mToggleCropButton.setChecked(mCameraView.getScaleType() == ScaleType.CENTER_CROP);
-        mToggleCropButton.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton b, boolean checked) {
-                        if (checked) {
-                            mCameraView.setScaleType(ScaleType.CENTER_CROP);
-                        } else {
-                            mCameraView.setScaleType(ScaleType.CENTER_INSIDE);
-                        }
-                    }
-                });
+        mToggleCropButton.setChecked(
+                mCameraView.getScaleType() == PreviewView.ScaleType.FILL_CENTER);
+        mToggleCropButton.setOnCheckedChangeListener((b, checked) -> {
+            if (checked) {
+                mCameraView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
+            } else {
+                mCameraView.setScaleType(PreviewView.ScaleType.FIT_CENTER);
+            }
+        });
 
         if (mModeButton != null) {
             updateModeButtonIcon();

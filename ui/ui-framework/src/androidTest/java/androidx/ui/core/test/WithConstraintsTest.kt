@@ -33,7 +33,10 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureBlock
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
@@ -370,7 +373,7 @@ class WithConstraintsTest {
                 Container(100.ipx, 100.ipx, backgroundModifier(Color.Red)) {
                     ChangingConstraintsLayout(model) {
                         WithConstraints { constraints, _ ->
-                            Container(100.ipx, 100.ipx) {
+                            Container(100.ipx, 100.ipx, infiniteConstraints) {
                                 Container(100.ipx, 100.ipx) {
                                     Layout(
                                         {},
@@ -395,7 +398,6 @@ class WithConstraintsTest {
         rule.runOnUiThread {
             model.value = 50.ipx
         }
-
         takeScreenShot(100).apply {
             assertRect(color = Color.Red, holeSize = 50)
             assertRect(color = Color.Yellow, size = 50)
@@ -793,4 +795,17 @@ fun backgroundModifier(color: Color) = Modifier.drawBehind {
     val paint = Paint()
     paint.color = color
     drawRect(size.toRect(), paint)
+}
+
+val infiniteConstraints = object : LayoutModifier2 {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): MeasureScope.MeasureResult {
+        val placeable = measurable.measure(Constraints())
+        return layout(constraints.maxWidth, constraints.maxHeight) {
+            placeable.place(0.ipx, 0.ipx)
+        }
+    }
 }

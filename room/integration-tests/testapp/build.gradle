@@ -60,8 +60,12 @@ dependencies {
     implementation(FINDBUGS)
     implementation("androidx.recyclerview:recyclerview:1.0.0")
     implementation("androidx.appcompat:appcompat:1.0.0")
-    annotationProcessor project(":room:room-compiler")
-    androidTestAnnotationProcessor project(":room:room-compiler")
+    // use the shadowed dependency in tests so that if the shadowing does not work properly,
+    // our tests fail.
+    annotationProcessor project(path: ":room:room-compiler",
+            configuration: 'shadowAndImplementation')
+    androidTestAnnotationProcessor project(path: ":room:room-compiler",
+            configuration: 'shadowAndImplementation')
 
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
