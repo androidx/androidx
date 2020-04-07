@@ -296,8 +296,8 @@ package androidx.fragment.app {
     method public void removeOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public androidx.fragment.app.Fragment.SavedState? saveFragmentInstanceState(androidx.fragment.app.Fragment);
     method public void setFragmentFactory(androidx.fragment.app.FragmentFactory);
-    method public final void setResult(String, android.os.Bundle?);
-    method public final void setResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener?);
+    method public final void setFragmentResult(String, android.os.Bundle?);
+    method public final void setFragmentResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener?);
     method public void unregisterFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks);
     field public static final int POP_BACK_STACK_INCLUSIVE = 1; // 0x1
   }
@@ -351,8 +351,8 @@ package androidx.fragment.app {
   }
 
   public interface FragmentResultOwner {
-    method public void setResult(String, android.os.Bundle?);
-    method public void setResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener?);
+    method public void setFragmentResult(String, android.os.Bundle?);
+    method public void setFragmentResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener?);
   }
 
   @Deprecated public abstract class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {

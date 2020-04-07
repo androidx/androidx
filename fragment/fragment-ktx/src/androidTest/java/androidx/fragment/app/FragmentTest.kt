@@ -65,7 +65,7 @@ class FragmentTest {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
 
-            setResultListener("requestKey") { _, bundle ->
+            setFragmentResultListener("requestKey") { _, bundle ->
                 actualResult = bundle.getString("bundleKey")
             }
         }
@@ -75,7 +75,7 @@ class FragmentTest {
         override fun onStart() {
             super.onStart()
 
-            setResult("requestKey", bundleOf("bundleKey" to resultString))
+            setFragmentResult("requestKey", bundleOf("bundleKey" to resultString))
         }
     }
 }

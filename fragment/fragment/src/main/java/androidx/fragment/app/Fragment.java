@@ -740,11 +740,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @deprecated Instead of using a target fragment to pass results, the fragment requesting a
      * result should use
-     * {@link FragmentManager#setResultListener(String, LifecycleOwner, FragmentResultListener)}
-     * to register a {@link FragmentResultListener} with a {@code requestKey} using its
-     * {@link #getParentFragmentManager() parent fragment manager}. The
+     * {@link FragmentManager#setFragmentResultListener(String, LifecycleOwner,
+     * FragmentResultListener)} to register a {@link FragmentResultListener} with a {@code
+     * requestKey} using its {@link #getParentFragmentManager() parent fragment manager}. The
      * fragment delivering a result should then call
-     * {@link FragmentManager#setResult(String, Bundle)} using the same {@code requestKey}.
+     * {@link FragmentManager#setFragmentResult(String, Bundle)} using the same {@code requestKey}.
      * Consider using {@link #setArguments} to pass the {@code requestKey} if you need to support
      * dynamic request keys.
      */
@@ -789,9 +789,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Return the target fragment set by {@link #setTargetFragment}.
      *
      * @deprecated Instead of using a target fragment to pass results, use
-     * {@link FragmentManager#setResult(String, Bundle)} to deliver results to
+     * {@link FragmentManager#setFragmentResult(String, Bundle)} to deliver results to
      * {@link FragmentResultListener} instances registered by other fragments via
-     * {@link FragmentManager#setResultListener(String, LifecycleOwner, FragmentResultListener)}.
+     * {@link FragmentManager#setFragmentResultListener(String, LifecycleOwner,
+     * FragmentResultListener)}.
      */
     @Nullable
     @Deprecated
@@ -811,9 +812,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Return the target request code set by {@link #setTargetFragment}.
      *
      * @deprecated When using the target fragment replacement of
-     * {@link FragmentManager#setResultListener(String, LifecycleOwner, FragmentResultListener)} and
-     * {@link FragmentManager#setResult(String, Bundle)}, consider using {@link #setArguments} to
-     * pass a {@code requestKey} if you need to support dynamic request keys.
+     * {@link FragmentManager#setFragmentResultListener(String, LifecycleOwner,
+     * FragmentResultListener)} and {@link FragmentManager#setFragmentResult(String, Bundle)},
+     * consider using {@link #setArguments} to pass a {@code requestKey} if you need to support
+     * dynamic request keys.
      */
     @Deprecated
     final public int getTargetRequestCode() {
