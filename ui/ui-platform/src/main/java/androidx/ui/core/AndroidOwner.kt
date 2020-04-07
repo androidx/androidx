@@ -32,6 +32,10 @@ import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -68,14 +72,23 @@ import java.lang.reflect.Method
 
 /***
  * This function creates an instance of [AndroidOwner]
+ *
+ * @param context Context to use to create a View
+ * @param lifecycleOwner Current [LifecycleOwner]. When it is not provided we will try to get the
+ * owner using [ViewTreeLifecycleOwner] when we will be attached.
  */
-fun createOwner(context: Context): AndroidOwner = AndroidComposeView(context).also {
+fun createOwner(
+    context: Context,
+    lifecycleOwner: LifecycleOwner? = null
+): AndroidOwner = AndroidComposeView(context, lifecycleOwner).also {
     AndroidOwner.onAndroidOwnerCreatedCallback?.invoke(it)
 }
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-internal class AndroidComposeView constructor(context: Context) :
-    ViewGroup(context), AndroidOwner {
+internal class AndroidComposeView constructor(
+    context: Context,
+    lifecycleOwner: LifecycleOwner?
+) : ViewGroup(context), AndroidOwner {
 
     override val view: View = this
 
@@ -571,6 +584,25 @@ internal class AndroidComposeView constructor(context: Context) :
         }
     }
 
+    override var lifecycleOwner: LifecycleOwner? = lifecycleOwner
+        private set
+
+    private var onLifecycleAvailable: ((LifecycleOwner) -> Unit)? = null
+
+    override fun setOnLifecycleOwnerAvailable(callback: (LifecycleOwner) -> Unit) {
+        require(lifecycleOwner == null) { "LifecycleOwner is already available" }
+        onLifecycleAvailable = callback
+    }
+
+    // Workaround for the cases when we don't have a real LifecycleOwner, this happens when
+    // ViewTreeLifecycleOwner.get(this) returned null:
+    // 1) we are in AppCompatActivity and there is a bug for(should be fixed soon)
+    // 2) we are in a regular Activity. once we fix bug in AppCompatActivity we stop support it.
+    private val viewLifecycleOwner = object : LifecycleOwner {
+        val lifecycleRegistry = LifecycleRegistry(this)
+        override fun getLifecycle() = lifecycleRegistry
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         showLayoutBounds = getIsShowingLayoutBounds()
@@ -578,6 +610,12 @@ internal class AndroidComposeView constructor(context: Context) :
         ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
         semanticsOwner.invalidateSemanticsRoot()
+        if (lifecycleOwner == null) {
+            lifecycleOwner = ViewTreeLifecycleOwner.get(this) ?: viewLifecycleOwner
+        }
+        onLifecycleAvailable?.invoke(lifecycleOwner!!)
+        onLifecycleAvailable = null
+        viewLifecycleOwner.lifecycleRegistry.currentState = Lifecycle.State.RESUMED
     }
 
     override fun onDetachedFromWindow() {
@@ -585,6 +623,7 @@ internal class AndroidComposeView constructor(context: Context) :
         modelObserver.enableModelUpdatesObserving(false)
         ifDebug { if (autofillSupported()) _autofill?.unregisterCallback() }
         root.detach()
+        viewLifecycleOwner.lifecycleRegistry.currentState = Lifecycle.State.CREATED
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {

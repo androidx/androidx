@@ -53,7 +53,7 @@ class DemoActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val composition = setContent {
+        setContent {
             val navigator = remember {
                 Navigator(
                     initialDemo = AllDemosCategory,
@@ -98,11 +98,6 @@ class DemoActivity : ComponentActivity() {
                 )
             }
         }
-        lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_DESTROY) {
-                composition.dispose()
-            }
-        })
     }
 }
 
