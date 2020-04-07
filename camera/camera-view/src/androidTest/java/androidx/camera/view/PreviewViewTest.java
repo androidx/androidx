@@ -270,5 +270,13 @@ public class PreviewViewTest {
         @Override
         public void redrawPreview() {
         }
+
+        @Override
+        void onAttachedToWindow() {
+        }
+
+        @Override
+        void onDetachedFromWindow() {
+        }
     }
 }

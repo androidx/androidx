@@ -230,6 +230,62 @@ public class TextureViewImplementationTest {
         assertThat(mParent.getChildCount()).isEqualTo(0);
     }
 
+
+    @Test
+    public void resetSurfaceTextureOnDetachAndAttachWindow() throws Exception {
+
+        SurfaceRequest surfaceRequest = getSurfaceRequest();
+        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
+        final ListenableFuture<Surface> surfaceListenableFuture = deferrableSurface.getSurface();
+
+
+        final TextureView.SurfaceTextureListener surfaceTextureListener =
+                mImplementation.mTextureView.getSurfaceTextureListener();
+
+        surfaceTextureListener.onSurfaceTextureAvailable(mSurfaceTexture, ANY_WIDTH, ANY_HEIGHT);
+        surfaceListenableFuture.get();
+
+        surfaceTextureListener.onSurfaceTextureDestroyed(mSurfaceTexture);
+        assertThat(mImplementation.mDetachedSurfaceTexture).isNotNull();
+
+        mImplementation.onDetachedFromWindow();
+        mImplementation.onAttachedToWindow();
+
+        assertThat(mImplementation.mDetachedSurfaceTexture).isNull();
+        assertThat(mImplementation.mTextureView.getSurfaceTexture()).isEqualTo(mSurfaceTexture);
+    }
+
+    @Test
+    @LargeTest
+    public void releaseDetachedSurfaceTexture_whenDeferrableSurfaceClose() throws Exception {
+
+        SurfaceRequest surfaceRequest = getSurfaceRequest();
+        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
+        final ListenableFuture<Surface> surfaceListenableFuture = deferrableSurface.getSurface();
+
+
+        final TextureView.SurfaceTextureListener surfaceTextureListener =
+                mImplementation.mTextureView.getSurfaceTextureListener();
+
+        surfaceTextureListener.onSurfaceTextureAvailable(mSurfaceTexture, ANY_WIDTH, ANY_HEIGHT);
+        surfaceListenableFuture.get();
+
+        surfaceTextureListener.onSurfaceTextureDestroyed(mSurfaceTexture);
+        assertThat(mImplementation.mDetachedSurfaceTexture).isNotNull();
+
+        deferrableSurface.close();
+
+        // Wait enough time for surfaceReleaseFuture's listener to be called
+        Thread.sleep(1_000);
+
+        assertThat(mImplementation.mSurfaceReleaseFuture).isNull();
+        assertThat(mSurfaceTexture.isReleased()).isTrue();
+        assertThat(mImplementation.mDetachedSurfaceTexture).isNull();
+
+    }
+
     @Test
     public void keepOnlyLatestTextureView_whenGetSurfaceProviderCalledMultipleTimes() {
         mImplementation.getSurfaceProvider().onSurfaceRequested(getSurfaceRequest());
