@@ -25,7 +25,6 @@ import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.processor.DatabaseViewProcessor
-import androidx.room.processor.QueryInterpreter
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.testing.TestInvocation
@@ -192,25 +191,22 @@ fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
     return JavaFileObjects.forSourceString(qName, contents)
 }
 
-fun createInterpreterFromEntitiesAndViews(invocation: TestInvocation): QueryInterpreter {
-    val entities = invocation.roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
-        TableEntityProcessor(invocation.context, MoreElements.asType(it)).process()
-    }
-    val views = invocation.roundEnv.getElementsAnnotatedWith(DatabaseView::class.java).map {
-        DatabaseViewProcessor(invocation.context, MoreElements.asType(it)).process()
-    }
-    return QueryInterpreter(invocation.context, entities + views)
+fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {
+    return DatabaseVerifier.create(invocation.context, Mockito.mock(Element::class.java),
+            invocation.getEntities(), invocation.getViews())!!
 }
 
-fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {
-    val entities = invocation.roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
-        TableEntityProcessor(invocation.context, MoreElements.asType(it)).process()
+fun TestInvocation.getViews(): List<androidx.room.vo.DatabaseView> {
+    return roundEnv.getElementsAnnotatedWith(DatabaseView::class.java).map {
+        DatabaseViewProcessor(context, MoreElements.asType(it)).process()
     }
-    val views = invocation.roundEnv.getElementsAnnotatedWith(DatabaseView::class.java).map {
-        DatabaseViewProcessor(invocation.context, MoreElements.asType(it)).process()
+}
+
+fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
+    val entities = roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
+        TableEntityProcessor(context, MoreElements.asType(it)).process()
     }
-    return DatabaseVerifier.create(invocation.context, Mockito.mock(Element::class.java),
-            entities, views)!!
+    return entities
 }
 
 /**
