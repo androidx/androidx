@@ -22,6 +22,16 @@ import com.google.testing.compile.JavaFileObjects
 import java.io.File
 import javax.tools.JavaFileObject
 
+val GENERATED_TYPE = try {
+    Class.forName("javax.annotation.processing.Generated")
+    "javax.annotation.processing.Generated"
+} catch (_: ClassNotFoundException) {
+    "javax.annotation.Generated"
+}
+
+val GENERATED_ANNOTATION =
+    "@Generated(\"androidx.hilt.AndroidXHiltProcessor\")"
+
 object Sources {
     val VIEW_MODEL by lazy {
         loadJavaSource(
@@ -34,6 +44,20 @@ object Sources {
         loadJavaSource(
             "SavedStateHandle.java",
             ClassNames.SAVED_STATE_HANDLE.toString()
+        )
+    }
+
+    val WORKER by lazy {
+        loadJavaSource(
+            "Worker.java",
+            ClassNames.WORKER.toString()
+        )
+    }
+
+    val WORKER_PARAMETERS by lazy {
+        loadJavaSource(
+            "WorkerParameters.java",
+            ClassNames.WORKER_PARAMETERS.toString()
         )
     }
 }

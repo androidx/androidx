@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.hilt
+package androidx.hilt.lifecycle
 
+import androidx.hilt.Sources
+import androidx.hilt.compiler
+import androidx.hilt.toJFO
 import com.google.testing.compile.CompilationSubject.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

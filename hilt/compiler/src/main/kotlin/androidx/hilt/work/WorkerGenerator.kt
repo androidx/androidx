@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.hilt.lifecycle
+package androidx.hilt.work
 
 import androidx.hilt.ClassNames
 import androidx.hilt.assisted.AssistedFactoryGenerator
@@ -36,17 +36,17 @@ import javax.lang.model.element.Modifier
  * Should generate:
  * ```
  * @Module
- * @InstallIn(ActivityRetainedComponent.class)
+ * @InstallIn(ApplicationComponent.class)
  * public interface $_HiltModule {
  *   @Binds
  *   @IntoMap
  *   @StringKey("pkg.$")
- *   ViewModelAssistedFactory<? extends ViewModel> bind($_AssistedFactory factory)
+ *   ViewModelAssistedFactory<? extends Worker> bind($_AssistedFactory factory)
  * }
  * ```
  * and
  * ```
- * public final class $_AssistedFactory extends ViewModelAssistedFactory<$> {
+ * public final class $_AssistedFactory extends WorkerAssistedFactory<$> {
  *
  *   private final Provider<Dep1> dep1;
  *   private final Provider<Dep2> dep2;
@@ -61,33 +61,33 @@ import javax.lang.model.element.Modifier
  *
  *   @Override
  *   @NonNull
- *   public $ create(@NonNull SavedStateHandle handle) {
- *     return new $(dep1.get(), dep2.get(), ..., handle);
+ *   public $ create(@NonNull Context context, @NonNull WorkerParameter params) {
+ *     return new $(context, params, dep1.get(), dep2.get());
  *   }
  * }
  * ```
  */
-internal class ViewModelGenerator(
+internal class WorkerGenerator(
     private val processingEnv: ProcessingEnvironment,
-    private val injectedViewModel: ViewModelInjectElements
+    private val injectedWorker: WorkerInjectElements
 ) {
     fun generate() {
         AssistedFactoryGenerator(
             processingEnv = processingEnv,
-            productClassName = injectedViewModel.className,
-            factoryClassName = injectedViewModel.factoryClassName,
-            factorySuperTypeName = injectedViewModel.factorySuperTypeName,
-            originatingElement = injectedViewModel.typeElement,
-            dependencyRequests = injectedViewModel.dependencyRequests
+            productClassName = injectedWorker.className,
+            factoryClassName = injectedWorker.factoryClassName,
+            factorySuperTypeName = injectedWorker.factorySuperTypeName,
+            originatingElement = injectedWorker.typeElement,
+            dependencyRequests = injectedWorker.dependencyRequests
         ).generate()
 
-        val hiltModuleTypeSpec = TypeSpec.interfaceBuilder(injectedViewModel.moduleClassName)
-            .addOriginatingElement(injectedViewModel.typeElement)
+        val hiltModuleTypeSpec = TypeSpec.interfaceBuilder(injectedWorker.moduleClassName)
+            .addOriginatingElement(injectedWorker.typeElement)
             .addGeneratedAnnotation(processingEnv.elementUtils, processingEnv.sourceVersion)
             .addAnnotation(ClassNames.MODULE)
             .addAnnotation(
                 AnnotationSpec.builder(ClassNames.INSTALL_IN)
-                    .addMember("value", "$T.class", ClassNames.ACTIVITY_RETAINED_COMPONENT)
+                    .addMember("value", "$T.class", ClassNames.APPLICATION_COMPONENT)
                     .build())
             .addModifiers(Modifier.PUBLIC)
             .addMethod(
@@ -96,17 +96,17 @@ internal class ViewModelGenerator(
                     .addAnnotation(ClassNames.INTO_MAP)
                     .addAnnotation(
                         AnnotationSpec.builder(ClassNames.STRING_KEY)
-                            .addMember("value", S, injectedViewModel.className.canonicalName())
+                            .addMember("value", S, injectedWorker.className.canonicalName())
                             .build())
                     .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                     .returns(
                         ParameterizedTypeName.get(
-                            ClassNames.VIEW_MODEL_ASSISTED_FACTORY,
-                            WildcardTypeName.subtypeOf(ClassNames.VIEW_MODEL)))
-                    .addParameter(injectedViewModel.factoryClassName, "factory")
+                            ClassNames.WORKER_ASSISTED_FACTORY,
+                            WildcardTypeName.subtypeOf(ClassNames.WORKER)))
+                    .addParameter(injectedWorker.factoryClassName, "factory")
                     .build())
             .build()
-        JavaFile.builder(injectedViewModel.moduleClassName.packageName(), hiltModuleTypeSpec)
+        JavaFile.builder(injectedWorker.moduleClassName.packageName(), hiltModuleTypeSpec)
             .build()
             .writeTo(processingEnv.filer)
     }

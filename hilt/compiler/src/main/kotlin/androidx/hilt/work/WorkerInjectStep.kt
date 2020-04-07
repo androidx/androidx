@@ -17,10 +17,16 @@
 package androidx.hilt.work
 
 import com.google.auto.common.BasicAnnotationProcessor
+import com.google.auto.common.MoreElements
 import com.google.common.collect.SetMultimap
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.TypeElement
 
+/**
+ * Processing step that generates code enabling assisted injection of Workers using Hilt.
+ */
 class WorkerInjectStep(
     private val processingEnv: ProcessingEnvironment
 ) : BasicAnnotationProcessor.ProcessingStep {
@@ -30,7 +36,29 @@ class WorkerInjectStep(
     override fun process(
         elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
     ): MutableSet<out Element> {
-        // TODO(danysantiago): Implement me plz!
+        val parsedElements = mutableSetOf<TypeElement>()
+        elementsByAnnotation[WorkerInject::class.java].forEach { element ->
+            val constructorElement =
+                MoreElements.asExecutable(element)
+            val typeElement =
+                MoreElements.asType(constructorElement.enclosingElement)
+            if (parsedElements.add(typeElement)) {
+                parse(typeElement, constructorElement)?.let { worker ->
+                    WorkerGenerator(
+                        processingEnv,
+                        worker
+                    ).generate()
+                }
+            }
+        }
         return mutableSetOf()
+    }
+
+    private fun parse(
+        typeElement: TypeElement,
+        constructorElement: ExecutableElement
+    ): WorkerInjectElements? {
+        // TODO(danysantiago): Validate Worker
+        return WorkerInjectElements(typeElement, constructorElement)
     }
 }

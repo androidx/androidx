@@ -21,7 +21,10 @@ import com.squareup.javapoet.ClassName
 internal object ClassNames {
     val ACTIVITY_RETAINED_COMPONENT =
         ClassName.get("dagger.hilt.android.components", "ActivityRetainedComponent")
+    val APPLICATION_COMPONENT =
+        ClassName.get("dagger.hilt.android.components", "ApplicationComponent")
     val BINDS = ClassName.get("dagger", "Binds")
+    val CONTEXT = ClassName.get("android.content", "Context")
     val NON_NULL = ClassName.get("androidx.annotation", "NonNull")
     val INJECT = ClassName.get("javax.inject", "Inject")
     val INSTALL_IN = ClassName.get("dagger.hilt", "InstallIn")
@@ -33,4 +36,7 @@ internal object ClassNames {
     val VIEW_MODEL = ClassName.get("androidx.lifecycle", "ViewModel")
     val SAVED_STATE_HANDLE = ClassName.get("androidx.lifecycle", "SavedStateHandle")
     val STRING_KEY = ClassName.get("dagger.multibindings", "StringKey")
+    val WORKER = ClassName.get("androidx.work", "Worker")
+    val WORKER_ASSISTED_FACTORY = ClassName.get("androidx.hilt.work", "WorkerAssistedFactory")
+    val WORKER_PARAMETERS = ClassName.get("androidx.work", "WorkerParameters")
 }
