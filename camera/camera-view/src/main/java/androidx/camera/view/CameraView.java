@@ -121,7 +121,6 @@ public final class CameraView extends FrameLayout {
                 }
             };
     private PreviewView mPreviewView;
-    private ScaleType mScaleType = ScaleType.CENTER_CROP;
     // For accessibility event
     private MotionEvent mUpEvent;
 
@@ -174,7 +173,7 @@ public final class CameraView extends FrameLayout {
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CameraView);
             setScaleType(
-                    ScaleType.fromId(
+                    PreviewView.ScaleType.fromId(
                             a.getInteger(R.styleable.CameraView_scaleType,
                                     getScaleType().getId())));
             setPinchToZoomEnabled(
@@ -262,7 +261,7 @@ public final class CameraView extends FrameLayout {
         if (savedState instanceof Bundle) {
             Bundle state = (Bundle) savedState;
             super.onRestoreInstanceState(state.getParcelable(EXTRA_SUPER));
-            setScaleType(ScaleType.fromId(state.getInt(EXTRA_SCALE_TYPE)));
+            setScaleType(PreviewView.ScaleType.fromId(state.getInt(EXTRA_SCALE_TYPE)));
             setZoomRatio(state.getFloat(EXTRA_ZOOM_RATIO));
             setPinchToZoomEnabled(state.getBoolean(EXTRA_PINCH_TO_ZOOM_ENABLED));
             setFlash(FlashModeConverter.valueOf(state.getString(EXTRA_FLASH)));
@@ -344,11 +343,11 @@ public final class CameraView extends FrameLayout {
     /**
      * Returns the scale type used to scale the preview.
      *
-     * @return The current {@link ScaleType}.
+     * @return The current {@link PreviewView.ScaleType}.
      */
     @NonNull
-    public ScaleType getScaleType() {
-        return mScaleType;
+    public PreviewView.ScaleType getScaleType() {
+        return mPreviewView.getScaleType();
     }
 
     /**
@@ -356,13 +355,10 @@ public final class CameraView extends FrameLayout {
      *
      * <p>This controls how the view finder should be scaled and positioned within the view.
      *
-     * @param scaleType The desired {@link ScaleType}.
+     * @param scaleType The desired {@link PreviewView.ScaleType}.
      */
-    public void setScaleType(@NonNull ScaleType scaleType) {
-        if (scaleType != mScaleType) {
-            mScaleType = scaleType;
-            requestLayout();
-        }
+    public void setScaleType(@NonNull PreviewView.ScaleType scaleType) {
+        mPreviewView.setScaleType(scaleType);
     }
 
     /**
@@ -703,40 +699,6 @@ public final class CameraView extends FrameLayout {
      */
     public boolean isTorchOn() {
         return mCameraModule.isTorchOn();
-    }
-
-    /** Options for scaling the bounds of the view finder to the bounds of this view. */
-    public enum ScaleType {
-        /**
-         * Scale the view finder, maintaining the source aspect ratio, so the view finder fills the
-         * entire view. This will cause the view finder to crop the source image if the camera
-         * aspect ratio does not match the view aspect ratio.
-         */
-        CENTER_CROP(0),
-        /**
-         * Scale the view finder, maintaining the source aspect ratio, so the view finder is
-         * entirely contained within the view.
-         */
-        CENTER_INSIDE(1);
-
-        private final int mId;
-
-        int getId() {
-            return mId;
-        }
-
-        ScaleType(int id) {
-            mId = id;
-        }
-
-        static ScaleType fromId(int id) {
-            for (ScaleType st : values()) {
-                if (st.mId == id) {
-                    return st;
-                }
-            }
-            throw new IllegalArgumentException();
-        }
     }
 
     /**
