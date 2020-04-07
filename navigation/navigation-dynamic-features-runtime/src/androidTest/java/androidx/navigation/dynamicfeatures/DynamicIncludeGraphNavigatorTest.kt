@@ -26,6 +26,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -94,6 +95,19 @@ class DynamicIncludeGraphNavigatorTest {
         assertThat(
             dynamicNavGraph.getPackageOrDefault(context, null)
         ).isEqualTo("$packageName.$FEATURE_NAME")
+    }
+
+    @Test
+    fun invalidGraphId() {
+        try {
+            setupInternal(R.navigation.nav_invalid_id)
+            fail("Inflating nav_invalid_id should fail with an IllegalStateException")
+        } catch (e: IllegalStateException) {
+            assertThat(e).hasMessageThat().containsMatch(".*" +
+                    "androidx.navigation.dynamicfeatures.test:id/featureFragmentNested" +
+                    ".*" +
+                    "androidx.navigation.dynamicfeatures.test:id/dynamic_graph")
+        }
     }
 
     @Test

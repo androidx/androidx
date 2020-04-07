@@ -24,6 +24,7 @@ import android.util.AttributeSet;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 import androidx.navigation.common.R;
 
@@ -251,9 +252,13 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
         }
     }
 
+    /**
+     * @hide
+     */
     @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
-    String getDisplayName() {
+    public String getDisplayName() {
         return getId() != 0 ? super.getDisplayName() : "the root navigation";
     }
 
