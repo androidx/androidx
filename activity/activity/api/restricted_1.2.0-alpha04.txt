@@ -127,8 +127,8 @@ package androidx.activity.result.contract {
     method public final android.net.Uri? parseResult(int, android.content.Intent?);
   }
 
-  public static class ActivityResultContracts.GetContents extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.util.List<android.net.Uri>> {
-    ctor public ActivityResultContracts.GetContents();
+  public static class ActivityResultContracts.GetMultipleContents extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.util.List<android.net.Uri>> {
+    ctor public ActivityResultContracts.GetMultipleContents();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, String);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri!>!>? getSynchronousResult(android.content.Context, String);
     method public final java.util.List<android.net.Uri!> parseResult(int, android.content.Intent?);
@@ -148,8 +148,8 @@ package androidx.activity.result.contract {
     method public final android.net.Uri? parseResult(int, android.content.Intent?);
   }
 
-  public static class ActivityResultContracts.OpenDocuments extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.List<android.net.Uri>> {
-    ctor public ActivityResultContracts.OpenDocuments();
+  public static class ActivityResultContracts.OpenMultipleDocuments extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.List<android.net.Uri>> {
+    ctor public ActivityResultContracts.OpenMultipleDocuments();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, String![]);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri!>!>? getSynchronousResult(android.content.Context, String![]);
     method public final java.util.List<android.net.Uri!>? parseResult(int, android.content.Intent?);
@@ -161,21 +161,21 @@ package androidx.activity.result.contract {
     method public android.net.Uri? parseResult(int, android.content.Intent?);
   }
 
-  public static final class ActivityResultContracts.RequestPermission extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {
-    ctor public ActivityResultContracts.RequestPermission();
-    method public android.content.Intent createIntent(android.content.Context, String);
-    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.lang.Boolean!>? getSynchronousResult(android.content.Context, String?);
-    method public Boolean parseResult(int, android.content.Intent?);
-  }
-
-  public static final class ActivityResultContracts.RequestPermissions extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.Map<java.lang.String,java.lang.Boolean>> {
-    ctor public ActivityResultContracts.RequestPermissions();
+  public static final class ActivityResultContracts.RequestMultiplePermissions extends androidx.activity.result.contract.ActivityResultContract<java.lang.String[],java.util.Map<java.lang.String,java.lang.Boolean>> {
+    ctor public ActivityResultContracts.RequestMultiplePermissions();
     method public android.content.Intent createIntent(android.content.Context, String![]);
     method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.Map<java.lang.String!,java.lang.Boolean!>!>? getSynchronousResult(android.content.Context, String![]?);
     method public java.util.Map<java.lang.String!,java.lang.Boolean!> parseResult(int, android.content.Intent?);
     field public static final String ACTION_REQUEST_PERMISSIONS = "androidx.activity.result.contract.action.REQUEST_PERMISSIONS";
     field public static final String EXTRA_PERMISSIONS = "androidx.activity.result.contract.extra.PERMISSIONS";
     field public static final String EXTRA_PERMISSION_GRANT_RESULTS = "androidx.activity.result.contract.extra.PERMISSION_GRANT_RESULTS";
+  }
+
+  public static final class ActivityResultContracts.RequestPermission extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,java.lang.Boolean> {
+    ctor public ActivityResultContracts.RequestPermission();
+    method public android.content.Intent createIntent(android.content.Context, String);
+    method public androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.lang.Boolean!>? getSynchronousResult(android.content.Context, String?);
+    method public Boolean parseResult(int, android.content.Intent?);
   }
 
   public static final class ActivityResultContracts.StartActivityForResult extends androidx.activity.result.contract.ActivityResultContract<android.content.Intent,androidx.activity.result.ActivityResult> {
