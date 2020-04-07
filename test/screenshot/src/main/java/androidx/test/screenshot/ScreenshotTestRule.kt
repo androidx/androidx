@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
+import androidx.core.os.BuildCompat
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.matchers.BitmapMatcher
 import androidx.test.screenshot.matchers.MSSIMMatcher
@@ -109,8 +110,9 @@ open class ScreenshotTestRule(
     class ScreenshotTestStatement(private val base: Statement) : Statement() {
         override fun evaluate() {
             // We currently only support Cuttlefish API 29 because of the storage access.
-            Assume.assumeTrue(Build.MODEL.contains("Cuttlefish"))
-            Assume.assumeTrue(Build.VERSION.SDK_INT == 29)
+            Assume.assumeTrue("Requires Cuttlefish", Build.MODEL.contains("Cuttlefish"))
+            Assume.assumeTrue("Requires SDK 29.",
+                Build.VERSION.SDK_INT == 29 && !BuildCompat.isAtLeastR())
             base.evaluate()
         }
     }
