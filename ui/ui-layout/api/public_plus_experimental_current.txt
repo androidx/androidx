@@ -150,7 +150,7 @@ package androidx.ui.layout {
 
   public static final class ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor {
     method public infix void constrainTo(androidx.ui.layout.ConstraintSetBuilderScope.ConstrainedLayoutBaselineAnchor other);
-    method public androidx.constraintlayout.solver.state.State getState();
+    method public androidx.constraintlayout.core.state.State getState();
     method public Object getTag();
   }
 
@@ -207,7 +207,7 @@ package androidx.ui.layout {
   public static final class ConstraintSetBuilderScope.HorizontalAnchor.BarrierAnchor extends androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor {
     method public int getIndex$lintWithKotlin();
     method public androidx.ui.unit.Dp getMargin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public androidx.constraintlayout.core.state.State getState$lintWithKotlin();
     method public Object getTag$lintWithKotlin();
     method public void setMargin(androidx.ui.unit.Dp value);
     property public final androidx.ui.unit.Dp margin;
@@ -217,7 +217,7 @@ package androidx.ui.layout {
     method public infix void constrainTo(androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor other);
     method public int getIndex$lintWithKotlin();
     method public androidx.ui.unit.Dp getMargin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public androidx.constraintlayout.core.state.State getState$lintWithKotlin();
     method public Object getTag$lintWithKotlin();
     method public void setMargin(androidx.ui.unit.Dp value);
     property public final androidx.ui.unit.Dp margin;
@@ -226,7 +226,7 @@ package androidx.ui.layout {
 
   public static final class ConstraintSetBuilderScope.HorizontalAnchor.GuidelineAnchor extends androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor {
     method public int getIndex$lintWithKotlin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public androidx.constraintlayout.core.state.State getState$lintWithKotlin();
     method public Object getTag$lintWithKotlin();
   }
 
@@ -244,7 +244,7 @@ package androidx.ui.layout {
   public static final class ConstraintSetBuilderScope.VerticalAnchor.BarrierAnchor extends androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor {
     method public int getIndex$lintWithKotlin();
     method public androidx.ui.unit.Dp getMargin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public androidx.constraintlayout.core.state.State getState$lintWithKotlin();
     method public Object getTag$lintWithKotlin();
     method public void setMargin(androidx.ui.unit.Dp value);
     property public final androidx.ui.unit.Dp margin;
@@ -254,7 +254,7 @@ package androidx.ui.layout {
     method public infix void constrainTo(androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor other);
     method public int getIndex$lintWithKotlin();
     method public androidx.ui.unit.Dp getMargin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public androidx.constraintlayout.core.state.State getState$lintWithKotlin();
     method public Object getTag$lintWithKotlin();
     method public void setMargin(androidx.ui.unit.Dp value);
     property public final androidx.ui.unit.Dp margin;
@@ -263,7 +263,7 @@ package androidx.ui.layout {
 
   public static final class ConstraintSetBuilderScope.VerticalAnchor.GuidelineAnchor extends androidx.ui.layout.ConstraintSetBuilderScope.VerticalAnchor {
     method public int getIndex$lintWithKotlin();
-    method public androidx.constraintlayout.solver.state.State getState$lintWithKotlin();
+    method public androidx.constraintlayout.core.state.State getState$lintWithKotlin();
     method public Object getTag$lintWithKotlin();
   }
 
