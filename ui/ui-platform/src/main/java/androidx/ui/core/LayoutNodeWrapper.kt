@@ -51,6 +51,8 @@ internal abstract class LayoutNodeWrapper(
 
     final override var measurementConstraints = Constraints()
 
+    abstract val layoutDirection: LayoutDirection
+
     private var _measureResult: MeasureScope.MeasureResult? = null
     var measureResult: MeasureScope.MeasureResult
         get() = _measureResult ?: error(UnmeasuredError)
