@@ -17,6 +17,8 @@
 package androidx.camera.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -82,6 +84,21 @@ public class PreviewView extends FrameLayout {
     public PreviewView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        final TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs,
+                R.styleable.PreviewView, defStyleAttr, defStyleRes);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(context, R.styleable.PreviewView, attrs, attributes,
+                    defStyleAttr, defStyleRes);
+        }
+
+        try {
+            final int scaleTypeId = attributes.getInteger(
+                    R.styleable.PreviewView_scaleType,
+                    mPreviewTransform.getScaleType().getId());
+            setScaleType(ScaleType.fromId(scaleTypeId));
+        } finally {
+            attributes.recycle();
+        }
     }
 
     @Override
