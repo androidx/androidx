@@ -86,12 +86,14 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
             try {
                 Logger.get().debug(TAG, "Registering network callback");
                 mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);
-            } catch (IllegalArgumentException e) {
-                // This seems to be happening on NVIDIA Shield K1 Tablets.  Catching the
-                // exception since and moving on.  See b/136569342.
+            } catch (IllegalArgumentException | SecurityException e) {
+                // Catching the exceptions since and moving on - this tracker is only used for
+                // GreedyScheduler and there is nothing to be done about device-specific bugs.
+                // IllegalStateException: Happening on NVIDIA Shield K1 Tablets.  See b/136569342.
+                // SecurityException: Happening on Solone W1450.  See b/153246136.
                 Logger.get().error(
                         TAG,
-                        "Received exception while unregistering network callback",
+                        "Received exception while registering network callback",
                         e);
             }
         } else {
@@ -107,9 +109,11 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
             try {
                 Logger.get().debug(TAG, "Unregistering network callback");
                 mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
-            } catch (IllegalArgumentException e) {
-                // This seems to be happening on NVIDIA Shield Tablets a lot.  Catching the
-                // exception since it's not fatal and moving on.  See b/119484416.
+            } catch (IllegalArgumentException | SecurityException e) {
+                // Catching the exceptions since and moving on - this tracker is only used for
+                // GreedyScheduler and there is nothing to be done about device-specific bugs.
+                // IllegalStateException: Happening on NVIDIA Shield K1 Tablets.  See b/136569342.
+                // SecurityException: Happening on Solone W1450.  See b/153246136.
                 Logger.get().error(
                         TAG,
                         "Received exception while unregistering network callback",
