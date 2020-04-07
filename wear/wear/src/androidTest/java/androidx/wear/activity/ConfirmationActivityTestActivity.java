@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.wear.widget;
+package androidx.wear.activity;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
-import androidx.wear.activity.ConfirmationActivity;
 import androidx.wear.test.R;
 
 public class ConfirmationActivityTestActivity extends Activity {
@@ -33,7 +32,7 @@ public class ConfirmationActivityTestActivity extends Activity {
         mDuration = duration;
     }
 
-    private int mDuration = ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MS;
+    private int mDuration = ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MILLIS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +46,8 @@ public class ConfirmationActivityTestActivity extends Activity {
                             ConfirmationActivity.class);
                     intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
                             ConfirmationActivity.SUCCESS_ANIMATION);
-                    intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_DURATION_MS, mDuration);
+                    intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_DURATION_MILLIS,
+                            mDuration);
                     intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "A message");
 
                     startActivity(intent);

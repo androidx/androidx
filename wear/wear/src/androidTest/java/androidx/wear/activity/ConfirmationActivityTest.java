@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.widget;
+package androidx.wear.activity;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -25,7 +25,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.wear.activity.ConfirmationActivity;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.WakeLockRule;
 
@@ -57,18 +56,18 @@ public class ConfirmationActivityTest {
 
     @Test
     public void testConfirmationDialogShownForDefaultDuration() throws Throwable {
-        int testDuration = ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MS;
+        int testDuration = ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MILLIS;
         // Check that the structure of the test is still valid
         assertTrue(testDuration
                 > (MILLIS_BEFORE_END_OF_DURATION + MILLIS_TO_WAIT_FOR_ACTIVITY_TO_BE_DRAWN));
         testConfirmationDialogShownForConfiguredDuration(
-                ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MS);
+                ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MILLIS);
     }
 
     @Test
     public void testConfirmationDialogShownForLongerDuration() throws Throwable {
         testConfirmationDialogShownForConfiguredDuration(
-                ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MS * 2);
+                ConfirmationActivity.DEFAULT_ANIMATION_DURATION_MILLIS * 2);
     }
 
     private void testConfirmationDialogShownForConfiguredDuration(int duration) throws Throwable {
