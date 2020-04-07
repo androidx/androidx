@@ -57,7 +57,7 @@ class FragmentResultTest {
             val expectedResult = "resultGood"
             resultBundle.putString("bundleKey", expectedResult)
 
-            fm.setResult("requestKey", resultBundle)
+            fm.setFragmentResult("requestKey", resultBundle)
 
             assertWithMessage("The result is not set")
                 .that(fragment1.actualResult)
@@ -98,7 +98,7 @@ class FragmentResultTest {
             val expectedResult = "resultGood"
             resultBundle.putString("bundleKey", expectedResult)
 
-            fm.setResult("requestKey", resultBundle)
+            fm.setFragmentResult("requestKey", resultBundle)
 
             assertWithMessage("The result is incorrect")
                 .that(fragment1.actualResult)
@@ -125,9 +125,9 @@ class FragmentResultTest {
             val expectedResult = "resultGood"
             resultBundle.putString("bundleKey", expectedResult)
 
-            fm.setResult("requestKey", resultBundle)
+            fm.setFragmentResult("requestKey", resultBundle)
 
-            fm.setResultListener("requestKey", fragment1, FragmentResultListener
+            fm.setFragmentResultListener("requestKey", fragment1, FragmentResultListener
             { _, bundle -> actualResult = bundle.getString("bundleKey") })
 
             assertWithMessage("The result is incorrect")
@@ -162,7 +162,7 @@ class FragmentResultTest {
             val expectedResult = "resultGood"
             resultBundle.putString("bundleKey", expectedResult)
 
-            fm.setResult("requestKey", resultBundle)
+            fm.setFragmentResult("requestKey", resultBundle)
 
             assertWithMessage("The result is not set")
                 .that(fragment1.actualResult)
@@ -218,7 +218,7 @@ class ResultFragment : StrictFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        parentFragmentManager.setResultListener("requestKey", this, FragmentResultListener
+        parentFragmentManager.setFragmentResultListener("requestKey", this, FragmentResultListener
         { _, bundle -> actualResult = bundle.getString("bundleKey") })
     }
 }
@@ -229,7 +229,7 @@ class ParentResultFragment : StrictFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        childFragmentManager.setResultListener("requestKey", this, FragmentResultListener
+        childFragmentManager.setFragmentResultListener("requestKey", this, FragmentResultListener
         { _, bundle -> actualResult = bundle.getString("bundleKey") })
     }
 }
@@ -240,6 +240,6 @@ class ChildResultFragment : StrictFragment() {
         val resultBundle = Bundle().apply {
             putString("bundleKey", "resultGood")
         }
-        parentFragmentManager.setResult("requestKey", resultBundle)
+        parentFragmentManager.setFragmentResult("requestKey", resultBundle)
     }
 }

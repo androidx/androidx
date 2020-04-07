@@ -48,7 +48,7 @@ class FragmentResultOwnerTest {
             val expectedResult = "resultGood"
             val resultBundle = bundleOf("bundleKey" to expectedResult)
 
-            fm.setResult("requestKey", resultBundle)
+            fm.setFragmentResult("requestKey", resultBundle)
 
             assertWithMessage("The result is incorrect")
                 .that(fragment1.actualResult)
@@ -74,8 +74,8 @@ class FragmentResultOwnerTest {
             val expectedResult = "resultGood"
             val resultBundle = bundleOf("bundleKey" to expectedResult)
 
-            fm.setResultListener("requestKey", fragment1, null)
-            fm.setResult("requestKey", resultBundle)
+            fm.setFragmentResultListener("requestKey", fragment1, null)
+            fm.setFragmentResult("requestKey", resultBundle)
 
             assertWithMessage("The listener was cleared but the result was not null")
                 .that(fragment1.actualResult)
@@ -89,7 +89,7 @@ class FragmentResultOwnerTest {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
 
-            parentFragmentManager.setResultListener("requestKey", this) { _, bundle ->
+            parentFragmentManager.setFragmentResultListener("requestKey", this) { _, bundle ->
                 actualResult = bundle.getString("bundleKey")
             }
         }
