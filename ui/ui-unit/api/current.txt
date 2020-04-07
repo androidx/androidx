@@ -76,6 +76,10 @@ package androidx.ui.core {
 
 package androidx.ui.unit {
 
+  public final class AndroidDensityKt {
+    method public static androidx.ui.unit.Density Density(android.content.Context context);
+  }
+
   public final class Bounds {
     method public float component1();
     method public float component2();
@@ -112,7 +116,6 @@ package androidx.ui.unit {
   }
 
   public final class DensityKt {
-    method public static androidx.ui.unit.Density Density(android.content.Context context);
     method public static androidx.ui.unit.Density Density(float density, float fontScale = 1f);
   }
 
