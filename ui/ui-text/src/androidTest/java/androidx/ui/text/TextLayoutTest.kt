@@ -16,7 +16,6 @@
 
 package androidx.ui.text
 
-import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.remember
@@ -57,7 +56,7 @@ import java.util.concurrent.TimeUnit
 class TextLayoutTest {
     @get:Rule
     internal val activityTestRule = ActivityTestRule(ComponentActivity::class.java)
-    private lateinit var activity: Activity
+    private lateinit var activity: ComponentActivity
     private lateinit var density: Density
 
     @Before
