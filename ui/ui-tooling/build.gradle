@@ -40,7 +40,8 @@ dependencies {
     implementation(project(":ui:ui-framework"))
     implementation(project(":ui:ui-platform"))
     implementation(project(":ui:ui-material"))
-    implementation(KOTLIN_REFLECT)
+    // kotlin-reflect is provided by Studio at runtime
+    compileOnly(KOTLIN_REFLECT)
 
     androidTestImplementation project(":ui:ui-test")
 
@@ -50,6 +51,7 @@ dependencies {
     androidTestImplementation project(":ui:ui-layout")
     androidTestImplementation project(":ui:ui-foundation")
     androidTestImplementation(TRUTH)
+    androidTestImplementation(KOTLIN_REFLECT)
 }
 
 androidx {
