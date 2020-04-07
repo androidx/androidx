@@ -20,12 +20,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
@@ -41,6 +44,36 @@ final class ImageUtil {
     private static final String TAG = "ImageUtil";
 
     private ImageUtil() {
+    }
+
+    /**
+     * Rotates {@link Rect} based on rotation degrees.
+     */
+    static Rect getRotatedRect(
+            @IntRange(from = 0, to = 359) int rotationDegrees,
+            @NonNull Rect originalRect) {
+        if (rotationDegrees == 90 || rotationDegrees == 270) {
+            return new Rect(originalRect.top,
+                    originalRect.left,
+                    originalRect.bottom,
+                    originalRect.right);
+        }
+
+        return new Rect(originalRect);
+    }
+
+    /**
+     * Returns the max containing {@link RectF} with the given aspect ratio.
+     */
+    @NonNull
+    public static RectF fitCenter(@NonNull RectF dstRect, @NonNull Rational sourceAspectRatio) {
+        Matrix matrix = new Matrix();
+        RectF srcRect = new RectF(0, 0, sourceAspectRatio.getNumerator(),
+                sourceAspectRatio.getDenominator());
+        matrix.setRectToRect(srcRect, dstRect, Matrix.ScaleToFit.CENTER);
+        RectF result = new RectF();
+        matrix.mapRect(result, srcRect);
+        return result;
     }
 
     /** {@link android.media.Image} to JPEG byte array. */

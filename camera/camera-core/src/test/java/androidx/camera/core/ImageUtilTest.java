@@ -28,6 +28,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.util.Base64;
 import android.util.Rational;
@@ -47,6 +48,9 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Unit tests for {@link ImageUtil}.
+ */
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -94,6 +98,46 @@ public class ImageUtilTest {
         mImage.setPlanes(new ImageProxy.PlaneProxy[]{mDataPlane});
         mDataBuffer.get(mDataByteArray);
         mDataBuffer.clear();
+    }
+
+    @Test
+    public void rotateRectFor90Degrees_rectRotated() {
+        // Arrange.
+        Rect rect = new Rect(10, 20, 30, 40);
+
+        // Assert: return a rotated rect.
+        assertThat(ImageUtil.getRotatedRect(90, rect)).isEqualTo(new Rect(20, 10, 40, 30));
+    }
+
+    @Test
+    public void rotateRectFor180Degrees_rectUnchanged() {
+        // Arrange.
+        Rect rect = new Rect(10, 20, 30, 40);
+
+        // Assert: return the same rect.
+        assertThat(ImageUtil.getRotatedRect(180, rect)).isEqualTo(rect);
+    }
+
+    @Test
+    public void fitNarrowRectIntoContainer() {
+        // Arrange.
+        RectF rect = new RectF(10, 10, 50, 40);
+
+        // Assert.
+        // The aspect ratio is narrower than the container.
+        assertThat(ImageUtil.fitCenter(rect, new Rational(1, 1))).isEqualTo(
+                new RectF(15, 10, 45, 40));
+    }
+
+    @Test
+    public void fitWideRectIntoContainer() {
+        // Arrange.
+        RectF rect = new RectF(10, 10, 50, 40);
+
+        // Assert.
+        // The aspect ratio is wider than the container.
+        assertThat(ImageUtil.fitCenter(rect, new Rational(2, 1))).isEqualTo(
+                new RectF(10, 15, 50, 35));
     }
 
     @Test
