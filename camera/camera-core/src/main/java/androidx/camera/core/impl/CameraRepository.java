@@ -29,8 +29,9 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     private final Object mCamerasLock = new Object();
 
     @GuardedBy("mCamerasLock")
-    private final Map<String, CameraInternal> mCameras = new HashMap<>();
+    private final Map<String, CameraInternal> mCameras = new LinkedHashMap<>();
     @GuardedBy("mCamerasLock")
     private final Set<CameraInternal> mReleasingCameras = new HashSet<>();
     @GuardedBy("mCamerasLock")
@@ -160,7 +161,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     @NonNull
     public Set<CameraInternal> getCameras() {
         synchronized (mCamerasLock) {
-            return new HashSet<>(mCameras.values());
+            return new LinkedHashSet<>(mCameras.values());
         }
     }
 
@@ -172,7 +173,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeCallback 
     @NonNull
     Set<String> getCameraIds() {
         synchronized (mCamerasLock) {
-            return new HashSet<>(mCameras.keySet());
+            return new LinkedHashSet<>(mCameras.keySet());
         }
     }
 
