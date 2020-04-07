@@ -17,6 +17,8 @@
 package androidx.camera.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -82,6 +84,21 @@ public class PreviewView extends FrameLayout {
     public PreviewView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        final TypedArray attributes = context.getTheme().obtainStyledAttributes(attrs,
+                R.styleable.PreviewView, defStyleAttr, defStyleRes);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(context, R.styleable.PreviewView, attrs, attributes,
+                    defStyleAttr, defStyleRes);
+        }
+
+        try {
+            final int scaleTypeId = attributes.getInteger(
+                    R.styleable.PreviewView_scaleType,
+                    mPreviewTransform.getScaleType().getId());
+            setScaleType(ScaleType.fromId(scaleTypeId));
+        } finally {
+            attributes.recycle();
+        }
     }
 
     @Override
@@ -242,41 +259,60 @@ public class PreviewView extends FrameLayout {
          * This may cause the preview to be cropped if the camera preview aspect ratio does not
          * match that of its container {@link PreviewView}.
          */
-        FILL_START,
+        FILL_START(0),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it fills the entire
          * {@link PreviewView}, and center it inside the view.
          * This may cause the preview to be cropped if the camera preview aspect ratio does not
          * match that of its container {@link PreviewView}.
          */
-        FILL_CENTER,
+        FILL_CENTER(1),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it fills the entire
          * {@link PreviewView}, and align it to the bottom right corner of the view.
          * This may cause the preview to be cropped if the camera preview aspect ratio does not
          * match that of its container {@link PreviewView}.
          */
-        FILL_END,
+        FILL_END(2),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
          * within the {@link PreviewView}, and align it to the top left corner of the view.
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
          */
-        FIT_START,
+        FIT_START(3),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
          * within the {@link PreviewView}, and center it inside the view.
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
          */
-        FIT_CENTER,
+        FIT_CENTER(4),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
          * within the {@link PreviewView}, and align it to the bottom right corner of the view.
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
          */
-        FIT_END
+        FIT_END(5);
+
+        private final int mId;
+
+        ScaleType(int id) {
+            mId = id;
+        }
+
+        int getId() {
+            return mId;
+        }
+
+        static ScaleType fromId(int id) {
+            for (ScaleType scaleType : values()) {
+                if (scaleType.mId == id) {
+                    return scaleType;
+                }
+            }
+            throw new IllegalArgumentException("Unknown scale type id " + id);
+        }
     }
 }

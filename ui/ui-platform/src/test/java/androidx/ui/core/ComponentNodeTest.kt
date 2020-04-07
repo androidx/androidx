@@ -464,9 +464,9 @@ class ComponentNodeTest {
 
     @Test
     fun testPxGlobalToLocal() {
-        val node0 = LayoutNode()
+        val node0 = ZeroSizedLayoutNode()
         node0.attach(mockOwner())
-        val node1 = LayoutNode()
+        val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
         val x0 = 100.ipx
@@ -489,9 +489,9 @@ class ComponentNodeTest {
 
     @Test
     fun testIntPxGlobalToLocal() {
-        val node0 = LayoutNode()
+        val node0 = ZeroSizedLayoutNode()
         node0.attach(mockOwner())
-        val node1 = LayoutNode()
+        val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
         val x0 = 100.ipx
@@ -514,9 +514,9 @@ class ComponentNodeTest {
 
     @Test
     fun testPxLocalToGlobal() {
-        val node0 = LayoutNode()
+        val node0 = ZeroSizedLayoutNode()
         node0.attach(mockOwner())
-        val node1 = LayoutNode()
+        val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
         val x0 = 100.ipx
@@ -539,9 +539,9 @@ class ComponentNodeTest {
 
     @Test
     fun testIntPxLocalToGlobal() {
-        val node0 = LayoutNode()
+        val node0 = ZeroSizedLayoutNode()
         node0.attach(mockOwner())
-        val node1 = LayoutNode()
+        val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
         val x0 = 100.ipx
@@ -564,7 +564,7 @@ class ComponentNodeTest {
 
     @Test
     fun testPxLocalToGlobalUsesOwnerPosition() {
-        val node = LayoutNode()
+        val node = ZeroSizedLayoutNode()
         node.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
         node.place(100.ipx, 10.ipx)
 
@@ -575,7 +575,7 @@ class ComponentNodeTest {
 
     @Test
     fun testIntPxLocalToGlobalUsesOwnerPosition() {
-        val node = LayoutNode()
+        val node = ZeroSizedLayoutNode()
         node.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
         node.place(100.ipx, 10.ipx)
 
@@ -586,9 +586,9 @@ class ComponentNodeTest {
 
     @Test
     fun testChildToLocal() {
-        val node0 = LayoutNode()
+        val node0 = ZeroSizedLayoutNode()
         node0.attach(mockOwner())
-        val node1 = LayoutNode()
+        val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
         val x1 = 50.ipx
@@ -647,9 +647,9 @@ class ComponentNodeTest {
 
     @Test
     fun testPositionRelativeToRoot() {
-        val parent = LayoutNode()
+        val parent = ZeroSizedLayoutNode()
         parent.attach(mockOwner())
-        val child = LayoutNode()
+        val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
         parent.place(-100.ipx, 10.ipx)
         child.place(50.ipx, 80.ipx)
@@ -663,7 +663,7 @@ class ComponentNodeTest {
     fun testPositionRelativeToRootIsNotAffectedByOwnerPosition() {
         val parent = LayoutNode()
         parent.attach(mockOwner(IntPxPosition(20.ipx, 20.ipx)))
-        val child = LayoutNode()
+        val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
         child.place(50.ipx, 80.ipx)
 
@@ -674,9 +674,9 @@ class ComponentNodeTest {
 
     @Test
     fun testPositionRelativeToAncestorWithParent() {
-        val parent = LayoutNode()
+        val parent = ZeroSizedLayoutNode()
         parent.attach(mockOwner())
-        val child = LayoutNode()
+        val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
         parent.place(-100.ipx, 10.ipx)
         child.place(50.ipx, 80.ipx)
@@ -688,10 +688,10 @@ class ComponentNodeTest {
 
     @Test
     fun testPositionRelativeToAncestorWithGrandParent() {
-        val grandParent = LayoutNode()
+        val grandParent = ZeroSizedLayoutNode()
         grandParent.attach(mockOwner())
-        val parent = LayoutNode()
-        val child = LayoutNode()
+        val parent = ZeroSizedLayoutNode()
+        val child = ZeroSizedLayoutNode()
         grandParent.insertAt(0, parent)
         parent.insertAt(0, child)
         grandParent.place(-7.ipx, 17.ipx)
@@ -1640,9 +1640,9 @@ class ComponentNodeTest {
     }
 
     private fun createSimpleLayout(): Triple<LayoutNode, ComponentNode, ComponentNode> {
-        val layoutNode = LayoutNode()
-        val child1 = LayoutNode()
-        val child2 = LayoutNode()
+        val layoutNode = ZeroSizedLayoutNode()
+        val child1 = ZeroSizedLayoutNode()
+        val child2 = ZeroSizedLayoutNode()
         layoutNode.insertAt(0, child1)
         layoutNode.insertAt(1, child2)
         return Triple(layoutNode, child1, child2)
@@ -1673,6 +1673,8 @@ class ComponentNodeTest {
             }
             place(x.ipx, y.ipx)
         }
+
+    private fun ZeroSizedLayoutNode() = LayoutNode(0, 0, 0, 0)
 
     private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
         PointerInputModifier

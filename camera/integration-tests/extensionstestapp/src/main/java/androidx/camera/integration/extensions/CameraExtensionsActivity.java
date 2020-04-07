@@ -33,7 +33,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
@@ -80,11 +79,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     boolean mPermissionsGranted = false;
     private CallbackToFutureAdapter.Completer<Boolean> mPermissionCompleter;
-
-    /** The cameraId to use. Assume that 0 is the typical back facing camera. */
-    private String mCurrentCameraId = "0";
-
-    private String mCurrentCameraFacing = "BACK";
 
     @Nullable
     private Preview mPreview;
@@ -371,15 +365,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
         StrictMode.setVmPolicy(policy);
         mPreviewView = findViewById(R.id.previewView);
 
-        // Get params from adb extra string
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            String newCameraFacing = bundle.getString("cameraFacing");
-            if (newCameraFacing != null) {
-                mCurrentCameraFacing = newCameraFacing;
-            }
-        }
-
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(this);
         Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
@@ -413,23 +398,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
             Log.d(TAG, "Permissions denied.");
             return;
         }
-
-        try {
-            Log.d(TAG, "Camera Facing: " + mCurrentCameraFacing);
-            @CameraSelector.LensFacing int facing;
-            if (mCurrentCameraFacing.equalsIgnoreCase("BACK")) {
-                facing = CameraSelector.LENS_FACING_BACK;
-            } else if (mCurrentCameraFacing.equalsIgnoreCase("FRONT")) {
-                facing = CameraSelector.LENS_FACING_FRONT;
-            } else {
-                throw new RuntimeException("Invalid lens facing: " + mCurrentCameraFacing);
-            }
-            mCurrentCameraId = CameraX.getCameraWithLensFacing(facing);
-        } catch (Exception e) {
-            Log.e(TAG, "Unable to obtain camera with specified facing. " + e.getMessage());
-        }
-
-        Log.d(TAG, "Using cameraId: " + mCurrentCameraId);
 
         ListenableFuture<ExtensionsManager.ExtensionsAvailability> availability =
                 ExtensionsManager.init();

@@ -39,7 +39,7 @@ internal class InnerPlaceable(
     override val isAttached: Boolean
         get() = layoutNode.isAttached()
 
-    override fun measure(constraints: Constraints): Placeable {
+    override fun performMeasure(constraints: Constraints): Placeable {
         val measureResult = layoutNode.measureBlocks.measure(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
@@ -124,7 +124,7 @@ internal class InnerPlaceable(
     override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {
             val owner = layoutNode.requireOwner()
-            val sizePx = size.toPxSize()
+            val sizePx = measuredSize.toPxSize()
             layoutNode.zIndexSortedChildren.fastForEach { child ->
                 owner.callDraw(canvas, child, sizePx)
             }

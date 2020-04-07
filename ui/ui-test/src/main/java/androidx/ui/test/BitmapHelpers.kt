@@ -106,19 +106,12 @@ fun Bitmap.assertPixels(
         }
     }
 
-    val pixels = IntArray(width * height)
-    getPixels(pixels, 0, width, 0, 0, width, height)
-
     for (x in 0 until width) {
         for (y in 0 until height) {
             val pxPos = IntPxPosition(x.ipx, y.ipx)
-            val color = Color(pixels[width * y + x])
             val expectedClr = expectedColorProvider(pxPos)
-            if (expectedClr != null && expectedClr != color) {
-                throw AssertionError(
-                    "Comparison failed for $pxPos: expected $expectedClr $ " +
-                            "but received $color"
-                )
+            if (expectedClr != null) {
+                assertPixelColor(expectedClr, x, y)
             }
         }
     }
@@ -135,10 +128,10 @@ fun Bitmap.assertPixelColor(
 ) {
     val color = Color(getPixel(x, y))
     val errorString = error(color)
-    assertEquals(errorString, expected.red, color.red, 0.01f)
-    assertEquals(errorString, expected.green, color.green, 0.01f)
-    assertEquals(errorString, expected.blue, color.blue, 0.01f)
-    assertEquals(errorString, expected.alpha, color.alpha, 0.01f)
+    assertEquals(errorString, expected.red, color.red, 0.02f)
+    assertEquals(errorString, expected.green, color.green, 0.02f)
+    assertEquals(errorString, expected.blue, color.blue, 0.02f)
+    assertEquals(errorString, expected.alpha, color.alpha, 0.02f)
 }
 
 /**

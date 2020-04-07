@@ -22,10 +22,12 @@ import androidx.compose.Composable
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.test.AlignTopLeft
 import androidx.ui.core.test.AtLeastSize
+import androidx.ui.core.test.FixedSize
 import androidx.ui.core.test.Padding
 import androidx.ui.core.test.background
-import androidx.ui.core.test.runOnUiThreadIR
+import androidx.ui.core.test.setContentInFrameLayout
 import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Rect
@@ -80,8 +82,8 @@ class PainterModifierTest {
     @Test
     fun testPainterModifierColorFilter() {
         val paintLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR {
-            activity.setContent {
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
                 testPainter(
                     colorFilter = ColorFilter(Color.Cyan, BlendMode.srcIn),
                     latch = paintLatch
@@ -103,8 +105,8 @@ class PainterModifierTest {
     @Test
     fun testPainterModifierAlpha() {
         val paintLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR {
-            activity.setContent {
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
                 testPainter(
                     alpha = 0.5f,
                     latch = paintLatch
@@ -137,8 +139,8 @@ class PainterModifierTest {
     @Test
     fun testPainterModifierRtl() {
         val paintLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR {
-            activity.setContent {
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
                 testPainter(
                     rtl = true,
                     latch = paintLatch
@@ -161,9 +163,9 @@ class PainterModifierTest {
     fun testPainterAspectRatioMaintainedInSmallerParent() {
         val paintLatch = CountDownLatch(1)
         val containerSizePx = containerWidth.roundToInt().ipx * 3
-        rule.runOnUiThreadIR {
-            activity.setContent {
-                AtLeastSize(size = containerSizePx, modifier = background(Color.White)) {
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
+                FixedSize(size = containerSizePx, modifier = background(Color.White)) {
                     // Verify that the contents are scaled down appropriately even though
                     // the Painter's intrinsic width and height is twice that of the component
                     // it is to be drawn into
@@ -207,8 +209,8 @@ class PainterModifierTest {
     fun testPainterAlignedBottomRightIfSmallerThanParent() {
         val paintLatch = CountDownLatch(1)
         val containerSizePx = containerWidth.roundToInt().ipx * 2
-        rule.runOnUiThreadIR {
-            activity.setContent {
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
                 AtLeastSize(size = containerWidth.roundToInt().ipx * 2,
                     modifier = background(Color.White).paint(
                         LatchPainter(
@@ -250,8 +252,8 @@ class PainterModifierTest {
     @Test
     fun testPainterModifierIntrinsicSize() {
         val paintLatch = CountDownLatch(1)
-        rule.runOnUiThreadIR {
-            activity.setContent {
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
                 NoMinSizeContainer {
                     NoIntrinsicSizeContainer(
                         Modifier.paint(LatchPainter(containerWidth, containerHeight, paintLatch))
@@ -284,14 +286,14 @@ class PainterModifierTest {
     fun testPainterIntrinsicSizeDoesNotExceedMax() {
         val paintLatch = CountDownLatch(1)
         val containerSize = containerWidth.roundToInt() / 2
-        rule.runOnUiThreadIR {
-            activity.setContent {
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
                 NoIntrinsicSizeContainer(
                     background(Color.White) +
                             FixedSizeModifier(containerWidth.roundToInt().ipx)
                 ) {
                     NoIntrinsicSizeContainer(
-                        FixedSizeModifier(containerSize.ipx).paint(
+                        AlignTopLeft + FixedSizeModifier(containerSize.ipx).paint(
                             LatchPainter(
                                 containerWidth,
                                 containerHeight,
@@ -332,8 +334,8 @@ class PainterModifierTest {
     fun testPainterNotSizedToIntrinsics() {
         val paintLatch = CountDownLatch(1)
         val containerSize = containerWidth.roundToInt() / 2
-        rule.runOnUiThreadIR {
-            activity.setContent {
+        rule.runOnUiThread {
+            activity.setContentInFrameLayout {
                 NoIntrinsicSizeContainer(
                     background(Color.White) +
                             FixedSizeModifier(containerSize.ipx)

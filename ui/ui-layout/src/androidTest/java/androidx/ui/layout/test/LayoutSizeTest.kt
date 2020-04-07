@@ -19,11 +19,14 @@ package androidx.ui.layout.test
 import android.content.res.Resources
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
+import androidx.ui.core.setContent
+import androidx.ui.foundation.Box
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
@@ -37,6 +40,8 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.preferredWidthIn
+import androidx.ui.layout.size
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -57,7 +62,7 @@ import java.util.concurrent.TimeUnit
 class LayoutSizeTest : LayoutTest() {
 
     @Test
-    fun testSize_withWidthSizeModifiers() = with(density) {
+    fun testPreferredSize_withWidthSizeModifiers() = with(density) {
         val sizeDp = 50.dp
         val sizeIpx = sizeDp.toIntPx()
 
@@ -129,7 +134,7 @@ class LayoutSizeTest : LayoutTest() {
     }
 
     @Test
-    fun testSize_withHeightSizeModifiers() = with(density) {
+    fun testPreferredSize_withHeightSizeModifiers() = with(density) {
         val sizeDp = 10.dp
         val sizeIpx = sizeDp.toIntPx()
 
@@ -201,7 +206,7 @@ class LayoutSizeTest : LayoutTest() {
     }
 
     @Test
-    fun testSize_withSizeModifiers() = with(density) {
+    fun testPreferredSize_withSizeModifiers() = with(density) {
         val sizeDp = 50.dp
         val sizeIpx = sizeDp.toIntPx()
 
@@ -265,7 +270,7 @@ class LayoutSizeTest : LayoutTest() {
     }
 
     @Test
-    fun testSizeModifiers_respectMaxConstraint() = with(density) {
+    fun testPreferredSizeModifiers_respectMaxConstraint() = with(density) {
         val sizeDp = 100.dp
         val size = sizeDp.toIntPx()
 
@@ -365,6 +370,48 @@ class LayoutSizeTest : LayoutTest() {
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[1].value)
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[2].value)
         assertEquals(IntPxSize(sizeIpx, sizeIpx), size[3].value)
+    }
+
+    @Test
+    fun testSize_smallerInLarger() = with(density) {
+        val sizeIpx = 64.ipx
+        val sizeDp = sizeIpx.toDp()
+
+        val positionedLatch = CountDownLatch(1)
+        val boxSize = Ref<IntPxSize>()
+        val boxPosition = Ref<PxPosition>()
+        show {
+            Box(Modifier.wrapContentSize(Alignment.TopStart)
+                .size(sizeDp * 2)
+                .size(sizeDp)
+                .saveLayoutInfo(boxSize, boxPosition, positionedLatch)
+            )
+        }
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(IntPxSize(sizeIpx, sizeIpx), boxSize.value)
+        assertEquals(PxPosition(sizeIpx / 2, sizeIpx / 2), boxPosition.value)
+    }
+
+    @Test
+    fun testSize_largerInSmaller() = with(density) {
+        val sizeIpx = 64.ipx
+        val sizeDp = sizeIpx.toDp()
+
+        val positionedLatch = CountDownLatch(1)
+        val boxSize = Ref<IntPxSize>()
+        val boxPosition = Ref<PxPosition>()
+        show {
+            Box(Modifier.wrapContentSize(Alignment.TopStart)
+                .size(sizeDp)
+                .size(sizeDp * 2)
+                .saveLayoutInfo(boxSize, boxPosition, positionedLatch)
+            )
+        }
+        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(IntPxSize(sizeIpx * 2, sizeIpx * 2), boxSize.value)
+        assertEquals(PxPosition(-sizeIpx / 2, -sizeIpx / 2), boxPosition.value)
     }
 
     @Test
@@ -645,7 +692,7 @@ class LayoutSizeTest : LayoutTest() {
     }
 
     @Test
-    fun testSizeModifier_hasCorrectIntrinsicMeasurements() = with(density) {
+    fun testPreferredSizeModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(Modifier.preferredSize(40.dp, 50.dp)) {
                 Container(Modifier.aspectRatio(1f)) { }

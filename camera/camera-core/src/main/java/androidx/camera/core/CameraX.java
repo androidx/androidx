@@ -299,6 +299,10 @@ public final class CameraX {
         // if the camera not found.
         CameraInternal camera = CameraX.getCameraWithCameraSelector(selectorBuilder.build());
 
+        if (useCases.length == 0) {
+            return camera;
+        }
+
         List<UseCase> originalUseCases = new ArrayList<>();
 
         // Collect original use cases bound to the camera
@@ -312,28 +316,26 @@ public final class CameraX {
         }
 
         // Only do resolution calculation if UseCases were bound
-        if (useCases.length != 0) {
-            if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(originalUseCases,
-                    Arrays.asList(useCases))) {
-                throw new IllegalArgumentException("Attempting to bind too many ImageCapture or "
-                        + "VideoCapture instances");
-            }
+        if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(originalUseCases,
+                Arrays.asList(useCases))) {
+            throw new IllegalArgumentException("Attempting to bind too many ImageCapture or "
+                    + "VideoCapture instances");
+        }
 
-            Map<UseCase, Size> suggestedResolutionsMap = calculateSuggestedResolutions(
-                    camera.getCameraInfoInternal(),
-                    originalUseCases,
-                    Arrays.asList(useCases));
+        Map<UseCase, Size> suggestedResolutionsMap = calculateSuggestedResolutions(
+                camera.getCameraInfoInternal(),
+                originalUseCases,
+                Arrays.asList(useCases));
 
 
-            // At this point the binding will succeed since all the calculations are done
-            // Do all binding related work
-            for (UseCase useCase : useCases) {
-                useCase.onAttach(camera);
-                useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
+        // At this point the binding will succeed since all the calculations are done
+        // Do all binding related work
+        for (UseCase useCase : useCases) {
+            useCase.onAttach(camera);
+            useCase.updateSuggestedResolution(suggestedResolutionsMap.get(useCase));
 
-                // Update the UseCaseGroup
-                useCaseGroupToBind.addUseCase(useCase);
-            }
+            // Update the UseCaseGroup
+            useCaseGroupToBind.addUseCase(useCase);
         }
 
         useCaseGroupLifecycleController.notifyState();
@@ -454,31 +456,11 @@ public final class CameraX {
     }
 
     /**
-     * Returns the camera id for a camera with the specified lens facing.
-     *
-     * <p>This only gives the first (primary) camera found with the specified facing.
-     *
-     * @param lensFacing the lens facing of the camera
-     * @return the camera id if camera exists or {@code null} if no camera with specified facing
-     * exists
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static String getCameraWithLensFacing(@CameraSelector.LensFacing int lensFacing)
-            throws CameraInfoUnavailableException {
-        checkInitialized();
-        return getCameraFactory().cameraIdForLensFacing(lensFacing);
-    }
-
-    /**
      * Returns the camera id for a camera defined by the given {@link CameraSelector}.
      *
      * @param cameraSelector the camera selector
      * @return the camera id if camera exists or {@code null} if no camera can be resolved with
-     * the camera selector
+     * the camera selector.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -495,21 +477,19 @@ public final class CameraX {
      * available camera.
      *
      * @return The default lens facing.
-     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
+     * @throws IllegalStateException if unable to find a camera with available lens facing.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @CameraSelector.LensFacing
-    public static int getDefaultLensFacing() throws CameraInfoUnavailableException {
+    public static int getDefaultLensFacing() {
         checkInitialized();
 
         Integer lensFacingCandidate = null;
         List<Integer> lensFacingList = Arrays.asList(CameraSelector.LENS_FACING_BACK,
                 CameraSelector.LENS_FACING_FRONT);
         for (Integer lensFacing : lensFacingList) {
-            String cameraId = getCameraFactory().cameraIdForLensFacing(lensFacing);
-            if (cameraId != null) {
+            if (hasCamera(new CameraSelector.Builder().requireLensFacing(lensFacing).build())) {
                 lensFacingCandidate = lensFacing;
                 break;
             }

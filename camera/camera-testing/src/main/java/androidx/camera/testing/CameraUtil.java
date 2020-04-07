@@ -278,7 +278,29 @@ public final class CameraUtil {
     }
 
     /**
-     * Check if the device has a flash unit with the specified lensFacing.
+     * Gets the camera id of the first camera with the given lensFacing.
+     *
+     * @param lensFacing The desired camera lensFacing.
+     * @return Camera id of the first camera with the given lensFacing, null if there's no camera
+     * has the lensFacing.
+     * @throws IllegalStateException if the CAMERA permission is not currently granted.
+     */
+    @Nullable
+    public static String getCameraIdWithLensFacing(@CameraSelector.LensFacing int lensFacing) {
+        @SupportedLensFacingInt
+        int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
+        for (String cameraId : getCameraIdListOrThrow()) {
+            CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
+            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cameraLensFacing != null && cameraLensFacing.intValue() == lensFacingInteger) {
+                return cameraId;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Checks if the device has a flash unit with the specified lensFacing.
      *
      * @param lensFacing The desired camera lensFacing.
      * @return True if the device has flash unit with the specified LensFacing.
@@ -353,6 +375,28 @@ public final class CameraUtil {
     }
 
     /**
+     * Gets if the sensor orientation of the given lens facing.
+     *
+     * @param lensFacing The desired camera lensFacing.
+     * @return The sensor orientation degrees, or null if it's undefined.
+     * @throws IllegalStateException if the CAMERA permission is not currently granted.
+     */
+    @Nullable
+    public static Integer getSensorOrientation(@CameraSelector.LensFacing int lensFacing) {
+        @SupportedLensFacingInt
+        int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
+        for (String cameraId : getCameraIdListOrThrow()) {
+            CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
+            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cameraLensFacing == null || cameraLensFacing.intValue() != lensFacingInteger) {
+                continue;
+            }
+            return characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+        }
+        return null;
+    }
+
+    /**
      * Converts a lens facing direction from a lensFacing to a {@link CameraMetadata} integer.
      *
      * @param lensFacing The lens facing enum, as defined in {@link CameraSelector}.
@@ -391,7 +435,8 @@ public final class CameraUtil {
      * @return the camera id list
      * @throws IllegalStateException if the CAMERA permission is not currently granted.
      */
-    private static CameraCharacteristics getCameraCharacteristicsOrThrow(String cameraId) {
+    @NonNull
+    private static CameraCharacteristics getCameraCharacteristicsOrThrow(@NonNull String cameraId) {
         try {
             return getCameraManager().getCameraCharacteristics(cameraId);
         } catch (CameraAccessException e) {

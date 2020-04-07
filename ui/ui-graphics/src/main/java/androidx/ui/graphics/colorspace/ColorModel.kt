@@ -36,7 +36,7 @@ enum class ColorModel(
     /**
      * The RGB model is a color model with 3 components that
      * refer to the three additive primiaries: red, green
-     * andd blue.
+     * and blue.
      */
     Rgb(3),
 

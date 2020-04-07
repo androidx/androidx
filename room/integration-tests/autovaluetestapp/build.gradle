@@ -35,7 +35,9 @@ dependencies {
     implementation(project(":room:room-runtime"))
     implementation(project(":arch:core-runtime"))
 
-    androidTestAnnotationProcessor project(":room:room-compiler")
+    // depend on the shadowed version so that it tests with the shipped artifact
+    androidTestAnnotationProcessor project(path: ":room:room-compiler",
+            configuration: 'shadowAndImplementation')
     androidTestAnnotationProcessor(AUTO_VALUE)
     androidTestAnnotationProcessor(AUTO_VALUE_PARCEL)
 

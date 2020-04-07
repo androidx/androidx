@@ -1054,6 +1054,96 @@ class AffectedModuleDetectorImplTest {
         ))
     }
 
+    @Test
+    fun projectSubset_changed() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            projectSubset = ProjectSubset.CHANGED_PROJECTS,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf(convertToFilePath("p1", "foo.java"))
+            )
+        )
+        // Verify expectations on affected projects
+        MatcherAssert.assertThat(detector.affectedProjects, CoreMatchers.`is`(
+            setOf(p1, p11)
+        ))
+        // Test changed
+        MatcherAssert.assertThat(detector.getSubset(p1), CoreMatchers.`is`(
+            ProjectSubset.CHANGED_PROJECTS
+        ))
+        // Test dependent
+        MatcherAssert.assertThat(detector.getSubset(p3), CoreMatchers.`is`(
+            ProjectSubset.DEPENDENT_PROJECTS
+        ))
+        // Random unrelated project should return none
+        MatcherAssert.assertThat(detector.getSubset(p12), CoreMatchers.`is`(
+            ProjectSubset.NONE
+        ))
+    }
+
+    @Test
+    fun projectSubset_dependent() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            projectSubset = ProjectSubset.DEPENDENT_PROJECTS,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf(convertToFilePath("p1", "foo.java"))
+            )
+        )
+        // Verify expectations on affected projects
+        MatcherAssert.assertThat(detector.affectedProjects, CoreMatchers.`is`(
+            setOf(p3, p4, p5, p11)
+        ))
+        // Test changed
+        MatcherAssert.assertThat(detector.getSubset(p1), CoreMatchers.`is`(
+            ProjectSubset.CHANGED_PROJECTS
+        ))
+        // Test dependent
+        MatcherAssert.assertThat(detector.getSubset(p3), CoreMatchers.`is`(
+            ProjectSubset.DEPENDENT_PROJECTS
+        ))
+        // Random unrelated project should return none
+        MatcherAssert.assertThat(detector.getSubset(p12), CoreMatchers.`is`(
+            ProjectSubset.NONE
+        ))
+    }
+
+    @Test
+    fun projectSubset_all() {
+        val detector = AffectedModuleDetectorImpl(
+            rootProject = root,
+            logger = logger,
+            ignoreUnknownProjects = false,
+            projectSubset = ProjectSubset.ALL_AFFECTED_PROJECTS,
+            injectedGitClient = MockGitClient(
+                lastMergeSha = "foo",
+                changedFiles = listOf(convertToFilePath("p1", "foo.java"))
+            )
+        )
+        // Verify expectations on affected projects
+        MatcherAssert.assertThat(detector.affectedProjects, CoreMatchers.`is`(
+            setOf(p1, p3, p4, p5, p11)
+        ))
+        // Test changed
+        MatcherAssert.assertThat(detector.getSubset(p1), CoreMatchers.`is`(
+            ProjectSubset.CHANGED_PROJECTS
+        ))
+        // Test dependent
+        MatcherAssert.assertThat(detector.getSubset(p3), CoreMatchers.`is`(
+            ProjectSubset.DEPENDENT_PROJECTS
+        ))
+        // Random unrelated project should return none
+        MatcherAssert.assertThat(detector.getSubset(p12), CoreMatchers.`is`(
+            ProjectSubset.NONE
+        ))
+    }
+
     // For both Linux/Windows
     fun convertToFilePath(vararg list: String): String {
         return list.toList().joinToString(File.separator)

@@ -56,7 +56,7 @@ class CardFragmentActivity : BaseCardActivity() {
             savedInstanceState: Bundle?
         ): View? {
             val cardView = CardView(layoutInflater, container)
-            cardView.bind(Card.fromBundle(arguments!!))
+            cardView.bind(Card.fromBundle(requireArguments()))
             return cardView.view
         }
 

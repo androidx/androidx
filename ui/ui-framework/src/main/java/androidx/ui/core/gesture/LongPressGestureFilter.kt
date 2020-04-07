@@ -52,6 +52,7 @@ import kotlin.coroutines.CoroutineContext
 fun Modifier.longPressGestureFilter(
     onLongPress: (PxPosition) -> Unit
 ): Modifier {
+    @Suppress("DEPRECATION")
     val coroutineContext = CoroutineContextAmbient.current
     val filter = remember { LongPressGestureFilter(coroutineContext) }
     filter.onLongPress = onLongPress

@@ -366,14 +366,8 @@ final class CameraXModule {
 
     @RequiresPermission(permission.CAMERA)
     public boolean hasCameraWithLensFacing(@CameraSelector.LensFacing int lensFacing) {
-        String cameraId;
-        try {
-            cameraId = CameraX.getCameraWithLensFacing(lensFacing);
-        } catch (Exception e) {
-            throw new IllegalStateException("Unable to query lens facing.", e);
-        }
-
-        return cameraId != null;
+        return CameraX.hasCamera(
+                new CameraSelector.Builder().requireLensFacing(lensFacing).build());
     }
 
     @Nullable

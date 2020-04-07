@@ -1221,7 +1221,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     // TODO(b/141956012): Suppressed during upgrade to AGP 3.6.
-    @SuppressWarnings("ClassCanBeStatic")
+    @SuppressWarnings({"ClassCanBeStatic", "InnerClassMayBeStatic"})
     private abstract class AccessibilityProvider {
         void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher,
                 @NonNull RecyclerView recyclerView) {

@@ -419,11 +419,7 @@ public class WebViewFeature {
      * This feature covers
      * {@link WebSettingsCompat#setForceDarkStrategy(WebSettings, int)} and
      * {@link WebSettingsCompat#getForceDarkStrategy(WebSettings)}.
-     *
-     * TODO(amalova): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String FORCE_DARK_STRATEGY = "FORCE_DARK_STRATEGY";
 
     /**

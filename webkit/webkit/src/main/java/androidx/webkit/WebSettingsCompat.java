@@ -335,6 +335,10 @@ public class WebSettingsCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#FORCE_DARK}.
      *
+     * <p>
+     * If equals to {@link ForceDark#FORCE_DARK_ON} then {@link #setForceDarkStrategy} is used to
+     * specify darkening strategy.
+     *
      * @param forceDarkMode the force dark mode to set.
      * @see #getForceDark
      */
@@ -386,12 +390,11 @@ public class WebSettingsCompat {
     /**
      * In this mode WebView content will be darkened by a user agent and it will ignore the
      * web page's dark theme if it exists.
+     * See <a href="https://drafts.csswg.org/css-color-adjust-1/">specification</a>
+     * for more information.
      *
      * @see #setForceDarkStrategy
-     * TODO(amalova): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int USER_AGENT_DARKENING_ONLY =
             WebSettingsBoundaryInterface.ForceDarkBehavior.FORCE_DARK_ONLY;
 
@@ -401,10 +404,7 @@ public class WebSettingsCompat {
      * default theme.
      *
      * @see #setForceDarkStrategy
-     * TODO(amalova): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int WEB_THEME_DARKENING_ONLY =
             WebSettingsBoundaryInterface.ForceDarkBehavior.MEDIA_QUERY_ONLY;
 
@@ -413,10 +413,7 @@ public class WebSettingsCompat {
      * theme.
      *
      * @see #setForceDarkStrategy
-     * TODO(amalova): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING =
             WebSettingsBoundaryInterface.ForceDarkBehavior.PREFER_MEDIA_QUERY_OVER_FORCE_DARK;
 
@@ -441,12 +438,13 @@ public class WebSettingsCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#FORCE_DARK_STRATEGY}.
      *
-     * @param forceDarkBehavior
+     * <p>
+     * The specified strategy is only used if force dark mode is on.
+     * See {@link #setForceDark}.
      *
-     * TODO(amalova): unhide
-     * @hide
+     * @param forceDarkBehavior the force dark strategy to set.
+     * @see #getForceDarkStrategy
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK_STRATEGY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -472,12 +470,9 @@ public class WebSettingsCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#FORCE_DARK_STRATEGY}.
      *
-     * @return todo
-     *
-     * TODO(amalova): unhide
-     * @hide
+     * @return the currently set force dark strategy.
+     * @see #setForceDarkStrategy
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK_STRATEGY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

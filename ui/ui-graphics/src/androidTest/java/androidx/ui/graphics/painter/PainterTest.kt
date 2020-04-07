@@ -25,7 +25,7 @@ import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.compositeOver
-import androidx.ui.graphics.toArgb
+import androidx.ui.graphics.toPixelMap
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import org.junit.Assert.assertEquals
@@ -91,7 +91,7 @@ class PainterTest {
             rtl = true
         )
 
-        assertEquals(Color.Red.toArgb(), image.nativeImage.getPixel(50, 50))
+        assertEquals(Color.Red, image.toPixelMap()[50, 50])
     }
 
     @Test
@@ -127,7 +127,7 @@ class PainterTest {
             blue = Color.Red.blue
         ).compositeOver(Color.White)
 
-        val result = Color(image.nativeImage.getPixel(50, 50))
+        val result = image.toPixelMap()[50, 50]
         assertEquals(expected.red, result.red, 0.01f)
         assertEquals(expected.green, result.green, 0.01f)
         assertEquals(expected.blue, result.blue, 0.01f)
@@ -179,7 +179,7 @@ class PainterTest {
             blue = Color.Red.blue
         ).compositeOver(Color.White)
 
-        val result = Color(image.nativeImage.getPixel(50, 50))
+        val result = image.toPixelMap()[50, 50]
         assertEquals(expected.red, result.red, 0.01f)
         assertEquals(expected.green, result.green, 0.01f)
         assertEquals(expected.blue, result.blue, 0.01f)
@@ -213,6 +213,6 @@ class PainterTest {
         val image = ImageAsset(100, 100)
 
         p.draw(Canvas(image), size, colorFilter = ColorFilter(Color.Blue, BlendMode.srcIn))
-        assertEquals(Color.Blue.toArgb(), image.nativeImage.getPixel(50, 50))
+        assertEquals(Color.Blue, image.toPixelMap()[50, 50])
     }
 }

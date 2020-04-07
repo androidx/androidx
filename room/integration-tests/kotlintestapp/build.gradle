@@ -55,7 +55,8 @@ dependencies {
     implementation(project(":lifecycle:lifecycle-livedata"))
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_ANDROID)
-    kaptAndroidTest project(":room:room-compiler")
+    // depend on the shadowed version so that it tests with the shipped artifact
+    kaptAndroidTest project(path: ":room:room-compiler", configuration: 'shadowAndImplementation')
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
