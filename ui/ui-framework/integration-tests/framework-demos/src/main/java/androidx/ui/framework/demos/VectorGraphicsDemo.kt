@@ -23,7 +23,7 @@ import androidx.ui.foundation.Image
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
 import androidx.ui.graphics.RadialGradient
-import androidx.ui.graphics.ScaleFit
+import androidx.ui.core.ContentScale
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.TileMode
 import androidx.ui.graphics.VerticalGradient
@@ -50,7 +50,7 @@ fun VectorGraphicsDemo() {
             Image(
                 asset = it,
                 modifier = Modifier.preferredSize(200.dp, 200.dp),
-                scaleFit = ScaleFit.FillMinDimension
+                contentScale = ContentScale.Inside
             )
         }
 

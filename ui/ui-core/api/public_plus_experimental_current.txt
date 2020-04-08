@@ -104,6 +104,29 @@ package androidx.ui.core {
     method public void drawContent();
   }
 
+  public interface ContentScale {
+    method public float scale(androidx.ui.unit.PxSize srcSize, androidx.ui.unit.PxSize dstSize);
+    field public static final androidx.ui.core.ContentScale.Companion! Companion;
+  }
+
+  public static final class ContentScale.Companion {
+    method public androidx.ui.core.ContentScale getCrop();
+    method public androidx.ui.core.ContentScale getFillHeight();
+    method public androidx.ui.core.ContentScale getFillWidth();
+    method public androidx.ui.core.ContentScale getFit();
+    method public androidx.ui.core.ContentScale getInside();
+    method public androidx.ui.core.FixedScale getNone();
+    property public final androidx.ui.core.ContentScale Crop;
+    property public final androidx.ui.core.ContentScale FillHeight;
+    property public final androidx.ui.core.ContentScale FillWidth;
+    property public final androidx.ui.core.ContentScale Fit;
+    property public final androidx.ui.core.ContentScale Inside;
+    property public final androidx.ui.core.FixedScale None;
+  }
+
+  public final class ContentScaleKt {
+  }
+
   public interface CustomEvent {
   }
 
@@ -168,6 +191,14 @@ package androidx.ui.core {
     method public androidx.ui.unit.PxSize getSize();
     property public abstract androidx.ui.core.LayoutDirection layoutDirection;
     property public abstract androidx.ui.unit.PxSize size;
+  }
+
+  public final class FixedScale implements androidx.ui.core.ContentScale {
+    ctor public FixedScale(float value);
+    method public float component1();
+    method public androidx.ui.core.FixedScale copy(float value);
+    method public float getValue();
+    method public float scale(androidx.ui.unit.PxSize srcSize, androidx.ui.unit.PxSize dstSize);
   }
 
   public final class HorizontalAlignmentLine extends androidx.ui.core.AlignmentLine {
@@ -384,6 +415,25 @@ package androidx.ui.core {
     method public T? getValue();
     method public void setValue(T? p);
     property public final T? value;
+  }
+
+  @Deprecated public interface ScaleFit extends androidx.ui.core.ContentScale {
+    field @Deprecated public static final androidx.ui.core.ScaleFit.Companion! Companion;
+  }
+
+  @Deprecated public static final class ScaleFit.Companion {
+    method @Deprecated public androidx.ui.core.ContentScale getFillHeight();
+    method @Deprecated public androidx.ui.core.ContentScale getFillMaxDimension();
+    method @Deprecated public androidx.ui.core.ContentScale getFillMinDimension();
+    method @Deprecated public androidx.ui.core.ContentScale getFillWidth();
+    method @Deprecated public androidx.ui.core.ContentScale getFit();
+    method @Deprecated public androidx.ui.core.FixedScale getNone();
+    property @Deprecated public final androidx.ui.core.ContentScale FillHeight;
+    property @Deprecated public final androidx.ui.core.ContentScale FillMaxDimension;
+    property @Deprecated public final androidx.ui.core.ContentScale FillMinDimension;
+    property @Deprecated public final androidx.ui.core.ContentScale FillWidth;
+    property @Deprecated public final androidx.ui.core.ContentScale Fit;
+    property @Deprecated public final androidx.ui.core.FixedScale None;
   }
 
   public final class TransformOrigin {
