@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AbstractSavedStateViewModelFactory;
 import androidx.lifecycle.SavedStateHandle;
+import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModel;
 import androidx.savedstate.SavedStateRegistryOwner;
 
@@ -34,15 +35,18 @@ import javax.inject.Provider;
  */
 public final class ViewModelFactory extends AbstractSavedStateViewModelFactory {
 
+    private final SavedStateViewModelFactory mDelegateFactory;
     private final Map<String,
             Provider<ViewModelAssistedFactory<? extends ViewModel>>> mViewModelFactories;
 
     ViewModelFactory(
             @NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs,
+            @NonNull SavedStateViewModelFactory delegateFactory,
             @NonNull Map<String,
                     Provider<ViewModelAssistedFactory<? extends ViewModel>>> viewModelFactories) {
         super(owner, defaultArgs);
+        this.mDelegateFactory = delegateFactory;
         this.mViewModelFactories = viewModelFactories;
     }
 
@@ -55,11 +59,8 @@ public final class ViewModelFactory extends AbstractSavedStateViewModelFactory {
         Provider<ViewModelAssistedFactory<? extends ViewModel>> factoryProvider =
                 mViewModelFactories.get(modelClass.getCanonicalName());
         if (factoryProvider == null) {
-            // TODO(danysantiago): Consider still creating those ViewModel that have a default
-            //  no-arg constructor.
-            throw new IllegalStateException("Unable to create the ViewModel class "
-                    + modelClass.getCanonicalName() + ". Did you forgot to annotate its "
-                    + "constructor with @ViewModelInject?");
+            // TODO(danysantiago): Warn about missing @ViewModelInject if this fails.
+            return mDelegateFactory.create(key, modelClass);
         }
         return (T) factoryProvider.get().create(handle);
     }
