@@ -52,11 +52,11 @@ class AndroidPerformAutofillTest {
     @Test
     fun performAutofill_name() {
         // Arrange.
-        val expectedValue = "First Name"
+        val expectedValue = "Name"
         var autofilledValue = ""
         val autofillNode = AutofillNode(
             onFill = { autofilledValue = it },
-            autofillTypes = listOf(AutofillType.Name),
+            autofillTypes = listOf(AutofillType.PersonFullName),
             boundingBox = Rect(0, 0, 0, 0)
         )
         autofillTree += autofillNode

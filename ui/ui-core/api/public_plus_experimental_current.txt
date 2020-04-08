@@ -29,8 +29,43 @@ package androidx.ui.autofill {
   }
 
   public enum AutofillType {
+    enum_constant public static final androidx.ui.autofill.AutofillType AddressAuxiliaryDetails;
+    enum_constant public static final androidx.ui.autofill.AutofillType AddressCountry;
+    enum_constant public static final androidx.ui.autofill.AutofillType AddressLocality;
+    enum_constant public static final androidx.ui.autofill.AutofillType AddressRegion;
+    enum_constant public static final androidx.ui.autofill.AutofillType AddressStreet;
+    enum_constant public static final androidx.ui.autofill.AutofillType BirthDateDay;
+    enum_constant public static final androidx.ui.autofill.AutofillType BirthDateFull;
+    enum_constant public static final androidx.ui.autofill.AutofillType BirthDateMonth;
+    enum_constant public static final androidx.ui.autofill.AutofillType BirthDateYear;
+    enum_constant public static final androidx.ui.autofill.AutofillType CreditCardExpirationDate;
+    enum_constant public static final androidx.ui.autofill.AutofillType CreditCardExpirationDay;
+    enum_constant public static final androidx.ui.autofill.AutofillType CreditCardExpirationMonth;
+    enum_constant public static final androidx.ui.autofill.AutofillType CreditCardExpirationYear;
+    enum_constant public static final androidx.ui.autofill.AutofillType CreditCardNumber;
+    enum_constant public static final androidx.ui.autofill.AutofillType CreditCardSecurityCode;
     enum_constant public static final androidx.ui.autofill.AutofillType EmailAddress;
-    enum_constant public static final androidx.ui.autofill.AutofillType Name;
+    enum_constant public static final androidx.ui.autofill.AutofillType Gender;
+    enum_constant @Deprecated public static final androidx.ui.autofill.AutofillType Name;
+    enum_constant public static final androidx.ui.autofill.AutofillType NewPassword;
+    enum_constant public static final androidx.ui.autofill.AutofillType NewUsername;
+    enum_constant public static final androidx.ui.autofill.AutofillType Password;
+    enum_constant public static final androidx.ui.autofill.AutofillType PersonFirstName;
+    enum_constant public static final androidx.ui.autofill.AutofillType PersonFullName;
+    enum_constant public static final androidx.ui.autofill.AutofillType PersonLastName;
+    enum_constant public static final androidx.ui.autofill.AutofillType PersonMiddleInitial;
+    enum_constant public static final androidx.ui.autofill.AutofillType PersonMiddleName;
+    enum_constant public static final androidx.ui.autofill.AutofillType PersonNamePrefix;
+    enum_constant public static final androidx.ui.autofill.AutofillType PersonNameSuffix;
+    enum_constant public static final androidx.ui.autofill.AutofillType PhoneCountryCode;
+    enum_constant public static final androidx.ui.autofill.AutofillType PhoneNumber;
+    enum_constant public static final androidx.ui.autofill.AutofillType PhoneNumberDevice;
+    enum_constant public static final androidx.ui.autofill.AutofillType PhoneNumberNational;
+    enum_constant public static final androidx.ui.autofill.AutofillType PostalAddress;
+    enum_constant public static final androidx.ui.autofill.AutofillType PostalCode;
+    enum_constant public static final androidx.ui.autofill.AutofillType PostalCodeExtended;
+    enum_constant public static final androidx.ui.autofill.AutofillType SmsOtpCode;
+    enum_constant public static final androidx.ui.autofill.AutofillType Username;
   }
 
 }

@@ -61,7 +61,7 @@ class AndroidAutofillBenchmark {
         // Arrange.
         val autofillNode = AutofillNode(
             onFill = {},
-            autofillTypes = listOf(AutofillType.Name),
+            autofillTypes = listOf(AutofillType.PersonFullName),
             boundingBox = Rect(0, 0, 0, 0)
         )
         val autofillValues = SparseArray<AutofillValue>().apply {
