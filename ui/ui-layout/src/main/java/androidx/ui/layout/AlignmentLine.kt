@@ -31,6 +31,8 @@ import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
 
 /**
+ * Note: This composable is on the deprecation path and will be soon replaced with a [Modifier].
+ *
  * Layout composable that takes a child and tries to position it within itself according to
  * specified offsets relative to an [alignment line][AlignmentLine], subject to the incoming
  * layout constraints. The [AlignmentLineOffset] layout will try to size itself to wrap the
@@ -84,6 +86,8 @@ fun AlignmentLineOffset(
 }
 
 /**
+ * Note: This composable is on the deprecation path and will be soon replaced with a [Modifier].
+ *
  * Layout composable that takes a child and positions it within itself such that the specified
  * alignment line is centered. The layout will expand to fill the available space in the
  * alignment line axis. If infinite space is available, the layout will wrap the child and
