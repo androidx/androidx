@@ -47,13 +47,6 @@ interface Autofill {
     fun cancelAutofillForNode(autofillNode: AutofillNode)
 }
 
-// TODO(b/138551812): Add more autofill types.
-/** Autofill type information. */
-enum class AutofillType {
-    EmailAddress,
-    Name
-}
-
 /**
  * Every autofillable composable will have an [AutofillNode]. (An autofill node will be created
  * for every semantics node that adds autofill properties). This node is used to request/cancel

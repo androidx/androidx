@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.autofill.AutofillValue
+import androidx.autofill.HintConstants.AUTOFILL_HINT_PERSON_NAME
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.autofill.AndroidAutofill
@@ -84,7 +85,7 @@ class AndroidComposeViewTest {
         val viewStructure: ViewStructure = FakeViewStructure()
         val autofillNode = AutofillNode(
             onFill = {},
-            autofillTypes = listOf(AutofillType.Name),
+            autofillTypes = listOf(AutofillType.PersonFullName),
             boundingBox = Rect(0, 0, 0, 0)
         )
         autofillTree += autofillNode
@@ -98,7 +99,7 @@ class AndroidComposeViewTest {
                 virtualId = autofillNode.id
                 packageName = PACKAGE_NAME
                 setAutofillType(View.AUTOFILL_TYPE_TEXT)
-                setAutofillHints(arrayOf(View.AUTOFILL_HINT_NAME))
+                setAutofillHints(arrayOf(AUTOFILL_HINT_PERSON_NAME))
                 setDimens(0, 0, 0, 0, 0, 0)
             })
         })
@@ -108,11 +109,11 @@ class AndroidComposeViewTest {
     @Test
     fun autofill_triggersOnFill() {
         // Arrange.
-        val expectedValue = "Name"
+        val expectedValue = "PersonName"
         var autofilledValue = ""
         val autofillNode = AutofillNode(
             onFill = { autofilledValue = it },
-            autofillTypes = listOf(AutofillType.Name),
+            autofillTypes = listOf(AutofillType.PersonFullName),
             boundingBox = Rect(0, 0, 0, 0)
         )
         val autofillValues = SparseArray<AutofillValue>().apply {

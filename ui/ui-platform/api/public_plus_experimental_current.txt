@@ -7,6 +7,9 @@ package androidx.ui.autofill {
   public final class AndroidAutofillKt {
   }
 
+  public final class AndroidAutofillTypeKt {
+  }
+
 }
 
 package androidx.ui.core {
