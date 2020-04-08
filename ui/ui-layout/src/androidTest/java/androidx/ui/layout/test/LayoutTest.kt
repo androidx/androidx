@@ -42,7 +42,7 @@ import androidx.ui.core.setContent
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Constraints
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.InnerPadding
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -358,7 +358,7 @@ open class LayoutTest {
     @Composable
     internal fun Container(
         modifier: Modifier = Modifier,
-        padding: EdgeInsets = EdgeInsets(0.dp),
+        padding: InnerPadding = InnerPadding(0.dp),
         alignment: Alignment = Alignment.Center,
         expanded: Boolean = false,
         constraints: DpConstraints = DpConstraints(),
@@ -374,7 +374,7 @@ open class LayoutTest {
                     height?.toIntPx() ?: constraints.minHeight.toIntPx(),
                     height?.toIntPx() ?: constraints.maxHeight.toIntPx()
                 ).enforce(incomingConstraints)
-            val totalHorizontal = padding.left.toIntPx() + padding.right.toIntPx()
+            val totalHorizontal = padding.start.toIntPx() + padding.end.toIntPx()
             val totalVertical = padding.top.toIntPx() + padding.bottom.toIntPx()
             val childConstraints = containerConstraints
                 .copy(minWidth = 0.ipx, minHeight = 0.ipx)
@@ -408,7 +408,7 @@ open class LayoutTest {
                         )
                     )
                     it.place(
-                        padding.left.toIntPx() + position.x,
+                        padding.start.toIntPx() + position.x,
                         padding.top.toIntPx() + position.y
                     )
                 }

@@ -26,7 +26,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
@@ -86,7 +86,7 @@ class ContainerTest : LayoutTest() {
         show {
             Stack {
                 Container(
-                    padding = EdgeInsets(paddingDp),
+                    padding = InnerPadding(paddingDp),
                     modifier = Modifier.onPositioned { coordinates ->
                         containerSize.value = coordinates.size
                         positionedLatch.countDown()
@@ -270,7 +270,7 @@ class ContainerTest : LayoutTest() {
         val latch = CountDownLatch(1)
         show {
             Stack {
-                Container(width = sizeDp, height = sizeDp, padding = EdgeInsets(10.dp),
+                Container(width = sizeDp, height = sizeDp, padding = InnerPadding(10.dp),
                     modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                         containerSize.value = coordinates.size
                         latch.countDown()
@@ -290,9 +290,11 @@ class ContainerTest : LayoutTest() {
         val paddingTop = 7.dp
         val paddingRight = 5.dp
         val paddingBottom = 10.dp
-        val edgeInsets = EdgeInsets(
-            left = paddingLeft, top = paddingTop,
-            right = paddingRight, bottom = paddingBottom
+        val innerPadding = InnerPadding(
+            start = paddingLeft,
+            top = paddingTop,
+            end = paddingRight,
+            bottom = paddingBottom
         )
         val expectedSize = IntPxSize(
             childSizeDp.toIntPx() + paddingLeft.toIntPx() + paddingRight.toIntPx(),
@@ -308,7 +310,7 @@ class ContainerTest : LayoutTest() {
                         containerSize = coordinates.size
                         latch.countDown()
                     },
-                    padding = edgeInsets
+                    padding = innerPadding
                 ) {
                     Spacer(Modifier.preferredSize(width = childSizeDp, height = childSizeDp))
                 }
@@ -324,13 +326,13 @@ class ContainerTest : LayoutTest() {
         val containerSize = 50.dp
         val padding = 10.dp
         val childSize = 5.dp
-        val edgeInsets = EdgeInsets(padding)
+        val innerPadding = InnerPadding(padding)
 
         var childCoordinates: LayoutCoordinates? = null
         val latch = CountDownLatch(1)
         show {
             Stack {
-                Container(width = containerSize, height = containerSize, padding = edgeInsets) {
+                Container(width = containerSize, height = containerSize, padding = innerPadding) {
                     Spacer(
                         Modifier.preferredSize(width = childSize, height = childSize) +
                             Modifier.onPositioned { coordinates: LayoutCoordinates ->

@@ -65,7 +65,7 @@ import androidx.ui.unit.max
 @Composable
 fun Container(
     modifier: Modifier = Modifier,
-    padding: EdgeInsets = EdgeInsets(0.dp),
+    padding: InnerPadding = InnerPadding(0.dp),
     alignment: Alignment = Alignment.Center,
     expanded: Boolean = false,
     constraints: DpConstraints = DpConstraints(),
@@ -81,7 +81,7 @@ fun Container(
                 height?.toIntPx() ?: constraints.minHeight.toIntPx(),
                 height?.toIntPx() ?: constraints.maxHeight.toIntPx()
             ).enforce(incomingConstraints)
-        val totalHorizontal = padding.left.toIntPx() + padding.right.toIntPx()
+        val totalHorizontal = padding.start.toIntPx() + padding.end.toIntPx()
         val totalVertical = padding.top.toIntPx() + padding.bottom.toIntPx()
         val childConstraints = containerConstraints
             .copy(minWidth = 0.ipx, minHeight = 0.ipx)
@@ -115,7 +115,7 @@ fun Container(
                     )
                 )
                 it.place(
-                    padding.left.toIntPx() + position.x,
+                    padding.start.toIntPx() + position.x,
                     padding.top.toIntPx() + position.y
                 )
             }
