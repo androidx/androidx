@@ -21,6 +21,7 @@ import androidx.animation.ExponentialDecay
 import androidx.animation.ManualAnimationClock
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
@@ -293,6 +294,50 @@ class ScrollerTest {
         }
         runOnIdleCompose {
             assertThat(scrollerPosition.value).isEqualTo(scrollerPosition.maxPosition)
+        }
+    }
+
+    @Test
+    fun verticalScroller_LargeContent_coerceWhenMaxChanges() {
+        val clock = ManualAnimationClock(0)
+        val scrollerPosition = ScrollerPosition(
+            FlingConfig(ExponentialDecay()),
+            animationClock = clock
+        )
+        val itemCount = mutableStateOf(100)
+        composeTestRule.setContent {
+            Stack {
+                TestTag(scrollerTag) {
+                    VerticalScroller(
+                        scrollerPosition = scrollerPosition,
+                        modifier = Modifier.preferredSize(100.dp)
+                    ) {
+                        Column {
+                            for (i in 0..itemCount.value) {
+                                Text(i.toString())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val max = runOnIdleCompose {
+            assertThat(scrollerPosition.value).isEqualTo(0f)
+            assertThat(scrollerPosition.maxPosition).isGreaterThan(0f)
+            scrollerPosition.maxPosition
+        }
+
+        runOnUiThread {
+            scrollerPosition.scrollTo(max)
+        }
+        runOnUiThread {
+            itemCount.value -= 2
+        }
+        runOnIdleCompose {
+            val newMax = scrollerPosition.maxPosition
+            assertThat(newMax).isLessThan(max)
+            assertThat(scrollerPosition.value).isEqualTo(newMax)
         }
     }
 
