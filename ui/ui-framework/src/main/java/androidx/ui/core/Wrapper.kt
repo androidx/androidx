@@ -32,16 +32,17 @@ import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
 import androidx.compose.NeverEqual
 import androidx.compose.Providers
+import androidx.compose.Recomposer
 import androidx.compose.StructurallyEqual
 import androidx.compose.ambientOf
+import androidx.compose.compositionFor
+import androidx.compose.getValue
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.compose.staticAmbientOf
-import androidx.compose.compositionFor
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.compose.getValue
-import androidx.compose.setValue
 import androidx.lifecycle.LifecycleOwner
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -72,8 +73,9 @@ fun ViewGroup.setViewContent(
     parent: CompositionReference? = null,
     composable: @Composable() () -> Unit
 ): Composition = compositionFor(
-    container = this,
     context = context,
+    container = this,
+    recomposer = Recomposer.current(),
     parent = parent,
     onBeforeFirstComposition = {
         removeAllViews()
@@ -108,13 +110,29 @@ fun Activity.setViewContent(composable: @Composable() () -> Unit): Composition {
 // instead.
 @MainThread
 fun subcomposeInto(
+    context: Context,
+    container: ComponentNode,
+    recomposer: Recomposer,
+    parent: CompositionReference? = null,
+    composable: @Composable() () -> Unit
+): Composition = compositionFor(context, container, recomposer, parent).apply {
+    setContent(composable)
+}
+
+@Deprecated(
+    "Specify Recomposer explicitly",
+    ReplaceWith(
+        "subcomposeInto(context, container, Recomposer.current(), parent, composable)",
+        "androidx.compose.Recomposer"
+    )
+)
+@MainThread
+fun subcomposeInto(
     container: ComponentNode,
     context: Context,
     parent: CompositionReference? = null,
     composable: @Composable() () -> Unit
-): Composition = compositionFor(container, context, parent).apply {
-    setContent(composable)
-}
+): Composition = subcomposeInto(context, container, Recomposer.current(), parent, composable)
 
 /**
  * Composes the given composable into the given activity. The [content] will become the root view
@@ -122,11 +140,15 @@ fun subcomposeInto(
  *
  * [Composition.dispose] is called automatically when the Activity is destroyed.
  *
- * @param content Composable that will be the content of the activity.
+ * @param recomposer The [Recomposer] to coordinate scheduling of composition updates
+ * @param content A `@Composable` function declaring the UI contents
  */
 fun ComponentActivity.setContent(
+    // Note: Recomposer.current() is the default here since all Activity view trees are hosted
+    // on the main thread.
+    recomposer: Recomposer = Recomposer.current(),
     content: @Composable() () -> Unit
-): Composition = setContent(this, content)
+): Composition = setContent(this, recomposer, content)
 
 /**
  * Composes the given composable into the given activity. The composable will become the root view
@@ -140,10 +162,11 @@ fun ComponentActivity.setContent(
 )
 fun Activity.setContent(
     content: @Composable() () -> Unit
-): Composition = setContent(null, content)
+): Composition = setContent(null, Recomposer.current(), content)
 
 private fun Activity.setContent(
     lifecycleOwner: LifecycleOwner?,
+    recomposer: Recomposer,
     content: @Composable() () -> Unit
 ): Composition {
     FrameManager.ensureStarted()
@@ -153,7 +176,7 @@ private fun Activity.setContent(
         ?: createOwner(this, lifecycleOwner).also {
             setContentView(it.view, DefaultLayoutParams)
         }
-    return doSetContent(composeView, this, content)
+    return doSetContent(this, composeView, recomposer, content)
 }
 
 /**
@@ -171,9 +194,11 @@ private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
  * Note that this [ViewGroup] should have an unique id for the saved instance state mechanism to
  * be able to save and restore the values used within the composition. See [View.setId].
  *
+ * @param recomposer The [Recomposer] to coordinate scheduling of composition updates
  * @param content Composable that will be the content of the view.
  */
 fun ViewGroup.setContent(
+    recomposer: Recomposer,
     content: @Composable() () -> Unit
 ): Composition {
     FrameManager.ensureStarted()
@@ -184,15 +209,35 @@ fun ViewGroup.setContent(
             removeAllViews(); null
         }
             ?: createOwner(context).also { addView(it.view, DefaultLayoutParams) }
-    return doSetContent(composeView, context, content)
+    return doSetContent(context, composeView, recomposer, content)
 }
 
+/**
+ * Composes the given composable into the given view.
+ *
+ * Note that this [ViewGroup] should have an unique id for the saved instance state mechanism to
+ * be able to save and restore the values used within the composition. See [View.setId].
+ *
+ * @param content Composable that will be the content of the view.
+ */
+@Deprecated(
+    "Specify Recomposer explicitly",
+    ReplaceWith(
+        "setContent(Recomposer.current(), content)",
+        "androidx.compose.Recomposer"
+    )
+)
+fun ViewGroup.setContent(
+    content: @Composable() () -> Unit
+): Composition = setContent(Recomposer.current(), content)
+
 private fun doSetContent(
-    owner: AndroidOwner,
     context: Context,
+    owner: AndroidOwner,
+    recomposer: Recomposer,
     content: @Composable() () -> Unit
 ): Composition {
-    val original = compositionFor(owner.root, context)
+    val original = compositionFor(context, owner.root, recomposer)
     val wrapped = owner.view.getTag(R.id.wrapped_composition_tag)
             as? WrappedComposition
         ?: WrappedComposition(owner, original).also {
@@ -402,13 +447,16 @@ val HapticFeedBackAmbient = staticAmbientOf<HapticFeedback>()
  */
 val LifecycleOwnerAmbient = staticAmbientOf<LifecycleOwner>()
 
+@Suppress("NAME_SHADOWING")
 private fun compositionFor(
-    container: Any,
     context: Context,
+    container: Any,
+    recomposer: Recomposer,
     parent: CompositionReference? = null,
     onBeforeFirstComposition: (() -> Unit)? = null
 ) = compositionFor(
     container = container,
+    recomposer = recomposer,
     parent = parent,
     composerFactory = { slotTable, recomposer ->
         onBeforeFirstComposition?.invoke()

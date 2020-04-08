@@ -86,7 +86,7 @@ internal object ComposeIdlingResource : BaseIdlingResource() {
     fun isIdle(): Boolean {
         return runOnUiThread {
             !(inFrame && currentFrame().hasPendingChanges()) &&
-                    !Recomposer.hasPendingChanges() &&
+                    !Recomposer.current().hasPendingChanges() &&
                     areAllClocksIdle()
         }
     }

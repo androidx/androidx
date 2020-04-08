@@ -21,6 +21,7 @@ import android.view.Gravity
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
+import androidx.compose.Recomposer
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DensityAmbient
@@ -78,7 +79,7 @@ class ActivityWithActionBar : ComponentActivity() {
     }
 
     fun setContent(composable: @Composable() () -> Unit) {
-        composeHolder.setContent(composable)
+        composeHolder.setContent(Recomposer.current(), composable)
     }
 }
 

@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.Recomposer
 import androidx.compose.remember
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
@@ -145,10 +146,10 @@ class RecreationTest3Activity : ComponentActivity() {
         linear.addView(child2, params)
         setContentView(linear)
 
-        child1.setContent {
+        child1.setContent(Recomposer.current()) {
             array1 = rememberSavedInstanceState(key = "key") { intArrayOf(0) }
         }
-        child2.setContent {
+        child2.setContent(Recomposer.current()) {
             array2 = rememberSavedInstanceState(key = "key") { intArrayOf(0) }
         }
     }

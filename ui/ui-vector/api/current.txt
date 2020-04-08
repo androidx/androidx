@@ -103,7 +103,8 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorComposeNonIRKt {
-    method public static androidx.compose.Composition composeVector(androidx.ui.graphics.vector.VectorComponent container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> composable);
+    method public static androidx.compose.Composition composeVector(androidx.ui.graphics.vector.VectorComponent container, androidx.compose.Recomposer recomposer, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> composable);
+    method @Deprecated public static androidx.compose.Composition composeVector(androidx.ui.graphics.vector.VectorComponent container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> composable);
   }
 
   public final class VectorComposer extends androidx.compose.Composer<androidx.ui.graphics.vector.VNode> {

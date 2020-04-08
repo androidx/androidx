@@ -29,6 +29,7 @@ import androidx.compose.Composition
 import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
+import androidx.compose.currentComposer
 import androidx.compose.emptyContent
 import androidx.compose.escapeCompose
 import androidx.compose.onCommit
@@ -178,8 +179,9 @@ private fun Popup(
         layout(0.ipx, 0.ipx) {}
     }
 
+    val recomposer = currentComposer.recomposer
     onCommit {
-        composition = popupLayout.setContent {
+        composition = popupLayout.setContent(recomposer) {
             SimpleStack(Modifier.onPositioned {
                 // Get the size of the content
                 popupLayout.popupPositionProperties.childrenSize = it.size.toPxSize()

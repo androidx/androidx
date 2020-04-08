@@ -22,6 +22,7 @@ import android.util.DisplayMetrics
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
+import androidx.compose.Recomposer
 import androidx.ui.unit.Density
 import androidx.ui.test.android.AndroidComposeTestRule
 import org.junit.rules.TestRule
@@ -110,6 +111,7 @@ interface ComposeTestCaseSetup {
  * reference to this activity into the manifest file of the corresponding tests (usually in
  * androidTest/AndroidManifest.xml).
  */
-fun createComposeRule(disableTransitions: Boolean = false): ComposeTestRule {
-    return AndroidComposeTestRule<ComponentActivity>(disableTransitions)
-}
+fun createComposeRule(
+    recomposer: Recomposer? = null,
+    disableTransitions: Boolean = false
+): ComposeTestRule = AndroidComposeTestRule<ComponentActivity>(recomposer, disableTransitions)

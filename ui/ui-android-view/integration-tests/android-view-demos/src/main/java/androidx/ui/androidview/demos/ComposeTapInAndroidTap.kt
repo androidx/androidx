@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
+import androidx.compose.Recomposer
 import androidx.compose.state
 import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.core.Modifier
@@ -53,7 +54,7 @@ open class ComposeTapInAndroidTap : ComponentActivity() {
             container.setBackgroundColor(currentColor.toArgb())
         }
 
-        composition = container.setContent {
+        composition = container.setContent(Recomposer.current()) {
 
             val currentColor = state { Color.LightGray }
 
