@@ -99,7 +99,8 @@ internal class AndroidComposeView constructor(
 
     override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
-        it.layoutDirection = context.getLayoutDirection()
+        it.layoutDirection =
+            context.applicationContext.resources.configuration.localeLayoutDirection
         it.modifier = Modifier.drawLayer(clipToBounds = false) + focusModifier
     }
 
@@ -671,15 +672,6 @@ internal class AndroidComposeView constructor(
             layoutNodeSize.value
         }
 
-    private fun Context.getLayoutDirection() =
-        when (applicationContext.resources.configuration.layoutDirection) {
-            android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
-            android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
-            // API doc says Configuration#getLayoutDirection only returns LTR or RTL.
-            // Fallback to LTR for unexpected return value.
-            else -> LayoutDirection.Ltr
-        }
-
     private val textInputServiceAndroid = TextInputServiceAndroid(this)
 
     override val textInputService = TextInputService(textInputServiceAndroid)
@@ -892,3 +884,18 @@ interface AndroidOwner : Owner {
             set
     }
 }
+
+/**
+ * Return the layout direction set by the [Locale].
+ *
+ * A convenience getter that translates [Configuration.getLayoutDirection] result into
+ * [LayoutDirection] instance.
+ */
+val Configuration.localeLayoutDirection: LayoutDirection
+    get() = when (layoutDirection) {
+        android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
+        android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
+        // API doc says Configuration#getLayoutDirection only returns LTR or RTL.
+        // Fallback to LTR for unexpected return value.
+        else -> LayoutDirection.Ltr
+    }

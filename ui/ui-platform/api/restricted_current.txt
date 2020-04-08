@@ -29,6 +29,7 @@ package androidx.ui.core {
 
   public final class AndroidOwnerKt {
     method public static androidx.ui.core.AndroidOwner createOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null);
+    method public static androidx.ui.core.LayoutDirection getLocaleLayoutDirection(android.content.res.Configuration);
   }
 
   public abstract sealed class ComponentNode {

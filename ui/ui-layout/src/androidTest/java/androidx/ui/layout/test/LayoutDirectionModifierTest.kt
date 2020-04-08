@@ -17,16 +17,21 @@
 package androidx.ui.layout.test
 
 import androidx.compose.Composable
-import androidx.compose.Providers
+import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
+import androidx.ui.core.ConfigurationAmbient
 import androidx.ui.core.Layout
-import androidx.ui.core.LayoutDirectionAmbient
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
+import androidx.ui.core.localeLayoutDirection
 import androidx.ui.layout.IntrinsicSize
+import androidx.ui.layout.Stack
+import androidx.ui.layout.ltr
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.rtl
 import androidx.ui.unit.ipx
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -42,8 +47,9 @@ class LayoutDirectionModifierTest : LayoutTest() {
     @Test
     fun testModifiedLayoutDirection_inMeasureScope() {
         val latch = CountDownLatch(1)
-        val layoutDirection = Ref<androidx.ui.core.LayoutDirection>()
-        val children = @Composable {
+        val layoutDirection = Ref<LayoutDirection>()
+
+        show {
             Layout(
                 children = @Composable() {},
                 modifier = Modifier.rtl
@@ -53,23 +59,17 @@ class LayoutDirectionModifierTest : LayoutTest() {
                 layout(0.ipx, 0.ipx) {}
             }
         }
-        show {
-            Providers(
-                LayoutDirectionAmbient provides androidx.ui.core.LayoutDirection.Ltr,
-                children = children
-            )
-            children()
-        }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertTrue(androidx.ui.core.LayoutDirection.Rtl == layoutDirection.value)
+        assertTrue(LayoutDirection.Rtl == layoutDirection.value)
     }
 
     @Test
     fun testModifiedLayoutDirection_inIntrinsicsMeasure() {
         val latch = CountDownLatch(1)
-        val layoutDirection = Ref<androidx.ui.core.LayoutDirection>()
-        val children = @Composable {
+        val layoutDirection = Ref<LayoutDirection>()
+
+        show {
             Layout(
                 children = @Composable() {},
                 modifier = Modifier.preferredWidth(IntrinsicSize.Max).rtl,
@@ -86,16 +86,31 @@ class LayoutDirectionModifierTest : LayoutTest() {
             }
         }
 
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertNotNull(layoutDirection)
+        assertTrue(LayoutDirection.Rtl == layoutDirection.value)
+    }
+
+    @Test
+    fun testRestoreLocaleLayoutDirection() {
+        val latch = CountDownLatch(1)
+        val resultLayoutDirection = Ref<LayoutDirection>()
+
         show {
-            Providers(
-                LayoutDirectionAmbient provides androidx.ui.core.LayoutDirection.Ltr,
-                children = children
-            )
-            children()
+            Stack(Modifier.rtl) {
+                val restoreModifier = when (ConfigurationAmbient.current.localeLayoutDirection) {
+                    LayoutDirection.Ltr -> Modifier.ltr
+                    LayoutDirection.Rtl -> Modifier.rtl
+                }
+                Layout(emptyContent(), restoreModifier) { _, _, layoutDirection ->
+                    resultLayoutDirection.value = layoutDirection
+                    latch.countDown()
+                    layout(0.ipx, 0.ipx) {}
+                }
+            }
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertNotNull(layoutDirection)
-        assertTrue(androidx.ui.core.LayoutDirection.Rtl == layoutDirection.value)
+        assertEquals(LayoutDirection.Ltr, resultLayoutDirection.value)
     }
 }
