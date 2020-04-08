@@ -90,17 +90,32 @@ internal class AndroidTestAnimationClock : TestAnimationClock {
     }
 
     override fun advanceClock(milliseconds: Long) {
-        runOnUiThread {
+        require(milliseconds >= 0) { "Can only advance the clock forward" }
+
+        // Pause the clock, because it might tick between our two manual ticks
+        val wasPaused = isPaused.also { if (!it) pauseClock() }
+
+        // Start with ticking the clock at the current time, to set
+        // the start time of animations that must be started now.
+        advanceClockOnMainThread(0L)
+
+        // If the requested amount was 0ms, it was intentional to just pump
+        // the clock but not advance it. Don't pump it a second time.
+        if (milliseconds > 0) {
             advanceClockOnMainThread(milliseconds)
         }
+
+        // Resume the clock if it was running before
+        if (!wasPaused) resumeClock()
     }
 
     private fun advanceClockOnMainThread(milliseconds: Long) {
-        synchronized(lock) {
-            check(!isDispatching) { "Can't advance clock while dispatching a frame time" }
-            require(milliseconds >= 0) { "Can only advance the clock forward" }
-            advancedTime += milliseconds
-            handleFrameTimeLocked(clock.clockTimeMillis + milliseconds)
+        runOnUiThread {
+            synchronized(lock) {
+                check(!isDispatching) { "Can't advance clock while dispatching a frame time" }
+                advancedTime += milliseconds
+                handleFrameTimeLocked(clock.clockTimeMillis + milliseconds)
+            }
         }
     }
 
