@@ -31,6 +31,7 @@ import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -268,7 +269,7 @@ public class WebViewClientCompatTest {
         mWebViewOnUiThread.loadDataAndWaitForCompletion(data, "text/html", null);
         final String originalUrl = mWebViewOnUiThread.getUrl();
 
-        loadUnsafePage(backToSafetyWebViewClient);
+        enableSafeBrowsingAndLoadUnsafePage(backToSafetyWebViewClient);
 
         // Back to safety should produce a network error
         Assert.assertNotNull(backToSafetyWebViewClient.getOnReceivedResourceError());
@@ -298,7 +299,7 @@ public class WebViewClientCompatTest {
         String data = "<html><body>some safe page</body></html>";
         mWebViewOnUiThread.loadDataAndWaitForCompletion(data, "text/html", null);
 
-        loadUnsafePage(proceedWebViewClient);
+        enableSafeBrowsingAndLoadUnsafePage(proceedWebViewClient);
 
         // Check that we actually proceeded
         Assert.assertEquals(TEST_SAFE_BROWSING_MALWARE_URL, mWebViewOnUiThread.getUrl());
@@ -317,18 +318,22 @@ public class WebViewClientCompatTest {
         final SafeBrowsingBackToSafetyClient backToSafetyWebViewClient =
                 new SafeBrowsingBackToSafetyClient();
         mWebViewOnUiThread.setWebViewClient(backToSafetyWebViewClient);
+        WebSettingsCompat.setSafeBrowsingEnabled(mWebViewOnUiThread.getSettings(), true);
 
-        // Note: Safe Browsing is enabled by default, and will work on chrome://safe-browsing/ URLs
-        // regardless of user opt-in or GMS state (because this URL will never be sent to GMS Core).
-        mWebViewOnUiThread.loadUrlAndWaitForCompletion(expectedUrl);
+        // Note: Safe Browsing depends on user opt-in as well, so we can't assume it's actually
+        // enabled. #getSafeBrowsingEnabled will tell us the true state of whether Safe Browsing is
+        // enabled.
+        if (WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings())) {
+            mWebViewOnUiThread.loadUrlAndWaitForCompletion(expectedUrl);
 
-        Assert.assertEquals("Safe Browsing hit is for unexpected URL",
-                expectedUrl,
-                backToSafetyWebViewClient.getOnSafeBrowsingHitRequest().getUrl().toString());
+            Assert.assertEquals("Safe Browsing hit is for unexpected URL",
+                    expectedUrl,
+                    backToSafetyWebViewClient.getOnSafeBrowsingHitRequest().getUrl().toString());
 
-        Assert.assertEquals("Safe Browsing hit has unexpected threat type",
-                expectedThreatType,
-                backToSafetyWebViewClient.getOnSafeBrowsingHitThreatType());
+            Assert.assertEquals("Safe Browsing hit has unexpected threat type",
+                    expectedThreatType,
+                    backToSafetyWebViewClient.getOnSafeBrowsingHitThreatType());
+        }
     }
 
     /**
@@ -375,9 +380,15 @@ public class WebViewClientCompatTest {
                 WebViewClient.SAFE_BROWSING_THREAT_BILLING);
     }
 
-    private void loadUnsafePage(SafeBrowsingClient client) throws Throwable {
-        // Note: Safe Browsing is enabled by default, and will work on chrome://safe-browsing/ URLs
-        // regardless of user opt-in or GMS state (because this URL will never be sent to GMS Core).
+    private void enableSafeBrowsingAndLoadUnsafePage(SafeBrowsingClient client) throws Throwable {
+        // Note: Safe Browsing depends on user opt-in as well, so we can't assume it's actually
+        // enabled. #getSafeBrowsingEnabled will tell us the true state of whether Safe Browsing is
+        // enabled.
+        boolean deviceSupportsSafeBrowsing =
+                WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings());
+        final String msg = "The device should support Safe Browsing";
+        Assume.assumeTrue(msg, deviceSupportsSafeBrowsing);
+
         Assert.assertNull(client.getOnReceivedResourceError());
         mWebViewOnUiThread.loadUrlAndWaitForCompletion(TEST_SAFE_BROWSING_MALWARE_URL);
 
