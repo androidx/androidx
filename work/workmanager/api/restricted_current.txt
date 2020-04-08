@@ -308,9 +308,9 @@ package androidx.work {
     method public androidx.work.WorkQuery.Builder addTags(java.util.List<java.lang.String!>);
     method public androidx.work.WorkQuery.Builder addUniqueWorkNames(java.util.List<java.lang.String!>);
     method public androidx.work.WorkQuery build();
-    method public static androidx.work.WorkQuery.Builder withStates(java.util.List<androidx.work.WorkInfo.State!>);
-    method public static androidx.work.WorkQuery.Builder withTags(java.util.List<java.lang.String!>);
-    method public static androidx.work.WorkQuery.Builder withUniqueWorkNames(java.util.List<java.lang.String!>);
+    method public static androidx.work.WorkQuery.Builder fromStates(java.util.List<androidx.work.WorkInfo.State!>);
+    method public static androidx.work.WorkQuery.Builder fromTags(java.util.List<java.lang.String!>);
+    method public static androidx.work.WorkQuery.Builder fromUniqueWorkNames(java.util.List<java.lang.String!>);
   }
 
   public abstract class WorkRequest {
