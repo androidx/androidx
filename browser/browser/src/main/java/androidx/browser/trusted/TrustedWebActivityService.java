@@ -176,10 +176,11 @@ public abstract class TrustedWebActivityService extends Service {
 
         @SuppressWarnings("NullAway")  // TODO: b/142938599
         @Override
-        public Bundle extraCommand(String commandName, Bundle args) {
+        public Bundle extraCommand(String commandName, Bundle args, IBinder callback) {
             checkCaller();
 
-            return TrustedWebActivityService.this.onExtraCommand(commandName, args);
+            return TrustedWebActivityService.this.onExtraCommand(commandName, args,
+                    TrustedWebActivityCallbackRemote.fromBinder(callback));
         }
 
         private void checkCaller() {
@@ -379,13 +380,15 @@ public abstract class TrustedWebActivityService extends Service {
      * A return value of {@code null} will be used to signify that the client does not know how to
      * handle the request.
      *
-     * @param commandName Name of the command to execute.
-     * @param args        Arguments to the command.
+     * @param commandName    Name of the command to execute.
+     * @param args           Arguments to the command.
+     * @param callbackRemote Contains the callback that passed with the command.
      * @return The result {@link Bundle}, or {@code null}.
      */
     @BinderThread
     @Nullable
-    public Bundle onExtraCommand(@NonNull String commandName, @Nullable Bundle args) {
+    public Bundle onExtraCommand(@NonNull String commandName, @NonNull Bundle args,
+            @Nullable TrustedWebActivityCallbackRemote callbackRemote) {
         return null;
     }
 

@@ -21,8 +21,10 @@ import android.content.ComponentName;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.support.customtabs.trusted.ITrustedWebActivityCallback;
 import android.support.customtabs.trusted.ITrustedWebActivityService;
 
 import androidx.annotation.NonNull;
@@ -161,22 +163,25 @@ public final class TrustedWebActivityServiceConnection {
     }
 
     /**
-     * Passes a free-form command to the client to take action on.
+     * Passes a free-form command to the client.
      * {@link TrustedWebActivityService#onExtraCommand} will be called.
      * The client may not know how to deal with the command, in which case {@code null} may be
      * returned.
      *
      * @param commandName Name of the command to execute.
-     * @param args Arguments to the command.
+     * @param args        Arguments to the command.
+     * @param callback    Callback that may be used to return data, depending on the command.
      * @return The result {@link Bundle}, or {@code null} if the command could not be executed.
      * @throws RemoteException If the Service dies while responding to the request.
      * @throws SecurityException If verification with the TrustedWebActivityService fails.
      */
     @SuppressWarnings("NullAway")  // TODO: b/142938599
     @Nullable
-    public Bundle extraCommand(@NonNull String commandName, @Nullable Bundle args)
-            throws RemoteException {
-        return mService.extraCommand(commandName, args);
+    public Bundle extraCommand(@NonNull String commandName, @NonNull Bundle args,
+            @Nullable TrustedWebActivityCallback callback) throws RemoteException {
+        ITrustedWebActivityCallback callbackBinder = wrapCallback(callback);
+        IBinder binder = callbackBinder == null ? null : callbackBinder.asBinder();
+        return mService.extraCommand(commandName, args, binder);
     }
 
     static class NotifyNotificationArgs {
@@ -301,5 +306,18 @@ public final class TrustedWebActivityServiceConnection {
     static void ensureBundleContains(Bundle args, String key) {
         if (args.containsKey(key)) return;
         throw new IllegalArgumentException("Bundle must contain " + key);
+    }
+
+    @Nullable
+    private static ITrustedWebActivityCallback wrapCallback(
+            @Nullable TrustedWebActivityCallback callback) {
+        if (callback == null) return null;
+        return new ITrustedWebActivityCallback.Stub() {
+            @Override
+            public void onExtraCallback(String callbackName, Bundle args)
+                    throws RemoteException {
+                callback.onExtraCallback(callbackName, args);
+            }
+        };
     }
 }
