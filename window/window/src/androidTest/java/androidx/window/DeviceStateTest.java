@@ -17,6 +17,7 @@
 package androidx.window;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -44,5 +45,31 @@ public final class DeviceStateTest {
         DeviceState state = builder.build();
 
         assertEquals(DeviceState.POSTURE_OPENED, state.getPosture());
+    }
+
+    @Test
+    public void testEquals_samePosture() {
+        DeviceState original = new DeviceState(0);
+        DeviceState copy = new DeviceState(0);
+
+        assertEquals(original, copy);
+    }
+
+    @Test
+    public void testEquals_differentPosture() {
+        DeviceState original = new DeviceState(0);
+        DeviceState different = new DeviceState(1);
+
+        assertNotEquals(original, different);
+    }
+
+    @Test
+    public void testHashCode_matchesIfEqual() {
+        int posture = 111;
+        DeviceState original = new DeviceState(posture);
+        DeviceState matching = new DeviceState(posture);
+
+        assertEquals(original, matching);
+        assertEquals(original.hashCode(), matching.hashCode());
     }
 }

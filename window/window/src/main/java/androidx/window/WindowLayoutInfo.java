@@ -64,6 +64,21 @@ public final class WindowLayoutInfo {
         return sb.toString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WindowLayoutInfo that = (WindowLayoutInfo) o;
+
+        return mDisplayFeatures.equals(that.mDisplayFeatures);
+    }
+
+    @Override
+    public int hashCode() {
+        return mDisplayFeatures.hashCode();
+    }
+
     /**
      * Builder for {@link WindowLayoutInfo} objects.
      */
