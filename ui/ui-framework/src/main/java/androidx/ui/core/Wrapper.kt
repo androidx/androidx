@@ -377,8 +377,14 @@ val AutofillTreeAmbient = staticAmbientOf<AutofillTree>()
 )
 val LayoutDirectionAmbient = ambientOf<LayoutDirection>()
 
+/**
+ * The ambient to provide focus manager.
+ */
 val FocusManagerAmbient = ambientOf<FocusManager>()
 
+/**
+ * The ambient to provide communication with platform text input service.
+ */
 val TextInputServiceAmbient = staticAmbientOf<TextInputService?>()
 
 /**
@@ -386,10 +392,22 @@ val TextInputServiceAmbient = staticAmbientOf<TextInputService?>()
  */
 val AnimationClockAmbient = staticAmbientOf<AnimationClockObservable>()
 
+/**
+ * The ambient to provide platform font loading methods.
+ *
+ * Use [androidx.ui.res.fontResource] instead.
+ * @suppress
+ */
 val FontLoaderAmbient = staticAmbientOf<Font.ResourceLoader>()
 
+/**
+ * The ambient to provide functionality related to URL, e.g. open URI.
+ */
 val UriHandlerAmbient = staticAmbientOf<UriHandler>()
 
+/**
+ * The ambient to provide communication with platform clipboard service.
+ */
 val ClipboardManagerAmbient = staticAmbientOf<ClipboardManager>()
 
 /**
