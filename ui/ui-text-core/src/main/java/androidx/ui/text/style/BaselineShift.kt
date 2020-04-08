@@ -27,10 +27,9 @@ import androidx.ui.util.lerp
  *
  * @param multiplier shift the baseline by multiplier * (baseline - ascent)
  */
+@Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-/*inline*/ data class BaselineShift constructor(
-    val multiplier: Float
-) {
+inline class BaselineShift(val multiplier: Float) {
     companion object {
         /**
          * Default baseline shift for superscript.

@@ -1,4 +1,30 @@
 // Baseline format: 1.0
+AcronymName: androidx.ui.core.AlignmentLineKt#merge-CBRbNzc(androidx.ui.core.AlignmentLine, int, int):
+    Acronyms should not be capitalized in method names: was `merge-CBRbNzc`, should this be `merge-CbRbNzc`?
+AcronymName: androidx.ui.core.Constraints#copy-Q13GOEE(int, int, int, int):
+    Acronyms should not be capitalized in method names: was `copy-Q13GOEE`, should this be `copy-Q13Goee`?
+AcronymName: androidx.ui.core.Constraints2Kt#getHasFixedHeight-ybNdgAI(long):
+    Acronyms should not be capitalized in method names: was `getHasFixedHeight-ybNdgAI`, should this be `getHasFixedHeight-ybNdgAi`?
+AcronymName: androidx.ui.core.Constraints2Kt#getHasFixedWidth-ybNdgAI(long):
+    Acronyms should not be capitalized in method names: was `getHasFixedWidth-ybNdgAI`, should this be `getHasFixedWidth-ybNdgAi`?
+AcronymName: androidx.ui.core.Constraints2Kt#isZero-ybNdgAI(long):
+    Acronyms should not be capitalized in method names: was `isZero-ybNdgAI`, should this be `isZero-ybNdgAi`?
+AcronymName: androidx.ui.core.Constraints2Kt#offset-xOKVbDg(long, int, int):
+    Acronyms should not be capitalized in method names: was `offset-xOKVbDg`, should this be `offset-xOkVbDg`?
+AcronymName: androidx.ui.core.ConstraintsKt#offset-3L2DHGc(androidx.ui.core.Constraints, int, int):
+    Acronyms should not be capitalized in method names: was `offset-3L2DHGc`, should this be `offset-3L2DhGc`?
+AcronymName: androidx.ui.core.LayoutModifier#maxIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `maxIntrinsicHeightOf-hc1DRLk`, should this be `maxIntrinsicHeightOf-hc1DrLk`?
+AcronymName: androidx.ui.core.LayoutModifier#maxIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `maxIntrinsicWidthOf-hc1DRLk`, should this be `maxIntrinsicWidthOf-hc1DrLk`?
+AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `minIntrinsicHeightOf-hc1DRLk`, should this be `minIntrinsicHeightOf-hc1DrLk`?
+AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `minIntrinsicWidthOf-hc1DRLk`, should this be `minIntrinsicWidthOf-hc1DrLk`?
+AcronymName: androidx.ui.core.LayoutModifier#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+
+
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.unit.IntPxSize) parameter #1:
     Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.ui.core.PointerInputChange[]`
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange, androidx.ui.core.PointerEventPass[], androidx.ui.unit.IntPxSize) parameter #2:

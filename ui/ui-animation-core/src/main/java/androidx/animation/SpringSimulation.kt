@@ -16,6 +16,10 @@
 
 package androidx.animation
 
+import androidx.ui.util.packFloats
+import androidx.ui.util.unpackFloat1
+import androidx.ui.util.unpackFloat2
+
 /**
  * Spring Simulation simulates spring physics, and allows you to query the motion (i.e. value and
  * velocity) at certain time in the future based on the starting velocity and value.
@@ -33,8 +37,15 @@ package androidx.animation
  * damping (i.e. damping ratio = 0), the mass will oscillate forever.
  */
 
-// TODO(tianliu): make this inline when inline classes are supported
-internal data class Motion(val value: Float, val velocity: Float)
+@Suppress("EXPERIMENTAL_FEATURE_WARNING")
+internal inline class Motion(val packedValue: Long) {
+    val value: Float
+        get() = unpackFloat1(packedValue)
+    val velocity: Float
+        get() = unpackFloat2(packedValue)
+}
+
+internal fun Motion(value: Float, velocity: Float) = Motion(packFloats(value, velocity))
 
 // This multiplier is used to calculate the velocity threshold given a certain value threshold.
 // The idea is that if it takes >= 1 frame to move the value threshold amount, then the velocity

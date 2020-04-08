@@ -35,7 +35,7 @@ class PhysicsAnimationTest {
         val playTime = 150L
 
         val velocity = animation.getVelocity(playTime, start, end, 0f)
-        val (_, expectedVelocity) = builder.toSpring(end).updateValues(start, 0f, playTime)
+        val expectedVelocity = builder.toSpring(end).updateValues(start, 0f, playTime).velocity
         assertThat(velocity).isEqualTo(expectedVelocity)
     }
 
@@ -50,8 +50,8 @@ class PhysicsAnimationTest {
 
         val velocity = animation.getVelocity(playTime, start, end, 0f)
 
-        val (_, expectedVelocity) = builder.toSpring(end)
-            .updateValues(start.toFloat(), 0f, playTime)
+        val expectedVelocity = builder.toSpring(end)
+            .updateValues(start.toFloat(), 0f, playTime).velocity
         assertThat(velocity).isEqualTo(expectedVelocity)
     }
 
@@ -79,11 +79,13 @@ class PhysicsAnimationTest {
         val resultValue = animation.getValue(playTime, start2, end2, startVelocity2)
         val resultVelocity = animation.getVelocity(playTime, start2, end2, startVelocity2)
 
-        val (expectedValue, expectedVelocity) = builder.toSpring(end2).updateValues(
+        val motion = builder.toSpring(end2).updateValues(
             start2,
             interruptionVelocity,
             playTime
         )
+        val expectedValue = motion.value
+        val expectedVelocity = motion.velocity
 
         assertThat(resultValue).isEqualTo(expectedValue)
         assertThat(resultVelocity).isEqualTo(expectedVelocity)

@@ -1,11 +1,31 @@
 // Baseline format: 1.0
-ArrayReturn: androidx.ui.graphics.BrushKt#HorizontalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.graphics.TileMode) parameter #0:
+AcronymName: androidx.ui.graphics.ColorFilter.Companion#tint-QEYXlZo(long):
+    Acronyms should not be capitalized in method names: was `tint-QEYXlZo`, should this be `tint-QeyXlZo`?
+AcronymName: androidx.ui.graphics.ColorKt#isSet-QEYXlZo(long):
+    Acronyms should not be capitalized in method names: was `isSet-QEYXlZo`, should this be `isSet-QeyXlZo`?
+AcronymName: androidx.ui.graphics.ColorKt#isUnset-QEYXlZo(long):
+    Acronyms should not be capitalized in method names: was `isUnset-QEYXlZo`, should this be `isUnset-QeyXlZo`?
+AcronymName: androidx.ui.graphics.ColorKt#lerp-hhXNEtA(long, long, float):
+    Acronyms should not be capitalized in method names: was `lerp-hhXNEtA`, should this be `lerp-hhXnEtA`?
+AcronymName: androidx.ui.graphics.ColorKt#luminance-QEYXlZo(long):
+    Acronyms should not be capitalized in method names: was `luminance-QEYXlZo`, should this be `luminance-QeyXlZo`?
+AcronymName: androidx.ui.graphics.ColorKt#toArgb-QEYXlZo(long):
+    Acronyms should not be capitalized in method names: was `toArgb-QEYXlZo`, should this be `toArgb-QeyXlZo`?
+AcronymName: androidx.ui.graphics.Paint#setColor-QEYXlZo(long):
+    Acronyms should not be capitalized in method names: was `setColor-QEYXlZo`, should this be `setColor-QeyXlZo`?
+AcronymName: androidx.ui.graphics.SolidColor#copy-QEYXlZo(long):
+    Acronyms should not be capitalized in method names: was `copy-QEYXlZo`, should this be `copy-QeyXlZo`?
+AcronymName: androidx.ui.graphics.painter.ColorPainter#copy-QEYXlZo(long):
+    Acronyms should not be capitalized in method names: was `copy-QEYXlZo`, should this be `copy-QeyXlZo`?
+
+
+ArrayReturn: androidx.ui.graphics.BrushKt#HorizontalGradient-G0qqrXo(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.graphics.BrushKt#LinearGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.graphics.TileMode) parameter #0:
+ArrayReturn: androidx.ui.graphics.BrushKt#LinearGradient-gbNZAbE(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, float, float, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
 ArrayReturn: androidx.ui.graphics.BrushKt#RadialGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, float, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
-ArrayReturn: androidx.ui.graphics.BrushKt#VerticalGradient(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], androidx.ui.unit.Px, androidx.ui.unit.Px, androidx.ui.graphics.TileMode) parameter #0:
+ArrayReturn: androidx.ui.graphics.BrushKt#VerticalGradient-G0qqrXo(kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[], float, float, androidx.ui.graphics.TileMode) parameter #0:
     Method parameter should be Collection<Pair> (or subclass) instead of raw array; was `kotlin.Pair<java.lang.Float,androidx.ui.graphics.Color>[]`
 
 
@@ -47,6 +67,16 @@ DocumentExceptions: androidx.ui.graphics.vectormath.Vector4#set(int, float):
 
 MissingBuildMethod: androidx.ui.graphics.vector.PathBuilder:
     androidx.ui.graphics.vector.PathBuilder does not declare a `build()` method, but builder classes are expected to
+
+
+MissingNullability: androidx.ui.graphics.Shader#constructor-impl(android.graphics.Shader):
+    Missing nullability on method `constructor-impl` return
+MissingNullability: androidx.ui.graphics.Shader#equals-impl(android.graphics.Shader, Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals-impl`
+MissingNullability: androidx.ui.graphics.Shader#hashCode-impl(android.graphics.Shader) parameter #0:
+    Missing nullability on parameter `p` in method `hashCode-impl`
+MissingNullability: androidx.ui.graphics.Shader#toString-impl(android.graphics.Shader) parameter #0:
+    Missing nullability on parameter `p` in method `toString-impl`
 
 
 TopLevelBuilder: androidx.ui.graphics.vector.PathBuilder:

@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AcronymName: androidx.ui.material.ColorKt#contentColorFor-QEYXlZo(long):
+    Acronyms should not be capitalized in method names: was `contentColorFor-QEYXlZo`, should this be `contentColorFor-QeyXlZo`?
+AcronymName: androidx.ui.material.ColorKt#contentColorFor-ZITCLTE(androidx.ui.material.ColorPalette, long):
+    Acronyms should not be capitalized in method names: was `contentColorFor-ZITCLTE`, should this be `contentColorFor-Zitclte`?
+AcronymName: androidx.ui.material.Emphasis#emphasize-QEYXlZo(long):
+    Acronyms should not be capitalized in method names: was `emphasize-QEYXlZo`, should this be `emphasize-QeyXlZo`?
