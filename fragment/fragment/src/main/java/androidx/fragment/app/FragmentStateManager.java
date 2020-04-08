@@ -316,7 +316,8 @@ class FragmentStateManager {
                                 Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
                             }
                             // TODO call saveViewState()
-                            if (mFragment.mView != null && mFragment.mContainer != null) {
+                            if (mFragment.mView != null && mFragment.mContainer != null
+                                    && mFragmentManagerState > Fragment.INITIALIZING) {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
