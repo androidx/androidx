@@ -90,16 +90,16 @@ class DynamicIncludeGraphNavigator(
         }
         val includedNav = navInflater.inflate(graphId)
         check(!(includedNav.id != 0 && includedNav.id != destination.id)) {
-            "The included <navigation>'s id is different from " +
-                    "the destination id. Either remove the <navigation> id or make them " +
-                    " match."
+            "The included <navigation>'s id ${includedNav.displayName} is different from " +
+                    "the destination id ${destination.displayName}. Either remove the " +
+                    "<navigation> id or make them match."
         }
         includedNav.id = destination.id
         val outerNav = destination.parent
             ?: throw IllegalStateException(
-                "The destination ${destination.id} does not have a parent. " +
-                        "Make sure it is attached to a NavGraph.")
-        // no need to remove previous destination, id is used as key in map
+                "The include-dynamic destination with id ${destination.displayName} " +
+                        "does not have a parent. Make sure it is attached to a NavGraph."
+            )
         outerNav.addDestination(includedNav)
         return includedNav
     }
