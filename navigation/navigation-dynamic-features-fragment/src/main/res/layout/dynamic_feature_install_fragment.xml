@@ -38,13 +38,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp" />
 
-    <TextView
-        android:id="@+id/module_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_margin="8dp" />
-
     <ProgressBar
         android:id="@+id/installation_progress"
         android:layout_width="match_parent"
