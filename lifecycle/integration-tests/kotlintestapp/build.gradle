@@ -28,7 +28,12 @@ plugins {
 
 dependencies {
     implementation(project(":lifecycle:lifecycle-runtime-ktx"))
-    implementation(project(":activity:activity"))
+    implementation(project(":activity:activity")) {
+        exclude group: 'androidx.lifecycle'
+    }
+    implementation(project(":lifecycle:lifecycle-viewmodel-savedstate")) {
+        because "Used by :activity:activity"
+    }
 
     testImplementation(JUNIT)
     testImplementation(TRUTH)
