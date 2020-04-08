@@ -82,4 +82,48 @@ class SavedInstanceStateTest {
             assertThat(state!!.value).isEqualTo(Holder(1))
         }
     }
+
+    @Test
+    fun nullableStateRestoresNonNullValue() {
+        var state: MutableState<String?>? = null
+        restorationTester.setContent {
+            state = savedInstanceState<String?> { null }
+        }
+
+        runOnUiThread {
+            assertThat(state!!.value).isNull()
+
+            state!!.value = "value"
+            // we null it to ensure recomposition happened
+            state = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        runOnUiThread {
+            assertThat(state!!.value).isEqualTo("value")
+        }
+    }
+
+    @Test
+    fun nullableStateRestoresNullValue() {
+        var state: MutableState<String?>? = null
+        restorationTester.setContent {
+            state = savedInstanceState<String?> { "initial" }
+        }
+
+        runOnUiThread {
+            assertThat(state!!.value).isEqualTo("initial")
+
+            state!!.value = null
+            // we null it to ensure recomposition happened
+            state = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        runOnUiThread {
+            assertThat(state!!.value).isNull()
+        }
+    }
 }
