@@ -23,6 +23,7 @@ import android.util.Log;
 import android.util.Property;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -266,7 +267,7 @@ public class PropertyValuesHolder implements Cloneable {
     @SafeVarargs
     @NonNull
     public static <T> PropertyValuesHolder ofMultiInt(@NonNull String propertyName,
-            @NonNull TypeConverter<T, int[]> converter, @NonNull TypeEvaluator<T> evaluator,
+            @Nullable TypeConverter<T, int[]> converter, @NonNull TypeEvaluator<T> evaluator,
             @NonNull Keyframe... values) {
         KeyframeSet keyframeSet = KeyframeSet.ofKeyframe(values);
         return new MultiIntValuesHolder(propertyName, converter, evaluator, keyframeSet);
@@ -399,7 +400,7 @@ public class PropertyValuesHolder implements Cloneable {
     @SafeVarargs
     @NonNull
     public static <T> PropertyValuesHolder ofMultiFloat(@NonNull String propertyName,
-            @NonNull TypeConverter<T, float[]> converter,
+            @Nullable TypeConverter<T, float[]> converter,
             @NonNull TypeEvaluator<T> evaluator,
             @NonNull Keyframe... values) {
         KeyframeSet keyframeSet = KeyframeSet.ofKeyframe(values);
@@ -450,7 +451,7 @@ public class PropertyValuesHolder implements Cloneable {
      */
     @NonNull
     public static PropertyValuesHolder ofObject(@NonNull String propertyName,
-            @NonNull TypeConverter<PointF, ?> converter, @NonNull Path path) {
+            @Nullable TypeConverter<PointF, ?> converter, @NonNull Path path) {
         PropertyValuesHolder pvh = new PropertyValuesHolder(propertyName);
         pvh.mKeyframes = KeyframeSet.ofPath(path);
         pvh.mValueType = PointF.class;
@@ -539,7 +540,7 @@ public class PropertyValuesHolder implements Cloneable {
      */
     @NonNull
     public static <V> PropertyValuesHolder ofObject(@NonNull Property<?, V> property,
-            @NonNull TypeConverter<PointF, V> converter, @NonNull Path path) {
+            @Nullable TypeConverter<PointF, V> converter, @NonNull Path path) {
         PropertyValuesHolder pvh = new PropertyValuesHolder(property);
         pvh.mKeyframes = KeyframeSet.ofPath(path);
         pvh.mValueType = PointF.class;
@@ -704,7 +705,7 @@ public class PropertyValuesHolder implements Cloneable {
      * {@link BidirectionalTypeConverter}.
      * @param converter The converter to use to convert values.
      */
-    public void setConverter(@NonNull TypeConverter converter) {
+    public void setConverter(@Nullable TypeConverter converter) {
         mConverter = converter;
     }
 
