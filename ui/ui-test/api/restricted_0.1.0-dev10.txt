@@ -314,9 +314,6 @@ package androidx.ui.test.android {
     method public static void unregisterTestClock(androidx.ui.test.TestAnimationClock clock);
   }
 
-  public final class SynchronizedTreeCollectorKt {
-  }
-
   public final class WindowCaptureKt {
   }
 

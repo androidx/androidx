@@ -34,6 +34,37 @@ internal object AndroidOwnerRegistry {
     private var onDrawnCallback: (() -> Unit)? = null
 
     /**
+     * Returns if the registry is setup to receive registrations from [AndroidOwner]s
+     */
+    val isSetup: Boolean
+        get() = AndroidOwner.onAndroidOwnerCreatedCallback == ::onAndroidOwnerCreated
+
+    /**
+     * Sets up this registry to be notified of any [AndroidOwner] created
+     */
+    internal fun setupRegistry() {
+        AndroidOwner.onAndroidOwnerCreatedCallback = ::onAndroidOwnerCreated
+    }
+
+    /**
+     * Cleans up the changes made by [setupRegistry]. Call this after your test has run.
+     */
+    internal fun tearDownRegistry() {
+        AndroidOwner.onAndroidOwnerCreatedCallback = null
+    }
+
+    private fun onAndroidOwnerCreated(owner: AndroidOwner) {
+        owner.view.addOnAttachStateChangeListener(OwnerAttachedListener(owner))
+    }
+
+    /**
+     * Returns a copy of the set of all registered [AndroidOwner]s
+     */
+    fun getAllOwners(): Set<AndroidOwner> {
+        return owners.toSet()
+    }
+
+    /**
      * Returns if all registered owners have finished at least one draw call.
      */
     fun haveAllDrawn(): Boolean {
@@ -101,6 +132,22 @@ internal object AndroidOwnerRegistry {
                     }
                 }
             }
+        }
+    }
+
+    private class OwnerAttachedListener(
+        private val owner: AndroidOwner
+    ) : View.OnAttachStateChangeListener {
+
+        // Note: owner.view === view, because the owner _is_ the view,
+        // and this listener is only referenced from within the view.
+
+        override fun onViewAttachedToWindow(view: View) {
+            registerOwner(owner)
+        }
+
+        override fun onViewDetachedFromWindow(view: View) {
+            unregisterOwner(owner)
         }
     }
 }
