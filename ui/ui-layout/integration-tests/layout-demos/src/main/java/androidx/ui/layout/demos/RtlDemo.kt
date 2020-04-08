@@ -28,7 +28,6 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxWidth
@@ -42,19 +41,25 @@ import androidx.ui.unit.ipx
 @Composable
 fun RtlDemo() {
     Column(arrangement = Arrangement.SpaceEvenly) {
-        Text("TEXT", Modifier.gravity(ColumnAlign.Center))
+        Text("TEXT", Modifier.gravity(Alignment.CenterHorizontally))
         testText()
-        Text("ROW", Modifier.gravity(ColumnAlign.Center))
+        Text("ROW", Modifier.gravity(Alignment.CenterHorizontally))
         testRow()
-        Text("ROW WITH LTR MODIFIER", Modifier.gravity(ColumnAlign.Center))
+        Text("ROW WITH LTR MODIFIER", Modifier.gravity(Alignment.CenterHorizontally))
         testRow_modifier()
-        Text("RELATIVE TO SIBLINGS", Modifier.gravity(ColumnAlign.Center))
+        Text("RELATIVE TO SIBLINGS", Modifier.gravity(Alignment.CenterHorizontally))
         testSiblings()
-        Text("PLACE WITH AUTO RTL SUPPORT IN CUSTOM LAYOUT", Modifier.gravity(ColumnAlign.Center))
+        Text(
+            "PLACE WITH AUTO RTL SUPPORT IN CUSTOM LAYOUT",
+            Modifier.gravity(Alignment.CenterHorizontally)
+        )
         CustomLayout(true)
-        Text("PLACE WITHOUT RTL SUPPORT IN CUSTOM LAYOUT", Modifier.gravity(ColumnAlign.Center))
+        Text(
+            "PLACE WITHOUT RTL SUPPORT IN CUSTOM LAYOUT",
+            Modifier.gravity(Alignment.CenterHorizontally)
+        )
         CustomLayout(false)
-        Text("WITH CONSTRAINTS", Modifier.gravity(ColumnAlign.Center))
+        Text("WITH CONSTRAINTS", Modifier.gravity(Alignment.CenterHorizontally))
         LayoutWithConstraints(Modifier.ltr, "LD: LTR modifier")
         LayoutWithConstraints(Modifier.rtl, "LD: RTL modifier")
         LayoutWithConstraints(text = "LD: locale")

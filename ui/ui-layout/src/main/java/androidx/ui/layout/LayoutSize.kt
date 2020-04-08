@@ -305,7 +305,8 @@ fun Modifier.fillMaxSize() = this + LayoutSize.Fill
  * [minimum width constraint][Constraints.minWidth]. If the content's measured size is smaller
  * than the minimum width constraint, [align] it within that minimum width space.
  */
-// TODO: Consider an axis-specific [Alignment]
+@Deprecated("wrapContentWidth(Alignment) is deprecated. " +
+        "Please use wrapContentWidth(Alignment.Horizontal) instead.")
 fun Modifier.wrapContentWidth(align: Alignment = Alignment.Center) = this + when (align) {
     Alignment.TopStart, Alignment.CenterStart, Alignment.BottomStart -> LayoutAlign.Start
     Alignment.TopCenter, Alignment.Center, Alignment.BottomCenter -> LayoutAlign.CenterHorizontally
@@ -314,17 +315,36 @@ fun Modifier.wrapContentWidth(align: Alignment = Alignment.Center) = this + when
 }
 
 /**
+ * Allow the content to measure at its desired width without regard for the incoming measurement
+ * [minimum width constraint][Constraints.minWidth]. If the content's measured size is smaller
+ * than the minimum width constraint, [align] it within that minimum width space.
+ */
+// TODO(popam): avoid recreating modifier for common align
+fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) =
+    this + AlignmentModifier(Alignment(-1f, align.bias), Direction.Horizontal)
+
+/**
  * Allow the content to measure at its desired height without regard for the incoming measurement
  * [minimum height constraint][Constraints.minHeight]. If the content's measured size is smaller
  * than the minimum height constraint, [align] it within that minimum height space.
  */
-// TODO: Consider an axis-specific [Alignment]
+@Deprecated("wrapContentWidth(Alignment) is deprecated. " +
+        "Please use wrapContentWidth(Alignment.Horizontal) instead.")
 fun Modifier.wrapContentHeight(align: Alignment = Alignment.Center) = this + when (align) {
-    Alignment.TopStart, Alignment.TopCenter, Alignment.TopEnd -> LayoutAlign.Top
-    Alignment.CenterStart, Alignment.Center, Alignment.CenterEnd -> LayoutAlign.CenterVertically
-    Alignment.BottomStart, Alignment.BottomCenter, Alignment.BottomEnd -> LayoutAlign.Bottom
-    else -> error("Unexpected alignment")
-}
+        Alignment.TopStart, Alignment.TopCenter, Alignment.TopEnd -> LayoutAlign.Top
+        Alignment.CenterStart, Alignment.Center, Alignment.CenterEnd -> LayoutAlign.CenterVertically
+        Alignment.BottomStart, Alignment.BottomCenter, Alignment.BottomEnd -> LayoutAlign.Bottom
+        else -> error("Unexpected alignment")
+    }
+
+/**
+ * Allow the content to measure at its desired height without regard for the incoming measurement
+ * [minimum height constraint][Constraints.minHeight]. If the content's measured size is smaller
+ * than the minimum height constraint, [align] it within that minimum height space.
+ */
+// TODO(popam): avoid recreating modifier for common align
+fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVertically) =
+    this + AlignmentModifier(Alignment(align.bias, -1f), Direction.Vertical)
 
 /**
  * Allow the content to measure at its desired size without regard for the incoming measurement

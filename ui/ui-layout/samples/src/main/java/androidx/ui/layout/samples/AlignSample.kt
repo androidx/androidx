@@ -23,9 +23,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Row
-import androidx.ui.layout.RowAlign
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredSize
@@ -63,7 +61,7 @@ fun SimpleVerticallyAlignedModifier() {
     // in the modifier chain.
     Box(
         Modifier.preferredSize(50.dp)
-            .wrapContentHeight(Alignment.Center),
+            .wrapContentHeight(Alignment.CenterVertically),
         backgroundColor = Color.Blue
     )
 }
@@ -77,19 +75,23 @@ fun SimpleGravityInRow() {
         Box(Modifier.preferredSize(80.dp, 40.dp), backgroundColor = Color.Magenta)
         // Gravity.Top, the child will be positioned so that its top edge is aligned to the top
         // of the vertical axis.
-        Box(Modifier.preferredSize(80.dp, 40.dp).gravity(RowAlign.Top), backgroundColor = Color.Red)
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(Alignment.Top),
+            backgroundColor = Color.Red
+        )
         // Gravity.Center, the child will be positioned so that its center is in the middle of
         // the vertical axis.
         Box(
             Modifier.preferredSize(80.dp, 40.dp)
-                .gravity(RowAlign.Center),
+                .gravity(Alignment.CenterVertically),
             backgroundColor = Color.Yellow
         )
         // Gravity.Bottom, the child will be positioned so that its bottom edge is aligned to the
         // bottom of the vertical axis.
         Box(
             Modifier.preferredSize(80.dp, 40.dp)
-                .gravity(RowAlign.Bottom),
+                .gravity(Alignment.Bottom),
             backgroundColor = Color.Green
         )
     }
@@ -106,21 +108,21 @@ fun SimpleGravityInColumn() {
         // the start edge of the horizontal axis.
         Box(
             Modifier.preferredSize(80.dp, 40.dp)
-                .gravity(ColumnAlign.Start),
+                .gravity(Alignment.Start),
             backgroundColor = Color.Red
         )
         // Gravity.Center, the child will be positioned so that its center is in the middle of
         // the horizontal axis.
         Box(
             Modifier.preferredSize(80.dp, 40.dp)
-                .gravity(ColumnAlign.Center),
+                .gravity(Alignment.CenterHorizontally),
             backgroundColor = Color.Yellow
         )
         // Gravity.End, the child will be positioned so that its end edge aligned to the end of
         // the horizontal axis.
         Box(
             Modifier.preferredSize(80.dp, 40.dp)
-                .gravity(ColumnAlign.End),
+                .gravity(Alignment.End),
             backgroundColor = Color.Green
         )
     }

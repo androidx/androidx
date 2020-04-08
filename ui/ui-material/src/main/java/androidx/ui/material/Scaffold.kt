@@ -26,7 +26,6 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
 import androidx.ui.layout.Column
-import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
@@ -162,7 +161,7 @@ fun Scaffold(
 }
 
 private fun FabPosition.toColumnAlign() =
-    if (this == FabPosition.End) ColumnAlign.End else ColumnAlign.Center
+    if (this == FabPosition.End) Alignment.End else Alignment.CenterHorizontally
 
 /**
  * Scaffold part that is on the bottom. Includes FAB and BottomBar

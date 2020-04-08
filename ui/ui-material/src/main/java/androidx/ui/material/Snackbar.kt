@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
@@ -29,7 +30,6 @@ import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Column
-import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
@@ -134,7 +134,7 @@ private fun NewLineButtonSnackbar(
                 Box(Modifier.padding(end = HorizontalSpacingButtonSide), children = text)
             }
         }
-        Box(Modifier.gravity(ColumnAlign.End), children = action)
+        Box(Modifier.gravity(Alignment.End), children = action)
     }
 }
 
