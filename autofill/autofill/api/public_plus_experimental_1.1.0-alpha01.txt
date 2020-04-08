@@ -54,6 +54,7 @@ package androidx.autofill {
   }
 
   @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class InlinePresentationRenderer {
+    method public static android.app.PendingIntent? getAttribution(android.app.slice.Slice);
     method public static android.view.View renderSlice(android.content.Context, android.app.slice.Slice, String?);
   }
 
