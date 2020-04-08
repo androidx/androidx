@@ -454,12 +454,14 @@ internal class AndroidComposeView constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         savedStateDelegate.stopWaitingForStateRestoration()
         trace("AndroidOwner:onMeasure") {
-            val targetWidth = convertMeasureSpec(widthMeasureSpec)
-            val targetHeight = convertMeasureSpec(heightMeasureSpec)
+            val maxWidth = getMaxSize(widthMeasureSpec)
+            val maxHeight = getMaxSize(heightMeasureSpec)
 
             this.constraints = Constraints(
-                targetWidth.min, targetWidth.max,
-                targetHeight.min, targetHeight.max
+                minWidth = 0.ipx,
+                minHeight = 0.ipx,
+                maxWidth = maxWidth,
+                maxHeight = maxHeight
             )
 
             relayoutNodes.add(root)
@@ -469,7 +471,10 @@ internal class AndroidComposeView constructor(
                 // View is not yet laid out.
                 measureAndLayout()
             }
-            setMeasuredDimension(root.width.value, root.height.value)
+            setMeasuredDimension(
+                getMeasuredSize(widthMeasureSpec, root.width),
+                getMeasuredSize(heightMeasureSpec, root.height)
+            )
         }
     }
 
@@ -648,16 +653,23 @@ internal class AndroidComposeView constructor(
         return true
     }
 
-    private fun convertMeasureSpec(measureSpec: Int): ConstraintRange {
+    private fun getMaxSize(measureSpec: Int): IntPx {
         val mode = MeasureSpec.getMode(measureSpec)
         val size = IntPx(MeasureSpec.getSize(measureSpec))
         return when (mode) {
-            MeasureSpec.EXACTLY -> ConstraintRange(size, size)
-            MeasureSpec.UNSPECIFIED -> ConstraintRange(IntPx.Zero, IntPx.Infinity)
-            MeasureSpec.AT_MOST -> ConstraintRange(IntPx.Zero, size)
+            MeasureSpec.EXACTLY -> size
+            MeasureSpec.UNSPECIFIED -> IntPx.Infinity
+            MeasureSpec.AT_MOST -> size
             else -> throw IllegalStateException()
         }
     }
+
+    private fun getMeasuredSize(measureSpec: Int, layoutNodeSize: IntPx) =
+        if (MeasureSpec.getMode(measureSpec) == MeasureSpec.EXACTLY) {
+            MeasureSpec.getSize(measureSpec)
+        } else {
+            layoutNodeSize.value
+        }
 
     private fun Context.getLayoutDirection() =
         when (applicationContext.resources.configuration.layoutDirection) {
@@ -880,5 +892,3 @@ interface AndroidOwner : Owner {
             set
     }
 }
-
-private class ConstraintRange(val min: IntPx, val max: IntPx)

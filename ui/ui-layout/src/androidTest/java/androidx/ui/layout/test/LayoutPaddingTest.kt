@@ -36,7 +36,6 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.ltr
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.rtl
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -231,7 +230,7 @@ class LayoutPaddingTest : LayoutTest() {
         // ltr: P1 S P2 | S P3 | P1 S
         // rtl:    S P1 | P3 S | P2 S P1
         show {
-            Row(Modifier.preferredWidth(sizeDp * 3).rtl) {
+            Row(Modifier.fillMaxSize().rtl) {
                 Stack(
                     Modifier.padding(start = padding1Dp, end = padding2Dp)
                         .preferredSize(sizeDp, sizeDp)
@@ -298,7 +297,7 @@ class LayoutPaddingTest : LayoutTest() {
         val resultSize = Ref<IntPxSize>()
 
         show {
-            Column(Modifier.rtl) {
+            Column(Modifier.fillMaxSize().rtl) {
                 Stack(Modifier
                     .preferredSize(size.toDp())
                     .ltr
@@ -342,7 +341,7 @@ class LayoutPaddingTest : LayoutTest() {
         var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
-            Stack {
+            Stack(Modifier.fillMaxSize()) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(sizeDp, sizeDp),
                     modifier = Modifier.gravity(Alignment.Center)
@@ -388,7 +387,7 @@ class LayoutPaddingTest : LayoutTest() {
         var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
-            Stack {
+            Stack(Modifier.fillMaxSize()) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(sizeDp, sizeDp),
                     modifier = Modifier.gravity(Alignment.Center)
@@ -441,7 +440,7 @@ class LayoutPaddingTest : LayoutTest() {
         var childSize = IntPxSize(-1.ipx, -1.ipx)
         var childPosition = PxPosition(-1.px, -1.px)
         show {
-            Stack {
+            Stack(Modifier.fillMaxSize()) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(sizeDp, sizeDp),
                     modifier = Modifier.gravity(Alignment.Center)
