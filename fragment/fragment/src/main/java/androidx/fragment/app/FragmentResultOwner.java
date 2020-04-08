@@ -30,9 +30,9 @@ public interface FragmentResultOwner {
     /**
      * Sets the given result for the requestKey. This result will be delivered to a
      * {@link FragmentResultListener} that is called given to
-     * {@link #setResultListener(String, LifecycleOwner, FragmentResultListener)} with the same
-     * requestKey. If no {@link FragmentResultListener} with the same key is set or the Lifecycle
-     * associated with the listener is not at least
+     * {@link #setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)} with
+     * the same requestKey. If no {@link FragmentResultListener} with the same key is set or the
+     * Lifecycle associated with the listener is not at least
      * {@link androidx.lifecycle.Lifecycle.State#STARTED}, the result is stored until one becomes
      * available, or a null result with the same requestKey is set.
      *
@@ -40,13 +40,13 @@ public interface FragmentResultOwner {
      * @param result the result to be passed to another fragment or {@code null} if you want to
      *               clear out any pending result.
      */
-    void setResult(@NonNull String requestKey, @Nullable Bundle result);
+    void setFragmentResult(@NonNull String requestKey, @Nullable Bundle result);
 
     /**
      * Sets the {@link FragmentResultListener} for a given requestKey. Once the given
      * {@link LifecycleOwner} is at least in the {@link androidx.lifecycle.Lifecycle.State#STARTED}
-     * state, any results set by {@link #setResult(String, Bundle)} using the same requestKey
-     * will be delivered to the
+     * state, any results set by {@link #setFragmentResult(String, Bundle)} using the same
+     * requestKey will be delivered to the
      * {@link FragmentResultListener#onFragmentResult(String, Bundle) callback}. The callback will
      * remain active until the LifecycleOwner reaches the
      * {@link androidx.lifecycle.Lifecycle.State#DESTROYED} state or a null
@@ -57,6 +57,6 @@ public interface FragmentResultOwner {
      * @param listener listener for result changes or {@code null} to remove any previously
      *                 registered listener.
      */
-    void setResultListener(@NonNull String requestKey, @NonNull LifecycleOwner lifecycleOwner,
-            @Nullable FragmentResultListener listener);
+    void setFragmentResultListener(@NonNull String requestKey,
+            @NonNull LifecycleOwner lifecycleOwner, @Nullable FragmentResultListener listener);
 }

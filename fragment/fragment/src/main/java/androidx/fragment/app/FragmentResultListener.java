@@ -25,11 +25,11 @@ import androidx.lifecycle.LifecycleOwner;
  * Listener for handling fragment results.
  *
  * This object should be passed to
- * {@link FragmentManager#setResultListener(String, LifecycleOwner, FragmentResultListener)} and
- * it will listen for results with the same key that are passed into
- * {@link FragmentManager#setResult(String, Bundle)}.
+ * {@link FragmentManager#setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)}
+ * and it will listen for results with the same key that are passed into
+ * {@link FragmentManager#setFragmentResult(String, Bundle)}.
  *
- * @see FragmentResultOwner#setResultListener
+ * @see FragmentResultOwner#setFragmentResultListener
  */
 public interface FragmentResultListener {
     /**
