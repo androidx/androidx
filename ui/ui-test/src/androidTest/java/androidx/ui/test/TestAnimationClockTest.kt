@@ -77,21 +77,9 @@ class TestAnimationClockTest {
         onIdle()
 
         // Did one recomposition, but no animation frames
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f))
-
-        // Animation doesn't actually start until the next frame.
-        // Advance by 0ms to force dispatching of a frame time.
-        runOnIdleCompose {
-            // Advance clock on main thread so we can assert Compose is not idle afterwards
-            clockTestRule.advanceClock(0)
-            assertThat(ComposeIdlingResource.isIdle()).isFalse()
+        recordedAnimatedValues.forEach {
+            assertThat(it).isIn(listOf(0f))
         }
-
-        // Await start animation frame
-        onIdle()
-
-        // Did start animation frame
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f))
 
         // Advance first half of the animation (.5 sec)
         runOnIdleCompose {
@@ -103,7 +91,9 @@ class TestAnimationClockTest {
         onIdle()
 
         // Did one animation frame
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f, 25f))
+        recordedAnimatedValues.forEach {
+            assertThat(it).isIn(listOf(0f, 25f))
+        }
 
         // Advance second half of the animation (.5 sec)
         runOnIdleCompose {
@@ -115,7 +105,9 @@ class TestAnimationClockTest {
         onIdle()
 
         // Did last animation frame
-        assertThat(recordedAnimatedValues).isEqualTo(listOf(0f, 0f, 25f, 50f))
+        recordedAnimatedValues.forEach {
+            assertThat(it).isIn(listOf(0f, 25f, 50f))
+        }
     }
 
     /**
