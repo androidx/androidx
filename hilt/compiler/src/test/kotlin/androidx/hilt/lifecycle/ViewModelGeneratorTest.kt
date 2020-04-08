@@ -25,7 +25,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class HiltViewModelGeneratorTest {
+class ViewModelGeneratorTest {
 
     private val GENERATED_TYPE = try {
         Class.forName("javax.annotation.processing.Generated")
@@ -35,7 +35,7 @@ class HiltViewModelGeneratorTest {
     }
 
     private val GENERATED_ANNOTATION =
-        "@Generated(\"androidx.hilt.HiltViewModelProcessor\")"
+        "@Generated(\"androidx.hilt.AndroidXHiltProcessor\")"
 
     @Test
     fun verifyAssistedFactory_noArg() {

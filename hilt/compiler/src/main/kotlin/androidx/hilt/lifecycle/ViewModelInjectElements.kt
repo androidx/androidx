@@ -30,7 +30,7 @@ import javax.lang.model.element.VariableElement
 /**
  * Data class that represents a Hilt injected ViewModel
  */
-internal data class HiltViewModelElements(
+internal data class ViewModelInjectElements(
     val typeElement: TypeElement,
     val constructorElement: ExecutableElement
 ) {
