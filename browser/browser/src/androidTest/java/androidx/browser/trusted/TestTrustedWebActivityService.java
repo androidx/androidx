@@ -19,6 +19,7 @@ package androidx.browser.trusted;
 import android.app.Notification;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,7 +64,8 @@ public class TestTrustedWebActivityService extends TrustedWebActivityService {
 
     @Nullable
     @Override
-    public Bundle onExtraCommand(@NonNull String commandName, @Nullable Bundle args) {
+    public Bundle onExtraCommand(@NonNull String commandName, @NonNull Bundle args,
+            @Nullable TrustedWebActivityCallbackRemote callbackRemote) {
         if (!commandName.equals(DOUBLE_NUMBER_COMMAND)) return null;
         if (args == null) return null;
 
@@ -71,6 +73,14 @@ public class TestTrustedWebActivityService extends TrustedWebActivityService {
 
         Bundle result = new Bundle();
         result.putInt(DOUBLE_NUMBER_RESULT, number * 2);
+
+        if (callbackRemote != null) {
+            try {
+                callbackRemote.runExtraCallback(DOUBLE_NUMBER_COMMAND, result);
+            } catch (RemoteException e) {
+                return null;
+            }
+        }
         return result;
     }
 

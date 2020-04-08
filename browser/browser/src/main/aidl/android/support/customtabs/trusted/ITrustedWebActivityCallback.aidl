@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,9 @@
 package android.support.customtabs.trusted;
 
 /**
- * Interface to a TrustedWebActivityService.
+ * Interface to a TrustedWebActivityCallback.
  * @hide
  */
-interface ITrustedWebActivityService {
-    Bundle areNotificationsEnabled(in Bundle args) = 5;
-    Bundle notifyNotificationWithChannel(in Bundle args) = 1;
-    void cancelNotification(in Bundle args) = 2;
-    Bundle getActiveNotifications() = 4;
-    int getSmallIconId() = 3;
-    Bundle getSmallIconBitmap() = 6;
-    Bundle extraCommand(String commandName, in Bundle args, in IBinder callback) = 8;
+interface ITrustedWebActivityCallback {
+    void onExtraCallback(String callbackName, in Bundle bundle) = 1;
 }
