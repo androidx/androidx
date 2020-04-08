@@ -19,9 +19,9 @@ package androidx.ui.layout
 import androidx.annotation.FloatRange
 import androidx.compose.Composable
 import androidx.ui.core.AlignmentLine
+import androidx.ui.core.Measured
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
-import androidx.ui.core.Placeable
 import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.unit.IntPx
 
@@ -237,7 +237,7 @@ object ColumnScope {
     /**
      * A layout modifier within a [Column] that positions its target component relative
      * to all other elements within the container which have [LayoutGravity.RelativeToSiblings].
-     * The [alignmentLineBlock] accepts the [Placeable] of the targeted layout and returns the
+     * The [alignmentLineBlock] accepts the [Measured] of the targeted layout and returns the
      * vertical position along which the target should align such that it coincides horizontally
      * with the alignment lines of all other siblings with [LayoutGravity.RelativeToSiblings].
      * Within a [Column], all components with [LayoutGravity.RelativeToSiblings] will align
@@ -260,7 +260,7 @@ object ColumnScope {
     )
     @Suppress("unused")
     fun LayoutGravity.RelativeToSiblings(
-        alignmentLineBlock: (Placeable) -> IntPx
+        alignmentLineBlock: (Measured) -> IntPx
     ): ParentDataModifier = SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
 
     /**
@@ -272,7 +272,7 @@ object ColumnScope {
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
      */
     fun Modifier.alignWithSiblings(
-        alignmentLineBlock: (Placeable) -> IntPx
+        alignmentLineBlock: (Measured) -> IntPx
     ) = this + SiblingsAlignedModifier.WithAlignmentLineBlock(alignmentLineBlock)
 }
 
