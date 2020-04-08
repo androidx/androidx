@@ -22,20 +22,20 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.constraintlayout.solver.state.ConstraintReference
-import androidx.constraintlayout.solver.state.Dimension.SPREAD_DIMENSION
-import androidx.constraintlayout.solver.state.Dimension.WRAP_DIMENSION
-import androidx.constraintlayout.solver.state.State
-import androidx.constraintlayout.solver.state.helpers.BarrierReference
-import androidx.constraintlayout.solver.widgets.ConstraintWidget
-import androidx.constraintlayout.solver.widgets.ConstraintWidget.DimensionBehaviour.MATCH_CONSTRAINT
-import androidx.constraintlayout.solver.widgets.ConstraintWidget.DimensionBehaviour.WRAP_CONTENT
-import androidx.constraintlayout.solver.widgets.ConstraintWidget.DimensionBehaviour.FIXED
-import androidx.constraintlayout.solver.widgets.ConstraintWidget.MATCH_CONSTRAINT_SPREAD
-import androidx.constraintlayout.solver.widgets.ConstraintWidget.MATCH_CONSTRAINT_WRAP
-import androidx.constraintlayout.solver.widgets.ConstraintWidgetContainer
-import androidx.constraintlayout.solver.widgets.Optimizer
-import androidx.constraintlayout.solver.widgets.analyzer.BasicMeasure
+import androidx.constraintlayout.core.state.ConstraintReference
+import androidx.constraintlayout.core.state.Dimension.SPREAD_DIMENSION
+import androidx.constraintlayout.core.state.Dimension.WRAP_DIMENSION
+import androidx.constraintlayout.core.state.State
+import androidx.constraintlayout.core.state.helpers.BarrierReference
+import androidx.constraintlayout.core.widgets.ConstraintWidget
+import androidx.constraintlayout.core.widgets.ConstraintWidget.DimensionBehaviour.MATCH_CONSTRAINT
+import androidx.constraintlayout.core.widgets.ConstraintWidget.DimensionBehaviour.WRAP_CONTENT
+import androidx.constraintlayout.core.widgets.ConstraintWidget.DimensionBehaviour.FIXED
+import androidx.constraintlayout.core.widgets.ConstraintWidget.MATCH_CONSTRAINT_SPREAD
+import androidx.constraintlayout.core.widgets.ConstraintWidget.MATCH_CONSTRAINT_WRAP
+import androidx.constraintlayout.core.widgets.ConstraintWidgetContainer
+import androidx.constraintlayout.core.widgets.Optimizer
+import androidx.constraintlayout.core.widgets.analyzer.BasicMeasure
 import androidx.compose.Immutable
 import androidx.ui.core.Constraints
 import androidx.ui.text.FirstBaseline
@@ -954,7 +954,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
     override fun didMeasures() { }
 }
 
-private typealias SolverDimension = androidx.constraintlayout.solver.state.Dimension
+private typealias SolverDimension = androidx.constraintlayout.core.state.Dimension
 private val DEBUG = true
 private fun ConstraintWidget.toDebugString() =
     "$debugName " +
