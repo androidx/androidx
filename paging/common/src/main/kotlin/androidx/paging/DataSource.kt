@@ -232,7 +232,7 @@ internal constructor(internal val type: KeyType) {
         fun asPagingSourceFactory(
             fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
         ): () -> PagingSource<Key, Value> = {
-            LegacyPagingSource(create(), fetchDispatcher)
+            LegacyPagingSource(fetchDispatcher) { create() }
         }
     }
 
