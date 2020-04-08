@@ -26,7 +26,7 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowAlign
 import androidx.ui.layout.Spacer
@@ -96,7 +96,7 @@ private fun AlertHeader(onClickSeeAll: () -> Unit) {
         )
         TextButton(
             onClick = onClickSeeAll,
-            innerPadding = EdgeInsets(0.dp),
+            padding = InnerPadding(0.dp),
             modifier = Modifier.gravity(RowAlign.Center)
         ) {
             Text("SEE ALL")
