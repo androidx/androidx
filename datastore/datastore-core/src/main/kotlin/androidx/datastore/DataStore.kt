@@ -87,7 +87,20 @@ interface DataStore<T> {
         val defaultValue: T
     }
 
-    // TODO(b/151635324): Add initializers.
+    /**
+     * The initializer API allows changes to be made to store before data is accessed through
+     * dataFlow or updateData.
+     *
+     * Initializers are executed in the order in which they are added. They must be idempotent
+     * since they are run each time the DataStore starts, and they may be run multiple times by a
+     * single instance if a downstream initializer fails.
+     *
+     * TODO(b/151635324): Add a public Migration API.
+     */
+    interface InitializerApi<T> {
+        suspend fun updateData(transform: suspend (t: T) -> T): T
+    }
+
     // TODO(b/151635324): Add exception handlers.
     // TODO(b/151635324): Consider adding snapshot API.
 }

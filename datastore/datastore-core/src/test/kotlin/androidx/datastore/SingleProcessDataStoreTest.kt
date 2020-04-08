@@ -22,12 +22,14 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -42,6 +44,9 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.lang.IllegalStateException
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 @kotlinx.coroutines.InternalCoroutinesApi
@@ -236,6 +241,176 @@ class SingleProcessDataStoreTest {
     }
 
     @Test
+    fun testCanWriteFromInitTask() = runBlockingTest {
+        store = newDataStore(initTasksList = listOf { api -> api.updateData { 1 } })
+
+        assertThat(store.dataFlow.first()).isEqualTo(1)
+    }
+
+    @Test
+    fun testInitTaskFailsFirstTimeDueToReadFail() = runBlockingTest {
+        store = newDataStore(initTasksList = listOf { api -> api.updateData { 1 } })
+
+        serializer.failingRead = true
+        assertThrows<IOException> { store.updateData { 2 } }
+
+        serializer.failingRead = false
+        store.updateData { it.inc().inc() }
+
+        assertThat(store.dataFlow.first()).isEqualTo(3)
+    }
+
+    @Test
+    fun testInitTaskFailsFirstTimeDueToException() = runBlockingTest {
+        val failInit = AtomicBoolean(true)
+        store = newDataStore(
+            initTasksList = listOf { _ ->
+                if (failInit.get()) {
+                    throw IOException("I was asked to fail init")
+                }
+            }
+        )
+        assertThrows<IOException> { store.updateData { 5 } }
+
+        failInit.set(false)
+
+        store.updateData { it.inc() }
+        assertThat(store.dataFlow.first()).isEqualTo(1)
+    }
+
+    @Test
+    fun testInitTaskOnlyRunsOnce() = runBlockingTest {
+        store.updateData { 1 }
+
+        val count = AtomicInteger()
+        val newStore = newDataStore(testFile,
+            initTasksList = listOf { _ ->
+                count.incrementAndGet()
+            }
+        )
+
+        repeat(10) {
+            newStore.updateData { it.inc() }
+            newStore.dataFlow.first()
+        }
+
+        assertThat(count.get()).isEqualTo(1)
+    }
+
+    @Test
+    fun testWriteDuringInit() = runBlockingTest {
+        val continueInit = CompletableDeferred<Unit>()
+
+        store = newDataStore(
+            initTasksList = listOf { api ->
+                continueInit.await()
+                api.updateData { 1 }
+            })
+
+        val update = async {
+            store.updateData { b ->
+                assertThat(b).isEqualTo(1)
+                b
+            }
+        }
+
+        continueInit.complete(Unit)
+        update.await()
+
+        assertThat(store.dataFlow.first()).isEqualTo(1)
+    }
+
+    @Test
+    fun testCancelDuringInit() = runBlockingTest {
+        val continueInit = CompletableDeferred<Unit>()
+
+        store = newDataStore(initTasksList =
+        listOf { api ->
+            continueInit.await()
+            api.updateData { 1 }
+        })
+
+        val update = async {
+            store.updateData { it }
+        }
+
+        val read = async {
+            store.dataFlow.first()
+        }
+
+        update.cancel()
+        read.cancel()
+        continueInit.complete(Unit)
+
+        assertThrows<CancellationException> { update.await() }
+        assertThrows<CancellationException> { read.await() }
+
+        store.updateData { it.inc().inc() }
+
+        assertThat(store.dataFlow.first()).isEqualTo(3)
+    }
+
+    @Test
+    fun testConcurrentUpdatesInit() = runBlockingTest {
+        val continueUpdate = CompletableDeferred<Unit>()
+
+        val concurrentUpdateInitializer: suspend (DataStore.InitializerApi<Byte>) -> Unit = { api ->
+            val update1 = async {
+                api.updateData {
+                    continueUpdate.await()
+                    it.inc().inc()
+                }
+            }
+            api.updateData {
+                it.inc()
+            }
+            update1.await()
+        }
+
+        store = newDataStore(initTasksList = listOf(concurrentUpdateInitializer))
+        val getData = async { store.dataFlow.first() }
+        continueUpdate.complete(Unit)
+
+        assertThat(getData.await()).isEqualTo(3)
+    }
+
+    @Test
+    fun testUpdateSuccessfullyCommittedInit() = runBlockingTest {
+        var otherStorage: Byte = 123
+
+        val initializer: suspend (DataStore.InitializerApi<Byte>) -> Unit = { api ->
+            api.updateData {
+                otherStorage
+            }
+            // Similar to cleanUp():
+            otherStorage = 0
+        }
+
+        val store = newDataStore(initTasksList = listOf(initializer))
+
+        serializer.failingWrite = true
+        assertThrows<IOException> { store.dataFlow.first() }
+
+        serializer.failingWrite = false
+        assertThat(store.dataFlow.first()).isEqualTo(123)
+    }
+
+    @Test
+    fun testInitApiUpdateThrowsAfterInitTasksComplete() = runBlockingTest {
+        var savedApi: DataStore.InitializerApi<Byte>? = null
+
+        val initializer: suspend (DataStore.InitializerApi<Byte>) -> Unit = { api ->
+            savedApi = api
+        }
+
+        val store = newDataStore(initTasksList = listOf(initializer))
+
+        assertThat(store.dataFlow.first()).isEqualTo(0)
+
+        assertThrows<IllegalStateException> { savedApi?.updateData { 123 } }
+    }
+
+    @Test
     fun testFlowReceivesUpdates() = runBlockingTest {
         val collectedBytes = mutableListOf<Byte>()
 
@@ -333,12 +508,14 @@ class SingleProcessDataStoreTest {
 
     private fun newDataStore(
         file: File = tmp.newFile(),
-        scope: CoroutineScope = dataStoreScope
+        scope: CoroutineScope = dataStoreScope,
+        initTasksList: List<suspend (api: DataStore.InitializerApi<Byte>) -> Unit> = listOf()
     ): DataStore<Byte> {
         return SingleProcessDataStore(
             { file },
             serializer = serializer,
-            scope = scope
+            scope = scope,
+            initTasksList = initTasksList
         )
     }
 
