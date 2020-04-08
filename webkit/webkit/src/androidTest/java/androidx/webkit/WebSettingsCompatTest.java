@@ -71,8 +71,14 @@ public class WebSettingsCompatTest {
     public void testEnableSafeBrowsing() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
 
+        assertTrue("Safe Browsing should be enabled by default",
+                WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings()));
         WebSettingsCompat.setSafeBrowsingEnabled(mWebViewOnUiThread.getSettings(), false);
-        assertFalse(WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings()));
+        assertFalse("Can disable Safe Browsing",
+                WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings()));
+        WebSettingsCompat.setSafeBrowsingEnabled(mWebViewOnUiThread.getSettings(), true);
+        assertTrue("Can enable Safe Browsing",
+                WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings()));
     }
 
     /**
