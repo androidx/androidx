@@ -19,11 +19,13 @@ package androidx.textclassifier;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.core.app.RemoteActionCompat;
@@ -215,6 +217,20 @@ public final class ConversationAction {
         return bundle;
     }
 
+    @SuppressLint("WrongConstant")
+    @RequiresApi(29)
+    android.view.textclassifier.ConversationAction toPlatform() {
+        return new android.view.textclassifier.ConversationAction.Builder(getType())
+                .setAction(
+                        getAction() == null
+                                ? null
+                                : getAction().toRemoteAction())
+                .setConfidenceScore(getConfidenceScore())
+                .setTextReply(getTextReply())
+                .setExtras(getExtras())
+                .build();
+    }
+
     /**
      * Converts a bundle that was created using {@link #toBundle()} to a {@link ConversationAction}.
      */
@@ -226,6 +242,25 @@ public final class ConversationAction {
                 bundle.getCharSequence(EXTRA_TEXT_REPLY),
                 bundle.getFloat(EXTRA_SCORE),
                 bundle.getBundle(EXTRA_EXTRAS));
+    }
+
+    @Nullable
+    @RequiresApi(29)
+    static ConversationAction fromPlatform(
+            @Nullable android.view.textclassifier.ConversationAction conversationAction) {
+        if (conversationAction == null) {
+            return null;
+        }
+        return new ConversationAction.Builder(conversationAction.getType())
+                .setAction(
+                        conversationAction.getAction() == null
+                                ? null
+                                : RemoteActionCompat.createFromRemoteAction(
+                                        conversationAction.getAction()))
+                .setConfidenceScore(conversationAction.getConfidenceScore())
+                .setTextReply(conversationAction.getTextReply())
+                .setExtras(conversationAction.getExtras())
+                .build();
     }
 
     /** Builder class to construct {@link ConversationAction}. */
