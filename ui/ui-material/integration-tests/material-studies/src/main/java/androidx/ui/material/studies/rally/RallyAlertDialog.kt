@@ -21,7 +21,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.layout.Column
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
 import androidx.ui.material.AlertDialog
@@ -49,7 +49,7 @@ fun RallyAlertDialog(
                     TextButton(
                         onClick = onDismiss,
                         shape = RectangleShape,
-                        innerPadding = EdgeInsets(16.dp),
+                        padding = InnerPadding(16.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(buttonText)
