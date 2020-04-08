@@ -100,6 +100,23 @@ public final class DisplayFeature {
         return "DisplayFeature{ bounds=" + mBounds + ", type=" + typeToString(mType) + " }";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DisplayFeature that = (DisplayFeature) o;
+
+        return mType == that.mType && mBounds.equals(that.mBounds);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mBounds.hashCode();
+        result = 31 * result + mType;
+        return result;
+    }
+
     /**
      * Builder for {@link DisplayFeature} objects.
      */
