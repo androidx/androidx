@@ -98,7 +98,7 @@ class ClipTest {
     @Test
     fun simpleRectClip() {
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Padding(size = 10.ipx, modifier = FillColor(Color.Green)) {
                     AtLeastSize(
                         size = 10.ipx,
@@ -119,7 +119,7 @@ class ClipTest {
     @Test
     fun simpleClipToBounds() {
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Padding(size = 10.ipx, modifier = FillColor(Color.Green)) {
                     AtLeastSize(
                         size = 10.ipx,
@@ -140,7 +140,7 @@ class ClipTest {
     @Test
     fun simpleRectClipWithModifiers() {
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(
                     size = 10.ipx,
                     modifier = FillColor(Color.Green) + PaddingModifier(10.ipx) +
@@ -164,7 +164,7 @@ class ClipTest {
                     Outline.Rounded(RRect(size.toRect(), Radius.circular(12f)))
         }
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
                     modifier = FillColor(Color.Green) + Modifier.clip(shape) + FillColor(Color.Cyan)
@@ -203,7 +203,7 @@ class ClipTest {
                 )
         }
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
                     modifier = FillColor(Color.Green).clip(shape) + FillColor(Color.Cyan)) {
@@ -226,7 +226,7 @@ class ClipTest {
     @Test
     fun triangleClip() {
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
                     modifier = FillColor(Color.Green) + Modifier.clip(triangleShape) +
@@ -257,7 +257,7 @@ class ClipTest {
                 )
         }
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
                     modifier = FillColor(Color.Green) + Modifier.clip(concaveShape) +
@@ -278,7 +278,7 @@ class ClipTest {
         val model = ValueModel<Shape>(rectShape)
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
                     modifier = FillColor(Color.Green) + Modifier.clip(model.value) +
@@ -313,7 +313,7 @@ class ClipTest {
         val model = ValueModel<Shape>(rectShape)
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
                     modifier = FillColor(Color.Green) + Modifier.clip(model.value) +
@@ -340,7 +340,7 @@ class ClipTest {
         val model = ValueModel<Shape>(triangleShape)
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
                     modifier = FillColor(Color.Green) + Modifier.clip(model.value) +
@@ -390,7 +390,7 @@ class ClipTest {
         }
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
                     modifier = background(Color.Green) + clip + Modifier.drawBehind(drawCallback)
@@ -417,7 +417,7 @@ class ClipTest {
         val model = ValueModel(false)
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Padding(size = 10.ipx, modifier = FillColor(Color.Green)) {
                     val modifier = if (model.value) {
                         Modifier.clip(rectShape) + FillColor(Color.Cyan)

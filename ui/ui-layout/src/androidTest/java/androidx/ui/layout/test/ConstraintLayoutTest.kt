@@ -328,7 +328,8 @@ class ConstraintLayoutTest : LayoutTest() {
                         bottom constrainTo parent.bottom
                         bottom.margin = offset.toDp()
                     }
-                }
+                },
+                Modifier.fillMaxSize()
             ) {
                 for (i in 0..2) {
                     Box(Modifier.tag("box$i").preferredSize(boxSize.toDp(), boxSize.toDp())

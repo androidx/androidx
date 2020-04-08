@@ -26,6 +26,7 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.IntPxPosition
@@ -154,7 +155,7 @@ class BitmapCapturingTest {
     private fun composeCheckerboard() {
         with(composeTestRule.density) {
             composeTestRule.setContent {
-                Box(backgroundColor = colorBg) {
+                Box(Modifier.fillMaxSize(), backgroundColor = colorBg) {
                     TestTag(rootTag) {
                         Semantics(container = true) {
                             Column {
