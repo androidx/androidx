@@ -71,26 +71,26 @@ import javax.lang.model.element.Modifier
  * }
  * ```
  */
-internal class HiltViewModelGenerator(
+internal class ViewModelGenerator(
     private val processingEnv: ProcessingEnvironment,
-    private val viewModelElements: HiltViewModelElements
+    private val injectedViewModel: ViewModelInjectElements
 ) {
     fun generate() {
-        val factoryTypeSpec = TypeSpec.classBuilder(viewModelElements.factoryClassName)
-            .addOriginatingElement(viewModelElements.typeElement)
-            .addSuperinterface(viewModelElements.factorySuperTypeName)
+        val factoryTypeSpec = TypeSpec.classBuilder(injectedViewModel.factoryClassName)
+            .addOriginatingElement(injectedViewModel.typeElement)
+            .addSuperinterface(injectedViewModel.factorySuperTypeName)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addGeneratedAnnotation(processingEnv.elementUtils, processingEnv.sourceVersion)
             .addFields(getFieldSpecs())
             .addMethod(getConstructorMethodSpec())
             .addMethod(getCreateMethodSpec())
             .build()
-        JavaFile.builder(viewModelElements.factoryClassName.packageName(), factoryTypeSpec)
+        JavaFile.builder(injectedViewModel.factoryClassName.packageName(), factoryTypeSpec)
             .build()
             .writeTo(processingEnv.filer)
 
-        val hiltModuleTypeSpec = TypeSpec.interfaceBuilder(viewModelElements.moduleClassName)
-            .addOriginatingElement(viewModelElements.typeElement)
+        val hiltModuleTypeSpec = TypeSpec.interfaceBuilder(injectedViewModel.moduleClassName)
+            .addOriginatingElement(injectedViewModel.typeElement)
             .addGeneratedAnnotation(processingEnv.elementUtils, processingEnv.sourceVersion)
             .addAnnotation(ClassNames.MODULE)
             .addAnnotation(
@@ -104,22 +104,22 @@ internal class HiltViewModelGenerator(
                     .addAnnotation(ClassNames.INTO_MAP)
                     .addAnnotation(
                         AnnotationSpec.builder(ClassNames.STRING_KEY)
-                            .addMember("value", S, viewModelElements.className.canonicalName())
+                            .addMember("value", S, injectedViewModel.className.canonicalName())
                             .build())
                     .addModifiers(Modifier.ABSTRACT, Modifier.PUBLIC)
                     .returns(
                         ParameterizedTypeName.get(
                             ClassNames.VIEW_MODEL_ASSISTED_FACTORY,
                             WildcardTypeName.subtypeOf(ClassNames.VIEW_MODEL)))
-                    .addParameter(viewModelElements.factoryClassName, "factory")
+                    .addParameter(injectedViewModel.factoryClassName, "factory")
                     .build())
             .build()
-        JavaFile.builder(viewModelElements.moduleClassName.packageName(), hiltModuleTypeSpec)
+        JavaFile.builder(injectedViewModel.moduleClassName.packageName(), hiltModuleTypeSpec)
             .build()
             .writeTo(processingEnv.filer)
     }
 
-    private fun getFieldSpecs() = viewModelElements.dependencyRequests
+    private fun getFieldSpecs() = injectedViewModel.dependencyRequests
         .filterNot { it.isSavedStateHandle }
         .map { dependencyRequest ->
             val fieldTypeName = dependencyRequest.providerTypeName.withoutAnnotations()
@@ -132,7 +132,7 @@ internal class HiltViewModelGenerator(
         MethodSpec.constructorBuilder()
             .addAnnotation(ClassNames.INJECT)
             .apply {
-                viewModelElements.dependencyRequests
+                injectedViewModel.dependencyRequests
                     .filterNot { it.isSavedStateHandle }
                     .forEach { dependencyRequest ->
                         addParameter(dependencyRequest.providerTypeName, dependencyRequest.name)
@@ -142,7 +142,7 @@ internal class HiltViewModelGenerator(
             .build()
 
     private fun getCreateMethodSpec(): MethodSpec {
-        val constructorArgs = viewModelElements.dependencyRequests.map { dependencyRequest ->
+        val constructorArgs = injectedViewModel.dependencyRequests.map { dependencyRequest ->
             val paramLiteral = when {
                 dependencyRequest.isSavedStateHandle -> "handle"
                 dependencyRequest.isProvider -> dependencyRequest.name
@@ -154,13 +154,13 @@ internal class HiltViewModelGenerator(
             .addAnnotation(Override::class.java)
             .addAnnotation(ClassNames.NON_NULL)
             .addModifiers(Modifier.PUBLIC)
-            .returns(viewModelElements.className)
+            .returns(injectedViewModel.className)
             .addParameter(
                 ParameterSpec.builder(ClassNames.SAVED_STATE_HANDLE, "handle")
                     .addAnnotation(ClassNames.NON_NULL)
                     .build())
             .addStatement("return new $T($L)",
-                viewModelElements.className, CodeBlock.join(constructorArgs, ",$W"))
+                injectedViewModel.className, CodeBlock.join(constructorArgs, ",$W"))
             .build()
     }
 }
