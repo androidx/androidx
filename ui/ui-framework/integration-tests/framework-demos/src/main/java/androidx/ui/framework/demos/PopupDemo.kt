@@ -59,7 +59,7 @@ fun PopupDemo() {
     Column {
         Row(
             Modifier.fillMaxWidth().gravity(Alignment.CenterHorizontally),
-            arrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             this@Column.ClickableTextWithBackground(
                 text = "Prev",

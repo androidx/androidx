@@ -51,14 +51,14 @@ fun SimpleLayoutDemo() {
         }
         Spacer(Modifier.preferredHeight(24.dp))
         Stack(Modifier.preferredWidth(ExampleSize).drawBackground(color = lightGrey)) {
-            Row(Modifier.fillMaxWidth(), arrangement = Arrangement.Center) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 PurpleSquare()
                 CyanSquare()
             }
         }
         Spacer(Modifier.preferredHeight(24.dp))
         Stack(Modifier.preferredWidth(ExampleSize).drawBackground(color = lightGrey)) {
-            Row(Modifier.fillMaxWidth(), arrangement = Arrangement.End) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 PurpleSquare()
                 CyanSquare()
             }
@@ -88,14 +88,14 @@ fun SimpleLayoutDemo() {
             }
             Spacer(Modifier.preferredWidth(24.dp))
             Stack(Modifier.preferredHeight(ExampleSize).drawBackground(color = lightGrey)) {
-                Column(Modifier.fillMaxHeight(), arrangement = Arrangement.Center) {
+                Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
                     PurpleSquare()
                     CyanSquare()
                 }
             }
             Spacer(Modifier.preferredWidth(24.dp))
             Stack(Modifier.preferredHeight(ExampleSize).drawBackground(color = lightGrey)) {
-                Column(Modifier.fillMaxHeight(), arrangement = Arrangement.Bottom) {
+                Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Bottom) {
                     PurpleSquare()
                     CyanSquare()
                 }

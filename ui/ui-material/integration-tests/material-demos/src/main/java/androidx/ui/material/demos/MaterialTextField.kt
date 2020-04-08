@@ -47,7 +47,7 @@ import androidx.ui.unit.ipx
 @Composable
 fun MaterialTextFieldsDemo() {
     val space = with(DensityAmbient.current) { 10.dp.toIntPx() }
-    Column(Modifier.fillMaxHeight(), arrangement = arrangeWithSpacer(space)) {
+    Column(Modifier.fillMaxHeight(), verticalArrangement = arrangeWithSpacer(space)) {
         var text by state { TextFieldValue() }
         FilledTextField(
             value = text,
