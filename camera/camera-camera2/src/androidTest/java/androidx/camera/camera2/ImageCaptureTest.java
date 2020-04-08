@@ -94,10 +94,12 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -888,8 +890,8 @@ public final class ImageCaptureTest {
                     mLifecycleOwner.startAndResume();
                 });
 
-        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
-        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        ResolvableFuture<ImageProperties> imagePropertiesFuture = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
         verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
@@ -898,17 +900,22 @@ public final class ImageCaptureTest {
         // same as original one.
         Rational expectedCroppingRatio = new Rational(DEFAULT_RESOLUTION.getWidth(),
                 DEFAULT_RESOLUTION.getHeight());
-        Rect cropRect = imageProperties.get().cropRect;
+        ImageProperties imageProperties = imagePropertiesFuture.get();
+        Rect cropRect = imageProperties.cropRect;
         Rational resultCroppingRatio;
 
         // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
         // displayed image
-        if ((imageProperties.get().rotationDegrees % 180) != 0) {
+        if ((imageProperties.rotationDegrees % 180) != 0) {
             resultCroppingRatio = new Rational(cropRect.height(), cropRect.width());
         } else {
             resultCroppingRatio = new Rational(cropRect.width(), cropRect.height());
         }
 
+        if (imageProperties.format == ImageFormat.JPEG) {
+            assertThat(imageProperties.rotationDegrees).isEqualTo(
+                    imageProperties.exif.getRotation());
+        }
         assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio);
     }
 
@@ -930,8 +937,8 @@ public final class ImageCaptureTest {
                     mLifecycleOwner.startAndResume();
                 });
 
-        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
-        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        ResolvableFuture<ImageProperties> imagePropertiesFuture = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
         verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
@@ -940,17 +947,22 @@ public final class ImageCaptureTest {
         // same as original one.
         Rational expectedCroppingRatio = new Rational(DEFAULT_RESOLUTION.getWidth(),
                 DEFAULT_RESOLUTION.getHeight());
-        Rect cropRect = imageProperties.get().cropRect;
+        ImageProperties imageProperties = imagePropertiesFuture.get();
+        Rect cropRect = imageProperties.cropRect;
         Rational resultCroppingRatio;
 
         // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
         // displayed image
-        if ((imageProperties.get().rotationDegrees % 180) != 0) {
+        if ((imageProperties.rotationDegrees % 180) != 0) {
             resultCroppingRatio = new Rational(cropRect.height(), cropRect.width());
         } else {
             resultCroppingRatio = new Rational(cropRect.width(), cropRect.height());
         }
 
+        if (imageProperties.format == ImageFormat.JPEG) {
+            assertThat(imageProperties.rotationDegrees).isEqualTo(
+                    imageProperties.exif.getRotation());
+        }
         assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio);
     }
 
@@ -976,8 +988,8 @@ public final class ImageCaptureTest {
                     mLifecycleOwner.startAndResume();
                 });
 
-        ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
-        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
+        ResolvableFuture<ImageProperties> imagePropertiesFuture = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
         useCase.takePicture(mMainExecutor, callback);
         // Wait for the signal that the image has been captured.
         verify(callback, timeout(3000)).onCaptureSuccess(any(ImageProxy.class));
@@ -986,19 +998,25 @@ public final class ImageCaptureTest {
         // same as original one.
         Rational expectedCroppingRatio = new Rational(DEFAULT_RESOLUTION.getWidth(),
                 DEFAULT_RESOLUTION.getHeight());
-        Rect cropRect = imageProperties.get().cropRect;
+
+        ImageProperties imageProperties = imagePropertiesFuture.get();
+        Rect cropRect = imageProperties.cropRect;
         Rational resultCroppingRatio;
 
         // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
         // displayed image. When setting the rotation on the ImageCapture use case it will rotate
         // the crop aspect ratio relative to the previously set target rotation. Hence in this
         // case if the rotation degrees is divisible by 180 then aspect ratio needs to be inverted.
-        if ((imageProperties.get().rotationDegrees % 180) == 0) {
+        if ((imageProperties.rotationDegrees % 180) == 0) {
             resultCroppingRatio = new Rational(cropRect.height(), cropRect.width());
         } else {
             resultCroppingRatio = new Rational(cropRect.width(), cropRect.height());
         }
 
+        if (imageProperties.format == ImageFormat.JPEG) {
+            assertThat(imageProperties.rotationDegrees).isEqualTo(
+                    imageProperties.exif.getRotation());
+        }
         assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio);
     }
 
@@ -1007,6 +1025,8 @@ public final class ImageCaptureTest {
         public int format;
         public int rotationDegrees;
         public Rect cropRect;
+
+        public Exif exif;
     }
 
     private OnImageCapturedCallback createMockOnImageCapturedCallback(
@@ -1022,6 +1042,17 @@ public final class ImageCaptureTest {
                         imageProperties.rotationDegrees =
                                 image.getImageInfo().getRotationDegrees();
                         imageProperties.cropRect = image.getCropRect();
+
+                        if (imageProperties.format == ImageFormat.JPEG) {
+                            ImageProxy.PlaneProxy[] planes = image.getPlanes();
+                            ByteBuffer buffer = planes[0].getBuffer();
+                            byte[] data = new byte[buffer.capacity()];
+                            buffer.get(data);
+
+                            imageProperties.exif = Exif.createFromInputStream(
+                                    new ByteArrayInputStream(data));
+                        }
+
                         resultProperties.set(imageProperties);
                     }
                     image.close();
