@@ -991,6 +991,7 @@ package androidx.core.content.pm {
     method public static java.util.List<androidx.core.content.pm.ShortcutInfoCompat!> getShortcuts(android.content.Context, int);
     method public static boolean isRateLimitingActive(android.content.Context);
     method public static boolean isRequestPinShortcutSupported(android.content.Context);
+    method public static boolean pushDynamicShortcut(android.content.Context, androidx.core.content.pm.ShortcutInfoCompat);
     method public static void removeAllDynamicShortcuts(android.content.Context);
     method public static void removeDynamicShortcuts(android.content.Context, java.util.List<java.lang.String!>);
     method public static void removeLongLivedShortcuts(android.content.Context, java.util.List<java.lang.String!>);

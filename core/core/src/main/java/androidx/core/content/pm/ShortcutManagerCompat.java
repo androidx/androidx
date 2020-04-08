@@ -38,6 +38,7 @@ import android.util.DisplayMetrics;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
@@ -50,6 +51,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -321,8 +323,7 @@ public class ShortcutManagerCompat {
             return context.getSystemService(ShortcutManager.class).getMaxShortcutCountPerActivity();
         }
 
-        // TODO: decide on this limit when ShortcutManager is not available.
-        return 0;
+        return 5;
     }
 
     /**
@@ -339,7 +340,8 @@ public class ShortcutManagerCompat {
             return context.getSystemService(ShortcutManager.class).isRateLimitingActive();
         }
 
-        return getMaxShortcutCountPerActivity(context) == 0;
+        return getShortcuts(context, FLAG_MATCH_MANIFEST | FLAG_MATCH_DYNAMIC).size()
+                == getMaxShortcutCountPerActivity(context);
     }
 
     /**
@@ -495,27 +497,33 @@ public class ShortcutManagerCompat {
     }
 
     @VisibleForTesting
-    static void convertUriIconsToBitmapIcons(@NonNull Context context,
-            @NonNull List<ShortcutInfoCompat> shortcutInfoList) {
-        final List<ShortcutInfoCompat> infos = new ArrayList<>(shortcutInfoList);
-        for (ShortcutInfoCompat info : infos) {
-            final int type = info.mIcon.mType;
-            if (type != TYPE_URI_ADAPTIVE_BITMAP && type != TYPE_URI) {
-                continue;
-            }
-            InputStream is = info.mIcon.getUriInputStream(context);
-            if (is == null) {
+    static boolean convertUriIconToBitmapIcon(@NonNull final Context context,
+            @NonNull final ShortcutInfoCompat info) {
+        final int type = info.mIcon.mType;
+        if (type != TYPE_URI_ADAPTIVE_BITMAP && type != TYPE_URI) {
+            return true;
+        }
+        InputStream is = info.mIcon.getUriInputStream(context);
+        if (is == null) {
+            return false;
+        }
+        final Bitmap bitmap = BitmapFactory.decodeStream(is);
+        if (bitmap == null) {
+            return false;
+        }
+        info.mIcon = (type == TYPE_URI_ADAPTIVE_BITMAP)
+                ? IconCompat.createWithAdaptiveBitmap(bitmap)
+                : IconCompat.createWithBitmap(bitmap);
+        return true;
+    }
+
+    @VisibleForTesting
+    static void convertUriIconsToBitmapIcons(@NonNull final Context context,
+            @NonNull final List<ShortcutInfoCompat> shortcutInfoList) {
+        for (ShortcutInfoCompat info : shortcutInfoList) {
+            if (!convertUriIconToBitmapIcon(context, info)) {
                 shortcutInfoList.remove(info);
-                continue;
             }
-            final Bitmap bitmap = BitmapFactory.decodeStream(is);
-            if (bitmap == null) {
-                shortcutInfoList.remove(info);
-                continue;
-            }
-            info.mIcon = (type == TYPE_URI_ADAPTIVE_BITMAP)
-                    ? IconCompat.createWithAdaptiveBitmap(bitmap)
-                    : IconCompat.createWithBitmap(bitmap);
         }
     }
 
@@ -618,6 +626,94 @@ public class ShortcutManagerCompat {
         getShortcutInfoSaverInstance(context).removeShortcuts(shortcutIds);
     }
 
+    /**
+     * Publish a single dynamic shortcut. If there are already dynamic or pinned shortcuts with the
+     * same ID, each mutable shortcut is updated.
+     *
+     * <p>This method is useful when posting notifications which are tagged with shortcut IDs; In
+     * order to make sure shortcuts exist and are up-to-date, without the need to explicitly handle
+     * the shortcut count limit.
+     * @see androidx.core.app.NotificationManagerCompat#notify(int, android.app.Notification)
+     * @see androidx.core.app.NotificationCompat.Builder#setShortcutId(String)
+     *
+     * <p>If {@link #getMaxShortcutCountPerActivity} is already reached, an existing shortcut with
+     * the lowest rank will be removed to add space for the new shortcut.
+     *
+     * <p>If the rank of the shortcut is not explicitly set, it will be set to zero, and shortcut
+     * will be added to the top of the list.
+     *
+     * Compatibility behavior:
+     * <ul>
+     *      <li>API 30 and above, this method matches platform behavior.
+     *      <li>API 25 to 29, this api is simulated by
+     *      {@link ShortcutManager#addDynamicShortcuts(List)} and
+     *      {@link ShortcutManager#removeDynamicShortcuts(List)} and thus will be rate-limited.
+     *      <li>API 24 and earlier, this method uses internal implementation and matches platform
+     *      behavior.
+     * </ul>
+     *
+     * @return {@code true} if the call has succeeded. {@code false} if the call fails or is
+     * rate-limited.
+     *
+     * @throws IllegalArgumentException if trying to update an immutable shortcut.
+     *
+     * @throws IllegalStateException when the user is locked.
+     */
+    public static boolean pushDynamicShortcut(@NonNull final Context context,
+            @NonNull final ShortcutInfoCompat shortcut) {
+        Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(shortcut);
+
+        int maxShortcutCount = getMaxShortcutCountPerActivity(context);
+        if (maxShortcutCount == 0) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT <= 29) {
+            convertUriIconToBitmapIcon(context, shortcut);
+        }
+        if (Build.VERSION.SDK_INT >= 30) {
+            context.getSystemService(ShortcutManager.class).pushDynamicShortcut(
+                    shortcut.toShortcutInfo());
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            final ShortcutManager sm = context.getSystemService(ShortcutManager.class);
+            if (sm.isRateLimitingActive()) {
+                return false;
+            }
+            final List<ShortcutInfo> shortcuts = sm.getDynamicShortcuts();
+            if (shortcuts.size() >= maxShortcutCount) {
+                sm.removeDynamicShortcuts(Arrays.asList(
+                        Api25Impl.getShortcutInfoWithLowestRank(shortcuts)));
+            }
+            sm.addDynamicShortcuts(Arrays.asList(shortcut.toShortcutInfo()));
+        }
+        final ShortcutInfoCompatSaver<?> saver = getShortcutInfoSaverInstance(context);
+        try {
+            final List<ShortcutInfoCompat> oldShortcuts = saver.getShortcuts();
+            if (oldShortcuts.size() >= maxShortcutCount) {
+                saver.removeShortcuts(Arrays.asList(
+                        getShortcutInfoCompatWithLowestRank(oldShortcuts)));
+            }
+            saver.addShortcuts(Arrays.asList(shortcut));
+            return true;
+        } catch (Exception e) {
+            // Ignore
+        }
+        return false;
+    }
+
+    private static String getShortcutInfoCompatWithLowestRank(
+            @NonNull final List<ShortcutInfoCompat> shortcuts) {
+        int rank = -1;
+        String target = null;
+        for (ShortcutInfoCompat s : shortcuts) {
+            if (s.getRank() > rank) {
+                target = s.getId();
+                rank = s.getRank();
+            }
+        }
+        return target;
+    }
+
     @VisibleForTesting
     static void setShortcutInfoCompatSaver(final ShortcutInfoCompatSaver<Void> saver) {
         sShortcutInfoCompatSaver = saver;
@@ -656,5 +752,20 @@ public class ShortcutManagerCompat {
             }
         }
         return sShortcutInfoCompatSaver;
+    }
+
+    @RequiresApi(25)
+    private static class Api25Impl {
+        static String getShortcutInfoWithLowestRank(@NonNull final List<ShortcutInfo> shortcuts) {
+            int rank = -1;
+            String target = null;
+            for (ShortcutInfo s : shortcuts) {
+                if (s.getRank() > rank) {
+                    target = s.getId();
+                    rank = s.getRank();
+                }
+            }
+            return target;
+        }
     }
 }
