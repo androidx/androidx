@@ -15,14 +15,18 @@
  */
 package androidx.camera.integration.extensions;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.hardware.camera2.CameraCaptureSession;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
@@ -68,6 +73,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /** An activity that shows off how extensions can be applied */
 public class CameraExtensionsActivity extends AppCompatActivity
@@ -98,6 +105,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
     // Espresso testing variables
     @VisibleForTesting
     CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource("TakePicture");
+    @Nullable
+    private CountDownLatch mPreviewCaptureSessionConfigured = new CountDownLatch(1);
 
     private PreviewView mPreviewView;
 
@@ -158,7 +167,20 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 extender.enableExtension(CAMERA_SELECTOR);
             }
         }
+        // Recreate the CountDown before create the Preview.
+        mPreviewCaptureSessionConfigured = new CountDownLatch(1);
+        new Camera2Interop.Extender<>(builder).setSessionStateCallback(
+                new CameraCaptureSession.StateCallback() {
+                    @Override
+                    public void onConfigured(@NonNull CameraCaptureSession session) {
+                        mPreviewCaptureSessionConfigured.countDown();
+                    }
 
+                    @Override
+                    public void onConfigureFailed(@NonNull CameraCaptureSession session) {
+
+                    }
+                });
         mPreview = builder.build();
         mPreview.setSurfaceProvider(mPreviewView.createSurfaceProvider(null));
     }
@@ -274,21 +296,37 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         Button captureButton = findViewById(R.id.Picture);
 
-        final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US);
+        Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US);
+        File dir = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "ExtensionsPictures");
 
-        final File dir =
-                new File(
-                        Environment.getExternalStoragePublicDirectory(
-                                Environment.DIRECTORY_PICTURES),
-                        "ExtensionsPictures");
-        dir.mkdirs();
         captureButton.setOnClickListener((view) -> {
             mTakePictureIdlingResource.increment();
-            final File saveFile = new File(dir,
-                    formatter.format(Calendar.getInstance().getTime())
-                            + mCurrentImageCaptureType.name() + ".jpg");
+
+            String fileName = formatter.format(Calendar.getInstance().getTime())
+                    + mCurrentImageCaptureType.name() + ".jpg";
+            File saveFile = new File(dir, fileName);
+            ImageCapture.OutputFileOptions outputFileOptions;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg");
+                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH,
+                        "Pictures/ExtensionsPictures");
+                outputFileOptions = new ImageCapture.OutputFileOptions.Builder(
+                        getContentResolver(),
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues).build();
+            } else {
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                outputFileOptions = new ImageCapture.OutputFileOptions.Builder(saveFile).build();
+            }
+
             mImageCapture.takePicture(
-                    new ImageCapture.OutputFileOptions.Builder(saveFile).build(),
+                    outputFileOptions,
                     ContextCompat.getMainExecutor(CameraExtensionsActivity.this),
                     new ImageCapture.OnImageSavedCallback() {
                         @Override
@@ -301,10 +339,12 @@ public class CameraExtensionsActivity extends AppCompatActivity
                             }
 
                             // Trigger MediaScanner to scan the file
-                            Intent intent = new Intent(
-                                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                            intent.setData(Uri.fromFile(saveFile));
-                            sendBroadcast(intent);
+                            if (outputFileResults.getSavedUri() == null) {
+                                Intent intent = new Intent(
+                                        Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                                intent.setData(Uri.fromFile(saveFile));
+                                sendBroadcast(intent);
+                            }
 
                             Toast.makeText(getApplicationContext(),
                                     "Saved image to " + saveFile,
@@ -530,6 +570,19 @@ public class CameraExtensionsActivity extends AppCompatActivity
             }
             default:
                 // No-op
+        }
+    }
+
+    /**
+     * Waiting for preview capture session configured. Returns true if the capture session of
+     * the preview is configured successfully, otherwise return false after timeout.
+     */
+    @VisibleForTesting
+    public boolean waitForPreviewConfigured(long timeOutInMs) {
+        try {
+            return mPreviewCaptureSessionConfigured.await(timeOutInMs, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            return false;
         }
     }
 }
