@@ -116,6 +116,17 @@ class DynamicIncludeGraphNavigatorTest {
     }
 
     @Test
+    fun onRestoreState() {
+        navigator.onRestoreState(Bundle.EMPTY)
+    }
+
+    @Test
+    fun onRestoreState_nestedInclusion() {
+        setupInternal(R.navigation.nav_graph_nested_include_dynamic)
+        navigator.onRestoreState(Bundle.EMPTY)
+    }
+
+    @Test
     fun popBackStack() {
         assertThat(navigator.popBackStack()).isTrue()
     }
