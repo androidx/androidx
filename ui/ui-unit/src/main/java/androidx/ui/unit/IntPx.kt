@@ -388,6 +388,13 @@ inline val IntPxBounds.width: IntPx get() = right - left
 inline val IntPxBounds.height: IntPx get() = bottom - top
 
 /**
+ * Returns the [IntPxPosition] of the center of the [IntPxBounds].
+ */
+inline fun IntPxBounds.center(): IntPxPosition {
+    return IntPxPosition(left + width / 2f, top + height / 2f)
+}
+
+/**
  * Convert a [IntPxBounds] to a [IntPxSize].
  */
 inline fun IntPxBounds.toSize(): IntPxSize {

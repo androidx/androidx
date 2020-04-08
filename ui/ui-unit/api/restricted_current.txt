@@ -262,6 +262,7 @@ package androidx.ui.unit {
     method public static inline androidx.ui.unit.PxSize PxSize(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
     method public static inline androidx.ui.unit.IntPx ceil(androidx.ui.unit.Px);
     method public static androidx.ui.unit.IntPxPosition center(androidx.ui.unit.IntPxSize);
+    method public static inline androidx.ui.unit.IntPxPosition center(androidx.ui.unit.IntPxBounds);
     method public static inline androidx.ui.unit.IntPx coerceAtLeast(androidx.ui.unit.IntPx, androidx.ui.unit.IntPx minimumValue);
     method public static inline androidx.ui.unit.IntPx coerceAtMost(androidx.ui.unit.IntPx, androidx.ui.unit.IntPx maximumValue);
     method public static inline androidx.ui.unit.IntPx coerceIn(androidx.ui.unit.IntPx, androidx.ui.unit.IntPx minimumValue, androidx.ui.unit.IntPx maximumValue);
@@ -411,6 +412,7 @@ package androidx.ui.unit {
     method public static inline androidx.ui.unit.PxSize PxSize(androidx.ui.unit.Px width, androidx.ui.unit.Px height);
     method public static inline androidx.ui.unit.Px abs(androidx.ui.unit.Px x);
     method public static androidx.ui.unit.PxPosition center(androidx.ui.unit.PxSize);
+    method public static inline androidx.ui.unit.PxPosition center(androidx.ui.unit.PxBounds);
     method public static inline androidx.ui.unit.Px coerceAtLeast(androidx.ui.unit.Px, androidx.ui.unit.Px minimumValue);
     method public static inline androidx.ui.unit.Px coerceAtMost(androidx.ui.unit.Px, androidx.ui.unit.Px maximumValue);
     method public static inline androidx.ui.unit.Px coerceIn(androidx.ui.unit.Px, androidx.ui.unit.Px minimumValue, androidx.ui.unit.Px maximumValue);

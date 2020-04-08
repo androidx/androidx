@@ -23,6 +23,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
@@ -97,7 +98,8 @@ fun Button(
                     paddingStart = innerPadding.left,
                     paddingTop = innerPadding.top,
                     paddingEnd = innerPadding.right,
-                    paddingBottom = innerPadding.bottom
+                    paddingBottom = innerPadding.bottom,
+                    gravity = ContentGravity.Center
                 ) {
                     ProvideTextStyle(
                         value = MaterialTheme.typography.button,
