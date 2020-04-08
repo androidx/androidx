@@ -139,7 +139,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * @param map The map whose contents are to be retrieved.
      */
     @Override
-    public void putAll(Map<? extends K, ? extends V> map) {
+    public void putAll(@NonNull Map<? extends K, ? extends V> map) {
         ensureCapacity(mSize + map.size());
         for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
             put(entry.getKey(), entry.getValue());
@@ -178,6 +178,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * object that exists for the entire iterator, so you can <b>not</b> hold on to it
      * after calling {@link java.util.Iterator#next() Iterator.next}.</p>
      */
+    @NonNull
     @Override
     public Set<Entry<K, V>> entrySet() {
         return getCollection().getEntrySet();
@@ -190,6 +191,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * <p><b>Note:</b> this is a fairly inefficient way to access the array contents, it
      * requires generating a number of temporary objects.</p>
      */
+    @NonNull
     @Override
     public Set<K> keySet() {
         return getCollection().getKeySet();
@@ -202,6 +204,7 @@ public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
      * <p><b>Note:</b> this is a fairly inefficient way to access the array contents, it
      * requires generating a number of temporary objects.</p>
      */
+    @NonNull
     @Override
     public Collection<V> values() {
         return getCollection().getValues();
