@@ -75,17 +75,17 @@ data class AnnotatedString internal constructor(
      * metadata attached on the a certain range. Annotations are also store with [Item] like the
      * styles.
      *
-     * @param scope the scope of the annotations that is being queried. It's used to distinguish
+     * @param tag the tag of the annotations that is being queried. It's used to distinguish
      * the annotations for different purposes.
      * @param start the start of the query range, inclusive.
      * @param end the end of the query range, exclusive.
-     * @return a list of annotations stored in Item  Notice that All annotations that intersect
+     * @return a list of annotations stored in [Item].  Notice that All annotations that intersect
      * with the range [start, end) will be returned. When [start] is bigger than [end], an empty
      * list will be returned.
      */
-    fun getStringAnnotations(scope: String, start: Int, end: Int): List<Item<String>> =
+    fun getStringAnnotations(tag: String, start: Int, end: Int): List<Item<String>> =
         annotations.filter {
-            scope == it.scope && intersect(start, end, it.start, it.end)
+            tag == it.tag && intersect(start, end, it.start, it.end)
         }
 
     /**
@@ -94,10 +94,10 @@ data class AnnotatedString internal constructor(
      * @param item The object attached to [AnnotatedString]s.
      * @param start The start of the range where [item] takes effect. It's inclusive
      * @param end The end of the range where [item] takes effect. It's exclusive
-     * @param scope The scope of this item, its used to distinguish the different items,
-     * especially when [Item] is used to store custom data.
+     * @param tag The tag used to distinguish the different items. It is useful to store custom
+     * data. And [Item]s with same tag can be queried with functions such as [getStringAnnotations].
      */
-    data class Item<T>(val item: T, val start: Int, val end: Int, val scope: String) {
+    data class Item<T>(val item: T, val start: Int, val end: Int, val tag: String) {
         constructor(item: T, start: Int, end: Int) : this(item, start, end, "")
         init {
             require(start <= end) { "Reversed range is not supported" }
@@ -118,7 +118,7 @@ data class AnnotatedString internal constructor(
             val item: T,
             val start: Int,
             var end: Int = Int.MIN_VALUE,
-            val scope: String = ""
+            val tag: String = ""
         ) {
             /**
              * Create an immutable [Item] object.
@@ -128,7 +128,7 @@ data class AnnotatedString internal constructor(
             fun toItem(defaultEnd: Int = Int.MIN_VALUE): Item<T> {
                 val end = if (end == Int.MIN_VALUE) defaultEnd else end
                 check(end != Int.MIN_VALUE) { "Item.end should be set first" }
-                return Item(item = item, start = start, end = end, scope = scope)
+                return Item(item = item, start = start, end = end, tag = tag)
             }
         }
 
@@ -194,7 +194,7 @@ data class AnnotatedString internal constructor(
             }
 
             text.annotations.forEach {
-                addAnnotationString(it.scope, it.item, start + it.start, start + it.end)
+                addAnnotationString(it.tag, it.item, start + it.start, start + it.end)
             }
         }
 
@@ -272,12 +272,13 @@ data class AnnotatedString internal constructor(
          *
          * @sample androidx.ui.text.samples.AnnotatedStringBuilderPushStringAnnotationSample
          *
-         * @param scope the scope used to distinguish this annotation
+         * @param tag the tag used to distinguish annotations
          * @param annotation the string annotation attached on this AnnotatedString
          * @see getStringAnnotations
+         * @see Item
          */
-        fun pushStringAnnotation(scope: String, annotation: String): Int {
-            MutableItem(item = annotation, start = text.length, scope = scope).also {
+        fun pushStringAnnotation(tag: String, annotation: String): Int {
+            MutableItem(item = annotation, start = text.length, tag = tag).also {
                 styleStack.add(it)
                 annotations.add(it)
             }
@@ -644,7 +645,7 @@ private fun <T> filterItemsByRange(items: List<Item<T>>, start: Int, end: Int): 
             item = it.item,
             start = max(start, it.start) - start,
             end = min(end, it.end) - start,
-            scope = it.scope
+            tag = it.tag
         )
     }
 }
