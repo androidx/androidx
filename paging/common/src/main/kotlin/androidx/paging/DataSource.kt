@@ -105,6 +105,7 @@ internal constructor(internal val type: KeyType) {
     internal val onInvalidatedCallbacks = CopyOnWriteArrayList<InvalidatedCallback>()
 
     private val _invalid = AtomicBoolean(false)
+
     /**
      * @return `true` if the data source is invalid, and can no longer be queried for data.
      */
@@ -148,7 +149,6 @@ internal constructor(internal val type: KeyType) {
          *
          * @return the new DataSource.
          */
-        @Suppress("KDocUnresolvedReference")
         abstract fun create(): DataSource<Key, Value>
 
         /**
