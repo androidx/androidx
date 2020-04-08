@@ -97,6 +97,8 @@ includeProject(":ui:ui-vector", "ui-vector")
 includeProject(":ui:ui-saved-instance-state", "ui-saved-instance-state")
 includeProject(":ui:ui-saved-instance-state:samples", "ui-saved-instance-state/samples")
 includeProject(":test-screenshot", "../test/screenshot")
+includeProject(":ui:ui-rxjava2", "ui-rxjava2")
+includeProject(":ui:ui-rxjava2:samples", "ui-rxjava2/samples")
 
 /////////////////////////////
 //
