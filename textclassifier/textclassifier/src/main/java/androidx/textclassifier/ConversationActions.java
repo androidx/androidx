@@ -18,12 +18,14 @@ package androidx.textclassifier;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.SpannedString;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.core.app.Person;
@@ -33,6 +35,7 @@ import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a list of actions suggested by a {@link TextClassifier} on a given conversation.
@@ -95,6 +98,33 @@ public final class ConversationActions {
         return new ConversationActions(
                 BundleUtils.getConversationActionsList(bundle, EXTRA_CONVERSATION_ACTIONS),
                 bundle.getString(EXTRA_ID));
+    }
+
+    /**
+     * Converts a {@link android.view.textclassifier.ConversationActions} to {@link
+     * androidx.textclassifier.ConversationActions}.
+     */
+    @Nullable
+    @RequiresApi(29)
+    static ConversationActions fromPlatform(
+            @Nullable android.view.textclassifier.ConversationActions conversationActions) {
+        if (conversationActions == null) {
+            return null;
+        }
+        return new ConversationActions(
+                conversationActions.getConversationActions().stream()
+                        .map(ConversationAction::fromPlatform)
+                        .collect(Collectors.toList()),
+                conversationActions.getId());
+    }
+
+    @RequiresApi(29)
+    android.view.textclassifier.ConversationActions toPlatform() {
+        return new android.view.textclassifier.ConversationActions(
+                    getConversationActions().stream()
+                        .map(ConversationAction::toPlatform)
+                        .collect(Collectors.toList()),
+                getId());
     }
 
     /** Represents a message in the conversation. */
@@ -206,6 +236,31 @@ public final class ConversationActions {
                     BundleUtils.getLong(bundle, EXTRA_REFERENCE_TIME),
                     bundle.getCharSequence(EXTRA_TEXT),
                     bundle.getBundle(EXTRA_EXTRAS));
+        }
+
+        @RequiresApi(29)
+        android.view.textclassifier.ConversationActions.Message toPlatform() {
+            return new android.view.textclassifier.ConversationActions.Message.Builder(
+                    getAuthor().toAndroidPerson())
+                    .setText(getText())
+                    .setReferenceTime(ConvertUtils.createZonedDateTimeFromUtc(getReferenceTime()))
+                    .setExtras(getExtras())
+                    .build();
+        }
+
+        @RequiresApi(29)
+        @Nullable
+        static Message fromPlatform(
+                @Nullable android.view.textclassifier.ConversationActions.Message message) {
+            if (message == null) {
+                return null;
+            }
+            return new Message.Builder(
+                    Person.fromAndroidPerson(message.getAuthor()))
+                    .setText(message.getText())
+                    .setReferenceTime(ConvertUtils.zonedDateTimeToUtcMs(message.getReferenceTime()))
+                    .setExtras(message.getExtras())
+                    .build();
         }
 
         /** Builder class to construct a {@link Message} */
@@ -393,6 +448,47 @@ public final class ConversationActions {
                     bundle.getBundle(EXTRA_EXTRAS));
         }
 
+        @SuppressLint("WrongConstant")
+        @RequiresApi(29)
+        @NonNull
+        android.view.textclassifier.ConversationActions.Request toPlatform() {
+            android.view.textclassifier.ConversationActions.Request.Builder builder =
+                    new android.view.textclassifier.ConversationActions.Request.Builder(
+                    getConversation().stream()
+                            .map(msg -> msg.toPlatform())
+                            .collect(Collectors.toList()))
+                    .setHints(getHints())
+                    .setExtras(getExtras())
+                    .setTypeConfig(getTypeConfig().toPlatform());
+
+            // To workaround a bug in platform that setMaxSuggestions does not accept -1 as input,
+            // which is actually valid and the default value.
+            if (getMaxSuggestions() >= 0) {
+                builder.setMaxSuggestions(getMaxSuggestions());
+            }
+
+            return builder.build();
+        }
+
+        @RequiresApi(29)
+        @Nullable
+        static ConversationActions.Request fromPlatform(
+                @Nullable android.view.textclassifier.ConversationActions.Request request) {
+            if (request == null) {
+                return null;
+            }
+            return new ConversationActions.Request.Builder(
+                    request.getConversation().stream()
+                            .map(Message::fromPlatform)
+                            .collect(Collectors.toList()))
+                    .setHints(request.getHints())
+                    .setMaxSuggestions(request.getMaxSuggestions())
+                    .setExtras(request.getExtras())
+                    .setTypeConfig(
+                            TextClassifier.EntityConfig.fromPlatform(request.getTypeConfig()))
+                    .build();
+        }
+
         /** Builder object to construct the {@link Request} object. */
         public static final class Builder {
             @NonNull
@@ -439,7 +535,11 @@ public final class ConversationActions {
              */
             @NonNull
             public Builder setMaxSuggestions(@IntRange(from = -1) int maxSuggestions) {
-                mMaxSuggestions = Preconditions.checkArgumentNonnegative(maxSuggestions);
+                if (maxSuggestions < -1) {
+                    throw new IllegalArgumentException("maxSuggestions has to be greater than or "
+                            + "equal to -1.");
+                }
+                mMaxSuggestions = maxSuggestions;
                 return this;
             }
 
