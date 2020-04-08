@@ -85,6 +85,20 @@ package androidx.ui.foundation {
     method @Deprecated public static void SimpleImage--SSR55g(androidx.ui.graphics.ImageAsset image, long tint = Color.Unset);
   }
 
+  public interface Indication {
+    method public androidx.ui.foundation.IndicationInstance createInstance();
+  }
+
+  public interface IndicationInstance {
+    method public void drawIndication(androidx.ui.core.ContentDrawScope, androidx.ui.foundation.InteractionState interactionState);
+    method public default void onDispose();
+  }
+
+  public final class IndicationKt {
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.foundation.Indication> getIndicationAmbient();
+    method public static androidx.ui.core.Modifier indication(androidx.ui.core.Modifier, androidx.ui.foundation.InteractionState interactionState, androidx.ui.foundation.Indication? indication = null);
+  }
+
   public interface Interaction {
   }
 
@@ -98,9 +112,10 @@ package androidx.ui.foundation {
 
   public final class InteractionState implements androidx.compose.State<java.util.Set<? extends androidx.ui.foundation.Interaction>> {
     ctor public InteractionState();
-    method public void addInteraction(androidx.ui.foundation.Interaction interaction);
+    method public void addInteraction(androidx.ui.foundation.Interaction interaction, androidx.ui.unit.PxPosition? position = null);
     method public operator boolean contains(androidx.ui.foundation.Interaction interaction);
     method public java.util.Set<androidx.ui.foundation.Interaction> getValue();
+    method public androidx.ui.unit.PxPosition? interactionPositionFor(androidx.ui.foundation.Interaction interaction);
     method public void removeInteraction(androidx.ui.foundation.Interaction interaction);
     property public java.util.Set<androidx.ui.foundation.Interaction> value;
   }

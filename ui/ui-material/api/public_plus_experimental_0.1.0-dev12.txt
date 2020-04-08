@@ -324,7 +324,7 @@ package androidx.ui.material.internal {
 package androidx.ui.material.ripple {
 
   public final class DefaultRippleEffectFactory implements androidx.ui.material.ripple.RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create-n_lTsus(androidx.ui.unit.IntPxSize size, androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.Density density, androidx.ui.unit.Dp? radius, boolean clipped, androidx.animation.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
+    method public androidx.ui.material.ripple.RippleEffect create-muzrHoo(androidx.ui.unit.PxSize size, androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.Density density, androidx.ui.unit.Dp? radius, boolean clipped, androidx.animation.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
     field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
   }
 
@@ -338,7 +338,15 @@ package androidx.ui.material.ripple {
   }
 
   public interface RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create-n_lTsus(androidx.ui.unit.IntPxSize size, androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.Density density, androidx.ui.unit.Dp? radius, boolean clipped, androidx.animation.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
+    method public androidx.ui.material.ripple.RippleEffect create-muzrHoo(androidx.ui.unit.PxSize size, androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.Density density, androidx.ui.unit.Dp? radius, boolean clipped, androidx.animation.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
+  }
+
+  public final class RippleIndication implements androidx.ui.foundation.Indication {
+    method public androidx.ui.foundation.IndicationInstance createInstance();
+  }
+
+  public final class RippleIndicationKt {
+    method public static androidx.ui.material.ripple.RippleIndication RippleIndication-XC6LiZk(boolean bounded = true, androidx.ui.unit.Dp? radius = null, long color = Color.Unset);
   }
 
   public final class RippleKt {

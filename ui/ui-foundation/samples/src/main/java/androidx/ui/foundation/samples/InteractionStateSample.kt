@@ -23,8 +23,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.Interaction
+import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.gestures.DragDirection

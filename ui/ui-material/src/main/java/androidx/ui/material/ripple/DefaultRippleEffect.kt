@@ -35,7 +35,6 @@ import androidx.ui.graphics.drawscope.DrawScope
 import androidx.ui.graphics.drawscope.clipRect
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
@@ -46,7 +45,6 @@ import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.max
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.toOffset
-import androidx.ui.unit.toPxSize
 
 /**
  * Used to specify this type of [RippleEffect] for [ripple].
@@ -54,7 +52,7 @@ import androidx.ui.unit.toPxSize
 object DefaultRippleEffectFactory : RippleEffectFactory {
 
     override fun create(
-        size: IntPxSize,
+        size: PxSize,
         startPosition: PxPosition,
         density: Density,
         radius: Dp?,
@@ -95,7 +93,7 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
  * @param onAnimationFinished Call when the effect animation has been finished.
  */
 private class DefaultRippleEffect(
-    size: IntPxSize,
+    size: PxSize,
     startPosition: PxPosition,
     density: Density,
     radius: Dp? = null,
@@ -110,13 +108,13 @@ private class DefaultRippleEffect(
     private var animationPulse by mutableStateOf(0L)
 
     init {
-        val surfaceSize = size.toPxSize()
+        val surfaceSize = size
         val startRadius = getRippleStartRadius(surfaceSize)
         val targetRadius = with(density) {
             radius?.toPx() ?: getRippleEndRadius(clipped, surfaceSize)
         }
 
-        val center = size.toPxSize().center()
+        val center = size.center()
         animation = RippleTransition.definition(
             startRadius = startRadius,
             endRadius = targetRadius,
