@@ -33,6 +33,7 @@ import androidx.ui.foundation.shape.corner.CornerSize
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.Row
+import androidx.ui.layout.RowAlign
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
@@ -151,9 +152,9 @@ fun ExtendedFloatingActionButton(
                 text()
             } else {
                 Row {
-                    icon()
+                    Box(Modifier.gravity(RowAlign.Center), children = icon)
                     Spacer(Modifier.preferredWidth(ExtendedFabIconPadding))
-                    text()
+                    Box(Modifier.gravity(RowAlign.Center), children = text)
                 }
             }
         }

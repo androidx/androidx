@@ -27,6 +27,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
+import androidx.ui.core.boundsInRoot
 import androidx.ui.core.onChildPositioned
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
@@ -50,16 +51,21 @@ import androidx.ui.test.findByText
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.Dp
+import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.center
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
+import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.abs
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -321,6 +327,33 @@ class ButtonTest {
             )
     }
 
+    @Test
+    fun contentIsWrappedAndCentered() {
+        var buttonCoordinates: LayoutCoordinates? = null
+        var contentCoordinates: LayoutCoordinates? = null
+        composeTestRule.setMaterialContent {
+            Stack {
+                Button({}, Modifier.onPositioned { buttonCoordinates = it }) {
+                    Box(Modifier.preferredSize(2.dp)
+                        .onPositioned { contentCoordinates = it }
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            val buttonBounds = buttonCoordinates!!.boundsInRoot
+            val contentBounds = contentCoordinates!!.boundsInRoot
+            assertThat(contentBounds.width).isLessThan(buttonBounds.width)
+            assertThat(contentBounds.height).isLessThan(buttonBounds.height)
+            with(composeTestRule.density) {
+                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toPx())
+                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toPx())
+            }
+            assertWithinOnePixel(buttonBounds.center(), contentBounds.center())
+        }
+    }
+
     private fun assertLeftPaddingIs(
         padding: Dp,
         button: @Composable() (@Composable() () -> Unit) -> Unit
@@ -346,4 +379,14 @@ class ButtonTest {
             assertThat(currentPadding).isEqualTo(topLeft)
         }
     }
+}
+
+fun assertWithinOnePixel(expected: PxPosition, actual: PxPosition) {
+    assertWithinOnePixel(expected.x, actual.x)
+    assertWithinOnePixel(expected.y, actual.y)
+}
+
+fun assertWithinOnePixel(expected: Px, actual: Px) {
+    val diff = abs(expected.value - actual.value)
+    assertThat(diff).isLessThan(1.1f)
 }

@@ -648,6 +648,13 @@ inline val PxBounds.width: Px get() = right - left
 inline val PxBounds.height: Px get() = bottom - top
 
 /**
+ * Returns the [PxPosition] of the center of the [PxBounds].
+ */
+inline fun PxBounds.center(): PxPosition {
+    return PxPosition(left + width / 2f, top + height / 2f)
+}
+
+/**
  * Convert a [PxBounds] to a [PxSize].
  */
 fun PxBounds.toSize(): PxSize {
