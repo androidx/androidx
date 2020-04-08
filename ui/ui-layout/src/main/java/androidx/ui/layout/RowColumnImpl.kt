@@ -25,6 +25,7 @@ import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.Measured
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
@@ -104,7 +105,8 @@ internal fun RowColumnImpl(
                     ?: crossAxisAlignment.alignmentLineProvider
                 if (lineProvider != null) {
                     val alignmentLinePosition = when (lineProvider) {
-                        is AlignmentLineProvider.Block -> lineProvider.lineProviderBlock(placeable)
+                        is AlignmentLineProvider.Block ->
+                            lineProvider.lineProviderBlock(Measured(placeable))
                         is AlignmentLineProvider.Value -> placeable[lineProvider.line]
                     }
                     beforeCrossAxisAlignmentLine = max(
@@ -236,7 +238,8 @@ internal fun RowColumnImpl(
                     else -> {
                         val provider = childCrossAlignment.alignmentLineProvider
                         val alignmentLinePosition = when (provider) {
-                            is AlignmentLineProvider.Block -> provider.lineProviderBlock(placeable)
+                            is AlignmentLineProvider.Block ->
+                                provider.lineProviderBlock(Measured(placeable))
                             is AlignmentLineProvider.Value -> placeable[provider.line]
                             else -> null
                         }
@@ -811,7 +814,7 @@ internal data class LayoutWeightImpl(val weight: Float, val fill: Boolean) : Par
 internal sealed class SiblingsAlignedModifier : ParentDataModifier {
     abstract override fun Density.modifyParentData(parentData: Any?): Any?
 
-    internal data class WithAlignmentLineBlock(val block: (Placeable) -> IntPx) :
+    internal data class WithAlignmentLineBlock(val block: (Measured) -> IntPx) :
         SiblingsAlignedModifier() {
         override fun Density.modifyParentData(parentData: Any?): Any? {
             return ((parentData as? RowColumnParentData) ?: RowColumnParentData()).also {
@@ -853,6 +856,6 @@ internal data class RowColumnParentData(
  * Provides the alignment line.
  */
 internal sealed class AlignmentLineProvider {
-    data class Block(val lineProviderBlock: (Placeable) -> IntPx) : AlignmentLineProvider()
+    data class Block(val lineProviderBlock: (Measured) -> IntPx) : AlignmentLineProvider()
     data class Value(val line: AlignmentLine) : AlignmentLineProvider()
 }

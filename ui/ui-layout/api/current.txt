@@ -70,9 +70,9 @@ package androidx.ui.layout {
   @androidx.ui.layout.LayoutScopeMarker public final class ColumnScope {
     method @Deprecated public androidx.ui.core.ParentDataModifier LayoutWeight(@FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
     method @Deprecated public androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, androidx.ui.core.VerticalAlignmentLine alignmentLine);
-    method @Deprecated public androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable,androidx.ui.unit.IntPx> alignmentLineBlock);
+    method @Deprecated public androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, kotlin.jvm.functions.Function1<? super androidx.ui.core.Measured,androidx.ui.unit.IntPx> alignmentLineBlock);
     method public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, androidx.ui.core.VerticalAlignmentLine alignmentLine);
-    method public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable,androidx.ui.unit.IntPx> alignmentLineBlock);
+    method public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Measured,androidx.ui.unit.IntPx> alignmentLineBlock);
     method @Deprecated public androidx.ui.core.ParentDataModifier getCenter(androidx.ui.layout.LayoutGravity);
     method @Deprecated public androidx.ui.core.ParentDataModifier getEnd(androidx.ui.layout.LayoutGravity);
     method @Deprecated public androidx.ui.core.ParentDataModifier getStart(androidx.ui.layout.LayoutGravity);
@@ -741,9 +741,9 @@ package androidx.ui.layout {
   @androidx.ui.layout.LayoutScopeMarker public final class RowScope {
     method @Deprecated public androidx.ui.core.ParentDataModifier LayoutWeight(@FloatRange(from=0.0, fromInclusive=false) float weight, boolean fill = true);
     method @Deprecated public androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, androidx.ui.core.HorizontalAlignmentLine alignmentLine);
-    method @Deprecated public androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable,androidx.ui.unit.IntPx> alignmentLineBlock);
+    method @Deprecated public androidx.ui.core.ParentDataModifier RelativeToSiblings(androidx.ui.layout.LayoutGravity, kotlin.jvm.functions.Function1<? super androidx.ui.core.Measured,androidx.ui.unit.IntPx> alignmentLineBlock);
     method public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, androidx.ui.core.HorizontalAlignmentLine alignmentLine);
-    method public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable,androidx.ui.unit.IntPx> alignmentLineBlock);
+    method public androidx.ui.core.Modifier alignWithSiblings(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Measured,androidx.ui.unit.IntPx> alignmentLineBlock);
     method @Deprecated public androidx.ui.core.ParentDataModifier getBottom(androidx.ui.layout.LayoutGravity);
     method @Deprecated public androidx.ui.core.ParentDataModifier getCenter(androidx.ui.layout.LayoutGravity);
     method @Deprecated public androidx.ui.core.ParentDataModifier getTop(androidx.ui.layout.LayoutGravity);

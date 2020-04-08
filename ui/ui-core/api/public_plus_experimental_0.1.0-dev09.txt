@@ -325,6 +325,15 @@ package androidx.ui.core {
   public final class MeasureScopeKt {
   }
 
+  public final class Measured {
+    ctor public Measured(internal androidx.ui.core.Placeable placeable);
+    method public operator androidx.ui.unit.IntPx? get(androidx.ui.core.AlignmentLine alignmentLine);
+    method public androidx.ui.unit.IntPx getHeight();
+    method public androidx.ui.unit.IntPx getWidth();
+    property public final androidx.ui.unit.IntPx height;
+    property public final androidx.ui.unit.IntPx width;
+  }
+
   public interface Modifier {
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
