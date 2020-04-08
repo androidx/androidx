@@ -47,14 +47,12 @@ class DefaultProgressFragment :
     }
 
     private var title: TextView? = null
-    private var moduleName: TextView? = null
     private var progressBar: ProgressBar? = null
     private var action: Button? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         with(view) {
             title = findViewById(R.id.progress_title)
-            moduleName = findViewById(R.id.module_name)
             progressBar = findViewById(R.id.installation_progress)
             setActivityIcon(findViewById(R.id.progress_icon))
             action = findViewById(R.id.progress_action)
@@ -64,7 +62,6 @@ class DefaultProgressFragment :
     override fun onDestroyView() {
         super.onDestroyView()
         title = null
-        moduleName = null
         progressBar = null
         action = null
     }
