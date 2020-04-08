@@ -45,6 +45,8 @@ public final class PreviewTransform {
     @NonNull
     private PreviewView.ScaleType mScaleType = DEFAULT_SCALE_TYPE;
 
+    private boolean mSensorDimensionFlipNeeded = true;
+
     /** Returns the {@link PreviewView.ScaleType} currently applied to the preview. */
     @NonNull
     public PreviewView.ScaleType getScaleType() {
@@ -54,6 +56,19 @@ public final class PreviewTransform {
     /** Sets the {@link PreviewView.ScaleType} to be applied to the preview. */
     public void setScaleType(@NonNull PreviewView.ScaleType scaleType) {
         mScaleType = scaleType;
+    }
+
+    /** Returns whether the device sensor x and y dimensions need to be flipped. */
+    public boolean isSensorDimensionFlipNeeded() {
+        return mSensorDimensionFlipNeeded;
+    }
+
+    /**
+     * Sets whether the target device sensor dimensions need to be flipped when calculating the
+     * transform.
+     */
+    public void setSensorDimensionFlipNeeded(boolean sensorDimensionFlipNeeded) {
+        mSensorDimensionFlipNeeded = sensorDimensionFlipNeeded;
     }
 
     /** Applies the current {@link PreviewView.ScaleType} on the passed in preview. */
@@ -73,7 +88,7 @@ public final class PreviewTransform {
     private void correctPreview(@NonNull final View container, @NonNull final View view,
             @NonNull final Size bufferSize) {
         final Transformation correct = PreviewCorrector.getCorrectionTransformation(container, view,
-                bufferSize);
+                bufferSize, mSensorDimensionFlipNeeded);
         applyTransformation(view, correct);
     }
 
