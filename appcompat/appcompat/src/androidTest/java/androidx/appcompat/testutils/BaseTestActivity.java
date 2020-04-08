@@ -16,7 +16,10 @@
 
 package androidx.appcompat.testutils;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +33,10 @@ import androidx.appcompat.view.ActionMode;
 import androidx.testutils.LocaleTestUtils;
 import androidx.testutils.RecreatedAppCompatActivity;
 
+import java.util.Locale;
+
 public abstract class BaseTestActivity extends RecreatedAppCompatActivity {
+    private static Locale sOverrideLocale;
 
     private Menu mMenu;
 
@@ -49,16 +55,10 @@ public abstract class BaseTestActivity extends RecreatedAppCompatActivity {
     private boolean mDestroyed;
 
     private AppCompatCallback mAppCompatCallback;
-    private static final String EXTRA_LANGUAGE = "language";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        final LocaleTestUtils locale = new LocaleTestUtils(this);
-        if (getIntent().hasExtra(EXTRA_LANGUAGE)) {
-            locale.setLocale(LocaleTestUtils.RTL_LANGUAGE);
-        }
 
         overridePendingTransition(0, 0);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -68,6 +68,40 @@ public abstract class BaseTestActivity extends RecreatedAppCompatActivity {
         }
         onContentViewSet();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    /**
+     * Recreates the activity with an RTL locale.
+     */
+    public void setRtlOneShotAndRecreate() {
+        sOverrideLocale = new Locale(LocaleTestUtils.RTL_LANGUAGE);
+        recreate();
+    }
+
+    /**
+     * Clears any specified one-shot RTL override.
+     */
+    public void resetRtlOneShot() {
+        sOverrideLocale = null;
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        if (sOverrideLocale != null) {
+            Configuration overrideConfig = new Configuration();
+            overrideConfig.fontScale = 0;
+            overrideConfig.locale = sOverrideLocale;
+
+            ContextThemeWrapper wrappedBase = new ContextThemeWrapper(newBase,
+                    newBase.getTheme());
+            wrappedBase.applyOverrideConfiguration(overrideConfig);
+
+            newBase = wrappedBase;
+
+            sOverrideLocale = null;
+        }
+
+        super.attachBaseContext(newBase);
     }
 
     @Override
