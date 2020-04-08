@@ -88,13 +88,13 @@ package androidx.navigation {
   @kotlin.DslMarker public @interface NavDestinationDsl {
   }
 
-  @androidx.navigation.NavDestinationDsl public final class NavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.NavGraph> {
+  @androidx.navigation.NavDestinationDsl public class NavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.NavGraph> {
     ctor public NavGraphBuilder(androidx.navigation.NavigatorProvider provider, @IdRes int id, @IdRes int startDestination);
-    method public void addDestination(androidx.navigation.NavDestination destination);
+    method public final void addDestination(androidx.navigation.NavDestination destination);
     method public androidx.navigation.NavGraph build();
-    method public <D extends androidx.navigation.NavDestination> void destination(androidx.navigation.NavDestinationBuilder<? extends D> navDestination);
-    method public androidx.navigation.NavigatorProvider getProvider();
-    method public operator void unaryPlus(androidx.navigation.NavDestination);
+    method public final <D extends androidx.navigation.NavDestination> void destination(androidx.navigation.NavDestinationBuilder<? extends D> navDestination);
+    method public final androidx.navigation.NavigatorProvider getProvider();
+    method public final operator void unaryPlus(androidx.navigation.NavDestination);
   }
 
   public final class NavGraphBuilderKt {
