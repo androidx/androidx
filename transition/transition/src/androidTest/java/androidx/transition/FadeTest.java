@@ -31,15 +31,15 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.animation.Animator;
+import androidx.core.animation.ObjectAnimator;
+import androidx.core.animation.ValueAnimator;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -300,11 +300,12 @@ public class FadeTest extends BaseTest {
                 @Nullable final TransitionValues endValues) {
             final Animator animator = super.createAnimator(sceneRoot, startValues, endValues);
             if (animator instanceof ObjectAnimator) {
-                ((ObjectAnimator) animator).addUpdateListener(
+                animator.addUpdateListener(
                         new ValueAnimator.AnimatorUpdateListener() {
                             @Override
-                            public void onAnimationUpdate(ValueAnimator animation) {
-                                final float alpha = (float) animation.getAnimatedValue();
+                            public void onAnimationUpdate(@NonNull Animator animation) {
+                                final ValueAnimator anim = (ValueAnimator) animation;
+                                final float alpha = (float) anim.getAnimatedValue();
                                 mAlphaValues[1] = alpha;
                                 if (mInitialAlpha < 0) {
                                     mInitialAlpha = alpha;

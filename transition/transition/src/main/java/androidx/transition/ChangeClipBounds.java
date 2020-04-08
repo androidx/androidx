@@ -16,9 +16,6 @@
 
 package androidx.transition;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
@@ -27,6 +24,10 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.animation.Animator;
+import androidx.core.animation.AnimatorListenerAdapter;
+import androidx.core.animation.ObjectAnimator;
+import androidx.core.animation.RectEvaluator;
 import androidx.core.view.ViewCompat;
 
 /**
@@ -115,7 +116,7 @@ public class ChangeClipBounds extends Transition {
             final View endView = endValues.view;
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd(@NonNull Animator animation) {
                     ViewCompat.setClipBounds(endView, null);
                 }
             });

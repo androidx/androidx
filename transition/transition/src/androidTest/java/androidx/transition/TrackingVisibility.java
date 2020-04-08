@@ -15,13 +15,14 @@
  */
 package androidx.transition;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.core.animation.Animator;
+import androidx.core.animation.AnimatorListenerAdapter;
+import androidx.core.animation.ObjectAnimator;
 import androidx.fragment.app.TargetTracking;
 
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
             // and wait for that to end.
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
-                public void onAnimationStart(Animator animation) {
+                public void onAnimationStart(@NonNull Animator animation) {
                     super.onAnimationStart(animation);
                     animation.removeListener(this);
                     animation.addListener(this);
@@ -80,7 +81,7 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd(@NonNull Animator animation) {
                     endAnimatorCountDownLatch.countDown();
                     animation.removeListener(this);
                 }
@@ -90,6 +91,7 @@ public class TrackingVisibility extends Visibility implements TargetTracking {
         return null;
     }
 
+    @NonNull
     @Override
     public ArrayList<View> getTrackedTargets() {
         return targets;
