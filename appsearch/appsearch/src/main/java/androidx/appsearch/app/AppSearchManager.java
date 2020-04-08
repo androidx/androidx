@@ -166,7 +166,7 @@ public class AppSearchManager {
                 AppSearchDocument document = documents.get(i);
                 try {
                     mAppSearchImpl.putDocument(document.getProto());
-                    resultBuilder.setSuccess(document.getUri(), /*value=*/ null);
+                    resultBuilder.setSuccess(document.getUri(), /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(document.getUri(), throwableToFailedResult(t));
                 }
@@ -332,7 +332,7 @@ public class AppSearchManager {
                         resultBuilder.setFailure(
                                 uri, AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null);
                     } else {
-                        resultBuilder.setSuccess(uri, /*value= */null);
+                        resultBuilder.setSuccess(uri, /*result= */null);
                     }
                 } catch (Throwable t) {
                     resultBuilder.setResult(uri, throwableToFailedResult(t));
@@ -373,7 +373,7 @@ public class AppSearchManager {
                                 AppSearchResult.RESULT_NOT_FOUND,
                                 /*errorMessage=*/ null);
                     } else {
-                        resultBuilder.setSuccess(schemaType, /*value=*/ null);
+                        resultBuilder.setSuccess(schemaType, /*result=*/ null);
                     }
                 } catch (Throwable t) {
                     resultBuilder.setResult(schemaType, throwableToFailedResult(t));
