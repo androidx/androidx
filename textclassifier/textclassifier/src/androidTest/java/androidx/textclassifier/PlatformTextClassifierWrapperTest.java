@@ -16,6 +16,8 @@
 
 package androidx.textclassifier;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -27,9 +29,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
+import com.google.common.collect.Range;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
+import java.util.List;
 
 /** UnInstrumentation unit tests for {@link PlatformTextClassifierWrapper}. */
 @LargeTest
@@ -75,6 +82,20 @@ public class PlatformTextClassifierWrapperTest {
         assertValidResult(mClassifier.generateLinks(new TextLinks.Request.Builder(TEXT).build()));
     }
 
+    @Test
+    public void testSuggestConversationActions() {
+        ConversationActions.Message message =
+                new ConversationActions.Message.Builder(
+                        ConversationActions.Message.PERSON_USER_OTHERS)
+                        .setText(TEXT)
+                        .build();
+        ConversationActions.Request request =
+                new ConversationActions.Request.Builder(
+                        Arrays.asList(message)).build();
+
+        assertValidResult(mClassifier.suggestConversationActions(request));
+    }
+
     private static void assertValidResult(TextSelection selection) {
         assertNotNull(selection);
         assertTrue(selection.getSelectionStartIndex() >= 0);
@@ -115,6 +136,17 @@ public class PlatformTextClassifierWrapperTest {
                 assertTrue(confidenceScore >= 0);
                 assertTrue(confidenceScore <= 1);
             }
+        }
+    }
+
+    private static void assertValidResult(ConversationActions conversationActions) {
+        assertNotNull(conversationActions);
+        List<ConversationAction> conversationActionsList =
+                conversationActions.getConversationActions();
+        assertNotNull(conversationActionsList);
+        for (ConversationAction conversationAction : conversationActionsList) {
+            assertThat(conversationAction.getType()).isNotNull();
+            assertThat(conversationAction.getConfidenceScore()).isIn(Range.closed(0f, 1.0f));
         }
     }
 }
