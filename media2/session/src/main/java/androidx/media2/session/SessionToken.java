@@ -434,6 +434,5 @@ public final class SessionToken implements VersionedParcelable {
         @TokenType int getType();
         @Nullable Bundle getExtras();
         Object getBinder();
-        int getSessionVersion();
     }
 }
