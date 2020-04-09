@@ -480,7 +480,7 @@ abstract class PagedList<T : Any> internal constructor(
         fun build(): PagedList<Value> {
             val fetchDispatcher = fetchDispatcher ?: Dispatchers.IO
             val pagingSource = pagingSource
-                ?: dataSource?.let { LegacyPagingSource(it) }
+                ?: dataSource?.let { LegacyPagingSource { it } }
 
             check(pagingSource != null) {
                 "PagedList cannot be built without a PagingSource or DataSource"
