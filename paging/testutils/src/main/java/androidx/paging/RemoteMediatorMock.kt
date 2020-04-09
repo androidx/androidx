@@ -38,7 +38,7 @@ open class RemoteMediatorMock : RemoteMediator<Int, Int>() {
     }
 
     data class LoadEvent<Key : Any, Value : Any>(
-        val loaddType: LoadType,
+        val loadType: LoadType,
         val state: PagingState<Key, Value>?
     )
 }

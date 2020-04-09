@@ -1016,7 +1016,7 @@ class PagerTest {
             advanceUntilIdle()
 
             assertEquals(1, remoteMediator.loadEvents.size)
-            assertEquals(START, remoteMediator.loadEvents[0].loaddType)
+            assertEquals(START, remoteMediator.loadEvents[0].loadType)
             assertNotNull(remoteMediator.loadEvents[0].state)
         }
     }
@@ -1043,7 +1043,7 @@ class PagerTest {
             advanceUntilIdle()
 
             assertEquals(1, remoteMediator.loadEvents.size)
-            assertEquals(END, remoteMediator.loadEvents[0].loaddType)
+            assertEquals(END, remoteMediator.loadEvents[0].loadType)
             assertNotNull(remoteMediator.loadEvents[0].state)
         }
     }
