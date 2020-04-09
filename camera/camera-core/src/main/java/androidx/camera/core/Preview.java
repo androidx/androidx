@@ -182,6 +182,11 @@ public final class Preview extends UseCase {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         final CaptureProcessor captureProcessor = config.getCaptureProcessor(null);
 
+        // Close previous session's deferrable surface before creating new one
+        if (mSessionDeferrableSurface != null) {
+            mSessionDeferrableSurface.close();
+        }
+
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution);
         setUpSurfaceProviderWrap(surfaceRequest);
 
