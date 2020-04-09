@@ -121,7 +121,7 @@ fun <T : Function<Unit>> SemanticsNodeInteraction.callSemanticsAction(
         throw AssertionError(
             buildGeneralErrorMessage(
                 "Failed to call ${key.name} action as it is not defined on the node.",
-                semanticsTreeInteraction.selector, node)
+                selector, node)
         )
     }
 

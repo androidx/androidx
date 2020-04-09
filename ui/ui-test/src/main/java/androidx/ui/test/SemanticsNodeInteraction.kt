@@ -22,9 +22,9 @@ import androidx.ui.test.android.AndroidInputDispatcher
 
 internal fun SemanticsNodeInteraction(
     node: SemanticsNode,
-    semanticsTreeInteraction: SemanticsTreeInteraction
+    selector: SemanticsPredicate
 ): SemanticsNodeInteraction {
-    return SemanticsNodeInteraction(listOf(node), semanticsTreeInteraction)
+    return SemanticsNodeInteraction(listOf(node), selector)
 }
 
 /**
@@ -38,7 +38,7 @@ internal fun SemanticsNodeInteraction(
  */
 class SemanticsNodeInteraction internal constructor(
     nodes: List<SemanticsNode>,
-    internal val semanticsTreeInteraction: SemanticsTreeInteraction
+    internal val selector: SemanticsPredicate
 ) {
     private val nodeIds: List<Int> = nodes.map { it.id }.toList()
 
@@ -51,7 +51,7 @@ class SemanticsNodeInteraction internal constructor(
     private var lastSeenSemantics: String? = nodes.firstOrNull()?.toStringInfo()
 
     internal fun fetchSemanticsNodes(): List<SemanticsNode> {
-        return semanticsTreeInteraction.getNodesByIds(nodeIds)
+        return getAllSemanticsNodes().filter { it.id in nodeIds }
     }
 
     /**
@@ -89,7 +89,7 @@ class SemanticsNodeInteraction internal constructor(
         if (nodes.isNotEmpty()) {
             throw AssertionError(buildErrorMessageForCountMismatch(
                 errorMessage = "Failed: assertDoesNotExist.",
-                selector = semanticsTreeInteraction.selector,
+                selector = selector,
                 foundNodes = nodes,
                 expectedCount = 0
             ))
@@ -125,7 +125,7 @@ class SemanticsNodeInteraction internal constructor(
                 // This means that node we used to have is no longer in the tree.
                 throw AssertionError(buildErrorMessageForNodeMissingInTree(
                     errorMessage = finalErrorMessage,
-                    selector = semanticsTreeInteraction.selector,
+                    selector = selector,
                     lastSeenSemantics = lastSeenSemantics!!
                 ))
             }
@@ -134,7 +134,7 @@ class SemanticsNodeInteraction internal constructor(
                 errorMessage = finalErrorMessage,
                 foundNodes = nodes,
                 expectedCount = 1,
-                selector = semanticsTreeInteraction.selector
+                selector = selector
             ))
         }
 
