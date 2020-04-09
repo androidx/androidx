@@ -37,6 +37,10 @@ android {
 dependencies {
     api(KOTLIN_STDLIB)
     api(project(":datastore:datastore-core"))
+
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(project(":internal-testutils-truth"))
 }
 
 androidx {
