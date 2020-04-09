@@ -17,6 +17,7 @@
 package androidx.camera.view.preview.transform;
 
 import android.util.Pair;
+import android.view.Surface;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -30,33 +31,50 @@ final class ScaleTypeTransform {
     private ScaleTypeTransform() {
     }
 
-    /** Converts a {@link PreviewView.ScaleType} to a {@link Transformation} */
+    /**
+     * Converts a {@link PreviewView.ScaleType} to a {@link Transformation}.
+     *
+     * @param container      Preview container
+     * @param view           Preview view (a {@link android.view.TextureView} or
+     *                       {@link android.view.SurfaceView})
+     * @param scaleType      The desired {@link PreviewView.ScaleType}.
+     * @param deviceRotation If the app is not running in remote display mode, set the parameter
+     *                       as {@link RotationTransform#ROTATION_AUTOMATIC}. Then, the rotation
+     *                       value queried from the preview will be used to do the transformation
+     *                       calculations. If the app is running in remote display mode, the
+     *                       device rotation value needs to be provided to make the result be
+     *                       rotated into correct orientation. The device rotation should be
+     *                       obtained from {@link android.view.OrientationEventListener} and
+     *                       needs to be converted into {@link Surface#ROTATION_0},
+     *                       {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180}, or
+     *                       {@link Surface#ROTATION_270}.
+     */
     static Transformation getTransformation(@NonNull final View container, @NonNull final View view,
-            @NonNull final PreviewView.ScaleType scaleType) {
-        final Transformation scale = getScale(container, view, scaleType);
+            @NonNull final PreviewView.ScaleType scaleType, final int deviceRotation) {
+        final Transformation scale = getScale(container, view, scaleType, deviceRotation);
 
         // Use the current preview scale AND the scale that's about to be applied to it to figure
         // out how to position the preview in its container
         final Pair<Float, Float> scaleXY = new Pair<>(view.getScaleX() * scale.getScaleX(),
                 view.getScaleY() * scale.getScaleY());
         final Transformation translation = getScaledTranslation(container, view, scaleType,
-                scaleXY);
+                scaleXY, deviceRotation);
 
         return scale.add(translation);
     }
 
     private static ScaleTransformation getScale(@NonNull final View container,
-            @NonNull final View view,
-            final PreviewView.ScaleType scaleType) {
+            @NonNull final View view, @NonNull final PreviewView.ScaleType scaleType,
+            final int deviceRotation) {
         switch (scaleType) {
             case FILL_START:
             case FILL_CENTER:
             case FILL_END:
-                return ScaleTransform.fill(container, view);
+                return ScaleTransform.fill(container, view, deviceRotation);
             case FIT_START:
             case FIT_CENTER:
             case FIT_END:
-                return ScaleTransform.fit(container, view);
+                return ScaleTransform.fit(container, view, deviceRotation);
             default:
                 throw new IllegalArgumentException("Unknown scale type " + scaleType);
         }
@@ -64,17 +82,17 @@ final class ScaleTypeTransform {
 
     private static TranslationTransformation getScaledTranslation(@NonNull final View container,
             @NonNull final View view, @NonNull final PreviewView.ScaleType scaleType,
-            @NonNull final Pair<Float, Float> scaleXY) {
+            @NonNull final Pair<Float, Float> scaleXY, final int deviceRotation) {
         switch (scaleType) {
             case FILL_START:
             case FIT_START:
-                return TranslationTransform.start(view, scaleXY);
+                return TranslationTransform.start(view, scaleXY, deviceRotation);
             case FILL_CENTER:
             case FIT_CENTER:
                 return TranslationTransform.center(container, view);
             case FILL_END:
             case FIT_END:
-                return TranslationTransform.end(container, view, scaleXY);
+                return TranslationTransform.end(container, view, scaleXY, deviceRotation);
             default:
                 throw new IllegalArgumentException("Unknown scale type " + scaleType);
         }

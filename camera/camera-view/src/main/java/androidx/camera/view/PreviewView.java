@@ -18,9 +18,13 @@ package androidx.camera.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.Display;
+import android.view.Surface;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -195,6 +199,53 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
+     * Returns the device rotation value currently applied to the preview.
+     *
+     * @return The device rotation value currently applied to the preview.
+     */
+    public int getDeviceRotationForRemoteDisplayMode() {
+        return mPreviewTransform.getDeviceRotation();
+    }
+
+    /**
+     * Provides the device rotation value to the preview in remote display mode.
+     *
+     * <p>The device rotation value will only take effect when detecting current view is
+     * on a remote display. If current view is on the device builtin display, {@link PreviewView}
+     * will directly use view's rotation value to do the transformation related calculations.
+     *
+     * <p>The preview transform calculations have strong dependence on the device rotation value.
+     * When a application is running in remote display, the rotation value obtained from current
+     * view will cause incorrect transform calculation results. To make the preview output result
+     * correct in remote display mode, the developers need to provide the device rotation value
+     * obtained from {@link android.view.OrientationEventListener}.
+     *
+     * <p>The mapping between the device rotation value and the orientation value obtained from
+     * {@link android.view.OrientationEventListener} are listed as the following.
+     * <p>{@link android.view.OrientationEventListener#ORIENTATION_UNKNOWN}: orientation == -1
+     * <p>{@link Surface#ROTATION_0}: orientation >= 315 || orientation < 45
+     * <p>{@link Surface#ROTATION_90}: orientation >= 225 && orientation < 315
+     * <p>{@link Surface#ROTATION_180}: orientation >= 135 && orientation < 225
+     * <p>{@link Surface#ROTATION_270}: orientation >= 45 && orientation < 135
+     *
+     * @param deviceRotation The device rotation value, expressed as one of
+     * {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180}, or
+     * {@link Surface#ROTATION_270}.
+     */
+    public void setDeviceRotationForRemoteDisplayMode(final int deviceRotation) {
+        // This only take effect when it is remote display mode.
+        if (deviceRotation == mPreviewTransform.getDeviceRotation()
+                || !isRemoteDisplayMode()) {
+            return;
+        }
+
+        mPreviewTransform.setDeviceRotation(deviceRotation);
+        if (mImplementation != null) {
+            mImplementation.redrawPreview();
+        }
+    }
+
+    /**
      * Returns the {@link ScaleType} currently applied to the preview.
      * <p>
      * By default, {@link ScaleType#FILL_CENTER} is applied to the preview.
@@ -227,9 +278,11 @@ public class PreviewView extends FrameLayout {
     @NonNull
     private ImplementationMode computeImplementationMode(@NonNull CameraInfo cameraInfo,
             @NonNull final ImplementationMode preferredMode) {
+        // Force to use TEXTURE_VIEW when the device is running android 7.0 and below, legacy
+        // level or it is running in remote display mode.
         return Build.VERSION.SDK_INT <= 24 || cameraInfo.getImplementationType().equals(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY) ? ImplementationMode.TEXTURE_VIEW
-                : preferredMode;
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY) || isRemoteDisplayMode()
+                ? ImplementationMode.TEXTURE_VIEW : preferredMode;
     }
 
     @NonNull
@@ -255,6 +308,27 @@ public class PreviewView extends FrameLayout {
         // When the sensor degrees value is 90 or 270, the width/height of the surface resolution
         // need to be swapped to do the scale related calculations.
         return sensorDegrees % 180 == 90;
+    }
+
+    private boolean isRemoteDisplayMode() {
+        DisplayManager displayManager =
+                (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
+
+        Display display = ((WindowManager) getContext().getSystemService(
+                Context.WINDOW_SERVICE)).getDefaultDisplay();
+
+        if (displayManager.getDisplays().length <= 1) {
+            // When there is not more than one display on the device, it won't be remote display
+            // mode.
+            return false;
+        } else if (display != null && display.getDisplayId() != Display.DEFAULT_DISPLAY) {
+            // When there is more than one display on the device and the display that the
+            // application is running on is not the default built-in display id (0), it is remote
+            // display mode.
+            return true;
+        }
+
+        return false;
     }
 
     /**
