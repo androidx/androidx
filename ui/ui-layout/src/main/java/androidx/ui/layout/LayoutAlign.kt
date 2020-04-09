@@ -295,11 +295,11 @@ object LayoutAlign {
         AlignmentModifier(alignment = Alignment.BottomEnd, direction = Direction.Both)
 }
 
-private enum class Direction {
+internal enum class Direction {
     Vertical, Horizontal, Both
 }
 
-private data class AlignmentModifier(
+internal data class AlignmentModifier(
     private val alignment: Alignment,
     private val direction: Direction
 ) : LayoutModifier {

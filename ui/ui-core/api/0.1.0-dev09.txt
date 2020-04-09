@@ -72,17 +72,64 @@ package androidx.ui.autofill {
 
 package androidx.ui.core {
 
-  public enum Alignment {
-    method public final androidx.ui.unit.IntPxPosition align(androidx.ui.unit.IntPxSize size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
-    enum_constant public static final androidx.ui.core.Alignment BottomCenter;
-    enum_constant public static final androidx.ui.core.Alignment BottomEnd;
-    enum_constant public static final androidx.ui.core.Alignment BottomStart;
-    enum_constant public static final androidx.ui.core.Alignment Center;
-    enum_constant public static final androidx.ui.core.Alignment CenterEnd;
-    enum_constant public static final androidx.ui.core.Alignment CenterStart;
-    enum_constant public static final androidx.ui.core.Alignment TopCenter;
-    enum_constant public static final androidx.ui.core.Alignment TopEnd;
-    enum_constant public static final androidx.ui.core.Alignment TopStart;
+  public final class Alignment {
+    ctor public Alignment(float verticalBias, float horizontalBias);
+    method public androidx.ui.unit.IntPxPosition align(androidx.ui.unit.IntPxSize size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
+    method public float component1();
+    method public float component2();
+    method public androidx.ui.core.Alignment copy(float verticalBias, float horizontalBias);
+    method public float getHorizontalBias();
+    method public float getVerticalBias();
+    field public static final androidx.ui.core.Alignment.Companion! Companion;
+  }
+
+  public static final class Alignment.Companion {
+    method public androidx.ui.core.Alignment.Vertical getBottom();
+    method public androidx.ui.core.Alignment getBottomCenter();
+    method public androidx.ui.core.Alignment getBottomEnd();
+    method public androidx.ui.core.Alignment getBottomStart();
+    method public androidx.ui.core.Alignment getCenter();
+    method public androidx.ui.core.Alignment getCenterEnd();
+    method public androidx.ui.core.Alignment.Horizontal getCenterHorizontally();
+    method public androidx.ui.core.Alignment getCenterStart();
+    method public androidx.ui.core.Alignment.Vertical getCenterVertically();
+    method public androidx.ui.core.Alignment.Horizontal getEnd();
+    method public androidx.ui.core.Alignment.Horizontal getStart();
+    method public androidx.ui.core.Alignment.Vertical getTop();
+    method public androidx.ui.core.Alignment getTopCenter();
+    method public androidx.ui.core.Alignment getTopEnd();
+    method public androidx.ui.core.Alignment getTopStart();
+    property public final androidx.ui.core.Alignment.Vertical Bottom;
+    property public final androidx.ui.core.Alignment BottomCenter;
+    property public final androidx.ui.core.Alignment BottomEnd;
+    property public final androidx.ui.core.Alignment BottomStart;
+    property public final androidx.ui.core.Alignment Center;
+    property public final androidx.ui.core.Alignment CenterEnd;
+    property public final androidx.ui.core.Alignment.Horizontal CenterHorizontally;
+    property public final androidx.ui.core.Alignment CenterStart;
+    property public final androidx.ui.core.Alignment.Vertical CenterVertically;
+    property public final androidx.ui.core.Alignment.Horizontal End;
+    property public final androidx.ui.core.Alignment.Horizontal Start;
+    property public final androidx.ui.core.Alignment.Vertical Top;
+    property public final androidx.ui.core.Alignment TopCenter;
+    property public final androidx.ui.core.Alignment TopEnd;
+    property public final androidx.ui.core.Alignment TopStart;
+  }
+
+  public static final class Alignment.Horizontal {
+    ctor public Alignment.Horizontal(float bias);
+    method public androidx.ui.unit.IntPx align(androidx.ui.unit.IntPx size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
+    method public float component1();
+    method public androidx.ui.core.Alignment.Horizontal copy(float bias);
+    method public float getBias();
+  }
+
+  public static final class Alignment.Vertical {
+    ctor public Alignment.Vertical(float bias);
+    method public androidx.ui.unit.IntPx align(androidx.ui.unit.IntPx size);
+    method public float component1();
+    method public androidx.ui.core.Alignment.Vertical copy(float bias);
+    method public float getBias();
   }
 
   public abstract sealed class AlignmentLine {

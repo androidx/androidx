@@ -27,6 +27,7 @@ import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.PxPropKey
 import androidx.ui.animation.Transition
+import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
@@ -40,7 +41,6 @@ import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
@@ -67,7 +67,7 @@ fun TextTabs() {
             Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = Modifier.gravity(ColumnAlign.Center),
+            modifier = Modifier.gravity(Alignment.CenterHorizontally),
             text = "Text tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -83,7 +83,7 @@ fun IconTabs() {
             Tab(icon = { Icon(icon) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = Modifier.gravity(ColumnAlign.Center),
+            modifier = Modifier.gravity(Alignment.CenterHorizontally),
             text = "Icon tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -108,7 +108,7 @@ fun TextAndIconTabs() {
             )
         }
         Text(
-            modifier = Modifier.gravity(ColumnAlign.Center),
+            modifier = Modifier.gravity(Alignment.CenterHorizontally),
             text = "Text and icon tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -135,7 +135,7 @@ fun ScrollingTextTabs() {
             Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = Modifier.gravity(ColumnAlign.Center),
+            modifier = Modifier.gravity(Alignment.CenterHorizontally),
             text = "Scrolling text tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -152,7 +152,7 @@ fun FancyTabs() {
             FancyTab(title = title, onClick = { state = index }, selected = (index == state))
         }
         Text(
-            modifier = Modifier.gravity(ColumnAlign.Center),
+            modifier = Modifier.gravity(Alignment.CenterHorizontally),
             text = "Fancy tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -181,7 +181,7 @@ fun FancyIndicatorTabs() {
             Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = Modifier.gravity(ColumnAlign.Center),
+            modifier = Modifier.gravity(Alignment.CenterHorizontally),
             text = "Fancy indicator tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -207,7 +207,7 @@ fun FancyIndicatorContainerTabs() {
             Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = Modifier.gravity(ColumnAlign.Center),
+            modifier = Modifier.gravity(Alignment.CenterHorizontally),
             text = "Fancy transition tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -243,7 +243,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
             Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
         }
         Text(
-            modifier = Modifier.gravity(ColumnAlign.Center),
+            modifier = Modifier.gravity(Alignment.CenterHorizontally),
             text = "Scrolling fancy transition tab ${state + 1} selected",
             style = MaterialTheme.typography.body1
         )
@@ -260,14 +260,14 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
         ) {
             Box(
                 Modifier.preferredSize(10.dp)
-                    .gravity(ColumnAlign.Center)
+                    .gravity(Alignment.CenterHorizontally)
                     .drawBackground(color = if (selected) Color.Red else Color.White),
                 children = emptyContent()
             )
             Text(
                 text = title,
                 style = MaterialTheme.typography.body1,
-                modifier = Modifier.gravity(ColumnAlign.Center)
+                modifier = Modifier.gravity(Alignment.CenterHorizontally)
             )
         }
     }
