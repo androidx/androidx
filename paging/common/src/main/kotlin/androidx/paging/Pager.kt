@@ -448,7 +448,7 @@ internal class Pager<Key : Any, Value : Any>(
                     )
                 }
                 is RemoteMediator.MediatorResult.Success -> {
-                    if (!boundaryResult.hasMoreData) {
+                    if (!boundaryResult.canRequestMoreData) {
                         this@Pager.state.loadStates[loadType] = Done
                     }
                 }
