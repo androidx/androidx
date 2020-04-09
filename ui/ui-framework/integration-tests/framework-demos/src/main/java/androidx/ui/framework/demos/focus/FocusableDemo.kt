@@ -35,7 +35,7 @@ import androidx.ui.layout.fillMaxWidth
 @Composable
 fun FocusableDemo() {
     Column(
-        arrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
         CenteredRow {
             Text("Click on any focusable to bring it into focus:")
@@ -68,5 +68,9 @@ private fun FocusableText(text: String) {
 
 @Composable
 private fun CenteredRow(children: @Composable() RowScope.() -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth(), arrangement = Arrangement.Center, children = children)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        children = children
+    )
 }

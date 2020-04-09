@@ -83,7 +83,7 @@ private fun BaseRow(
         Spacer(Modifier.weight(1f))
         Row(
             modifier = Modifier.gravity(Alignment.CenterVertically).preferredWidth(113.dp),
-            arrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = if (negative) "–$ " else "$ ",

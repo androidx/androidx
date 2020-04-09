@@ -87,7 +87,7 @@ private fun AlertCard() {
 private fun AlertHeader(onClickSeeAll: () -> Unit) {
     Row(
         modifier = Modifier.padding(RallyDefaultPadding).fillMaxWidth(),
-        arrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = "Alerts",
@@ -109,7 +109,7 @@ private fun AlertItem(message: String) {
     // TODO: Make alerts into a data structure
     Row(
         modifier = Modifier.padding(RallyDefaultPadding),
-        arrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             style = MaterialTheme.typography.h3,

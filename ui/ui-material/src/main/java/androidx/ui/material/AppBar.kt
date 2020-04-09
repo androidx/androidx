@@ -114,7 +114,7 @@ fun TopAppBar(
 
         // TODO: remove box and center align row's children after b/148014745 is fixed
         Box(Modifier.fillMaxHeight(), gravity = ContentGravity.CenterEnd) {
-            Row(arrangement = Arrangement.End) {
+            Row(horizontalArrangement = Arrangement.End) {
                 ProvideEmphasis(emphasisLevels.medium) {
                     actions()
                 }
@@ -513,7 +513,7 @@ private fun AppBar(
             Modifier.fillMaxWidth()
                 .padding(start = AppBarHorizontalPadding, end = AppBarHorizontalPadding)
                 .preferredHeight(AppBarHeight),
-            arrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.SpaceBetween,
             children = children
         )
     }

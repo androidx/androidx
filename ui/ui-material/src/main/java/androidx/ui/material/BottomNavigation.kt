@@ -95,7 +95,7 @@ fun BottomNavigation(
     ) {
         Row(
             Modifier.fillMaxWidth().preferredHeight(BottomNavigationHeight),
-            arrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.SpaceBetween,
             children = content
         )
     }
