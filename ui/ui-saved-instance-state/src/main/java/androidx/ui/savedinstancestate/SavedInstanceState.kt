@@ -54,7 +54,7 @@ import androidx.compose.state
  * @param init A factory function to create the initial value of this state
  */
 @Composable
-fun <T : Any> savedInstanceState(
+fun <T> savedInstanceState(
     vararg inputs: Any?,
     saver: Saver<T, out Any> = autoSaver(),
     key: String? = null,
@@ -67,14 +67,31 @@ fun <T : Any> savedInstanceState(
     init = { mutableStateOf(init(), areEquivalent) }
 )
 
-private fun <T : Any> mutableStateSaver(
+private fun <T> mutableStateSaver(
     inner: Saver<T, out Any>,
     areEquivalent: (old: T, new: T) -> Boolean
 ) = Saver<MutableState<T>, Any>(
-        save = {
-            with(inner) { save(it.value) }
+        save = { state ->
+            with(inner) {
+                val value = state.value
+                if (value == null) {
+                    EmptyStateValue
+                } else {
+                    save(value)
+                }
+            }
         },
         restore = @Suppress("UNCHECKED_CAST") {
-            mutableStateOf((inner as Saver<T, Any>).restore(it) as T, areEquivalent)
+            val restored = if (it == EmptyStateValue) {
+                null
+            } else {
+                (inner as Saver<T, Any>).restore(it)
+            }
+            mutableStateOf(restored as T, areEquivalent)
         }
     )
+
+/**
+ * The object we save to indicate that we will need to restore the state with a null value.
+ */
+private val EmptyStateValue = "[NullValuePlacedInsideTheMutableState]"
