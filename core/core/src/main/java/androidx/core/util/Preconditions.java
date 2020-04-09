@@ -16,6 +16,8 @@
 
 package androidx.core.util;
 
+import android.text.TextUtils;
+
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,6 +51,59 @@ public final class Preconditions {
         if (!expression) {
             throw new IllegalArgumentException(String.valueOf(errorMessage));
         }
+    }
+
+    /**
+     * Ensures that an string reference passed as a parameter to the calling
+     * method is not empty.
+     *
+     * @param string an string reference
+     * @return the string reference that was validated
+     * @throws IllegalArgumentException if {@code string} is empty
+     */
+    public static @NonNull <T extends CharSequence> T checkStringNotEmpty(
+            @Nullable final T string) {
+        if (TextUtils.isEmpty(string)) {
+            throw new IllegalArgumentException();
+        }
+        return string;
+    }
+
+    /**
+     * Ensures that an string reference passed as a parameter to the calling
+     * method is not empty.
+     *
+     * @param string an string reference
+     * @param errorMessage the exception message to use if the check fails; will
+     *     be converted to a string using {@link String#valueOf(Object)}
+     * @return the string reference that was validated
+     * @throws IllegalArgumentException if {@code string} is empty
+     */
+    public static @NonNull <T extends CharSequence> T checkStringNotEmpty(
+            @Nullable final T string, @NonNull final Object errorMessage) {
+        if (TextUtils.isEmpty(string)) {
+            throw new IllegalArgumentException(String.valueOf(errorMessage));
+        }
+        return string;
+    }
+
+    /**
+     * Ensures that an string reference passed as a parameter to the calling method is not empty.
+     *
+     * @param string an string reference
+     * @param messageTemplate a printf-style message template to use if the check fails; will be
+     *     converted to a string using {@link String#format(String, Object...)}
+     * @param messageArgs arguments for {@code messageTemplate}
+     * @return the string reference that was validated
+     * @throws IllegalArgumentException if {@code string} is empty
+     */
+    public static @NonNull <T extends CharSequence> T checkStringNotEmpty(
+            @Nullable final T string, @NonNull final String messageTemplate,
+            @NonNull final Object... messageArgs) {
+        if (TextUtils.isEmpty(string)) {
+            throw new IllegalArgumentException(String.format(messageTemplate, messageArgs));
+        }
+        return string;
     }
 
     /**
