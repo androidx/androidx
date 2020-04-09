@@ -18,7 +18,10 @@ package androidx.ui.material
 import androidx.compose.Model
 import androidx.test.filters.LargeTest
 import androidx.ui.core.TestTag
+import androidx.ui.foundation.Strings
+import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.test.assertIsDisplayed
+import androidx.ui.test.assertRangeInfoEquals
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
@@ -59,7 +62,8 @@ class ProgressIndicatorTest {
 
         findByTag(tag)
             .assertIsDisplayed()
-            .assertValueEquals("0.0")
+            .assertValueEquals("0 percent")
+            .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
 
         runOnUiThread {
             state.progress = 0.5f
@@ -67,7 +71,8 @@ class ProgressIndicatorTest {
 
         findByTag(tag)
             .assertIsDisplayed()
-            .assertValueEquals("0.5")
+            .assertValueEquals("50 percent")
+            .assertRangeInfoEquals(AccessibilityRangeInfo(0.5f, 0f..1f))
     }
 
     @Test
@@ -78,6 +83,22 @@ class ProgressIndicatorTest {
             }
             .assertWidthEqualsTo(ExpectedLinearWidth)
             .assertHeightEqualsTo(ExpectedLinearHeight)
+    }
+
+    @Test
+    @Ignore("b/154757752")
+    fun indeterminateLinearProgressIndicator_progress() {
+        val tag = "linear"
+
+        composeTestRule
+            .setMaterialContent {
+                TestTag(tag = tag) {
+                    LinearProgressIndicator()
+                }
+            }
+
+        findByTag(tag)
+            .assertValueEquals(Strings.InProgress)
     }
 
     @Test
@@ -105,7 +126,8 @@ class ProgressIndicatorTest {
 
         findByTag(tag)
             .assertIsDisplayed()
-            .assertValueEquals("0.0")
+            .assertValueEquals("0 percent")
+            .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
 
         runOnUiThread {
             state.progress = 0.5f
@@ -113,7 +135,8 @@ class ProgressIndicatorTest {
 
         findByTag(tag)
             .assertIsDisplayed()
-            .assertValueEquals("0.5")
+            .assertValueEquals("50 percent")
+            .assertRangeInfoEquals(AccessibilityRangeInfo(0.5f, 0f..1f))
     }
 
     @Test
@@ -123,6 +146,22 @@ class ProgressIndicatorTest {
                 CircularProgressIndicator(progress = 0f)
             }
             .assertIsSquareWithSize { 4.dp.toIntPx() * 2 + 40.dp.toIntPx() }
+    }
+
+    @Test
+    @Ignore("b/154757752")
+    fun indeterminateCircularProgressIndicator_progress() {
+        val tag = "circular"
+
+        composeTestRule
+            .setMaterialContent {
+                TestTag(tag = tag) {
+                    CircularProgressIndicator()
+                }
+            }
+
+        findByTag(tag)
+            .assertValueEquals(Strings.InProgress)
     }
 
     @Test

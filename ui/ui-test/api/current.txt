@@ -41,6 +41,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsToggleable(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsUnselected(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertLabelEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertRangeInfoEquals(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.AccessibilityRangeInfo value);
     method public static androidx.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
   }
 
@@ -157,6 +158,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsMatcher hasNoClickAction();
     method public static androidx.ui.test.SemanticsMatcher hasNoScrollAction();
     method public static androidx.ui.test.SemanticsMatcher hasParentThat(androidx.ui.test.SemanticsMatcher matcher);
+    method public static androidx.ui.test.SemanticsMatcher hasRangeInfo(androidx.ui.semantics.AccessibilityRangeInfo rangeInfo);
     method public static androidx.ui.test.SemanticsMatcher hasScrollAction();
     method public static androidx.ui.test.SemanticsMatcher hasSubstring(String substring, boolean ignoreCase = false);
     method public static androidx.ui.test.SemanticsMatcher hasTestTag(String testTag);

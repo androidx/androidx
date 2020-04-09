@@ -22,6 +22,8 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.graphics.Color
 import androidx.ui.layout.preferredSize
+import androidx.ui.semantics.AccessibilityRangeInfo
+import androidx.ui.test.assertRangeInfoEquals
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
@@ -59,13 +61,15 @@ class DeterminateProgressTest {
             }
 
         findByTag(tag)
-            .assertValueEquals("0.0")
+            .assertValueEquals("0 percent")
+            .assertRangeInfoEquals(AccessibilityRangeInfo(0f, 0f..1f))
 
         runOnUiThread {
             state.progress = 0.5f
         }
 
         findByTag(tag)
-            .assertValueEquals("0.5")
+            .assertValueEquals("50 percent")
+            .assertRangeInfoEquals(AccessibilityRangeInfo(0.5f, 0f..1f))
     }
 }
