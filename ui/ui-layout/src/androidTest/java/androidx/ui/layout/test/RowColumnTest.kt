@@ -638,7 +638,7 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withGravityModifier() = with(density) {
+    fun testRow_withGravityModifier_andGravityParameter() = with(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
@@ -646,7 +646,7 @@ class RowColumnTest : LayoutTest() {
         val childSize = arrayOfNulls<IntPxSize>(3)
         val childPosition = arrayOfNulls<PxPosition>(3)
         show {
-            Row(Modifier.fillMaxHeight()) {
+            Row(Modifier.fillMaxHeight(), verticalGravity = Alignment.CenterVertically) {
                     Container(
                         width = sizeDp,
                         height = sizeDp,
@@ -661,12 +661,11 @@ class RowColumnTest : LayoutTest() {
                     Container(
                         width = sizeDp,
                         height = sizeDp,
-                        modifier = Modifier.gravity(Alignment.CenterVertically)
-                            .onPositioned { coordinates: LayoutCoordinates ->
-                                childSize[1] = coordinates.size
-                                childPosition[1] = coordinates.globalPosition
-                                drawLatch.countDown()
-                            }
+                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[1] = coordinates.size
+                            childPosition[1] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        }
                     ) {
                     }
                     Container(
@@ -681,6 +680,70 @@ class RowColumnTest : LayoutTest() {
                     ) {
                     }
                 }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        val root = findOwnerView()
+        waitForDraw(root)
+        val rootHeight = root.height.px
+
+        assertEquals(IntPxSize(size, size), childSize[0])
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+
+        assertEquals(IntPxSize(size, size), childSize[1])
+        assertEquals(
+            PxPosition(size.toPx(), ((rootHeight - size.toPx()) / 2).round().toPx()),
+            childPosition[1]
+        )
+
+        assertEquals(IntPxSize(size, size), childSize[2])
+        assertEquals(PxPosition(size.toPx() * 2, rootHeight - size.toPx()), childPosition[2])
+    }
+
+    @Test
+    fun testRow_withGravityModifier() = with(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+
+        val drawLatch = CountDownLatch(3)
+        val childSize = arrayOfNulls<IntPxSize>(3)
+        val childPosition = arrayOfNulls<PxPosition>(3)
+        show {
+            Row(Modifier.fillMaxHeight()) {
+                Container(
+                    width = sizeDp,
+                    height = sizeDp,
+                    modifier = Modifier.gravity(Alignment.Top)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[0] = coordinates.size
+                            childPosition[0] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        }
+                ) {
+                }
+                Container(
+                    width = sizeDp,
+                    height = sizeDp,
+                    modifier = Modifier.gravity(Alignment.CenterVertically)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[1] = coordinates.size
+                            childPosition[1] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        }
+                ) {
+                }
+                Container(
+                    width = sizeDp,
+                    height = sizeDp,
+                    modifier = Modifier.gravity(Alignment.Bottom)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[2] = coordinates.size
+                            childPosition[2] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        }
+                ) {
+                }
+            }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
@@ -882,6 +945,69 @@ class RowColumnTest : LayoutTest() {
                     ) {
                     }
                 }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        val root = findOwnerView()
+        waitForDraw(root)
+        val rootWidth = root.width.px
+
+        assertEquals(IntPxSize(size, size), childSize[0])
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+
+        assertEquals(IntPxSize(size, size), childSize[1])
+        assertEquals(
+            PxPosition(((rootWidth - size.toPx()) / 2).round().toPx(), size.toPx()),
+            childPosition[1]
+        )
+
+        assertEquals(IntPxSize(size, size), childSize[2])
+        assertEquals(PxPosition(rootWidth - size.toPx(), size.toPx() * 2), childPosition[2])
+    }
+
+    @Test
+    fun testColumn_withGravityModifier_andGravityParameter() = with(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+
+        val drawLatch = CountDownLatch(3)
+        val childSize = arrayOfNulls<IntPxSize>(3)
+        val childPosition = arrayOfNulls<PxPosition>(3)
+        show {
+            Column(Modifier.fillMaxWidth(), horizontalGravity = Alignment.CenterHorizontally) {
+                Container(
+                    width = sizeDp,
+                    height = sizeDp,
+                    modifier = Modifier.gravity(Alignment.Start)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[0] = coordinates.size
+                            childPosition[0] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        }
+                ) {
+                }
+                Container(
+                    width = sizeDp,
+                    height = sizeDp,
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        childSize[1] = coordinates.size
+                        childPosition[1] = coordinates.globalPosition
+                        drawLatch.countDown()
+                    }
+                ) {
+                }
+                Container(
+                    width = sizeDp,
+                    height = sizeDp,
+                    modifier = Modifier.gravity(Alignment.End)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[2] = coordinates.size
+                            childPosition[2] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        }
+                ) {
+                }
+            }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
@@ -1943,7 +2069,7 @@ class RowColumnTest : LayoutTest() {
                 Row(Modifier.fillMaxWidth().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = Arrangement.End) {
+                }, horizontalArrangement = Arrangement.End) {
                     for (i in 0 until childPosition.size) {
                         Container(
                             width = sizeDp,
@@ -1986,7 +2112,7 @@ class RowColumnTest : LayoutTest() {
                 Row(Modifier.fillMaxWidth().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = Arrangement.Center) {
+                }, horizontalArrangement = Arrangement.Center) {
                     for (i in 0 until childPosition.size) {
                         Container(
                             width = sizeDp,
@@ -2030,7 +2156,7 @@ class RowColumnTest : LayoutTest() {
                 Row(Modifier.fillMaxWidth().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = Arrangement.SpaceEvenly) {
+                }, horizontalArrangement = Arrangement.SpaceEvenly) {
                     for (i in 0 until childPosition.size) {
                         Container(
                             width = sizeDp,
@@ -2074,7 +2200,7 @@ class RowColumnTest : LayoutTest() {
                 Row(Modifier.fillMaxWidth().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = Arrangement.SpaceBetween) {
+                }, horizontalArrangement = Arrangement.SpaceBetween) {
                     for (i in 0 until childPosition.size) {
                         Container(
                             width = sizeDp,
@@ -2120,7 +2246,7 @@ class RowColumnTest : LayoutTest() {
                         parentLayoutCoordinates = coordinates
                         drawLatch.countDown()
                     },
-                    arrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     for (i in 0 until childPosition.size) {
                         Container(
@@ -2165,7 +2291,7 @@ class RowColumnTest : LayoutTest() {
                 Row(Modifier.fillMaxWidth().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = customHorizontalArrangement) {
+                }, horizontalArrangement = customHorizontalArrangement) {
                     for (i in childPosition.indices) {
                         Container(
                             width = sizeDp,
@@ -2257,7 +2383,7 @@ class RowColumnTest : LayoutTest() {
                 Column(Modifier.fillMaxHeight().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = Arrangement.Bottom) {
+                }, verticalArrangement = Arrangement.Bottom) {
                     for (i in 0 until childPosition.size) {
                         Container(
                             width = sizeDp,
@@ -2300,7 +2426,7 @@ class RowColumnTest : LayoutTest() {
                 Column(Modifier.fillMaxHeight().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = Arrangement.Center) {
+                }, verticalArrangement = Arrangement.Center) {
                     for (i in 0 until childPosition.size) {
                         Container(
                             width = sizeDp,
@@ -2344,7 +2470,7 @@ class RowColumnTest : LayoutTest() {
                 Column(Modifier.fillMaxHeight().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = Arrangement.SpaceEvenly) {
+                }, verticalArrangement = Arrangement.SpaceEvenly) {
                     for (i in 0 until childPosition.size) {
                         Container(
                             width = sizeDp,
@@ -2399,7 +2525,7 @@ class RowColumnTest : LayoutTest() {
                 Column(Modifier.fillMaxHeight().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = Arrangement.SpaceBetween) {
+                }, verticalArrangement = Arrangement.SpaceBetween) {
                     for (i in 0 until childPosition.size) {
                         Container(
                             width = sizeDp,
@@ -2443,7 +2569,7 @@ class RowColumnTest : LayoutTest() {
                 Column(Modifier.fillMaxHeight().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = Arrangement.SpaceAround) {
+                }, verticalArrangement = Arrangement.SpaceAround) {
                     for (i in 0 until childPosition.size) {
                         Container(
                             width = sizeDp,
@@ -2493,7 +2619,7 @@ class RowColumnTest : LayoutTest() {
                 Column(Modifier.fillMaxHeight().onPositioned { coordinates: LayoutCoordinates ->
                     parentLayoutCoordinates = coordinates
                     drawLatch.countDown()
-                }, arrangement = customVerticalArrangement) {
+                }, verticalArrangement = customVerticalArrangement) {
                     for (i in childPosition.indices) {
                         Container(
                             width = sizeDp,
@@ -2622,12 +2748,12 @@ class RowColumnTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Row(Modifier.fillMaxWidth(), arrangement = Arrangement.Start) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
                 Container(Modifier.aspectRatio(2f), children = emptyContent())
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
-            Row(Modifier.fillMaxWidth(), arrangement = Arrangement.Center) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 Container(Modifier.gravity(Alignment.CenterVertically).aspectRatio(2f),
                     children = emptyContent())
                 ConstrainedBox(
@@ -2637,7 +2763,7 @@ class RowColumnTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Row(Modifier.fillMaxWidth(), arrangement = Arrangement.End) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 Container(Modifier.gravity(Alignment.Bottom).aspectRatio(2f),
                     children = emptyContent())
                 ConstrainedBox(
@@ -2647,7 +2773,7 @@ class RowColumnTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceAround) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
                 Container(Modifier.fillMaxHeight().aspectRatio(2f), children = emptyContent())
                 ConstrainedBox(
                     DpConstraints.fixed(50.dp, 40.dp),
@@ -2656,12 +2782,12 @@ class RowColumnTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceBetween) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Container(Modifier.aspectRatio(2f), children = emptyContent())
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
-            Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 Container(Modifier.aspectRatio(2f), children = emptyContent())
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
@@ -2722,7 +2848,7 @@ class RowColumnTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Row(arrangement = Arrangement.Start) {
+            Row(horizontalArrangement = Arrangement.Start) {
                 ConstrainedBox(
                     DpConstraints.fixed(20.dp, 30.dp),
                     Modifier.weight(3f),
@@ -2737,7 +2863,7 @@ class RowColumnTest : LayoutTest() {
                 ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), children = emptyContent())
             }
         }, @Composable {
-            Row(arrangement = Arrangement.Center) {
+            Row(horizontalArrangement = Arrangement.Center) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(20.dp, 30.dp),
                     modifier = Modifier.weight(3f).gravity(Alignment.CenterVertically),
@@ -2759,7 +2885,7 @@ class RowColumnTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Row(arrangement = Arrangement.End) {
+            Row(horizontalArrangement = Arrangement.End) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(20.dp, 30.dp),
                     modifier = Modifier.weight(3f).gravity(Alignment.Bottom),
@@ -2781,7 +2907,7 @@ class RowColumnTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Row(arrangement = Arrangement.SpaceAround) {
+            Row(horizontalArrangement = Arrangement.SpaceAround) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(20.dp, 30.dp),
                     modifier = Modifier.weight(3f).fillMaxHeight(),
@@ -2803,7 +2929,7 @@ class RowColumnTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Row(arrangement = Arrangement.SpaceBetween) {
+            Row(horizontalArrangement = Arrangement.SpaceBetween) {
                 ConstrainedBox(
                     DpConstraints.fixed(20.dp, 30.dp),
                     Modifier.weight(3f),
@@ -2818,7 +2944,7 @@ class RowColumnTest : LayoutTest() {
                 ConstrainedBox(DpConstraints.fixed(20.dp, 30.dp), children = emptyContent())
             }
         }, @Composable {
-            Row(arrangement = Arrangement.SpaceEvenly) {
+            Row(horizontalArrangement = Arrangement.SpaceEvenly) {
                 ConstrainedBox(
                     DpConstraints.fixed(20.dp, 30.dp),
                     Modifier.weight(3f),
@@ -2915,18 +3041,18 @@ class RowColumnTest : LayoutTest() {
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
-            Column(Modifier.fillMaxHeight(), arrangement = Arrangement.Top) {
+            Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Top) {
                 Container(Modifier.aspectRatio(2f), children = emptyContent())
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
-            Column(Modifier.fillMaxHeight(), arrangement = Arrangement.Center) {
+            Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
                 Container(Modifier.gravity(Alignment.CenterHorizontally).aspectRatio(2f),
                     children = emptyContent())
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
-            Column(Modifier.fillMaxHeight(), arrangement = Arrangement.Bottom) {
+            Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Bottom) {
                 Container(Modifier.gravity(Alignment.End).aspectRatio(2f),
                     children = emptyContent())
                 ConstrainedBox(
@@ -2936,7 +3062,7 @@ class RowColumnTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Column(Modifier.fillMaxHeight(), arrangement = Arrangement.SpaceAround) {
+            Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.SpaceAround) {
                 Container(Modifier.fillMaxWidth().aspectRatio(2f), children = emptyContent())
                 ConstrainedBox(
                     DpConstraints.fixed(50.dp, 40.dp),
@@ -2945,12 +3071,12 @@ class RowColumnTest : LayoutTest() {
                 )
             }
         }, @Composable {
-            Column(Modifier.fillMaxHeight(), arrangement = Arrangement.SpaceBetween) {
+            Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
                 Container(Modifier.aspectRatio(2f), children = emptyContent())
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
         }, @Composable {
-            Column(Modifier.fillMaxHeight(), arrangement = Arrangement.SpaceEvenly) {
+            Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.SpaceEvenly) {
                 Container(Modifier.aspectRatio(2f), children = emptyContent())
                 ConstrainedBox(DpConstraints.fixed(50.dp, 40.dp), children = emptyContent())
             }
@@ -3008,14 +3134,14 @@ class RowColumnTest : LayoutTest() {
                     Modifier.gravity(Alignment.End)) { }
             }
         }, @Composable {
-            Column(arrangement = Arrangement.Top) {
+            Column(verticalArrangement = Arrangement.Top) {
                 ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp), Modifier.weight(3f)) { }
                 ConstrainedBox(DpConstraints.fixed(40.dp, 30.dp), Modifier.weight(2f)) { }
                 Container(Modifier.aspectRatio(0.5f).weight(2f)) { }
                 ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp)) { }
             }
         }, @Composable {
-            Column(arrangement = Arrangement.Center) {
+            Column(verticalArrangement = Arrangement.Center) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(30.dp, 20.dp),
                     modifier = Modifier.weight(3f).gravity(Alignment.CenterHorizontally)
@@ -3033,7 +3159,7 @@ class RowColumnTest : LayoutTest() {
                 ) { }
             }
         }, @Composable {
-            Column(arrangement = Arrangement.Bottom) {
+            Column(verticalArrangement = Arrangement.Bottom) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(30.dp, 20.dp),
                     modifier = Modifier.weight(3f).gravity(Alignment.End)
@@ -3051,7 +3177,7 @@ class RowColumnTest : LayoutTest() {
                 ) { }
             }
         }, @Composable {
-            Column(arrangement = Arrangement.SpaceAround) {
+            Column(verticalArrangement = Arrangement.SpaceAround) {
                 ConstrainedBox(
                     constraints = DpConstraints.fixed(30.dp, 20.dp),
                     modifier = Modifier.weight(3f).fillMaxWidth()
@@ -3069,14 +3195,14 @@ class RowColumnTest : LayoutTest() {
                 ) { }
             }
         }, @Composable {
-            Column(arrangement = Arrangement.SpaceBetween) {
+            Column(verticalArrangement = Arrangement.SpaceBetween) {
                 ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp), Modifier.weight(3f)) { }
                 ConstrainedBox(DpConstraints.fixed(40.dp, 30.dp), Modifier.weight(2f)) { }
                 Container(Modifier.aspectRatio(0.5f) + Modifier.weight(2f)) { }
                 ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp)) { }
             }
         }, @Composable {
-            Column(arrangement = Arrangement.SpaceEvenly) {
+            Column(verticalArrangement = Arrangement.SpaceEvenly) {
                 ConstrainedBox(DpConstraints.fixed(30.dp, 20.dp), Modifier.weight(3f)) { }
                 ConstrainedBox(DpConstraints.fixed(40.dp, 30.dp), Modifier.weight(2f)) { }
                 Container(Modifier.aspectRatio(0.5f) + Modifier.weight(2f)) { }
@@ -3248,7 +3374,7 @@ class RowColumnTest : LayoutTest() {
         show {
             Row(
                 Modifier.fillMaxWidth().rtl,
-                arrangement = Arrangement.End
+                horizontalArrangement = Arrangement.End
             ) {
                 Container(
                     Modifier.preferredSize(sizeDp).onPositioned { coordinates: LayoutCoordinates ->
@@ -3284,7 +3410,7 @@ class RowColumnTest : LayoutTest() {
         show {
             Row(
                 Modifier.fillMaxWidth().rtl,
-                arrangement = customHorizontalArrangement
+                horizontalArrangement = customHorizontalArrangement
             ) {
                 Container(
                     width = sizeDp,

@@ -64,7 +64,7 @@ package androidx.ui.layout {
   }
 
   public final class ColumnKt {
-    method public static void Column(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.Arrangement.Vertical arrangement = Arrangement.Top, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
+    method public static void Column(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.ui.core.Alignment.Horizontal horizontalGravity = Alignment.Start, kotlin.jvm.functions.Function1<? super androidx.ui.layout.ColumnScope,kotlin.Unit> children);
   }
 
   @androidx.ui.layout.LayoutScopeMarker public final class ColumnScope {
@@ -744,7 +744,7 @@ package androidx.ui.layout {
   }
 
   public final class RowKt {
-    method public static void Row(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.Arrangement.Horizontal arrangement = Arrangement.Start, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
+    method public static void Row(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.Arrangement.Horizontal horizontalArrangement = Arrangement.Start, androidx.ui.core.Alignment.Vertical verticalGravity = Alignment.Top, kotlin.jvm.functions.Function1<? super androidx.ui.layout.RowScope,kotlin.Unit> children);
   }
 
   @androidx.ui.layout.LayoutScopeMarker public final class RowScope {

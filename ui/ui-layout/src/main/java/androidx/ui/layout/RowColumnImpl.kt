@@ -49,7 +49,7 @@ internal fun RowColumnImpl(
     modifier: Modifier = Modifier,
     arrangement: Arrangement,
     crossAxisSize: SizeMode,
-    crossAxisAlignment: CrossAxisAlignment,
+    crossAxisAlignment: Any,
     children: @Composable() () -> Unit
 ) {
     fun Placeable.mainAxisSize() =
@@ -103,7 +103,8 @@ internal fun RowColumnImpl(
 
                 val lineProvider =
                     (measurables[i].crossAxisAlignment as? CrossAxisAlignment)
-                        ?.alignmentLineProvider ?: crossAxisAlignment.alignmentLineProvider
+                        ?.alignmentLineProvider
+                        ?: (crossAxisAlignment as? CrossAxisAlignment)?.alignmentLineProvider
                 if (lineProvider != null) {
                     val alignmentLinePosition = when (lineProvider) {
                         is AlignmentLineProvider.Block ->

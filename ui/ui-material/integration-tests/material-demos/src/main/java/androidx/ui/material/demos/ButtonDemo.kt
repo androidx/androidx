@@ -62,7 +62,7 @@ fun ButtonDemo() {
 private fun Buttons() {
     Text("Buttons")
     Spacer(Modifier.preferredHeight(DefaultSpace))
-    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
         ButtonSample()
         OutlinedButtonSample()
         TextButtonSample()
@@ -70,7 +70,7 @@ private fun Buttons() {
 
     Spacer(Modifier.preferredHeight(DefaultSpace))
 
-    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
         Button(onClick = {}, backgroundColor = MaterialTheme.colors.secondary) {
             Text("Secondary Color")
         }
@@ -88,7 +88,7 @@ private fun Fabs() {
     Text("Floating action buttons")
     Spacer(Modifier.preferredHeight(DefaultSpace))
 
-    Row(Modifier.fillMaxWidth(), arrangement = Arrangement.SpaceEvenly) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
         SimpleFab()
         SimpleExtendedFabNoIcon()
         SimpleExtendedFabWithIcon()

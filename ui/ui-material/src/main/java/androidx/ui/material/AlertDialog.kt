@@ -173,7 +173,7 @@ private fun AlertDialogButtonLayout(
 ) {
     Box(ButtonsBoxModifier, gravity = ContentGravity.CenterEnd) {
         if (buttonLayout == SideBySide) {
-            Row(arrangement = Arrangement.End) {
+            Row(horizontalArrangement = Arrangement.End) {
                 if (dismissButton != null) {
                     dismissButton()
                     Spacer(ButtonsWidthSpace)

@@ -40,7 +40,7 @@ import androidx.ui.unit.dp
 
 @Composable
 fun TabDemo() {
-    Column(Modifier.fillMaxHeight(), arrangement = Arrangement.SpaceBetween) {
+    Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
         val showingSimple = state { true }
         val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
 

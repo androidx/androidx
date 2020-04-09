@@ -41,31 +41,33 @@ import androidx.ui.unit.IntPx
  * if [Column]'s size should be limited, the [LayoutHeight] or [LayoutHeight.Max] layout
  * modifiers should be applied.
  *
- * When the size of the [Column] is larger than the sum of its children sizes, an [arrangement]
- * can be specified to define the positioning of the children inside the [Column]. See
- * [Arrangement] for available positioning behaviors; a custom arrangement can also be defined
- * using the constructor of [Arrangement].
+ * When the size of the [Column] is larger than the sum of its children sizes, a
+ * [verticalArrangement] can be specified to define the positioning of the children inside the
+ * [Column]. See [Arrangement] for available positioning behaviors; a custom arrangement can also
+ * be defined using the constructor of [Arrangement].
  *
  * Example usage:
  *
  * @sample androidx.ui.layout.samples.SimpleColumn
  *
  * @param modifier The modifier to be applied to the Column.
- * @param arrangement The vertical arrangement of the layout's children.
+ * @param verticalArrangement The vertical arrangement of the layout's children.
+ * @param horizontalGravity The horizontal gravity of the layout's children.
  *
  * @see Column
  */
 @Composable
 fun Column(
     modifier: Modifier = Modifier,
-    arrangement: Arrangement.Vertical = Arrangement.Top,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    horizontalGravity: Alignment.Horizontal = Alignment.Start,
     children: @Composable() ColumnScope.() -> Unit
 ) {
     RowColumnImpl(
         orientation = LayoutOrientation.Vertical,
         modifier = modifier,
-        arrangement = arrangement,
-        crossAxisAlignment = CrossAxisAlignment.Start,
+        arrangement = verticalArrangement,
+        crossAxisAlignment = horizontalGravity,
         crossAxisSize = SizeMode.Wrap,
         children = { ColumnScope.children() }
     )

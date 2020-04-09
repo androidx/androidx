@@ -40,7 +40,7 @@ import androidx.ui.unit.ipx
 
 @Composable
 fun RtlDemo() {
-    Column(arrangement = Arrangement.SpaceEvenly) {
+    Column(verticalArrangement = Arrangement.SpaceEvenly) {
         Text("TEXT", Modifier.gravity(Alignment.CenterHorizontally))
         testText()
         Text("ROW", Modifier.gravity(Alignment.CenterHorizontally))

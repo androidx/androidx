@@ -45,7 +45,7 @@ fun RepeatedRotationDemo() {
     Column(
         Modifier.fillMaxSize()
             .wrapContentSize(Alignment.Center),
-        arrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
         val textStyle = TextStyle(fontSize = 18.sp)
         Text(

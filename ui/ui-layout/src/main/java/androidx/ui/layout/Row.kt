@@ -41,31 +41,33 @@ import androidx.ui.unit.IntPx
  * size should be limited, the [LayoutWidth] or [LayoutWidth.Max] layout modifiers should be
  * applied.
  *
- * When the size of the [Row] is larger than the sum of its children sizes, an [arrangement]
- * can be specified to define the positioning of the children inside the [Row]. See [Arrangement]
- * for available positioning behaviors; a custom arrangement can also be defined using the
- * constructor of [Arrangement].
+ * When the size of the [Row] is larger than the sum of its children sizes, a
+ * [horizontalArrangement] can be specified to define the positioning of the children inside
+ * the [Row]. See [Arrangement] for available positioning behaviors; a custom arrangement can
+ * also be defined using the constructor of [Arrangement].
  *
  * Example usage:
  *
  * @sample androidx.ui.layout.samples.SimpleRow
  *
  * @param modifier The modifier to be applied to the Row.
- * @param arrangement The horizontal arrangement of the layout's children.
+ * @param horizontalArrangement The horizontal arrangement of the layout's children.
+ * @param verticalGravity The vertical gravity of the layout's children.
  *
  * @see Column
  */
 @Composable
 fun Row(
     modifier: Modifier = Modifier,
-    arrangement: Arrangement.Horizontal = Arrangement.Start,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    verticalGravity: Alignment.Vertical = Alignment.Top,
     children: @Composable() RowScope.() -> Unit
 ) {
     RowColumnImpl(
         orientation = LayoutOrientation.Horizontal,
         modifier = modifier,
-        arrangement = arrangement,
-        crossAxisAlignment = CrossAxisAlignment.Start,
+        arrangement = horizontalArrangement,
+        crossAxisAlignment = verticalGravity,
         crossAxisSize = SizeMode.Wrap,
         children = { RowScope.children() }
     )

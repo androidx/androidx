@@ -256,7 +256,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
     Tab(selected, onClick) {
         Column(
             Modifier.padding(10.dp).preferredHeight(50.dp).fillMaxWidth(),
-            arrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             Box(
                 Modifier.preferredSize(10.dp)
