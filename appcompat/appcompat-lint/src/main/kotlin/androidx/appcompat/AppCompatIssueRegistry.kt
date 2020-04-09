@@ -20,11 +20,14 @@ import androidx.appcompat.res.ColorStateListAlphaDetector
 import androidx.appcompat.res.ColorStateListLoadingDetector
 import androidx.appcompat.res.DrawableLoadingDetector
 import androidx.appcompat.res.ImageViewTintDetector
+import androidx.appcompat.widget.SwitchUsageCodeDetector
+import androidx.appcompat.widget.SwitchUsageXmlDetector
 import androidx.appcompat.widget.TextViewCompoundDrawablesApiDetector
 import androidx.appcompat.widget.TextViewCompoundDrawablesXmlDetector
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
 
+@Suppress("UnstableApiUsage")
 class AppCompatIssueRegistry : IssueRegistry() {
     override val api = CURRENT_API
     override val issues get() = listOf(
@@ -32,6 +35,8 @@ class AppCompatIssueRegistry : IssueRegistry() {
         ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING,
         DrawableLoadingDetector.NOT_USING_COMPAT_LOADING,
         ImageViewTintDetector.USING_ANDROID_TINT,
+        SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE,
+        SwitchUsageXmlDetector.USING_CORE_SWITCH_XML,
         TextViewCompoundDrawablesApiDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS,
         TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS
     )
