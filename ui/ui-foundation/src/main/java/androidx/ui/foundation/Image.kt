@@ -28,7 +28,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.ScaleFit
+import androidx.ui.core.ContentScale
 import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
@@ -50,7 +50,7 @@ import androidx.ui.layout.preferredSize
  * background)
  * @param alignment Optional alignment parameter used to place the [ImageAsset] in the given
  * bounds defined by the width and height.
- * @param scaleFit Optional scale parameter used to determine the aspect ratio scaling to be used
+ * @param contentScale Optional scale parameter used to determine the aspect ratio scaling to be used
  * if the bounds are a different size from the intrinsic size of the [ImageAsset].
  * @param alpha Optional opacity to be applied to the [ImageAsset] when it is rendered onscreen
  * @param colorFilter Optional ColorFilter to apply for the [ImageAsset] when it is rendered
@@ -62,7 +62,7 @@ inline fun Image(
     asset: ImageAsset,
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
-    scaleFit: ScaleFit = ScaleFit.Fit,
+    contentScale: ContentScale = ContentScale.Inside,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
 ) {
@@ -71,7 +71,7 @@ inline fun Image(
         painter = imagePainter,
         modifier = modifier,
         alignment = alignment,
-        scaleFit = scaleFit,
+        contentScale = contentScale,
         alpha = alpha,
         colorFilter = colorFilter
     )
@@ -91,7 +91,7 @@ inline fun Image(
  * background)
  * @param alignment Optional alignment parameter used to place the [VectorAsset] in the given
  * bounds defined by the width and height.
- * @param scaleFit Optional scale parameter used to determine the aspect ratio scaling to be used
+ * @param contentScale Optional scale parameter used to determine the aspect ratio scaling to be used
  * if the bounds are a different size from the intrinsic size of the [VectorAsset].
  * @param alpha Optional opacity to be applied to the [VectorAsset] when it is rendered onscreen
  * @param colorFilter Optional ColorFilter to apply for the [VectorAsset] when it is rendered
@@ -103,14 +103,14 @@ inline fun Image(
     asset: VectorAsset,
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
-    scaleFit: ScaleFit = ScaleFit.Fit,
+    contentScale: ContentScale = ContentScale.Inside,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
 ) = Image(
     painter = VectorPainter(asset),
     modifier = modifier,
     alignment = alignment,
-    scaleFit = scaleFit,
+    contentScale = contentScale,
     alpha = alpha,
     colorFilter = colorFilter
 )
@@ -132,7 +132,7 @@ inline fun Image(
  * background)
  * @param alignment Optional alignment parameter used to place the [Painter] in the given
  * bounds defined by the width and height.
- * @param scaleFit Optional scale parameter used to determine the aspect ratio scaling to be used
+ * @param contentScale Optional scale parameter used to determine the aspect ratio scaling to be used
  * if the bounds are a different size from the intrinsic size of the [Painter].
  * @param alpha Optional opacity to be applied to the [Painter] when it is rendered onscreen
  * the default renders the [Painter] completely opaque
@@ -143,7 +143,7 @@ fun Image(
     painter: Painter,
     modifier: Modifier = Modifier,
     alignment: Alignment = Alignment.Center,
-    scaleFit: ScaleFit = ScaleFit.Fit,
+    contentScale: ContentScale = ContentScale.Inside,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null
 ) {
@@ -151,7 +151,7 @@ fun Image(
         modifier.clipToBounds().paint(
             painter,
             alignment = alignment,
-            scaleFit = scaleFit,
+            contentScale = contentScale,
             alpha = alpha,
             colorFilter = colorFilter
         )
@@ -187,7 +187,7 @@ fun SimpleImage(
                 .clipToBounds()
                 .paint(
                     ImagePainter(image),
-                    scaleFit = ScaleFit.FillMaxDimension,
+                    contentScale = ContentScale.Crop,
                     colorFilter = tint?.let { ColorFilter(it, BlendMode.srcIn) }
                 )
         )

@@ -22,7 +22,7 @@ import androidx.lifecycle.LifecycleOwner
 /**
  * Sets the [FragmentResultListener] for a given requestKey. Once the given [LifecycleOwner] is
  * at least in the [androidx.lifecycle.Lifecycle.State.STARTED] state, any results set by
- * [FragmentResultOwner.setResult] using the same requestKey will be delivered to the
+ * [FragmentResultOwner.setFragmentResult] using the same requestKey will be delivered to the
  * [FragmentResultListener.onFragmentResult] callback. The callback will remain active until the
  * LifecycleOwner reaches the [androidx.lifecycle.Lifecycle.State.DESTROYED] state or a null
  * [FragmentResultListener] is set for the same requestKey.
@@ -32,11 +32,11 @@ import androidx.lifecycle.LifecycleOwner
  * @param listener listener for result changes or `null` to remove any previously registered
  * listener.
  */
-fun FragmentResultOwner.setResultListener(
+fun FragmentResultOwner.setFragmentResultListener(
     requestKey: String,
     lifecycleOwner: LifecycleOwner,
     listener: ((resultKey: String, bundle: Bundle) -> Unit)?
 ) {
     val resultListener = if (listener == null) null else FragmentResultListener(listener)
-    setResultListener(requestKey, lifecycleOwner, resultListener)
+    setFragmentResultListener(requestKey, lifecycleOwner, resultListener)
 }

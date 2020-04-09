@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
@@ -25,7 +26,6 @@ import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxWidth
@@ -126,7 +126,7 @@ fun AlertDialog(
                 val emphasisLevels = EmphasisAmbient.current
                 Column {
                     if (title != null) {
-                        Box(TitlePadding.gravity(ColumnAlign.Start)) {
+                        Box(TitlePadding.gravity(Alignment.Start)) {
                             ProvideEmphasis(emphasisLevels.high) {
                                 val textStyle = MaterialTheme.typography.h6
                                 ProvideTextStyle(textStyle, title)
@@ -138,7 +138,7 @@ fun AlertDialog(
                         Spacer(NoTitleExtraHeight)
                     }
 
-                    Box(TextPadding.gravity(ColumnAlign.Start)) {
+                    Box(TextPadding.gravity(Alignment.Start)) {
                         ProvideEmphasis(emphasisLevels.medium) {
                             val textStyle = MaterialTheme.typography.body1
                             ProvideTextStyle(textStyle, text)
@@ -173,7 +173,7 @@ private fun AlertDialogButtonLayout(
 ) {
     Box(ButtonsBoxModifier, gravity = ContentGravity.CenterEnd) {
         if (buttonLayout == SideBySide) {
-            Row(arrangement = Arrangement.End) {
+            Row(horizontalArrangement = Arrangement.End) {
                 if (dismissButton != null) {
                     dismissButton()
                     Spacer(ButtonsWidthSpace)

@@ -228,9 +228,26 @@ constructor(
 }
 
 /**
+ * Describes a padding to be applied along the edges inside a box.
+ */
+@Immutable
+data class InnerPadding(
+    val start: Dp = 0.dp,
+    val top: Dp = 0.dp,
+    val end: Dp = 0.dp,
+    val bottom: Dp = 0.dp
+) {
+    constructor(all: Dp) : this(all, all, all, all)
+}
+
+/**
  * Describes a set of offsets from each of the four sides of a box.
  */
 @Immutable
+@Deprecated(
+    "EdgeInsets is deprecated; please use InnerPadding instead.",
+    ReplaceWith("InnerPadding", "androidx.ui.layout.InnerPadding")
+)
 data class EdgeInsets(
     val left: Dp = 0.dp,
     val top: Dp = 0.dp,

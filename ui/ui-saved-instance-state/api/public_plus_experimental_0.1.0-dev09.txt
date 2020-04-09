@@ -19,7 +19,7 @@ package androidx.ui.savedinstancestate {
 
   public interface Saver<Original, Saveable> {
     method public Original? restore(Saveable value);
-    method public Saveable? save(androidx.ui.savedinstancestate.SaverScope, Original value);
+    method public Saveable? save(androidx.ui.savedinstancestate.SaverScope, Original? value);
   }
 
   public final class SaverKt {

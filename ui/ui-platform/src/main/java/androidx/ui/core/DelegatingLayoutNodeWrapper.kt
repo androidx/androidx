@@ -38,6 +38,9 @@ internal open class DelegatingLayoutNodeWrapper(
     override val isAttached: Boolean
         get() = _isAttached && layoutNode.isAttached()
 
+    override val layoutDirection: LayoutDirection
+        get() = wrapped.layoutDirection
+
     init {
         wrapped.wrappedBy = this
     }

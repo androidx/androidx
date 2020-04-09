@@ -756,7 +756,7 @@ public final class ObjectAnimator extends ValueAnimator {
      */
     @NonNull
     public static <T, V> ObjectAnimator ofObject(@NonNull T target,
-            @NonNull Property<T, V> property, @NonNull TypeConverter<PointF, V> converter,
+            @NonNull Property<T, V> property, @Nullable TypeConverter<PointF, V> converter,
             @NonNull Path path) {
         PropertyValuesHolder pvh = PropertyValuesHolder.ofObject(property, converter, path);
         return ofPropertyValuesHolder(target, pvh);

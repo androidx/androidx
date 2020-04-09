@@ -99,7 +99,7 @@ public final class WorkQuery {
          */
         @NonNull
         @SuppressLint("BuilderSetStyle")
-        public static Builder withUniqueWorkNames(@NonNull List<String> uniqueWorkNames) {
+        public static Builder fromUniqueWorkNames(@NonNull List<String> uniqueWorkNames) {
             Builder builder = new Builder();
             builder.addUniqueWorkNames(uniqueWorkNames);
             return builder;
@@ -113,7 +113,7 @@ public final class WorkQuery {
          */
         @NonNull
         @SuppressLint("BuilderSetStyle")
-        public static Builder withTags(@NonNull List<String> tags) {
+        public static Builder fromTags(@NonNull List<String> tags) {
             Builder builder = new Builder();
             builder.addTags(tags);
             return builder;
@@ -127,7 +127,7 @@ public final class WorkQuery {
          */
         @NonNull
         @SuppressLint("BuilderSetStyle")
-        public static Builder withStates(@NonNull List<WorkInfo.State> states) {
+        public static Builder fromStates(@NonNull List<WorkInfo.State> states) {
             Builder builder = new Builder();
             builder.addStates(states);
             return builder;

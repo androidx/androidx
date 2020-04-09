@@ -111,18 +111,7 @@ public final class InlinePresentationRenderer {
                             + "Presentation");
                 }
             } else if (sliceFormat.equals(FORMAT_ACTION)) {
-                if (sliceHints.contains(HINT_INLINE_ATTRIBUTION)) {
-                    final PendingIntent attribution = sliceItem.getAction();
-                    suggestionView.setOnLongClickListener(v -> {
-                        try {
-                            attribution.send();
-                            return true;
-                        } catch (PendingIntent.CanceledException e) {
-                            Log.w(TAG, "Attribution intent cancelled");
-                        }
-                        return false;
-                    });
-                } else {
+                if (!sliceHints.contains(HINT_INLINE_ATTRIBUTION)) {
                     throw new IllegalStateException("Unrecognized Action SliceItem in Inline "
                             + "Presentation");
                 }
@@ -136,6 +125,30 @@ public final class InlinePresentationRenderer {
                     R.dimen.autofill_inline_suggestion_single_icon_size));
         }
         return suggestionView;
+    }
+
+    /**
+     * Retrieves the {@link PendingIntent} that will be launched on long clicking the {@link Slice}
+     * to show attribution information via a {@link android.app.Dialog}.
+     *
+     * @see InlinePresentationBuilder#setAttribution(PendingIntent)
+     *
+     * <p>The attribution UI indicates to the user the source of the inline presentation data.</p>
+     *
+     * @return {@code null} if no attribution {@link PendingIntent} is found.
+     */
+    @Nullable
+    public static PendingIntent getAttribution(@NonNull Slice slice) {
+        final List<SliceItem> sliceItems = slice.getItems();
+        for (int i = 0; i < sliceItems.size(); i++) {
+            final SliceItem currItem = sliceItems.get(i);
+            if (currItem.getFormat().equals(FORMAT_ACTION)
+                    && currItem.getHints().contains(HINT_INLINE_ATTRIBUTION)) {
+                return currItem.getAction();
+            }
+        }
+        Log.w(TAG, "No attribution PendingIntent found in Slice");
+        return null;
     }
 
     private InlinePresentationRenderer() {

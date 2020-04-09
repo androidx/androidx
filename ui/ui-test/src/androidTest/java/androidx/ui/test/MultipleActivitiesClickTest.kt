@@ -22,8 +22,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
+import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.testTag
 import androidx.ui.test.android.AndroidComposeTestRule
@@ -70,7 +72,7 @@ class MultipleActivitiesClickTest {
             super.onCreate(savedInstanceState)
             setContent {
                 Semantics(container = true, properties = { testTag = tag }) {
-                    Box(modifier = recorder)
+                    Box(modifier = Modifier.fillMaxSize().plus(recorder))
                 }
             }
         }

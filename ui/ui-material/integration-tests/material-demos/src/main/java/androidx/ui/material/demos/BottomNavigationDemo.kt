@@ -35,7 +35,7 @@ import androidx.ui.unit.dp
 fun BottomNavigationDemo() {
     var alwaysShowLabels by state { false }
 
-    Column(Modifier.fillMaxHeight(), arrangement = Arrangement.Bottom) {
+    Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Bottom) {
         RadioGroup {
             RadioGroupTextItem(
                 selected = !alwaysShowLabels,

@@ -108,7 +108,7 @@ class LayoutAlignTest : LayoutTest() {
             ) {
                 Container(
                     Modifier.fillMaxSize()
-                        .wrapContentWidth(Alignment.CenterEnd)
+                        .wrapContentWidth(Alignment.End)
                         .preferredWidth(sizeDp)
                         .saveLayoutInfo(childSize, childPosition, positionedLatch)
                 ) {
@@ -143,7 +143,7 @@ class LayoutAlignTest : LayoutTest() {
                     ) {
                     }
                 }
-                Stack(Modifier.fillMaxSize().wrapContentHeight(Alignment.Center)) {
+                Stack(Modifier.fillMaxSize().wrapContentHeight(Alignment.CenterVertically)) {
                     Stack(
                         Modifier.preferredSize(sizeDp)
                             .saveLayoutInfo(childSize[1], childPosition[1], positionedLatch)
@@ -350,8 +350,10 @@ class LayoutAlignTest : LayoutTest() {
 
     @Test
     fun test1DAlignedModifier_hasCorrectIntrinsicMeasurements() = with(density) {
-        testIntrinsics(@Composable {
-            Container(Modifier.wrapContentHeight(Alignment.Center).aspectRatio(2f)) { }
+        testIntrinsics({
+            Container(Modifier.wrapContentHeight(Alignment.CenterVertically)
+                .aspectRatio(2f)
+            ) { }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
 
             // Min width.

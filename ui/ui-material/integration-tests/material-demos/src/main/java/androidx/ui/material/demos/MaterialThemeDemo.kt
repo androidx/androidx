@@ -27,7 +27,7 @@ import androidx.ui.material.samples.ThemeTextStyleSample
 
 @Composable
 fun MaterialThemeDemo() {
-    Column(Modifier.fillMaxHeight(), arrangement = Arrangement.SpaceAround) {
+    Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.SpaceAround) {
         MaterialThemeSample()
         ThemeTextStyleSample()
         ThemeColorSample()

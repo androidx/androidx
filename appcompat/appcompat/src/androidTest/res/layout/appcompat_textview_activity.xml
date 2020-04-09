@@ -318,13 +318,6 @@
                 app:drawableStartCompat="@drawable/ic_vector"
                 app:drawableRightCompat="@drawable/ic_vector"/>
 
-        <android.widget.TextView
-                android:id="@+id/text_view_compound_drawables_platform_relative_and_absolute"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_raster"
-                android:drawableRight="@drawable/ic_raster"/>
-
         <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/text_view_compound_drawables_compat_and_platform_same"
                 android:layout_width="match_parent"

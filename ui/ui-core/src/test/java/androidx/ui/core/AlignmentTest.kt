@@ -27,6 +27,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class AlignmentTest {
     private val space = IntPxSize(100.ipx, 100.ipx)
+    private val space1D = 100.ipx
 
     @Test
     fun testAlign_topStart() {
@@ -130,6 +131,66 @@ class AlignmentTest {
         assertEquals(
             IntPxPosition(0.ipx, 100.ipx),
             Alignment.BottomEnd.align(space, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAlign_top() {
+        assertEquals(
+            0.ipx,
+            Alignment.Top.align(space1D)
+        )
+    }
+
+    @Test
+    fun testAlign_centerVertically() {
+        assertEquals(
+            50.ipx,
+            Alignment.CenterVertically.align(space1D)
+        )
+    }
+
+    @Test
+    fun testAlign_bottom() {
+        assertEquals(
+            100.ipx,
+            Alignment.Bottom.align(space1D)
+        )
+    }
+
+    @Test
+    fun testAlign_start() {
+        assertEquals(
+                0.ipx,
+        Alignment.Start.align(space1D)
+        )
+        assertEquals(
+            100.ipx,
+            Alignment.Start.align(space1D, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAlign_centerHorizontally() {
+        assertEquals(
+            50.ipx,
+            Alignment.CenterHorizontally.align(space1D)
+        )
+        assertEquals(
+            50.ipx,
+            Alignment.CenterHorizontally.align(space1D, LayoutDirection.Rtl)
+        )
+    }
+
+    @Test
+    fun testAlign_end() {
+        assertEquals(
+            100.ipx,
+            Alignment.End.align(space1D)
+        )
+        assertEquals(
+            0.ipx,
+            Alignment.End.align(space1D, LayoutDirection.Rtl)
         )
     }
 }

@@ -69,7 +69,7 @@ class OnPositionedTest {
         var wrap1Position = 0.px
         var wrap2Position = 0.px
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 SimpleRow {
                     for (i in 0 until 2) {
                         if (index == i) {
@@ -151,7 +151,7 @@ class OnPositionedTest {
         var childGlobalPosition = PxPosition(0.px, 0.px)
         var latch = CountDownLatch(1)
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Layout(
                     measureBlock = { measurables, constraints, _ ->
                         layout(10.ipx, 10.ipx) {
@@ -195,7 +195,7 @@ class OnPositionedTest {
         var wrap2OnPositionedCalled = false
         var onChildPositionedCalledTimes = 0
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Layout(
                     modifier = Modifier.onChildPositioned {
                         onChildPositionedCalledTimes++
@@ -245,7 +245,7 @@ class OnPositionedTest {
         var coordinates: LayoutCoordinates? = null
 
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(10.ipx,
                     PaddingModifier(5.ipx) +
                             Modifier.onPositioned {
@@ -276,7 +276,7 @@ class OnPositionedTest {
         var coordinates: LayoutCoordinates? = null
 
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(10.ipx,
                     PaddingModifier(5.ipx) +
                             Modifier.onPositioned {

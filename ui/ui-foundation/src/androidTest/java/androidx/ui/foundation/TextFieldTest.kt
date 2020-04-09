@@ -21,6 +21,7 @@ import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
 import androidx.ui.core.FocusManagerAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
@@ -30,6 +31,7 @@ import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
@@ -68,6 +70,7 @@ class TextFieldTest {
                 TestTag(tag = "textField") {
                     TextField(
                         value = state.value,
+                        modifier = Modifier.fillMaxSize(),
                         onValueChange = { state.value = it }
                     )
                 }
@@ -86,6 +89,7 @@ class TextFieldTest {
         val state = state { TextFieldValue("") }
         TextField(
             value = state.value,
+            modifier = Modifier.fillMaxSize(),
             onValueChange = {
                 state.value = it
             }
@@ -192,6 +196,7 @@ class TextFieldTest {
         val state = state { TextFieldValue("") }
         TextField(
             value = state.value,
+            modifier = Modifier.fillMaxSize(),
             onValueChange = {
                 if (it.text.all { it.isDigit() }) {
                     state.value = it
@@ -284,6 +289,7 @@ class TextFieldTest {
                     val state = state { TextFieldValue("") }
                     TextField(
                         value = state.value,
+                        modifier = Modifier.fillMaxSize(),
                         onValueChange = {
                             state.value = it
                         },

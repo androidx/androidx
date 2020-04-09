@@ -29,6 +29,7 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.DrawScope
+import androidx.ui.core.LayoutDirection
 import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.DeterminateProgressIndicator
 import androidx.ui.geometry.Offset
@@ -117,8 +118,9 @@ private fun DrawScope.drawLinearIndicator(
     // Start drawing from the vertical center of the stroke
     val yOffset = height / 2
 
-    val barStart = startFraction * width
-    val barEnd = endFraction * width
+    var isLtr = layoutDirection == LayoutDirection.Ltr
+    val barStart = (if (isLtr) startFraction else 1f - endFraction) * width
+    val barEnd = (if (isLtr) endFraction else 1f - startFraction) * width
 
     // Progress line
     drawLine(Offset(barStart, yOffset), Offset(barEnd, yOffset), paint)

@@ -17,12 +17,14 @@
 package androidx.hilt.lifecycle;
 
 import android.app.Activity;
+import android.app.Application;
 import android.os.Bundle;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModel;
 import androidx.savedstate.SavedStateRegistryOwner;
 
@@ -61,12 +63,16 @@ public final class ViewModelFactoryModules {
         @ActivityViewModelFactory
         static ViewModelFactory provideFactory(
                 @NonNull Activity activity,
+                @NonNull Application application,
                 @NonNull Map<String, Provider<ViewModelAssistedFactory<? extends ViewModel>>>
                         viewModelFactories) {
             // Hilt guarantees concrete activity is a subclass of ComponentActivity.
             SavedStateRegistryOwner owner = (ComponentActivity) activity;
-            Bundle defaultArgs = activity.getIntent().getExtras();
-            return new ViewModelFactory(owner, defaultArgs, viewModelFactories);
+            Bundle defaultArgs = activity.getIntent() != null
+                    ? activity.getIntent().getExtras() : null;
+            SavedStateViewModelFactory delegate =
+                    new SavedStateViewModelFactory(application, owner, defaultArgs);
+            return new ViewModelFactory(owner, defaultArgs, delegate, viewModelFactories);
         }
     }
 
@@ -82,10 +88,13 @@ public final class ViewModelFactoryModules {
         @FragmentViewModelFactory
         static ViewModelFactory provideFactory(
                 @NonNull Fragment fragment,
+                @NonNull Application application,
                 @NonNull Map<String, Provider<ViewModelAssistedFactory<? extends ViewModel>>>
                         viewModelFactories) {
             Bundle defaultArgs = fragment.getArguments();
-            return new ViewModelFactory(fragment, defaultArgs, viewModelFactories);
+            SavedStateViewModelFactory delegate =
+                    new SavedStateViewModelFactory(application, fragment, defaultArgs);
+            return new ViewModelFactory(fragment, defaultArgs, delegate, viewModelFactories);
         }
 
         private FragmentModule() {

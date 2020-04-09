@@ -700,6 +700,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .setSound(Uri.EMPTY)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setVibrate(vibration)
+                .setChronometerCountDown(true)
                 .setLights(Color.BLUE, 100, 100)
                 .build();
         assertNull(n.sound);

@@ -20,6 +20,7 @@ import android.app.Activity
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewStructure
+import androidx.autofill.HintConstants.AUTOFILL_HINT_PERSON_NAME
 import androidx.test.filters.SmallTest
 import androidx.ui.ComposeUiRobolectricTestRunner
 import androidx.ui.test.android.fake.FakeViewStructure
@@ -67,7 +68,7 @@ class AndroidPopulateViewStructureTest {
         // Arrange.
         val autofillNode = AutofillNode(
             onFill = {},
-            autofillTypes = listOf(AutofillType.Name),
+            autofillTypes = listOf(AutofillType.PersonFullName),
             boundingBox = Rect(0, 0, 0, 0)
         )
         autofillTree += autofillNode
@@ -82,7 +83,7 @@ class AndroidPopulateViewStructureTest {
                 virtualId = autofillNode.id
                 packageName = PACKAGE_NAME
                 setAutofillType(View.AUTOFILL_TYPE_TEXT)
-                setAutofillHints(arrayOf(View.AUTOFILL_HINT_NAME))
+                setAutofillHints(arrayOf(AUTOFILL_HINT_PERSON_NAME))
                 setDimens(0, 0, 0, 0, 0, 0)
             })
         })
@@ -93,7 +94,7 @@ class AndroidPopulateViewStructureTest {
         // Arrange.
         val nameAutofillNode = AutofillNode(
             onFill = {},
-            autofillTypes = listOf(AutofillType.Name),
+            autofillTypes = listOf(AutofillType.PersonFullName),
             boundingBox = Rect(0, 0, 0, 0)
         )
         autofillTree += nameAutofillNode
@@ -115,7 +116,7 @@ class AndroidPopulateViewStructureTest {
                 virtualId = nameAutofillNode.id
                 packageName = PACKAGE_NAME
                 setAutofillType(View.AUTOFILL_TYPE_TEXT)
-                setAutofillHints(arrayOf(View.AUTOFILL_HINT_NAME))
+                setAutofillHints(arrayOf(AUTOFILL_HINT_PERSON_NAME))
                 setDimens(0, 0, 0, 0, 0, 0)
             })
             children.add(FakeViewStructure().apply {

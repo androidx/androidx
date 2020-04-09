@@ -55,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
                         getResources().getString(R.string.force_dark_activity_title),
                         new Intent(activityContext, ForceDarkActivity.class)),
                 new MenuListView.MenuItem(
+                        getResources().getString(R.string.force_dark_strategy_activity_title),
+                        new Intent(activityContext, ForceDarkStrategyActivity.class)),
+                new MenuListView.MenuItem(
                         getResources().getString(R.string.multi_process_enabled_activity_title),
                         new Intent(activityContext, MultiProcessEnabledActivity.class)),
                 new MenuListView.MenuItem(
@@ -69,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.js_java_interaction_activity_title),
                         new Intent(activityContext, JsJavaInteractionActivity.class)),
+
         };
         listView.setItems(menuItems);
     }

@@ -96,7 +96,7 @@ class WithConstraintsTest {
         val firstChildConstraints = Ref<Constraints>()
         val secondChildConstraints = Ref<Constraints>()
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 WithConstraints { constraints, _ ->
                     topConstraints.value = constraints
                     Padding(size = size) {
@@ -140,7 +140,7 @@ class WithConstraintsTest {
         val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 WithConstraints { constraints, _ ->
                     val outerModifier = Modifier.drawBehind {
                         val paint = Paint()
@@ -199,7 +199,7 @@ class WithConstraintsTest {
     fun requestLayoutDuringLayout() {
         val offset = OffsetModel(0.ipx)
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Scroller(
                     modifier = countdownLatchBackgroundModifier(Color.Yellow),
                     onScrollPositionChanged = { position, _ ->
@@ -263,7 +263,7 @@ class WithConstraintsTest {
         var recompositionsCount2 = 0
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 WithConstraints { _, _ ->
                     recompositionsCount1++
                     Container(100.ipx, 100.ipx) {
@@ -290,7 +290,7 @@ class WithConstraintsTest {
         var actualConstraints: Constraints? = null
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 ChangingConstraintsLayout(model) {
                     WithConstraints { constraints, _ ->
                         actualConstraints = constraints
@@ -320,7 +320,7 @@ class WithConstraintsTest {
         var childSize: IntPxSize? = null
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Container(width = 200.ipx, height = 200.ipx) {
                     WithConstraints(modifier = Modifier.onPositioned {
                         // OnPositioned can be fired multiple times with the same value
@@ -369,7 +369,7 @@ class WithConstraintsTest {
         val model = ValueModel(100.ipx)
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Container(100.ipx, 100.ipx, backgroundModifier(Color.Red)) {
                     ChangingConstraintsLayout(model) {
                         WithConstraints { constraints, _ ->
@@ -408,7 +408,7 @@ class WithConstraintsTest {
     fun updateModelInMeasuringAndReadItInCompositionWorksInsideWithConstraints() {
         val latch = CountDownLatch(1)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Container(width = 100.ipx, height = 100.ipx) {
                     WithConstraints { _, _ ->
                         // this replicates the popular pattern we currently use
@@ -439,7 +439,7 @@ class WithConstraintsTest {
         drawLatch = CountDownLatch(2)
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Container(
                     100.ipx, 100.ipx,
                     modifier = countdownLatchBackgroundModifier(Color.Red)
@@ -662,7 +662,7 @@ class WithConstraintsTest {
         val childMeasureLatch = CountDownLatch(1)
         val zeroConstraints = Constraints.fixed(0.ipx, 0.ipx)
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Layout(measureBlock = { measurables, _, _ ->
                     layout(0.ipx, 0.ipx) {
                         // there was a bug when the child of WithConstraints wasn't marking

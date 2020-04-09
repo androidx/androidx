@@ -29,6 +29,11 @@ interface DrawScope : Canvas, Density {
      * The size of layout being drawn in.
      */
     val size: PxSize
+
+    /**
+     * The layout direction of the layout being drawn in.
+     */
+    val layoutDirection: LayoutDirection
 }
 
 /**

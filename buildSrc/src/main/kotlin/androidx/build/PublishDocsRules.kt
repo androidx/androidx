@@ -57,8 +57,8 @@ val RELEASE_RULE = docsRules("public", false) {
     prebuilts(LibraryGroups.CONCURRENT, "1.1.0-alpha01")
     prebuilts(LibraryGroups.CONTENTPAGER, "1.0.0")
     prebuilts(LibraryGroups.COORDINATORLAYOUT, "1.1.0")
-    prebuilts(LibraryGroups.CORE, "core", "1.3.0-beta01")
-    prebuilts(LibraryGroups.CORE, "core-ktx", "1.3.0-beta01")
+    prebuilts(LibraryGroups.CORE, "core", "1.3.0-rc01")
+    prebuilts(LibraryGroups.CORE, "core-ktx", "1.3.0-rc01")
     prebuilts(LibraryGroups.CORE, "core-role", "1.0.0-beta01")
     prebuilts(LibraryGroups.CURSORADAPTER, "1.0.0")
     prebuilts(LibraryGroups.CUSTOMVIEW, "1.1.0-beta01")
@@ -146,6 +146,7 @@ val RELEASE_RULE = docsRules("public", false) {
     prebuilts(LibraryGroups.WINDOW, "1.0.0-alpha01")
     ignore(LibraryGroups.WORK.group, "work-gcm")
     ignore(LibraryGroups.WORK.group, "work-runtime-lint")
+    ignore(LibraryGroups.WORK.group, "work-rxjava3")
     prebuilts(LibraryGroups.WORK, "2.4.0-alpha02")
     default(Ignore)
 }

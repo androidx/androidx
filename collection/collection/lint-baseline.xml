@@ -15,50 +15,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void putAll(Map&lt;? extends K, ? extends V> map) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/ArrayMap.java"
-            line="142"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Set&lt;Entry&lt;K, V>> entrySet() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/ArrayMap.java"
-            line="182"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Set&lt;K> keySet() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/ArrayMap.java"
-            line="194"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Collection&lt;V> values() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/collection/ArrayMap.java"
-            line="206"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public E removeAt(int index) {"
         errorLine2="           ~">
         <location

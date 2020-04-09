@@ -20,8 +20,11 @@ import android.os.Build
 import androidx.compose.Providers
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
+import androidx.ui.core.boundsInRoot
+import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
@@ -40,8 +43,12 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.unit.center
 import androidx.ui.unit.dp
+import androidx.ui.unit.height
 import androidx.ui.unit.round
+import androidx.ui.unit.toPx
+import androidx.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -167,5 +174,108 @@ class FloatingActionButtonTest {
                 backgroundColor = surface,
                 shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx() }
             )
+    }
+
+    @Test
+    fun contentIsWrappedAndCentered() {
+        var buttonCoordinates: LayoutCoordinates? = null
+        var contentCoordinates: LayoutCoordinates? = null
+        composeTestRule.setMaterialContent {
+            Stack {
+                FloatingActionButton({}, Modifier.onPositioned { buttonCoordinates = it }) {
+                    Box(Modifier.preferredSize(2.dp)
+                        .onPositioned { contentCoordinates = it }
+                    )
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            val buttonBounds = buttonCoordinates!!.boundsInRoot
+            val contentBounds = contentCoordinates!!.boundsInRoot
+            assertThat(contentBounds.width).isLessThan(buttonBounds.width)
+            assertThat(contentBounds.height).isLessThan(buttonBounds.height)
+            with(composeTestRule.density) {
+                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toPx())
+                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toPx())
+            }
+            assertWithinOnePixel(buttonBounds.center(), contentBounds.center())
+        }
+    }
+
+    @Test
+    fun extendedFabTextIsWrappedAndCentered() {
+        var buttonCoordinates: LayoutCoordinates? = null
+        var contentCoordinates: LayoutCoordinates? = null
+        composeTestRule.setMaterialContent {
+            Stack {
+                ExtendedFloatingActionButton(
+                    text = {
+                        Box(Modifier.preferredSize(2.dp)
+                            .onPositioned { contentCoordinates = it }
+                        )
+                    },
+                    onClick = {},
+                    modifier = Modifier.onPositioned { buttonCoordinates = it }
+                )
+            }
+        }
+
+        runOnIdleCompose {
+            val buttonBounds = buttonCoordinates!!.boundsInRoot
+            val contentBounds = contentCoordinates!!.boundsInRoot
+            assertThat(contentBounds.width).isLessThan(buttonBounds.width)
+            assertThat(contentBounds.height).isLessThan(buttonBounds.height)
+            with(composeTestRule.density) {
+                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toPx())
+                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toPx())
+            }
+            assertWithinOnePixel(buttonBounds.center(), contentBounds.center())
+        }
+    }
+
+    @Test
+    fun extendedFabTextAndIconArePossitionedCorrectly() {
+        var buttonCoordinates: LayoutCoordinates? = null
+        var textCoordinates: LayoutCoordinates? = null
+        var iconCoordinates: LayoutCoordinates? = null
+        composeTestRule.setMaterialContent {
+            Stack {
+                ExtendedFloatingActionButton(
+                    text = {
+                        Box(Modifier.preferredSize(2.dp)
+                            .onPositioned { textCoordinates = it }
+                        )
+                    },
+                    icon = {
+                        Box(Modifier.preferredSize(10.dp)
+                            .onPositioned { iconCoordinates = it }
+                        )
+                    },
+                    onClick = {},
+                    modifier = Modifier.onPositioned { buttonCoordinates = it }
+                )
+            }
+        }
+
+        runOnIdleCompose {
+            val buttonBounds = buttonCoordinates!!.boundsInRoot
+            val textBounds = textCoordinates!!.boundsInRoot
+            val iconBounds = iconCoordinates!!.boundsInRoot
+            with(composeTestRule.density) {
+                assertThat(textBounds.width).isEqualTo(2.dp.toIntPx().toPx())
+                assertThat(textBounds.height).isEqualTo(2.dp.toIntPx().toPx())
+                assertThat(iconBounds.width).isEqualTo(10.dp.toIntPx().toPx())
+                assertThat(iconBounds.height).isEqualTo(10.dp.toIntPx().toPx())
+
+                assertWithinOnePixel(buttonBounds.center().y, iconBounds.center().y)
+                assertWithinOnePixel(buttonBounds.center().y, textBounds.center().y)
+                val halfPadding = 6.dp.toIntPx().toPx()
+                assertWithinOnePixel(
+                    iconBounds.center().x + iconBounds.width / 2 + halfPadding,
+                    textBounds.center().x - textBounds.width / 2 - halfPadding
+                )
+            }
+        }
     }
 }

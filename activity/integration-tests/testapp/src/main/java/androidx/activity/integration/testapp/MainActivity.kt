@@ -32,7 +32,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.invoke
 import androidx.activity.registerForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.OpenDocuments
+import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
         toast("Got image: $uri")
     }
 
-    val openDocuments = registerForActivityResult(OpenDocuments()) { uris ->
+    val openDocuments = registerForActivityResult(OpenMultipleDocuments()) { uris ->
         var docs = ""
         uris.forEach {
             docs += "uri: $it \n"

@@ -30,7 +30,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
-import androidx.ui.graphics.ScaleFit
+import androidx.ui.core.ContentScale
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredSizeIn
@@ -142,7 +142,7 @@ class ImageTest {
                             (imageComposableWidth / density).dp,
                             (imageComposableHeight / density).dp
                         ),
-                        scaleFit = ScaleFit.FillMinDimension
+                        contentScale = ContentScale.Fit
                     )
                 }
             }
@@ -230,7 +230,7 @@ class ImageTest {
                                 minWidth = minWidth,
                                 minHeight = minHeight
                             ),
-                            scaleFit = ScaleFit.FillMinDimension
+                            contentScale = ContentScale.Fit
                         )
                     }
                 }

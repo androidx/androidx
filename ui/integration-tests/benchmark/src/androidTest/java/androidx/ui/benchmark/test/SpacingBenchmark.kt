@@ -35,7 +35,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.offset
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.padding
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.Dp
@@ -236,15 +236,15 @@ private fun Padding(
     all: Dp,
     children: @Composable() () -> Unit
 ) {
-    val padding = EdgeInsets(all)
+    val padding = InnerPadding(all)
     Layout(children) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         if (measurable == null) {
             layout(constraints.minWidth, constraints.minHeight) { }
         } else {
-            val paddingLeft = padding.left.toIntPx()
+            val paddingLeft = padding.start.toIntPx()
             val paddingTop = padding.top.toIntPx()
-            val paddingRight = padding.right.toIntPx()
+            val paddingRight = padding.end.toIntPx()
             val paddingBottom = padding.bottom.toIntPx()
             val horizontalPadding = (paddingLeft + paddingRight)
             val verticalPadding = (paddingTop + paddingBottom)

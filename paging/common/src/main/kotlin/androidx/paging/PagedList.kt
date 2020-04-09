@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("KDocUnresolvedReference")
-
 package androidx.paging
 
 import androidx.annotation.IntRange
@@ -55,7 +53,7 @@ import java.util.concurrent.Executor
  * list.
  *
  * [PagedList] can present data for an unbounded, infinite scrolling list, or a very large but
- * countable list. Use [Config] to control how many items a [PagedList] loads, and when.
+ * countable list. Use [PagedList.Config] to control how many items a [PagedList] loads, and when.
  *
  * If you use [androidx.paging.LivePagedListBuilder] to get a [androidx.lifecycle.LiveData], it will
  * initialize [PagedList]s on a background thread for you.
@@ -92,21 +90,22 @@ import java.util.concurrent.Executor
  *
  * Placeholders are enabled by default, but can be disabled in two ways. They are disabled if the
  * [PagingSource] does not count its data set in its initial load, or if  `false` is passed to
- * [Config.Builder.setEnablePlaceholders] when building a [Config].
+ * [PagedList.Config.Builder.setEnablePlaceholders] when building a [PagedList.Config].
  *
  * ### Mutability and Snapshots
  *
  * A [PagedList] is *mutable* while loading, or ready to load from its [PagingSource].
  * As loads succeed, a mutable [PagedList] will be updated via Runnables on the main thread. You can
- * listen to these updates with a [Callback]. (Note that [androidx.paging.PagedListAdapter] will
+ * listen to these updates with a [PagedList.Callback]. (Note that [androidx.paging
+ * .PagedListAdapter] will
  * listen to these to signal RecyclerView about the updates/changes).
  *
  * If a [PagedList] attempts to load from an invalid [PagingSource], it will [detach] from the
  * [PagingSource], meaning that it will no longer attempt to load data. It will return true from
  * [isImmutable], and a new [PagingSource] / [PagedList] pair must be created to load further data.
  *
- * See [PagingSource] and [androidx.paging.LivePagedListBuilder] for how new [PagedList]s are created
- * to represent changed data.
+ * See [PagingSource] and [androidx.paging.LivePagedListBuilder] for how new [PagedList]s are
+ * created to represent changed data.
  *
  * A [PagedList] snapshot is simply an immutable shallow copy of the current state of the
  * [PagedList] as a `List`. It will reference the same inner items, and contain the same `null`
@@ -207,10 +206,9 @@ abstract class PagedList<T : Any> internal constructor(
 
         /**
          * Extremely naive diff dispatch: mark entire list as modified (essentially,
-         * notifyDataSetChanged). We do this because previous logic was incorrect, and
-         * could dispatch invalid diffs when pages are dropped. Instead of passing a
-         * snapshot, we now recommend to strictly use the addWeakCallback variant that
-         * only accepts a callback.
+         * notifyDataSetChanged). We do this because previous logic was incorrect, and could
+         * dispatch invalid diffs when pages are dropped. Instead of passing a snapshot, we now
+         * recommend to strictly use the addWeakCallback variant that only accepts a callback.
          */
         internal fun dispatchNaiveUpdatesSinceSnapshot(
             currentSize: Int,
@@ -242,13 +240,13 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * [pagingSource], [config], [notifyDispatcher] and [fetchDispatcher] must all be provided.
      *
-     * A [PagedList] queries initial data from its [PagingSource] during construction, to avoid empty
-     * PagedLists being presented to the UI when possible. It's preferred to present initial data,
-     * so that the UI doesn't show an empty list, or placeholders for a few frames, just before
-     * showing initial content.
+     * A [PagedList] queries initial data from its [PagingSource] during construction, to avoid
+     * empty [PagedList]s being presented to the UI when possible. It's preferred to present
+     * initial data, so that the UI doesn't show an empty list, or placeholders for a few frames,
+     * just before showing initial content.
      *
-     * [androidx.paging.LivePagedListBuilder] does this creation on a background thread
-     * automatically, if you want to receive a `LiveData<PagedList<...>>`.
+     * [LivePagedListBuilder][androidx.paging.LivePagedListBuilder] does this creation on a
+     * background thread automatically, if you want to receive a `LiveData<PagedList<...>>`.
      *
      * @param Key Type of key used to load data from the [PagingSource].
      * @param Value Type of items held and loaded by the [PagedList].
@@ -270,10 +268,12 @@ abstract class PagedList<T : Any> internal constructor(
         private var initialKey: Key? = null
 
         /**
-         * Create a [PagedList.Builder] with the provided [DataSource] and [Config].
+         * Create a [Builder][PagedList.Builder] with the provided [DataSource] and
+         * [Config][PagedList.Config].
          *
          * @param dataSource [DataSource] the [PagedList] will load from.
-         * @param config [Config] that defines how the [PagedList] loads data from its [DataSource].
+         * @param config [PagedList.Config] that defines how the [PagedList] loads data from its
+         * [DataSource].
          */
         constructor(dataSource: DataSource<Key, Value>, config: Config) {
             this.pagingSource = null
@@ -283,7 +283,7 @@ abstract class PagedList<T : Any> internal constructor(
         }
 
         /**
-         * Create a [PagedList.Builder] with the provided [DataSource] and page size.
+         * Create a [PagedList.Builder] with the provided [DataSource] and [pageSize].
          *
          * This method is a convenience for:
          * ```
@@ -292,7 +292,7 @@ abstract class PagedList<T : Any> internal constructor(
          * ```
          *
          * @param dataSource [DataSource] the [PagedList] will load from.
-         * @param pageSize [Config] that defines how the [PagedList] loads data from its
+         * @param pageSize Size of loaded pages when the [PagedList] loads data from its
          * [DataSource].
          */
         constructor(dataSource: DataSource<Key, Value>, pageSize: Int) : this(
@@ -301,12 +301,12 @@ abstract class PagedList<T : Any> internal constructor(
         )
 
         /**
-         * Create a [PagedList.Builder] with the provided [PagingSource],
-         * initial [PagingSource.LoadResult.Page], and [Config].
+         * Create a [PagedList.Builder] with the provided [PagingSource], initial
+         * [PagingSource.LoadResult.Page], and [PagedList.Config].
          *
          * @param pagingSource [PagingSource] the [PagedList] will load from.
          * @param initialPage Initial page loaded from the [PagingSource].
-         * @param config [Config] that defines how the [PagedList] loads data from its
+         * @param config [PagedList.Config] that defines how the [PagedList] loads data from its
          * [PagingSource].
          */
         constructor(
@@ -321,8 +321,8 @@ abstract class PagedList<T : Any> internal constructor(
         }
 
         /**
-         * Create a [PagedList.Builder] with the provided [PagingSource],
-         * initial [PagingSource.LoadResult.Page], and page size.
+         * Create a [PagedList.Builder] with the provided [PagingSource], initial
+         * [PagingSource.LoadResult.Page], and [pageSize].
          *
          * This method is a convenience for:
          * ```
@@ -335,7 +335,7 @@ abstract class PagedList<T : Any> internal constructor(
          *
          * @param pagingSource [PagingSource] the [PagedList] will load from.
          * @param initialPage Initial page loaded from the [PagingSource].
-         * @param pageSize [Config] that defines how the [PagedList] loads data from its
+         * @param pageSize Size of loaded pages when the [PagedList] loads data from its
          * [PagingSource].
          */
         constructor(
@@ -367,8 +367,8 @@ abstract class PagedList<T : Any> internal constructor(
         /**
          * The [Executor] defining where page loading updates are dispatched.
          *
-         * @param notifyExecutor [Executor] that receives [PagedList] updates, and where [Callback]
-         * calls are dispatched. Generally, this is the ui/main thread.
+         * @param notifyExecutor [Executor] that receives [PagedList] updates, and where
+         * [PagedList.Callback] calls are dispatched. Generally, this is the ui/main thread.
          * @return this
          */
         @Deprecated(
@@ -386,8 +386,8 @@ abstract class PagedList<T : Any> internal constructor(
         /**
          * The [CoroutineDispatcher] defining where page loading updates are dispatched.
          *
-         * @param notifyDispatcher [CoroutineDispatcher] that receives [PagedList] updates, and where
-         * [Callback] calls are dispatched. Generally, this is the ui/main thread.
+         * @param notifyDispatcher [CoroutineDispatcher] that receives [PagedList] updates, and
+         * where [PagedList.Callback] calls are dispatched. Generally, this is the ui/main thread.
          * @return this
          */
         fun setNotifyDispatcher(notifyDispatcher: CoroutineDispatcher) = apply {
@@ -400,8 +400,8 @@ abstract class PagedList<T : Any> internal constructor(
          * Does not affect initial load, which will be done immediately on whichever thread the
          * [PagedList] is created on.
          *
-         * @param fetchExecutor [Executor] used to fetch from [PagingSource]s, generally a background
-         * thread pool for e.g. I/O or network loading.
+         * @param fetchExecutor [Executor] used to fetch from [PagingSource]s, generally a
+         * background thread pool for e.g. I/O or network loading.
          * @return this
          */
         @Deprecated(
@@ -459,18 +459,18 @@ abstract class PagedList<T : Any> internal constructor(
          * immediately on the current thread, and block the current on the result. This method
          * should always be called on a worker thread to prevent blocking the main thread.
          *
-         * It's fine to create a [PagedList] with an async [PagingSource] on the main thread, such as
-         * in the constructor of a ViewModel. An async network load won't block the initial call to
-         * the Load function. For a synchronous [PagingSource] such as one created from a Room
+         * It's fine to create a [PagedList] with an async [PagingSource] on the main thread, such
+         * as in the constructor of a ViewModel. An async network load won't block the initial call
+         * to the Load function. For a synchronous [PagingSource] such as one created from a Room
          * database, a `LiveData<PagedList>` can be safely constructed with
          * [androidx.paging.LivePagedListBuilder] on the main thread, since actual construction work
          * is deferred, and done on a background thread.
          *
          * While [build] will always return a [PagedList], it's important to note that the
-         * [PagedList] initial load may fail to acquire data from the [PagingSource]. This can happen
-         * for example if the [PagingSource] is invalidated during its initial load. If this happens,
-         * the [PagedList] will be immediately [detached][PagedList.isDetached], and you can retry
-         * construction (including setting a new [PagingSource]).
+         * [PagedList] initial load may fail to acquire data from the [PagingSource]. This can
+         * happen for example if the [PagingSource] is invalidated during its initial load. If this
+         * happens, the [PagedList] will be immediately [detached][PagedList.isDetached], and you
+         * can retry construction (including setting a new [PagingSource]).
          *
          * @throws IllegalArgumentException if [notifyDispatcher] or [fetchDispatcher] are not set.
          *
@@ -503,8 +503,8 @@ abstract class PagedList<T : Any> internal constructor(
      * Callback signaling when content is loaded into the list.
      *
      * Can be used to listen to items being paged in and out. These calls will be dispatched on
-     * the dispatcher defined by [Builder.setNotifyDispatcher], which is generally the main/UI
-     * thread.
+     * the dispatcher defined by [PagedList.Builder.setNotifyDispatcher], which is generally the
+     * main/UI thread.
      */
     abstract class Callback {
         /**
@@ -540,8 +540,9 @@ abstract class PagedList<T : Any> internal constructor(
     /**
      * Configures how a [PagedList] loads content from its [PagingSource].
      *
-     * Use [Config.Builder] to construct and define custom loading behavior, such as
-     * [Builder.setPageSize], which defines number of items loaded at a time.
+     * Use [PagedList.Config.Builder] to construct and define custom loading behavior, such as
+     * [setPageSize][PagedList.Config.Builder.setPageSize], which defines number of items loaded at
+     * a time.
      */
     class Config internal constructor(
         /**
@@ -574,16 +575,16 @@ abstract class PagedList<T : Any> internal constructor(
          * Defines the maximum number of items that may be loaded into this pagedList before pages
          * should be dropped.
          *
-         * If set to [MAX_SIZE_UNBOUNDED], pages will never be dropped.
+         * If set to [PagedList.Config.Companion.MAX_SIZE_UNBOUNDED], pages will never be dropped.
          *
-         * @see MAX_SIZE_UNBOUNDED
-         * @see Builder.setMaxSize
+         * @see PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
+         * @see PagedList.Config.Builder.setMaxSize
          */
         @JvmField
         val maxSize: Int
     ) {
         /**
-         * Builder class for [Config].
+         * Builder class for [PagedList.Config].
          *
          * You must at minimum specify page size with [setPageSize].
          */
@@ -639,7 +640,7 @@ abstract class PagedList<T : Any> internal constructor(
             }
 
             /**
-             * Pass false to disable null placeholders in [PagedList]s using this [Config].
+             * Pass false to disable null placeholders in [PagedList]s using this [PagedList.Config].
              *
              * If not set, defaults to true.
              *
@@ -649,7 +650,7 @@ abstract class PagedList<T : Any> internal constructor(
              * 1) Its [PagingSource] can count all unloaded items (so that the number of nulls to
              * present is known).
              *
-             * 2) placeholders are not disabled on the [Config].
+             * 2) placeholders are not disabled on the [PagedList.Config].
              *
              * Call `setEnablePlaceholders(false)` to ensure the receiver of the PagedList
              * (often a [androidx.paging.PagedListAdapter]) doesn't need to account for null items.
@@ -698,15 +699,17 @@ abstract class PagedList<T : Any> internal constructor(
              * is many times the page size, the number of items held by the [PagedList] will not
              * grow above this number. Exceptions are made as necessary to guarantee:
              *  * Pages are never dropped until there are more than two pages loaded. Note that
-             * a [PagingSource] may not be held strictly to [requested pageSize][Config.pageSize], so
-             * two pages may be larger than expected.
+             * a [PagingSource] may not be held strictly to
+             * [requested pageSize][PagedList.Config.pageSize], so two pages may be larger than
+             * expected.
              *  * Pages are never dropped if they are within a prefetch window (defined to be
              * `pageSize + (2 * prefetchDistance)`) of the most recent load.
              *
-             * If not set, defaults to [MAX_SIZE_UNBOUNDED], which disables page dropping.
+             * If not set, defaults to [PagedList.Config.Companion.MAX_SIZE_UNBOUNDED], which
+             * disables page dropping.
              *
-             * @param maxSize Maximum number of items to keep in memory, or [MAX_SIZE_UNBOUNDED] to
-             * disable page dropping.
+             * @param maxSize Maximum number of items to keep in memory, or
+             * [PagedList.Config.Companion.MAX_SIZE_UNBOUNDED] to disable page dropping.
              * @return this
              *
              * @see Config.MAX_SIZE_UNBOUNDED
@@ -717,9 +720,9 @@ abstract class PagedList<T : Any> internal constructor(
             }
 
             /**
-             * Creates a [Config] with the given parameters.
+             * Creates a [PagedList.Config] with the given parameters.
              *
-             * @return A new [Config].
+             * @return A new [PagedList.Config].
              */
             fun build(): Config {
                 if (prefetchDistance < 0) {
@@ -834,7 +837,7 @@ abstract class PagedList<T : Any> internal constructor(
 
         /**
          * Called when the item at the front of the PagedList has been loaded, and access has
-         * occurred within [Config.prefetchDistance] of it.
+         * occurred within [PagedList.Config.prefetchDistance] of it.
          *
          * No more data will be prepended to the PagedList before this item.
          *
@@ -844,7 +847,7 @@ abstract class PagedList<T : Any> internal constructor(
 
         /**
          * Called when the item at the end of the PagedList has been loaded, and access has
-         * occurred within [Config.prefetchDistance] of it.
+         * occurred within [PagedList.Config.prefetchDistance] of it.
          *
          * No more data will be appended to the [PagedList] after this item.
          *
@@ -999,8 +1002,8 @@ abstract class PagedList<T : Any> internal constructor(
      *
      * Unlike [size] this counts only loaded items, not placeholders.
      *
-     * If placeholders are [disabled][Config.enablePlaceholders], this method is equivalent to
-     * [size].
+     * If placeholders are [disabled][PagedList.Config.enablePlaceholders], this method is
+     * equivalent to [size].
      *
      * @return Number of items currently loaded, not counting placeholders.
      *
@@ -1145,12 +1148,12 @@ abstract class PagedList<T : Any> internal constructor(
      * version, including any changes that may have been made.
      *
      * The callback is internally held as weak reference, so [PagedList] doesn't hold a strong
-     * reference to its observer, such as a [androidx.paging.PagedListAdapter]. If an adapter were
-     * held with a strong reference, it would be necessary to clear its [PagedList] observer before
-     * it could be GC'd.
+     * reference to its observer, such as a [PagedListAdapter][androidx.paging.PagedListAdapter].
+     * If an adapter were held with a strong reference, it would be necessary to clear its
+     * [PagedList] observer before it could be GC'd.
      *
      * @param previousSnapshot Snapshot previously captured from this List, or `null`.
-     * @param callback Callback to dispatch to.
+     * @param callback [PagedList.Callback] to dispatch to.
      *
      * @see removeWeakCallback
      */

@@ -23,11 +23,12 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
@@ -61,7 +62,7 @@ import androidx.ui.unit.dp
  * @param border Border to draw around the button
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
  * @param contentColor The preferred content color. Will be used by text and iconography
- * @param innerPadding The spacing values to apply internally between the container and the content
+ * @param padding The spacing values to apply internally between the container and the content
  */
 @Composable
 fun Button(
@@ -73,7 +74,7 @@ fun Button(
     border: Border? = null,
     backgroundColor: Color = MaterialTheme.colors.primary,
     contentColor: Color = contentColorFor(backgroundColor),
-    innerPadding: EdgeInsets = Button.DefaultInnerPadding,
+    padding: InnerPadding = Button.DefaultInnerPadding,
     text: @Composable() () -> Unit
 ) {
     // Since we're adding layouts in between the clickable layer and the content, we need to
@@ -94,10 +95,11 @@ fun Button(
             ) {
                 Box(
                     ButtonConstraints,
-                    paddingStart = innerPadding.left,
-                    paddingTop = innerPadding.top,
-                    paddingEnd = innerPadding.right,
-                    paddingBottom = innerPadding.bottom
+                    paddingStart = padding.start,
+                    paddingTop = padding.top,
+                    paddingEnd = padding.end,
+                    paddingBottom = padding.bottom,
+                    gravity = ContentGravity.Center
                 ) {
                     ProvideTextStyle(
                         value = MaterialTheme.typography.button,
@@ -139,7 +141,7 @@ fun Button(
  * @param border Border to draw around the button
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
  * @param contentColor The preferred content color. Will be used by text and iconography
- * @param innerPadding The spacing values to apply internally between the container and the content
+ * @param padding The spacing values to apply internally between the container and the content
  */
 @Composable
 inline fun OutlinedButton(
@@ -153,7 +155,7 @@ inline fun OutlinedButton(
     ),
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = MaterialTheme.colors.primary,
-    innerPadding: EdgeInsets = Button.DefaultInnerPadding,
+    padding: InnerPadding = Button.DefaultInnerPadding,
     noinline text: @Composable() () -> Unit
 ) = Button(
     modifier = modifier,
@@ -164,7 +166,7 @@ inline fun OutlinedButton(
     border = border,
     backgroundColor = backgroundColor,
     contentColor = contentColor,
-    innerPadding = innerPadding,
+    padding = padding,
     text = text
 )
 
@@ -195,7 +197,7 @@ inline fun OutlinedButton(
  * @param border Border to draw around the button
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
  * @param contentColor The preferred content color. Will be used by text and iconography
- * @param innerPadding The spacing values to apply internally between the container and the content
+ * @param padding The spacing values to apply internally between the container and the content
  */
 @Composable
 inline fun TextButton(
@@ -207,7 +209,7 @@ inline fun TextButton(
     border: Border? = null,
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colors.primary,
-    innerPadding: EdgeInsets = TextButton.DefaultInnerPadding,
+    padding: InnerPadding = TextButton.DefaultInnerPadding,
     noinline text: @Composable() () -> Unit
 ) = Button(
     modifier = modifier,
@@ -218,7 +220,7 @@ inline fun TextButton(
     border = border,
     backgroundColor = backgroundColor,
     contentColor = contentColor,
-    innerPadding = innerPadding,
+    padding = padding,
     text = text
 )
 
@@ -235,10 +237,10 @@ object Button {
     /**
      * The default inner padding used by [Button]
      */
-    val DefaultInnerPadding = EdgeInsets(
-        left = ButtonHorizontalPadding,
+    val DefaultInnerPadding = InnerPadding(
+        start = ButtonHorizontalPadding,
         top = ButtonVerticalPadding,
-        right = ButtonHorizontalPadding,
+        end = ButtonHorizontalPadding,
         bottom = ButtonVerticalPadding
     )
 }
@@ -253,8 +255,8 @@ object TextButton {
      * The default inner padding used by [TextButton]
      */
     val DefaultInnerPadding = Button.DefaultInnerPadding.copy(
-        left = TextButtonHorizontalPadding,
-        right = TextButtonHorizontalPadding
+        start = TextButtonHorizontalPadding,
+        end = TextButtonHorizontalPadding
     )
 }
 

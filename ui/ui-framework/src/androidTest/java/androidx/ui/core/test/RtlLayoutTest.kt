@@ -27,6 +27,7 @@ import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.onPositioned
+import androidx.ui.core.setContent
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
@@ -64,7 +65,7 @@ class RtlLayoutTest {
     @Test
     fun customLayout_absolutePositioning() = with(density) {
         activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 CustomLayout(true, LayoutDirection.Ltr)
             }
         }
@@ -81,7 +82,7 @@ class RtlLayoutTest {
     @Test
     fun customLayout_absolutePositioning_rtl() = with(density) {
         activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 CustomLayout(true, LayoutDirection.Rtl)
             }
         }
@@ -98,7 +99,7 @@ class RtlLayoutTest {
     @Test
     fun customLayout_positioning() = with(density) {
         activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 CustomLayout(false, LayoutDirection.Ltr)
             }
         }
@@ -115,7 +116,7 @@ class RtlLayoutTest {
     @Test
     fun customLayout_positioning_rtl() = with(density) {
         activityTestRule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 CustomLayout(false, LayoutDirection.Rtl)
             }
         }

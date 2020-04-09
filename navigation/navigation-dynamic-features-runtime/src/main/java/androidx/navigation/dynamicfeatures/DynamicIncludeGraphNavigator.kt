@@ -90,17 +90,19 @@ class DynamicIncludeGraphNavigator(
         }
         val includedNav = navInflater.inflate(graphId)
         check(!(includedNav.id != 0 && includedNav.id != destination.id)) {
-            "The included <navigation>'s id is different from " +
-                    "the destination id. Either remove the <navigation> id or make them " +
-                    " match."
+            "The included <navigation>'s id ${includedNav.displayName} is different from " +
+                    "the destination id ${destination.displayName}. Either remove the " +
+                    "<navigation> id or make them match."
         }
         includedNav.id = destination.id
         val outerNav = destination.parent
             ?: throw IllegalStateException(
-                "The destination ${destination.id} does not have a parent. " +
-                        "Make sure it is attached to a NavGraph.")
-        // no need to remove previous destination, id is used as key in map
+                "The include-dynamic destination with id ${destination.displayName} " +
+                        "does not have a parent. Make sure it is attached to a NavGraph."
+            )
         outerNav.addDestination(includedNav)
+        // Avoid calling replaceWithIncludedNav() on the same destination more than once
+        createdDestinations.remove(destination)
         return includedNav
     }
 
@@ -113,14 +115,23 @@ class DynamicIncludeGraphNavigator(
 
     override fun onRestoreState(savedState: Bundle) {
         super.onRestoreState(savedState)
-        val iterator = createdDestinations.iterator()
-        while (iterator.hasNext()) {
-            val dynamicNavGraph = iterator.next()
-            val moduleName = dynamicNavGraph.moduleName
-            if (moduleName == null || !installManager.needsInstall(moduleName)) {
-                replaceWithIncludedNav(dynamicNavGraph)
+        // replaceWithIncludedNav() can add more elements while we're iterating
+        // through the list so we need to keep iterating until there's no more
+        // unexpanded graphs
+        while (createdDestinations.isNotEmpty()) {
+            // Iterate through a copy to prevent ConcurrentModificationExceptions
+            val iterator = ArrayList(createdDestinations).iterator()
+            // And clear the original list so that the list only contains
+            // newly inflated destinations from the replaceWithIncludedNav() calls
+            // the next time our loop completes
+            createdDestinations.clear()
+            while (iterator.hasNext()) {
+                val dynamicNavGraph = iterator.next()
+                val moduleName = dynamicNavGraph.moduleName
+                if (moduleName == null || !installManager.needsInstall(moduleName)) {
+                    replaceWithIncludedNav(dynamicNavGraph)
+                }
             }
-            iterator.remove()
         }
     }
 

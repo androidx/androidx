@@ -21,14 +21,14 @@ import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
 import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.Row
-import androidx.ui.layout.RowAlign
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
@@ -87,17 +87,17 @@ private fun AlertCard() {
 private fun AlertHeader(onClickSeeAll: () -> Unit) {
     Row(
         modifier = Modifier.padding(RallyDefaultPadding).fillMaxWidth(),
-        arrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = "Alerts",
             style = MaterialTheme.typography.subtitle2,
-            modifier = Modifier.gravity(RowAlign.Center)
+            modifier = Modifier.gravity(Alignment.CenterVertically)
         )
         TextButton(
             onClick = onClickSeeAll,
-            innerPadding = EdgeInsets(0.dp),
-            modifier = Modifier.gravity(RowAlign.Center)
+            padding = InnerPadding(0.dp),
+            modifier = Modifier.gravity(Alignment.CenterVertically)
         ) {
             Text("SEE ALL")
         }
@@ -109,7 +109,7 @@ private fun AlertItem(message: String) {
     // TODO: Make alerts into a data structure
     Row(
         modifier = Modifier.padding(RallyDefaultPadding),
-        arrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             style = MaterialTheme.typography.h3,
@@ -118,7 +118,7 @@ private fun AlertItem(message: String) {
         )
         IconButton(
             onClick = {},
-            modifier = Modifier.gravity(RowAlign.Top)
+            modifier = Modifier.gravity(Alignment.Top)
         ) {
             Icon(Icons.Filled.Sort)
         }

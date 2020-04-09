@@ -50,10 +50,8 @@ fun ExplicitAutofillTypesDemo() {
 
         Text("Name", style = labelStyle)
         Autofill(
-            autofillTypes = listOf(AutofillType.Name),
-            onFill = { nameState.value =
-                TextFieldValue(it)
-            }
+            autofillTypes = listOf(AutofillType.PersonFullName),
+            onFill = { nameState.value = TextFieldValue(it) }
         ) { autofillNode ->
             TextField(
                 value = nameState.value,
@@ -71,9 +69,7 @@ fun ExplicitAutofillTypesDemo() {
         Text("Email", style = labelStyle)
         Autofill(
             autofillTypes = listOf(AutofillType.EmailAddress),
-            onFill = { emailState.value =
-                TextFieldValue(it)
-            }
+            onFill = { emailState.value = TextFieldValue(it) }
         ) { autofillNode ->
             TextField(
                 value = emailState.value,

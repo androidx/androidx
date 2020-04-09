@@ -16,10 +16,9 @@
 
 package androidx.ui.tooling.preview
 
-import android.app.Activity
 import android.os.Bundle
 import android.util.Log
-import androidx.compose.Composition
+import androidx.activity.ComponentActivity
 import androidx.compose.currentComposer
 import androidx.ui.core.setContent
 
@@ -32,8 +31,7 @@ import androidx.ui.core.setContent
  *
  * @suppress
  */
-class PreviewActivity : Activity() {
-    var composition: Composition? = null
+class PreviewActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +39,7 @@ class PreviewActivity : Activity() {
             Log.d("PreviewActivity", "PreviewActivity has composable $it")
             val className = it.substringBeforeLast('.')
             val methodName = it.substringAfterLast('.')
-            composition = setContent {
+            setContent {
                 invokeComposableViaReflection(
                     className,
                     methodName,

@@ -16,6 +16,7 @@
 package androidx.ui.core
 
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.LifecycleOwner
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.clipboard.ClipboardManager
@@ -82,6 +83,17 @@ interface Owner {
      * Allows other components to be notified when the [UiSavedStateRegistry] became available.
      */
     fun setOnSavedStateRegistryAvailable(callback: (UiSavedStateRegistry) -> Unit)
+
+    /**
+     * The [LifecycleOwner] associated with this owner. If it's null you can wait for it to became
+     * available using [setOnLifecycleOwnerAvailable].
+     */
+    val lifecycleOwner: LifecycleOwner?
+
+    /**
+     * Allows other components to be notified when the [lifecycleOwner] became available.
+     */
+    fun setOnLifecycleOwnerAvailable(callback: (LifecycleOwner) -> Unit)
 
     val density: Density
 
