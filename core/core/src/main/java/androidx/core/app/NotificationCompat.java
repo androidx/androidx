@@ -61,6 +61,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
+import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.text.BidiFormatter;
 import androidx.core.view.GravityCompat;
@@ -749,6 +750,7 @@ public class NotificationCompat {
         String mChannelId;
         int mBadgeIcon = BADGE_ICON_NONE;
         String mShortcutId;
+        LocusIdCompat mLocusId;
         long mTimeout;
         @GroupAlertBehavior int mGroupAlertBehavior = GROUP_ALERT_ALL;
         boolean mAllowSystemGeneratedContextualActions;
@@ -1254,6 +1256,8 @@ public class NotificationCompat {
             return this;
         }
 
+        // TODO (b/149433438) support person field
+
         /**
          * Set the default notification options that will be used.
          * <p>
@@ -1647,6 +1651,20 @@ public class NotificationCompat {
          */
         public Builder setShortcutId(String shortcutId) {
             mShortcutId = shortcutId;
+            return this;
+        }
+
+        /**
+         * Sets the {@link LocusIdCompat} associated with this notification.
+         *
+         * <p>This method should be called when the {@link LocusIdCompat} is used in other places
+         * (such as {@link androidx.core.content.pm.ShortcutInfoCompat} and
+         * {@link android.view.contentcapture.ContentCaptureContext}) so the device's intelligence
+         * services can correlate them.
+         */
+        @NonNull
+        public Builder setLocusId(@Nullable final LocusIdCompat locusId) {
+            mLocusId = locusId;
             return this;
         }
 
@@ -6107,6 +6125,22 @@ public class NotificationCompat {
     public static String getShortcutId(Notification notification) {
         if (Build.VERSION.SDK_INT >= 26) {
             return notification.getShortcutId();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the {@link LocusIdCompat} associated with this notification.
+     *
+     * <p>Used by the Android system to correlate objects (such as
+     * {@link androidx.core.content.pm.ShortcutInfoCompat} and
+     * {@link android.view.contentcapture.ContentCaptureContext}).
+     */
+    @Nullable
+    public static LocusIdCompat getLocusId(@NonNull Notification notification) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            return LocusIdCompat.toLocusIdCompat(notification.getLocusId());
         } else {
             return null;
         }

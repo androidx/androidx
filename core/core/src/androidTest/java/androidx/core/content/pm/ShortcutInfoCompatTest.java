@@ -40,6 +40,7 @@ import android.os.PersistableBundle;
 import androidx.core.app.Person;
 import androidx.core.app.TestActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
@@ -156,6 +157,7 @@ public class ShortcutInfoCompatTest {
         Set<String> categories = new HashSet<>();
         categories.add("cat1");
         categories.add("cat2");
+        LocusIdCompat locusId = new LocusIdCompat("Chat_A_B");
         int rank = 3;
         PersistableBundle persistableBundle = new PersistableBundle();
         ShortcutInfoCompat compat = mBuilder
@@ -163,6 +165,7 @@ public class ShortcutInfoCompatTest {
                 .setCategories(categories)
                 .setDisabledMessage(disabledMessage)
                 .setLongLabel(longLabel)
+                .setLocusId(locusId)
                 .setRank(rank)
                 .setExtras(persistableBundle)
                 .build();
@@ -175,6 +178,7 @@ public class ShortcutInfoCompatTest {
         assertEquals(disabledMessage, copyCompat.getDisabledMessage());
         assertEquals(activity, copyCompat.getActivity());
         assertEquals(categories, copyCompat.getCategories());
+        assertEquals(locusId, copyCompat.getLocusId());
         assertEquals(rank, copyCompat.getRank());
         assertEquals(persistableBundle, copyCompat.getExtras());
     }
@@ -317,12 +321,12 @@ public class ShortcutInfoCompatTest {
         Person[] persons = {
                 new Person.Builder().setName("P1").build(),
                 new Person.Builder().setName("P2").build()};
-
         PersistableBundle persistableBundle = new PersistableBundle();
         persistableBundle.putString(TEST_EXTRAS_ID, TEST_EXTRAS_VALUE);
-
+        LocusIdCompat locusId = new LocusIdCompat("Chat_A_B");
         ShortcutInfoCompat compat = mBuilder
                 .setPersons(persons)
+                .setLocusId(locusId)
                 .setLongLived(true)
                 .setExtras(persistableBundle)
                 .build();
@@ -338,5 +342,7 @@ public class ShortcutInfoCompatTest {
         for (int i = 0; i < persons.length; i++) {
             assertEquals(persons[i].getName(), retrievedPersons[i].getName());
         }
+
+        assertEquals(locusId, ShortcutInfoCompat.getLocusId(shortcut));
     }
 }
