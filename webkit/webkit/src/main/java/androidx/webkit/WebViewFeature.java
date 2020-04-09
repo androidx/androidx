@@ -87,7 +87,7 @@ public class WebViewFeature {
             WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             PROXY_OVERRIDE,
             SUPPRESS_ERROR_PAGE,
-            MULTI_PROCESS_QUERY,
+            MULTI_PROCESS,
             FORCE_DARK,
             FORCE_DARK_STRATEGY,
             WEB_MESSAGE_LISTENER,
@@ -399,12 +399,8 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers {@link WebViewCompat#isMultiProcessEnabled()}
-     *
-     * TODO(laisminchillo): unhide
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final String MULTI_PROCESS_QUERY = "MULTI_PROCESS_QUERY";
+    public static final String MULTI_PROCESS = "MULTI_PROCESS";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
