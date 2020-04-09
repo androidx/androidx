@@ -106,7 +106,7 @@ public final class ToggleButtonTest {
                 // The takePicture() might not work (more detail please see b/136724593,
                 // workaround this issue by wait for a while.
                 // TODO remove the sleep workaround after b/136724593 was fixed.
-                Thread.sleep(1000);
+                mActivityRule.getActivity().waitForPreviewConfigured(5000);
 
                 // Issue take picture.
                 onView(withId(R.id.Picture)).perform(click());
