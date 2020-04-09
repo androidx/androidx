@@ -174,6 +174,9 @@ internal class RemoteMediatorAccessor<Key : Any, Value : Any>(
         state: PagingState<Key, Value>
     ): MediatorResult {
         val deferred = jobsByLoadTypeLock.withLock {
+            // List of RemoteMediator.load jobs that were registered prior to this one.
+            val existingJobs = jobsByLoadType.values
+
             val oldDeferred = jobsByLoadType[loadType]
             if (oldDeferred?.isActive == true) {
                 oldDeferred
@@ -189,6 +192,10 @@ internal class RemoteMediatorAccessor<Key : Any, Value : Any>(
                             // not actually realize it's cancelled before performing its write.
                             cancelAndJoinAll(jobsByLoadType[START], jobsByLoadType[END])
                         }
+
+                        // Only allow one active RemoteMediator.load at a time, by joining all jobs
+                        // registered in jobsByLoadType before this one.
+                        existingJobs.forEach { it.join() }
 
                         remoteMediator.load(loadType, state)
                     }
