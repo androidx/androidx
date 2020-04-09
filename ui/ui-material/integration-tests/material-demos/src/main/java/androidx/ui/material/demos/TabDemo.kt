@@ -18,12 +18,12 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
-import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.preferredHeight
@@ -56,7 +56,7 @@ fun TabDemo() {
             ScrollingFancyIndicatorContainerTabs()
         }
         Button(
-            modifier = Modifier.gravity(ColumnAlign.Center),
+            modifier = Modifier.gravity(Alignment.CenterHorizontally),
             onClick = {
                 showingSimple.value = !showingSimple.value
             },

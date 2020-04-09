@@ -20,15 +20,6 @@ package androidx.ui.layout
 
 import androidx.compose.Stable
 import androidx.ui.core.Alignment
-import androidx.ui.core.Alignment.BottomCenter
-import androidx.ui.core.Alignment.BottomEnd
-import androidx.ui.core.Alignment.BottomStart
-import androidx.ui.core.Alignment.Center
-import androidx.ui.core.Alignment.CenterEnd
-import androidx.ui.core.Alignment.CenterStart
-import androidx.ui.core.Alignment.TopCenter
-import androidx.ui.core.Alignment.TopEnd
-import androidx.ui.core.Alignment.TopStart
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
@@ -314,24 +305,46 @@ fun Modifier.fillMaxSize() = this + LayoutSize.Fill
  * [minimum width constraint][Constraints.minWidth]. If the content's measured size is smaller
  * than the minimum width constraint, [align] it within that minimum width space.
  */
-// TODO: Consider an axis-specific [Alignment]
-fun Modifier.wrapContentWidth(align: Alignment = Center) = this + when (align) {
-    TopStart, CenterStart, BottomStart -> LayoutAlign.Start
-    TopCenter, Center, BottomCenter -> LayoutAlign.CenterHorizontally
-    TopEnd, CenterEnd, BottomEnd -> LayoutAlign.End
+@Deprecated("wrapContentWidth(Alignment) is deprecated. " +
+        "Please use wrapContentWidth(Alignment.Horizontal) instead.")
+fun Modifier.wrapContentWidth(align: Alignment = Alignment.Center) = this + when (align) {
+    Alignment.TopStart, Alignment.CenterStart, Alignment.BottomStart -> LayoutAlign.Start
+    Alignment.TopCenter, Alignment.Center, Alignment.BottomCenter -> LayoutAlign.CenterHorizontally
+    Alignment.TopEnd, Alignment.CenterEnd, Alignment.BottomEnd -> LayoutAlign.End
+    else -> error("Unexpected alignment")
 }
+
+/**
+ * Allow the content to measure at its desired width without regard for the incoming measurement
+ * [minimum width constraint][Constraints.minWidth]. If the content's measured size is smaller
+ * than the minimum width constraint, [align] it within that minimum width space.
+ */
+// TODO(popam): avoid recreating modifier for common align
+fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) =
+    this + AlignmentModifier(Alignment(-1f, align.bias), Direction.Horizontal)
 
 /**
  * Allow the content to measure at its desired height without regard for the incoming measurement
  * [minimum height constraint][Constraints.minHeight]. If the content's measured size is smaller
  * than the minimum height constraint, [align] it within that minimum height space.
  */
-// TODO: Consider an axis-specific [Alignment]
-fun Modifier.wrapContentHeight(align: Alignment = Center) = this + when (align) {
-    TopStart, TopCenter, TopEnd -> LayoutAlign.Top
-    CenterStart, Center, CenterEnd -> LayoutAlign.CenterVertically
-    BottomStart, BottomCenter, BottomEnd -> LayoutAlign.Bottom
-}
+@Deprecated("wrapContentWidth(Alignment) is deprecated. " +
+        "Please use wrapContentWidth(Alignment.Horizontal) instead.")
+fun Modifier.wrapContentHeight(align: Alignment = Alignment.Center) = this + when (align) {
+        Alignment.TopStart, Alignment.TopCenter, Alignment.TopEnd -> LayoutAlign.Top
+        Alignment.CenterStart, Alignment.Center, Alignment.CenterEnd -> LayoutAlign.CenterVertically
+        Alignment.BottomStart, Alignment.BottomCenter, Alignment.BottomEnd -> LayoutAlign.Bottom
+        else -> error("Unexpected alignment")
+    }
+
+/**
+ * Allow the content to measure at its desired height without regard for the incoming measurement
+ * [minimum height constraint][Constraints.minHeight]. If the content's measured size is smaller
+ * than the minimum height constraint, [align] it within that minimum height space.
+ */
+// TODO(popam): avoid recreating modifier for common align
+fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVertically) =
+    this + AlignmentModifier(Alignment(align.bias, -1f), Direction.Vertical)
 
 /**
  * Allow the content to measure at its desired size without regard for the incoming measurement
@@ -339,16 +352,17 @@ fun Modifier.wrapContentHeight(align: Alignment = Center) = this + when (align) 
  * If the content's measured size is smaller than the minimum size constraint, [align] it
  * within that minimum sized space.
  */
-fun Modifier.wrapContentSize(align: Alignment = Center) = this + when (align) {
-    TopStart -> LayoutAlign.TopStart
-    TopCenter -> LayoutAlign.TopCenter
-    TopEnd -> LayoutAlign.TopEnd
-    CenterStart -> LayoutAlign.CenterStart
-    Center -> LayoutAlign.Center
-    CenterEnd -> LayoutAlign.CenterEnd
-    BottomStart -> LayoutAlign.BottomStart
-    BottomCenter -> LayoutAlign.BottomCenter
-    BottomEnd -> LayoutAlign.BottomEnd
+fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) = this + when (align) {
+    Alignment.TopStart -> LayoutAlign.TopStart
+    Alignment.TopCenter -> LayoutAlign.TopCenter
+    Alignment.TopEnd -> LayoutAlign.TopEnd
+    Alignment.CenterStart -> LayoutAlign.CenterStart
+    Alignment.Center -> LayoutAlign.Center
+    Alignment.CenterEnd -> LayoutAlign.CenterEnd
+    Alignment.BottomStart -> LayoutAlign.BottomStart
+    Alignment.BottomCenter -> LayoutAlign.BottomCenter
+    Alignment.BottomEnd -> LayoutAlign.BottomEnd
+    else -> error("Unexpected alignment")
 }
 
 private data class SizeModifier(

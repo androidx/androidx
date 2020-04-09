@@ -19,6 +19,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
@@ -33,7 +34,6 @@ import androidx.ui.foundation.shape.corner.CornerSize
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.Row
-import androidx.ui.layout.RowAlign
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
@@ -152,9 +152,9 @@ fun ExtendedFloatingActionButton(
                 text()
             } else {
                 Row {
-                    Box(Modifier.gravity(RowAlign.Center), children = icon)
+                    Box(Modifier.gravity(Alignment.CenterVertically), children = icon)
                     Spacer(Modifier.preferredWidth(ExtendedFabIconPadding))
-                    Box(Modifier.gravity(RowAlign.Center), children = text)
+                    Box(Modifier.gravity(Alignment.CenterVertically), children = text)
                 }
             }
         }
@@ -165,7 +165,7 @@ fun ExtendedFloatingActionButton(
  * [LayoutModifier] that will set minimum constraints in each dimension to be [FabSize] unless
  * there is an incoming, non-zero minimum already. This allows us to define a default minimum in
  * [FloatingActionButton], but let [ExtendedFloatingActionButton] override it with a smaller
- * minimum just by settings a normal [LayoutHeight.Min] modifier.
+ * minimum just by settings a normal [preferredSizeIn] modifier.
  *
  * TODO: b/150460257 remove after support for this is added as a SizeModifier / similar
  */

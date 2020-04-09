@@ -18,6 +18,7 @@ package androidx.ui.framework.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
@@ -26,7 +27,6 @@ import androidx.ui.foundation.Text
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
-import androidx.ui.layout.RowAlign
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredSize
@@ -175,7 +175,7 @@ fun Semantics(
         }
         Row(Modifier.fillMaxWidth(), arrangement = Arrangement.Center) {
             Box(
-                Modifier.gravity(RowAlign.Center).preferredSize(500.dp, 300.dp),
+                Modifier.gravity(Alignment.CenterVertically).preferredSize(500.dp, 300.dp),
                 gravity = ContentGravity.Center,
                 children = children
             )

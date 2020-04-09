@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
@@ -24,7 +25,6 @@ import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.layout.Column
-import androidx.ui.layout.ColumnAlign
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.PxPosition
@@ -59,7 +59,7 @@ class LayoutCoordinatesHelperTest {
             }) {
                 Box(
                     Modifier.preferredSize(10.dp)
-                        .gravity(ColumnAlign.Start)
+                        .gravity(Alignment.Start)
                         .onPositioned { coordinates ->
                             childCoordinates = coordinates
                             latch.countDown()
@@ -92,7 +92,7 @@ class LayoutCoordinatesHelperTest {
                     ) {
                         Box(
                             Modifier.preferredSize(10.ipx.toDp())
-                                .gravity(ColumnAlign.Center)
+                                .gravity(Alignment.CenterHorizontally)
                                 .onPositioned { coordinates ->
                                     childCoordinates = coordinates
                                     latch.countDown()

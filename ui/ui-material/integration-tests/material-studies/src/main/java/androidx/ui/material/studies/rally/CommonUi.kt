@@ -17,6 +17,7 @@
 package androidx.ui.material.studies.rally
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
@@ -25,7 +26,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
-import androidx.ui.layout.RowAlign
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
@@ -74,33 +74,33 @@ private fun BaseRow(
 ) {
     Row(Modifier.preferredHeight(68.dp)) {
         val typography = MaterialTheme.typography
-        AccountIndicator(color = color, modifier = Modifier.gravity(RowAlign.Center))
+        AccountIndicator(color = color, modifier = Modifier.gravity(Alignment.CenterVertically))
         Spacer(Modifier.preferredWidth(8.dp))
-        Column(Modifier.gravity(RowAlign.Center)) {
+        Column(Modifier.gravity(Alignment.CenterVertically)) {
             Text(text = title, style = typography.body1)
             Text(text = subtitle, style = typography.subtitle1)
         }
         Spacer(Modifier.weight(1f))
         Row(
-            modifier = Modifier.gravity(RowAlign.Center).preferredWidth(113.dp),
+            modifier = Modifier.gravity(Alignment.CenterVertically).preferredWidth(113.dp),
             arrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = if (negative) "–$ " else "$ ",
                 style = typography.h6,
-                modifier = Modifier.gravity(RowAlign.Center)
+                modifier = Modifier.gravity(Alignment.CenterVertically)
             )
             Text(
                 text = formatAmount(amount),
                 style = typography.h6,
-                modifier = Modifier.gravity(RowAlign.Center)
+                modifier = Modifier.gravity(Alignment.CenterVertically)
             )
         }
         Spacer(Modifier.preferredWidth(16.dp))
         Icon(
             Icons.Filled.ArrowForwardIos,
             tintColor = Color.White.copy(alpha = 0.6f),
-            modifier = Modifier.gravity(RowAlign.Center),
+            modifier = Modifier.gravity(Alignment.CenterVertically),
             size = 12.dp
         )
     }
