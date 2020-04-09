@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.util.Map;
@@ -37,6 +38,9 @@ import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.components.ActivityComponent;
 import dagger.hilt.android.components.FragmentComponent;
+import dagger.hilt.android.internal.lifecycle.DefaultActivityViewModelFactory;
+import dagger.hilt.android.internal.lifecycle.DefaultFragmentViewModelFactory;
+import dagger.multibindings.IntoSet;
 import dagger.multibindings.Multibinds;
 
 /**
@@ -59,9 +63,10 @@ public final class ViewModelFactoryModules {
         abstract Map<String, ViewModelAssistedFactory<? extends ViewModel>> viewModelFactoriesMap();
 
         @Provides
+        @IntoSet
         @NonNull
-        @ActivityViewModelFactory
-        static ViewModelFactory provideFactory(
+        @DefaultActivityViewModelFactory
+        static ViewModelProvider.Factory provideFactory(
                 @NonNull Activity activity,
                 @NonNull Application application,
                 @NonNull Map<String, Provider<ViewModelAssistedFactory<? extends ViewModel>>>
@@ -84,9 +89,10 @@ public final class ViewModelFactoryModules {
     public static final class FragmentModule {
 
         @Provides
+        @IntoSet
         @NonNull
-        @FragmentViewModelFactory
-        static ViewModelFactory provideFactory(
+        @DefaultFragmentViewModelFactory
+        static ViewModelProvider.Factory provideFactory(
                 @NonNull Fragment fragment,
                 @NonNull Application application,
                 @NonNull Map<String, Provider<ViewModelAssistedFactory<? extends ViewModel>>>

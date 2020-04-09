@@ -21,17 +21,10 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.hilt.lifecycle.FragmentViewModelFactory
-import androidx.hilt.lifecycle.ViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class SimpleFragment : Fragment() {
-    // TODO(danysantiago): Should be declared in Hilt gen class
-    @Inject
-    @FragmentViewModelFactory
-    lateinit var viewModelFactory: ViewModelFactory
 
     val simpleViewModel by viewModels<SimpleViewModel>()
     val activitySimpleViewModel by activityViewModels<SimpleViewModel>()
@@ -42,7 +35,4 @@ class SimpleFragment : Fragment() {
         Log.d("SimpleFragment", simpleViewModel.hi())
         Log.d("SimpleFragment", activitySimpleViewModel.hi())
     }
-
-    // TODO(danysantiago): Should be overridden by Hilt gen class
-    override fun getDefaultViewModelProviderFactory() = viewModelFactory
 }
