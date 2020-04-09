@@ -243,7 +243,10 @@ internal object Errors {
      * call.
      */
     fun throwIfError() {
-        if (UNSUPPRESSED_WARNING_MESSAGE != null) {
+        // Note - we ignore configuration errors in dry run mode, since we don't care about
+        // measurement accuracy, and we want to support e.g. running on emulators, -eng builds, and
+        // unlocked devices in presubmit.
+        if (!Arguments.dryRunMode && UNSUPPRESSED_WARNING_MESSAGE != null) {
             throw AssertionError(UNSUPPRESSED_WARNING_MESSAGE)
         }
 

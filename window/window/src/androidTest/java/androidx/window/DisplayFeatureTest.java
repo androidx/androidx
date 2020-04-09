@@ -17,6 +17,7 @@
 package androidx.window;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import android.graphics.Rect;
 
@@ -46,5 +47,53 @@ public final class DisplayFeatureTest {
 
         assertEquals(bounds, feature.getBounds());
         assertEquals(DisplayFeature.TYPE_HINGE, feature.getType());
+    }
+
+    @Test
+    public void testEquals_sameAttributes() {
+        Rect nonEmptyRect = new Rect(-1, 1, 1, -1);
+        int type = 1;
+
+        DisplayFeature original = new DisplayFeature(nonEmptyRect, type);
+        DisplayFeature copy = new DisplayFeature(nonEmptyRect, type);
+
+        assertEquals(original, copy);
+    }
+
+    @Test
+    public void testEquals_differentRect() {
+        Rect originalRect = new Rect(-1, 1, 1, -1);
+        Rect otherRect = new Rect(-3, 3, 3, -3);
+        int type = 1;
+
+        DisplayFeature original = new DisplayFeature(originalRect, type);
+        DisplayFeature other = new DisplayFeature(otherRect, type);
+
+        assertNotEquals(original, other);
+    }
+
+    @Test
+    public void testEquals_differentType() {
+        Rect rect = new Rect(-1, 1, 1, -1);
+        int originalType = 1;
+        int otherType = 2;
+
+        DisplayFeature original = new DisplayFeature(rect, originalType);
+        DisplayFeature other = new DisplayFeature(rect, otherType);
+
+        assertNotEquals(original, other);
+    }
+
+    @Test
+    public void testHashCode_matchesIfEqual() {
+        Rect originalRect = new Rect(-1, 2, 3, -1);
+        Rect matchingRect = new Rect(-1, 2, 3, -1);
+        int type = 1;
+
+        DisplayFeature original = new DisplayFeature(originalRect, type);
+        DisplayFeature matching = new DisplayFeature(matchingRect, type);
+
+        assertEquals(original, matching);
+        assertEquals(original.hashCode(), matching.hashCode());
     }
 }

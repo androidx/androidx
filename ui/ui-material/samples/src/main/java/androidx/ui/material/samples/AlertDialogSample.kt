@@ -119,7 +119,7 @@ fun CustomAlertDialogSample() {
                         " which presents the details regarding the Dialog's purpose.")
             },
             buttons = {
-                Row(arrangement = Arrangement.Center) {
+                Row(horizontalArrangement = Arrangement.Center) {
                     Button(onClick = { openDialog.value = false }) {
                         Text("Button")
                     }

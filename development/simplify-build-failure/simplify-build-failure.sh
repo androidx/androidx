@@ -22,7 +22,7 @@ function usage() {
   echo '  simplify-build-failure.sh'
   echo
   echo 'SYNOPSIS'
-  echo "  $0 (--task <gradle task> <error message> | --command <shell command> ) [--continue] [<subfile path>]"
+  echo "  $0 (--task <gradle task> <error message> | --command <shell command> ) [--continue] [--limit-to-path <file path>] [--check-lines-in <subfile path>]"
   echo
   echo DESCRIPTION
   echo '  Searches for a minimal set of files and/or lines required to reproduce a given build failure'
@@ -38,8 +38,12 @@ function usage() {
   echo '  --continue'
   echo '    Attempts to pick up from a previous invocation of simplify-build-failure.sh'
   echo
-  echo '<subfile path>'
-  echo '  If <subfile path> is specified, then individual lines in files in <subfile path> will be considered for removal, too'
+  echo '  --limit-to-path <limitPath>'
+  echo '    Will check only <limitPath> (plus subdirectories, if present) for possible simplications. This can make the simplification process faster if there are paths that you know are'
+  echo '    uninteresting to you'
+  echo
+  echo '  --check-lines-in <subfile path>'
+  echo '    Specifies that individual lines in files in <subfile path> will be considered for removal, too'
   exit 1
 }
 
@@ -59,6 +63,8 @@ gradleCommand=""
 grepCommand=""
 testCommand=""
 resume=false
+subfilePath=""
+limitToPath=""
 
 export ALLOW_MISSING_PROJECTS=true # so that if we delete entire projects then the AndroidX build doesn't think we made a spelling mistake
 
@@ -82,9 +88,6 @@ while [ "$1" != "" ]; do
       usage
     fi
 
-    subfilePath="$1"
-    shift || true
-
     gradleCommand="OUT_DIR=out ./gradlew $gradleTasks > log 2>&1"
     grepCommand="grep \"$errorMessage\" log"
     # Sleep in case Gradle fails very quickly
@@ -104,9 +107,17 @@ while [ "$1" != "" ]; do
       echo "Error: must set OUT_DIR in the test command to prevent concurrent Gradle executions from interfering with each other"
       exit 1
     fi
-
+    continue
+  fi
+  if [ "$arg" == "--check-lines-in" ]; then
     subfilePath="$1"
-    break
+    shift
+    continue
+  fi
+  if [ "$arg" == "--limit-to-path" ]; then
+    limitToPath="$1"
+    shift
+    continue
   fi
   echo "Unrecognized argument '$arg'"
   usage
@@ -135,7 +146,13 @@ referencePassingDir="$tempDir/base"
 referenceFailingDir="$tempDir/failing"
 
 rm "$referencePassingDir" -rf
-mkdir -p "$referencePassingDir"
+if [ "$limitToPath" != "" ]; then
+  mkdir -p "$(dirname $referencePassingDir)"
+  cp -r "$supportRoot" "$referencePassingDir"
+  rm "$referencePassingDir/$limitToPath" -rf
+else
+  mkdir -p "$referencePassingDir"
+fi
 
 if [ "$subfilePath" != "" ]; then
   if [ ! -e "$subfilePath" ]; then
@@ -182,7 +199,7 @@ else
   if [ "$subfilePath" == "." ]; then
     subfilePath=""
   fi
-  if echo "$resume" | grep true && stat $fewestFilesOutputPath >/dev/null 2>/dev/null; then
+  if echo "$resume" | grep true >/dev/null && stat $fewestFilesOutputPath >/dev/null 2>/dev/null; then
     echo "Skipping recopying $filtererStep1Output to $fewestFilesOutputPath"
   else
     echo Copying minimal set of files into $fewestFilesOutputPath
@@ -213,7 +230,7 @@ else
     fi
   fi
 
-  if echo "$resume" | grep true && stat "$noFunctionBodies_output" >/dev/null 2>/dev/null; then
+  if echo "$resume" | grep true >/dev/null && stat "$noFunctionBodies_output" >/dev/null 2>/dev/null; then
     echo "Skipping asking diff-filterer to remove function bodies because $noFunctionBodies_output already exists"
   else
     echo Splitting files into smaller pieces
@@ -229,7 +246,6 @@ else
 
     echo Removing deepest lines
     cd "$noFunctionBodies_goal"
-    #find "$noFunctionBodies_sandbox" -type f | xargs sed -i 's| \*/|\*/|g' # deindent block comments
     "${scriptPath}/impl/split.sh" --remove-leaves "$noFunctionBodies_sandbox" "$splitsPath"
     rm "$noFunctionBodies_sandbox" -rf
 
@@ -251,12 +267,12 @@ else
 
   # prepare for another invocation of diff-filterer, to remove other code that is now unused
   smallestFilesInput="$tempDir/smallestFilesInput"
-  smallestFilesGoal="$tempDir/empty"
+  smallestFilesGoal="$tempDir/smallestFilesGoal"
   smallestFilesWork="work"
   smallestFilesSandbox="$smallestFilesWork/$subfilePath"
 
   rm -rf "$smallestFilesInput" "$smallestFilesGoal"
-  mkdir -p "$smallestFilesInput" "$smallestFilesGoal"
+  mkdir -p "$smallestFilesInput"
   cp -rT "${noFunctionBodies_output}" "$smallestFilesInput"
 
   echo Splitting files into individual lines
@@ -264,6 +280,21 @@ else
   splitsPath="${subfilePath}.split"
   "${scriptPath}/impl/split.sh" "$smallestFilesSandbox" "$splitsPath"
   rm "$smallestFilesSandbox" -rf
+
+  # Make a dir holding the destination file state
+  if [ "$limitToPath" != "" ]; then
+    # The user said they were only interested in trying to delete files under a certain path
+    # So, our target state is the original state minus that path (and its descendants)
+    mkdir -p "$smallestFilesGoal"
+    cp -rT "$smallestFilesInput/$smallestFilesWork" "$smallestFilesGoal/$smallestFilesWork"
+    cd "$smallestFilesGoal/$smallestFilesWork"
+    rm "$limitToPath" -rf
+    cd -
+  else
+    # The user didn't request to limit the search to a specific path, so we try to delete as many
+    # files as possible
+    mkdir -p "$smallestFilesGoal"
+  fi
 
   echo Running diff-filterer.py again to identify the minimal set of lines needed to reproduce the error
   if "$supportRoot/development/file-utils/diff-filterer.py" $filtererOptions --work-path "$(cd $supportRoot/../.. && pwd)" "$smallestFilesInput" "$smallestFilesGoal" "${scriptPath}/impl/join.sh ${splitsPath} ${smallestFilesSandbox} && cd ${smallestFilesWork} && $testCommand"; then

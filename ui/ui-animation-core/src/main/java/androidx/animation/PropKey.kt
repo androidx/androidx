@@ -58,8 +58,21 @@ private class TwoWayConverterImpl<T, V : AnimationVector>(
 
 /**
  * Property key of [T] type.
+ *
+ * [PropKey]s are used when defining a [TransitionDefinition], as a part of creating a
+ * state-based animation.  Each property (to be animated) needs to be associated with a [PropKey] of
+ * the type of the property. For example, this creates an alpha property:
+ * `val alpha = FloatPropKey()`. [PropKey]s for common data types are
+ * provided out of the box: such as [androidx.ui.animation.DpPropKey],
+ * [androidx.ui.animation.PxPositionPropKey], etc. To create a custom [PropKey] of type [T], a
+ * [typeConverter] needs to be supplied to define how the animated data type can be converted to
+ * and from an [AnimationVector], so that animations can support multi-dimensional data types.
  */
 interface PropKey<T, V : AnimationVector> {
+    /**
+     * A [TwoWayConverter] that converts [T] (the data type to be animated) to and from [V] (any
+     * subclass of [AnimationVector]).
+     */
     val typeConverter: TwoWayConverter<T, V>
 }
 

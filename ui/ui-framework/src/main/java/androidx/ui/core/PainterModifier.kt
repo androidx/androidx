@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
-import androidx.ui.graphics.ScaleFit
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -45,9 +44,10 @@ import kotlin.math.ceil
  * specified bounds, the default of [Alignment.Center] centers the content within the specified
  * rendering bounds
  *
- * @param scaleFit: Specifies the rule used to scale the content of the Painter within the
- * specified bounds, the default of [ScaleFit.Fit] scales the content to be as large as possible
- * within the specified bounds while still maintaining the aspect ratio of its intrinsic size
+ * @param contentScale: Specifies the rule used to scale the content of the Painter within the
+ * specified bounds, the default of [ContentScale.Inside] scales the content to be as large as
+ * possible within the specified bounds while still maintaining the aspect ratio of its intrinsic
+ * size
  *
  * @param alpha: Specifies the opacity to render the contents of the underlying [Painter]
  *
@@ -61,7 +61,7 @@ import kotlin.math.ceil
 @Deprecated(
     "Use Modifier.paint",
     replaceWith = ReplaceWith(
-        "Modifier.paint(this, sizeToIntrinsics, alignment, scaleFit, alpha, colorFilter, rtl)",
+        "Modifier.paint(this, sizeToIntrinsics, alignment, contentScale, alpha, colorFilter, rtl)",
         "androidx.ui.core.Modifier",
         "androidx.ui.core.paint"
     )
@@ -70,15 +70,15 @@ import kotlin.math.ceil
 fun Painter.asModifier(
     sizeToIntrinsics: Boolean = true,
     alignment: Alignment = Alignment.Center,
-    scaleFit: ScaleFit = ScaleFit.Fit,
+    contentScale: ContentScale = ContentScale.Inside,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     rtl: Boolean = false
 ): DrawModifier {
     // TODO potentially create thread-safe PainterModifier pool to allow for re-use
     //  of PainterModifier instances and avoid gc overhead
-    return remember(this, sizeToIntrinsics, alignment, scaleFit, alpha, colorFilter, rtl) {
-        PainterModifier(this, sizeToIntrinsics, alignment, scaleFit, alpha, colorFilter, rtl)
+    return remember(this, sizeToIntrinsics, alignment, contentScale, alpha, colorFilter, rtl) {
+        PainterModifier(this, sizeToIntrinsics, alignment, contentScale, alpha, colorFilter, rtl)
     }
 }
 
@@ -87,7 +87,7 @@ fun Painter.asModifier(
  *
  * @param sizeToIntrinsics `true` to size the element relative to [Painter.intrinsicSize]
  * @param alignment specifies alignment of the [painter] relative to content
- * @param scaleFit strategy for scaling [painter] if its size does not match the content size
+ * @param contentScale strategy for scaling [painter] if its size does not match the content size
  * @param alpha opacity of [painter]
  * @param colorFilter optional [ColorFilter] to apply to [painter]
  * @param rtl layout direction to report to [painter] when drawing
@@ -96,7 +96,7 @@ fun Modifier.paint(
     painter: Painter,
     sizeToIntrinsics: Boolean = true,
     alignment: Alignment = Alignment.Center,
-    scaleFit: ScaleFit = ScaleFit.Fit,
+    contentScale: ContentScale = ContentScale.Inside,
     alpha: Float = DefaultAlpha,
     colorFilter: ColorFilter? = null,
     rtl: Boolean = false
@@ -104,7 +104,7 @@ fun Modifier.paint(
     painter = painter,
     sizeToIntrinsics = sizeToIntrinsics,
     alignment = alignment,
-    scaleFit = scaleFit,
+    contentScale = contentScale,
     alpha = alpha,
     colorFilter = colorFilter,
     rtl = rtl
@@ -119,7 +119,7 @@ private data class PainterModifier(
     val painter: Painter,
     val sizeToIntrinsics: Boolean,
     val alignment: Alignment = Alignment.Center,
-    val scaleFit: ScaleFit = ScaleFit.Fit,
+    val contentScale: ContentScale = ContentScale.Inside,
     val alpha: Float = DefaultAlpha,
     val colorFilter: ColorFilter? = null,
     val rtl: Boolean = false
@@ -223,7 +223,7 @@ private data class PainterModifier(
             size.height
         }
 
-        val scale = scaleFit.scale(PxSize(srcWidth, srcHeight), size)
+        val scale = contentScale.scale(PxSize(srcWidth, srcHeight), size)
 
         val alignedPosition = alignment.align(
             IntPxSize(

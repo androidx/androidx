@@ -781,7 +781,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     @Override
-    public final void setResult(@NonNull String requestKey, @Nullable Bundle result) {
+    public final void setFragmentResult(@NonNull String requestKey, @Nullable Bundle result) {
         if (result == null) {
             // if the given result is null, remove the result
             mResults.remove(requestKey);
@@ -801,7 +801,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     @SuppressLint("SyntheticAccessor")
     @Override
-    public final void setResultListener(@NonNull final String requestKey,
+    public final void setFragmentResultListener(@NonNull final String requestKey,
             @NonNull final LifecycleOwner lifecycleOwner,
             @Nullable final FragmentResultListener listener) {
         if (listener == null) {
@@ -825,7 +825,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                         // if there is a result, fire the callback
                         listener.onFragmentResult(requestKey, storedResult);
                         // and clear the result
-                        setResult(requestKey, null);
+                        setFragmentResult(requestKey, null);
                     }
                 }
 

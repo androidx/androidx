@@ -16,7 +16,7 @@
 
 package androidx.hilt.ext
 
-import androidx.hilt.HiltViewModelProcessor
+import androidx.hilt.AndroidXHiltProcessor
 import com.google.auto.common.GeneratedAnnotationSpecs
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.SourceVersion
@@ -35,7 +35,7 @@ internal fun TypeSpec.Builder.addGeneratedAnnotation(
     GeneratedAnnotationSpecs.generatedAnnotationSpec(
         elements,
         sourceVersion,
-        HiltViewModelProcessor::class.java
+        AndroidXHiltProcessor::class.java
     ).ifPresent { generatedAnnotation ->
         addAnnotation(generatedAnnotation)
     }

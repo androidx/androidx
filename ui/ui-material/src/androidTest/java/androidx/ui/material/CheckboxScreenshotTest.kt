@@ -83,9 +83,6 @@ class CheckboxScreenshotTest {
 
         runOnIdleCompose { }
 
-        // TODO(b/152402882): Advancing animation once (by 220ms) yields different result than this
-        composeTestRule.clockTestRule.advanceClock(100)
-        runOnIdleCompose { }
         composeTestRule.clockTestRule.advanceClock(120)
 
         find(isToggleable())
@@ -108,9 +105,6 @@ class CheckboxScreenshotTest {
 
         runOnIdleCompose { }
 
-        // TODO(b/152402882): Advancing animation once (by 220ms) yields different result than this
-        composeTestRule.clockTestRule.advanceClock(100)
-        runOnIdleCompose { }
         composeTestRule.clockTestRule.advanceClock(120)
 
         find(isToggleable())

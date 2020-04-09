@@ -36,6 +36,8 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -93,7 +95,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
                     @Override
                     public SessionCommandGroup onConnect(@NonNull MediaSession session,
                             @NonNull ControllerInfo controller) {
-                        if (Process.myUid() == controller.getUid()) {
+                        if (TextUtils.equals(mContext.getPackageName(),
+                                controller.getPackageName())) {
                             return super.onConnect(session, controller);
                         }
                         return null;
@@ -649,6 +652,21 @@ public class MediaSessionTest extends MediaSessionTestBase {
                     null, testControllerCallback);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
+    }
+
+    /**
+     * Test {@link MediaSession#getSessionCompatToken()}.
+     */
+    @Test
+    public void getSessionCompatToken_returnsCompatibleWithMediaControlleCompat()
+            throws Exception {
+        MediaSessionCompat.Token token = mSession.getSessionCompatToken();
+        MediaControllerCompat compat = new MediaControllerCompat(mContext, token);
+        long testSeekPosition = 1234;
+        compat.getTransportControls().seekTo(testSeekPosition);
+        assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(mPlayer.mSeekToCalled);
+        assertEquals(testSeekPosition, mPlayer.mSeekPosition);
     }
 
     private ControllerInfo getTestControllerInfo() {

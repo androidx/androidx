@@ -7,6 +7,9 @@ package androidx.ui.autofill {
   public final class AndroidAutofillKt {
   }
 
+  public final class AndroidAutofillTypeKt {
+  }
+
 }
 
 package androidx.ui.core {
@@ -19,7 +22,8 @@ package androidx.ui.core {
   }
 
   public final class AndroidOwnerKt {
-    method public static androidx.ui.core.AndroidOwner createOwner(android.content.Context context);
+    method public static androidx.ui.core.AndroidOwner createOwner(android.content.Context context, androidx.lifecycle.LifecycleOwner? lifecycleOwner = null);
+    method public static androidx.ui.core.LayoutDirection getLocaleLayoutDirection(android.content.res.Configuration);
   }
 
   public abstract sealed class ComponentNode {
@@ -233,6 +237,7 @@ package androidx.ui.core {
     method public androidx.ui.unit.Density getDensity();
     method public androidx.ui.text.font.Font.ResourceLoader getFontLoader();
     method public androidx.ui.core.hapticfeedback.HapticFeedback getHapticFeedBack();
+    method public androidx.lifecycle.LifecycleOwner? getLifecycleOwner();
     method public long getMeasureIteration();
     method public androidx.ui.core.LayoutNode getRoot();
     method public androidx.ui.savedinstancestate.UiSavedStateRegistry? getSavedStateRegistry();
@@ -252,6 +257,7 @@ package androidx.ui.core {
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean requestFocus();
     method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setOnLifecycleOwnerAvailable(kotlin.jvm.functions.Function1<? super androidx.lifecycle.LifecycleOwner,kotlin.Unit> callback);
     method public void setOnSavedStateRegistryAvailable(kotlin.jvm.functions.Function1<? super androidx.ui.savedinstancestate.UiSavedStateRegistry,kotlin.Unit> callback);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setShowLayoutBounds(boolean p);
     property public abstract androidx.ui.autofill.Autofill? autofill;
@@ -261,6 +267,7 @@ package androidx.ui.core {
     property public abstract androidx.ui.unit.Density density;
     property public abstract androidx.ui.text.font.Font.ResourceLoader fontLoader;
     property public abstract androidx.ui.core.hapticfeedback.HapticFeedback hapticFeedBack;
+    property public abstract androidx.lifecycle.LifecycleOwner? lifecycleOwner;
     property public abstract long measureIteration;
     property public abstract androidx.ui.core.LayoutNode root;
     property public abstract androidx.ui.savedinstancestate.UiSavedStateRegistry? savedStateRegistry;

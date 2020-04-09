@@ -18,6 +18,7 @@ package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
@@ -30,7 +31,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
-import androidx.ui.layout.RowAlign
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredSize
@@ -92,10 +92,10 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                                 Text(
                                     "3.5 ★",
                                     style = TextStyle(fontSize = 40.px.toSp()),
-                                    modifier = Modifier.gravity(RowAlign.Center)
+                                    modifier = Modifier.gravity(Alignment.CenterVertically)
                                 )
                                 Box(Modifier
-                                    .gravity(RowAlign.Center)
+                                    .gravity(Alignment.CenterVertically)
                                     .preferredSize(40.px.toDp())
                                     .drawBackground(playStoreColor))
                             }

@@ -30,7 +30,6 @@ import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.Column
-import androidx.ui.layout.RowAlign
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.material.IconButton
@@ -84,10 +83,10 @@ fun FilterAppBar(
             primary.copy(alpha = 0.08f).compositeOver(surface)
         }
         TopAppBar(backgroundColor = appBarColor, contentColor = onSurface) {
-            IconButton(modifier = Modifier.gravity(RowAlign.Center), onClick = onClose) {
+            IconButton(modifier = Modifier.gravity(Alignment.CenterVertically), onClick = onClose) {
                 Icon(Icons.Filled.Close)
             }
-            FilterField(filterText, onFilter, Modifier.gravity(RowAlign.Center))
+            FilterField(filterText, onFilter, Modifier.gravity(Alignment.CenterVertically))
         }
     }
 }

@@ -33,6 +33,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
+import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -73,7 +74,7 @@ class DrawReorderingTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testSiblingZOrder() {
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(
                     size = 30.ipx
                 ) {
@@ -102,7 +103,7 @@ class DrawReorderingTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testUncleZOrder() {
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(
                     size = 30.ipx
                 ) {
@@ -130,7 +131,7 @@ class DrawReorderingTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testCousinZOrder() {
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(
                     size = 30.ipx
                 ) {
@@ -162,7 +163,7 @@ class DrawReorderingTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testCousinZOrder2() {
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(
                     size = 30.ipx
                 ) {
@@ -193,7 +194,7 @@ class DrawReorderingTest {
         val state = mutableStateOf(0f)
         val view = View(activity)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(
                     size = 30.ipx
                 ) {
@@ -267,7 +268,7 @@ class DrawReorderingTest {
             .drawLatchModifier()
         val view = View(activity)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(size = 30.ipx) {
                     FixedSize(10.ipx, modifier1)
                     FixedSize(30.ipx, modifier2)
@@ -325,7 +326,7 @@ class DrawReorderingTest {
         }
         val view = View(activity)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(
                     size = 30.ipx
                 ) {
@@ -379,7 +380,7 @@ class DrawReorderingTest {
         val size = mutableStateOf(10.ipx)
         val view = View(activity)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
                     modifier = background(Color.Red)
@@ -430,7 +431,7 @@ class DrawReorderingTest {
     fun testInvalidateReorderedChild() {
         val color = mutableStateOf(Color.Red)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(size = 30.ipx) {
                     FixedSize(
                         10.ipx,
@@ -466,7 +467,7 @@ class DrawReorderingTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testFirstElevationIsUsed() {
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(
                     size = 30.ipx
                 ) {
@@ -509,7 +510,7 @@ class DrawReorderingTest {
             .background(color)
 
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 FixedSize(30.ipx, modifier)
             }
         }

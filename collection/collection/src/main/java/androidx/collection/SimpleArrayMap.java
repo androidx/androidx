@@ -575,17 +575,13 @@ public class SimpleArrayMap<K, V> {
     public V removeAt(int index) {
         final Object old = mArray[(index << 1) + 1];
         final int osize = mSize;
-        final int nsize;
         if (osize <= 1) {
             // Now empty.
             if (DEBUG) System.out.println(TAG + " remove: shrink from " + mHashes.length + " to 0");
-            freeArrays(mHashes, mArray, osize);
-            mHashes = ContainerHelpers.EMPTY_INTS;
-            mArray = ContainerHelpers.EMPTY_OBJECTS;
-            nsize = 0;
+            clear();
         } else {
-            nsize = osize - 1;
-            if (mHashes.length > (BASE_SIZE*2) && mSize < mHashes.length/3) {
+            final int nsize = osize - 1;
+            if (mHashes.length > (BASE_SIZE*2) && osize < mHashes.length/3) {
                 // Shrunk enough to reduce size of arrays.  We don't allow it to
                 // shrink smaller than (BASE_SIZE*2) to avoid flapping between
                 // that and BASE_SIZE.
@@ -624,11 +620,11 @@ public class SimpleArrayMap<K, V> {
                 mArray[nsize << 1] = null;
                 mArray[(nsize << 1) + 1] = null;
             }
+            if (CONCURRENT_MODIFICATION_EXCEPTIONS && osize != mSize) {
+                throw new ConcurrentModificationException();
+            }
+            mSize = nsize;
         }
-        if (CONCURRENT_MODIFICATION_EXCEPTIONS && osize != mSize) {
-            throw new ConcurrentModificationException();
-        }
-        mSize = nsize;
         return (V)old;
     }
 

@@ -22,7 +22,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#333333"
-    tools:context="androidx.wear.widget.ConfirmationActivityTestActivity">
+    tools:context="androidx.wear.activity.ConfirmationActivityTestActivity">
     <Button
         android:id="@+id/show_confirmation_activity_button"
         android:layout_width="wrap_content"

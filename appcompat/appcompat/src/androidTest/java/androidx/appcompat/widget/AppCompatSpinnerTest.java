@@ -35,8 +35,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.os.Build;
@@ -50,6 +48,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.CoordinatesProvider;
 import androidx.test.espresso.action.GeneralSwipeAction;
@@ -60,7 +59,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.testutils.LocaleTestUtils;
+import androidx.testutils.LifecycleOwnerUtils;
 import androidx.testutils.PollingCheck;
 
 import org.hamcrest.Description;
@@ -250,7 +249,7 @@ public class AppCompatSpinnerTest
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void testHorizontalOffsetRtl() {
-        setRtl();
+        setRtlOneShotAndRecreate();
         checkOffsetIsCorrect(200, false, true);
     }
 
@@ -404,23 +403,24 @@ public class AppCompatSpinnerTest
         };
     }
 
-    private void setRtl() {
-        final Context context = mInstrumentation.getTargetContext();
+    private void setRtlOneShotAndRecreate() {
+        try {
+            // Wait for the Activity to be resumed and visible
+            LifecycleOwnerUtils.waitUntilState(mActivity, Lifecycle.State.RESUMED);
 
-        mActivity.finish();
-        final Intent intent = new Intent(context, AppCompatSpinnerActivity.class);
-        intent.putExtra("language", LocaleTestUtils.RTL_LANGUAGE);
+            mActivity = LifecycleOwnerUtils.waitForRecreation(mActivity, new Runnable() {
+                        public void run() {
+                            mActivity.setRtlOneShotAndRecreate();
+                        }
+                    });
 
-        Instrumentation.ActivityMonitor monitor =
-                new Instrumentation.ActivityMonitor(mActivity.getClass().getName(), null, false);
-        mInstrumentation.addMonitor(monitor);
+            mContainer = mActivity.findViewById(R.id.container);
+            mResources = mActivity.getResources();
+        } catch (Throwable t) {
+            // The Activity may still get reused, so make sure it's really a one-shot.
+            mActivity.resetRtlOneShot();
 
-        mActivity = mActivityTestRule.launchActivity(intent);
-
-        mInstrumentation.waitForIdleSync();
-        mInstrumentation.waitForMonitor(monitor);
-
-        mContainer = mActivity.findViewById(R.id.container);
-        mResources = mActivity.getResources();
+            throw new RuntimeException(t);
+        }
     }
 }

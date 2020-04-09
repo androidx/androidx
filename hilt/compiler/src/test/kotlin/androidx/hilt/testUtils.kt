@@ -43,6 +43,6 @@ fun loadJavaSource(fileName: String, qName: String): JavaFileObject {
     return JavaFileObjects.forSourceString(qName, contents)
 }
 
-fun compiler(): Compiler = javac().withProcessors(HiltViewModelProcessor())
+fun compiler(): Compiler = javac().withProcessors(AndroidXHiltProcessor())
 
 fun String.toJFO(qName: String) = JavaFileObjects.forSourceString(qName, this.trimIndent())

@@ -31,6 +31,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.collection.SparseArrayCompat;
 import androidx.navigation.common.R;
 
@@ -158,7 +159,9 @@ public class NavDestination {
      * @param id The id to get a display name for
      * @return The resource's name if it is a valid id or just the id itself if it is not
      * a valid resource
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     static String getDisplayName(@NonNull Context context, int id) {
         // aapt-generated IDs have the high byte nonzero,
@@ -265,8 +268,12 @@ public class NavDestination {
         mIdName = null;
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    String getDisplayName() {
+    public String getDisplayName() {
         if (mIdName == null) {
             mIdName = Integer.toString(mId);
         }

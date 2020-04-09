@@ -46,19 +46,24 @@ class DefaultProgressFragment :
         private const val TAG = "DefaultProgressFragment"
     }
 
-    private lateinit var title: TextView
-    private lateinit var moduleName: TextView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var action: Button
+    private var title: TextView? = null
+    private var progressBar: ProgressBar? = null
+    private var action: Button? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         with(view) {
             title = findViewById(R.id.progress_title)
-            moduleName = findViewById(R.id.module_name)
-            progressBar = findViewById<ProgressBar>(R.id.installation_progress)
+            progressBar = findViewById(R.id.installation_progress)
             setActivityIcon(findViewById(R.id.progress_icon))
             action = findViewById(R.id.progress_action)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        title = null
+        progressBar = null
+        action = null
     }
 
     private fun setActivityIcon(activityIcon: ImageView) {
@@ -73,7 +78,7 @@ class DefaultProgressFragment :
     }
 
     override fun onProgress(status: Int, bytesDownloaded: Long, bytesTotal: Long) {
-        with(progressBar) {
+        progressBar?.run {
             visibility = View.VISIBLE
             if (bytesTotal == 0L) {
                 isIndeterminate = true
@@ -99,15 +104,15 @@ class DefaultProgressFragment :
      * Display an error state message.
      */
     private fun displayErrorState(@StringRes text: Int) {
-        title.setText(text)
-        progressBar.visibility = View.INVISIBLE
+        title?.setText(text)
+        progressBar?.visibility = View.INVISIBLE
     }
 
     /**
      * Display the action button and assign `onClick` behavior.
      */
     private fun displayAction(@StringRes text: Int, onClick: () -> Unit) {
-        with(action) {
+        action?.run {
             setText(text)
             setOnClickListener {
                 onClick()

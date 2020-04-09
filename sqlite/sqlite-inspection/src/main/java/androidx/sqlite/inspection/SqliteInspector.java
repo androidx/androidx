@@ -20,11 +20,13 @@ import static androidx.sqlite.inspection.SqliteInspectionExecutors.directExecuto
 
 import android.annotation.SuppressLint;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQuery;
+import android.database.sqlite.SQLiteStatement;
 import android.os.CancellationSignal;
 
 import androidx.annotation.GuardedBy;
@@ -37,6 +39,7 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Column;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabasePossiblyChangedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorOccurredResponse;
@@ -64,6 +67,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
@@ -80,6 +84,14 @@ final class SqliteInspector extends Inspector {
             + "Landroid/database/sqlite/SQLiteDatabase$OpenParams;"
             + ")"
             + "Landroid/database/sqlite/SQLiteDatabase;";
+
+    // SQLiteStatement methods
+    private static final List<String> sSqliteStatementExecuteMethodsSignatures = Arrays.asList(
+            "execute()V",
+            "executeInsert()J",
+            "executeUpdateDelete()I");
+
+    private static final int INVALIDATION_MIN_INTERVAL_MS = 1000;
 
     // Note: this only works on API26+ because of pragma_* functions
     // TODO: replace with a resource file
@@ -123,12 +135,17 @@ final class SqliteInspector extends Inspector {
     private final DatabaseRegistry mDatabaseRegistry = new DatabaseRegistry();
     private final InspectorEnvironment mEnvironment;
     private final Executor mIOExecutor;
+    /**
+     * Utility instance that handles communication with Room's InvalidationTracker instances.
+     */
+    private final RoomInvalidationRegistry mRoomInvalidationRegistry;
 
     SqliteInspector(@NonNull Connection connection, InspectorEnvironment environment,
             Executor ioExecutor) {
         super(connection);
         mEnvironment = environment;
         mIOExecutor = ioExecutor;
+        mRoomInvalidationRegistry = new RoomInvalidationRegistry(mEnvironment);
     }
 
     @Override
@@ -188,10 +205,106 @@ final class SqliteInspector extends Inspector {
                     }
                 });
 
+        registerInvalidationHooks();
+
         List<SQLiteDatabase> instances = mEnvironment.findInstances(SQLiteDatabase.class);
         for (SQLiteDatabase instance : instances) {
             onDatabaseAdded(instance);
         }
+    }
+
+    private void registerInvalidationHooks() {
+        final RequestCollapsingThrottler throttler = new RequestCollapsingThrottler(
+                INVALIDATION_MIN_INTERVAL_MS,
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        // TODO: wrap in a try/catch block
+                        sendDatabasePossiblyChangedEvent();
+                    }
+                });
+
+        registerInvalidationHooksSqliteStatement(throttler);
+        registerInvalidationHooksSQLiteCursor(throttler);
+    }
+
+    /**
+     * Invalidation hooks triggered by:
+     * <ul>
+     *     <li>{@link SQLiteStatement#execute}</li>
+     *     <li>{@link SQLiteStatement#executeInsert}</li>
+     *     <li>{@link SQLiteStatement#executeUpdateDelete}</li>
+     * </ul>
+     */
+    private void registerInvalidationHooksSqliteStatement(
+            final RequestCollapsingThrottler throttler) {
+        for (String method : sSqliteStatementExecuteMethodsSignatures) {
+            mEnvironment.registerExitHook(SQLiteStatement.class, method,
+                    new InspectorEnvironment.ExitHook<Object>() {
+                        @Override
+                        public Object onExit(Object result) {
+                            throttler.submitRequest();
+                            return result;
+                        }
+                    });
+        }
+    }
+
+    /**
+     * Invalidation hooks triggered by {@link SQLiteCursor#getCount} and
+     * {@link SQLiteCursor#onMove} both of which lead to cursor's query being executed.
+     * <p>
+     * In order to access cursor's query, we also use {@link SQLiteDatabase#rawQueryWithFactory}
+     * which takes a query String and constructs a cursor based on it.
+     */
+    private void registerInvalidationHooksSQLiteCursor(final RequestCollapsingThrottler throttler) {
+        EntryExitMatchingHookRegistry hookRegistry = new EntryExitMatchingHookRegistry(
+                mEnvironment);
+
+        // TODO: add active pruning via Cursor#close listener
+        final Map<SQLiteCursor, Void> trackedCursors = Collections.synchronizedMap(
+                new WeakHashMap<SQLiteCursor, Void>());
+
+        final String rawQueryMethodSignature = "rawQueryWithFactory("
+                + "Landroid/database/sqlite/SQLiteDatabase$CursorFactory;"
+                + "Ljava/lang/String;"
+                + "[Ljava/lang/String;"
+                + "Ljava/lang/String;"
+                + "Landroid/os/CancellationSignal;"
+                + ")Landroid/database/Cursor;";
+        hookRegistry.registerHook(SQLiteDatabase.class,
+                rawQueryMethodSignature, new EntryExitMatchingHookRegistry.OnExitCallback() {
+                    @Override
+                    public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
+                        SQLiteCursor cursor = (SQLiteCursor) exitFrame.mResult;
+                        String query = (String) exitFrame.mArgs.get(1);
+
+                        // Only track cursors that might modify the database.
+                        // TODO: handle PRAGMA select queries, e.g. PRAGMA_TABLE_INFO
+                        if (query != null && DatabaseUtils.getSqlStatementType(query)
+                                != DatabaseUtils.STATEMENT_SELECT) {
+                            trackedCursors.put(cursor, null);
+                        }
+                    }
+                });
+
+        for (final String method : Arrays.asList("getCount()I", "onMove(II)Z")) {
+            hookRegistry.registerHook(SQLiteCursor.class, method,
+                    new EntryExitMatchingHookRegistry.OnExitCallback() {
+                        @Override
+                        public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
+                            SQLiteCursor cursor = (SQLiteCursor) exitFrame.mThisObject;
+                            if (trackedCursors.containsKey(cursor)) {
+                                throttler.submitRequest();
+                            }
+                        }
+                    });
+        }
+    }
+
+    private void sendDatabasePossiblyChangedEvent() {
+        getConnection().sendEvent(Event.newBuilder().setDatabasePossiblyChanged(
+                DatabasePossiblyChangedEvent.getDefaultInstance()).build().toByteArray());
     }
 
     private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
@@ -222,6 +335,7 @@ final class SqliteInspector extends Inspector {
                             .build()
                             .toByteArray()
                     );
+                    mRoomInvalidationRegistry.triggerInvalidationChecks();
                 } catch (SQLiteException | IllegalArgumentException exception) {
                     callback.reply(createErrorOccurredResponse(exception, true).toByteArray());
                 } finally {
@@ -405,6 +519,7 @@ final class SqliteInspector extends Inspector {
             int id = mDatabaseRegistry.addDatabase(database);
             String name = database.getPath();
             response = createDatabaseOpenedEvent(id, name);
+            mRoomInvalidationRegistry.invalidateCache();
         } catch (IllegalArgumentException exception) {
             String message = exception.getMessage();
             // TODO: clean up, e.g. replace Exception message check with a custom Exception class

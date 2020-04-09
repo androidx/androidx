@@ -836,7 +836,7 @@ public class NotificationCompat {
         @RequiresApi(24)
         public @NonNull Builder setChronometerCountDown(boolean countsDown) {
             mChronometerCountDown = countsDown;
-            mExtras.putBoolean(EXTRA_CHRONOMETER_COUNT_DOWN, countsDown);
+            getExtras().putBoolean(EXTRA_CHRONOMETER_COUNT_DOWN, countsDown);
             return this;
         }
 

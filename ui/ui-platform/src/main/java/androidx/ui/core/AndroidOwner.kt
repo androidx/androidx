@@ -32,6 +32,10 @@ import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.ui.autofill.AndroidAutofill
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -68,14 +72,23 @@ import java.lang.reflect.Method
 
 /***
  * This function creates an instance of [AndroidOwner]
+ *
+ * @param context Context to use to create a View
+ * @param lifecycleOwner Current [LifecycleOwner]. When it is not provided we will try to get the
+ * owner using [ViewTreeLifecycleOwner] when we will be attached.
  */
-fun createOwner(context: Context): AndroidOwner = AndroidComposeView(context).also {
+fun createOwner(
+    context: Context,
+    lifecycleOwner: LifecycleOwner? = null
+): AndroidOwner = AndroidComposeView(context, lifecycleOwner).also {
     AndroidOwner.onAndroidOwnerCreatedCallback?.invoke(it)
 }
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-internal class AndroidComposeView constructor(context: Context) :
-    ViewGroup(context), AndroidOwner {
+internal class AndroidComposeView constructor(
+    context: Context,
+    lifecycleOwner: LifecycleOwner?
+) : ViewGroup(context), AndroidOwner {
 
     override val view: View = this
 
@@ -86,7 +99,8 @@ internal class AndroidComposeView constructor(context: Context) :
 
     override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
-        it.layoutDirection = context.getLayoutDirection()
+        it.layoutDirection =
+            context.applicationContext.resources.configuration.localeLayoutDirection
         it.modifier = Modifier.drawLayer(clipToBounds = false) + focusModifier
     }
 
@@ -441,12 +455,14 @@ internal class AndroidComposeView constructor(context: Context) :
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         savedStateDelegate.stopWaitingForStateRestoration()
         trace("AndroidOwner:onMeasure") {
-            val targetWidth = convertMeasureSpec(widthMeasureSpec)
-            val targetHeight = convertMeasureSpec(heightMeasureSpec)
+            val maxWidth = getMaxSize(widthMeasureSpec)
+            val maxHeight = getMaxSize(heightMeasureSpec)
 
             this.constraints = Constraints(
-                targetWidth.min, targetWidth.max,
-                targetHeight.min, targetHeight.max
+                minWidth = 0.ipx,
+                minHeight = 0.ipx,
+                maxWidth = maxWidth,
+                maxHeight = maxHeight
             )
 
             relayoutNodes.add(root)
@@ -456,7 +472,10 @@ internal class AndroidComposeView constructor(context: Context) :
                 // View is not yet laid out.
                 measureAndLayout()
             }
-            setMeasuredDimension(root.width.value, root.height.value)
+            setMeasuredDimension(
+                getMeasuredSize(widthMeasureSpec, root.width),
+                getMeasuredSize(heightMeasureSpec, root.height)
+            )
         }
     }
 
@@ -571,6 +590,25 @@ internal class AndroidComposeView constructor(context: Context) :
         }
     }
 
+    override var lifecycleOwner: LifecycleOwner? = lifecycleOwner
+        private set
+
+    private var onLifecycleAvailable: ((LifecycleOwner) -> Unit)? = null
+
+    override fun setOnLifecycleOwnerAvailable(callback: (LifecycleOwner) -> Unit) {
+        require(lifecycleOwner == null) { "LifecycleOwner is already available" }
+        onLifecycleAvailable = callback
+    }
+
+    // Workaround for the cases when we don't have a real LifecycleOwner, this happens when
+    // ViewTreeLifecycleOwner.get(this) returned null:
+    // 1) we are in AppCompatActivity and there is a bug for(should be fixed soon)
+    // 2) we are in a regular Activity. once we fix bug in AppCompatActivity we stop support it.
+    private val viewLifecycleOwner = object : LifecycleOwner {
+        val lifecycleRegistry = LifecycleRegistry(this)
+        override fun getLifecycle() = lifecycleRegistry
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         showLayoutBounds = getIsShowingLayoutBounds()
@@ -578,6 +616,12 @@ internal class AndroidComposeView constructor(context: Context) :
         ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
         semanticsOwner.invalidateSemanticsRoot()
+        if (lifecycleOwner == null) {
+            lifecycleOwner = ViewTreeLifecycleOwner.get(this) ?: viewLifecycleOwner
+        }
+        onLifecycleAvailable?.invoke(lifecycleOwner!!)
+        onLifecycleAvailable = null
+        viewLifecycleOwner.lifecycleRegistry.currentState = Lifecycle.State.RESUMED
     }
 
     override fun onDetachedFromWindow() {
@@ -585,6 +629,7 @@ internal class AndroidComposeView constructor(context: Context) :
         modelObserver.enableModelUpdatesObserving(false)
         ifDebug { if (autofillSupported()) _autofill?.unregisterCallback() }
         root.detach()
+        viewLifecycleOwner.lifecycleRegistry.currentState = Lifecycle.State.CREATED
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
@@ -609,24 +654,22 @@ internal class AndroidComposeView constructor(context: Context) :
         return true
     }
 
-    private fun convertMeasureSpec(measureSpec: Int): ConstraintRange {
+    private fun getMaxSize(measureSpec: Int): IntPx {
         val mode = MeasureSpec.getMode(measureSpec)
         val size = IntPx(MeasureSpec.getSize(measureSpec))
         return when (mode) {
-            MeasureSpec.EXACTLY -> ConstraintRange(size, size)
-            MeasureSpec.UNSPECIFIED -> ConstraintRange(IntPx.Zero, IntPx.Infinity)
-            MeasureSpec.AT_MOST -> ConstraintRange(IntPx.Zero, size)
+            MeasureSpec.EXACTLY -> size
+            MeasureSpec.UNSPECIFIED -> IntPx.Infinity
+            MeasureSpec.AT_MOST -> size
             else -> throw IllegalStateException()
         }
     }
 
-    private fun Context.getLayoutDirection() =
-        when (applicationContext.resources.configuration.layoutDirection) {
-            android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
-            android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
-            // API doc says Configuration#getLayoutDirection only returns LTR or RTL.
-            // Fallback to LTR for unexpected return value.
-            else -> LayoutDirection.Ltr
+    private fun getMeasuredSize(measureSpec: Int, layoutNodeSize: IntPx) =
+        if (MeasureSpec.getMode(measureSpec) == MeasureSpec.EXACTLY) {
+            MeasureSpec.getSize(measureSpec)
+        } else {
+            layoutNodeSize.value
         }
 
     private val textInputServiceAndroid = TextInputServiceAndroid(this)
@@ -703,6 +746,9 @@ internal class AndroidComposeView constructor(context: Context) :
         var currentDensity: Density
     ) : Canvas by canvas, Density by currentDensity, ContentDrawScope {
         internal var childDrawn = false
+        // Draw composable does not support Rtl and will be removed soon anyway.
+        // The only place where Draw is in use is Table which will be updated anyway b/150276337.
+        override val layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
         override fun drawContent() {
             if (childDrawn) {
@@ -839,4 +885,17 @@ interface AndroidOwner : Owner {
     }
 }
 
-private class ConstraintRange(val min: IntPx, val max: IntPx)
+/**
+ * Return the layout direction set by the [Locale].
+ *
+ * A convenience getter that translates [Configuration.getLayoutDirection] result into
+ * [LayoutDirection] instance.
+ */
+val Configuration.localeLayoutDirection: LayoutDirection
+    get() = when (layoutDirection) {
+        android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
+        android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
+        // API doc says Configuration#getLayoutDirection only returns LTR or RTL.
+        // Fallback to LTR for unexpected return value.
+        else -> LayoutDirection.Ltr
+    }

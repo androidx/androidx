@@ -25,10 +25,12 @@ import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.HapticFeedBackAmbient
+import androidx.ui.core.Modifier
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.AnnotatedString
@@ -94,6 +96,7 @@ class SelectionContainerTest {
                 ) {
                     CoreText(
                         AnnotatedString(textContent),
+                        Modifier.fillMaxSize(),
                         style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                         softWrap = true,
                         overflow = TextOverflow.Clip,

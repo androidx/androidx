@@ -21,6 +21,7 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
+import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.ipx
 import org.junit.Assert.assertFalse
@@ -55,7 +56,7 @@ class ModelReadsTest {
         var drawLatch = CountDownLatch(1)
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Layout({}, modifier = Modifier.drawBehind {
                     // read from the model
                     model.offset
@@ -98,7 +99,7 @@ class ModelReadsTest {
         var drawLatch = CountDownLatch(1)
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Layout({}, modifier = Modifier.drawBehind {
                     // read from the model
                     drawModel.offset
@@ -140,7 +141,7 @@ class ModelReadsTest {
         var measureLatch = CountDownLatch(1)
         var drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Layout({}, modifier = Modifier.drawBehind {
                     // read from the model
                     model.offset
@@ -181,7 +182,7 @@ class ModelReadsTest {
         var measureLatch = CountDownLatch(1)
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Layout({}) { _, _, _ ->
                     measureLatch.countDown()
                     // read from the model
@@ -221,7 +222,7 @@ class ModelReadsTest {
         val enabled = ValueModel(true)
         val model = ValueModel(0)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(10.ipx, modifier = Modifier.drawBehind {
                     if (enabled.value) {
                         // read the model
@@ -240,7 +241,7 @@ class ModelReadsTest {
         val enabled = ValueModel(true)
         val model = ValueModel(0)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Layout({}) { _, _, _ ->
                     if (enabled.value) {
                         // read the model
@@ -261,7 +262,7 @@ class ModelReadsTest {
         val enabled = ValueModel(true)
         val model = ValueModel(0)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Layout({}) { _, _, _ ->
                     layout(10.ipx, 10.ipx) {
                         if (enabled.value) {
@@ -283,7 +284,7 @@ class ModelReadsTest {
         val enabled = ValueModel(true)
         val model = ValueModel(0)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 val modifier = if (enabled.value) {
                     Modifier.drawBehind {
                         // read the model
@@ -304,7 +305,7 @@ class ModelReadsTest {
         val enabled = ValueModel(true)
         val model = ValueModel(0)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 if (enabled.value) {
                     Layout({}) { _, _, _ ->
                         // read the model
@@ -325,7 +326,7 @@ class ModelReadsTest {
         val enabled = ValueModel(true)
         val model = ValueModel(0)
         rule.runOnUiThread {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 if (enabled.value) {
                     Layout({}) { _, _, _ ->
                         layout(10.ipx, 10.ipx) {

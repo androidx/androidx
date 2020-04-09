@@ -29,7 +29,7 @@ package androidx.ui.savedinstancestate
  *
  * @sample androidx.ui.savedinstancestate.samples.CustomSaverSample
  */
-interface Saver<Original : Any, Saveable : Any> {
+interface Saver<Original, Saveable : Any> {
     /**
      * Convert the value into a saveable one. If null is returned the value will not be saved.
      */
@@ -60,7 +60,7 @@ interface Saver<Original : Any, Saveable : Any> {
  * @param restore Defines how to convert the restored value back to the original Class. If null
  * is returned the value will not be restored and would be initialized again instead.
  */
-fun <Original : Any, Saveable : Any> Saver(
+fun <Original, Saveable : Any> Saver(
     save: SaverScope.(value: Original) -> Saveable?,
     restore: (value: Saveable) -> Original?
 ): Saver<Original, Saveable> {
@@ -92,17 +92,19 @@ interface SaverScope {
  *
  * @see Saver
  */
-fun <T : Any> autoSaver(): Saver<T, Any> =
+fun <T> autoSaver(): Saver<T, Any> =
     @Suppress("UNCHECKED_CAST")
     (AutoSaver as Saver<T, Any>)
 
-private val AutoSaver = Saver<Any, Any>(
+private val AutoSaver = Saver<Any?, Any>(
     save = {
-        require(canBeSaved(it)) {
-            "$it cannot be saved using the current UiSavedInstanceStateRegistry. " +
-                    "The default implementation only supports types which can be stored " +
-                    "inside the Bundle. Please consider implementing a custom Saver for this " +
-                    "class and pass it to savedInstanceState() or rememberSavedInstanceState()."
+        if (it != null) {
+            require(canBeSaved(it)) {
+                "$it cannot be saved using the current UiSavedInstanceStateRegistry. The default" +
+                        " implementation only supports types which can be stored inside the " +
+                        "Bundle. Please consider implementing a custom Saver for this class " +
+                        "and pass it to savedInstanceState() or rememberSavedInstanceState()."
+            }
         }
         it
     },

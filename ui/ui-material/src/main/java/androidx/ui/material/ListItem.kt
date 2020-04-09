@@ -30,7 +30,6 @@ import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.layout.Row
-import androidx.ui.layout.RowAlign
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeightIn
 import androidx.ui.layout.preferredSizeIn
@@ -210,7 +209,7 @@ private object OneLine {
         Row(Modifier.preferredHeightIn(minHeight = minHeight)) {
             if (icon != null) {
                 Box(
-                    Modifier.gravity(RowAlign.Center)
+                    Modifier.gravity(Alignment.CenterVertically)
                         .preferredWidthIn(minWidth = IconLeftPadding + IconMinPaddedWidth),
                     gravity = ContentGravity.CenterStart,
                     paddingStart = IconLeftPadding,
@@ -221,14 +220,14 @@ private object OneLine {
             }
             Box(
                 Modifier.weight(1f)
-                    .gravity(RowAlign.Center)
+                    .gravity(Alignment.CenterVertically)
                     .padding(start = ContentLeftPadding, end = ContentRightPadding),
                 gravity = ContentGravity.CenterStart,
                 children = text
             )
             if (trailing != null) {
                 Box(
-                    Modifier.gravity(RowAlign.Center),
+                    Modifier.gravity(Alignment.CenterVertically),
                     paddingEnd = TrailingRightPadding,
                     children = trailing
                 )

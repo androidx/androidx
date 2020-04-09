@@ -64,6 +64,10 @@ abstract class Placeable {
      */
     protected abstract val measuredSize: IntPxSize
 
+    internal val measuredWidth get() = measuredSize.width
+
+    internal val measuredHeight get() = measuredSize.height
+
     /**
      * Positions the [Placeable] at [position] in its parent's coordinate system.
      */

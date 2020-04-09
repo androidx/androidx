@@ -28,7 +28,7 @@ import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.ScaleFit
+import androidx.ui.core.ContentScale
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.withSave
@@ -59,7 +59,7 @@ private val DefaultAlignment = Alignment.Center
  * @param[tintColor] Optional color used to tint this vector graphic
  * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  * @param[alignment] Specifies the placement of the vector within the drawing bounds
- * @param[scaleFit] Specifies how the vector is to be scaled within the parent bounds
+ * @param[contentScale] Specifies how the vector is to be scaled within the parent bounds
  */
 @Deprecated("Favor usage of VectorPainter instead",
     ReplaceWith("VectorPainter(" +
@@ -80,7 +80,7 @@ fun drawVector(
     tintColor: Color = DefaultTintColor,
     tintBlendMode: BlendMode = DefaultTintBlendMode,
     alignment: Alignment = DefaultAlignment,
-    scaleFit: ScaleFit = ScaleFit.Fit,
+    contentScale: ContentScale = ContentScale.Inside,
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Modifier {
@@ -98,7 +98,7 @@ fun drawVector(
         tintColor = tintColor,
         tintBlendMode = tintBlendMode,
         alignment = alignment,
-        scaleFit = scaleFit,
+        contentScale = contentScale,
         name = name,
         children = children
     )
@@ -117,7 +117,7 @@ fun drawVector(
  * @param[tintColor] Optional color used to tint this vector graphic
  * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  * @param[alignment] Specifies the placement of the vector within the drawing bounds
- * @param[scaleFit] Specifies how the vector is to be scaled within the parent bounds
+ * @param[contentScale] Specifies how the vector is to be scaled within the parent bounds
  */
 @Deprecated("use Modifier.drawVector")
 @Composable
@@ -129,7 +129,7 @@ fun drawVector(
     tintColor: Color = DefaultTintColor,
     tintBlendMode: BlendMode = DefaultTintBlendMode,
     alignment: Alignment = DefaultAlignment,
-    scaleFit: ScaleFit = ScaleFit.Fit,
+    contentScale: ContentScale = ContentScale.Inside,
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Modifier = Modifier.drawVector(
@@ -140,7 +140,7 @@ fun drawVector(
     tintColor = tintColor,
     tintBlendMode = tintBlendMode,
     alignment = alignment,
-    scaleFit = scaleFit,
+    contentScale = contentScale,
     name = name,
     children = children
 )
@@ -158,7 +158,7 @@ fun drawVector(
  * @param[tintColor] Optional color used to tint this vector graphic
  * @param[tintBlendMode] Optional blend mode used with [tintColor], default is [BlendMode.srcIn]
  * @param[alignment] Specifies the placement of the vector within the drawing bounds
- * @param[scaleFit] Specifies how the vector is to be scaled within the parent bounds
+ * @param[contentScale] Specifies how the vector is to be scaled within the parent bounds
  */
 @Composable
 fun Modifier.drawVector(
@@ -169,7 +169,7 @@ fun Modifier.drawVector(
     tintColor: Color = DefaultTintColor,
     tintBlendMode: BlendMode = DefaultTintBlendMode,
     alignment: Alignment = DefaultAlignment,
-    scaleFit: ScaleFit = ScaleFit.Fit,
+    contentScale: ContentScale = ContentScale.Inside,
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Modifier {
@@ -199,7 +199,7 @@ fun Modifier.drawVector(
     return this.drawBehind {
         val parentWidth = size.width.value
         val parentHeight = size.height.value
-        val scale = scaleFit.scale(vectorPxSize, size)
+        val scale = contentScale.scale(vectorPxSize, size)
 
         val alignedPosition = alignment.align(
             IntPxSize(

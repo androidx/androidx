@@ -54,7 +54,6 @@ class ConstraintLayoutTest : LayoutTest() {
     // region sizing tests
 
     @Test
-    @Ignore("b/152309302")
     fun dividerMatchTextHeight_spread() = with(density) {
         val aspectRatioBoxSize = Ref<IntPxSize>()
         val dividerSize = Ref<IntPxSize>()
@@ -114,14 +113,13 @@ class ConstraintLayoutTest : LayoutTest() {
     }
 
     @Test
-    @Ignore("b/152309302")
     fun dividerMatchTextHeight_percent() = with(density) {
         val aspectRatioBoxSize = Ref<IntPxSize>()
         val dividerSize = Ref<IntPxSize>()
         composeTestRule.setContent {
             ConstraintLayout(
                 // Make CL fixed width and wrap content height.
-                modifier = Modifier.wrapContentSize(Alignment.TopStart).fillMaxSize(),
+                modifier = Modifier.wrapContentSize(Alignment.TopStart).fillMaxWidth(),
                 constraintSet = ConstraintSet {
                     val aspectRatioBox = tag("aspectRatioBox")
                     val divider = tag("divider")
@@ -175,7 +173,6 @@ class ConstraintLayoutTest : LayoutTest() {
     }
 
     @Test
-    @Ignore("b/152309302")
     fun dividerMatchTextHeight_inWrapConstraintLayout_longText() = with(density) {
         val aspectRatioBoxSize = Ref<IntPxSize>()
         val dividerSize = Ref<IntPxSize>()
@@ -236,7 +233,6 @@ class ConstraintLayoutTest : LayoutTest() {
     }
 
     @Test
-    @Ignore("b/152309302")
     fun dividerMatchTextHeight_inWrapConstraintLayout_shortText() = with(density) {
         val constraintLayoutSize = Ref<IntPxSize>()
         val aspectRatioBoxSize = Ref<IntPxSize>()
@@ -328,7 +324,8 @@ class ConstraintLayoutTest : LayoutTest() {
                         bottom constrainTo parent.bottom
                         bottom.margin = offset.toDp()
                     }
-                }
+                },
+                Modifier.fillMaxSize()
             ) {
                 for (i in 0..2) {
                     Box(Modifier.tag("box$i").preferredSize(boxSize.toDp(), boxSize.toDp())

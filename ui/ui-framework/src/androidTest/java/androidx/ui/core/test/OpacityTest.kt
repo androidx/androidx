@@ -66,7 +66,7 @@ class OpacityTest {
     fun drawFullOpacity() {
         val color = Color.LightGray
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(size = 10.ipx,
                     modifier = background(Color.White) +
                             Modifier.drawOpacity(1f) +
@@ -86,7 +86,7 @@ class OpacityTest {
     fun drawZeroOpacity() {
         val color = Color.LightGray
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(size = 10.ipx,
                     modifier = background(Color.White) +
                             Modifier.drawOpacity(0f) +
@@ -107,7 +107,7 @@ class OpacityTest {
     fun drawHalfOpacity() {
         val color = Color.Red
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 Row(background(Color.White)) {
                     AtLeastSize(size = 10.ipx,
                         modifier = background(Color.White) +
@@ -136,7 +136,7 @@ class OpacityTest {
         val model = ValueModel(0.5f)
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(size = 10.ipx,
                     modifier = background(Color.White) +
                             Modifier.drawOpacity(model.value) +
@@ -164,7 +164,7 @@ class OpacityTest {
         var opacity by mutableStateOf(0f)
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(size = 10.ipx,
                     modifier = background(Color.White) +
                             Modifier.drawOpacity(1f) +
@@ -192,7 +192,7 @@ class OpacityTest {
         val model = ValueModel(false)
 
         rule.runOnUiThreadIR {
-            activity.setContentInFrameLayout {
+            activity.setContent {
                 AtLeastSize(size = 10.ipx,
                     modifier = background(Color.White) +
                             if (model.value) {

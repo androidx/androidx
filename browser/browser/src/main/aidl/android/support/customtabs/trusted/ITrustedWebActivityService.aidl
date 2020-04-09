@@ -27,5 +27,5 @@ interface ITrustedWebActivityService {
     Bundle getActiveNotifications() = 4;
     int getSmallIconId() = 3;
     Bundle getSmallIconBitmap() = 6;
-    Bundle extraCommand(String commandName, in Bundle args) = 7;
+    Bundle extraCommand(String commandName, in Bundle args, in IBinder callback) = 8;
 }

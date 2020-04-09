@@ -72,13 +72,7 @@ internal fun AndroidAutofill.populateViewStructure(root: ViewStructure) {
             setAutofillId(root.autofillId!!, id)
             setId(id, view.context.packageName, null, null)
             setAutofillType(View.AUTOFILL_TYPE_TEXT)
-            setAutofillHints(autofillNode.autofillTypes.map {
-                when (it) {
-                    AutofillType.Name -> View.AUTOFILL_HINT_NAME
-                    AutofillType.EmailAddress -> View.AUTOFILL_HINT_EMAIL_ADDRESS
-                    else -> error("Unsupported autofill type")
-                }
-            }.toTypedArray())
+            setAutofillHints(autofillNode.autofillTypes.map { it.androidType }.toTypedArray())
 
             if (autofillNode.boundingBox == null) {
                 // Do we need an exception here? warning? silently ignore? If the boundingbox is

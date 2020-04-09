@@ -33,13 +33,13 @@ if [ "$1" == "--consolidate-leaves" ]; then
   removeLeavesArg="$1"
   shift
 fi
-sourceDir="$1"
+sourcePath="$1"
 explodedDir="$2"
 
-if [ "$sourceDir" == "" ]; then
+if [ "$sourcePath" == "" ]; then
   usage
 fi
-sourceDir="$(cd $sourceDir && pwd)"
+sourcePath="$(readlink -f $sourcePath)"
 
 if [ "$explodedDir" == "" ]; then
   usage
@@ -48,14 +48,14 @@ mkdir -p "$explodedDir"
 explodedDir="$(cd $explodedDir && pwd)"
 
 function explodePath() {
-  sourcePath="$1"
+  sourceFile="$1"
   explodedPath="$2"
 
   mkdir -p "$explodedPath"
 
-  # split $sourcePath into lines, and put each line into a file named 00001, 00002, 00003, ...
+  # split $sourceFile into lines, and put each line into a file named 00001, 00002, 00003, ...
   cd "$explodedPath"
-  $scriptDir/explode.py $removeLeavesArg "$sourcePath" "$explodedPath"
+  $scriptDir/explode.py $removeLeavesArg "$sourceFile" "$explodedPath"
   touch "$explodedPath/file"
 }
 
@@ -64,12 +64,17 @@ function main() {
   rm "$explodedDir" -rf
   mkdir -p "$explodedDir"
 
-  cd $sourceDir
-  echo splitting everything in $(pwd) into $explodedDir
-  for filePath in $(find -type f); do
-    explodePath "$sourceDir/$filePath" "$explodedDir/$filePath"
-  done
-  echo done splitting everything in $(pwd) into $explodedDir
+  if [ -f $sourcePath ]; then
+    echo exploding single file $sourcePath into $explodedDir
+    explodePath "$sourcePath" "$explodedDir"
+  else
+    echo splitting everything in $sourcePath into $explodedDir
+    cd $sourcePath
+    for filePath in $(find -type f); do
+      explodePath "$sourcePath/$filePath" "$explodedDir/$filePath"
+    done
+  fi
+  echo done splitting everything in $sourcePath into $explodedDir
 }
 
 

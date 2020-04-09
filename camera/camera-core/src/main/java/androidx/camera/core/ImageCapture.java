@@ -1900,6 +1900,7 @@ public final class ImageCapture extends UseCase {
                     byte[] data = new byte[buffer.capacity()];
                     buffer.get(data);
                     exif = Exif.createFromInputStream(new ByteArrayInputStream(data));
+                    buffer.rewind();
 
                     dispatchResolution = new Size(exif.getWidth(), exif.getHeight());
                     dispatchRotation = exif.getRotation();

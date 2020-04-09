@@ -22,6 +22,7 @@ import android.content.res.Configuration
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.activity.ComponentActivity
 import androidx.animation.AnimationClockObservable
 import androidx.animation.rootAnimationClockFactory
 import androidx.annotation.MainThread
@@ -37,8 +38,11 @@ import androidx.compose.remember
 import androidx.compose.state
 import androidx.compose.staticAmbientOf
 import androidx.compose.compositionFor
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.getValue
 import androidx.compose.setValue
+import androidx.lifecycle.LifecycleOwner
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.clipboard.ClipboardManager
@@ -46,6 +50,7 @@ import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.input.FocusManager
 import androidx.ui.core.input.FocusManagerImpl
 import androidx.ui.core.selection.SelectionContainer
+import androidx.ui.framework.R
 import androidx.ui.input.TextInputService
 import androidx.ui.node.UiComposer
 import androidx.ui.platform.AndroidUriHandler
@@ -112,26 +117,42 @@ fun subcomposeInto(
 }
 
 /**
+ * Composes the given composable into the given activity. The [content] will become the root view
+ * of the given activity.
+ *
+ * [Composition.dispose] is called automatically when the Activity is destroyed.
+ *
+ * @param content Composable that will be the content of the activity.
+ */
+fun ComponentActivity.setContent(
+    content: @Composable() () -> Unit
+): Composition = setContent(this, content)
+
+/**
  * Composes the given composable into the given activity. The composable will become the root view
  * of the given activity.
  *
- * Note: the returned [Composition] object is not guaranteed to stay the same between the
- * invocations so it is not safe to use it as a key.
  * @param content Composable that will be the content of the activity.
  */
+@Deprecated(
+    "Your activity should extend androidx.activity.ComponentActivity " +
+            "or AppCompatActivity"
+)
 fun Activity.setContent(
+    content: @Composable() () -> Unit
+): Composition = setContent(null, content)
+
+private fun Activity.setContent(
+    lifecycleOwner: LifecycleOwner?,
     content: @Composable() () -> Unit
 ): Composition {
     FrameManager.ensureStarted()
-    val composeView: Owner = window.decorView
+    val composeView: AndroidOwner = window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
-        .getChildAt(0) as? Owner
-        ?: createOwner(this).also {
+        .getChildAt(0) as? AndroidOwner
+        ?: createOwner(this, lifecycleOwner).also {
             setContentView(it.view)
         }
-
-    // TODO(lmr): setup lifecycle-based dispose since we have Activity here
-
     return doSetContent(composeView, this, content)
 }
 
@@ -147,10 +168,9 @@ private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
 /**
  * Composes the given composable into the given view.
  *
- * Note 1: this [ViewGroup] should have an unique id for the saved instance state mechanism to
+ * Note that this [ViewGroup] should have an unique id for the saved instance state mechanism to
  * be able to save and restore the values used within the composition. See [View.setId].
- * Note 2: the returned [Composition] object is not guaranteed to stay the same between the
- * invocations so it is not safe to use it as a key.
+ *
  * @param content Composable that will be the content of the view.
  */
 fun ViewGroup.setContent(
@@ -159,7 +179,7 @@ fun ViewGroup.setContent(
     FrameManager.ensureStarted()
     val composeView =
         if (childCount > 0) {
-            getChildAt(0) as? Owner
+            getChildAt(0) as? AndroidOwner
         } else {
             removeAllViews(); null
         }
@@ -168,38 +188,70 @@ fun ViewGroup.setContent(
 }
 
 private fun doSetContent(
-    owner: Owner,
+    owner: AndroidOwner,
     context: Context,
     content: @Composable() () -> Unit
 ): Composition {
-    val originalComposition = compositionFor(owner.root, context)
-    val compositionWrapper = object : Composition {
-        private var disposed = false
+    val original = compositionFor(owner.root, context)
+    val wrapped = owner.view.getTag(R.id.wrapped_composition_tag)
+            as? WrappedComposition
+        ?: WrappedComposition(owner, original).also {
+            owner.view.setTag(R.id.wrapped_composition_tag, it)
+        }
+    wrapped.setContent(content)
+    return wrapped
+}
 
-        override fun setContent(content: @Composable() () -> Unit) {
+private class WrappedComposition(
+    val owner: AndroidOwner,
+    val original: Composition
+) : Composition, LifecycleEventObserver {
+
+    private var disposed = false
+    private var addedToLifecycle: Lifecycle? = null
+
+    override fun setContent(content: @Composable() () -> Unit) {
+        val lifecycle = owner.lifecycleOwner?.lifecycle
+        if (lifecycle != null) {
+            if (addedToLifecycle == null) {
+                addedToLifecycle = lifecycle
+                lifecycle.addObserver(this)
+            }
             if (owner.savedStateRegistry != null) {
-                originalComposition.setContent {
-                    WrapWithAmbients(owner, context, Dispatchers.Main) {
+                original.setContent {
+                    WrapWithAmbients(owner, owner.view.context, Dispatchers.Main) {
                         WrapWithSelectionContainer(content)
                     }
                 }
             } else {
-                // we will postpone the real composition until composeView restores the state.
+                // TODO(Andrey) unify setOnSavedStateRegistryAvailable and
+                //  setOnLifecycleOwnerAvailable so we will postpone until we have everything.
+                //  we should migrate to androidx SavedStateRegistry first
+                // we will postpone the composition until composeView restores the state.
                 owner.setOnSavedStateRegistryAvailable {
-                    if (!disposed) {
-                        setContent(content)
-                    }
+                    if (!disposed) setContent(content)
                 }
             }
-        }
-
-        override fun dispose() {
-            disposed = true
-            originalComposition.dispose()
+        } else {
+            // we will postpone the composition until we got the lifecycle owner
+            owner.setOnLifecycleOwnerAvailable { if (!disposed) setContent(content) }
         }
     }
-    compositionWrapper.setContent(content)
-    return compositionWrapper
+
+    override fun dispose() {
+        if (!disposed) {
+            disposed = true
+            owner.view.setTag(R.id.wrapped_composition_tag, null)
+            addedToLifecycle?.removeObserver(this)
+        }
+        original.dispose()
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        if (event == Lifecycle.Event.ON_DESTROY) {
+            dispose()
+        }
+    }
 }
 
 @SuppressLint("UnnecessaryLambdaCreation")
@@ -240,6 +292,7 @@ private fun WrapWithAmbients(
 
     val rootAnimationClock = remember { rootAnimationClockFactory() }
     val savedStateRegistry = requireNotNull(owner.savedStateRegistry)
+    val lifecycleOwner = requireNotNull(owner.lifecycleOwner)
 
     val uriHandler = remember { AndroidUriHandler(context) }
 
@@ -261,6 +314,7 @@ private fun WrapWithAmbients(
         AnimationClockAmbient provides rootAnimationClock,
         UiSavedStateRegistryAmbient provides savedStateRegistry,
         UriHandlerAmbient provides uriHandler,
+        LifecycleOwnerAmbient provides lifecycleOwner,
         children = content
     )
 }
@@ -313,6 +367,14 @@ val AutofillAmbient = ambientOf<Autofill?>()
  */
 val AutofillTreeAmbient = staticAmbientOf<AutofillTree>()
 
+@Deprecated(
+    "LayoutDirection ambient is deprecated. Use ConfigurationAmbient instead to read the locale" +
+            " layout direction",
+    ReplaceWith(
+        "ConfigurationAmbient.current.localeLayoutDirection",
+        "import androidx.ui.core.localeLayoutDirection"
+    )
+)
 val LayoutDirectionAmbient = ambientOf<LayoutDirection>()
 
 val FocusManagerAmbient = ambientOf<FocusManager>()
@@ -334,6 +396,11 @@ val ClipboardManagerAmbient = staticAmbientOf<ClipboardManager>()
  * The ambient to provide haptic feedback to the user.
  */
 val HapticFeedBackAmbient = staticAmbientOf<HapticFeedback>()
+
+/**
+ * The ambient containing the current [LifecycleOwner].
+ */
+val LifecycleOwnerAmbient = staticAmbientOf<LifecycleOwner>()
 
 private fun compositionFor(
     container: Any,

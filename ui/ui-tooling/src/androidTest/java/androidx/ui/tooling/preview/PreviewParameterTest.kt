@@ -24,7 +24,6 @@ import androidx.ui.tooling.ComposeViewAdapterTest
 import androidx.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.ui.tooling.preview.datasource.LoremIpsum
 import androidx.ui.tooling.test.R
-import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -42,13 +41,6 @@ class PreviewParameterTest {
     fun setup() {
         composeViewAdapter =
             activityTestRule.activity.findViewById(R.id.compose_view_adapter)
-    }
-
-    @After
-    fun tearDown() {
-        activityTestRule.runOnUiThread {
-            composeViewAdapter.dispose()
-        }
     }
 
     @Test

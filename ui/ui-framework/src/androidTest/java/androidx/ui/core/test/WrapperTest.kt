@@ -15,14 +15,23 @@
  */
 package androidx.ui.core.test
 
+import android.widget.FrameLayout
+import androidx.compose.Composition
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.framework.test.TestActivity
 import androidx.compose.Recompose
 import androidx.compose.onActive
 import androidx.compose.onCommit
+import androidx.compose.onDispose
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.ui.core.LifecycleOwnerAmbient
 import androidx.ui.core.setContent
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -52,7 +61,7 @@ class WrapperTest {
         var composeWrapperCount = 0
         var innerCount = 0
 
-        runOnUiThread {
+        activityTestRule.runOnUiThread {
             activity.setContent {
                 onCommit { composeWrapperCount++ }
                 Recompose { recompose ->
@@ -69,13 +78,97 @@ class WrapperTest {
         assertEquals(2, innerCount)
     }
 
-    // We only need this because IR compiler doesn't like converting lambdas to Runnables
-    private fun runOnUiThread(block: () -> Unit) {
-        val runnable: Runnable = object : Runnable {
-            override fun run() {
-                block()
+    @Test
+    fun lifecycleOwnerIsAvailableInComponentActivity() {
+        val latch = CountDownLatch(1)
+        var owner: LifecycleOwner? = null
+
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                owner = LifecycleOwnerAmbient.current
+                latch.countDown()
             }
         }
-        activityTestRule.runOnUiThread(runnable)
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertNotNull(owner)
+    }
+
+    @Test
+    fun lifecycleOwnerIsAvailableWhenComposedIntoViewGroup() {
+        val latch = CountDownLatch(1)
+        var owner: LifecycleOwner? = null
+
+        activityTestRule.runOnUiThread {
+            val view = FrameLayout(activity)
+            activity.setContentView(view)
+            view.setContent {
+                owner = LifecycleOwnerAmbient.current
+                latch.countDown()
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertNotNull(owner)
+    }
+
+    @Test
+    fun disposedWhenActivityDestroyed() {
+        val composedLatch = CountDownLatch(1)
+        val disposeLatch = CountDownLatch(1)
+
+        val owner = RegistryOwner()
+
+        activityTestRule.runOnUiThread {
+            val view = FrameLayout(activity)
+            activity.setContentView(view)
+            ViewTreeLifecycleOwner.set(view, owner)
+            view.setContent {
+                onDispose {
+                    disposeLatch.countDown()
+                }
+                composedLatch.countDown()
+            }
+        }
+
+        assertTrue(composedLatch.await(1, TimeUnit.SECONDS))
+
+        activityTestRule.runOnUiThread {
+            assertEquals(1, disposeLatch.count)
+            owner.registry.currentState = Lifecycle.State.DESTROYED
+        }
+
+        assertTrue(disposeLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun detachedFromLifecycleWhenDisposed() {
+        val owner = RegistryOwner()
+        var composition: Composition? = null
+        val composedLatch = CountDownLatch(1)
+
+        activityTestRule.runOnUiThread {
+            val view = FrameLayout(activity)
+            activity.setContentView(view)
+            ViewTreeLifecycleOwner.set(view, owner)
+            composition = view.setContent {
+                composedLatch.countDown()
+            }
+        }
+
+        assertTrue(composedLatch.await(1, TimeUnit.SECONDS))
+
+        activityTestRule.runOnUiThread {
+            assertEquals(1, owner.registry.observerCount)
+            composition!!.dispose()
+            assertEquals(0, owner.registry.observerCount)
+        }
+    }
+
+    private class RegistryOwner : LifecycleOwner {
+        var registry = LifecycleRegistry(this).also {
+            it.currentState = Lifecycle.State.RESUMED
+        }
+        override fun getLifecycle() = registry
     }
 }

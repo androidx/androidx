@@ -6,12 +6,12 @@ package androidx.collection {
     ctor public ArrayMap(int);
     ctor public ArrayMap(androidx.collection.SimpleArrayMap!);
     method public boolean containsAll(java.util.Collection<?>);
-    method public java.util.Set<java.util.Map.Entry<K!,V!>!>! entrySet();
-    method public java.util.Set<K!>! keySet();
-    method public void putAll(java.util.Map<? extends K,? extends V>!);
+    method public java.util.Set<java.util.Map.Entry<K!,V!>!> entrySet();
+    method public java.util.Set<K!> keySet();
+    method public void putAll(java.util.Map<? extends K,? extends V>);
     method public boolean removeAll(java.util.Collection<?>);
     method public boolean retainAll(java.util.Collection<?>);
-    method public java.util.Collection<V!>! values();
+    method public java.util.Collection<V!> values();
   }
 
   public final class ArraySet<E> implements java.util.Collection<E> java.util.Set<E> {

@@ -25,6 +25,7 @@ import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.Measured
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
@@ -48,7 +49,7 @@ internal fun RowColumnImpl(
     modifier: Modifier = Modifier,
     arrangement: Arrangement,
     crossAxisSize: SizeMode,
-    crossAxisAlignment: CrossAxisAlignment,
+    crossAxisAlignment: Any,
     children: @Composable() () -> Unit
 ) {
     fun Placeable.mainAxisSize() =
@@ -100,11 +101,14 @@ internal fun RowColumnImpl(
                 fixedSpace += placeable.mainAxisSize()
                 crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
 
-                val lineProvider = measurables[i].crossAxisAlignment?.alignmentLineProvider
-                    ?: crossAxisAlignment.alignmentLineProvider
+                val lineProvider =
+                    (measurables[i].crossAxisAlignment as? CrossAxisAlignment)
+                        ?.alignmentLineProvider
+                        ?: (crossAxisAlignment as? CrossAxisAlignment)?.alignmentLineProvider
                 if (lineProvider != null) {
                     val alignmentLinePosition = when (lineProvider) {
-                        is AlignmentLineProvider.Block -> lineProvider.lineProviderBlock(placeable)
+                        is AlignmentLineProvider.Block ->
+                            lineProvider.lineProviderBlock(Measured(placeable))
                         is AlignmentLineProvider.Value -> placeable[lineProvider.line]
                     }
                     beforeCrossAxisAlignmentLine = max(
@@ -210,6 +214,7 @@ internal fun RowColumnImpl(
                 val childCrossAlignment = measurable.crossAxisAlignment ?: crossAxisAlignment
                 val isRtlColumn = orientation == LayoutOrientation.Vertical &&
                         layoutDirection == LayoutDirection.Rtl
+
                 val crossAxis = when (childCrossAlignment) {
                     CrossAxisAlignment.Start -> {
                         if (isRtlColumn) {
@@ -233,10 +238,18 @@ internal fun RowColumnImpl(
                             )
                         ).y
                     }
-                    else -> {
+                    is Alignment.Vertical -> childCrossAlignment.align(
+                        crossAxisLayoutSize - placeable.crossAxisSize()
+                    )
+                    is Alignment.Horizontal -> childCrossAlignment.align(
+                        crossAxisLayoutSize - placeable.crossAxisSize(),
+                        layoutDirection
+                    )
+                    is CrossAxisAlignment -> {
                         val provider = childCrossAlignment.alignmentLineProvider
                         val alignmentLinePosition = when (provider) {
-                            is AlignmentLineProvider.Block -> provider.lineProviderBlock(placeable)
+                            is AlignmentLineProvider.Block ->
+                                provider.lineProviderBlock(Measured(placeable))
                             is AlignmentLineProvider.Value -> placeable[provider.line]
                             else -> null
                         }
@@ -253,7 +266,9 @@ internal fun RowColumnImpl(
                             IntPx.Zero
                         }
                     }
+                    else -> 0.ipx
                 }
+
                 if (orientation == LayoutOrientation.Horizontal) {
                     placeable.placeAbsolute(mainAxisPositions[index], crossAxis)
                 } else {
@@ -618,7 +633,7 @@ private val IntrinsicMeasurable.weight: Float
 private val IntrinsicMeasurable.fill: Boolean
     get() = (parentData as? RowColumnParentData)?.fill ?: true
 
-private val IntrinsicMeasurable.crossAxisAlignment: CrossAxisAlignment?
+private val IntrinsicMeasurable.crossAxisAlignment: Any?
     get() = (parentData as? RowColumnParentData)?.crossAxisAlignment
 
 private /*inline*/ fun MinIntrinsicWidthMeasureBlock(orientation: LayoutOrientation) =
@@ -811,7 +826,7 @@ internal data class LayoutWeightImpl(val weight: Float, val fill: Boolean) : Par
 internal sealed class SiblingsAlignedModifier : ParentDataModifier {
     abstract override fun Density.modifyParentData(parentData: Any?): Any?
 
-    internal data class WithAlignmentLineBlock(val block: (Placeable) -> IntPx) :
+    internal data class WithAlignmentLineBlock(val block: (Measured) -> IntPx) :
         SiblingsAlignedModifier() {
         override fun Density.modifyParentData(parentData: Any?): Any? {
             return ((parentData as? RowColumnParentData) ?: RowColumnParentData()).also {
@@ -832,7 +847,7 @@ internal sealed class SiblingsAlignedModifier : ParentDataModifier {
     }
 }
 
-internal data class GravityModifier(val alignment: CrossAxisAlignment) : ParentDataModifier {
+internal data class GravityModifier(val alignment: Any) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?): RowColumnParentData {
         return ((parentData as? RowColumnParentData) ?: RowColumnParentData()).also {
             it.crossAxisAlignment = alignment
@@ -846,13 +861,13 @@ internal data class GravityModifier(val alignment: CrossAxisAlignment) : ParentD
 internal data class RowColumnParentData(
     var weight: Float = 0f,
     var fill: Boolean = true,
-    var crossAxisAlignment: CrossAxisAlignment? = null
+    var crossAxisAlignment: Any? = null
 )
 
 /**
  * Provides the alignment line.
  */
 internal sealed class AlignmentLineProvider {
-    data class Block(val lineProviderBlock: (Placeable) -> IntPx) : AlignmentLineProvider()
+    data class Block(val lineProviderBlock: (Measured) -> IntPx) : AlignmentLineProvider()
     data class Value(val line: AlignmentLine) : AlignmentLineProvider()
 }

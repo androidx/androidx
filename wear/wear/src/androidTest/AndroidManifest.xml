@@ -83,7 +83,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.wear.widget.ConfirmationActivityTestActivity">
+        <activity android:name="androidx.wear.activity.ConfirmationActivityTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

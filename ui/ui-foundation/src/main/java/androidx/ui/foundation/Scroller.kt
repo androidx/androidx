@@ -109,7 +109,10 @@ class ScrollerPosition(
      * [Float.POSITIVE_INFINITY] if still unknown
      */
     var maxPosition: Float = Float.POSITIVE_INFINITY
-        internal set
+        internal set(newMax) {
+            field = newMax
+            value = value.coerceIn(0f, newMax)
+        }
 
     /**
      * Smooth scroll to position in pixels

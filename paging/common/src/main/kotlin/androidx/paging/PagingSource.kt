@@ -72,7 +72,6 @@ fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.Lo
  *
  * @sample androidx.paging.samples.pagingSourceSample
  */
-@Suppress("KDocUnresolvedReference")
 abstract class PagingSource<Key : Any, Value : Any> {
 
     /**
