@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.annotation.SuppressLint;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.util.Size;
 import android.view.Surface;
@@ -216,6 +217,25 @@ public final class SurfaceRequest {
     @NonNull
     public Size getResolution() {
         return mResolution;
+    }
+
+
+    /**
+     * Return the crop rect rectangle.
+     *
+     * <p> The returned value dictates how the {@link Surface} provided in
+     * {@link #provideSurface(Surface, Executor, Consumer)} should be displayed.
+     *
+     * <p> The {@link Rect} is based on the output coordinates, which has the size of
+     * rotated {@link #getResolution()}. The caller should update the UI so that only the area
+     * defined by the {@link Rect} is visible to app users.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public Rect getCropRect() {
+        throw new UnsupportedOperationException("Not implemented.");
     }
 
     /**
