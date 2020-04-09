@@ -19,7 +19,7 @@ dependencies {
     implementation(project(":ui:ui-layout:integration-tests:ui-layout-demos"))
     implementation(project(":ui:ui-material:integration-tests:ui-material-demos"))
     implementation(project(":ui:ui-material:integration-tests:ui-material-studies"))
-    implementation(project(":ui:ui-text-core:integration-tests:ui-text-demos"))
+    implementation(project(":ui:ui-text:integration-tests:ui-text-compose-demos"))
 
     implementation(KOTLIN_REFLECT)
     implementation(KOTLIN_STDLIB)
@@ -30,7 +30,7 @@ dependencies {
     implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
-    implementation project(":ui:ui-text-core")
+    implementation project(":ui:ui-text")
     implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-material")
     implementation project(":ui:integration-tests:demos:common")
