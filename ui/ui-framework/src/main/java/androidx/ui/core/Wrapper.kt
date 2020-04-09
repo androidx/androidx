@@ -367,6 +367,14 @@ val AutofillAmbient = ambientOf<Autofill?>()
  */
 val AutofillTreeAmbient = staticAmbientOf<AutofillTree>()
 
+@Deprecated(
+    "LayoutDirection ambient is deprecated. Use ConfigurationAmbient instead to read the locale" +
+            " layout direction",
+    ReplaceWith(
+        "ConfigurationAmbient.current.localeLayoutDirection",
+        "import androidx.ui.core.localeLayoutDirection"
+    )
+)
 val LayoutDirectionAmbient = ambientOf<LayoutDirection>()
 
 val FocusManagerAmbient = ambientOf<FocusManager>()
