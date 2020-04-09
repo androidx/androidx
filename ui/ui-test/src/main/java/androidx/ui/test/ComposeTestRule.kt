@@ -111,5 +111,5 @@ interface ComposeTestCaseSetup {
  * androidTest/AndroidManifest.xml).
  */
 fun createComposeRule(disableTransitions: Boolean = false): ComposeTestRule {
-    return AndroidComposeTestRule(ComponentActivity::class.java, disableTransitions)
+    return AndroidComposeTestRule<ComponentActivity>(disableTransitions)
 }

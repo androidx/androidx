@@ -36,7 +36,7 @@ import org.junit.Test
 class FirstDrawTest {
 
     @get:Rule
-    val testRule = AndroidComposeTestRule(ComponentActivity::class.java)
+    val testRule = AndroidComposeTestRule<ComponentActivity>()
 
     /**
      * Tests that the compose tree has been drawn at least once when [onIdle] finishes.
