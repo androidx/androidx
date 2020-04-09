@@ -18,8 +18,17 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.testTag
 
+/**
+ * Applies a tag to allow this element to be found in tests.
+ *
+ * This is a convenience method for a [Semantics] that sets [SemanticsPropertyReceiver.testTag].
+ *
+ * Note that this does not, by itself, create a semantics boundary. If the element you are
+ * setting this on does not already create a boundary, you will need to create one.
+ */
 @Composable
 fun TestTag(tag: String, children: @Composable() () -> Unit) {
     Semantics(properties = { testTag = tag }, children = children)
