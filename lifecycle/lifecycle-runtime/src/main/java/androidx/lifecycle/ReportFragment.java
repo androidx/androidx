@@ -23,6 +23,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -40,8 +41,7 @@ public class ReportFragment extends android.app.Fragment {
     public static void injectIfNeededIn(Activity activity) {
         if (Build.VERSION.SDK_INT >= 29) {
             // On API 29+, we can register for the correct Lifecycle callbacks directly
-            activity.registerActivityLifecycleCallbacks(
-                    new LifecycleCallbacks());
+            LifecycleCallbacks.registerIn(activity);
         }
         // Prior to API 29 and to maintain compatibility with older versions of
         // ProcessLifecycleOwner (which may not be updated when lifecycle-runtime is updated and
@@ -157,8 +157,16 @@ public class ReportFragment extends android.app.Fragment {
         void onResume();
     }
 
-    // this class isn't inlined only because we need to add a proguard rule for it. (b/142778206)
+    // this class isn't inlined only because we need to add a proguard rule for it (b/142778206)
+    // In addition to that registerIn method allows to avoid class verification failure,
+    // because registerActivityLifecycleCallbacks is available only since api 29.
+    @RequiresApi(29)
     static class LifecycleCallbacks implements Application.ActivityLifecycleCallbacks {
+
+        static void registerIn(Activity activity) {
+            activity.registerActivityLifecycleCallbacks(new LifecycleCallbacks());
+        }
+
         @Override
         public void onActivityCreated(@NonNull Activity activity,
                 @Nullable Bundle bundle) {
