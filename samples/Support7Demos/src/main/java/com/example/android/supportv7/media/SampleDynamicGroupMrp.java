@@ -23,7 +23,6 @@ import android.content.IntentSender;
 import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaRouter;
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -278,11 +277,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             if (routeDescriptors != null && !routeDescriptors.isEmpty()) {
                 for (MediaRouteDescriptor descriptor: routeDescriptors) {
                     String routeId = descriptor.getId();
-                    //TODO: This makes the route has itself as its member, which is a workaround
-                    // for (fwk) RoutingSessionInfo to have at least a single selected route.
-                    // We need to clean up this mess.
-                    boolean selected = memberIds != null && (TextUtils.equals(routeId,
-                            dynamicGroupRouteId) ||  memberIds.contains(routeId));
+                    boolean selected = memberIds != null && memberIds.contains(routeId);
                     DynamicRouteDescriptor.Builder builder =
                             new DynamicRouteDescriptor.Builder(descriptor)
                                     .setIsGroupable(true)

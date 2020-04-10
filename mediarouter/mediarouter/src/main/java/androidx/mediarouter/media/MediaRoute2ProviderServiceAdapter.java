@@ -334,11 +334,14 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 .clearDeselectableRoutes()
                 .clearTransferableRoutes();
 
+        boolean hasSelectedRoute = false;
+
         for (DynamicRouteDescriptor descriptor : descriptors) {
             String routeId = descriptor.getRouteDescriptor().getId();
             if (descriptor.mSelectionState == DynamicRouteDescriptor.SELECTING
                     || descriptor.mSelectionState == DynamicRouteDescriptor.SELECTED) {
                 builder.addSelectedRoute(routeId);
+                hasSelectedRoute = true;
             }
             if (descriptor.isGroupable()) {
                 builder.addSelectableRoute(routeId);
@@ -348,6 +351,14 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             }
             if (descriptor.isTransferable()) {
                 builder.addTransferableRoute(routeId);
+            }
+        }
+
+        // This can happen when a new dynamic route controller is just created.
+        if (!hasSelectedRoute) {
+            List<String> selectedRoutes = sessionInfo.getSelectedRoutes();
+            for (String routeId : selectedRoutes) {
+                builder.addSelectedRoute(routeId);
             }
         }
         notifySessionUpdated(builder.build());
