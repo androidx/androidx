@@ -27,6 +27,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -447,9 +452,7 @@ class FragmentScenarioTest {
             assertThat(fragment.hasOptionsMenu()).isTrue()
         }
 
-        // TODO: Re-enable following checks once openActionBarOverflowOrOptionsMenu() is fixed.
-        // https://issuetracker.google.com/issues/69656506
-        // openActionBarOverflowOrOptionsMenu(getApplicationContext())
-        // onView(withText("Item1")).check(matches(isDisplayed()))
+        openActionBarOverflowOrOptionsMenu(getApplicationContext())
+        onView(withText("Item1")).check(matches(isDisplayed()))
     }
 }
