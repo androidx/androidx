@@ -2791,6 +2791,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
             mExecutingActions = true;
             mFragmentStore.dispatchStateChange(nextState);
             moveToState(nextState, false);
+            if (USE_STATE_MANAGER) {
+                Set<SpecialEffectsController> controllers = collectAllSpecialEffectsController();
+                for (SpecialEffectsController controller : controllers) {
+                    controller.executePendingOperations();
+                }
+            }
         } finally {
             mExecutingActions = false;
         }
