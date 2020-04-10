@@ -17,9 +17,9 @@
 package androidx.ui.androidview.demos
 
 import androidx.ui.demos.common.ActivityDemo
-import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 
 val AndroidViewDemos = DemoCategory("AndroidView", listOf(
+    PointerInteropDemos,
     ActivityDemo("WebComponent", WebComponentActivity::class)
 ))

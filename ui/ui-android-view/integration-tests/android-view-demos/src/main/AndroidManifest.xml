@@ -14,14 +14,34 @@
   ~ limitations under the License
   -->
 
-<manifest
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        package="androidx.ui.androidview.demos">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.ui.androidview.demos">
 
     <application>
-        <activity android:name=".WebComponentActivity"
+        <activity
+            android:name=".WebComponentActivity"
             android:configChanges="orientation|screenSize"
-            android:label="WebComponent Activity">
-        </activity>
+            android:label="WebComponent Activity" />
+        <activity
+            android:name=".ComposeNothingInAndroidTap"
+            android:configChanges="orientation|screenSize"
+            android:label="ComposeNothingInAndroidTap Activity" />
+        <activity
+            android:name=".ComposeTapInAndroidTap"
+            android:configChanges="orientation|screenSize"
+            android:label="ComposeTapInAndroidTap Activity" />
+        <activity
+            android:name=".ComposeTapInAndroidScroll"
+            android:configChanges="orientation|screenSize"
+            android:label="ComposeTapInAndroidScroll Activity" />
+        <activity
+            android:name=".ComposeScrollInAndroidScrollSameOrientation"
+            android:configChanges="orientation|screenSize"
+            android:label="ComposeScrollInAndroidScrollSameOrientation Activity" />
+        <activity
+            android:name=".ComposeScrollInAndroidScrollDifferentOrientation"
+            android:configChanges="orientation|screenSize"
+            android:label="ComposeScrollInAndroidScrollDifferentOrientation Activity" />
+
     </application>
 </manifest>

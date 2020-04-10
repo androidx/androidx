@@ -40,6 +40,8 @@ internal class HitPathTracker {
      * This enables future calls to [dispatchChanges] to dispatch the correct [PointerInputChange]s
      * to the right [PointerInputFilter]s at the right time.
      *
+     * If [pointerInputFilters] is empty, nothing will be added.
+     *
      * @param pointerId The id of the pointer that was hit tested against [PointerInputFilter]s
      * @param pointerInputFilters The [PointerInputFilter]s that were hit by [pointerId].  Must be
      * ordered from ancestor to descendant.
@@ -170,6 +172,11 @@ internal class HitPathTracker {
     fun removeDetachedPointerInputFilters() {
         root.removeDetachedPointerInputFilters()
     }
+
+    /**
+     * Returns true if HitPathTracker is tracking something.
+     */
+    fun isEmpty() = root.children.isEmpty()
 }
 
 /**
