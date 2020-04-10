@@ -147,6 +147,9 @@ public final class CameraSelector {
         /**
          * Requires a camera with the specified lens facing.
          *
+         * <p>Valid values for lens facing are {@link CameraSelector#LENS_FACING_FRONT} and
+         * {@link CameraSelector#LENS_FACING_BACK}.
+         *
          * <p>If lens facing is already set, this will add extra requirement for lens facing
          * instead of replacing the previous setting.
          */
