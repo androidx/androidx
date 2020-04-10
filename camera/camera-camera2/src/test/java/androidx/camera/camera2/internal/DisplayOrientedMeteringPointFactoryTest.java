@@ -70,7 +70,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
             new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
 
     @Before
-    public void setUp() {
+    public void setUp() throws ExecutionException, InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
 
         // Init CameraX to inject our FakeCamera with FakeCameraInfo.
@@ -98,7 +98,7 @@ public class DisplayOrientedMeteringPointFactoryTest {
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(configFactoryProvider)
                         .build();
-        CameraX.initialize(context, cameraXConfig);
+        CameraX.initialize(context, cameraXConfig).get();
 
         mMockDisplay = Mockito.mock(Display.class);
         when(mMockDisplay.getRotation()).thenReturn(Surface.ROTATION_0);

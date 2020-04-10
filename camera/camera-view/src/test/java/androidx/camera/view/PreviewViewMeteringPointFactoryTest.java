@@ -116,7 +116,7 @@ public class PreviewViewMeteringPointFactoryTest {
                         .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                         .setUseCaseConfigFactoryProvider(configFactoryProvider)
                         .build();
-        CameraX.initialize(context, cameraXConfig);
+        CameraX.initialize(context, cameraXConfig).get();
 
         mDisplay = Mockito.mock(Display.class);
 
