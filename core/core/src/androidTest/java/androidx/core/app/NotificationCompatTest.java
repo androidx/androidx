@@ -52,6 +52,7 @@ import android.support.v4.BaseInstrumentationTestCase;
 import androidx.collection.ArraySet;
 import androidx.core.R;
 import androidx.core.app.NotificationCompat.MessagingStyle.Message;
+import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -120,6 +121,19 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             assertEquals(shortcutId, NotificationCompat.getShortcutId(n));
         } else {
             assertEquals(null, NotificationCompat.getShortcutId(n));
+        }
+    }
+
+    @Test
+    public void testLocusId() throws Throwable {
+        final LocusIdCompat locusId = new LocusIdCompat("Chat_A_B");
+        Notification n = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setLocusId(locusId)
+                .build();
+        if (Build.VERSION.SDK_INT >= 29) {
+            assertEquals(locusId, NotificationCompat.getLocusId(n));
+        } else {
+            assertEquals(null, NotificationCompat.getLocusId(n));
         }
     }
 

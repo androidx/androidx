@@ -233,6 +233,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             // TODO: Consider roundtripping NotificationCompat.BubbleMetadata on pre-Q platforms.
             mBuilder.setBubbleMetadata(
                     NotificationCompat.BubbleMetadata.toPlatform(b.mBubbleMetadata));
+            if (b.mLocusId != null) {
+                mBuilder.setLocusId(b.mLocusId.toLocusId());
+            }
         }
 
         if (b.mSilent) {
