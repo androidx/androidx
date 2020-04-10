@@ -241,11 +241,11 @@ public abstract class MediaRouteProviderService extends Service {
     }
 
     @Override
-    public boolean onUnbind(Intent intent) {
+    public void onDestroy() {
         if (mProvider != null) {
             mProvider.setCallback(null);
         }
-        return super.onUnbind(intent);
+        super.onDestroy();
     }
 
     @VisibleForTesting
