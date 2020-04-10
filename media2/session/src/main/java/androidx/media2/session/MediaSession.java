@@ -60,6 +60,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.Closeable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -165,7 +166,7 @@ import java.util.concurrent.Executor;
  *
  * @see MediaSessionService
  */
-public class MediaSession implements AutoCloseable {
+public class MediaSession implements Closeable {
     static final String TAG = "MediaSession";
 
     // It's better to have private static lock instead of using MediaSession.class because the
@@ -1180,7 +1181,7 @@ public class MediaSession implements AutoCloseable {
                 @Nullable LibraryParams params) throws RemoteException;
     }
 
-    interface MediaSessionImpl extends MediaInterface.SessionPlayer, AutoCloseable {
+    interface MediaSessionImpl extends MediaInterface.SessionPlayer, Closeable {
         void updatePlayer(@NonNull SessionPlayer player,
                 @Nullable SessionPlayer playlistAgent);
         void updatePlayer(@NonNull SessionPlayer player);

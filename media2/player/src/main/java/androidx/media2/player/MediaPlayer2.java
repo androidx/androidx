@@ -22,7 +22,6 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.DeniedByServerException;
 import android.media.MediaDrm;
-import android.media.MediaDrmException;
 import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.view.Surface;
@@ -1726,7 +1725,7 @@ import java.util.concurrent.Executor;
      * Thrown when a DRM method is called before preparing a DRM scheme through prepareDrm().
      * Extends MediaDrm.MediaDrmException
      */
-    public static class NoDrmSchemeException extends MediaDrmException {
+    public static class NoDrmSchemeException extends Exception {
         public NoDrmSchemeException(String detailMessage) {
             super(detailMessage);
         }

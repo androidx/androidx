@@ -27,7 +27,6 @@ import static androidx.media2.session.SessionResult.RESULT_ERROR_NOT_SUPPORTED;
 import static androidx.media2.session.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
 import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
 
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.net.Uri;
@@ -74,7 +73,6 @@ import java.util.Collections;
 import java.util.List;
 
 // TODO: Find better way to return listenable future.
-@SuppressLint("ObsoleteSdkInt") // TODO: Remove once the minSdkVersion is lowered enough.
 class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     private static final String TAG = "MC2ImplLegacy";
     private static final int ITEM_NONE = -1;
