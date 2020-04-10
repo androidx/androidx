@@ -203,6 +203,22 @@ public final class CameraX {
     /**
      * Binds the collection of {@link UseCase} to a {@link LifecycleOwner}.
      *
+     * @hide
+     * @see #bindToLifecycle(LifecycleOwner, CameraSelector, ViewPort, UseCase...)
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @SuppressWarnings({"lambdaLast", "unused"})
+    @NonNull
+    public static Camera bindToLifecycle(
+            @NonNull LifecycleOwner lifecycleOwner,
+            @NonNull CameraSelector cameraSelector,
+            @NonNull UseCase... useCases) {
+        return bindToLifecycle(lifecycleOwner, cameraSelector, null, useCases);
+    }
+
+    /**
+     * Binds {@link ViewPort} and a collection of {@link UseCase} to a {@link LifecycleOwner}.
+     *
      * <p>The state of the lifecycle will determine when the cameras are open, started, stopped
      * and closed.  When started, the use cases receive camera data.
      *
@@ -248,6 +264,7 @@ public final class CameraX {
      *                       cases.
      * @param cameraSelector The camera selector which determines the camera to use for set of
      *                       use cases.
+     * @param viewPort       The viewPort which represents the visible camera sensor rect.
      * @param useCases       The use cases to bind to a lifecycle.
      * @return The {@link Camera} instance which is determined by the camera selector and
      * internal requirements.
@@ -258,10 +275,13 @@ public final class CameraX {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @SuppressWarnings("lambdaLast")
+    @SuppressWarnings({"lambdaLast", "unused"})
     @NonNull
-    public static Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
-            @NonNull CameraSelector cameraSelector, @NonNull UseCase... useCases) {
+    public static Camera bindToLifecycle(
+            @NonNull LifecycleOwner lifecycleOwner,
+            @NonNull CameraSelector cameraSelector,
+            @Nullable ViewPort viewPort,
+            @NonNull UseCase... useCases) {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
 
@@ -327,6 +347,7 @@ public final class CameraX {
                 originalUseCases,
                 Arrays.asList(useCases));
 
+        // TODO(b/153096869): calculates crop rect using viewPort.
 
         // At this point the binding will succeed since all the calculations are done
         // Do all binding related work
