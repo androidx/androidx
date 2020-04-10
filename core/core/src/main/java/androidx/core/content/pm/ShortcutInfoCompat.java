@@ -460,6 +460,7 @@ public class ShortcutInfoCompat {
         return mHasKeyFieldsOnly;
     }
 
+    @RequiresApi(25)
     @Nullable
     static LocusIdCompat getLocusId(@NonNull final ShortcutInfo shortcutInfo) {
         if (Build.VERSION.SDK_INT >= 29) {
