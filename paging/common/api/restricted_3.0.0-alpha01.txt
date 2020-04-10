@@ -397,8 +397,8 @@ package androidx.paging {
   }
 
   public static final class RemoteMediator.MediatorResult.Success extends androidx.paging.RemoteMediator.MediatorResult {
-    ctor public RemoteMediator.MediatorResult.Success(boolean hasMoreData);
-    method public boolean getHasMoreData();
+    ctor public RemoteMediator.MediatorResult.Success(boolean canRequestMoreData);
+    method public boolean canRequestMoreData();
   }
 
   public final class SeparatorsKt {
