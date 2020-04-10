@@ -15,23 +15,29 @@
  */
 package androidx.datastore
 
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.completeWith
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.concurrent.atomic.AtomicReference
 
 @ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,16 +48,32 @@ import kotlinx.coroutines.flow.flow
 class SingleProcessDataStore<T>(
     private val produceFile: () -> File,
     private val serializer: DataStore.Serializer<T>,
-    scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 ) : DataStore<T> {
     override val dataFlow: Flow<T> = flow {
         val curChannel = downstreamChannel()
         actor.offer(Message.Read(curChannel))
-        // TODO(b/151635324): Currently, this will only emit the value read, and the flow will not
-        //  be closed unless it encounters an exception. Once updateData() is implemented, this will
-        //  emit future updates.
         emitAll(curChannel.asFlow())
     }
+
+    override suspend fun updateData(transform: suspend (t: T) -> T): T {
+        val ack = CompletableDeferred<T>()
+        val dataChannel = downstreamChannel()
+        val updateMsg = Message.Update<T>(transform, ack, dataChannel)
+
+        actor.send(updateMsg)
+
+        // If no read has succeeded yet, we need to wait on the result of the next read so we can
+        // bubble exceptions up to the caller. Read exceptions are not bubbled up through ack.
+        if (dataChannel.valueOrNull == null) {
+            dataChannel.asFlow().first()
+        }
+
+        // Wait with same scope as the actor, so we're not waiting on a cancelled actor.
+        return withContext(scope.coroutineContext) { ack.await() }
+    }
+
+    private val SCRATCH_SUFFIX = ".tmp"
 
     /**
      * The external facing channel. The data flow emits the values from this channel.
@@ -74,6 +96,16 @@ class SingleProcessDataStore<T>(
         class Read<T>(
             override val dataChannel: ConflatedBroadcastChannel<T>
         ) : Message<T>()
+
+        /** Represents an update operation. */
+        class Update<T>(
+            val transform: suspend (t: T) -> T,
+            /**
+             * Used to signal (un)successful completion of the update to the caller.
+             */
+            val ack: CompletableDeferred<T>,
+            override val dataChannel: ConflatedBroadcastChannel<T>
+        ) : Message<T>()
     }
 
     /**
@@ -94,6 +126,17 @@ class SingleProcessDataStore<T>(
                     readOnce(msg.dataChannel)
                 } catch (ex: Throwable) {
                     resetDataChannel(ex)
+                    continue@messageConsumer
+                }
+
+                // We have successfully read data and sent it to downstreamChannel.
+
+                if (msg is Message.Update) {
+                    msg.ack.completeWith(
+                        runCatching {
+                            updateDataInternal(msg.transform, downstreamChannel())
+                        }
+                    )
                 }
             }
         } finally {
@@ -130,6 +173,48 @@ class SingleProcessDataStore<T>(
                 throw ex
             }
             return serializer.defaultValue
+        }
+    }
+
+    private suspend fun updateDataInternal(
+        transform: suspend (t: T) -> T,
+        /**
+         * This is the channel that contains the data that will be used for the transformation.
+         * It *must* already have a value -- otherwise this will throw IllegalStateException.
+         * Once the transformation is completed and data is durably persisted to disk, and the new
+         * value will be offered to this channel.
+         */
+        updateDataChannel: ConflatedBroadcastChannel<T>
+    ): T {
+        val curData = updateDataChannel.value
+        val newData = transform(curData)
+        return if (curData == newData) {
+            curData
+        } else {
+            writeData(newData)
+            updateDataChannel.offer(newData)
+            newData
+        }
+    }
+
+    private fun writeData(newData: T) {
+        // TODO(b/151635324): consider caching produceFile result.
+        val file = produceFile()
+        file.mkdirs()
+        val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
+        try {
+            FileOutputStream(scratchFile).use { stream ->
+                serializer.writeTo(newData, stream)
+                stream.fd.sync()
+                // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
+                //  result in reverting to a previous state.
+            }
+            scratchFile.renameTo(file)
+        } catch (ex: IOException) {
+            if (scratchFile.exists()) {
+                scratchFile.delete()
+            }
+            throw ex
         }
     }
 
