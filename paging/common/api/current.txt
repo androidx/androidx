@@ -218,6 +218,14 @@ package androidx.paging {
     method @Deprecated public static <Key, Value> androidx.paging.PagedList<Value> PagedList(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, Key? initialKey = null);
   }
 
+  public final class Pager<Key, Value> {
+    ctor public Pager(androidx.paging.PagingConfig config, Key? initialKey, androidx.paging.RemoteMediator<Key,Value>? remoteMediator, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
+    ctor public Pager(androidx.paging.PagingConfig config, Key? initialKey, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
+    ctor public Pager(androidx.paging.PagingConfig config, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
+    method public kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> getFlow();
+    property public final kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> flow;
+  }
+
   public final class PagingConfig {
     ctor public PagingConfig(int pageSize, @IntRange(from=null) int prefetchDistance, boolean enablePlaceholders, @IntRange(from=null) int initialLoadSize, @IntRange(from=null) int maxSize, int jumpThreshold);
     field public static final androidx.paging.PagingConfig.Companion! Companion;
@@ -247,12 +255,6 @@ package androidx.paging {
   public static final class PagingData.Companion {
     method public <T> androidx.paging.PagingData<T> empty();
     method @CheckResult public <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T> pagingData, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
-  }
-
-  public final class PagingDataFlow {
-    method public static <Key, Value> kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> create(androidx.paging.PagingConfig config, Key? initialKey = null, androidx.paging.RemoteMediator<Key,Value>? remoteMediator = null, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
-    method public static <Key, Value> kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> create(androidx.paging.PagingConfig config, Key? initialKey = null, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
-    method public static <Key, Value> kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>> create(androidx.paging.PagingConfig config, kotlin.jvm.functions.Function0<? extends androidx.paging.PagingSource<Key,Value>> pagingSourceFactory);
   }
 
   public final class PagingDataKt {

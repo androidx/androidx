@@ -52,10 +52,12 @@ import kotlinx.coroutines.withContext
 class RxPagedListBuilder<Key : Any, Value : Any> {
     private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
     private val dataSourceFactory: DataSource.Factory<Key, Value>?
+
     @Suppress("DEPRECATION")
     private val config: PagedList.Config
 
     private var initialLoadKey: Key? = null
+
     @Suppress("DEPRECATION")
     private var boundaryCallback: PagedList.BoundaryCallback<Value>? = null
     private var notifyDispatcher: SchedulerCoroutineDispatcher? = null
@@ -72,7 +74,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
         replaceWith = ReplaceWith(
-            """PagingDataFlowable(
+            """Pager(
                 config = PagingConfig(
                     config.pageSize,
                     config.prefetchDistance,
@@ -81,12 +83,11 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                     config.maxSize
                 ),
                 initialKey = null,
-                strategy = BackpressureStrategy.LATEST,
                 pagingSourceFactory = pagingSourceFactory
-            )""",
+            ).flowable""",
             "androidx.paging.PagingConfig",
-            "androidx.paging.PagingDataFlowable",
-            "io.reactivex.BackpressureStrategy"
+            "androidx.paging.Pager",
+            "androidx.paging.flowable"
         )
     )
     constructor(
@@ -116,15 +117,14 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
         replaceWith = ReplaceWith(
-            """PagingDataFlowable(
+            """Pager(
                 config = PagingConfig(pageSize),
                 initialKey = null,
-                strategy = BackpressureStrategy.LATEST,
                 pagingSourceFactory = pagingSourceFactory
-            )""",
+            ).flowable""",
             "androidx.paging.PagingConfig",
-            "androidx.paging.PagingDataFlowable",
-            "io.reactivex.BackpressureStrategy"
+            "androidx.paging.Pager",
+            "androidx.paging.flowable"
         )
     )
     constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, pageSize: Int) : this(
@@ -141,7 +141,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
         replaceWith = ReplaceWith(
-            """PagingDataFlowable(
+            """Pager(
                 config = PagingConfig(
                     config.pageSize,
                     config.prefetchDistance,
@@ -150,12 +150,11 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                     config.maxSize
                 ),
                 initialKey = null,
-                strategy = BackpressureStrategy.LATEST,
                 this.asPagingSourceFactory(Dispatchers.IO)
-            )""",
+            ).flowable""",
             "androidx.paging.PagingConfig",
-            "androidx.paging.PagingDataFlowable",
-            "io.reactivex.BackpressureStrategy",
+            "androidx.paging.Pager",
+            "androidx.paging.flowable",
             "kotlinx.coroutines.Dispatchers"
         )
     )
@@ -186,15 +185,14 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
         replaceWith = ReplaceWith(
-            """PagingDataFlowable(
+            """Pager(
                 config = PagingConfig(pageSize),
                 initialKey = null,
-                strategy = BackpressureStrategy.LATEST,
                 this.asPagingSourceFactory(Dispatchers.IO)
-            )""",
+            ).flowable""",
             "androidx.paging.PagingConfig",
-            "androidx.paging.PagingDataFlowable",
-            "io.reactivex.BackpressureStrategy",
+            "androidx.paging.Pager",
+            "androidx.paging.flowable",
             "kotlinx.coroutines.Dispatchers"
         )
     )

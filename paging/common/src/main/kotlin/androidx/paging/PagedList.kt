@@ -254,7 +254,7 @@ abstract class PagedList<T : Any> internal constructor(
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData, which no " +
                 "longer supports constructing snapshots of loaded data manually.",
-        replaceWith = ReplaceWith("PagingDataFlow", "androidx.paging.PagingDataFlow")
+        replaceWith = ReplaceWith("Pager.flow", "androidx.paging.Pager")
     )
     class Builder<Key : Any, Value : Any> {
         private val pagingSource: PagingSource<Key, Value>?

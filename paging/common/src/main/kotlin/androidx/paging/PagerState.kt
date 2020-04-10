@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onStart
 
 /**
- * Internal state of [Pager] whose updates can be consumed as a [Flow]<[PageEvent]<[Value]>>.
+ * Internal state of [PageFetcherSnapshot] whose updates can be consumed as a [Flow]<[PageEvent]<[Value]>>.
  */
 internal class PagerState<Key : Any, Value : Any>(
     private val pageSize: Int,
@@ -72,7 +72,7 @@ internal class PagerState<Key : Any, Value : Any>(
     }
 
     /**
-     * Convert a loaded [Page] into a [PageEvent] for [Pager.pageEventCh].
+     * Convert a loaded [Page] into a [PageEvent] for [PageFetcherSnapshot.pageEventCh].
      *
      * Note: This method should be called after state updated by [insert]
      *

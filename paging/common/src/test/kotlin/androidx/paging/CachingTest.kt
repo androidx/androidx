@@ -288,7 +288,7 @@ class CachingTest {
     }
 
     private fun buildPageFlow(): Flow<PagingData<Item>> {
-        return PagingDataFlow(
+        return Pager(
             pagingSourceFactory = StringPagingSource.VersionedFactory()::create,
             config = PagingConfig(
                 pageSize = 3,
@@ -297,7 +297,7 @@ class CachingTest {
                 initialLoadSize = 3,
                 maxSize = 1000
             )
-        )
+        ).flow
     }
 
     private suspend fun Flow<PagingData<Item>>.collectItemsUntilSize(
