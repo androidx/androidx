@@ -376,6 +376,9 @@ package androidx.ui.core.pointerinput {
     method public androidx.ui.core.PointerInputData getPointerInputData();
   }
 
+  public final class PointerInputEventProcessorKt {
+  }
+
   public abstract class PointerInputFilter {
     ctor public PointerInputFilter();
     method public abstract void onCancel();

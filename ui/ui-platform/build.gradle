@@ -66,6 +66,7 @@ dependencies {
     }
 
     androidTestImplementation project(":ui:ui-foundation")
+    androidTestImplementation project(":ui:ui-framework")
     androidTestImplementation project(":ui:ui-platform:samples")
     androidTestImplementation project(":ui:ui-test")
 }
