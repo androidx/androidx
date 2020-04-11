@@ -141,7 +141,6 @@ package androidx.ui.graphics {
     method public android.graphics.Canvas getNativeCanvas();
     method public void restore();
     method public void rotate(float degrees);
-    method public default void rotateRad(float radians);
     method public void save();
     method public void saveLayer(androidx.ui.geometry.Rect bounds, androidx.ui.graphics.Paint paint);
     method public void scale(float sx, float sy = sx);
@@ -152,6 +151,9 @@ package androidx.ui.graphics {
   }
 
   public final class CanvasKt {
+    method public static void rotate(androidx.ui.graphics.Canvas, float degrees, float pivotX, float pivotY);
+    method public static void rotateRad(androidx.ui.graphics.Canvas, float radians, float pivotX = 0.0f, float pivotY = 0.0f);
+    method public static void scale(androidx.ui.graphics.Canvas, float sx, float sy = sx, float pivotX, float pivotY);
     method public static inline void withSave(androidx.ui.graphics.Canvas, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public static inline void withSaveLayer(androidx.ui.graphics.Canvas, androidx.ui.geometry.Rect bounds, androidx.ui.graphics.Paint paint, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
