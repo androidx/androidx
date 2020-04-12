@@ -663,13 +663,15 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         blurScript.setRadius(radius);
         blurScript.setInput(allocation);
         blurScript.forEach(blurAllocation);
-        blurAllocation.copyTo(bitmap);
+
+        Bitmap mutableBitmap = bitmap.copy(bitmap.getConfig(), true /* isMutable */);
+        blurAllocation.copyTo(mutableBitmap);
 
         allocation.destroy();
         blurAllocation.destroy();
         blurScript.destroy();
         rs.destroy();
-        return bitmap;
+        return mutableBitmap;
     }
 
     private abstract class MediaRouteVolumeSliderHolder extends RecyclerView.ViewHolder {
