@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -856,7 +857,7 @@ final class Camera2CameraImpl implements CameraInternal {
         try {
             mCameraManager.openCamera(mCameraInfoInternal.getCameraId(), mExecutor,
                     createDeviceStateCallback());
-        } catch (CameraAccessException e) {
+        } catch (CameraAccessExceptionCompat e) {
             // Camera2 will call the onError() callback with the specific error code that caused
             // this failure. No need to do anything here.
             debugLog("Unable to open camera due to " + e.getMessage());
