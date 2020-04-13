@@ -23,4 +23,4 @@ export JAVA_TOOLS_JAR="$PWD/prebuilts/jdk/jdk11/linux-x86/lib/tools.jar"
 export LINT_PRINT_STACKTRACE=true
 
 tools/gradlew -p frameworks/support --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors
-DIST_SUBDIR="/ui" tools/gradlew -p frameworks/support/ui --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors
+DIST_SUBDIR="/ui" tools/gradlew -p frameworks/support/ui --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors --exclude-task lintDebug
