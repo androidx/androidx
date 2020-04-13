@@ -54,6 +54,9 @@ internal class RenderNodeLayer(
         setHasOverlappingRendering(true)
     }
 
+    override val layerId: Long
+        get() = renderNode.uniqueId
+
     override fun updateLayerProperties() {
         transformOrigin = drawLayerModifier.transformOrigin
         val wasClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null

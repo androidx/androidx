@@ -59,6 +59,9 @@ internal class ViewLayer(
         container.addView(this)
     }
 
+    override val layerId: Long
+        get() = id.toLong()
+
     override fun updateLayerProperties() {
         this.mTransformOrigin = drawLayerModifier.transformOrigin
         this.scaleX = drawLayerModifier.scaleX
