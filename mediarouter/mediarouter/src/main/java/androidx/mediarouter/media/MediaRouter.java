@@ -620,6 +620,7 @@ public final class MediaRouter {
      * {@link #CALLBACK_FLAG_UNFILTERED_EVENTS}.
      * @see #removeCallback
      */
+    // TODO: Change the usages of addCallback() for changing flags when setCallbackFlags() is added.
     public void addCallback(@NonNull MediaRouteSelector selector, @NonNull Callback callback,
             @CallbackFlags int flags) {
         if (selector == null) {
