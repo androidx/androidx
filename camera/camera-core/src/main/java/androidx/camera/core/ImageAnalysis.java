@@ -252,6 +252,7 @@ public final class ImageAnalysis extends UseCase {
     public void clearAnalyzer() {
         synchronized (mAnalysisLock) {
             mImageAnalysisAbstractAnalyzer.setAnalyzer(null, null);
+            mImageAnalysisAbstractAnalyzer.close();
             if (mSubscribedAnalyzer != null) {
                 notifyInactive();
             }
@@ -360,6 +361,7 @@ public final class ImageAnalysis extends UseCase {
      */
     public void setAnalyzer(@NonNull Executor executor, @NonNull Analyzer analyzer) {
         synchronized (mAnalysisLock) {
+            mImageAnalysisAbstractAnalyzer.open();
             mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, analyzer);
             if (mSubscribedAnalyzer == null) {
                 notifyActive();
