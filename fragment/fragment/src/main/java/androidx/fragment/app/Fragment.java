@@ -1139,7 +1139,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     final public boolean isMenuVisible() {
-        return mMenuVisible;
+        return mMenuVisible && (mFragmentManager == null
+                || mFragmentManager.isParentMenuVisible(mParentFragment));
     }
 
     /**
