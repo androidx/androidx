@@ -26,7 +26,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -52,6 +51,7 @@ import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaSession.CommandButton;
+import androidx.media2.session.MediaSession.ControllerCb;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.SessionCommand.CommandCode;
 
@@ -86,17 +86,13 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     final MediaSession.MediaSessionImpl mSessionImpl;
     final MediaSessionManager mSessionManager;
     final Context mContext;
-    final ControllerInfo mControllerInfoForAll;
+    final ControllerCb mControllerLegacyCbForBroadcast;
 
     MediaSessionLegacyStub(MediaSession.MediaSessionImpl session) {
         mSessionImpl = session;
         mContext = mSessionImpl.getContext();
         mSessionManager = MediaSessionManager.getSessionManager(mContext);
-        mControllerInfoForAll = new ControllerInfo(
-                new RemoteUserInfo(
-                        RemoteUserInfo.LEGACY_CONTROLLER, Process.myPid(), Process.myUid()),
-                MediaUtils.VERSION_UNKNOWN, false /* trusted */,
-                new ControllerLegacyCbForAll(), null /* connectionHints */);
+        mControllerLegacyCbForBroadcast = new ControllerLegacyCbForBroadcast();
         mConnectedControllersManager = new ConnectedControllersManager<>(session);
     }
 
@@ -433,8 +429,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 });
     }
 
-    ControllerInfo getControllersForAll() {
-        return mControllerInfoForAll;
+    ControllerCb getControllerLegacyCbForBroadcast() {
+        return mControllerLegacyCbForBroadcast;
     }
 
     ConnectedControllersManager<RemoteUserInfo> getConnectedControllersManager() {
@@ -711,8 +707,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     }
 
     // TODO: Find a way to notify error through PlaybackStateCompat
-    final class ControllerLegacyCbForAll extends MediaSession.ControllerCb {
-        ControllerLegacyCbForAll() {
+    final class ControllerLegacyCbForBroadcast extends MediaSession.ControllerCb {
+        ControllerLegacyCbForBroadcast() {
         }
 
         @Override
