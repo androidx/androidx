@@ -1001,10 +1001,10 @@ public abstract class MediaRouteProviderService extends Service {
                     MediaRouteProvider.DynamicGroupRouteController controller =
                             mService.getMediaRouteProvider()
                                     .onCreateDynamicGroupRouteController(initialMemberRouteId);
-                    controller.setOnDynamicRoutesChangedListener(
-                            ContextCompat.getMainExecutor(mService.getApplicationContext()),
-                            mDynamicRoutesChangedListener);
                     if (controller != null) {
+                        controller.setOnDynamicRoutesChangedListener(
+                                ContextCompat.getMainExecutor(mService.getApplicationContext()),
+                                mDynamicRoutesChangedListener);
                         mControllers.put(controllerId, controller);
                         Bundle bundle = new Bundle();
                         bundle.putString(CLIENT_DATA_ROUTE_ID, initialMemberRouteId);
