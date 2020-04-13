@@ -127,11 +127,12 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
             return;
         }
 
-        postedImage = new CacheAnalyzingImageProxy(imageProxy, this);
-        mPostedImage.set(postedImage);
-        mPostedImageTimestamp.set(postedImage.getImageInfo().getTimestamp());
+        final CacheAnalyzingImageProxy newPostedImage = new CacheAnalyzingImageProxy(imageProxy,
+                this);
+        mPostedImage.set(newPostedImage);
+        mPostedImageTimestamp.set(newPostedImage.getImageInfo().getTimestamp());
 
-        ListenableFuture<Void> analyzeFuture = analyzeImage(postedImage);
+        ListenableFuture<Void> analyzeFuture = analyzeImage(newPostedImage);
 
         // Callback to close the image only after analysis complete regardless of success
         Futures.addCallback(analyzeFuture, new FutureCallback<Void>() {
@@ -143,7 +144,7 @@ final class ImageAnalysisNonBlockingAnalyzer extends ImageAnalysisAbstractAnalyz
             @Override
             public void onFailure(Throwable t) {
                 // Close the image if we didn't post it to user.
-                imageProxy.close();
+                newPostedImage.close();
             }
         }, CameraXExecutors.directExecutor());
     }

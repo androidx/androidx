@@ -16,9 +16,12 @@
 
 package androidx.camera.core;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -62,8 +65,8 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
         when(mImageReaderProxy.acquireLatestImage()).thenReturn(mImageProxy);
 
         mAnalyzer = mock(ImageAnalysis.Analyzer.class);
-        mImageAnalysisNonBlockingAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
-                CameraXExecutors.directExecutor());
+        mImageAnalysisNonBlockingAnalyzer = spy(new ImageAnalysisNonBlockingAnalyzer(
+                CameraXExecutors.directExecutor()));
         mImageAnalysisNonBlockingAnalyzer.setAnalyzer(CameraXExecutors.mainThreadExecutor(),
                 mAnalyzer);
         mImageAnalysisNonBlockingAnalyzer.setRelativeRotation(ROTATION.get());
@@ -112,5 +115,18 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
         assertEquals(mImageInfo.getTag(), capturedImageInfo.getTag());
         assertEquals(mImageInfo.getTimestamp(), capturedImageInfo.getTimestamp());
         assertEquals(ROTATION.get(), capturedImageInfo.getRotationDegrees());
+    }
+
+    @Test
+    public void imageClosedWhenAnalyzerNull() {
+        mImageAnalysisNonBlockingAnalyzer.setAnalyzer(CameraXExecutors.mainThreadExecutor(), null);
+        mImageAnalysisNonBlockingAnalyzer.open();
+        mImageAnalysisNonBlockingAnalyzer.onImageAvailable(mImageReaderProxy);
+
+        final ArgumentCaptor<ImageAnalysisNonBlockingAnalyzer.CacheAnalyzingImageProxy>
+                imageProxyToAnalyze = ArgumentCaptor.forClass(
+                ImageAnalysisNonBlockingAnalyzer.CacheAnalyzingImageProxy.class);
+        verify(mImageAnalysisNonBlockingAnalyzer).analyzeImage(imageProxyToAnalyze.capture());
+        assertThat(imageProxyToAnalyze.getValue().isClosed()).isTrue();
     }
 }
