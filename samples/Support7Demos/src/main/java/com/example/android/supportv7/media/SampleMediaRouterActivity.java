@@ -94,7 +94,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     private ImageButton mPauseResumeButton;
     private ImageButton mStopButton;
     private SeekBar mSeekBar;
-    private boolean mNeedResume;
     private boolean mSeeking;
 
     private final Handler mHandler = new Handler();
@@ -480,26 +479,6 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
     public void onStart() {
         // Be sure to call the super class.
         super.onStart();
-    }
-
-    @Override
-    public void onPause() {
-        // pause media player for local playback case only
-        if (!mPlayer.isRemotePlayback() && !mSessionManager.isPaused()) {
-            mNeedResume = true;
-            mSessionManager.pause();
-        }
-        super.onPause();
-    }
-
-    @Override
-    public void onResume() {
-        // resume media player for local playback case only
-        if (!mPlayer.isRemotePlayback() && mNeedResume) {
-            mSessionManager.resume();
-            mNeedResume = false;
-        }
-        super.onResume();
     }
 
     @Override
