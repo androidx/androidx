@@ -92,11 +92,11 @@ public class WorkProgressUpdater implements ProgressUpdater {
                                             workSpecId));
                         }
                     } else {
-                        Logger.get().warning(TAG,
-                                String.format(
-                                        "Ignoring setProgressAsync(...). WorkSpec (%s) does not "
-                                                + "exist.",
-                                        workSpecId));
+                        String message =
+                                "Calls to setProgressAsync() must complete before a "
+                                        + "ListenableWorker signals completion of work by "
+                                        + "returning an instance of Result.";
+                        throw new IllegalStateException(message);
                     }
                     future.set(null);
                     mWorkDatabase.setTransactionSuccessful();
