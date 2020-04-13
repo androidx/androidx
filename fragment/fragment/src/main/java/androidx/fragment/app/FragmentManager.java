@@ -576,6 +576,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 && isPrimaryNavigation(parentFragmentManager.mParent);
     }
 
+    /**
+     * Recursively check up the FragmentManager hierarchy of Fragments to see
+     * if the menus are all visible.
+     */
+    boolean isParentMenuVisible(@Nullable Fragment parent) {
+        if (parent == null) {
+            return true;
+        }
+
+        return parent.isMenuVisible();
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleOnBackPressed() {
         // First, execute any pending actions to make sure we're in an
@@ -2843,7 +2855,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         ArrayList<Fragment> newMenus = null;
         for (Fragment f : mFragmentStore.getFragments()) {
             if (f != null) {
-                if (f.performCreateOptionsMenu(menu, inflater)) {
+                if (isParentMenuVisible(f) && f.performCreateOptionsMenu(menu, inflater)) {
                     show = true;
                     if (newMenus == null) {
                         newMenus = new ArrayList<>();
