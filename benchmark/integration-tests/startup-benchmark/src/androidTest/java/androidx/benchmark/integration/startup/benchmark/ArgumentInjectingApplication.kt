@@ -39,7 +39,6 @@ class ArgumentInjectingApplication : Application() {
         super.onCreate()
 
         argumentSource = Bundle().apply {
-            putString("androidx.benchmark.output.enable", "true")
             putString("androidx.benchmark.startupMode.enable", "true")
         }
     }
