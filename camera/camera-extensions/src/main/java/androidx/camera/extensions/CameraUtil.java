@@ -17,13 +17,13 @@
 package androidx.camera.extensions;
 
 import android.content.Context;
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
+import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.core.util.Preconditions;
@@ -57,12 +57,11 @@ class CameraUtil {
     static CameraCharacteristics getCameraCharacteristics(String cameraId) {
         Preconditions.checkNotNull(cameraId, "Invalid camera id.");
         Context context = CameraX.getContext();
-        CameraManager cameraManager = (CameraManager) context.getSystemService(
-                Context.CAMERA_SERVICE);
+        CameraManagerCompat cameraManager = CameraManagerCompat.from(context);
         CameraCharacteristics cameraCharacteristics = null;
         try {
             cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
-        } catch (CameraAccessException e) {
+        } catch (CameraAccessExceptionCompat e) {
             throw new IllegalArgumentException(
                     "Unable to retrieve info for camera with id " + cameraId + ".", e);
         }

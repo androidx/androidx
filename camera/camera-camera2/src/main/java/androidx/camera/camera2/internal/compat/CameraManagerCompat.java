@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal.compat;
 
 import android.content.Context;
+import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
@@ -72,6 +73,21 @@ public final class CameraManagerCompat {
         // Pass compat handler to implementation.
         return new CameraManagerCompat(CameraManagerCompatBaseImpl.create(context,
                 compatHandler));
+    }
+
+    /**
+     * Return the list of currently connected camera devices by identifier, including cameras that
+     * may be in use by other camera API clients.
+     *
+     * <p>The behavior of this method matches that of {@link CameraManager#getCameraIdList()},
+     * except that {@link CameraAccessExceptionCompat} is thrown in place of
+     * {@link CameraAccessException} for convenience.
+     *
+     * @return The list of currently connected camera devices.
+     */
+    @NonNull
+    public String[] getCameraIdList() throws CameraAccessExceptionCompat {
+        return mImpl.getCameraIdList();
     }
 
     /**
@@ -181,6 +197,8 @@ public final class CameraManagerCompat {
     }
 
     interface CameraManagerCompatImpl {
+
+        String[] getCameraIdList() throws CameraAccessExceptionCompat;
 
         void registerAvailabilityCallback(
                 @NonNull /* @CallbackExecutor */ Executor executor,

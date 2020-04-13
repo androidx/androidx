@@ -605,7 +605,10 @@ public final class CameraX {
      *
      * @param context       to attach
      * @param cameraXConfig configuration options for this application session.
-     * @return A {@link ListenableFuture} representing the initialization task.
+     * @return A {@link ListenableFuture} representing the initialization task. This future may
+     * fail with an {@link InitializationException} and associated cause that can be retrieved by
+     * {@link Throwable#getCause()). The cause will be a {@link CameraUnavailableException} if it
+     * fails to access any camera during initialization.
      */
     @NonNull
     public static ListenableFuture<Void> initialize(@NonNull Context context,
@@ -970,16 +973,15 @@ public final class CameraX {
             return CallbackToFutureAdapter.getFuture(
                     completer -> {
                         cameraExecutor.execute(() -> {
-                            Exception e = null;
+                            InitializationException initException = null;
                             try {
                                 mContext = (Application) context.getApplicationContext();
                                 CameraFactory.Provider cameraFactoryProvider =
                                         cameraXConfig.getCameraFactoryProvider(null);
                                 if (cameraFactoryProvider == null) {
-                                    e = new IllegalArgumentException(
+                                    throw new InitializationException(new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
-                                                    + "CameraFactory.");
-                                    return;
+                                                    + "CameraFactory."));
                                 }
 
                                 CameraThreadConfig cameraThreadConfig =
@@ -992,20 +994,18 @@ public final class CameraX {
                                 CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                                         cameraXConfig.getDeviceSurfaceManagerProvider(null);
                                 if (surfaceManagerProvider == null) {
-                                    e = new IllegalArgumentException(
+                                    throw new InitializationException(new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
-                                                    + "CameraDeviceSurfaceManager.");
-                                    return;
+                                                    + "CameraDeviceSurfaceManager."));
                                 }
                                 mSurfaceManager = surfaceManagerProvider.newInstance(context);
 
                                 UseCaseConfigFactory.Provider configFactoryProvider =
                                         cameraXConfig.getUseCaseConfigFactoryProvider(null);
                                 if (configFactoryProvider == null) {
-                                    e = new IllegalArgumentException(
+                                    throw new InitializationException(new IllegalArgumentException(
                                             "Invalid app configuration provided. Missing "
-                                                    + "UseCaseConfigFactory.");
-                                    return;
+                                                    + "UseCaseConfigFactory."));
                                 }
                                 mDefaultConfigFactory = configFactoryProvider.newInstance(context);
 
@@ -1015,12 +1015,18 @@ public final class CameraX {
                                 }
 
                                 mCameraRepository.init(mCameraFactory);
+                            } catch (InitializationException e) {
+                                initException = e;
+                            } catch (RuntimeException e) {
+                                // For any unexpected RuntimeException, catch it instead of
+                                // crashing.
+                                initException = new InitializationException(e);
                             } finally {
                                 synchronized (mInitializeLock) {
                                     mInitState = InternalInitState.INITIALIZED;
                                 }
-                                if (e != null) {
-                                    completer.setException(e);
+                                if (initException != null) {
+                                    completer.setException(initException);
                                 } else {
                                     completer.set(null);
                                 }

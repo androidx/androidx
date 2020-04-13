@@ -17,11 +17,11 @@
 package androidx.camera.camera2.internal;
 
 import android.content.Context;
-import android.hardware.camera2.CameraAccessException;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
-import androidx.camera.core.CameraInfoUnavailableException;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraStateRegistry;
@@ -52,8 +52,7 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     @Override
     @NonNull
-    public CameraInternal getCamera(@NonNull String cameraId)
-            throws CameraInfoUnavailableException {
+    public CameraInternal getCamera(@NonNull String cameraId) throws CameraUnavailableException {
         if (!getAvailableCameraIds().contains(cameraId)) {
             throw new IllegalArgumentException(
                     "The given camera id is not on the available camera id list.");
@@ -64,13 +63,12 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     @Override
     @NonNull
-    public Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException {
+    public Set<String> getAvailableCameraIds() throws CameraUnavailableException {
         List<String> camerasList;
         try {
-            camerasList = Arrays.asList(mCameraManager.unwrap().getCameraIdList());
-        } catch (CameraAccessException e) {
-            throw new CameraInfoUnavailableException(
-                    "Unable to retrieve list of cameras on device.", e);
+            camerasList = Arrays.asList(mCameraManager.getCameraIdList());
+        } catch (CameraAccessExceptionCompat e) {
+            throw CameraUnavailableExceptionHelper.createFrom(e);
         }
         // Use a LinkedHashSet to preserve order
         return new LinkedHashSet<>(camerasList);

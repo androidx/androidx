@@ -52,6 +52,15 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
     }
 
     @Override
+    public String[] getCameraIdList() throws CameraAccessExceptionCompat {
+        try {
+            return mCameraManager.getCameraIdList();
+        } catch (CameraAccessException e) {
+            throw CameraAccessExceptionCompat.toCameraAccessExceptionCompat(e);
+        }
+    }
+
+    @Override
     public void registerAvailabilityCallback(@NonNull Executor executor,
             @NonNull CameraManager.AvailabilityCallback callback) {
         if (executor == null) {

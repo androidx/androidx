@@ -17,8 +17,6 @@
 package androidx.camera.camera2.internal;
 
 import android.content.Context;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraManager;
 import android.media.CamcorderProfile;
 import android.util.Rational;
 import android.util.Size;
@@ -27,6 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
+import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SurfaceConfig;
@@ -62,12 +63,13 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public Camera2DeviceSurfaceManager(@NonNull Context context) {
+    public Camera2DeviceSurfaceManager(@NonNull Context context) throws CameraUnavailableException {
         this(context, CamcorderProfile::hasProfile);
     }
 
     Camera2DeviceSurfaceManager(@NonNull Context context,
-            @NonNull CamcorderProfileHelper camcorderProfileHelper) {
+            @NonNull CamcorderProfileHelper camcorderProfileHelper)
+            throws CameraUnavailableException {
         Preconditions.checkNotNull(camcorderProfileHelper);
         mCamcorderProfileHelper = camcorderProfileHelper;
         init(context);
@@ -76,10 +78,9 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     /**
      * Prepare necessary resources for the surface manager.
      */
-    private void init(@NonNull Context context) {
+    private void init(@NonNull Context context) throws CameraUnavailableException {
         Preconditions.checkNotNull(context);
-        CameraManager cameraManager = Preconditions.checkNotNull(
-                (CameraManager) context.getSystemService(Context.CAMERA_SERVICE));
+        CameraManagerCompat cameraManager = CameraManagerCompat.from(context);
 
         try {
             for (String cameraId : cameraManager.getCameraIdList()) {
@@ -88,8 +89,8 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
                         new SupportedSurfaceCombination(
                                 context, cameraId, mCamcorderProfileHelper));
             }
-        } catch (CameraAccessException e) {
-            throw new IllegalArgumentException("Fail to get camera id list", e);
+        } catch (CameraAccessExceptionCompat e) {
+            throw CameraUnavailableExceptionHelper.createFrom(e);
         }
     }
 

@@ -39,6 +39,7 @@ import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -174,14 +175,14 @@ final class Camera2CameraImpl implements CameraInternal {
      *                            Used as a fence to ensure the number of simultaneously
      *                            opened cameras is limited.
      * @param executor            the executor for on which all camera operations run
-     * @throws IllegalStateException if the {@link CameraCharacteristics} is unavailable. This
-     *                               could occur if the camera was disconnected.
+     * @throws CameraUnavailableException if the {@link CameraCharacteristics} is unavailable. This
+     *                                    could occur if the camera was disconnected.
      */
     Camera2CameraImpl(@NonNull CameraManagerCompat cameraManager,
             @NonNull String cameraId,
             @NonNull CameraStateRegistry cameraStateRegistry,
             @NonNull Executor executor,
-            @NonNull Handler schedulerHandler) {
+            @NonNull Handler schedulerHandler) throws CameraUnavailableException {
         mCameraManager = cameraManager;
         mCameraStateRegistry = cameraStateRegistry;
         ScheduledExecutorService executorScheduler =
@@ -193,7 +194,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
         try {
             CameraCharacteristics cameraCharacteristics =
-                    mCameraManager.unwrap().getCameraCharacteristics(cameraId);
+                    mCameraManager.getCameraCharacteristics(cameraId);
             mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
                     executorScheduler, mExecutor, new ControlUpdateListenerInternal());
             mCameraInfoInternal = new Camera2CameraInfoImpl(
@@ -203,8 +204,8 @@ final class Camera2CameraImpl implements CameraInternal {
             Camera2CameraInfoImpl camera2CameraInfo = (Camera2CameraInfoImpl) mCameraInfoInternal;
             mCaptureSessionBuilder.setSupportedHardwareLevel(
                     camera2CameraInfo.getSupportedHardwareLevel());
-        } catch (CameraAccessException e) {
-            throw new IllegalStateException("Cannot access camera", e);
+        } catch (CameraAccessExceptionCompat e) {
+            throw CameraUnavailableExceptionHelper.createFrom(e);
         }
         mCaptureSessionBuilder.setExecutor(mExecutor);
         mCaptureSessionBuilder.setCompatHandler(schedulerHandler);
@@ -858,9 +859,17 @@ final class Camera2CameraImpl implements CameraInternal {
             mCameraManager.openCamera(mCameraInfoInternal.getCameraId(), mExecutor,
                     createDeviceStateCallback());
         } catch (CameraAccessExceptionCompat e) {
-            // Camera2 will call the onError() callback with the specific error code that caused
-            // this failure. No need to do anything here.
             debugLog("Unable to open camera due to " + e.getMessage());
+            switch (e.getReason()) {
+                case CameraAccessExceptionCompat.CAMERA_UNAVAILABLE_DO_NOT_DISTURB:
+                    // Camera2 is unable to call the onError() callback for this case. It has to
+                    // reset the state here.
+                    setState(InternalState.INITIALIZED);
+                    break;
+                default:
+                    // Camera2 will call the onError() callback with the specific error code that
+                    // caused this failure. No need to do anything here.
+            }
         }
     }
 

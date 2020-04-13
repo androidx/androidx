@@ -38,9 +38,11 @@ import android.view.WindowManager;
 
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.InitializationException;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
@@ -153,7 +155,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkLegacySurfaceCombinationSupportedInLegacyDevice() {
+    public void checkLegacySurfaceCombinationSupportedInLegacyDevice()
+            throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -170,7 +173,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkLimitedSurfaceCombinationNotSupportedInLegacyDevice() {
+    public void checkLimitedSurfaceCombinationNotSupportedInLegacyDevice()
+            throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -187,7 +191,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkFullSurfaceCombinationNotSupportedInLegacyDevice() {
+    public void checkFullSurfaceCombinationNotSupportedInLegacyDevice()
+            throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -204,7 +209,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkLevel3SurfaceCombinationNotSupportedInLegacyDevice() {
+    public void checkLevel3SurfaceCombinationNotSupportedInLegacyDevice()
+            throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -221,7 +227,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkLimitedSurfaceCombinationSupportedInLimitedDevice() {
+    public void checkLimitedSurfaceCombinationSupportedInLimitedDevice()
+            throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -238,7 +245,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkFullSurfaceCombinationNotSupportedInLimitedDevice() {
+    public void checkFullSurfaceCombinationNotSupportedInLimitedDevice()
+            throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -255,7 +263,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkLevel3SurfaceCombinationNotSupportedInLimitedDevice() {
+    public void checkLevel3SurfaceCombinationNotSupportedInLimitedDevice()
+            throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -272,7 +281,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkFullSurfaceCombinationSupportedInFullDevice() {
+    public void checkFullSurfaceCombinationSupportedInFullDevice()
+            throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -289,7 +299,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkLevel3SurfaceCombinationNotSupportedInFullDevice() {
+    public void checkLevel3SurfaceCombinationNotSupportedInFullDevice()
+            throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -306,7 +317,8 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkLevel3SurfaceCombinationSupportedInLevel3Device() {
+    public void checkLevel3SurfaceCombinationSupportedInLevel3Device()
+            throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEVEL3_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -489,7 +501,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void checkPreviewAspectRatioInLegacyDevice() {
+    public void checkPreviewAspectRatioInLegacyDevice() throws CameraUnavailableException {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -584,8 +596,13 @@ public final class Camera2DeviceSurfaceManagerTest {
     private CameraXConfig createFakeAppConfig() {
 
         // Create the DeviceSurfaceManager for Camera2
-        CameraDeviceSurfaceManager.Provider surfaceManagerProvider = context ->
-                new Camera2DeviceSurfaceManager(mContext, mMockCamcorderProfileHelper);
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider = context -> {
+            try {
+                return new Camera2DeviceSurfaceManager(mContext, mMockCamcorderProfileHelper);
+            } catch (CameraUnavailableException e) {
+                throw new InitializationException(e);
+            }
+        };
 
         // Create default configuration factory
         UseCaseConfigFactory.Provider factoryProvider = context -> {
