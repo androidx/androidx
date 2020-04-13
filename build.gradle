@@ -34,8 +34,10 @@ buildscript {
     }
 }
 
-allprojects {
-    repos.addMavenRepositories(repositories)
+def root = project
+repos.addMavenRepositories(root.repositories)
+subprojects { subproject ->
+    subproject.repositories.addAll(root.repositories)
 }
 
 apply from: "buildSrc/dependencies.gradle"
