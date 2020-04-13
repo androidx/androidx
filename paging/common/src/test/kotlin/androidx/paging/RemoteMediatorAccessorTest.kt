@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-
 package androidx.paging
 
 import androidx.paging.LoadType.END
+import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.yield
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -37,6 +41,43 @@ import kotlin.test.fail
 @RunWith(JUnit4::class)
 class RemoteMediatorAccessorTest {
     private val testScope = TestCoroutineScope()
+
+    @Test
+    fun load_runsToCompletion() {
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun initialize(): InitializeAction {
+                return LAUNCH_INITIAL_REFRESH
+            }
+
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                yield() // Force yield on scope.async.
+                return super.load(loadType, state)
+            }
+        }
+
+        val remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
+
+        // Assert that a load call doesn't infinitely block on itself.
+        runBlocking {
+            remoteMediatorAccessor.load(
+                // testScope is purposely not passed here to avoid DelayController trivializing
+                // this test, as it would immediately resolve the async call to
+                // RemoteMediator.load before it has a chance to write to RemoteMediatorAccessor
+                // state.
+                scope = CoroutineScope(EmptyCoroutineContext),
+                loadType = REFRESH,
+                state = PagingState(
+                    pages = listOf(),
+                    anchorPosition = null,
+                    config = PagingConfig(10),
+                    placeholdersStart = COUNT_UNDEFINED
+                )
+            )
+        }
+    }
 
     @Test
     fun load_concurrentJobsShouldRunSerially() = testScope.runBlockingTest {
