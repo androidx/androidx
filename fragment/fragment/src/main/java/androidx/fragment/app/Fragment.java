@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.content.ComponentCallbacks;
 import android.content.Context;
 import android.content.Intent;
@@ -397,7 +398,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
         if (mDefaultFactory == null) {
             mDefaultFactory = new SavedStateViewModelFactory(
-                    requireActivity().getApplication(),
+                    (Application) requireContext().getApplicationContext(),
                     this,
                     getArguments());
         }
