@@ -835,9 +835,8 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * @return package name of the controller. Can be
-         *         {@link androidx.media.MediaSessionManager.RemoteUserInfo#LEGACY_CONTROLLER} if
-         *         the package name cannot be obtained.
+         * Gets the package name of the controller. Can be {@link RemoteUserInfo#LEGACY_CONTROLLER}
+         * if the package name cannot be obtained.
          */
         @NonNull
         public String getPackageName() {
@@ -845,14 +844,14 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * @return uid of the controller. Can be a negative value if the uid cannot be obtained.
+         * Gets the uid of the controller. Can be a negative value if the uid cannot be obtained.
          */
         public int getUid() {
             return mRemoteUserInfo.getUid();
         }
 
         /**
-         * @return connection hints sent from controller, or {@link Bundle#EMPTY} if none.
+         * Gets the connection hints sent from controller, or {@link Bundle#EMPTY} if none.
          */
         @NonNull
         public Bundle getConnectionHints() {
@@ -900,6 +899,21 @@ public class MediaSession implements AutoCloseable {
 
         @Nullable ControllerCb getControllerCb() {
             return mControllerCb;
+        }
+
+        @NonNull
+        static ControllerInfo createLegacyControllerInfo() {
+            RemoteUserInfo legacyRemoteUserInfo =
+                    new RemoteUserInfo(
+                            RemoteUserInfo.LEGACY_CONTROLLER,
+                            /* pid= */ RemoteUserInfo.UNKNOWN_PID,
+                            /* uid= */ RemoteUserInfo.UNKNOWN_UID);
+            return new ControllerInfo(
+                    legacyRemoteUserInfo,
+                    MediaUtils.VERSION_UNKNOWN,
+                    /* trusted= */ false,
+                    /* cb= */ null,
+                    /* connectionHints= */ null);
         }
     }
 
