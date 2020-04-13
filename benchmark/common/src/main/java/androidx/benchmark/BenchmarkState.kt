@@ -146,7 +146,12 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
      */
     fun pauseTiming() {
         check(!paused) { "Unable to pause the benchmark. The benchmark has already paused." }
-        metrics.capturePaused()
+        if (state != RUNNING_WARMUP_STAGE) {
+            // only pause/resume metrics during non-warmup stages.
+            // warmup should ignore pause so that benchmarks which are paused the vast majority
+            // of time don't appear to have run much faster, from the perspective of WarmupManager.
+            metrics.capturePaused()
+        }
         paused = true
     }
 
@@ -177,7 +182,10 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
      */
     fun resumeTiming() {
         check(paused) { "Unable to resume the benchmark. The benchmark is already running." }
-        metrics.captureResumed()
+        if (state != RUNNING_WARMUP_STAGE) {
+            // only pause/resume metrics during non-warmup stages. See pauseTiming.
+            metrics.captureResumed()
+        }
         paused = false
     }
 
