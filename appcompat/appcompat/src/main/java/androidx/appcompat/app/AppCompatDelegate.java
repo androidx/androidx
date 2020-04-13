@@ -36,6 +36,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.view.ActionMode;
@@ -517,7 +518,7 @@ public abstract class AppCompatDelegate {
     /**
      * Override the night mode used for this delegate's host component.
      *
-     * <p>When setting an mode to be used across an entire app, the
+     * <p>When setting a mode to be used across an entire app, the
      * {@link #setDefaultNightMode(int)} method is preferred.</p>
      *
      * <p>If this is called after the host component has been created, a {@code uiMode}
@@ -527,9 +528,14 @@ public abstract class AppCompatDelegate {
      * Dialogs use the host Activity as their context, resulting in the dialog's night mode
      * overriding the Activity's night mode.
      *
+     * <p><strong>Note:</strong> This method is not recommended for use on devices running SDK 16
+     * or earlier, as the specified night mode configuration may leak to other activities. Instead,
+     * consider using {@link #setDefaultNightMode(int)} to specify an app-wide night mode.
+     *
      * @see #getLocalNightMode()
      * @see #setDefaultNightMode(int)
      */
+    @RequiresApi(17)
     public abstract void setLocalNightMode(@NightMode int mode);
 
     /**
