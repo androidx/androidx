@@ -56,6 +56,7 @@ public final class SurfaceRequest {
 
     private final Size mResolution;
     private final CameraInfo mCameraInfo;
+    private final Rect mViewPortRect;
 
     // For the camera to retrieve the surface from the user
     @SuppressWarnings("WeakerAccess") /*synthetic accessor */
@@ -70,6 +71,16 @@ public final class SurfaceRequest {
     // cancellation listeners.
     private final CallbackToFutureAdapter.Completer<Void> mRequestCancellationCompleter;
 
+    /**
+     * Creates a new surface request with the given resolution.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public SurfaceRequest(@NonNull Size resolution, @NonNull CameraInfo cameraInfo) {
+        this(resolution, cameraInfo, null);
+    }
+
     private DeferrableSurface mInternalDeferrableSurface;
 
     /**
@@ -78,10 +89,16 @@ public final class SurfaceRequest {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public SurfaceRequest(@NonNull Size resolution, @NonNull CameraInfo cameraInfo) {
+    public SurfaceRequest(
+            @NonNull Size resolution,
+            @NonNull CameraInfo cameraInfo,
+            @Nullable Rect viewPortRect) {
         super();
         mResolution = resolution;
         mCameraInfo = cameraInfo;
+        // Use full surface rect if viewPortRect is null.
+        mViewPortRect = viewPortRect != null ? viewPortRect : new Rect(0, 0, resolution.getWidth(),
+                resolution.getHeight());
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
         // triggered externally by the top-level completer (mSurfaceCompleter). The other future
@@ -248,8 +265,8 @@ public final class SurfaceRequest {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public Rect getCropRect() {
-        throw new UnsupportedOperationException("Not implemented.");
+    public Rect getViewPortRect() {
+        return mViewPortRect;
     }
 
     /**

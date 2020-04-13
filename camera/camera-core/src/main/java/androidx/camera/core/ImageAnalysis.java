@@ -368,7 +368,13 @@ public final class ImageAnalysis extends UseCase {
     public void setAnalyzer(@NonNull Executor executor, @NonNull Analyzer analyzer) {
         synchronized (mAnalysisLock) {
             mImageAnalysisAbstractAnalyzer.open();
-            mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, analyzer);
+            mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, image -> {
+                if (getViewPortCropRect() != null) {
+                    image.setViewPortRect(getViewPortCropRect());
+                    image.setCropRect(getViewPortCropRect());
+                }
+                analyzer.analyze(image);
+            });
             if (mSubscribedAnalyzer == null) {
                 notifyActive();
             }

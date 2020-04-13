@@ -87,6 +87,12 @@ public interface CameraControlInternal extends CameraControl {
      */
     void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
 
+    /**
+     * Gets the full sensor rect.
+     */
+    @NonNull
+    Rect getSensorRect();
+
     CameraControlInternal DEFAULT_EMPTY_INSTANCE = new CameraControlInternal() {
         @Override
         public void setCropRegion(@Nullable Rect crop) {
@@ -127,6 +133,12 @@ public interface CameraControlInternal extends CameraControl {
 
         @Override
         public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+        }
+
+        @NonNull
+        @Override
+        public Rect getSensorRect() {
+            return new Rect();
         }
 
         @NonNull

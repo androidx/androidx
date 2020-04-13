@@ -292,6 +292,7 @@ public final class CameraX {
             @NonNull UseCase... useCases) {
         Threads.checkMainThread();
         CameraX cameraX = checkInitialized();
+        // TODO(b/153096869): override UseCase's target rotation.
 
         UseCaseGroupLifecycleController useCaseGroupLifecycleController =
                 cameraX.getOrCreateUseCaseGroup(lifecycleOwner);
@@ -355,7 +356,19 @@ public final class CameraX {
                 originalUseCases,
                 Arrays.asList(useCases));
 
-        // TODO(b/153096869): calculates crop rect using viewPort.
+        if (viewPort != null) {
+            // Calculate crop rect if view port is provided.
+            Map<UseCase, Rect> cropRectMap = calculateViewPortRects(
+                    camera.getCameraControlInternal().getSensorRect(),
+                    viewPort.getAspectRatio(),
+                    camera.getCameraInfoInternal().getSensorRotationDegrees(
+                            viewPort.getRotation()),
+                    viewPort.getScaleType(),
+                    suggestedResolutionsMap);
+            for (UseCase useCase : useCases) {
+                useCase.setViewPortCropRect(cropRectMap.get(useCase));
+            }
+        }
 
         // At this point the binding will succeed since all the calculations are done
         // Do all binding related work

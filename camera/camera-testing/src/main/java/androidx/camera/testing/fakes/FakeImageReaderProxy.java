@@ -66,6 +66,21 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         mImageProxyAcquisitionQueue = new LinkedBlockingQueue<>(maxImages);
     }
 
+    /**
+     * Create a new {@link FakeImageReaderProxy} instance.
+     *
+     * @param maxImages The maximum number of images that can be acquired at once
+     */
+    @NonNull
+    public static FakeImageReaderProxy newInstance(int width, int height, int format,
+            int maxImages, long usage) {
+        FakeImageReaderProxy fakeImageReaderProxy = new FakeImageReaderProxy(maxImages);
+        fakeImageReaderProxy.mWidth = width;
+        fakeImageReaderProxy.mHeight = height;
+        fakeImageReaderProxy.setImageFormat(format);
+        return fakeImageReaderProxy;
+    }
+
     @Override
     public ImageProxy acquireLatestImage() {
         ImageProxy imageProxy;
