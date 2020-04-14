@@ -44,7 +44,7 @@ open class NavDestinationBuilder<out D : NavDestination>(
         arguments[name] = NavArgumentBuilder().apply(argumentBuilder).build()
     }
 
-    private var deepLinks = mutableListOf<String>()
+    private var deepLinks = mutableListOf<NavDeepLink>()
 
     /**
      * Add a deep link to this destination.
@@ -62,9 +62,31 @@ open class NavDestinationBuilder<out D : NavDestination>(
      * *    The `.*` wildcard can be used to match 0 or more characters.
      *
      * @param uriPattern The uri pattern to add as a deep link
+     * @see deepLink
      */
     fun deepLink(uriPattern: String) {
-        deepLinks.add(uriPattern)
+        deepLinks.add(NavDeepLink(uriPattern))
+    }
+
+    /**
+     * Add a deep link to this destination.
+     *
+     * In addition to a direct Uri match, the following features are supported:
+     *
+     * *    Uris without a scheme are assumed as http and https. For example,
+     *      `www.example.com` will match `http://www.example.com` and
+     *      `https://www.example.com`.
+     * *    Placeholders in the form of `{placeholder_name}` matches 1 or more
+     *      characters. The String value of the placeholder will be available in the arguments
+     *      [Bundle] with a key of the same name. For example,
+     *      `http://www.example.com/users/{id}` will match
+     *      `http://www.example.com/users/4`.
+     * *    The `.*` wildcard can be used to match 0 or more characters.
+     *
+     * @param navDeepLink the NavDeepLink to be added to this destination
+     */
+    fun deepLink(navDeepLink: NavDeepLinkDslBuilder.() -> Unit) {
+        deepLinks.add(NavDeepLinkDslBuilder().apply(navDeepLink).build())
     }
 
     private var actions = mutableMapOf<Int, NavAction>()

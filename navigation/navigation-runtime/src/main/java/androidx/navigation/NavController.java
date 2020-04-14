@@ -370,7 +370,7 @@ public class NavController {
                             // synthetically generate additional arguments as necessary.
                             args.putParcelable(KEY_DEEP_LINK_INTENT, mActivity.getIntent());
                             NavDestination.DeepLinkMatch matchingDeepLink = mGraph.matchDeepLink(
-                                    data);
+                                    new NavDeepLinkRequest(mActivity.getIntent()));
                             if (matchingDeepLink != null) {
                                 args.putAll(matchingDeepLink.getMatchingArgs());
                             }
@@ -641,12 +641,13 @@ public class NavController {
      *     the same hierarchy to get to the deep linked destination as when the deep link was
      *     constructed.</ol>
      *     <ol>Intents that include a {@link Intent#getData() data Uri}. This Uri will be checked
-     *     against the Uri patterns added via {@link NavDestination#addDeepLink(String)}.</ol>
+     *     against the Uri patterns in the {@link NavDeepLink NavDeepLinks} added via
+     *     {@link NavDestination#addDeepLink(NavDeepLink)}.</ol>
      * </ul>
      * <p>The {@link #getGraph() navigation graph} should be set before calling this method.</p>
      * @param intent The Intent that may contain a valid deep link
      * @return True if the navigation controller found a valid deep link and navigated to it.
-     * @see NavDestination#addDeepLink(String)
+     * @see NavDestination#addDeepLink(NavDeepLink)
      */
     public boolean handleDeepLink(@Nullable Intent intent) {
         if (intent == null) {
@@ -660,7 +661,8 @@ public class NavController {
             bundle.putAll(deepLinkExtras);
         }
         if ((deepLink == null || deepLink.length == 0) && intent.getData() != null) {
-            NavDestination.DeepLinkMatch matchingDeepLink = mGraph.matchDeepLink(intent.getData());
+            NavDestination.DeepLinkMatch matchingDeepLink =
+                    mGraph.matchDeepLink(new NavDeepLinkRequest(intent));
             if (matchingDeepLink != null) {
                 deepLink = matchingDeepLink.getDestination().buildDeepLinkIds();
                 bundle.putAll(matchingDeepLink.getMatchingArgs());
@@ -923,9 +925,10 @@ public class NavController {
      * thrown.
      *
      * @param deepLink deepLink to the destination reachable from the current NavGraph
+     * @see #navigate(NavDeepLinkRequest)
      */
     public void navigate(@NonNull Uri deepLink) {
-        navigate(deepLink, null);
+        navigate(new NavDeepLinkRequest(deepLink, null, null));
     }
 
     /**
@@ -937,9 +940,10 @@ public class NavController {
      *
      * @param deepLink deepLink to the destination reachable from the current NavGraph
      * @param navOptions special options for this navigation operation
+     * @see #navigate(NavDeepLinkRequest, NavOptions)
      */
     public void navigate(@NonNull Uri deepLink, @Nullable NavOptions navOptions) {
-        navigate(deepLink, navOptions, null);
+        navigate(new NavDeepLinkRequest(deepLink, null, null), navOptions);
     }
 
     /**
@@ -952,17 +956,62 @@ public class NavController {
      * @param deepLink deepLink to the destination reachable from the current NavGraph
      * @param navOptions special options for this navigation operation
      * @param navigatorExtras extras to pass to the Navigator
+     * @see #navigate(NavDeepLinkRequest, NavOptions, Navigator.Extras)
      */
     public void navigate(@NonNull Uri deepLink, @Nullable NavOptions navOptions,
             @Nullable Navigator.Extras navigatorExtras) {
-        NavDestination.DeepLinkMatch deepLinkMatch = mGraph.matchDeepLink(deepLink);
+        navigate(new NavDeepLinkRequest(deepLink, null, null), navOptions, navigatorExtras);
+    }
+
+    /**
+     * Navigate to a destination via the given {@link NavDeepLinkRequest}.
+     * {@link NavDestination#hasDeepLink(NavDeepLinkRequest)} should be called on
+     * {@link #getGraph() the navigation graph} prior to calling this method to check if the deep
+     * link is valid. If an invalid deep link is given, an {@link IllegalArgumentException} will be
+     * thrown.
+     *
+     * @param request deepLinkRequest to the destination reachable from the current NavGraph
+     */
+    public void navigate(@NonNull NavDeepLinkRequest request) {
+        navigate(request, null);
+    }
+
+    /**
+     * Navigate to a destination via the given {@link NavDeepLinkRequest}.
+     * {@link NavDestination#hasDeepLink(NavDeepLinkRequest)} should be called on
+     * {@link #getGraph() the navigation graph} prior to calling this method to check if the deep
+     * link is valid. If an invalid deep link is given, an {@link IllegalArgumentException} will be
+     * thrown.
+     *
+     * @param request deepLinkRequest to the destination reachable from the current NavGraph
+     * @param navOptions special options for this navigation operation
+     */
+    public void navigate(@NonNull NavDeepLinkRequest request, @Nullable NavOptions navOptions) {
+        navigate(request, navOptions, null);
+    }
+
+    /**
+     * Navigate to a destination via the given {@link NavDeepLinkRequest}.
+     * {@link NavDestination#hasDeepLink(NavDeepLinkRequest)} should be called on
+     * {@link #getGraph() the navigation graph} prior to calling this method to check if the deep
+     * link is valid. If an invalid deep link is given, an {@link IllegalArgumentException} will be
+     * thrown.
+     *
+     * @param request deepLinkRequest to the destination reachable from the current NavGraph
+     * @param navOptions special options for this navigation operation
+     * @param navigatorExtras extras to pass to the Navigator
+     */
+    public void navigate(@NonNull NavDeepLinkRequest request, @Nullable NavOptions navOptions,
+            @Nullable Navigator.Extras navigatorExtras) {
+        NavDestination.DeepLinkMatch deepLinkMatch =
+                mGraph.matchDeepLink(request);
         if (deepLinkMatch != null) {
             Bundle args = deepLinkMatch.getMatchingArgs();
             NavDestination node = deepLinkMatch.getDestination();
             navigate(node, args, navOptions, navigatorExtras);
         } else {
-            throw new IllegalArgumentException("navigation destination with deepLink "
-                    + deepLink + " is unknown to this NavController");
+            throw new IllegalArgumentException("navigation destination that matches request "
+                    + request + " is unknown to this NavController");
         }
     }
 

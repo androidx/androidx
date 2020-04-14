@@ -18,22 +18,25 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/nav_root"
             android:label=""
-            app:startDestination="@+id/start_test">
+            app:startDestination="@+id/first_test">
 
-    <test android:id="@+id/start_test">
-        <argument android:name="arg1" app:argType="string" />
-        <action android:id="@+id/second" app:destination="@+id/second_test" />
+    <test android:id="@+id/first_test">
+        <deepLink app:uri="android-app://androidx.navigation.test/test"
+            app:action="test.action" app:mimeType="*/*"/>
     </test>
 
     <test android:id="@+id/second_test">
-        <argument android:name="arg2" app:argType="string" />
-        <action android:id="@+id/self" app:destination="@+id/second_test"
-            app:launchSingleTop="true" />
-        <action android:id="@+id/finish" app:popUpTo="@id/start_test" />
-        <action android:id="@+id/finish_self" app:popUpTo="@id/second_test"
-            app:popUpToInclusive="true" />
+        <deepLink app:uri="android-app://androidx.navigation.test/test"
+            app:action="test.action" app:mimeType="image/*"/>
+    </test>
+
+    <test android:id="@+id/third_test">
+        <deepLink app:uri="android-app://androidx.navigation.test/test"
+            app:action="test.action" app:mimeType="*/test"/>
+    </test>
+
+    <test android:id="@+id/forth_test">
         <deepLink app:uri="android-app://androidx.navigation.test/test"
             app:action="test.action" app:mimeType="type/test"/>
-        <deepLink app:uri="android-app://androidx.navigation.test/test/{arg1}/{arg2}" />
     </test>
 </navigation>
