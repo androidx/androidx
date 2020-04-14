@@ -115,7 +115,7 @@ internal inline class Float16(val halfValue: Short) : Comparable<Float16> {
      * converted to type `Byte`
      */
     fun toByte(): Byte {
-        return toFloat().toByte()
+        return toFloat().toInt().toByte()
     }
 
     /**
@@ -126,7 +126,7 @@ internal inline class Float16(val halfValue: Short) : Comparable<Float16> {
      * converted to type `Short`
      */
     fun toShort(): Short {
-        return toFloat().toShort()
+        return toFloat().toInt().toShort()
     }
 
     /**
