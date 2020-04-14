@@ -78,8 +78,8 @@ data class TextFieldValue(
  * on the keyboard. For example, search icon may be shown if [ImeAction.Search] is specified.
  * Then, when user tap that key, the [onImeActionPerformed] callback is called with specified
  * ImeAction.
- * @param onFocus Called when the input field gains focus.
- * @param onBlur Called when the input field loses focus.
+ * @param onFocusChange Called with true value when the input field gains focus and with false
+ * value when the input field loses focus.
  * @param focusIdentifier Optional value to identify focus identifier. You can pass
  * [FocusManager.requestFocus] to this value to move focus to this TextField. This identifier
  * must be unique in your app. If you have duplicated identifiers, the behavior is undefined.
@@ -103,8 +103,7 @@ fun TextField(
     textStyle: TextStyle = currentTextStyle(),
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onFocus: () -> Unit = {},
-    onBlur: () -> Unit = {},
+    onFocusChange: (Boolean) -> Unit = {},
     focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null,
@@ -143,8 +142,7 @@ fun TextField(
         textStyle = mergedStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
-        onFocus = onFocus,
-        onBlur = onBlur,
+        onFocusChange = onFocusChange,
         focusIdentifier = focusIdentifier,
         onImeActionPerformed = onImeActionPerformed,
         visualTransformation = visualTransformation,
