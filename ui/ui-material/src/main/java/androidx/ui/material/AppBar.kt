@@ -92,8 +92,7 @@ fun TopAppBar(
         if (navigationIcon == null) {
             Spacer(TitleInsetWithoutIcon)
         } else {
-            // TODO: make this a row after b/148014745 is fixed
-            Box(TitleIconModifier, gravity = ContentGravity.CenterStart) {
+            Row(TitleIconModifier, verticalGravity = ContentGravity.CenterVertically) {
                 ProvideEmphasis(emphasisLevels.high, navigationIcon)
             }
         }
@@ -112,13 +111,13 @@ fun TopAppBar(
             }
         }
 
-        // TODO: remove box and center align row's children after b/148014745 is fixed
-        Box(Modifier.fillMaxHeight(), gravity = ContentGravity.CenterEnd) {
-            Row(horizontalArrangement = Arrangement.End) {
-                ProvideEmphasis(emphasisLevels.medium) {
-                    actions()
-                }
-            }
+        ProvideEmphasis(emphasisLevels.medium) {
+            Row(
+                Modifier.fillMaxHeight(),
+                horizontalArrangement = Arrangement.End,
+                verticalGravity = ContentGravity.CenterVertically,
+                children = actions
+            )
         }
     }
 }
@@ -251,11 +250,12 @@ fun BottomAppBar(
         )
     }
     AppBar(backgroundColor, contentColor, BottomAppBarElevation, shape, modifier) {
-        // TODO: remove box and inline row's children after b/148014745 is fixed
-        Box(Modifier.fillMaxSize(), gravity = ContentGravity.Center) {
-            // TODO: b/150609566 clarify emphasis for children
-            Row(Modifier.fillMaxWidth(), children = content)
-        }
+        // TODO: b/150609566 clarify emphasis for children
+        Row(
+            Modifier.fillMaxSize(),
+            verticalGravity = ContentGravity.CenterVertically,
+            children = content
+        )
     }
 }
 
