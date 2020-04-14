@@ -357,7 +357,12 @@ private class ListState<T>(
 
     private fun recomposeAllChildren() {
         for (idx in rootNode.layoutChildren.indices) {
-            composeChildForDataIndex(LayoutIndex(idx).toDataIndex())
+            val dataIdx = LayoutIndex(idx).toDataIndex()
+            // Make sure that we're only recomposing items that still exist in the data.
+            // Excess layout children will be removed in the next measure/layout pass
+            if (dataIdx.value < data.size && dataIdx.value >= 0) {
+                composeChildForDataIndex(dataIdx)
+            }
         }
         forceRecompose = false
     }
