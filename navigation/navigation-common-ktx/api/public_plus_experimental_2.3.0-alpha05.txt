@@ -51,6 +51,26 @@ package androidx.navigation {
     property public final androidx.navigation.NavType<?> type;
   }
 
+  @kotlin.DslMarker public @interface NavDeepLinkDsl {
+  }
+
+  @androidx.navigation.NavDeepLinkDsl public final class NavDeepLinkDslBuilder {
+    ctor public NavDeepLinkDslBuilder();
+    method public String? getAction();
+    method public String? getMimeType();
+    method public String? getUri();
+    method public void setAction(String? p);
+    method public void setMimeType(String? p);
+    method public void setUri(String? p);
+    property public final String? action;
+    property public final String? mimeType;
+    property public final String? uri;
+  }
+
+  public final class NavDeepLinkDslBuilderKt {
+    method public static androidx.navigation.NavDeepLink navDeepLink(kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit> deepLinkBuilder);
+  }
+
   @androidx.navigation.NavDestinationDsl public class NavDestinationBuilder<D extends androidx.navigation.NavDestination> {
     ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, @IdRes int id);
     method public final void action(int actionId, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit> actionBuilder);

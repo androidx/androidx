@@ -380,7 +380,7 @@ public final class NavDeepLink {
         private String mAction;
         private String mMimeType;
 
-        private Builder() {}
+        Builder() {}
 
         /**
          * Creates a {@link NavDeepLink.Builder} with a set uri.
