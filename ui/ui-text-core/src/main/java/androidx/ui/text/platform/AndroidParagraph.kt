@@ -262,6 +262,15 @@ internal class AndroidParagraph constructor(
 
     override fun getLineWidth(lineIndex: Int): Float = layout.getLineWidth(lineIndex)
 
+    override fun getLineStart(lineIndex: Int): Int = layout.getLineStart(lineIndex)
+
+    override fun getLineEnd(lineIndex: Int): Int = layout.getLineEnd(lineIndex)
+
+    override fun getLineEllipsisOffset(lineIndex: Int): Int =
+        layout.getLineEllipsisOffset(lineIndex)
+
+    override fun getLineEllipsisCount(lineIndex: Int): Int = layout.getLineEllipsisCount(lineIndex)
+
     override fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
 
     override fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float =
