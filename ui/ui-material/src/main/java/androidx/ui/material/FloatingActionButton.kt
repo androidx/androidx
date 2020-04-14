@@ -19,7 +19,6 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
@@ -151,10 +150,10 @@ fun ExtendedFloatingActionButton(
             if (icon == null) {
                 text()
             } else {
-                Row {
-                    Box(Modifier.gravity(Alignment.CenterVertically), children = icon)
+                Row(verticalGravity = ContentGravity.CenterVertically) {
+                    icon()
                     Spacer(Modifier.preferredWidth(ExtendedFabIconPadding))
-                    Box(Modifier.gravity(Alignment.CenterVertically), children = text)
+                    text()
                 }
             }
         }
