@@ -146,6 +146,53 @@ inline fun Canvas.withSaveLayer(bounds: Rect, paint: Paint, block: () -> Unit) {
     }
 }
 
+/**
+ *  Add a rotation (in degrees clockwise) to the current transform at the given pivot point.
+ *  The pivot coordinate remains unchanged by the rotation transformation
+ *
+ *  @param degrees to rotate clockwise
+ *  @param pivotX The x-coord for the pivot point
+ *  @param pivotY The y-coord for the pivot point
+ */
+fun Canvas.rotate(degrees: Float, pivotX: Float, pivotY: Float) {
+    if (degrees == 0.0f) return
+    translate(pivotX, pivotY)
+    rotate(degrees)
+    translate(-pivotX, -pivotY)
+}
+
+/**
+ * Add a rotation (in radians clockwise) to the current transform at the given pivot point.
+ * The pivot coordinate remains unchanged by the rotation transformation
+ *
+ * @param pivotX The x-coord for the pivot point
+ * @param pivotY The y-coord for the pivot point
+ */
+fun Canvas.rotateRad(radians: Float, pivotX: Float = 0.0f, pivotY: Float = 0.0f) {
+    rotate(degrees(radians), pivotX, pivotY)
+}
+
+/**
+ * Add an axis-aligned scale to the current transform, scaling by the first
+ * argument in the horizontal direction and the second in the vertical
+ * direction at the given pivot coordinate. The pivot coordinate remains
+ * unchanged by the scale transformation.
+ *
+ * If [sy] is unspecified, [sx] will be used for the scale in both
+ * directions.
+ *
+ * @param sx The amount to scale in X
+ * @param sy The amount to scale in Y
+ * @param pivotX The x-coord for the pivot point
+ * @param pivotY The y-coord for the pivot point
+ */
+fun Canvas.scale(sx: Float, sy: Float = sx, pivotX: Float, pivotY: Float) {
+    if (sx == 1.0f && sy == 1.0f) return
+    translate(pivotX, pivotY)
+    scale(sx, sy)
+    translate(-pivotX, -pivotY)
+}
+
 interface Canvas {
 
     /**
@@ -252,16 +299,18 @@ interface Canvas {
      *
      * If [sy] is unspecified, [sx] will be used for the scale in both
      * directions.
+     *
+     * @param sx The amount to scale in X
+     * @param sy The amount to scale in Y
      */
     fun scale(sx: Float, sy: Float = sx)
 
-    /** Add a rotation to the current transform. The argument is in degrees clockwise. */
+    /**
+     *  Add a rotation (in degrees clockwise) to the current transform
+     *
+     *  @param degrees to rotate clockwise
+     */
     fun rotate(degrees: Float)
-
-    /** Add a rotation to the current transform. The argument is in radians clockwise. */
-    fun rotateRad(radians: Float) {
-        rotate(degrees(radians))
-    }
 
     /**
      * Add an axis-aligned skew to the current transform, with the first argument
