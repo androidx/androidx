@@ -449,7 +449,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                     + ", metadata=" + metadata
                     + ", headers=" + headers
                     + ", receiver=" + receiver);
-            PlaylistItem item = mSessionManager.add(null, uri, mime, receiver);
+            PlaylistItem item = mSessionManager.add(null, uri, mime, pos, receiver);
             if (callback != null) {
                 if (item != null) {
                     Bundle result = new Bundle();
