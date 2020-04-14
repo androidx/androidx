@@ -474,6 +474,16 @@ public final class MediaRouter {
     }
 
     /**
+     * Transfers the current dynamic group to the specified route.
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public void transferToRoute(@NonNull RouteInfo route) {
+        checkCallingThread();
+        sGlobal.transferToRoute(route);
+    }
+
+    /**
      * Returns true if there is a route that matches the specified selector.
      * <p>
      * This method returns true if there are any available routes that match the
@@ -1539,10 +1549,8 @@ public final class MediaRouter {
         @Nullable
         @RestrictTo(LIBRARY)
         public DynamicGroupState getDynamicGroupState() {
-            if (mDynamicGroupState == null) {
-                if (mDynamicDescriptor != null) {
-                    mDynamicGroupState = new DynamicGroupState();
-                }
+            if (mDynamicGroupState == null && mDynamicDescriptor != null) {
+                mDynamicGroupState = new DynamicGroupState();
             }
             return mDynamicGroupState;
         }
@@ -1774,8 +1782,7 @@ public final class MediaRouter {
             return mProvider.getProviderInstance();
         }
 
-        void updateDescriptors(
-                Collection<DynamicRouteDescriptor> dynamicDescriptors) {
+        void updateDescriptors(Collection<DynamicRouteDescriptor> dynamicDescriptors) {
             mMemberRoutes.clear();
 
             for (DynamicRouteDescriptor dynamicDescriptor :
@@ -2331,8 +2338,7 @@ public final class MediaRouter {
         }
 
         void addMemberToDynamicGroup(@NonNull RouteInfo route) {
-            if (!(mSelectedRoute.getDynamicGroupState() != null
-                    && (mSelectedRouteController instanceof DynamicGroupRouteController))) {
+            if (!(mSelectedRouteController instanceof DynamicGroupRouteController)) {
                 throw new IllegalStateException("There is no currently selected "
                         + "dynamic group route.");
             }
@@ -2348,8 +2354,7 @@ public final class MediaRouter {
         }
 
         void removeMemberFromDynamicGroup(@NonNull RouteInfo route) {
-            if (!(mSelectedRoute.getDynamicGroupState() != null
-                    && (mSelectedRouteController instanceof DynamicGroupRouteController))) {
+            if (!(mSelectedRouteController instanceof DynamicGroupRouteController)) {
                 throw new IllegalStateException("There is no currently selected "
                         + "dynamic group route.");
             }
@@ -2366,6 +2371,20 @@ public final class MediaRouter {
             }
             ((DynamicGroupRouteController) mSelectedRouteController)
                     .onRemoveMemberRoute(route.getDescriptorId());
+        }
+
+        void transferToRoute(@NonNull RouteInfo route) {
+            if (!(mSelectedRouteController instanceof DynamicGroupRouteController)) {
+                throw new IllegalStateException("There is no currently selected dynamic group "
+                        + "route.");
+            }
+            RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
+            if (state == null || !state.isTransferable()) {
+                Log.w(TAG, "Ignoring attempt to transfer to a non-transferable route.");
+                return;
+            }
+            ((DynamicGroupRouteController) mSelectedRouteController)
+                    .onUpdateMemberRoutes(Collections.singletonList(route.getDescriptorId()));
         }
 
         void selectRoute(@NonNull RouteInfo route, int unselectReason) {
