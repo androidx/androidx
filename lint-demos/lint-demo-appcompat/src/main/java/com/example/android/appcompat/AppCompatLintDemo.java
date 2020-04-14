@@ -21,6 +21,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -61,5 +62,9 @@ public class AppCompatLintDemo extends AppCompatActivity {
             dummy.setCompoundDrawableTintList(csl);
             dummy.setCompoundDrawableTintMode(PorterDuff.Mode.DST);
         }
+
+        // The following usage of the core Switch widget should be flagged by our Lint rule
+        Switch mySwitch = new Switch(this);
+        mySwitch.setChecked(true);
     }
 }
