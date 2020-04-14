@@ -16,8 +16,8 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.findLastLayoutChild
+import androidx.ui.core.semantics.findClosestParentNode
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsPropertyKey
