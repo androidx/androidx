@@ -46,9 +46,6 @@ class DeviceCredentialHandlerBridge {
     private FingerprintDialogFragment mFingerprintDialogFragment;
 
     @Nullable
-    private FingerprintHelperFragment mFingerprintHelperFragment;
-
-    @Nullable
     private Executor mExecutor;
 
     @Nullable
@@ -129,32 +126,22 @@ class DeviceCredentialHandlerBridge {
     }
 
     /**
-     * Registers a {@link FingerprintDialogFragment} and {@link FingerprintHelperFragment} to the
-     * bridge. These will automatically receive new callbacks set by {@link #setCallbacks(Executor,
-     * DialogInterface.OnClickListener, BiometricPrompt.AuthenticationCallback)}.
+     * Registers a {@link FingerprintDialogFragment} to the bridge. This will automatically receive
+     * new callbacks set by {@link #setCallbacks(Executor, DialogInterface.OnClickListener,
+     * BiometricPrompt.AuthenticationCallback)}.
      */
-    void setFingerprintFragments(@Nullable FingerprintDialogFragment fingerprintDialogFragment,
-            @Nullable FingerprintHelperFragment fingerprintHelperFragment) {
+    void setFingerprintDialogFragment(
+            @Nullable FingerprintDialogFragment fingerprintDialogFragment) {
         mFingerprintDialogFragment = fingerprintDialogFragment;
-        mFingerprintHelperFragment = fingerprintHelperFragment;
     }
 
     /**
      * @return The latest {@link FingerprintDialogFragment} set via
-     * {@link #setFingerprintFragments(FingerprintDialogFragment, FingerprintHelperFragment)}.
+     * {@link #setFingerprintDialogFragment(FingerprintDialogFragment)}.
      */
     @Nullable
-    public FingerprintDialogFragment getFingerprintDialogFragment() {
+    FingerprintDialogFragment getFingerprintDialogFragment() {
         return mFingerprintDialogFragment;
-    }
-
-    /**
-     * @return The latest {@link FingerprintHelperFragment} set via
-     * {@link #setFingerprintFragments(FingerprintDialogFragment, FingerprintHelperFragment)}.
-     */
-    @Nullable
-    public FingerprintHelperFragment getFingerprintHelperFragment() {
-        return mFingerprintHelperFragment;
     }
 
     /**
@@ -163,9 +150,8 @@ class DeviceCredentialHandlerBridge {
      *
      * <p>If a {@link BiometricFragment} has been registered via
      * {@link #setBiometricFragment(BiometricFragment)}, or if a {@link FingerprintDialogFragment}
-     * and {@link FingerprintHelperFragment} have been registered via
-     * {@link #setFingerprintFragments(FingerprintDialogFragment, FingerprintHelperFragment)}, then
-     * these fragments will receive the updated executor and callbacks as well.
+     * has been registered via {@link #setFingerprintDialogFragment(FingerprintDialogFragment)},
+     * then these fragments will receive the updated executor and callbacks as well.
      *
      * @param executor               An executor that can be used to run callbacks.
      * @param onClickListener        A dialog button listener for a biometric prompt.
@@ -180,10 +166,9 @@ class DeviceCredentialHandlerBridge {
         mAuthenticationCallback = authenticationCallback;
         if (mBiometricFragment != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             mBiometricFragment.setCallbacks(executor, onClickListener, authenticationCallback);
-        } else if (mFingerprintDialogFragment != null && mFingerprintHelperFragment != null) {
+        } else if (mFingerprintDialogFragment != null) {
             mFingerprintDialogFragment.setNegativeButtonListener(onClickListener);
-            mFingerprintHelperFragment.setCallback(executor, authenticationCallback);
-            mFingerprintHelperFragment.setHandler(mFingerprintDialogFragment.getHandler());
+            mFingerprintDialogFragment.setCallback(executor, authenticationCallback);
         }
     }
 
@@ -288,7 +273,6 @@ class DeviceCredentialHandlerBridge {
         mClientThemeResId = 0;
         mBiometricFragment = null;
         mFingerprintDialogFragment = null;
-        mFingerprintHelperFragment = null;
         mExecutor = null;
         mOnClickListener = null;
         mAuthenticationCallback = null;

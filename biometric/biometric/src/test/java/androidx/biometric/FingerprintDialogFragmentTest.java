@@ -16,20 +16,102 @@
 
 package androidx.biometric;
 
-import androidx.test.filters.LargeTest;
+import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import android.os.Handler;
+
+import androidx.annotation.NonNull;
+import androidx.test.filters.MediumTest;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@LargeTest
+import java.util.concurrent.Executor;
+
+@MediumTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class FingerprintDialogFragmentTest {
+    private static final Answer<Object> RUN_IMMEDIATELY = new Answer<Object>() {
+        @Override
+        public Object answer(InvocationOnMock invocation) {
+            final Runnable runnable = invocation.getArgument(0);
+            if (runnable != null) {
+                runnable.run();
+            }
+            return null;
+        }
+    };
+
+    private static final Executor EXECUTOR = new Executor() {
+        @Override
+        public void execute(@NonNull Runnable runnable) {
+            runnable.run();
+        }
+    };
+
+    @Mock
+    private BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
+    @Mock
+    private Handler mHandler;
+
+    @Captor
+    private ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
+
+    private FingerprintDialogFragment mFragment;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        prepareMockHandler(mHandler);
+        mFragment = FingerprintDialogFragment.newInstance();
+        mFragment.setHandler(mHandler);
+    }
+
     @Test
-    public void testDismissSafely_DoesNotCrash_WhenNotAssociatedWithFragmentManager() {
-        final FingerprintDialogFragment dialogFragment = FingerprintDialogFragment.newInstance();
-        dialogFragment.dismissSafely();
+    public void testCancel_DoesNotCrash_WhenNotAssociatedWithFragmentManager() {
+        mFragment.cancel(FingerprintDialogFragment.USER_CANCELED_FROM_NONE);
+    }
+
+    @Test
+    public void testOnAuthenticationSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
+        mFragment.setCallback(EXECUTOR, mAuthenticationCallback);
+
+        mFragment.mAuthenticationCallback.onAuthenticationSucceeded(null /* result */);
+
+        verify(mAuthenticationCallback).onAuthenticationSucceeded(mResultCaptor.capture());
+        assertThat(mResultCaptor.getValue().getCryptoObject()).isNull();
+    }
+
+    @Test
+    public void testOnAuthenticationError_DoesShowErrorAndDismissDialog_WhenHardwareUnavailable() {
+        mFragment.setCallback(EXECUTOR, mAuthenticationCallback);
+
+        final int errMsgId = BiometricConstants.ERROR_HW_UNAVAILABLE;
+        final String errString = "lorem ipsum";
+        mFragment.mAuthenticationCallback.onAuthenticationError(errMsgId, errString);
+
+        verify(mAuthenticationCallback).onAuthenticationError(errMsgId, errString);
+        assertThat(mFragment.isVisible()).isFalse();
+        assertThat(mFragment.isShowing()).isFalse();
+    }
+
+    private static void prepareMockHandler(Handler handler) {
+        when(handler.post(any(Runnable.class))).thenAnswer(RUN_IMMEDIATELY);
+        when(handler.postDelayed(any(Runnable.class), anyLong())).thenAnswer(RUN_IMMEDIATELY);
     }
 }
