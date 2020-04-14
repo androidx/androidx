@@ -61,10 +61,25 @@ private class DrawBackgroundModifier(
  * contents. It also allows the modifier to adjust the layout's canvas.
  */
 // TODO: Inline this function -- it breaks with current compiler
-/*inline*/ fun drawWithContent(
+/*inline*/ fun Modifier.drawWithContent(
     onDraw: ContentDrawScope.() -> Unit
-): DrawModifier = object : DrawModifier {
+): Modifier = this + object : DrawModifier {
     override fun ContentDrawScope.draw() {
         onDraw()
     }
 }
+
+/**
+ * Creates a [DrawModifier] that allows the developer to draw before or after the layout's
+ * contents. It also allows the modifier to adjust the layout's canvas.
+ */
+@Deprecated(
+    "Replaced by Modifier.drawWithContent",
+    ReplaceWith(
+        "Modifier.drawWithContent(onDraw)",
+        "androidx.ui.core.Modifier"
+    )
+)
+/*inline*/ fun drawWithContent(
+    onDraw: ContentDrawScope.() -> Unit
+): DrawModifier = Modifier.drawWithContent(onDraw) as DrawModifier
