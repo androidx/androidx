@@ -43,7 +43,13 @@ import androidx.ui.layout.preferredSize
  * background). Any unspecified dimension will leverage the [ImageAsset]'s size as a minimum
  * constraint.
  *
+ * The following sample shows basic usage of an Image composable to position and draw an
+ * [ImageAsset] on screen
  * @sample androidx.ui.foundation.samples.ImageSample
+ *
+ * For use cases that require drawing a rectangular subset of the [ImageAsset] consumers can use
+ * overload that consumes a [Painter] parameter shown in this sample
+ * @sample androidx.ui.foundation.samples.ImagePainterSubsectionSample
  *
  * @param asset The [ImageAsset] to draw.
  * @param modifier Modifier used to adjust the layout algorithm or draw decoration content (ex.

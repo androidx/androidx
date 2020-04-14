@@ -16,21 +16,45 @@
 
 package androidx.ui.graphics.painter
 
-import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxSize
+import kotlin.math.roundToInt
 
 private val EmptyPaint = Paint()
 
 /**
  * [Painter] implementation used to draw an [ImageAsset] into the provided canvas
  * This implementation can handle applying alpha and [ColorFilter] to it's drawn result
+ *
+ * @param image The [ImageAsset] to draw
+ * @param srcBounds Optional rectangle used to draw a subsection of the [ImageAsset]. If null is
+ * provided the entire [ImageAsset] is drawn within the bounds.
+ * These bounds must have the following requirements:
+ *
+ * 1) Left and top bounds must be greater than or equal to zero
+ * 2) Right and bottom bounds must be greater than the left and top respectively
+ * 3) Width and height of the bounds must be less than or equal to the dimensions of [image]
  */
-data class ImagePainter(private val image: ImageAsset) : Painter() {
+data class ImagePainter(private val image: ImageAsset, val srcBounds: Rect? = null) : Painter() {
+
+    private val size: PxSize = if (srcBounds != null) {
+        require(
+            srcBounds.left >= 0 &&
+            srcBounds.top >= 0 &&
+            srcBounds.right <= image.width &&
+            srcBounds.bottom <= image.height &&
+            srcBounds.right > srcBounds.left &&
+            srcBounds.bottom > srcBounds.top
+        )
+        PxSize(IntPx(srcBounds.width.roundToInt()), IntPx(srcBounds.height.roundToInt()))
+    } else {
+        PxSize(IntPx(image.width), IntPx(image.height))
+    }
 
     /**
      * Lazily allocated paint used to draw the [ImageAsset] if an alpha value between 0.0f and 1.0f
@@ -38,12 +62,13 @@ data class ImagePainter(private val image: ImageAsset) : Painter() {
      */
     private var paint: Paint? = null
 
-    private val size = PxSize(IntPx(image.width), IntPx(image.height))
-
     override fun onDraw(canvas: Canvas, bounds: PxSize) {
-        // Always draw the image in the top left as we expect it to be translated and scaled
-        // in the appropriate position
-        canvas.drawImage(image, Offset.zero, paint ?: EmptyPaint)
+        canvas.drawImageRect(
+            image,
+            srcBounds,
+            Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value),
+            paint ?: EmptyPaint
+        )
     }
 
     /**

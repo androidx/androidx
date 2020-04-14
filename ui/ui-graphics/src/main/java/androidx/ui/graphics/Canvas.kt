@@ -478,8 +478,14 @@ interface Canvas {
      *
      * This might sample from outside the `src` rect by up to half the width of
      * an applied filter.
+     *
+     * @param image ImageAsset to draw
+     * @param src Optional rectangular section of the image to draw into the dst
+     * @param dst Required rectangular region to draw contents of the [ImageAsset] into. Contents
+     * of the subsection provided for [src] will be scaled to fit in the destination bounds
+     * @param paint Paint used to composite the [ImageAsset] pixels into the canvas
      */
-    fun drawImageRect(image: ImageAsset, src: Rect, dst: Rect, paint: Paint)
+    fun drawImageRect(image: ImageAsset, src: Rect?, dst: Rect, paint: Paint)
 
     /**
      * Draw the given picture onto the canvas. To create a picture, see
