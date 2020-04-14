@@ -31,7 +31,6 @@ import android.util.Size;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,19 +46,16 @@ final class ImageUtil {
     }
 
     /**
-     * Rotates {@link Rect} based on rotation degrees.
+     * Rotates aspect ratio based on rotation degrees.
      */
-    static Rect getRotatedRect(
+    static Rational getRotatedAspectRatio(
             @IntRange(from = 0, to = 359) int rotationDegrees,
-            @NonNull Rect originalRect) {
+            @NonNull Rational aspectRatio) {
         if (rotationDegrees == 90 || rotationDegrees == 270) {
-            return new Rect(originalRect.top,
-                    originalRect.left,
-                    originalRect.bottom,
-                    originalRect.right);
+            return inverseRational(aspectRatio);
         }
 
-        return new Rect(originalRect);
+        return new Rational(aspectRatio.getNumerator(), aspectRatio.getDenominator());
     }
 
     /**
@@ -174,22 +170,6 @@ final class ImageUtil {
         }
 
         return new Rect(cropLeft, cropTop, cropLeft + outputWidth, cropTop + outputHeight);
-    }
-
-    /**
-     * Rotate rational by rotation value, which inverse it if the degree is 90 or 270.
-     *
-     * @param rational Rational to be rotated.
-     * @param rotation Rotation value being applied.
-     */
-    @NonNull
-    public static Rational rotate(
-            @NonNull Rational rational, @RotationValue int rotation) {
-        if (rotation == 90 || rotation == 270) {
-            return inverseRational(rational);
-        }
-
-        return rational;
     }
 
     private static byte[] nv21ToJpeg(byte[] nv21, int width, int height, @Nullable Rect cropRect)
