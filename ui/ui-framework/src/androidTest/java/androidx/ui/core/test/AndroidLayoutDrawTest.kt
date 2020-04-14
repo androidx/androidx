@@ -2894,9 +2894,8 @@ fun ActivityTestRule<*>.waitAndScreenShot(): Bitmap {
     }
 
     assertTrue(flushListener.latch.await(1, TimeUnit.SECONDS))
-    val owner = view as Owner
-    val width = owner.root.width.value
-    val height = owner.root.height.value
+    val width = view.width
+    val height = view.height
 
     val dest =
         Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)

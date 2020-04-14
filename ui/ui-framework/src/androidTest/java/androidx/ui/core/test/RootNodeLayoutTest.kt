@@ -28,6 +28,7 @@ import androidx.ui.core.boundsInRoot
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -131,7 +132,7 @@ class RootNodeLayoutTest {
                 ViewGroup.LayoutParams.MATCH_PARENT))
             activity.setContentView(parent)
             child.setContent {
-                Layout({}, Modifier.onPositioned {
+                Layout({}, Modifier.fillMaxSize().onPositioned {
                     latch.countDown()
                 }) { _, _, _ ->
                     layout(10.ipx, 15.ipx) {}
