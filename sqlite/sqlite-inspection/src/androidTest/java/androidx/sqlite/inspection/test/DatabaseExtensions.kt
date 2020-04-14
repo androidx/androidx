@@ -21,6 +21,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.rules.TemporaryFolder
+import java.io.File
 
 fun SQLiteDatabase.addTable(table: Table) = execSQL(table.toCreateString())
 
@@ -34,7 +35,11 @@ fun SQLiteDatabase.insertValues(table: Table, vararg values: String) {
 }
 
 fun Database.createInstance(temporaryFolder: TemporaryFolder): SQLiteDatabase {
-    val path = temporaryFolder.newFile(this.name).absolutePath
+    val path = if (name == null) null else
+        File(temporaryFolder.root, name)
+            .also { it.createNewFile() } // can handle an existing file
+            .absolutePath
+
     val context = ApplicationProvider.getApplicationContext() as android.content.Context
     val openHelper = object : SQLiteOpenHelper(context, path, null, 1) {
         override fun onCreate(db: SQLiteDatabase?) = Unit
