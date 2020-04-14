@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -46,7 +46,11 @@ internal fun <T : Any> PagePresenter(
         },
         placeholdersStart = leadingNullCount,
         placeholdersEnd = trailingNullCount,
-        loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+        loadStates = mapOf(
+            REFRESH to NotLoading.Idle,
+            START to NotLoading.Idle,
+            END to NotLoading.Idle
+        )
     )
 )
 
@@ -310,7 +314,10 @@ class PagePresenterTest {
         val callback = PresenterCallbackCapture()
         data.dropPages(false, pagesToDrop, newNulls, callback)
 
-        assertEquals(events + listOf(StateEvent(END, Idle)), callback.getAllAndClear())
+        assertEquals(
+            events + listOf(StateEvent(END, NotLoading.Idle)),
+            callback.getAllAndClear()
+        )
 
         // assert final list state
         val finalData = initialPages.subList(0, initialPages.size - pagesToDrop).flatten()
@@ -343,7 +350,10 @@ class PagePresenterTest {
         val callback = PresenterCallbackCapture()
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
-        assertEvents(events + listOf(StateEvent(START, Idle)), callback.getAllAndClear())
+        assertEvents(
+            events + listOf(StateEvent(START, NotLoading.Idle)),
+            callback.getAllAndClear()
+        )
 
         // assert final list state
         val finalData = initialPages.take(initialPages.size - pagesToDrop).reversed().flatten()
@@ -547,9 +557,9 @@ class PagePresenterTest {
 
     companion object {
         val IDLE_EVENTS = listOf<PresenterEvent>(
-            StateEvent(REFRESH, Idle),
-            StateEvent(START, Idle),
-            StateEvent(END, Idle)
+            StateEvent(REFRESH, NotLoading.Idle),
+            StateEvent(START, NotLoading.Idle),
+            StateEvent(END, NotLoading.Idle)
         )
     }
 }

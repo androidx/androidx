@@ -19,8 +19,8 @@ package androidx.paging
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -161,7 +161,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                         )
                     ) {
                         // trimmed from front, ensure we can fetch in that dir
-                        pager.loadStateManager.setState(START, Idle)
+                        pager.loadStateManager.setState(START, NotLoading.Idle)
                     }
                 }
             } else {
@@ -173,7 +173,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                             this@ContiguousPagedList
                         )
                     ) {
-                        pager.loadStateManager.setState(END, Idle)
+                        pager.loadStateManager.setState(END, NotLoading.Idle)
                     }
                 }
             }

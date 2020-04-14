@@ -16,8 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Done
-import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -100,7 +99,11 @@ class SeparatorsTest {
                     ),
                     placeholdersStart = 0,
                     placeholdersEnd = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Idle
+                    )
                 )
             ),
             flowOf(
@@ -111,7 +114,11 @@ class SeparatorsTest {
                     ).toTransformablePages(),
                     placeholdersStart = 0,
                     placeholdersEnd = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Idle
+                    )
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
@@ -125,7 +132,11 @@ class SeparatorsTest {
             ).toTransformablePages(),
             placeholdersStart = 0,
             placeholdersEnd = 1,
-            loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+            loadStates = mapOf(
+                REFRESH to NotLoading.Idle,
+                START to NotLoading.Idle,
+                END to NotLoading.Idle
+            )
         )
         assertEvents(
             listOf(
@@ -158,7 +169,11 @@ class SeparatorsTest {
                         )
                     ),
                     placeholdersStart = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Idle
+                    )
                 )
             ),
             flowOf(
@@ -169,7 +184,11 @@ class SeparatorsTest {
                         listOf("b2", "b3")
                     ).toTransformablePages(2),
                     placeholdersStart = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Idle
+                    )
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
@@ -183,7 +202,11 @@ class SeparatorsTest {
             ).toTransformablePages(),
             placeholdersStart = 0,
             placeholdersEnd = 1,
-            loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+            loadStates = mapOf(
+                REFRESH to NotLoading.Idle,
+                START to NotLoading.Idle,
+                END to NotLoading.Idle
+            )
         )
         assertEvents(
             listOf(
@@ -216,7 +239,11 @@ class SeparatorsTest {
                         )
                     ),
                     placeholdersEnd = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Idle
+                    )
                 )
             ),
             flowOf(
@@ -227,7 +254,11 @@ class SeparatorsTest {
                         listOf("d2", "d3")
                     ).toTransformablePages(-1),
                     placeholdersEnd = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Idle
+                    )
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
@@ -236,7 +267,7 @@ class SeparatorsTest {
     @Test
     fun refreshDropFull() = runBlockingTest {
         assertEvents(
-            listOf(
+            expected = listOf(
                 Refresh(
                     pages = listOf(
                         TransformablePage(
@@ -260,15 +291,15 @@ class SeparatorsTest {
                     ),
                     placeholdersStart = 0,
                     placeholdersEnd = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Idle
+                    )
                 ),
-                Drop(
-                    END,
-                    2,
-                    4
-                )
+                Drop<String>(END, 2, 4)
             ),
-            flowOf(
+            actual = flowOf(
                 Refresh(
                     pages = listOf(
                         listOf("a1"),
@@ -276,50 +307,54 @@ class SeparatorsTest {
                     ).toTransformablePages(),
                     placeholdersStart = 0,
                     placeholdersEnd = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Idle
+                    )
                 ),
-                Drop<String>(
-                    END,
-                    1,
-                    4
-                )
+                Drop<String>(END, 1, 4)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
     private fun refresh(
         pages: List<String?>,
-        start: LoadState = Idle,
-        end: LoadState = Idle
+        start: LoadState = NotLoading.Idle,
+        end: LoadState = NotLoading.Idle
     ) = Refresh(
         pages = pages.map {
             if (it != null) listOf(it) else emptyList()
         }.toTransformablePages(),
         placeholdersStart = 0,
         placeholdersEnd = 1,
-        loadStates = mapOf(REFRESH to Idle, START to start, END to end)
+        loadStates = mapOf(REFRESH to NotLoading.Idle, START to start, END to end)
     )
 
     private fun start(
         pages: List<String?>,
-        start: LoadState = Idle
+        start: LoadState = NotLoading.Idle
     ) = Start(
         pages = pages.map {
             if (it != null) listOf(it) else emptyList()
         }.toTransformablePages(),
         placeholdersStart = 0,
-        loadStates = mapOf(REFRESH to Idle, START to start, END to Idle)
+        loadStates = mapOf(
+            REFRESH to NotLoading.Idle,
+            START to start,
+            END to NotLoading.Idle
+        )
     )
 
     private fun end(
         pages: List<String?>,
-        end: LoadState = Idle
+        end: LoadState = NotLoading.Idle
     ) = End(
         pages = pages.map {
             if (it != null) listOf(it) else emptyList()
         }.toTransformablePages(),
         placeholdersEnd = 0,
-        loadStates = mapOf(REFRESH to Idle, START to Idle, END to end)
+        loadStates = mapOf(REFRESH to NotLoading.Idle, START to NotLoading.Idle, END to end)
     )
 
     private fun drop(
@@ -338,6 +373,7 @@ class SeparatorsTest {
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
+
     @Test
     fun refreshStartDone() = runBlockingTest {
         assertInsertData(
@@ -345,7 +381,7 @@ class SeparatorsTest {
                 refresh(pages = listOf("A", "a1"))
             ),
             flowOf(
-                refresh(pages = listOf("a1"), start = Done)
+                refresh(pages = listOf("a1"), start = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -357,7 +393,7 @@ class SeparatorsTest {
                 refresh(pages = listOf("a1", "END"))
             ),
             flowOf(
-                refresh(pages = listOf("a1"), end = Done)
+                refresh(pages = listOf("a1"), end = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -369,7 +405,11 @@ class SeparatorsTest {
                 refresh(pages = listOf("A", "a1", "END"))
             ),
             flowOf(
-                refresh(pages = listOf("a1"), start = Done, end = Done)
+                refresh(
+                    pages = listOf("a1"),
+                    start = NotLoading.Done,
+                    end = NotLoading.Done
+                )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -378,7 +418,8 @@ class SeparatorsTest {
     fun refreshEmptyNoop() = runBlockingTest {
         assertInsertData(
             listOf(
-                // should only get one item when initial page is done on both sides
+                // should only get one item when initial page is canRequestMoreData is false on
+                // both sides.
                 refresh(pages = listOf<String>())
             ),
             flowOf(
@@ -401,10 +442,10 @@ class SeparatorsTest {
                 end(pages = listOf("END"))
             ),
             flowOf(
-                refresh(pages = listOf(), start = Done),
+                refresh(pages = listOf(), start = NotLoading.Done),
                 end(pages = listOf("a1")),
                 end(pages = listOf()),
-                end(pages = listOf(), end = Done)
+                end(pages = listOf(), end = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -423,10 +464,10 @@ class SeparatorsTest {
                 start(pages = listOf("A"))
             ),
             flowOf(
-                refresh(pages = listOf(), end = Done),
+                refresh(pages = listOf(), end = NotLoading.Done),
                 start(pages = listOf("a1")),
                 start(pages = listOf()),
-                start(pages = listOf(), start = Done)
+                start(pages = listOf(), start = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -443,10 +484,10 @@ class SeparatorsTest {
                 start(pages = listOf("A"))
             ),
             flowOf(
-                refresh(pages = listOf(), start = Done),
+                refresh(pages = listOf(), start = NotLoading.Done),
                 drop(loadType = START, count = 0),
                 end(pages = listOf("a1")),
-                start(pages = listOf(), start = Done)
+                start(pages = listOf(), start = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -463,10 +504,10 @@ class SeparatorsTest {
                 end(pages = listOf("END"))
             ),
             flowOf(
-                refresh(pages = listOf(), end = Done),
+                refresh(pages = listOf(), end = NotLoading.Done),
                 drop(loadType = END, count = 0),
                 start(pages = listOf("a1")),
-                end(pages = listOf(), end = Done)
+                end(pages = listOf(), end = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -535,12 +576,19 @@ class SeparatorsTest {
                     ),
                     placeholdersStart = 0,
                     placeholdersEnd = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Done, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Done,
+                        END to NotLoading.Idle
+                    )
                 ),
                 drop(loadType = START, count = 3)
             ),
             flowOf(
-                refresh(pages = listOf("a1", "b1"), start = Done),
+                refresh(
+                    pages = listOf("a1", "b1"),
+                    start = NotLoading.Done
+                ),
                 drop(loadType = START, count = 1)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
@@ -580,12 +628,19 @@ class SeparatorsTest {
                     ),
                     placeholdersStart = 0,
                     placeholdersEnd = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Done)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Done
+                    )
                 ),
                 drop(loadType = END, count = 3)
             ),
             flowOf(
-                refresh(pages = listOf("a1", "b1"), end = Done),
+                refresh(
+                    pages = listOf("a1", "b1"),
+                    end = NotLoading.Done
+                ),
                 drop(loadType = END, count = 1)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
@@ -609,7 +664,11 @@ class SeparatorsTest {
                     ).toTransformablePages(),
                     placeholdersStart = 0,
                     placeholdersEnd = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Idle
+                    )
                 )
             ),
             flowOf(
@@ -618,7 +677,11 @@ class SeparatorsTest {
                         .toTransformablePages(),
                     placeholdersStart = 0,
                     placeholdersEnd = 1,
-                    loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Idle,
+                        END to NotLoading.Idle
+                    )
                 )
             ).insertEventSeparators<PrimaryType, Base> { before, after ->
                 return@insertEventSeparators (if (before != null && after != null) {

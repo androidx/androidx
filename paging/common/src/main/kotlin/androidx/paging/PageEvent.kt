@@ -42,7 +42,7 @@ internal sealed class PageEvent<T : Any> {
             require(loadType == START || placeholdersEnd >= 0) {
                 "Invalid placeholdersAfter $placeholdersEnd"
             }
-            require(loadStates[REFRESH] != LoadState.Done) {
+            require(loadStates[REFRESH] != LoadState.NotLoading(endOfPaginationReached = true)) {
                 "Refresh state may not be Done"
             }
         }

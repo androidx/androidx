@@ -17,8 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.CheckResult
-import androidx.paging.LoadState.Done
-import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -119,7 +118,11 @@ class PagingData<T : Any> internal constructor(
                     pages = listOf(TransformablePage(originalPageOffset = 0, data = emptyList())),
                     placeholdersStart = 0,
                     placeholdersEnd = 0,
-                    loadStates = mapOf(REFRESH to Idle, START to Done, END to Done)
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        START to NotLoading.Done,
+                        END to NotLoading.Done
+                    )
                 )
             ),
             receiver = NOOP_RECEIVER

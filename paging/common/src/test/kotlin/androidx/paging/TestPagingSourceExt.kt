@@ -20,14 +20,14 @@ import androidx.paging.TestPagingSource.Companion.items
 
 internal fun createRefresh(
     range: IntRange,
-    startState: LoadState = LoadState.Idle,
-    endState: LoadState = LoadState.Idle
+    startState: LoadState = LoadState.NotLoading(endOfPaginationReached = false),
+    endState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
 ) = PageEvent.Insert.Refresh(
     pages = pages(0, range),
     placeholdersStart = range.first.coerceAtLeast(0),
     placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0),
     loadStates = mapOf(
-        LoadType.REFRESH to LoadState.Idle,
+        LoadType.REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
         LoadType.START to startState,
         LoadType.END to endState
     )
@@ -36,13 +36,13 @@ internal fun createRefresh(
 internal fun createPrepend(
     pageOffset: Int,
     range: IntRange,
-    startState: LoadState = LoadState.Idle,
-    endState: LoadState = LoadState.Idle
+    startState: LoadState = LoadState.NotLoading(endOfPaginationReached = false),
+    endState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
 ) = PageEvent.Insert.Start(
     pages = pages(pageOffset, range),
     placeholdersStart = range.first.coerceAtLeast(0),
     loadStates = mapOf(
-        LoadType.REFRESH to LoadState.Idle,
+        LoadType.REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
         LoadType.START to startState,
         LoadType.END to endState
     )
@@ -51,13 +51,13 @@ internal fun createPrepend(
 internal fun createAppend(
     pageOffset: Int,
     range: IntRange,
-    startState: LoadState = LoadState.Idle,
-    endState: LoadState = LoadState.Idle
+    startState: LoadState = LoadState.NotLoading(endOfPaginationReached = false),
+    endState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
 ) = PageEvent.Insert.End(
     pages = pages(pageOffset, range),
     placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0),
     loadStates = mapOf(
-        LoadType.REFRESH to LoadState.Idle,
+        LoadType.REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
         LoadType.START to startState,
         LoadType.END to endState
     )

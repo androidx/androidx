@@ -202,7 +202,7 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handlePageDrop(event: PageEvent.Drop<T>) {
-        loadStates[event.loadType] = LoadState.Idle
+        loadStates[event.loadType] = LoadState.NotLoading(endOfPaginationReached = false)
 
         when (event.loadType) {
             LoadType.START -> {

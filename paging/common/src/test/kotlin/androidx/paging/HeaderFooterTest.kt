@@ -18,8 +18,7 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Done
-import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -283,4 +282,8 @@ class HeaderFooterTest {
     }
 }
 
-private val loadStates = mapOf(REFRESH to Idle, START to Done, END to Done)
+private val loadStates = mapOf(
+    REFRESH to NotLoading.Idle,
+    START to NotLoading.Done,
+    END to NotLoading.Done
+)

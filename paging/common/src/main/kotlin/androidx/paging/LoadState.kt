@@ -25,27 +25,43 @@ package androidx.paging
  *
  * @see LoadType
  */
-sealed class LoadState {
+sealed class LoadState(val endOfPaginationReached: Boolean) {
     /**
-     * Indicates the PagedList is not currently loading, and no error currently observed.
+     * Indicates the [PagingData] is not currently loading, and no error currently observed.
+     *
+     * @param endOfPaginationReached `false` if there is more data to load in the [LoadType] this
+     * [LoadState] is associated with, `true` otherwise. This parameter informs [Pager] if it
+     * should continue to make requests for additional data in this direction or if it should
+     * halt as the end of the dataset has been reached.
      */
-    object Idle : LoadState() {
-        override fun toString() = "Idle"
+    @Suppress("DataClassPrivateConstructor")
+    class NotLoading constructor(
+        endOfPaginationReached: Boolean
+    ) : LoadState(endOfPaginationReached) {
+        override fun toString(): String {
+            return "NotLoading(endOfPaginationReached=$endOfPaginationReached)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (other !is NotLoading) return false
+
+            return endOfPaginationReached == other.endOfPaginationReached
+        }
+
+        override fun hashCode(): Int {
+            return endOfPaginationReached.hashCode()
+        }
+
+        internal companion object {
+            val Done = NotLoading(true)
+            val Idle = NotLoading(false)
+        }
     }
 
     /**
      * Loading is in progress.
      */
-    object Loading : LoadState() {
-        override fun toString() = "Loading"
-    }
-
-    /**
-     * Loading is complete.
-     */
-    object Done : LoadState() {
-        override fun toString() = "Done"
-    }
+    object Loading : LoadState(false)
 
     /**
      * Loading hit an error.
@@ -54,7 +70,5 @@ sealed class LoadState {
      *
      * @see androidx.paging.PagedList.retry
      */
-    data class Error(val error: Throwable) : LoadState() {
-        override fun toString() = "Error: $error"
-    }
+    data class Error(val error: Throwable) : LoadState(false)
 }

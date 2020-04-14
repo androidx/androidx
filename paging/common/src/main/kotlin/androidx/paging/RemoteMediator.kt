@@ -86,11 +86,12 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
         class Error(val throwable: Throwable) : MediatorResult()
 
         /**
-         * Success signaling that [LoadState] should be set to [LoadState.Done] if [canRequestMoreData]
-         * is `false`, otherwise [LoadState] is kept at [LoadState.Loading] to await invalidation.
+         * Success signaling that [LoadState] should be set to [LoadState.NotLoading] if
+         * [canRequestMoreData] is `false`, otherwise [LoadState] is kept at [LoadState.Loading] to
+         * await invalidation.
          *
          * NOTE: It is the responsibility of [load] to update the backing dataset and trigger
-         * [PagingSource.invalidate] to allow [androidx.paging.PagingDataADapter] to pick up new
+         * [PagingSource.invalidate] to allow [androidx.paging.PagingDataAdapter] to pick up new
          * items found by [load].
          */
         class Success(

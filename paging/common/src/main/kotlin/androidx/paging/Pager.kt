@@ -16,10 +16,9 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Done
 import androidx.paging.LoadState.Error
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -225,10 +224,10 @@ internal class Pager<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[START] == Done) {
+                        if (state.loadStates[START] == NotLoading.Done) {
                             return@transformLatest
                         } else if (state.failedHintsByLoadType[START] == null) {
-                            state.loadStates[START] = Idle
+                            state.loadStates[START] = NotLoading.Idle
                         }
                     }
 
@@ -256,10 +255,10 @@ internal class Pager<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[END] == Done) {
+                        if (state.loadStates[END] == NotLoading.Done) {
                             return@transformLatest
                         } else if (state.failedHintsByLoadType[END] == null) {
-                            state.loadStates[END] = Idle
+                            state.loadStates[END] = NotLoading.Idle
                         }
                     }
 
@@ -302,12 +301,18 @@ internal class Pager<Key : Any, Value : Any>(
                 if (remoteMediatorAccessor == null) {
                     stateLock.withLock {
                         // Update loadStates which are sent along with this load's Insert PageEvent.
-                        state.loadStates[REFRESH] = Idle
-                        if (result.prevKey == null) state.loadStates[START] = Done
-                        if (result.nextKey == null) state.loadStates[END] = Done
+                        state.loadStates[REFRESH] = NotLoading.Idle
+                        if (result.prevKey == null) {
+                            state.loadStates[START] = NotLoading.Done
+                        }
+                        if (result.nextKey == null) {
+                            state.loadStates[END] = NotLoading.Done
+                        }
                     }
                 } else {
-                    stateLock.withLock { state.loadStates[REFRESH] = Idle }
+                    stateLock.withLock {
+                        state.loadStates[REFRESH] = NotLoading.Idle
+                    }
                     if (result.prevKey == null || result.nextKey == null) {
                         val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
 
@@ -321,10 +326,9 @@ internal class Pager<Key : Any, Value : Any>(
                     }
                 }
 
-                // Send insert event after load state updates, so that Done / Idle is
-                // correctly reflected in the insert event. Note that we only send the event
-                // if the insert was successfully applied in the case of cancellation due to
-                // page dropping.
+                // Send insert event after load state updates, so that canRequestMoreData is
+                // correctly reflected in the insert event. Note that we only send the event if the
+                // insert was successfully applied in the case of cancellation due to page dropping.
                 if (insertApplied) {
                     stateLock.withLock {
                         with(state) {
@@ -366,8 +370,8 @@ internal class Pager<Key : Any, Value : Any>(
             }
         }
 
-        // Keep track of whether the LoadState should be updated to Idle or Done when this load
-        // loop terminates due to fulfilling prefetchDistance.
+        // Keep track of whether the LoadState.Idle canRequestMoreData when this load loop
+        // terminates due to fulfilling prefetchDistance.
         var updateLoadStateToDone = false
         loop@ while (loadKey != null) {
             val params = loadParams(loadType, loadKey)
@@ -381,7 +385,7 @@ internal class Pager<Key : Any, Value : Any>(
                     // Break if insert was skipped due to cancellation
                     if (!insertApplied) break@loop
 
-                    // Send Done instead of Idle if no more data to load in current direction.
+                    // Set canRequestMoreData to false if no more data to load in current direction.
                     if ((loadType == START && result.prevKey == null) ||
                         (loadType == END && result.nextKey == null)
                     ) {
@@ -427,7 +431,11 @@ internal class Pager<Key : Any, Value : Any>(
                     // Update load state to success if this is the final load result for this
                     // load hint, and only if we didn't error out.
                     if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
-                        state.loadStates[loadType] = if (updateLoadStateToDone) Done else Idle
+                        state.loadStates[loadType] = if (updateLoadStateToDone) {
+                            NotLoading.Done
+                        } else {
+                            NotLoading.Idle
+                        }
                     }
                 }
             } else {
@@ -471,10 +479,12 @@ internal class Pager<Key : Any, Value : Any>(
             is RemoteMediator.MediatorResult.Success -> {
                 if (loadType != REFRESH) {
                     stateLock.withLock {
-                        this@Pager.state.loadStates[loadType] = when {
-                            boundaryResult.canRequestMoreData -> Idle
-                            else -> Done
-                        }
+                        this@Pager.state.loadStates[loadType] =
+                            if (!boundaryResult.canRequestMoreData) {
+                                NotLoading.Done
+                            } else {
+                                NotLoading.Idle
+                            }
                     }
                 }
             }

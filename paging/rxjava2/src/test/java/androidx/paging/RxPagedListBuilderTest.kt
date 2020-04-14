@@ -16,8 +16,8 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadState.Error
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
@@ -100,11 +100,13 @@ class RxPagedListBuilderTest {
             )
         )
         val scheduler = TestScheduler()
+
         @Suppress("DEPRECATION")
         val observable = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(scheduler)
             .setNotifyScheduler(scheduler)
             .buildObservable()
+
         @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
 
@@ -134,11 +136,13 @@ class RxPagedListBuilderTest {
         val factory = testDataSourceSequence(listOf(listOf("a", "b"), listOf("c", "d")))
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
+
         @Suppress("DEPRECATION")
         val observable: Observable<PagedList<String>> = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(fetchScheduler)
             .setNotifyScheduler(notifyScheduler)
             .buildObservable()
+
         @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
         observable.subscribe(observer)
@@ -165,6 +169,7 @@ class RxPagedListBuilderTest {
         // initial load - if we used one, we wouldn't be able to see the initial Loading state
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
+
         @Suppress("DEPRECATION")
         val observable = RxPagedListBuilder(factory::create, 2)
             .setFetchScheduler(fetchScheduler)
@@ -237,7 +242,7 @@ class RxPagedListBuilderTest {
                 LoadStateEvent(LoadType.REFRESH, Loading),
                 LoadStateEvent(LoadType.REFRESH, Error(EXCEPTION)),
                 LoadStateEvent(LoadType.REFRESH, Loading),
-                LoadStateEvent(LoadType.REFRESH, Idle)
+                LoadStateEvent(LoadType.REFRESH, NotLoading(endOfPaginationReached = false))
             ), loadStates
         )
     }
