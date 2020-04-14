@@ -488,6 +488,50 @@ class MultiParagraph(
         }
     }
 
+    /** Returns the start offset of the given line, inclusive. */
+    fun getLineStart(lineIndex: Int): Int {
+        requireIndexInRange(lineIndex)
+
+        val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
+
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.getLineStart(lineIndex.toLocalLineIndex()).toGlobalIndex()
+        }
+    }
+
+    /** Returns the end offset of the given line, exclusive. */
+    fun getLineEnd(lineIndex: Int): Int {
+        requireIndexInRange(lineIndex)
+
+        val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
+
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.getLineEnd(lineIndex.toLocalLineIndex()).toGlobalIndex()
+        }
+    }
+
+    /** Returns the offset where ellipsis is applied, regarding to the line start. */
+    fun getLineEllipsisOffset(lineIndex: Int): Int {
+        requireIndexInRange(lineIndex)
+
+        val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
+
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.getLineEllipsisOffset(lineIndex.toLocalLineIndex())
+        }
+    }
+
+    /** Returns the number of characters that is ellipsized in the line. */
+    fun getLineEllipsisCount(lineIndex: Int): Int {
+        requireIndexInRange(lineIndex)
+
+        val paragraphIndex = findParagraphByLineIndex(paragraphInfoList, lineIndex)
+
+        return with(paragraphInfoList[paragraphIndex]) {
+            paragraph.getLineEllipsisCount(lineIndex.toLocalLineIndex())
+        }
+    }
+
     private fun requireIndexInRange(offset: Int) {
         require(offset in annotatedString.text.indices) {
             "offset($offset) is out of bounds [0, ${annotatedString.length})"

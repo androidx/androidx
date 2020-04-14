@@ -150,6 +150,30 @@ data class TextLayoutResult internal constructor(
     val placeholderRects: List<Rect> = multiParagraph.placeholderRects
 
     /**
+     * Returns the end offset of the given line, inclusive.
+     *
+     * @param lineIndex the line number
+     * @return the start offset of the line
+     */
+    fun getLineStart(lineIndex: Int): Int = multiParagraph.getLineStart(lineIndex)
+
+    /**
+     * Returns the end offset of the given line, exclusive.
+     *
+     * @param lineIndex the line number
+     * @return the end offset of the line.
+     */
+    fun getLineEnd(lineIndex: Int): Int = multiParagraph.getLineStart(lineIndex)
+
+    /**
+     * Returns the top y coordinate of the given line.
+     *
+     * @param lineIndex the line number
+     * @return the line top y coordinate
+     */
+    fun getLineTop(lineIndex: Int): Px = multiParagraph.getLineTop(lineIndex).px
+
+    /**
      * Returns the bottom y coordinate of the given line.
      *
      * @param lineIndex the line number

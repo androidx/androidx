@@ -125,6 +125,21 @@ interface Paragraph {
     /** Returns the width of the given line. */
     fun getLineWidth(lineIndex: Int): Float
 
+    /** Returns the start offset of the given line, inclusive. */
+    fun getLineStart(lineIndex: Int): Int
+
+    /** Returns the end offset of the given line, exclusive. */
+    fun getLineEnd(lineIndex: Int): Int
+
+    /**
+     *  Returns the offset where ellipsis is applied, regarding to the line start. It will return
+     *  0 if no ellipsis is applied in the given line.
+     */
+    fun getLineEllipsisOffset(lineIndex: Int): Int
+
+    /** Returns the number of characters that is ellipsized in the line. */
+    fun getLineEllipsisCount(lineIndex: Int): Int
+
     /**
      * Returns the line number on which the specified text offset appears.
      * If you ask for a position before 0, you get 0; if you ask for a position
