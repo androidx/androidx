@@ -238,9 +238,6 @@ package androidx.ui.test {
     property public final androidx.ui.test.SemanticsPredicate any;
   }
 
-  public final class SemanticsTreeInteractionKt {
-  }
-
   public final class SizesTestingKt {
     method public static androidx.ui.layout.DpConstraints getBigTestConstraints();
     method public static androidx.ui.test.CollectedSizes setContentAndCollectSizes(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
