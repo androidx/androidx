@@ -18,6 +18,7 @@ package androidx.sqlite.inspection.test
 
 import android.database.sqlite.SQLiteDatabase
 import androidx.inspection.InspectorEnvironment.ExitHook
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesCommand
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesResponse
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -71,7 +72,8 @@ class TrackDatabasesTest {
 
         // evaluate registered hooks
         val hookEntries = testEnvironment.consumeRegisteredHooks()
-        assertThat(hookEntries).hasSize(10)
+            .filter { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE }
+        assertThat(hookEntries).hasSize(1)
         hookEntries.first().let { entry ->
             // expect one exit hook tracking database open events
             assertThat(entry).isInstanceOf(Hook.ExitHook::class.java)
@@ -94,31 +96,96 @@ class TrackDatabasesTest {
     }
 
     @Test
-    fun test_track_databases_the_same_database_opened_twice() = runBlocking {
+    fun test_track_databases_the_same_database_opened_multiple_times() = runBlocking {
+        // given
         testEnvironment.sendCommand(createTrackDatabasesCommand())
-        val hooks = testEnvironment.consumeRegisteredHooks()
-        assertThat(hooks).hasSize(10)
-
-        val onOpenHook = hooks.first()
-        assertThat(onOpenHook.originMethod).isEqualTo(OPEN_DATABASE_COMMAND_SIGNATURE)
-        val database = Database("db").createInstance(temporaryFolder)
+        val onOpenHook = testEnvironment.consumeRegisteredHooks()
+            .first { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE }
         @Suppress("UNCHECKED_CAST")
-        val onExit = (onOpenHook.asExitHook as ExitHook<SQLiteDatabase>)::onExit
+        val onOpen = (onOpenHook.asExitHook as ExitHook<SQLiteDatabase>)::onExit
 
-        // open event on a database first time
-        onExit(database)
-        testEnvironment.receiveEvent()
-            .let { event -> assertThat(event.hasDatabaseOpened()).isEqualTo(true) }
+        val seenDbIds = mutableSetOf<Int>()
 
-        // open event on the same database for the second time
-        // TODO: track close database events or handle the below gracefully
-        onExit(database)
-        testEnvironment.receiveEvent().let { event ->
-            assertThat(event.hasErrorOccurred()).isEqualTo(true)
-            val error = event.errorOccurred.content
-            assertThat(error.message).contains("Database is already tracked")
-            assertThat(error.message).contains(database.path)
-            assertThat(error.recoverability.isRecoverable).isEqualTo(false)
+        fun checkDbOpenedEvent(event: Event, database: SQLiteDatabase) {
+            assertThat(event.hasDatabaseOpened()).isEqualTo(true)
+            val isNewId = seenDbIds.add(event.databaseOpened.databaseId)
+            assertThat(isNewId).isEqualTo(true)
+            assertThat(event.databaseOpened.name).isEqualTo(database.path)
         }
+
+        // file based db: first open
+        val fileDbPath = "db1"
+        val fileDb = Database(fileDbPath).createInstance(temporaryFolder)
+        onOpen(fileDb)
+        checkDbOpenedEvent(testEnvironment.receiveEvent(), fileDb)
+
+        // file based db: same instance
+        onOpen(fileDb)
+        testEnvironment.assertNoQueuedEvents()
+
+        // file based db: same path
+        onOpen(Database(fileDbPath).createInstance(temporaryFolder))
+        testEnvironment.assertNoQueuedEvents()
+
+        // in-memory database: first open
+        val inMemDb = Database(null).createInstance(temporaryFolder)
+        onOpen(inMemDb)
+        checkDbOpenedEvent(testEnvironment.receiveEvent(), inMemDb)
+
+        // in-memory database: same instance
+        onOpen(inMemDb)
+        testEnvironment.assertNoQueuedEvents()
+
+        // in-memory database: new instances (same path = :memory:)
+        repeat(3) {
+            val db = Database(null).createInstance(temporaryFolder)
+            assertThat(db.path).isEqualTo(":memory:")
+            onOpen(db)
+            checkDbOpenedEvent(testEnvironment.receiveEvent(), db)
+        }
+    }
+
+    @Test
+    fun test_track_databases_keeps_db_open() = runBlocking {
+        // given
+        testEnvironment.sendCommand(createTrackDatabasesCommand())
+        val onOpenHook = testEnvironment.consumeRegisteredHooks()
+            .first { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE }
+
+        @Suppress("UNCHECKED_CAST")
+        val onOpen = (onOpenHook.asExitHook as ExitHook<SQLiteDatabase>)::onExit
+
+        // without inspecting
+        val dbNoInspecting = Database("dbNoInspecting").createInstance(temporaryFolder)
+        dbNoInspecting.close()
+        assertThat(dbNoInspecting.isOpen).isFalse()
+
+        // with inspecting
+        listOf("db2", null).forEach { name ->
+            val dbWithInspecting = Database(name).createInstance(temporaryFolder)
+            onOpen(dbWithInspecting) // start inspecting
+            dbWithInspecting.close()
+            assertThat(dbWithInspecting.isOpen).isTrue()
+        }
+    }
+
+    @Test
+    fun test_temporary_databases_same_path_different_database() {
+        // given
+        val db1 = Database(null).createInstance(temporaryFolder)
+        val db2 = Database(null).createInstance(temporaryFolder)
+        fun queryTableCount(db: SQLiteDatabase): Long =
+            db.compileStatement("select count(*) from sqlite_master").simpleQueryForLong()
+        assertThat(queryTableCount(db1)).isEqualTo(1) // android_metadata sole table
+        assertThat(queryTableCount(db2)).isEqualTo(1) // android_metadata sole table
+        assertThat(db1.path).isEqualTo(db2.path)
+        assertThat(db1.path).isEqualTo(":memory:")
+
+        // when
+        db1.execSQL("create table t1 (c1 int)")
+
+        // then
+        assertThat(queryTableCount(db1)).isEqualTo(2)
+        assertThat(queryTableCount(db2)).isEqualTo(1)
     }
 }
