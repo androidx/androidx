@@ -22,6 +22,7 @@ import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
+import android.view.ViewParent
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.applyCanvas
@@ -380,4 +381,28 @@ inline val View.marginEnd: Int
     get() {
         val lp = layoutParams
         return if (lp is MarginLayoutParams) MarginLayoutParamsCompat.getMarginEnd(lp) else 0
+    }
+
+/**
+ * Returns a [Sequence] of the parent chain of this view by repeatedly calling [View.getParent].
+ * An unattached view will return a zero-element sequence.
+ *
+ * @see ViewGroup.descendants
+ */
+val View.ancestors: Sequence<ViewParent>
+    get() = generateSequence(parent, ViewParent::getParent)
+
+/**
+ * Returns a [Sequence] over this view and its descendants recursively.
+ * This is a depth-first traversal similar to [View.findViewById].
+ * A view with no children will return a single-element sequence of itself.
+ *
+ * @see ViewGroup.descendants
+ */
+val View.allViews: Sequence<View>
+    get() = sequence {
+        yield(this@allViews)
+        if (this@allViews is ViewGroup) {
+            yieldAll(this@allViews.descendants)
+        }
     }
