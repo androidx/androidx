@@ -52,6 +52,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
@@ -71,6 +72,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -594,5 +597,34 @@ public final class Camera2ImplCameraXTest {
         Camera camera = CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, useCase);
 
         assertThat(camera.getCameraControl()).isInstanceOf(CameraControl.class);
+    }
+
+    @Test
+    @UiThreadTest
+    public void cameraSelector_selectFirstCameraByDefault() throws CameraAccessException {
+        ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
+        ImageAnalysis useCase = builder.build();
+
+        Camera camera = CameraX.bindToLifecycle(mLifecycle,
+                new CameraSelector.Builder().build(),
+                useCase);
+
+        List<String> camera2IdList = Arrays.asList(CameraUtil.getCameraManager().getCameraIdList());
+        assertThat(((CameraInternal) camera).getCameraInfoInternal().getCameraId()).isEqualTo(
+                camera2IdList.iterator().next());
+    }
+
+    @Test
+    @UiThreadTest
+    public void cameraSelector_selectFirstCameraWithLensFacing() {
+        ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
+        ImageAnalysis useCase = builder.build();
+
+        Camera camera = CameraX.bindToLifecycle(mLifecycle,
+                new CameraSelector.Builder().requireLensFacing(DEFAULT_LENS_FACING).build(),
+                useCase);
+
+        assertThat(((CameraInternal) camera).getCameraInfoInternal().getCameraId()).isEqualTo(
+                CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING));
     }
 }
