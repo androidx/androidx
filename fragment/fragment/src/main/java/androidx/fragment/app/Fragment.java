@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.ComponentCallbacks;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
@@ -35,6 +36,7 @@ import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -397,10 +399,28 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new IllegalStateException("Can't access ViewModels from detached fragment");
         }
         if (mDefaultFactory == null) {
-            mDefaultFactory = new SavedStateViewModelFactory(
-                    (Application) requireContext().getApplicationContext(),
-                    this,
-                    getArguments());
+            Application application = null;
+            Context appContext = requireContext().getApplicationContext();
+            while (appContext instanceof ContextWrapper) {
+                if (appContext instanceof Application) {
+                    application = (Application) appContext;
+                    break;
+                }
+                appContext = ((ContextWrapper) appContext).getBaseContext();
+            }
+            if (application != null) {
+                mDefaultFactory = new SavedStateViewModelFactory(
+                        application,
+                        this,
+                        getArguments());
+            } else  {
+                if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                    Log.d(FragmentManager.TAG, "Could not find Application instance from "
+                            + "Context " + requireContext().getApplicationContext() + ", using "
+                            + "NewInstanceFactory as the default ViewModelProvider.Factory");
+                }
+                mDefaultFactory = new ViewModelProvider.NewInstanceFactory();
+            }
         }
         return mDefaultFactory;
     }
