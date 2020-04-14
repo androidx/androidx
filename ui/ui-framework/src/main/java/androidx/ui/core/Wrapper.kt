@@ -151,7 +151,7 @@ private fun Activity.setContent(
         .findViewById<ViewGroup>(android.R.id.content)
         .getChildAt(0) as? AndroidOwner
         ?: createOwner(this, lifecycleOwner).also {
-            setContentView(it.view)
+            setContentView(it.view, DefaultLayoutParams)
         }
     return doSetContent(composeView, this, content)
 }
@@ -183,7 +183,7 @@ fun ViewGroup.setContent(
         } else {
             removeAllViews(); null
         }
-            ?: createOwner(context).also { addView(it.view) }
+            ?: createOwner(context).also { addView(it.view, DefaultLayoutParams) }
     return doSetContent(composeView, context, content)
 }
 
@@ -414,4 +414,9 @@ private fun compositionFor(
         onBeforeFirstComposition?.invoke()
         UiComposer(context, container, slotTable, recomposer)
     }
+)
+
+private val DefaultLayoutParams = ViewGroup.LayoutParams(
+    ViewGroup.LayoutParams.WRAP_CONTENT,
+    ViewGroup.LayoutParams.WRAP_CONTENT
 )
