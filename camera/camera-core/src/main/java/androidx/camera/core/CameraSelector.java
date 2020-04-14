@@ -71,7 +71,7 @@ public final class CameraSelector {
     @NonNull
     public CameraInternal select(@NonNull Set<CameraInternal> cameras) {
         Set<CameraInternal> camerasCopy = new LinkedHashSet<>(cameras);
-        Set<CameraInternal> resultCameraSet = new LinkedHashSet<>();
+        Set<CameraInternal> resultCameraSet = camerasCopy;
         for (CameraFilter filter : mCameraFilterSet) {
             resultCameraSet = filter.filterCameras(camerasCopy);
             // If the result is empty or has extra camera id that isn't contained in the
