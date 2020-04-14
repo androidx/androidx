@@ -67,11 +67,13 @@ class OpacityTest {
         val color = Color.LightGray
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 10.ipx,
-                    modifier = background(Color.White) +
-                            Modifier.drawOpacity(1f) +
-                            background(color) +
-                            unlatch) {
+                AtLeastSize(
+                    size = 10.ipx,
+                    modifier = Modifier.background(Color.White)
+                        .drawOpacity(1f)
+                        .background(color)
+                        .plus(unlatch)
+                ) {
                 }
             }
         }
@@ -87,11 +89,12 @@ class OpacityTest {
         val color = Color.LightGray
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 10.ipx,
-                    modifier = background(Color.White) +
-                            Modifier.drawOpacity(0f) +
-                            background(color) +
-                            unlatch
+                AtLeastSize(
+                    size = 10.ipx,
+                    modifier = Modifier.background(Color.White)
+                        .drawOpacity(0f)
+                        .background(color)
+                        .plus(unlatch)
                 ) {
                 }
             }
@@ -108,16 +111,17 @@ class OpacityTest {
         val color = Color.Red
         rule.runOnUiThreadIR {
             activity.setContent {
-                Row(background(Color.White)) {
+                Row(Modifier.background(Color.White)) {
                     AtLeastSize(size = 10.ipx,
-                        modifier = background(Color.White) +
-                                Modifier.drawOpacity(0.5f) +
-                                background(color) +
-                                unlatch
+                        modifier = Modifier.background(Color.White)
+                            .drawOpacity(0.5f)
+                            .background(color)
+                            .plus(unlatch)
                     ) {
                     }
-                    AtLeastSize(size = 10.ipx,
-                        modifier = background(color.copy(alpha = 0.5f))
+                    AtLeastSize(
+                        size = 10.ipx,
+                        modifier = Modifier.background(color.copy(alpha = 0.5f))
                     ) {
                     }
                 }
@@ -137,11 +141,12 @@ class OpacityTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 10.ipx,
-                    modifier = background(Color.White) +
-                            Modifier.drawOpacity(model.value) +
-                            unlatch +
-                            background(color)
+                AtLeastSize(
+                    size = 10.ipx,
+                    modifier = Modifier.background(Color.White)
+                        .drawOpacity(model.value)
+                        .plus(unlatch)
+                        .background(color)
                 ) {
                 }
             }
@@ -165,12 +170,13 @@ class OpacityTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 10.ipx,
-                    modifier = background(Color.White) +
-                            Modifier.drawOpacity(1f) +
-                            Modifier.drawOpacity(opacity) +
-                            unlatch +
-                            background(color)
+                AtLeastSize(
+                    size = 10.ipx,
+                    modifier = Modifier.background(Color.White)
+                        .drawOpacity(1f)
+                        .drawOpacity(opacity)
+                        .plus(unlatch)
+                        .background(color)
                 ) {
                 }
             }
@@ -193,15 +199,13 @@ class OpacityTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 10.ipx,
-                    modifier = background(Color.White) +
-                            if (model.value) {
-                                Modifier.drawOpacity(0f) +
-                                        background(Color.Green)
-                            } else {
-                                Modifier
-                            } +
-                            unlatch
+                AtLeastSize(
+                    size = 10.ipx,
+                    modifier = Modifier.background(Color.White)
+                        .run {
+                            if (model.value) drawOpacity(0f).background(Color.Green) else this
+                        }
+                        .plus(unlatch)
                 ) {
                 }
             }

@@ -81,11 +81,11 @@ class DrawReorderingTest {
                     FixedSize(
                         10.ipx, PaddingModifier(10.ipx)
                             .drawLayer(elevation = 1f)
-                            .plus(background(Color.White))
+                            .background(Color.White)
                     )
                     FixedSize(
                         30.ipx, Modifier.drawLayer()
-                            .plus(background(Color.Red))
+                            .background(Color.Red)
                             .drawLatchModifier()
                     )
                 }
@@ -110,10 +110,10 @@ class DrawReorderingTest {
                     FixedSize(
                         10.ipx, PaddingModifier(10.ipx)
                             .drawLayer(elevation = 1f)
-                            .plus(background(Color.White))
+                            .background(Color.White)
                     )
                     FixedSize(
-                        30.ipx, background(Color.Red)
+                        30.ipx, Modifier.background(Color.Red)
                             .drawLatchModifier()
                     )
                 }
@@ -137,14 +137,16 @@ class DrawReorderingTest {
                 ) {
                     FixedSize(10.ipx, PaddingModifier(10.ipx)) {
                         FixedSize(
-                            10.ipx, Modifier.drawLayer(elevation = 1f) +
-                                    background(Color.Green)
+                            10.ipx,
+                            Modifier.drawLayer(elevation = 1f)
+                                .background(Color.Green)
                         )
                     }
-                    FixedSize(30.ipx, background(Color.Red))
+                    FixedSize(30.ipx, Modifier.background(Color.Red))
                     FixedSize(10.ipx, PaddingModifier(10.ipx)) {
                         FixedSize(
-                            10.ipx, background(Color.White)
+                            10.ipx,
+                            Modifier.background(Color.White)
                                 .drawLatchModifier()
                         )
                     }
@@ -169,12 +171,14 @@ class DrawReorderingTest {
                 ) {
                     FixedSize(10.ipx, PaddingModifier(10.ipx)) {
                         FixedSize(
-                            10.ipx, Modifier.drawLayer(elevation = 1f) +
-                                    background(Color.Green)
+                            10.ipx,
+                            Modifier.drawLayer(elevation = 1f)
+                                .background(Color.Green)
                         )
                     }
                     FixedSize(
-                        30.ipx, background(Color.Red)
+                        30.ipx,
+                        Modifier.background(Color.Red)
                             .drawLatchModifier()
                     )
                 }
@@ -201,15 +205,16 @@ class DrawReorderingTest {
                     FixedSize(
                         10.ipx, PaddingModifier(10.ipx)
                             .drawLayer(elevation = state.value)
-                            .plus(background(Color.Black))
+                            .background(Color.Black)
                     )
                     FixedSize(
-                        30.ipx, background(Color.Red)
+                        30.ipx,
+                        Modifier.background(Color.Red)
                             .drawLatchModifier()
                     )
                     FixedSize(
-                        10.ipx, PaddingModifier(10.ipx)
-                            .plus(background(Color.White))
+                        10.ipx,
+                        PaddingModifier(10.ipx).background(Color.White)
                     )
                 }
             }
@@ -262,9 +267,10 @@ class DrawReorderingTest {
             override val elevation: Float
                 get() = state.value
         }
-        val modifier1 = PaddingModifier(10.ipx) + elevation +
-                background(Color.White)
-        val modifier2 = background(Color.Red)
+        val modifier1 = PaddingModifier(10.ipx)
+            .plus(elevation)
+            .background(Color.White)
+        val modifier2 = Modifier.background(Color.Red)
             .drawLatchModifier()
         val view = View(activity)
         rule.runOnUiThread {
@@ -333,16 +339,18 @@ class DrawReorderingTest {
                     FixedSize(30.ipx) {
                         FixedSize(
                             10.ipx,
-                            PaddingModifier(10.ipx) + elevation + background(Color.Black)
+                            PaddingModifier(10.ipx).plus(elevation).background(Color.Black)
                         )
                     }
                     FixedSize(
-                        30.ipx, background(Color.Red)
+                        30.ipx,
+                        Modifier.background(Color.Red)
                             .drawLatchModifier()
                     )
                     FixedSize(
-                        10.ipx, PaddingModifier(10.ipx)
-                            .plus(background(Color.White))
+                        10.ipx,
+                        PaddingModifier(10.ipx)
+                            .background(Color.White)
                     )
                 }
             }
@@ -383,16 +391,17 @@ class DrawReorderingTest {
             activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
-                    modifier = background(Color.Red)
+                    modifier = Modifier.background(Color.Red)
                 ) {
                     FixedSize(
                         size,
                         PaddingModifier(10.ipx)
                             .drawLayer(elevation = 1f)
-                            .plus(background(Color.White))
+                            .background(Color.White)
                     )
                     FixedSize(
-                        30.ipx, background(Color.Red)
+                        30.ipx,
+                        Modifier.background(Color.Red)
                             .drawLatchModifier()
                     )
                 }
@@ -435,11 +444,11 @@ class DrawReorderingTest {
                 FixedSize(size = 30.ipx) {
                     FixedSize(
                         10.ipx,
-                        PaddingModifier(10.ipx).drawLayer(elevation = 1f) +
-                                background(Color.White)
+                        PaddingModifier(10.ipx).drawLayer(elevation = 1f).background(Color.White)
                     )
                     FixedSize(
-                        30.ipx, background(color.value)
+                        30.ipx,
+                        Modifier.background(color.value)
                             .drawLatchModifier()
                     )
                 }
@@ -475,11 +484,11 @@ class DrawReorderingTest {
                         10.ipx, PaddingModifier(10.ipx)
                             .drawLayer(elevation = 3f)
                             .drawLayer(elevation = 1f)
-                            .plus(background(Color.White))
+                            .background(Color.White)
                     )
                     FixedSize(
                         30.ipx, Modifier.drawLayer(elevation = 2f)
-                            .plus(background(Color.Red))
+                            .background(Color.Red)
                             .drawLatchModifier()
                     )
                 }

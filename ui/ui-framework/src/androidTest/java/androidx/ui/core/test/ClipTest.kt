@@ -393,7 +393,9 @@ class ClipTest {
             activity.setContent {
                 AtLeastSize(
                     size = 30.ipx,
-                    modifier = background(Color.Green) + clip + Modifier.drawBehind(drawCallback)
+                    modifier = Modifier.background(Color.Green)
+                        .plus(clip)
+                        .drawBehind(drawCallback)
                 ) {
                 }
             }

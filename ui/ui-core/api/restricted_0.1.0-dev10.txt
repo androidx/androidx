@@ -265,7 +265,8 @@ package androidx.ui.core {
   public final class DrawModifierKt {
     method @Deprecated public static androidx.ui.core.DrawModifier draw(kotlin.jvm.functions.Function1<? super androidx.ui.core.DrawScope,kotlin.Unit> onDraw);
     method public static androidx.ui.core.Modifier drawBehind(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.DrawScope,kotlin.Unit> onDraw);
-    method public static androidx.ui.core.DrawModifier drawWithContent(kotlin.jvm.functions.Function1<? super androidx.ui.core.ContentDrawScope,kotlin.Unit> onDraw);
+    method public static androidx.ui.core.Modifier drawWithContent(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.ContentDrawScope,kotlin.Unit> onDraw);
+    method @Deprecated public static androidx.ui.core.DrawModifier drawWithContent(kotlin.jvm.functions.Function1<? super androidx.ui.core.ContentDrawScope,kotlin.Unit> onDraw);
   }
 
   public interface DrawScope extends androidx.ui.graphics.Canvas androidx.ui.unit.Density {
