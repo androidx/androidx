@@ -93,6 +93,11 @@ internal class AndroidInputDispatcher constructor(
         sendMotionEvent(downTime, downTime + eventPeriod, ACTION_UP, position)
     }
 
+    override fun sendTouchDown(position: PxPosition) {
+        val downTime = generateDownTime(eventPeriod.milliseconds)
+        sendMotionEvent(downTime, downTime, ACTION_DOWN, position)
+    }
+
     override fun sendSwipe(
         curve: (Long) -> PxPosition,
         duration: Duration,

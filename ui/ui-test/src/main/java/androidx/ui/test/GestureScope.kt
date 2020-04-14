@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.annotation.FloatRange
+import androidx.annotation.RestrictTo
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntPxSize
@@ -108,6 +109,24 @@ fun GestureScope.localToGlobal(position: PxPosition): PxPosition {
 fun GestureScope.sendClick(position: PxPosition) {
     semanticsNodeInteraction.sendInput {
         it.sendClick(localToGlobal(position))
+    }
+}
+
+/**
+ * Dispatches a down event on the given [position] on the associated component. The [position]
+ * is in the component's local coordinate system, where (0.px, 0.px) is the top left corner of
+ * the component.
+ *
+ * Throws [AssertionError] when the component doesn't have a bounding rectangle set
+ *
+ * @param position The position of the down event, in the component's local coordinate system
+ *
+ * @suppress
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun GestureScope.sendTouchDown(position: PxPosition) {
+    semanticsNodeInteraction.sendInput {
+        it.sendTouchDown(position)
     }
 }
 
