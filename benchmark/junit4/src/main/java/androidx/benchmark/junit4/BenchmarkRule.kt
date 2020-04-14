@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState
 import androidx.test.rule.GrantPermissionRule
+import androidx.tracing.Trace
 import androidx.tracing.trace
 import org.junit.Assert.assertTrue
 import org.junit.rules.RuleChain
@@ -146,7 +147,17 @@ class BenchmarkRule internal constructor(
          */
         inline fun <T> runWithTimingDisabled(block: () -> T): T {
             getOuterState().pauseTiming()
-            val ret = block()
+            // Note: we only bother with tracing for the runWithTimingDisabled function for
+            // Kotlin callers, as it's more difficult to corrupt the trace with incorrectly
+            // paired BenchmarkState pause/resume calls
+            val ret: T = try {
+                // TODO: use `trace() {}` instead of this manual try/finally,
+                //  once the block parameter is marked crossinline.
+                Trace.beginSection("runWithTimingDisabled")
+                block()
+            } finally {
+                Trace.endSection()
+            }
             getOuterState().resumeTiming()
             return ret
         }

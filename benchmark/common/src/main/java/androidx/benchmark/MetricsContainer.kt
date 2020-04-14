@@ -18,13 +18,19 @@ package androidx.benchmark
 
 import android.util.Log
 
-internal class MetricsContainer {
+internal class MetricsContainer(
+    /**
+     * Each MetricCapture represents a single metric to be captured. It is possible this may change.
+     *
+     * Metrics are usually indexed by the names provided for them by the MetricCaptures, or an index
+     */
+    private val metrics: Array<MetricCapture> = arrayOf(TimeCapture()),
+    private val REPEAT_COUNT: Int
+) {
 
-    // Each MetricCapture represents a _method_ of metric capture, and can capture multiple metrics.
-    // Metrics are usually indexed by the names provided for them by the MetricCaptures, or an index
-    private val metrics: Array<MetricCapture> = arrayOf(TimeCapture())
     internal val data: Array<LongArray> = Array(metrics.size) {
-        LongArray(BenchmarkState.REPEAT_COUNT) }
+        LongArray(REPEAT_COUNT)
+    }
     private var runNum: Int = 0
 
     /**
