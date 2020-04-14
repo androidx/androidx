@@ -127,15 +127,13 @@ public class RemotePlayer extends Player {
         if (DEBUG) {
             Log.d(TAG, "play: item=" + item);
         }
-        mClient.play(item.getUri(), "video/mp4", null, 0, null, new ItemActionCallback() {
+        mClient.play(item.getUri(), "video/mp4", null, item.getPosition(), null,
+                new ItemActionCallback() {
             @Override
             public void onResult(Bundle data, String sessionId, MediaSessionStatus sessionStatus,
                     String itemId, MediaItemStatus itemStatus) {
                 logStatus("play: succeeded", sessionId, sessionStatus, itemId, itemStatus);
                 item.setRemoteItemId(itemId);
-                if (item.getPosition() > 0) {
-                    seekInternal(item);
-                }
                 if (item.getState() == MediaItemStatus.PLAYBACK_STATE_PAUSED) {
                     pause();
                 } else {
