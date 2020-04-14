@@ -31,5 +31,5 @@ val FoundationDemos = DemoCategory("Foundation", listOf(
     ComposableDemo("Dialog") { DialogSample() },
     ComposableDemo("Draw Modifiers") { DrawModifiersDemo() },
     ComposableDemo("Boxes") { BoxDemo() },
-    ComposableDemo("Lists") { ListDemo() }
+    DemoCategory("Lists", ListDemos)
 ))
