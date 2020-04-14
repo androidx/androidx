@@ -23,11 +23,15 @@ package androidx.ui.text.platform {
     method public float getLineBaseline(int line);
     method public float getLineBottom(int line);
     method public int getLineCount();
+    method public int getLineEllipsisCount(int lineIndex);
+    method public int getLineEllipsisOffset(int lineIndex);
+    method public int getLineEnd(int lineIndex);
     method public int getLineForOffset(int offset);
     method public int getLineForVertical(int vertical);
     method public float getLineHeight(int lineIndex);
     method public float getLineLeft(int lineIndex);
     method public float getLineRight(int lineIndex);
+    method public int getLineStart(int lineIndex);
     method public float getLineTop(int line);
     method public float getLineWidth(int lineIndex);
     method public float getMaxIntrinsicWidth();
