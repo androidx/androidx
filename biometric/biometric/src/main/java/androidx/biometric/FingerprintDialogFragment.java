@@ -125,8 +125,8 @@ public class FingerprintDialogFragment extends DialogFragment {
                 @Override
                 public void onAuthenticationHelp(final int helpMsgId,
                         final CharSequence helpString) {
-                    showHelp(helpString);
                     // Don't forward the result to the client, since the dialog takes care of it.
+                    showHelp(helpString);
                 }
 
                 @Override
@@ -134,10 +134,12 @@ public class FingerprintDialogFragment extends DialogFragment {
                         .FingerprintManagerCompat.AuthenticationResult result) {
                     // Create a dummy result if necessary, since the framework result isn't
                     // guaranteed to be non-null.
-                    final BiometricPrompt.AuthenticationResult promptResult = result != null
-                            ? new BiometricPrompt.AuthenticationResult(
-                                    unwrapCryptoObject(result.getCryptoObject()))
-                            : new BiometricPrompt.AuthenticationResult(null /* crypto */);
+                    final BiometricPrompt.AuthenticationResult promptResult =
+                            result != null
+                                    ? new BiometricPrompt.AuthenticationResult(
+                                            CryptoObjectUtils.unwrapFromFingerprintManager(
+                                                    result.getCryptoObject()))
+                                    : new BiometricPrompt.AuthenticationResult(null /* crypto */);
 
                     mExecutor.execute(new Runnable() {
                         @Override
@@ -335,7 +337,7 @@ public class FingerprintDialogFragment extends DialogFragment {
                 dismissAndForwardError(errorCode, getErrorString(errorCode));
             } else {
                 fingerprintManagerCompat.authenticate(
-                        wrapCryptoObject(mCryptoObject),
+                        CryptoObjectUtils.wrapForFingerprintManager(mCryptoObject),
                         0 /* flags */,
                         mCancellationSignal,
                         mAuthenticationCallback,
@@ -672,40 +674,5 @@ public class FingerprintDialogFragment extends DialogFragment {
         return context != null && DeviceConfig.shouldHideFingerprintDialog(context, Build.MODEL)
                 ? 0
                 : MESSAGE_DISPLAY_TIME_MS;
-    }
-
-    @SuppressWarnings("deprecation")
-    private static BiometricPrompt.CryptoObject unwrapCryptoObject(
-            androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject cryptoObject) {
-        if (cryptoObject == null) {
-            return null;
-        } else if (cryptoObject.getCipher() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getMac());
-        } else {
-            return null;
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    private static androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject
-            wrapCryptoObject(BiometricPrompt.CryptoObject cryptoObject) {
-        if (cryptoObject == null) {
-            return null;
-        } else if (cryptoObject.getCipher() != null) {
-            return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
-                    cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
-            return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
-                    cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
-            return new androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject(
-                    cryptoObject.getMac());
-        } else {
-            return null;
-        }
     }
 }

@@ -38,6 +38,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -122,15 +123,15 @@ public class BiometricFragment extends Fragment {
 
                 @Override
                 public void onAuthenticationSucceeded(
-                        final android.hardware.biometrics.BiometricPrompt.AuthenticationResult
-                                result) {
+                        android.hardware.biometrics.BiometricPrompt.AuthenticationResult result) {
 
                     // Create a dummy result if necessary, since the framework result isn't
                     // guaranteed to be non-null.
                     final BiometricPrompt.AuthenticationResult promptResult =
                             result != null
                                     ? new BiometricPrompt.AuthenticationResult(
-                                            unwrapCryptoObject(result.getCryptoObject()))
+                                            CryptoObjectUtils.unwrapFromBiometricPrompt(
+                                                    result.getCryptoObject()))
                                     : new BiometricPrompt.AuthenticationResult(null /* crypto */);
 
                     mClientExecutor.execute(
@@ -308,44 +309,14 @@ public class BiometricFragment extends Fragment {
                 mBiometricPrompt.authenticate(mCancellationSignal, mExecutor,
                         mAuthenticationCallback);
             } else {
-                mBiometricPrompt.authenticate(wrapCryptoObject(mCryptoObject), mCancellationSignal,
+                android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCryptoObject =
+                        Objects.requireNonNull(
+                                CryptoObjectUtils.wrapForBiometricPrompt(mCryptoObject));
+                mBiometricPrompt.authenticate(wrappedCryptoObject, mCancellationSignal,
                         mExecutor, mAuthenticationCallback);
             }
         }
         mShowing = true;
         return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
-    private static BiometricPrompt.CryptoObject unwrapCryptoObject(
-            android.hardware.biometrics.BiometricPrompt.CryptoObject cryptoObject) {
-        if (cryptoObject == null) {
-            return null;
-        } else if (cryptoObject.getCipher() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
-            return new BiometricPrompt.CryptoObject(cryptoObject.getMac());
-        } else {
-            return null;
-        }
-    }
-
-    private static android.hardware.biometrics.BiometricPrompt.CryptoObject wrapCryptoObject(
-            BiometricPrompt.CryptoObject cryptoObject) {
-        if (cryptoObject == null) {
-            return null;
-        } else if (cryptoObject.getCipher() != null) {
-            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(
-                    cryptoObject.getCipher());
-        } else if (cryptoObject.getSignature() != null) {
-            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(
-                    cryptoObject.getSignature());
-        } else if (cryptoObject.getMac() != null) {
-            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(
-                    cryptoObject.getMac());
-        } else {
-            return null;
-        }
     }
 }
