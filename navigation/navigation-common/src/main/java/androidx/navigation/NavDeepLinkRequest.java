@@ -16,6 +16,7 @@
 
 package androidx.navigation;
 
+import android.content.Intent;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
@@ -35,6 +36,10 @@ public class NavDeepLinkRequest {
     private final Uri mUri;
     private final String mAction;
     private final String mMimeType;
+
+    NavDeepLinkRequest(@NonNull Intent intent) {
+        this(intent.getData(), intent.getAction(), intent.getType());
+    }
 
     NavDeepLinkRequest(@Nullable Uri uri, @Nullable String action, @Nullable String mimeType) {
         mUri = uri;
@@ -70,6 +75,31 @@ public class NavDeepLinkRequest {
     @Nullable
     public String getMimeType() {
         return mMimeType;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("NavDeepLinkRequest");
+        sb.append("{");
+        if (mUri != null) {
+            sb.append(" uri=");
+            sb.append(mUri.toString());
+        }
+
+        if (mAction != null) {
+            sb.append(" action=");
+            sb.append(mAction);
+        }
+
+        if (mMimeType != null) {
+            sb.append(" mimetype=");
+            sb.append(mMimeType);
+        }
+        sb.append(" }");
+
+        return sb.toString();
     }
 
     /**

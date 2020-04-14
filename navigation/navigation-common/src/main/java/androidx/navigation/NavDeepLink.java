@@ -30,6 +30,9 @@ import java.util.regex.Pattern;
 
 /**
  * NavDeepLink encapsulates the parsing and matching of a navigation deep link.
+ *
+ * This should be added to a {@link NavDestination} using
+ * {@link NavDestination#addDeepLink(NavDeepLink)}.
  */
 public final class NavDeepLink {
     private static final Pattern SCHEME_PATTERN = Pattern.compile("^[a-zA-Z]+[+\\w\\-.]*:");
