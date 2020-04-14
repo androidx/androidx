@@ -54,7 +54,6 @@ package androidx.ui.core {
   public final class ComponentNodesKt {
     method public static void add(androidx.ui.core.ComponentNode, androidx.ui.core.ComponentNode child);
     method public static androidx.ui.core.ComponentNode? findClosestParentNode(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,java.lang.Boolean> selector);
-    method public static androidx.ui.core.semantics.SemanticsNode? findClosestParentNode(androidx.ui.core.semantics.SemanticsNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> selector);
     method public static androidx.ui.core.LayoutNode? findLastLayoutChild(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,java.lang.Boolean> block);
     method public static androidx.ui.core.DataNodeKey<java.lang.Object> getParentDataKey();
     method public static boolean hasNoLayoutDescendants(androidx.ui.core.ComponentNode);
@@ -300,18 +299,6 @@ package androidx.ui.core {
   public final class SavedStateDelegateKt {
   }
 
-  public final class SemanticsComponentNode extends androidx.ui.core.ComponentNode {
-    ctor public SemanticsComponentNode(int id, androidx.ui.core.semantics.SemanticsConfiguration localSemanticsConfiguration);
-    method public int getId();
-    method public androidx.ui.core.semantics.SemanticsConfiguration getLocalSemanticsConfiguration();
-    method public androidx.ui.core.semantics.SemanticsNode getSemanticsNode();
-    method public boolean hasSemanticsComponentNodeInTree$lintWithKotlin();
-    method public void invalidateSemanticsComponentNode$lintWithKotlin();
-    method public void setLocalSemanticsConfiguration(androidx.ui.core.semantics.SemanticsConfiguration p);
-    property public final androidx.ui.core.semantics.SemanticsConfiguration localSemanticsConfiguration;
-    property public final androidx.ui.core.semantics.SemanticsNode semanticsNode;
-  }
-
 }
 
 package androidx.ui.core.clipboard {
@@ -420,9 +407,18 @@ package androidx.ui.core.semantics {
     property public final boolean isNotEmpty;
   }
 
+  public interface SemanticsModifier extends androidx.ui.core.Modifier.Element {
+    method public int getId();
+    method public androidx.ui.core.semantics.SemanticsConfiguration getSemanticsConfiguration();
+    property public abstract int id;
+    property public abstract androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration;
+  }
+
+  public final class SemanticsModifierKt {
+    method @Deprecated public static androidx.ui.core.semantics.SemanticsModifier semanticsCore(androidx.ui.core.Modifier, boolean container = false, boolean mergeAllDescendants = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null);
+  }
+
   public final class SemanticsNode {
-    ctor public SemanticsNode(androidx.ui.core.semantics.SemanticsConfiguration unmergedConfig, androidx.ui.core.SemanticsComponentNode componentNode);
-    method public boolean getAttached();
     method public androidx.ui.unit.PxBounds getBoundsInRoot();
     method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getChildren();
     method public androidx.ui.core.ComponentNode getComponentNode();
@@ -433,12 +429,9 @@ package androidx.ui.core.semantics {
     method public int getId();
     method public androidx.ui.core.semantics.SemanticsNode? getParent();
     method public androidx.ui.unit.IntPxSize getSize();
-    method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getUnmergedChildren();
     method public androidx.ui.core.semantics.SemanticsConfiguration getUnmergedConfig();
     method public boolean isSemanticBoundary();
     method public void setComponentNode(androidx.ui.core.ComponentNode p);
-    method public void setParent(androidx.ui.core.semantics.SemanticsNode? p);
-    property public final boolean attached;
     property public final androidx.ui.unit.PxBounds boundsInRoot;
     property public final java.util.List<androidx.ui.core.semantics.SemanticsNode> children;
     property public final androidx.ui.core.semantics.SemanticsConfiguration config;
@@ -448,8 +441,6 @@ package androidx.ui.core.semantics {
     property public final boolean isSemanticBoundary;
     property public final androidx.ui.core.semantics.SemanticsNode? parent;
     property public final androidx.ui.unit.IntPxSize size;
-    property public final java.util.List<androidx.ui.core.semantics.SemanticsNode> unmergedChildren;
-    property public final androidx.ui.core.semantics.SemanticsConfiguration unmergedConfig;
     field public static final androidx.ui.core.semantics.SemanticsNode.Companion! Companion;
   }
 
@@ -458,6 +449,7 @@ package androidx.ui.core.semantics {
   }
 
   public final class SemanticsNodeKt {
+    method public static androidx.ui.core.semantics.SemanticsNode? findClosestParentNode(androidx.ui.core.semantics.SemanticsNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> selector);
   }
 
   public final class SemanticsOwner {

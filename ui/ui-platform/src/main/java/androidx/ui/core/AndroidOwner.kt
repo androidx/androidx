@@ -616,7 +616,6 @@ internal class AndroidComposeView constructor(
         modelObserver.enableModelUpdatesObserving(true)
         ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
-        semanticsOwner.invalidateSemanticsRoot()
         if (lifecycleOwner == null) {
             lifecycleOwner = ViewTreeLifecycleOwner.get(this) ?: viewLifecycleOwner
         }
