@@ -17,8 +17,8 @@
 package androidx.ui.test.android
 
 import androidx.activity.ComponentActivity
-import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeExecutionControl
+import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.setupContent
