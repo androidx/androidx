@@ -1165,7 +1165,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @Override
-    public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+    public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
         final Window.Callback cb = getWindowCallback();
         if (cb != null && !mIsDestroyed) {
             final PanelFeatureState panel = findMenuPanel(menu.getRootMenu());
@@ -1177,7 +1177,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @Override
-    public void onMenuModeChange(MenuBuilder menu) {
+    public void onMenuModeChange(@NonNull MenuBuilder menu) {
         reopenMenu(true);
     }
 
@@ -1942,7 +1942,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         return true;
     }
 
-    void checkCloseActionMenu(MenuBuilder menu) {
+    void checkCloseActionMenu(@NonNull MenuBuilder menu) {
         if (mClosingActionMenu) {
             return;
         }
@@ -2720,7 +2720,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         @Override
-        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+        public void onCloseMenu(@NonNull MenuBuilder menu, boolean allMenusAreClosing) {
             final Menu parentMenu = menu.getRootMenu();
             final boolean isSubMenu = parentMenu != menu;
             final PanelFeatureState panel = findMenuPanel(isSubMenu ? parentMenu : menu);
@@ -2737,8 +2737,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         @Override
-        public boolean onOpenSubMenu(MenuBuilder subMenu) {
-            if (subMenu == null && mHasActionBar) {
+        public boolean onOpenSubMenu(@NonNull MenuBuilder subMenu) {
+            // Only dispatch for the root menu
+            if (subMenu == subMenu.getRootMenu() && mHasActionBar) {
                 Window.Callback cb = getWindowCallback();
                 if (cb != null && !mIsDestroyed) {
                     cb.onMenuOpened(FEATURE_SUPPORT_ACTION_BAR, subMenu);
@@ -2753,7 +2754,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         @Override
-        public boolean onOpenSubMenu(MenuBuilder subMenu) {
+        public boolean onOpenSubMenu(@NonNull MenuBuilder subMenu) {
             Window.Callback cb = getWindowCallback();
             if (cb != null) {
                 cb.onMenuOpened(FEATURE_SUPPORT_ACTION_BAR, subMenu);
@@ -2762,7 +2763,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         @Override
-        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+        public void onCloseMenu(@NonNull MenuBuilder menu, boolean allMenusAreClosing) {
             checkCloseActionMenu(menu);
         }
     }
