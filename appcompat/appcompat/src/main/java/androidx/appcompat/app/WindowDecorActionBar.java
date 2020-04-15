@@ -43,7 +43,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.SpinnerAdapter;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -1116,7 +1115,7 @@ public class WindowDecorActionBar extends ActionBar implements
         }
 
         @Override
-        public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
+        public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
             if (mCallback != null) {
                 return mCallback.onActionItemClicked(this, item);
             } else {
@@ -1144,7 +1143,7 @@ public class WindowDecorActionBar extends ActionBar implements
         }
 
         @Override
-        public void onMenuModeChange(@NonNull MenuBuilder menu) {
+        public void onMenuModeChange(MenuBuilder menu) {
             if (mCallback == null) {
                 return;
             }

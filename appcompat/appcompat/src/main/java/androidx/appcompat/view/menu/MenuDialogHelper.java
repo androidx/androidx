@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.R;
 import androidx.appcompat.app.AlertDialog;
 
@@ -148,7 +147,7 @@ class MenuDialogHelper implements DialogInterface.OnKeyListener,
     }
 
     @Override
-    public void onCloseMenu(@NonNull MenuBuilder menu, boolean allMenusAreClosing) {
+    public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
         if (allMenusAreClosing || menu == mMenu) {
             dismiss();
         }
@@ -158,7 +157,7 @@ class MenuDialogHelper implements DialogInterface.OnKeyListener,
     }
 
     @Override
-    public boolean onOpenSubMenu(@NonNull MenuBuilder subMenu) {
+    public boolean onOpenSubMenu(MenuBuilder subMenu) {
         if (mPresenterCallback != null) {
             return mPresenterCallback.onOpenSubMenu(subMenu);
         }
