@@ -27,6 +27,7 @@ import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
+import androidx.compose.Recomposer
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.setContent
@@ -53,22 +54,27 @@ import java.util.concurrent.TimeUnit
  * [AndroidComposeTestRule].
  */
 inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
+    recomposer: Recomposer? = null,
     disableTransitions: Boolean = false
 ): AndroidComposeTestRule<T> {
     // TODO(b/138993381): By launching custom activities we are losing control over what content is
     // already there. This is issue in case the user already set some compose content and decides
     // to set it again via our API. In such case we won't be able to dispose the old composition.
     // Other option would be to provide a smaller interface that does not expose these methods.
-    return AndroidComposeTestRule(ActivityTestRule(T::class.java), disableTransitions)
+    return AndroidComposeTestRule(ActivityTestRule(T::class.java), recomposer, disableTransitions)
 }
 
 /**
  * Android specific implementation of [ComposeTestRule].
+ *
+ * If [recomposer] is `null` the thread-specific [Recomposer.current] will be used when
+ * [setContent] is called.
  */
 class AndroidComposeTestRule<T : ComponentActivity>(
     // TODO(b/153623653): Remove activityTestRule from arguments when AndroidComposeTestRule can
     //  work with any kind of Activity launcher.
     val activityTestRule: ActivityTestRule<T>,
+    val recomposer: Recomposer? = null,
     private val disableTransitions: Boolean = false
 ) : ComposeTestRule {
 
@@ -108,7 +114,10 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         }
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                val composition = activityTestRule.activity.setContent(composable)
+                val composition = activityTestRule.activity.setContent(
+                    recomposer ?: Recomposer.current(),
+                    composable
+                )
                 val contentViewGroup =
                     activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
                 // AndroidComposeView is postponing the composition till the saved state will be restored.

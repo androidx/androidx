@@ -120,12 +120,15 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         simulationState = SimulationState.EmitContentDone
     }
 
+    // TODO: This method may advance the current frame and should be just a getter
     override fun hasPendingChanges(): Boolean {
-        if (Recomposer.hasPendingChanges() || hasPendingChangesInFrame()) {
+        val recomposer = recomposer ?: return false
+
+        if (recomposer.hasPendingChanges() || hasPendingChangesInFrame()) {
             FrameManager.nextFrame()
         }
 
-        return Recomposer.hasPendingChanges()
+        return recomposer.hasPendingChanges()
     }
 
     /**

@@ -21,6 +21,7 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.Composable
+import androidx.compose.Recomposer
 import androidx.compose.emptyContent
 import androidx.compose.remember
 import androidx.test.filters.SmallTest
@@ -74,7 +75,7 @@ class AndroidPointerInputTest {
 
         countDown { latch ->
             rule.runOnUiThread {
-                container.setContent {
+                container.setContent(Recomposer.current()) {
                     FillLayout(Modifier
                         .onPositioned { latch.countDown() })
                 }
@@ -106,7 +107,7 @@ class AndroidPointerInputTest {
 
         countDown { latch ->
             rule.runOnUiThread {
-                container.setContent {
+                container.setContent(Recomposer.current()) {
                     FillLayout(Modifier
                         .consumeMovementGestureFilter()
                         .onPositioned { latch.countDown() })
@@ -161,7 +162,7 @@ class AndroidPointerInputTest {
 
         countDown { latch ->
             rule.runOnUiThread {
-                container.setContent {
+                container.setContent(Recomposer.current()) {
                     FillLayout(Modifier
                         .consumeMovementGestureFilter(consumeMovement)
                         .onPositioned { latch.countDown() })

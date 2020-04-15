@@ -20,8 +20,10 @@ import android.content.Context
 import androidx.compose.Composable
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
+import androidx.compose.Recomposer
 import androidx.compose.Untracked
 import androidx.compose.compositionReference
+import androidx.compose.currentComposer
 import androidx.compose.remember
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -424,6 +426,7 @@ fun WithConstraints(
     val state = remember { WithConstrainsState() }
     state.children = children
     state.context = ContextAmbient.current
+    state.recomposer = currentComposer.recomposer
     state.compositionRef = compositionReference()
     // if this code was executed subcomposition must be triggered as well
     state.forceRecompose = true
@@ -442,12 +445,14 @@ fun WithConstraints(
 }
 
 private class WithConstrainsState {
+    lateinit var recomposer: Recomposer
     var compositionRef: CompositionReference? = null
-    var context: Context? = null
+    lateinit var context: Context
     val nodeRef = Ref<LayoutNode>()
     var lastConstraints: Constraints? = null
     var children: @Composable() (Constraints, LayoutDirection) -> Unit = { _, _ -> }
     var forceRecompose = false
+
     val measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks(
         error = "Intrinsic measurements are not supported by WithConstraints"
     ) {
@@ -490,7 +495,7 @@ private class WithConstrainsState {
         val node = nodeRef.value!!
         val constraints = lastConstraints!!
         // TODO(b/150390669): Review use of @Untracked
-        subcomposeInto(node, context!!, compositionRef) @Untracked {
+        subcomposeInto(context, node, recomposer, compositionRef) @Untracked {
             children(constraints, node.layoutDirection!!)
         }
         forceRecompose = false

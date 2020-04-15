@@ -19,6 +19,7 @@ package androidx.ui.layout.test
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Model
+import androidx.compose.Recomposer
 import androidx.compose.emptyContent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
@@ -193,7 +194,7 @@ class OnPositionedTest : LayoutTest() {
                 frameLayout.setPadding(padding, padding, padding, padding)
                 activity.setContentView(frameLayout)
 
-                frameLayout.setContent {
+                frameLayout.setContent(Recomposer.current()) {
                     Container(
                         Modifier.onPositioned {
                             realGlobalPosition = it.localToGlobal(localPosition)

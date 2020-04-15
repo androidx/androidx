@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
+import androidx.compose.Recomposer
 import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
@@ -50,7 +51,7 @@ open class ComposeNothingInAndroidTap : ComponentActivity() {
             }
             container.setBackgroundColor(currentColor.toArgb())
         }
-        composition = container.setContent {
+        composition = container.setContent(Recomposer.current()) {
             Box(Modifier.drawBackground(Color.LightGray, RectangleShape).fillMaxSize())
         }
     }
