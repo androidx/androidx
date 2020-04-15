@@ -22,7 +22,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.SparseArray
-import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
@@ -30,7 +29,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.Composable
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
-import androidx.ui.core.AndroidOwner
 import androidx.ui.core.setContent
 import androidx.ui.geometry.Rect
 import androidx.ui.test.AnimationClockTestRule
@@ -159,10 +157,6 @@ class AndroidComposeTestRule<T : ComponentActivity>(
         return captureRegionToBitmap(screenRect, handler, activityTestRule.activity.window)
     }
 
-    private fun onAndroidOwnerCreated(owner: AndroidOwner) {
-        owner.view.addOnAttachStateChangeListener(OwnerAttachedListener(owner))
-    }
-
     inner class AndroidComposeStatement(
         private val base: Statement
     ) : Statement() {
@@ -177,13 +171,13 @@ class AndroidComposeTestRule<T : ComponentActivity>(
 
         private fun beforeEvaluate() {
             transitionsEnabled = !disableTransitions
-            AndroidOwner.onAndroidOwnerCreatedCallback = ::onAndroidOwnerCreated
+            AndroidOwnerRegistry.setupRegistry()
             registerComposeWithEspresso()
         }
 
         private fun afterEvaluate() {
             transitionsEnabled = true
-            AndroidOwner.onAndroidOwnerCreatedCallback = null
+            AndroidOwnerRegistry.tearDownRegistry()
             // Dispose the content
             if (disposeContentHook != null) {
                 runOnUiThread {
@@ -201,22 +195,6 @@ class AndroidComposeTestRule<T : ComponentActivity>(
                     disposeContentHook = null
                 }
             }
-        }
-    }
-
-    private class OwnerAttachedListener(
-        private val owner: AndroidOwner
-    ) : View.OnAttachStateChangeListener {
-
-        // Note: owner.view === view, because the owner _is_ the view,
-        // and this listener is only referenced from within the view.
-
-        override fun onViewAttachedToWindow(view: View) {
-            AndroidOwnerRegistry.registerOwner(owner)
-        }
-
-        override fun onViewDetachedFromWindow(view: View) {
-            AndroidOwnerRegistry.unregisterOwner(owner)
         }
     }
 }

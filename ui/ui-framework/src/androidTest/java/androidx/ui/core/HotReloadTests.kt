@@ -26,12 +26,13 @@ import androidx.compose.emptyContent
 import androidx.compose.onCommit
 import androidx.compose.simulateHotReload
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
+import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertLabelEquals
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnUiThread
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -52,11 +53,11 @@ class HotReloadTests {
     }
 
     @get:Rule
-    val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    val rule = AndroidComposeTestRule<TestActivity>()
 
     @Test
     fun composeView() {
-        val activity = rule.activity
+        val activity = rule.activityTestRule.activity
         var value = "First value"
 
         @Composable fun text(text: String, id: Int = -1) {
@@ -69,7 +70,7 @@ class HotReloadTests {
 
         val composeLatch = CountDownLatch(1)
 
-        rule.runOnUiThread {
+        runOnUiThread {
             activity.setContent {
                 column {
                     text(text = "Hello", id = 101)
@@ -90,7 +91,7 @@ class HotReloadTests {
 
         val hotReloadLatch = CountDownLatch(1)
 
-        rule.runOnUiThread {
+        runOnUiThread {
             simulateHotReload(activity)
             hotReloadLatch.countDown()
         }
@@ -102,7 +103,7 @@ class HotReloadTests {
 
     @Test
     fun composeComponentNode() {
-        val activity = rule.activity
+        val activity = rule.activityTestRule.activity
         var value = "First value"
 
         @Composable fun semanticsNode(text: String, id: Int) {
@@ -118,7 +119,7 @@ class HotReloadTests {
         val composeLatch = CountDownLatch(1)
 
         // Set the content of the view
-        rule.runOnUiThread {
+        runOnUiThread {
             activity.setContent {
                 columnNode {
                     semanticsNode(text = value, id = 103)
@@ -141,7 +142,7 @@ class HotReloadTests {
         val hotReloadLatch = CountDownLatch(1)
 
         // Simulate hot-reload
-        rule.runOnUiThread {
+        runOnUiThread {
             simulateHotReload(activity)
             hotReloadLatch.countDown()
         }
