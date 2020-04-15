@@ -25,6 +25,8 @@ object ColorSpaces {
     internal val Ntsc1953Primaries = floatArrayOf(0.67f, 0.33f, 0.21f, 0.71f, 0.14f, 0.08f)
     internal val SrgbTransferParameters =
         TransferParameters(2.4, 1 / 1.055, 0.055 / 1.055, 1 / 12.92, 0.04045)
+    private val NoneTransferParameters =
+        TransferParameters(2.2, 1 / 1.055, 0.055 / 1.055, 1 / 12.92, 0.04045)
 
     /**
      * [RGB][Rgb] color space sRGB standardized as IEC 61966-2.1:1999.
@@ -255,6 +257,17 @@ object ColorSpaces {
     )
 
     /**
+     * This identifies the 'None' color.
+     */
+    internal val Unset = Rgb(
+        "None",
+        SrgbPrimaries,
+        Illuminant.D65,
+        NoneTransferParameters,
+        id = 16
+    )
+
+    /**
      * Returns a [ColorSpaces] instance of [ColorSpace] that matches
      * the specified RGB to CIE XYZ transform and transfer functions. If no
      * instance can be found, this method returns null.
@@ -307,6 +320,7 @@ object ColorSpaces {
         Aces,
         Acescg,
         CieXyz,
-        CieLab
+        CieLab,
+        Unset
     )
 }

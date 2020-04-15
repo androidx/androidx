@@ -20,6 +20,9 @@ import androidx.ui.graphics.colorspace.ColorSpaces
 import androidx.ui.util.lerp
 import androidx.ui.util.toHexString
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -231,5 +234,15 @@ class ColorTest {
     @Test(expected = java.lang.IllegalArgumentException::class)
     fun srgbOutOfBounds_lowAlpha() {
         Color(0f, 0f, 0f, -1f)
+    }
+
+    @Test
+    fun noneColor() {
+        assertTrue(Color.Unset.isUnset)
+        assertFalse(Color.Unset.isSet)
+        assertFalse(Color.Red.isUnset)
+        assertTrue(Color.Red.isSet)
+        assertEquals(Color.Transparent.toArgb(), Color.Unset.toArgb())
+        assertNotEquals(Color.Transparent, Color.Unset)
     }
 }

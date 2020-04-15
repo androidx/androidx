@@ -191,6 +191,7 @@ package androidx.ui.graphics {
     method public androidx.ui.graphics.Color getMagenta();
     method public androidx.ui.graphics.Color getRed();
     method public androidx.ui.graphics.Color getTransparent();
+    method public androidx.ui.graphics.Color getUnset();
     method public androidx.ui.graphics.Color getWhite();
     method public androidx.ui.graphics.Color getYellow();
     property public final androidx.ui.graphics.Color Black;
@@ -203,6 +204,7 @@ package androidx.ui.graphics {
     property public final androidx.ui.graphics.Color Magenta;
     property public final androidx.ui.graphics.Color Red;
     property public final androidx.ui.graphics.Color Transparent;
+    property public final androidx.ui.graphics.Color Unset;
     property public final androidx.ui.graphics.Color White;
     property public final androidx.ui.graphics.Color Yellow;
   }
@@ -227,6 +229,8 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Color Color(long color);
     method public static androidx.ui.graphics.Color Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, @IntRange(from=0, to=255) int alpha = 0xFF);
     method public static androidx.ui.graphics.Color compositeOver(androidx.ui.graphics.Color, androidx.ui.graphics.Color background);
+    method public static inline boolean isSet(androidx.ui.graphics.Color);
+    method public static inline boolean isUnset(androidx.ui.graphics.Color);
     method public static androidx.ui.graphics.Color lerp(androidx.ui.graphics.Color start, androidx.ui.graphics.Color stop, @FloatRange(from=0.0, to=1.0) float fraction);
     method public static float luminance(androidx.ui.graphics.Color);
     method @ColorInt public static int toArgb(androidx.ui.graphics.Color);

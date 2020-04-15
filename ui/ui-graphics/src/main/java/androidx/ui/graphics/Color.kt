@@ -291,6 +291,14 @@ class Color @PublishedApi internal constructor(
         val Cyan = Color(0xFF00FFFF)
         val Magenta = Color(0xFFFF00FF)
         val Transparent = Color(0x00000000)
+        /**
+         * Because Color is an inline class, this represents an unset value
+         * without having to box the Color. It will be treated as [Transparent]
+         * when drawn. A Color can compare with [Unset] for equality or use
+         * [isUnset] to check for the unset value or [isSet] for any color that isn't
+         * [Unset].
+         */
+        val Unset = Color(0f, 0f, 0f, 0f, ColorSpaces.Unset)
     }
 }
 
@@ -526,3 +534,13 @@ fun Color.toArgb(): Int {
             ((color[1] * 255.0f + 0.5f).toInt() shl 8) or
             (color[2] * 255.0f + 0.5f).toInt()
 }
+
+/**
+ * `false` when this is [Color.Unset].
+ */
+inline val Color.isSet: Boolean get() = value != Color.Unset.value
+
+/**
+ * `true` when this is [Color.Unset].
+ */
+inline val Color.isUnset: Boolean get() = value == Color.Unset.value
