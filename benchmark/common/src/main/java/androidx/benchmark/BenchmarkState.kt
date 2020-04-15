@@ -476,10 +476,10 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
      *
      * @param key Run identifier, prepended to bundle properties.
      */
-    internal fun getFullStatusReport(key: String): Bundle {
+    internal fun getFullStatusReport(key: String, includeStats: Boolean): Bundle {
         Log.i(TAG, key + stats.map { it.getSummary() } + "count=$maxIterations")
         val status = Bundle()
-        if (Arguments.outputEnable) {
+        if (includeStats) {
             // these 'legacy' CI output stats are considered output
             stats.forEach { it.putInBundle(status, PREFIX) }
             status.putLong("${PREFIX}count", maxIterations.toLong())
@@ -489,7 +489,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     }
 
     private fun sendStatus(testName: String) {
-        val bundle = getFullStatusReport(testName)
+        val bundle = getFullStatusReport(key = testName, includeStats = Arguments.outputEnable)
         InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
     }
 
