@@ -59,18 +59,19 @@ inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
     // already there. This is issue in case the user already set some compose content and decides
     // to set it again via our API. In such case we won't be able to dispose the old composition.
     // Other option would be to provide a smaller interface that does not expose these methods.
-    return AndroidComposeTestRule(T::class.java, disableTransitions)
+    return AndroidComposeTestRule(ActivityTestRule(T::class.java), disableTransitions)
 }
 
 /**
  * Android specific implementation of [ComposeTestRule].
  */
 class AndroidComposeTestRule<T : ComponentActivity>(
-    activityClass: Class<T>,
+    // TODO(b/153623653): Remove activityTestRule from arguments when AndroidComposeTestRule can
+    //  work with any kind of Activity launcher.
+    val activityTestRule: ActivityTestRule<T>,
     private val disableTransitions: Boolean = false
 ) : ComposeTestRule {
 
-    val activityTestRule = ActivityTestRule<T>(activityClass)
     override val clockTestRule = AnimationClockTestRule()
 
     private val handler: Handler = Handler(Looper.getMainLooper())

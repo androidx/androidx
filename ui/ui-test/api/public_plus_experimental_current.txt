@@ -279,7 +279,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
-    ctor public AndroidComposeTestRule(Class<T> activityClass, boolean disableTransitions);
+    ctor public AndroidComposeTestRule(androidx.test.rule.ActivityTestRule<T> activityTestRule, boolean disableTransitions);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
@@ -289,7 +289,6 @@ package androidx.ui.test.android {
     method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    property public final androidx.test.rule.ActivityTestRule<T> activityTestRule;
     property public androidx.ui.test.AnimationClockTestRule clockTestRule;
     property public androidx.ui.unit.Density density;
     property public android.util.DisplayMetrics displayMetrics;
