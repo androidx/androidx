@@ -18,6 +18,7 @@ package androidx.testutils
 
 import android.app.Activity
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.test.rule.ActivityTestRule
 import androidx.test.runner.intercepting.SingleActivityFactory
@@ -25,7 +26,6 @@ import androidx.test.runner.intercepting.SingleActivityFactory
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.lang.RuntimeException
-import java.lang.reflect.Field
 
 /**
  * To solve the issue that androidx changes system settings to make animation duration to 0:
@@ -34,6 +34,7 @@ import java.lang.reflect.Field
  * This applies both to statically created Activity (launchActivity = true) and dynamically created
  * Activity (launchActivity = false).
  */
+
 open class AnimationActivityTestRule<T : Activity> : ActivityTestRule<T> {
 
     private enum class TestType {
@@ -44,11 +45,12 @@ open class AnimationActivityTestRule<T : Activity> : ActivityTestRule<T> {
     /**
      * Reflect into the duration field and make it accessible.
      */
-    val durationField: Field by lazy(LazyThreadSafetyMode.NONE) {
-        ValueAnimator::class.java.getDeclaredField("sDurationScale").also {
-            it.isAccessible = true
-        }
-    }
+    private val durationSetter =
+        ValueAnimator::class.java.getDeclaredMethod("setDurationScale", Float::class.java)
+
+    @SuppressLint("DiscouragedPrivateApi")
+    val durationGetter =
+        ValueAnimator::class.java.getDeclaredMethod("getDurationScale")
 
     private lateinit var testType: TestType
 
@@ -77,7 +79,7 @@ open class AnimationActivityTestRule<T : Activity> : ActivityTestRule<T> {
             throw RuntimeException("Please use @Rule for AnimationActivityTestRule")
         }
         if (testType == TestType.ANIMATION) {
-            durationField.setFloat(null, 1.0f)
+            durationSetter.invoke(null, 1.0f)
         }
     }
 
@@ -90,12 +92,13 @@ open class AnimationActivityTestRule<T : Activity> : ActivityTestRule<T> {
             testType = TestType.ANIMATION
             val wrappedStatement = super.apply(base, description)
             return object : Statement() {
+                @SuppressLint("SyntheticAccessor")
                 override fun evaluate() {
-                    val savedScale = durationField.getFloat(null)
+                    val savedScale = durationGetter.invoke(null) as Float
                     try {
                         wrappedStatement.evaluate()
                     } finally {
-                        durationField.setFloat(null, savedScale)
+                        durationSetter.invoke(null, savedScale)
                     }
                 }
             }
