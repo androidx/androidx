@@ -86,6 +86,12 @@ final class SqliteInspector extends Inspector {
             + ")"
             + "Landroid/database/sqlite/SQLiteDatabase;";
 
+    private static final String sCreateInMemoryDatabaseCommandSignature = "createInMemory"
+            + "("
+            + "Landroid/database/sqlite/SQLiteDatabase$OpenParams;"
+            + ")"
+            + "Landroid/database/sqlite/SQLiteDatabase;";
+
     // SQLiteStatement methods
     private static final List<String> sSqliteStatementExecuteMethodsSignatures = Arrays.asList(
             "execute()V",
@@ -185,26 +191,29 @@ final class SqliteInspector extends Inspector {
                 .build().toByteArray()
         );
 
-        mEnvironment.registerExitHook(
-                SQLiteDatabase.class,
-                sOpenDatabaseCommandSignature,
-                new InspectorEnvironment.ExitHook<SQLiteDatabase>() {
-                    @SuppressLint("SyntheticAccessor")
-                    @Override
-                    public SQLiteDatabase onExit(SQLiteDatabase database) {
-                        try {
-                            onDatabaseAdded(database);
-                        } catch (Exception exception) {
-                            getConnection().sendEvent(createErrorOccurredEvent(
-                                    "Unhandled Exception while processing an onDatabaseAdded "
-                                            + "event: "
-                                            + exception.getMessage(),
-                                    stackTraceFromException(exception), null)
-                                    .toByteArray());
+        for (String method : Arrays.asList(sOpenDatabaseCommandSignature,
+                sCreateInMemoryDatabaseCommandSignature)) {
+            mEnvironment.registerExitHook(
+                    SQLiteDatabase.class,
+                    method,
+                    new InspectorEnvironment.ExitHook<SQLiteDatabase>() {
+                        @SuppressLint("SyntheticAccessor")
+                        @Override
+                        public SQLiteDatabase onExit(SQLiteDatabase database) {
+                            try {
+                                onDatabaseAdded(database);
+                            } catch (Exception exception) {
+                                getConnection().sendEvent(createErrorOccurredEvent(
+                                        "Unhandled Exception while processing an onDatabaseAdded "
+                                                + "event: "
+                                                + exception.getMessage(),
+                                        stackTraceFromException(exception), null)
+                                        .toByteArray());
+                            }
+                            return database;
                         }
-                        return database;
-                    }
-                });
+                    });
+        }
 
         registerInvalidationHooks();
 

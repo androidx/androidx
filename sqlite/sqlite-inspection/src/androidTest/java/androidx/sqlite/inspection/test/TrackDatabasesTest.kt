@@ -38,6 +38,12 @@ private const val OPEN_DATABASE_COMMAND_SIGNATURE: String = "openDatabase" +
         ")" +
         "Landroid/database/sqlite/SQLiteDatabase;"
 
+private const val CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE = "createInMemory" +
+        "(" +
+        "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
+        ")" +
+        "Landroid/database/sqlite/SQLiteDatabase;"
+
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TrackDatabasesTest {
@@ -71,26 +77,27 @@ class TrackDatabasesTest {
         }
 
         // evaluate registered hooks
+        val methodSignatures =
+            listOf(OPEN_DATABASE_COMMAND_SIGNATURE, CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE)
         val hookEntries = testEnvironment.consumeRegisteredHooks()
-            .filter { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE }
-        assertThat(hookEntries).hasSize(1)
-        hookEntries.first().let { entry ->
-            // expect one exit hook tracking database open events
-            assertThat(entry).isInstanceOf(Hook.ExitHook::class.java)
-            assertThat(entry.originClass.name).isEqualTo(SQLiteDatabase::class.java.name)
-            assertThat(entry.originMethod)
-                .isEqualTo(OPEN_DATABASE_COMMAND_SIGNATURE)
+            .filter { methodSignatures.contains(it.originMethod) }
+        assertThat(hookEntries).hasSize(2)
+        assertThat(hookEntries.map { it.originMethod }.containsAll(methodSignatures)).isTrue()
+        hookEntries.forEachIndexed { ix, entry ->
+                // expect one exit hook tracking database open events
+                assertThat(entry).isInstanceOf(Hook.ExitHook::class.java)
+                assertThat(entry.originClass.name).isEqualTo(SQLiteDatabase::class.java.name)
 
-            // verify that executing the registered hook will result in tracking events
-            testEnvironment.assertNoQueuedEvents()
-            @Suppress("UNCHECKED_CAST")
-            val exitHook = entry.asExitHook as ExitHook<SQLiteDatabase>
-            val database = Database("db3").createInstance(temporaryFolder)
-            assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
-            testEnvironment.receiveEvent().let { event ->
-                assertThat(event.databaseOpened.path).isEqualTo(database.path)
+                // verify that executing the registered hook will result in tracking events
+                testEnvironment.assertNoQueuedEvents()
+                @Suppress("UNCHECKED_CAST")
+                val exitHook = entry.asExitHook as ExitHook<SQLiteDatabase>
+                val database = Database("db3_$ix").createInstance(temporaryFolder)
+                assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
+                testEnvironment.receiveEvent().let { event ->
+                    assertThat(event.databaseOpened.path).isEqualTo(database.path)
+                }
             }
-        }
 
         assertThat(testEnvironment.consumeRegisteredHooks()).isEmpty()
     }
