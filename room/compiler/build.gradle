@@ -117,12 +117,18 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(JSR250)
     testImplementation(MOCKITO_CORE)
-    testImplementation fileTree(dir: "${SdkHelperKt.getSdkPath(project.rootDir)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include : "android.jar")
-    testImplementation fileTree(dir: "${new File(project(":room:room-runtime").buildDir, "libJar")}",
-            include : "*.jar")
-    testImplementation fileTree(dir: "${new File(project(":sqlite:sqlite").buildDir, "libJar")}",
-            include : "*.jar")
+    testImplementation fileTree(
+            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
+            include : "android.jar"
+    )
+    testImplementation fileTree(
+            dir: "${new File(project(":room:room-runtime").buildDir, "libJar")}",
+            include : "*.jar"
+    )
+    testImplementation fileTree(
+            dir: "${new File(project(":sqlite:sqlite").buildDir, "libJar")}",
+            include : "*.jar"
+    )
 }
 
 def generateAntlrTask = task('generateAntlrGrammar', type: JavaExec) {
