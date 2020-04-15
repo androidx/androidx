@@ -57,6 +57,7 @@ import androidx.ui.graphics.Shape
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple
+import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.lerp
@@ -255,51 +256,53 @@ private fun FilledTextFieldImpl(
         minHeight = TextFieldMinHeight
     ) + modifier
 
-    Surface(
-        modifier = textFieldModifier,
-        shape = shape,
-        color = backgroundColor.copy(alpha = ContainerAlpha)
-    ) {
-        Clickable(onClick = { shouldFocus = true }, modifier = Modifier.ripple(false)) {
-            if (shouldFocus) {
-                FocusManagerAmbient.current.requestFocusById(focusIdentifier)
-                shouldFocus = false
-            }
+    Semantics(container = true, mergeAllDescendants = true) {
+        Surface(
+            modifier = textFieldModifier,
+            shape = shape,
+            color = backgroundColor.copy(alpha = ContainerAlpha)
+        ) {
+            Clickable(onClick = { shouldFocus = true }, modifier = Modifier.ripple(false)) {
+                if (shouldFocus) {
+                    FocusManagerAmbient.current.requestFocusById(focusIdentifier)
+                    shouldFocus = false
+                }
 
-            val emphasisLevels = EmphasisAmbient.current
-            val emphasizedActiveColor = emphasisLevels.high.emphasize(activeColor)
-            val labelInactiveColor = emphasisLevels.medium.emphasize(inactiveColor)
-            val indicatorInactiveColor = inactiveColor.copy(alpha = IndicatorInactiveAlpha)
+                val emphasisLevels = EmphasisAmbient.current
+                val emphasizedActiveColor = emphasisLevels.high.emphasize(activeColor)
+                val labelInactiveColor = emphasisLevels.medium.emphasize(inactiveColor)
+                val indicatorInactiveColor = inactiveColor.copy(alpha = IndicatorInactiveAlpha)
 
-            TextFieldTransitionScope.transition(
-                inputState = inputState.value,
-                activeColor = emphasizedActiveColor,
-                labelInactiveColor = labelInactiveColor,
-                indicatorInactiveColor = indicatorInactiveColor
-            ) { labelProgress, labelColor, indicatorWidth, indicatorColor ->
-                // TODO(soboleva): figure out how this will play with the textStyle provided in label slot
-                val labelAnimatedStyle = lerp(
-                    MaterialTheme.typography.subtitle1,
-                    MaterialTheme.typography.caption,
-                    labelProgress
-                )
-                val decoratedLabel = @Composable {
-                    Decoration(
-                        contentColor = labelColor,
-                        typography = labelAnimatedStyle,
-                        children = label
+                TextFieldTransitionScope.transition(
+                    inputState = inputState.value,
+                    activeColor = emphasizedActiveColor,
+                    labelInactiveColor = labelInactiveColor,
+                    indicatorInactiveColor = indicatorInactiveColor
+                ) { labelProgress, labelColor, indicatorWidth, indicatorColor ->
+                    // TODO(soboleva): figure out how this will play with the textStyle provided in label slot
+                    val labelAnimatedStyle = lerp(
+                        MaterialTheme.typography.subtitle1,
+                        MaterialTheme.typography.caption,
+                        labelProgress
+                    )
+                    val decoratedLabel = @Composable {
+                        Decoration(
+                            contentColor = labelColor,
+                            typography = labelAnimatedStyle,
+                            children = label
+                        )
+                    }
+                    val paddingAndIndicator = Modifier
+                        .drawIndicatorLine(indicatorWidth, indicatorColor)
+                        .padding(start = TextHorizontalPadding, end = TextHorizontalPadding)
+                    TextFieldLayout(
+                        animationProgress = labelProgress,
+                        modifier = paddingAndIndicator,
+                        placeholder = decoratedPlaceholder,
+                        label = decoratedLabel,
+                        textField = decoratedTextField
                     )
                 }
-                val paddingAndIndicator = Modifier
-                    .drawIndicatorLine(indicatorWidth, indicatorColor)
-                    .padding(start = TextHorizontalPadding, end = TextHorizontalPadding)
-                TextFieldLayout(
-                    animationProgress = labelProgress,
-                    modifier = paddingAndIndicator,
-                    placeholder = decoratedPlaceholder,
-                    label = decoratedLabel,
-                    textField = decoratedTextField
-                )
             }
         }
     }
@@ -315,8 +318,8 @@ private fun Decoration(
     emphasis: Emphasis? = null,
     children: @Composable() () -> Unit
 ) {
-    ProvideTextStyle(typography) {
-        Providers(ContentColorAmbient provides contentColor) {
+    Providers(ContentColorAmbient provides contentColor) {
+        ProvideTextStyle(typography) {
             if (emphasis != null) {
                 ProvideEmphasis(emphasis, children)
             } else {
