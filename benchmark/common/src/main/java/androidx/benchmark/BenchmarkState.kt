@@ -482,7 +482,6 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         if (includeStats) {
             // these 'legacy' CI output stats are considered output
             stats.forEach { it.putInBundle(status, PREFIX) }
-            status.putLong("${PREFIX}count", maxIterations.toLong())
         }
         status.putIdeSummaryLine(key, getMinTimeNanos())
         return status

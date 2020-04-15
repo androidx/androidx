@@ -59,11 +59,17 @@ internal class Stats(data: LongArray, val name: String) {
                 "standardDeviation: $standardDeviation"
     }
 
-    internal fun putInBundle(status: Bundle, PREFIX: String) {
-        status.putLong("${PREFIX}median", median)
-        status.putLong("${PREFIX}mean", mean.toLong())
-        status.putLong("${PREFIX}min", min)
-        status.putLong("${PREFIX}standardDeviation", standardDeviation.toLong())
+    internal fun putInBundle(status: Bundle, prefix: String) {
+        if (name == "timeNs") {
+            // compatibility naming scheme.
+            // should be removed, once we timeNs_min has been in dashboard for several weeks
+            status.putLong("${prefix}min", min)
+            status.putLong("${prefix}median", median)
+            status.putLong("${prefix}standardDeviation", standardDeviation.toLong())
+        }
+        status.putLong("${prefix}${name}_min", min)
+        status.putLong("${prefix}${name}_median", median)
+        status.putLong("${prefix}${name}_stddev", standardDeviation.toLong())
     }
 
     override fun equals(other: Any?): Boolean {
