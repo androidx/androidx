@@ -40,7 +40,7 @@ inline fun NavGraphBuilder.navigation(
  * DSL for constructing a new [NavGraph]
  */
 @NavDestinationDsl
-class NavGraphBuilder(
+open class NavGraphBuilder(
     val provider: NavigatorProvider,
     @IdRes id: Int,
     @IdRes private var startDestination: Int
