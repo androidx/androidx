@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("EXPERIMENTAL_API_USAGE", "EXPERIMENTAL_UNSIGNED_LITERALS")
+
 package androidx.ui.graphics
 
 import androidx.annotation.ColorInt
@@ -114,8 +116,7 @@ import kotlin.math.min
  */
 @Immutable
 class Color @PublishedApi internal constructor(
-    val value: Long,
-    @Suppress("UNUSED_PARAMETER") unused: Boolean
+    val value: ULong
 ) {
     /**
      * Returns this color's color space.
@@ -123,7 +124,7 @@ class Color @PublishedApi internal constructor(
      * @return A non-null instance of [ColorSpace]
      */
     val colorSpace: ColorSpace
-        get() = ColorSpaces.getColorSpace((value and 0x3fL).toInt())
+        get() = ColorSpaces.getColorSpace((value and 0x3fUL).toInt())
 
     /**
      * Converts this color from its color space to the specified color space.
@@ -164,10 +165,10 @@ class Color @PublishedApi internal constructor(
      */
     val red: Float
         get() {
-            return if ((value and 0x3fL) == 0L) {
-                ((value shr 48) and 0xffL).toFloat() / 255.0f
+            return if ((value and 0x3fUL) == 0UL) {
+                ((value shr 48) and 0xffUL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 48) and 0xffffL).toShort())
+                Float16(((value shr 48) and 0xffffUL).toShort())
                     .toFloat()
             }
         }
@@ -186,10 +187,10 @@ class Color @PublishedApi internal constructor(
      */
     val green: Float
         get() {
-            return if ((value and 0x3fL) == 0L) {
-                ((value shr 40) and 0xffL).toFloat() / 255.0f
+            return if ((value and 0x3fUL) == 0UL) {
+                ((value shr 40) and 0xffUL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 32) and 0xffffL).toShort())
+                Float16(((value shr 32) and 0xffffUL).toShort())
                     .toFloat()
             }
         }
@@ -208,10 +209,10 @@ class Color @PublishedApi internal constructor(
      */
     val blue: Float
         get() {
-            return if ((value and 0x3fL) == 0L) {
-                ((value shr 32) and 0xffL).toFloat() / 255.0f
+            return if ((value and 0x3fUL) == 0UL) {
+                ((value shr 32) and 0xffUL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 16) and 0xffffL).toShort())
+                Float16(((value shr 16) and 0xffffUL).toShort())
                     .toFloat()
             }
         }
@@ -225,10 +226,10 @@ class Color @PublishedApi internal constructor(
      */
     val alpha: Float
         get() {
-            return if ((value and 0x3fL) == 0L) {
-                ((value shr 56) and 0xffL).toFloat() / 255.0f
+            return if ((value and 0x3fUL) == 0UL) {
+                ((value shr 56) and 0xffUL).toFloat() / 255.0f
             } else {
-                ((value shr 6) and 0x3ffL).toFloat() / 1023.0f
+                ((value shr 6) and 0x3ffUL).toFloat() / 1023.0f
             }
         }
 
@@ -318,7 +319,7 @@ fun Color(
                 ((red * 255.0f + 0.5f).toInt() shl 16) or
                 ((green * 255.0f + 0.5f).toInt() shl 8) or
                 (blue * 255.0f + 0.5f).toInt())
-        return Color(value = (argb.toLong() and 0xffffffffL) shl 32, unused = false)
+        return Color(value = (argb.toULong() and 0xffffffffUL) shl 32)
     }
 
     require(colorSpace.componentCount == 3) {
@@ -338,12 +339,11 @@ fun Color(
     val a = (max(0.0f, min(alpha, 1.0f)) * 1023.0f + 0.5f).toInt()
 
     // Suppress sign extension
-    return Color(value = (((r.halfValue.toLong() and 0xffffL) shl 48) or (
-            (g.halfValue.toLong() and 0xffffL) shl 32) or (
-            (b.halfValue.toLong() and 0xffffL) shl 16) or (
-            (a.toLong() and 0x3ffL) shl 6) or (
-            id.toLong() and 0x3fL)),
-        unused = false)
+    return Color(value = (((r.halfValue.toULong() and 0xffffUL) shl 48) or (
+            (g.halfValue.toULong() and 0xffffUL) shl 32) or (
+            (b.halfValue.toULong() and 0xffffUL) shl 16) or (
+            (a.toULong() and 0x3ffUL) shl 6) or (
+            id.toULong() and 0x3fUL)))
 }
 
 /**
@@ -355,7 +355,7 @@ fun Color(
  * @return A non-null instance of {@link Color}
  */
 fun Color(@ColorInt color: Int): Color {
-    return Color(value = color.toLong() shl 32, unused = false)
+    return Color(value = color.toULong() shl 32)
 }
 
 /**
@@ -371,7 +371,7 @@ fun Color(@ColorInt color: Int): Color {
  * @return A non-null instance of {@link Color}
  */
 fun Color(color: Long): Color {
-    return Color(value = (color and 0xffffffff) shl 32, unused = false)
+    return Color(value = (color.toULong() and 0xffffffffUL) shl 32)
 }
 
 /**
