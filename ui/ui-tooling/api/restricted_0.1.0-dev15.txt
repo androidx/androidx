@@ -158,6 +158,13 @@ package androidx.ui.tooling.preview {
 
 }
 
+package androidx.ui.tooling.preview.animation {
+
+  public final class ComposeAnimationParserKt {
+  }
+
+}
+
 package androidx.ui.tooling.preview.datasource {
 
   public class CollectionPreviewParameterProvider<T> implements androidx.ui.tooling.preview.PreviewParameterProvider<T> {

@@ -38,7 +38,9 @@ dependencies {
     api(project(":compose:compose-runtime"))
     api(project(":ui:ui-core"))
     implementation(project(":compose:material:material"))
-    // kotlin-reflect is provided by Studio at runtime
+
+    // kotlin-reflect and ui-animation-tooling-internal are provided by Studio at runtime
+    compileOnly(project(":ui:ui-animation-tooling-internal"))
     compileOnly(KOTLIN_REFLECT)
 
     androidTestImplementation project(":ui:ui-test")
@@ -50,6 +52,7 @@ dependencies {
     androidTestImplementation project(":compose:foundation:foundation")
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_REFLECT)
+    androidTestImplementation(project(":ui:ui-animation-tooling-internal"))
 }
 
 androidx {
