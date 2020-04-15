@@ -40,10 +40,10 @@ import androidx.compose.Immutable
 import androidx.ui.core.Constraints
 import androidx.ui.text.FirstBaseline
 import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.MultiMeasureLayout
 import androidx.ui.core.Placeable
-import androidx.ui.core.Placeable.PlacementScope.place
 import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
 import androidx.ui.core.tag
@@ -73,7 +73,7 @@ fun ConstraintLayout(
             this
         )
         layout(layoutSize.width, layoutSize.height) {
-            measurer.performLayout()
+            with(measurer) { performLayout() }
         }
     }
 }
@@ -728,6 +728,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
     private val root = ConstraintWidgetContainer(0, 0).also { it.measurer = this }
     private val placeables = mutableMapOf<Measurable, Placeable>()
     private lateinit var density: Density
+    private lateinit var measureScope: MeasureScope
     private val state = object : State() {
         lateinit var rootIncomingConstraints: Constraints
 
@@ -791,7 +792,9 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
             if (DEBUG) {
                 Log.d("CCL", "Measuring ${measurable.tag} with $constraints")
             }
-            val placeable = measurable.measure(constraints).also { placeables[measurable] = it }
+            val placeable = with(measureScope) {
+                measurable.measure(constraints).also { placeables[measurable] = it }
+            }
             if (DEBUG) {
                 Log.d("CCL", "${measurable.tag} is size ${placeable.width} ${placeable.height}")
             }
@@ -824,7 +827,9 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
                 if (DEBUG) {
                     Log.d("CCL", "Remeasuring coerced ${measurable.tag} with $constraints")
                 }
-                measurable.measure(constraints).also { placeables[measurable] = it }
+                with(measureScope) {
+                    measurable.measure(constraints).also { placeables[measurable] = it }
+                }
             }
         }
 
@@ -874,9 +879,10 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         constraints: Constraints,
         constraintSet: ConstraintSet,
         measurables: List<Measurable>,
-        density: Density
+        measureScope: MeasureScope
     ): IntPxSize {
-        this.density = density
+        this.density = measureScope
+        this.measureScope = measureScope
         state.reset()
         // Add tags.
         measurables.forEach { measurable ->
@@ -930,9 +936,11 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
                                 "to confirm size ${child.width} ${child.height}"
                     )
                 }
-                measurable.measure(
-                    Constraints.fixed(child.width.ipx, child.height.ipx)
-                ).also { placeables[measurable] = it }
+                with(measureScope) {
+                    measurable.measure(
+                        Constraints.fixed(child.width.ipx, child.height.ipx)
+                    ).also { placeables[measurable] = it }
+                }
             }
         }
         if (DEBUG) {
@@ -942,7 +950,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         return IntPxSize(root.width.ipx, root.height.ipx)
     }
 
-    fun performLayout() {
+    fun Placeable.PlacementScope.performLayout() {
         for (child in root.children) {
             val measurable = child.companionWidget
             if (measurable !is Measurable) continue

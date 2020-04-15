@@ -28,31 +28,32 @@ internal class ModifiedLayoutNode2(
     val layoutModifier: LayoutModifier2
 ) : DelegatingLayoutNodeWrapper<LayoutModifier2>(wrapped, layoutModifier) {
 
-    override fun performMeasure(constraints: Constraints): Placeable = with(modifier) {
-        updateLayoutDirection()
-        measureResult =
-            layoutNode.measureScope.measure(wrapped, constraints, layoutNode.layoutDirection!!)
+    override val measureScope = ModifierMeasureScope()
+
+    override fun performMeasure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable = with(layoutModifier) {
+        measureScope.layoutDirection = layoutDirection
+        measureResult = measureScope.measure(wrapped, constraints, layoutDirection)
         this@ModifiedLayoutNode2
     }
 
-    override fun minIntrinsicWidth(height: IntPx): IntPx = with(modifier) {
-        updateLayoutDirection()
-        layoutNode.measureScope.minIntrinsicWidth(wrapped, height, layoutNode.layoutDirection!!)
+    // TODO(popam): wire up layout direction to intrinsics as well
+    override fun minIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
+        measureScope.minIntrinsicWidth(wrapped, height, LayoutDirection.Ltr)
     }
 
-    override fun maxIntrinsicWidth(height: IntPx): IntPx = with(modifier) {
-        updateLayoutDirection()
-        layoutNode.measureScope.maxIntrinsicWidth(wrapped, height, layoutNode.layoutDirection!!)
+    override fun maxIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
+        measureScope.maxIntrinsicWidth(wrapped, height, LayoutDirection.Ltr)
     }
 
-    override fun minIntrinsicHeight(width: IntPx): IntPx = with(modifier) {
-        updateLayoutDirection()
-        layoutNode.measureScope.minIntrinsicHeight(wrapped, width, layoutNode.layoutDirection!!)
+    override fun minIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
+        measureScope.minIntrinsicHeight(wrapped, width, LayoutDirection.Ltr)
     }
 
-    override fun maxIntrinsicHeight(width: IntPx): IntPx = with(modifier) {
-        updateLayoutDirection()
-        layoutNode.measureScope.maxIntrinsicHeight(wrapped, width, layoutNode.layoutDirection!!)
+    override fun maxIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
+        measureScope.maxIntrinsicHeight(wrapped, width, LayoutDirection.Ltr)
     }
 
     override operator fun get(line: AlignmentLine): IntPx? =
@@ -75,8 +76,12 @@ internal class ModifiedLayoutNode2(
         }
     }
 
-    private fun updateLayoutDirection() {
-        // TODO(popam): add support to change layout direction in the layout DSL
+    inner class ModifierMeasureScope : MeasureScope() {
+        override var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+        override val density: Float
+            get() = layoutNode.measureScope.density
+        override val fontScale: Float
+            get() = layoutNode.measureScope.fontScale
     }
 }
 
@@ -85,18 +90,26 @@ internal class ModifiedLayoutNode(
     wrapped: LayoutNodeWrapper,
     layoutModifier: LayoutModifier
 ) : DelegatingLayoutNodeWrapper<LayoutModifier>(wrapped, layoutModifier) {
-    override fun performMeasure(constraints: Constraints): Placeable = with(modifier) {
-        updateLayoutDirection()
+    override val measureScope = ModifierMeasureScope()
+
+    override fun performMeasure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable = with(modifier) {
+        val modifiedLayoutDirection = measureScope.modifyLayoutDirection(layoutDirection)
+        measureScope.layoutDirection = modifiedLayoutDirection
+
         val placeable = wrapped.measure(
-            layoutNode.measureScope.modifyConstraints(constraints, layoutDirection)
+            measureScope.modifyConstraints(constraints, layoutDirection),
+            measureScope.layoutDirection
         )
-        val size = layoutNode.measureScope.modifySize(
+        val size = measureScope.modifySize(
             constraints,
             layoutDirection,
             IntPxSize(placeable.width, placeable.height)
         )
         val wrappedPosition = with(modifier) {
-            layoutNode.measureScope.modifyPosition(
+            measureScope.modifyPosition(
                 IntPxSize(placeable.width, placeable.height),
                 size,
                 layoutDirection
@@ -107,37 +120,35 @@ internal class ModifiedLayoutNode(
             override val height: IntPx = size.height
             override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
             override fun placeChildren(layoutDirection: LayoutDirection) {
-                placeable.placeAbsolute(wrappedPosition)
+                with(InnerPlacementScope) {
+                    placeable.placeAbsolute(wrappedPosition)
+                }
             }
         }
         this@ModifiedLayoutNode
     }
 
     override fun minIntrinsicWidth(height: IntPx): IntPx = with(modifier) {
-        updateLayoutDirection()
-        layoutNode.measureScope.minIntrinsicWidthOf(wrapped, height, layoutDirection)
+        measureScope.minIntrinsicWidthOf(wrapped, height, LayoutDirection.Ltr)
     }
 
     override fun maxIntrinsicWidth(height: IntPx): IntPx = with(modifier) {
-        updateLayoutDirection()
-        layoutNode.measureScope.maxIntrinsicWidthOf(wrapped, height, layoutDirection)
+        measureScope.maxIntrinsicWidthOf(wrapped, height, LayoutDirection.Ltr)
     }
 
     override fun minIntrinsicHeight(width: IntPx): IntPx = with(modifier) {
-        updateLayoutDirection()
-        layoutNode.measureScope.minIntrinsicHeightOf(wrapped, width, layoutDirection)
+        measureScope.minIntrinsicHeightOf(wrapped, width, LayoutDirection.Ltr)
     }
 
     override fun maxIntrinsicHeight(width: IntPx): IntPx = with(modifier) {
-        updateLayoutDirection()
-        layoutNode.measureScope.maxIntrinsicHeightOf(wrapped, width, layoutDirection)
+        measureScope.maxIntrinsicHeightOf(wrapped, width, LayoutDirection.Ltr)
     }
 
     override operator fun get(line: AlignmentLine): IntPx? = with(modifier) {
         return layoutNode.measureScope.modifyAlignmentLine(
             line,
             super.get(line),
-            layoutDirection
+            measureScope.layoutDirection
         )
     }
 
@@ -158,12 +169,11 @@ internal class ModifiedLayoutNode(
         }
     }
 
-    override lateinit var layoutDirection: LayoutDirection
-
-    private fun updateLayoutDirection() = with(modifier) {
-        val modifiedLayoutDirection =
-            layoutNode.measureScope.modifyLayoutDirection(layoutNode.layoutDirection!!)
-        layoutNode.layoutDirection = modifiedLayoutDirection
-        layoutDirection = modifiedLayoutDirection
+    inner class ModifierMeasureScope : MeasureScope() {
+        override var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+        override val density: Float
+            get() = layoutNode.measureScope.density
+        override val fontScale: Float
+            get() = layoutNode.measureScope.fontScale
     }
 }

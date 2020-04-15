@@ -69,7 +69,7 @@ internal class ModifiedDrawNode(
             get() = canvas!!.nativeCanvas
 
         override val layoutDirection: LayoutDirection
-            get() = this@ModifiedDrawNode.layoutDirection
+            get() = this@ModifiedDrawNode.measureScope.layoutDirection
 
         override fun save() = canvas!!.save()
 

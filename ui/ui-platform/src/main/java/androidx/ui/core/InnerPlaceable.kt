@@ -39,12 +39,18 @@ internal class InnerPlaceable(
     override val isAttached: Boolean
         get() = layoutNode.isAttached()
 
-    override fun performMeasure(constraints: Constraints): Placeable {
+    override val measureScope get() = layoutNode.measureScope
+
+    override fun performMeasure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable {
+        layoutNode.layoutDirection = layoutDirection
         val measureResult = layoutNode.measureBlocks.measure(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             constraints,
-            layoutNode.layoutDirection!!
+            measureScope.layoutDirection
         )
         layoutNode.handleMeasureResult(measureResult)
         return this
@@ -60,9 +66,6 @@ internal class InnerPlaceable(
                     .firstOrNull { it.layoutNodeWrapper.parentData != null }?.parentData
         }
 
-    override val layoutDirection: LayoutDirection
-        get() = layoutNode.layoutDirection!!
-
     override fun findFocusWrapperWrappingThisWrapper() =
         wrappedBy?.findFocusWrapperWrappingThisWrapper()
 
@@ -75,7 +78,7 @@ internal class InnerPlaceable(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             height,
-            layoutNode.layoutDirection!!
+            measureScope.layoutDirection
         )
     }
 
@@ -84,7 +87,7 @@ internal class InnerPlaceable(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             width,
-            layoutNode.layoutDirection!!
+            measureScope.layoutDirection
         )
     }
 
@@ -93,7 +96,7 @@ internal class InnerPlaceable(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             height,
-            layoutNode.layoutDirection!!
+            measureScope.layoutDirection
         )
     }
 
@@ -102,7 +105,7 @@ internal class InnerPlaceable(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             width,
-            layoutNode.layoutDirection!!
+            measureScope.layoutDirection
         )
     }
 

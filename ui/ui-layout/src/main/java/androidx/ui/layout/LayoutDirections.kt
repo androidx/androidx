@@ -14,53 +14,41 @@
  * limitations under the License.
  */
 
-@file:Suppress("Deprecation")
-
 package androidx.ui.layout
 
+import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier
+import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
-import androidx.ui.unit.Density
+import androidx.ui.unit.ipx
 
 /**
- * Changes the [LayoutDirection] of the content to [LayoutDirection.Ltr].
+ * [Modifier] that changes the [LayoutDirection] of the wrapped layout to [LayoutDirection.Ltr].
  */
-val Modifier.ltr: Modifier get() = this + LayoutDirectionModifier.Ltr
+val Modifier.ltr: Modifier get() = this + LtrModifier
 
 /**
- * Changes the [LayoutDirection] of the content to [LayoutDirection.Rtl].
+ * [Modifier] that changes the [LayoutDirection] of the wrapped layout to [LayoutDirection.Rtl].
  */
-val Modifier.rtl: Modifier get() = this + LayoutDirectionModifier.Rtl
+val Modifier.rtl: Modifier get() = this + RtlModifier
 
-/**
- * A layout modifier that changes the layout direction of the corresponding layout node.
- */
-object LayoutDirectionModifier {
-    @Deprecated(
-        "Use Modifier.ltr",
-        replaceWith = ReplaceWith(
-            "Modifier.ltr",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.ltr"
-        )
-    )
-    val Ltr: LayoutModifier = LayoutDirectionModifierImpl(LayoutDirection.Ltr)
+private val LtrModifier = LayoutDirectionModifier(LayoutDirection.Ltr)
 
-    @Deprecated(
-        "Use Modifier.rtl",
-        replaceWith = ReplaceWith(
-            "Modifier.rtl",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.ltr"
-        )
-    )
-    val Rtl: LayoutModifier = LayoutDirectionModifierImpl(LayoutDirection.Rtl)
-}
+private val RtlModifier = LayoutDirectionModifier(LayoutDirection.Rtl)
 
-private data class LayoutDirectionModifierImpl(
-    val newLayoutDirection: LayoutDirection
-) : LayoutModifier {
-    override fun Density.modifyLayoutDirection(layoutDirection: LayoutDirection) =
-        newLayoutDirection
+private data class LayoutDirectionModifier(
+    val prescribedLayoutDirection: LayoutDirection
+) : LayoutModifier2 {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): MeasureScope.MeasureResult {
+        val placeable = measurable.measure(constraints, prescribedLayoutDirection)
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0.ipx, 0.ipx)
+        }
+    }
 }

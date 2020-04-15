@@ -240,7 +240,7 @@ internal class DefaultIntrinsicMeasurable(
     override val parentData: Any?
         get() = measurable.parentData
 
-    override fun measure(constraints: Constraints): Placeable {
+    override fun measure(constraints: Constraints, layoutDirection: LayoutDirection): Placeable {
         if (widthHeight == IntrinsicWidthHeight.Width) {
             val width = if (minMax == IntrinsicMinMax.Max) {
                 measurable.maxIntrinsicWidth(constraints.maxHeight)
@@ -280,7 +280,9 @@ internal class DefaultIntrinsicMeasurable(
 @PublishedApi
 internal class IntrinsicsMeasureScope(
     density: Density
-) : MeasureScope(), Density by density
+) : MeasureScope(), Density by density {
+    override val layoutDirection: LayoutDirection get() = LayoutDirection.Ltr
+}
 
 /**
  * Default [LayoutNode.MeasureBlocks] object implementation, providing intrinsic measurements
@@ -478,7 +480,7 @@ private class WithConstrainsState {
             var maxWidth: IntPx = constraints.minWidth
             var maxHeight: IntPx = constraints.minHeight
             layoutChildren.forEach {
-                it.measure(constraints)
+                it.measure(constraints, layoutDirection)
                 maxWidth = max(maxWidth, it.width)
                 maxHeight = max(maxHeight, it.height)
             }
@@ -496,7 +498,7 @@ private class WithConstrainsState {
         val constraints = lastConstraints!!
         // TODO(b/150390669): Review use of @Untracked
         subcomposeInto(context, node, recomposer, compositionRef) @Untracked {
-            children(constraints, node.layoutDirection!!)
+            children(constraints, node.measureScope.layoutDirection)
         }
         forceRecompose = false
     }

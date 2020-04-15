@@ -84,6 +84,10 @@ private class ListState<T> {
      */
     val measureBlocks = ListMeasureBlocks()
     /**
+     * The layout direction of the [AdapterList]
+     */
+    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+    /**
      * The index of the first item that is composed into the layout tree
      */
     var firstComposedItem = DataIndex(0)
@@ -224,7 +228,7 @@ private class ListState<T> {
         // TODO: axis
         val childConstraints = Constraints(maxWidth = rootNode.width, maxHeight = IntPx.Infinity)
 
-        val childPlaceable = nextItem.measure(childConstraints)
+        val childPlaceable = nextItem.measure(childConstraints, layoutDirection)
         measuredThisPass[nextItemIndex] = true
 
         val childHeight = childPlaceable.height
@@ -282,6 +286,7 @@ private class ListState<T> {
 
             val width = constraints.maxWidth.value
             val height = constraints.maxHeight.value
+            this@ListState.layoutDirection = layoutDirection
             // TODO: axis
             val childConstraints = Constraints(maxWidth = width.ipx, maxHeight = IntPx.Infinity)
 
@@ -297,7 +302,7 @@ private class ListState<T> {
             while (heightUsed < height && index.value < data.size) {
                 val node = getNodeForDataIndex(index)
                 if (measuredThisPass[index] != true) {
-                    node.measure(childConstraints)
+                    node.measure(childConstraints, layoutDirection)
                     measuredThisPass[index] = true
                 }
                 val childHeight = node.height.value

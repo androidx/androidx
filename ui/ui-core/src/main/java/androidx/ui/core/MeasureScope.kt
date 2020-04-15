@@ -25,6 +25,21 @@ import androidx.ui.unit.IntPx
  */
 abstract class MeasureScope : Density {
     /**
+     * The [LayoutDirection] of the `Layout` or `LayoutModifier2` using the [MeasureScope]
+     * to measure their children.
+     */
+    // TODO(popam): Try to make this protected after the modules structure is updated.
+    abstract val layoutDirection: LayoutDirection
+
+    /**
+     * Measures the layout with [constraints], returning a [Placeable]
+     * layout that has its new size. A [Measurable] can only be measured
+     * once inside a layout pass. The layout will inherit the layout
+     * direction from its parent layout.
+     */
+    fun Measurable.measure(constraints: Constraints) = this.measure(constraints, layoutDirection)
+
+    /**
      * Interface holding the size and alignment lines of the measured layout, as well as the
      * children positioning logic.
      * [placeChildren] is the function used for positioning children. [Placeable.place] should
@@ -65,13 +80,20 @@ abstract class MeasureScope : Density {
         override val height = height
         override val alignmentLines = alignmentLines
         override fun placeChildren(layoutDirection: LayoutDirection) {
-            with(Placeable.PlacementScope) {
+            with(InnerPlacementScope) {
                 this.parentLayoutDirection = layoutDirection
                 val previousParentWidth = parentWidth
                 parentWidth = width
                 placementBlock()
                 parentWidth = previousParentWidth
             }
+        }
+    }
+
+    internal companion object {
+        object InnerPlacementScope : Placeable.PlacementScope() {
+            override var parentLayoutDirection = LayoutDirection.Ltr
+            override var parentWidth = IntPx.Zero
         }
     }
 }

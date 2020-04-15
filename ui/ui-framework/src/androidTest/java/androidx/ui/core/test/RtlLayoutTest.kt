@@ -23,13 +23,21 @@ import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
+import androidx.ui.core.offset
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
+import androidx.ui.graphics.Color
+import androidx.ui.layout.Stack
+import androidx.ui.layout.ltr
+import androidx.ui.layout.padding
+import androidx.ui.layout.rtl
+import androidx.ui.layout.size
 import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert
 import org.junit.Before
@@ -129,14 +137,99 @@ class RtlLayoutTest {
         Assert.assertEquals(PxPosition(0.ipx, size * 2), position[2].value)
     }
 
+    @Test
+    fun measurement_subsequentChanges() = with(density) {
+        // The layout is a 100.dp white square, wrapped by 10.dp blue padding, wrapped by
+        // 10.dp green padding, wrapped by 10.dp gray padding, wrapped by 10.dp magenta padding.
+        // The test is asserting layout direction changes using modifiers and Layouts, and also
+        // the propagation of layout direction across modifiers and layouts that are not changing
+        // it. Padding is also added to the start, but the obtained padding is visually symmetrical
+        // due to the layout direction changes.
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                Stack(
+                    Modifier
+                        // White space padding.
+                        .padding(10.dp)
+                        // Magenta 10.dp padding.
+                        .rtl
+                        .background(Color.Magenta)
+                        .padding(top = 10.dp, bottom = 10.dp)
+                        .padding(start = 10.dp)
+                        .ltr
+                        .padding(start = 10.dp)
+                ) {
+                    Stack(Modifier.rtl) {
+                        Stack(
+                            Modifier
+                                // Gray 10.dp padding.
+                                .background(Color.Gray)
+                                .padding(top = 10.dp, bottom = 10.dp)
+                                .padding(start = 10.dp)
+                                .ltr
+                                .padding(start = 10.dp)
+                        ) {
+                            UpdateLayoutDirection(LayoutDirection.Rtl) {
+                                // Green 10.dp padding.
+                                Stack(
+                                    Modifier
+                                        .background(Color.Green)
+                                        .padding(top = 10.dp, bottom = 10.dp)
+                                        .padding(start = 10.dp)
+                                        .ltr
+                                        .padding(start = 10.dp)
+                                        .rtl
+                                ) {
+                                    // Blue 10.dp padding.
+                                    Stack(Modifier.background(Color.Blue)) {
+                                        Padding(
+                                            start = 10.dp,
+                                            top = 10.dp,
+                                            end = 0.dp,
+                                            bottom = 10.dp
+                                        ) {
+                                            UpdateLayoutDirection(LayoutDirection.Ltr) {
+                                                Padding(
+                                                    start = 10.dp,
+                                                    top = 0.dp,
+                                                    end = 0.dp,
+                                                    bottom = 0.dp
+                                                ) {
+                                                    Stack(Modifier
+                                                        .background(Color.White)
+                                                        .size(100.dp)) {}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        activityTestRule.waitAndScreenShot().apply {
+            val center = 200.dp.toIntPx().value / 2
+            assertRect(
+                Color.Magenta, 161.dp.toIntPx().value, 179.dp.toIntPx().value, center, center
+            )
+            assertRect(Color.Gray, 141.dp.toIntPx().value, 159.dp.toIntPx().value, center, center)
+            assertRect(Color.Green, 121.dp.toIntPx().value, 139.dp.toIntPx().value, center, center)
+            assertRect(Color.Blue, 101.dp.toIntPx().value, 119.dp.toIntPx().value, center, center)
+        }
+        Unit
+    }
+
     @Composable
     private fun CustomLayout(
         absolutePositioning: Boolean,
         testLayoutDirection: LayoutDirection
     ) {
-        val modifier = object : LayoutModifier {
-            override fun Density.modifyLayoutDirection(layoutDirection: LayoutDirection) =
-                testLayoutDirection
+        val modifier = when (testLayoutDirection) {
+            LayoutDirection.Ltr -> Modifier.ltr
+            LayoutDirection.Rtl -> Modifier.rtl
         }
         Layout(
             children = @Composable {
@@ -164,6 +257,39 @@ class RtlLayoutTest {
                     x += placeable.width
                     y += placeable.height
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun UpdateLayoutDirection(ld: LayoutDirection, children: @Composable() () -> Unit) {
+        Layout(children) { measurables, constraints, _ ->
+            val placeable = measurables[0].measure(constraints, ld)
+            layout(placeable.width, placeable.height) {
+                placeable.place(0.ipx, 0.ipx)
+            }
+        }
+    }
+
+    @Composable
+    private fun Padding(
+        start: Dp,
+        top: Dp,
+        end: Dp,
+        bottom: Dp,
+        children: @Composable() () -> Unit
+    ) {
+        Layout(children) { measurables, constraints, _ ->
+            val childConstraints = constraints.offset(
+                -start.toIntPx() - end.toIntPx(),
+                -top.toIntPx() - bottom.toIntPx()
+            )
+            val placeable = measurables[0].measure(childConstraints)
+            layout(
+                placeable.width + start.toIntPx() + end.toIntPx(),
+                placeable.height + top.toIntPx() + bottom.toIntPx()
+            ) {
+                placeable.place(start.toIntPx(), top.toIntPx())
             }
         }
     }

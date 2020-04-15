@@ -196,7 +196,10 @@ private object MeasuringIntrinsics {
         override val parentData: Any?
             get() = measurable.parentData
 
-        override fun measure(constraints: Constraints): Placeable {
+        override fun measure(
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ): Placeable {
             if (widthHeight == IntrinsicWidthHeight.Width) {
                 val width = if (minMax == IntrinsicMinMax.Max) {
                     measurable.maxIntrinsicWidth(constraints.maxHeight)
@@ -232,7 +235,9 @@ private object MeasuringIntrinsics {
 
     private class IntrinsicsMeasureScope(
         density: Density
-    ) : MeasureScope(), Density by density
+    ) : MeasureScope(), Density by density {
+        override val layoutDirection = LayoutDirection.Ltr
+    }
 
     private class DummyPlaceable(width: IntPx, height: IntPx) : Placeable() {
         override fun get(line: AlignmentLine): IntPx? = null

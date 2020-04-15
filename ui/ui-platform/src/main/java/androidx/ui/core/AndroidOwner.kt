@@ -421,7 +421,7 @@ internal class AndroidComposeView constructor(
                     if (layoutNode === root) {
                         // it is the root node - the only top node from relayoutNodes
                         // which needs to be remeasured.
-                        layoutNode.measure(constraints)
+                        layoutNode.measure(constraints, layoutNode.layoutDirection)
                     }
                     require(!layoutNode.needsRemeasure) {
                         "$layoutNode shouldn't require remeasure. relayoutNodes " +
@@ -794,13 +794,15 @@ internal class AndroidComposeView constructor(
                 return when {
                     measurables.isEmpty() -> measureScope.layout(IntPx.Zero, IntPx.Zero) {}
                     measurables.size == 1 -> {
-                        val placeable = measurables[0].measure(constraints)
+                        val placeable = measurables[0].measure(constraints, layoutDirection)
                         measureScope.layout(placeable.width, placeable.height) {
                             placeable.place(IntPx.Zero, IntPx.Zero)
                         }
                     }
                     else -> {
-                        val placeables = measurables.map { it.measure(constraints) }
+                        val placeables = measurables.map {
+                            it.measure(constraints, layoutDirection)
+                        }
                         var maxWidth = IntPx.Zero
                         var maxHeight = IntPx.Zero
                         placeables.forEach { placeable ->

@@ -752,11 +752,6 @@ class LayoutNode : ComponentNode(), Measurable {
         ) = error(error)
     }
 
-    // TODO(popam): used for multi composable children. Consider removing if possible.
-    abstract class InnerMeasureScope : MeasureScope() {
-        abstract val layoutNode: LayoutNode
-    }
-
     /**
      * Blocks that define the measurement and intrinsic measurement of the layout.
      */
@@ -771,14 +766,14 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The scope used to run the [MeasureBlocks.measure] [MeasureBlock].
      */
-    val measureScope: MeasureScope = object : InnerMeasureScope(), Density {
+    val measureScope: MeasureScope = object : MeasureScope(), Density {
         private val ownerDensity: Density
             get() = owner?.density ?: Density(1f)
         override val density: Float
             get() = ownerDensity.density
         override val fontScale: Float
             get() = ownerDensity.fontScale
-        override val layoutNode: LayoutNode = this@LayoutNode
+        override val layoutDirection: LayoutDirection get() = this@LayoutNode.layoutDirection
     }
 
     /**
@@ -789,14 +784,7 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The layout direction of the layout node.
      */
-    var layoutDirection: LayoutDirection? = null
-        get() {
-            if (field == null) {
-                // root node doesn't have a parent but its LD value is set during root creation
-                field = parentLayoutNode?.layoutDirection
-            }
-            return field
-        }
+    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     /**
      * Implementation oddity around composition; used to capture a reference to this
@@ -1128,7 +1116,7 @@ class LayoutNode : ComponentNode(), Measurable {
      */
     private val onChildPositionedCallbacks = mutableListOf<OnChildPositionedModifier>()
 
-    override fun measure(constraints: Constraints): Placeable {
+    override fun measure(constraints: Constraints, layoutDirection: LayoutDirection): Placeable {
         val owner = requireOwner()
         val iteration = owner.measureIteration
         @Suppress("Deprecation")
@@ -1151,7 +1139,7 @@ class LayoutNode : ComponentNode(), Measurable {
         dirtyAlignmentLines = true
         this.constraints = constraints
         owner.observeMeasureModelReads(this) {
-            layoutNodeWrapper.measure(constraints)
+            layoutNodeWrapper.measure(constraints, layoutDirection)
         }
         isMeasuring = false
         needsRelayout = true
@@ -1171,8 +1159,12 @@ class LayoutNode : ComponentNode(), Measurable {
         layoutNodeWrapper.maxIntrinsicHeight(width)
 
     fun place(x: IntPx, y: IntPx) {
-        with(Placeable.PlacementScope) {
+        with(InnerPlacementScope) {
+            this.parentLayoutDirection = layoutDirection
+            val previousParentWidth = parentWidth
+            this.parentWidth = layoutNodeWrapper.size.width
             layoutNodeWrapper.place(x, y)
+            this.parentWidth = previousParentWidth
         }
     }
 
@@ -1249,7 +1241,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
                         parentLayoutNode?.positionedDuringMeasurePass ?: false
-                innerLayoutNodeWrapper.measureResult.placeChildren(layoutDirection!!)
+                innerLayoutNodeWrapper.measureResult.placeChildren(layoutDirection)
                 layoutChildren.forEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
