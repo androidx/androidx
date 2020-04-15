@@ -1495,19 +1495,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
         moveToState(f);
 
         if (f.mView != null) {
-            // Move the view if it is out of order
-            Fragment underFragment = mFragmentStore.findFragmentUnder(f);
-            if (underFragment != null) {
-                final View underView = underFragment.mView;
-                // make sure this fragment is in the right order.
-                final ViewGroup container = f.mContainer;
-                int underIndex = container.indexOfChild(underView);
-                int viewIndex = container.indexOfChild(f.mView);
-                if (viewIndex < underIndex) {
-                    container.removeViewAt(viewIndex);
-                    container.addView(f.mView, underIndex);
-                }
-            }
             if (f.mIsNewlyAdded && f.mContainer != null) {
                 // Make it visible and run the animations
                 if (f.mPostponedAlpha > 0f) {
