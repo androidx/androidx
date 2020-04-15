@@ -101,5 +101,14 @@ package androidx.navigation.dynamicfeatures {
     property public final androidx.lifecycle.LiveData<com.google.android.play.core.splitinstall.SplitInstallSessionState> status;
   }
 
+  public final class DynamicNavGraphBuilder extends androidx.navigation.NavGraphBuilder {
+    ctor public DynamicNavGraphBuilder(androidx.navigation.NavigatorProvider provider, @IdRes int id, @IdRes int startDestination, String? moduleName, int progressDestination);
+  }
+
+  public final class DynamicNavGraphBuilderKt {
+    method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, @IdRes int id = 0, @IdRes int startDestination, String? moduleName = null, int progressDestination = 0, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
+    method public static inline void navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, @IdRes int startDestination, String? moduleName = null, int progressDestination = 0, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
+  }
+
 }
 
