@@ -16,9 +16,8 @@
 
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
-import androidx.build.SupportConfig
+import androidx.build.SupportConfigKt
 
 plugins {
     id("AndroidXPlugin")
@@ -41,7 +40,7 @@ dependencies {
 }
 
 ext {
-    webviewBoundaryInterfacesDir = new File(SupportConfig.getExternalProjectPath(project),
+    webviewBoundaryInterfacesDir = new File(SupportConfigKt.getExternalProjectPath(project),
             "webview_support_interfaces")
 }
 
@@ -51,11 +50,14 @@ android {
     }
     sourceSets {
         // Allow compiling the WebView support library boundary interfaces from this project.
-        main.java.srcDirs += new File(webviewBoundaryInterfacesDir, "src").getAbsolutePath()
+        main.java.srcDirs += new File(webviewBoundaryInterfacesDir, "src").getCanonicalPath()
     }
 
     buildTypes.all {
-        consumerProguardFiles new File(webviewBoundaryInterfacesDir, "proguard.flags") , 'proguard-rules.pro'
+        consumerProguardFiles(
+                new File(webviewBoundaryInterfacesDir, 'proguard.flags'),
+                'proguard-rules.pro'
+        )
     }
 }
 
