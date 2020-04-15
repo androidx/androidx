@@ -92,8 +92,8 @@ public abstract class BaseTestActivity extends RecreatedAppCompatActivity {
             overrideConfig.fontScale = 0;
             overrideConfig.locale = sOverrideLocale;
 
-            ContextThemeWrapper wrappedBase = new ContextThemeWrapper(newBase,
-                    newBase.getTheme());
+            ContextThemeWrapper wrappedBase = new ContextThemeWrapper(
+                    newBase, R.style.Theme_AppCompat_Empty);
             wrappedBase.applyOverrideConfiguration(overrideConfig);
 
             newBase = wrappedBase;
