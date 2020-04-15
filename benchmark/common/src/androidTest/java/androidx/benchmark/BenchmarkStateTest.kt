@@ -139,7 +139,7 @@ class BenchmarkStateTest {
             while (keepRunning()) {
                 // nothing, we're ignoring numbers
             }
-        }.getFullStatusReport("foo")
+        }.getFullStatusReport(key = "foo", includeStats = true)
 
         assertTrue(
             (bundle.get("android.studio.display.benchmark") as String).contains("foo")
