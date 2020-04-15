@@ -33,7 +33,7 @@ import androidx.ui.unit.PxBounds
  */
 internal fun buildErrorMessageForCountMismatch(
     errorMessage: String,
-    selector: SemanticsPredicate?,
+    selector: SemanticsMatcher?,
     foundNodes: List<SemanticsNode>,
     expectedCount: Int
 ): String {
@@ -94,7 +94,7 @@ internal fun buildErrorMessageForCountMismatch(
  */
 internal fun buildErrorMessageForNodeMissingInTree(
     errorMessage: String,
-    selector: SemanticsPredicate,
+    selector: SemanticsMatcher,
     lastSeenSemantics: String
 ): String {
     val sb = StringBuilder()
@@ -111,23 +111,23 @@ internal fun buildErrorMessageForNodeMissingInTree(
 }
 
 /**
- * Builds error message for case where predicate fails on a given semantics node.
+ * Builds error message for case where matcher fails on a given semantics node.
  *
  * To see some examples, check out "ErrorMessagesTest".
  */
-internal fun buildErrorMessageForPredicateFail(
-    selector: SemanticsPredicate,
+internal fun buildErrorMessageForMatcherFail(
+    selectorMatcher: SemanticsMatcher,
     node: SemanticsNode,
-    predicate: SemanticsPredicate
+    assertionMatcher: SemanticsMatcher
 ): String {
     return buildGeneralErrorMessage(
-        "Failed to assert that node satisfies the following condition: (${predicate.description})",
-        selector, node)
+        "Failed to assert that node satisfies the following condition: " +
+                "(${assertionMatcher.description})", selectorMatcher, node)
 }
 
 internal fun buildGeneralErrorMessage(
     errorMessage: String,
-    selector: SemanticsPredicate,
+    selector: SemanticsMatcher,
     node: SemanticsNode
 ): String {
     val sb = StringBuilder()

@@ -23,9 +23,12 @@ import androidx.ui.test.android.SynchronizedTreeCollector
  * Finds a component identified by the given tag.
  *
  * For usage patterns see [SemanticsNodeInteraction]
+ *
+ * @see find for general find method.
  */
 fun findByTag(testTag: String): SemanticsNodeInteraction =
     find(hasTestTag(testTag))
+
 /**
  * Finds all components identified by the given tag.
  *
@@ -33,22 +36,27 @@ fun findByTag(testTag: String): SemanticsNodeInteraction =
  */
 fun findAllByTag(testTag: String): List<SemanticsNodeInteraction> =
     findAll(hasTestTag(testTag))
+
 /**
  * Finds a component with the given text as its accessibilityLabel.
  *
  * For usage patterns see [SemanticsNodeInteraction]
  * @see findBySubstring to search by substring instead of via exact match.
+ * @see find for general find method.
  */
 fun findByText(text: String, ignoreCase: Boolean = false): SemanticsNodeInteraction =
     find(hasText(text, ignoreCase))
+
 /**
  *  Finds a component with accessibilityLabel that contains the given substring.
  *
  * For usage patterns see [SemanticsNodeInteraction]
  * @see findByText to perform exact matches.
+ * @see find for general find method.
  */
 fun findBySubstring(text: String, ignoreCase: Boolean = false): SemanticsNodeInteraction =
     find(hasSubstring(text, ignoreCase))
+
 /**
  * Finds all components with the given text as their accessibility label.
  *
@@ -56,19 +64,20 @@ fun findBySubstring(text: String, ignoreCase: Boolean = false): SemanticsNodeInt
  */
 fun findAllByText(text: String, ignoreCase: Boolean = false): List<SemanticsNodeInteraction> =
     findAll(hasText(text, ignoreCase))
+
 /**
  * Finds a component that matches the given condition.
- * This tries to match exactly one element and throws [AssertionError] if more than one is matched.
+ *
+ * Any subsequent operation on its result will expect exactly one element found (unless
+ * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
+ * none or more than one element is found.
  *
  * For usage patterns see [SemanticsNodeInteraction]
  * @see findAll to work with multiple elements
  */
-fun find(selector: SemanticsPredicate): SemanticsNodeInteraction {
-    val nodes = getAllSemanticsNodes()
-        .filter { node ->
-            selector.condition(node)
-        }
-    return SemanticsNodeInteraction(nodes, selector)
+fun find(selector: SemanticsMatcher): SemanticsNodeInteraction {
+    val matchedNodes = selector.match(getAllSemanticsNodes())
+    return SemanticsNodeInteraction(matchedNodes.toList(), selector)
 }
 
 /**
@@ -78,13 +87,10 @@ fun find(selector: SemanticsPredicate): SemanticsNodeInteraction {
  * instead.
  * @see find
  */
-fun findAll(selector: SemanticsPredicate): List<SemanticsNodeInteraction> {
-    return getAllSemanticsNodes()
-        .filter { node ->
-            selector.condition(node)
-        }.map {
-            SemanticsNodeInteraction(it, selector)
-        }
+fun findAll(selector: SemanticsMatcher): List<SemanticsNodeInteraction> {
+    return selector.match(getAllSemanticsNodes()).map {
+        SemanticsNodeInteraction(it, selector)
+    }
 }
 
 internal fun getAllSemanticsNodes(): List<SemanticsNode> {

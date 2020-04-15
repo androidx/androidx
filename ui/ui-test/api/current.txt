@@ -22,7 +22,7 @@ package androidx.ui.test {
   }
 
   public final class AssertionsKt {
-    method public static androidx.ui.test.SemanticsNodeInteraction assert(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsPredicate predicate);
+    method public static androidx.ui.test.SemanticsNodeInteraction assert(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsMatcher matcher);
     method public static <T extends java.util.Collection<? extends androidx.ui.test.SemanticsNodeInteraction>> T assertCountEquals(T, int expectedSize);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasClickAction(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasNoClickAction(androidx.ui.test.SemanticsNodeInteraction);
@@ -144,33 +144,33 @@ package androidx.ui.test {
   }
 
   public final class FiltersKt {
-    method public static androidx.ui.test.SemanticsPredicate hasAnyAncestorThat(androidx.ui.test.SemanticsPredicate predicate);
-    method public static androidx.ui.test.SemanticsPredicate hasAnyChildThat(androidx.ui.test.SemanticsPredicate predicate);
-    method public static androidx.ui.test.SemanticsPredicate hasAnyDescendantThat(androidx.ui.test.SemanticsPredicate predicate);
-    method public static androidx.ui.test.SemanticsPredicate hasAnySiblingThat(androidx.ui.test.SemanticsPredicate predicate);
-    method public static androidx.ui.test.SemanticsPredicate hasClickAction();
-    method public static androidx.ui.test.SemanticsPredicate hasNoClickAction();
-    method public static androidx.ui.test.SemanticsPredicate hasNoScrollAction();
-    method public static androidx.ui.test.SemanticsPredicate hasParentThat(androidx.ui.test.SemanticsPredicate predicate);
-    method public static androidx.ui.test.SemanticsPredicate hasScrollAction();
-    method public static androidx.ui.test.SemanticsPredicate hasSubstring(String substring, boolean ignoreCase = false);
-    method public static androidx.ui.test.SemanticsPredicate hasTestTag(String testTag);
-    method public static androidx.ui.test.SemanticsPredicate hasText(String text, boolean ignoreCase = false);
-    method public static androidx.ui.test.SemanticsPredicate hasValue(String value);
-    method public static androidx.ui.test.SemanticsPredicate isHidden();
-    method public static androidx.ui.test.SemanticsPredicate isInMutuallyExclusiveGroup();
-    method public static androidx.ui.test.SemanticsPredicate isNotHidden();
-    method public static androidx.ui.test.SemanticsPredicate isOff();
-    method public static androidx.ui.test.SemanticsPredicate isOn();
-    method public static androidx.ui.test.SemanticsPredicate isSelectable();
-    method public static androidx.ui.test.SemanticsPredicate isSelected();
-    method public static androidx.ui.test.SemanticsPredicate isToggleable();
-    method public static androidx.ui.test.SemanticsPredicate isUnselected();
+    method public static androidx.ui.test.SemanticsMatcher hasAnyAncestorThat(androidx.ui.test.SemanticsMatcher matcher);
+    method public static androidx.ui.test.SemanticsMatcher hasAnyChildThat(androidx.ui.test.SemanticsMatcher matcher);
+    method public static androidx.ui.test.SemanticsMatcher hasAnyDescendantThat(androidx.ui.test.SemanticsMatcher matcher);
+    method public static androidx.ui.test.SemanticsMatcher hasAnySiblingThat(androidx.ui.test.SemanticsMatcher matcher);
+    method public static androidx.ui.test.SemanticsMatcher hasClickAction();
+    method public static androidx.ui.test.SemanticsMatcher hasNoClickAction();
+    method public static androidx.ui.test.SemanticsMatcher hasNoScrollAction();
+    method public static androidx.ui.test.SemanticsMatcher hasParentThat(androidx.ui.test.SemanticsMatcher matcher);
+    method public static androidx.ui.test.SemanticsMatcher hasScrollAction();
+    method public static androidx.ui.test.SemanticsMatcher hasSubstring(String substring, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsMatcher hasTestTag(String testTag);
+    method public static androidx.ui.test.SemanticsMatcher hasText(String text, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsMatcher hasValue(String value);
+    method public static androidx.ui.test.SemanticsMatcher isHidden();
+    method public static androidx.ui.test.SemanticsMatcher isInMutuallyExclusiveGroup();
+    method public static androidx.ui.test.SemanticsMatcher isNotHidden();
+    method public static androidx.ui.test.SemanticsMatcher isOff();
+    method public static androidx.ui.test.SemanticsMatcher isOn();
+    method public static androidx.ui.test.SemanticsMatcher isSelectable();
+    method public static androidx.ui.test.SemanticsMatcher isSelected();
+    method public static androidx.ui.test.SemanticsMatcher isToggleable();
+    method public static androidx.ui.test.SemanticsMatcher isUnselected();
   }
 
   public final class FindersKt {
-    method public static androidx.ui.test.SemanticsNodeInteraction find(androidx.ui.test.SemanticsPredicate selector);
-    method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAll(androidx.ui.test.SemanticsPredicate selector);
+    method public static androidx.ui.test.SemanticsNodeInteraction find(androidx.ui.test.SemanticsMatcher selector);
+    method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAll(androidx.ui.test.SemanticsMatcher selector);
     method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAllByTag(String testTag);
     method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAllByText(String text, boolean ignoreCase = false);
     method public static androidx.ui.test.SemanticsNodeInteraction findBySubstring(String text, boolean ignoreCase = false);
@@ -211,6 +211,27 @@ package androidx.ui.test {
     method public static String dumpToString(java.util.Collection<androidx.ui.test.SemanticsNodeInteraction>);
   }
 
+  public final class SemanticsMatcher {
+    ctor public SemanticsMatcher(String description, kotlin.jvm.functions.Function1<? super java.lang.Iterable<androidx.ui.core.semantics.SemanticsNode>,? extends java.lang.Iterable<androidx.ui.core.semantics.SemanticsNode>> selector);
+    method public infix androidx.ui.test.SemanticsMatcher and(androidx.ui.test.SemanticsMatcher other);
+    method public String getDescription();
+    method public Iterable<androidx.ui.core.semantics.SemanticsNode> match(Iterable<androidx.ui.core.semantics.SemanticsNode> nodes);
+    method public boolean matches(androidx.ui.core.semantics.SemanticsNode node);
+    method public boolean matchesAny(Iterable<androidx.ui.core.semantics.SemanticsNode> nodes);
+    method public operator androidx.ui.test.SemanticsMatcher not();
+    method public infix androidx.ui.test.SemanticsMatcher or(androidx.ui.test.SemanticsMatcher other);
+    field public static final androidx.ui.test.SemanticsMatcher.Companion! Companion;
+  }
+
+  public static final class SemanticsMatcher.Companion {
+    method public <T> androidx.ui.test.SemanticsMatcher expectValue(androidx.ui.semantics.SemanticsPropertyKey<T> key, T? expectedValue);
+    method public androidx.ui.test.SemanticsMatcher fromCondition(String description, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> selector);
+    method public androidx.ui.test.SemanticsMatcher getAny();
+    method public <T> androidx.ui.test.SemanticsMatcher keyIsDefined(androidx.ui.semantics.SemanticsPropertyKey<T> key);
+    method public <T> androidx.ui.test.SemanticsMatcher keyNotDefined(androidx.ui.semantics.SemanticsPropertyKey<T> key);
+    property public final androidx.ui.test.SemanticsMatcher any;
+  }
+
   public final class SemanticsNodeInteraction {
     method public void assertDoesNotExist();
     method public androidx.ui.test.SemanticsNodeInteraction assertExists(String? errorMessageOnFail = null);
@@ -218,24 +239,6 @@ package androidx.ui.test {
   }
 
   public final class SemanticsNodeInteractionKt {
-  }
-
-  public final class SemanticsPredicate {
-    ctor public SemanticsPredicate(String description, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> condition);
-    method public infix androidx.ui.test.SemanticsPredicate and(androidx.ui.test.SemanticsPredicate other);
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.semantics.SemanticsNode,java.lang.Boolean> getCondition();
-    method public String getDescription();
-    method public operator androidx.ui.test.SemanticsPredicate not();
-    method public infix androidx.ui.test.SemanticsPredicate or(androidx.ui.test.SemanticsPredicate other);
-    field public static final androidx.ui.test.SemanticsPredicate.Companion! Companion;
-  }
-
-  public static final class SemanticsPredicate.Companion {
-    method public <T> androidx.ui.test.SemanticsPredicate expectValue(androidx.ui.semantics.SemanticsPropertyKey<T> key, T? expectedValue);
-    method public androidx.ui.test.SemanticsPredicate getAny();
-    method public <T> androidx.ui.test.SemanticsPredicate keyIsDefined(androidx.ui.semantics.SemanticsPropertyKey<T> key);
-    method public <T> androidx.ui.test.SemanticsPredicate keyNotDefined(androidx.ui.semantics.SemanticsPropertyKey<T> key);
-    property public final androidx.ui.test.SemanticsPredicate any;
   }
 
   public final class SizesTestingKt {
