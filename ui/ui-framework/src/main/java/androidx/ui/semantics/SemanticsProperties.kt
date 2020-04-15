@@ -16,44 +16,7 @@
 
 package androidx.ui.semantics
 
-import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Px
-
-object SemanticsProperties {
-    val AccessibilityLabel = object : SemanticsPropertyKey<String>("AccessibilityLabel") {
-        override fun merge(existingValue: String, newValue: String): String {
-            // TODO(b/138173613): Needs TextDirection, probably needs to pass both nodes
-            //  to retrieve it
-            return existingValue + "\n" + newValue
-        }
-    }
-
-    val AccessibilityValue = SemanticsPropertyKey<String>("AccessibilityValue")
-
-    val AccessibilityRangeInfo =
-        SemanticsPropertyKey<AccessibilityRangeInfo>("AccessibilityRangeInfo")
-
-    val Enabled = SemanticsPropertyKey<Boolean>("Enabled")
-
-    val Hidden = SemanticsPropertyKey<Boolean>("Hidden")
-
-    val TextDirection = SemanticsPropertyKey<TextDirection>("TextDirection")
-
-    // TODO(b/138172781): Move to FoundationSemanticsProperties
-    val TestTag = SemanticsPropertyKey<String>("TestTag")
-}
-
-class SemanticsActions {
-    companion object {
-        val OnClick = SemanticsPropertyKey<AccessibilityAction<() -> Unit>>("OnClick")
-
-        val ScrollTo =
-            SemanticsPropertyKey<AccessibilityAction<(x: Px, y: Px) -> Unit>>("ScrollTo")
-
-        val CustomActions =
-            SemanticsPropertyKey<List<AccessibilityAction<() -> Unit>>>("CustomActions")
-    }
-}
 
 var SemanticsPropertyReceiver.accessibilityLabel by SemanticsProperties.AccessibilityLabel
 
@@ -66,7 +29,7 @@ var SemanticsPropertyReceiver.enabled by SemanticsProperties.Enabled
 
 var SemanticsPropertyReceiver.hidden by SemanticsProperties.Hidden
 
-var SemanticsPropertyReceiver.textDirection by SemanticsProperties.TextDirection
+// var SemanticsPropertyReceiver.textDirection by SemanticsProperties.TextDirection
 
 var SemanticsPropertyReceiver.onClick by SemanticsActions.OnClick
 

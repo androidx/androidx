@@ -557,40 +557,8 @@ package androidx.ui.res {
 
 package androidx.ui.semantics {
 
-  public final class SemanticsActions {
-    ctor public SemanticsActions();
-    field public static final androidx.ui.semantics.SemanticsActions.Companion! Companion;
-  }
-
-  public static final class SemanticsActions.Companion {
-    method public androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>>> getCustomActions();
-    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> getOnClick();
-    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>>> getScrollTo();
-    property public final androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>>> CustomActions;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> OnClick;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>>> ScrollTo;
-  }
-
   public final class SemanticsKt {
     method public static void Semantics(boolean container = false, boolean mergeAllDescendants = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class SemanticsProperties {
-    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityLabel();
-    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> getAccessibilityRangeInfo();
-    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getAccessibilityValue();
-    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getEnabled();
-    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getHidden();
-    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> getTestTag();
-    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.style.TextDirection> getTextDirection();
-    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityLabel;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityRangeInfo> AccessibilityRangeInfo;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> AccessibilityValue;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Enabled;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Hidden;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.String> TestTag;
-    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.text.style.TextDirection> TextDirection;
-    field public static final androidx.ui.semantics.SemanticsProperties! INSTANCE;
   }
 
   public final class SemanticsPropertiesKt {
@@ -604,7 +572,6 @@ package androidx.ui.semantics {
     method public static androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>> getOnClick(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>> getScrollTo(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static String getTestTag(androidx.ui.semantics.SemanticsPropertyReceiver);
-    method public static androidx.ui.text.style.TextDirection getTextDirection(androidx.ui.semantics.SemanticsPropertyReceiver);
     method public static void onClick(androidx.ui.semantics.SemanticsPropertyReceiver, String? label = null, kotlin.jvm.functions.Function0<kotlin.Unit> action);
     method public static void setAccessibilityLabel(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
     method public static void setAccessibilityValue(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
@@ -615,7 +582,6 @@ package androidx.ui.semantics {
     method public static void setOnClick(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>> p);
     method public static void setScrollTo(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>> p);
     method public static void setTestTag(androidx.ui.semantics.SemanticsPropertyReceiver, String p);
-    method public static void setTextDirection(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.text.style.TextDirection p);
   }
 
 }
