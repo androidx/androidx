@@ -8,7 +8,7 @@ package androidx.ui.animation {
   }
 
   public final class AnimatedValueEffectsKt {
-    method public static androidx.animation.AnimatedValue<androidx.ui.graphics.Color,androidx.animation.AnimationVector4D> animatedColor(androidx.ui.graphics.Color initVal, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current);
+    method public static androidx.animation.AnimatedValue<androidx.ui.graphics.Color,androidx.animation.AnimationVector4D> animatedColor-o4iVt3U(long initVal, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current);
     method public static androidx.animation.AnimatedFloat animatedFloat(float initVal, float visibilityThreshold = 0.01f, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current);
     method public static <T, V extends androidx.animation.AnimationVector> androidx.animation.AnimatedValue<T,V> animatedValue(T? initVal, androidx.animation.TwoWayConverter<T,V> converter, V? visibilityThreshold = null, androidx.animation.AnimationClockObservable clock = AnimationClockAmbient.current);
   }
@@ -79,12 +79,12 @@ package androidx.ui.animation {
     method public static float animate(float target, androidx.animation.AnimationBuilder<java.lang.Float> animBuilder = remember({ 
     <init>()
 }), kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? endListener = null);
-    method public static androidx.ui.graphics.Color animate(androidx.ui.graphics.Color target, androidx.animation.AnimationBuilder<androidx.ui.graphics.Color> animBuilder = remember({ 
-    <init>()
-}), kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,kotlin.Unit>? endListener = null);
     method public static <T, V extends androidx.animation.AnimationVector> T! animate(T? target, androidx.animation.TwoWayConverter<T,V> converter, androidx.animation.AnimationBuilder<T> animBuilder = remember({ 
     <init>()
 }), kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? endListener = null);
+    method public static long animate-90dr43Y(long target, androidx.animation.AnimationBuilder<androidx.ui.graphics.Color> animBuilder = remember({ 
+    <init>()
+}), kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,kotlin.Unit>? endListener = null);
   }
 
   public final class TransitionKt {

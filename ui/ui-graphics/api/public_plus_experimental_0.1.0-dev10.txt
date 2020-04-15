@@ -163,77 +163,78 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.ClipOp intersect;
   }
 
-  public final class Color {
-    method public androidx.ui.graphics.Color convert(androidx.ui.graphics.colorspace.ColorSpace colorSpace);
-    method public androidx.ui.graphics.Color copy(float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
-    method public float getAlpha();
-    method public float getBlue();
-    method public androidx.ui.graphics.colorspace.ColorSpace getColorSpace();
-    method public float getGreen();
-    method public float getRed();
+  public final inline class Color {
+    ctor public Color();
+    method public static long constructor-impl(long value);
+    method public static long convert-impl(long $this, androidx.ui.graphics.colorspace.ColorSpace colorSpace);
+    method public static long copy-impl(long $this, float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
+    method public static boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public static float getAlpha-impl(long $this);
+    method public static float getBlue-impl(long $this);
+    method public static androidx.ui.graphics.colorspace.ColorSpace getColorSpace-impl(long $this);
+    method public static float getGreen-impl(long $this);
+    method public static float getRed-impl(long $this);
     method public long getValue();
-    property public final float alpha;
-    property public final float blue;
-    property public final androidx.ui.graphics.colorspace.ColorSpace colorSpace;
-    property public final float green;
-    property public final float red;
+    method public static int hashCode-impl(long p);
+    method public static String toString-impl(long $this);
     field public static final androidx.ui.graphics.Color.Companion! Companion;
   }
 
   public static final class Color.Companion {
-    method public androidx.ui.graphics.Color getBlack();
-    method public androidx.ui.graphics.Color getBlue();
-    method public androidx.ui.graphics.Color getCyan();
-    method public androidx.ui.graphics.Color getDarkGray();
-    method public androidx.ui.graphics.Color getGray();
-    method public androidx.ui.graphics.Color getGreen();
-    method public androidx.ui.graphics.Color getLightGray();
-    method public androidx.ui.graphics.Color getMagenta();
-    method public androidx.ui.graphics.Color getRed();
-    method public androidx.ui.graphics.Color getTransparent();
-    method public androidx.ui.graphics.Color getUnset();
-    method public androidx.ui.graphics.Color getWhite();
-    method public androidx.ui.graphics.Color getYellow();
-    property public final androidx.ui.graphics.Color Black;
-    property public final androidx.ui.graphics.Color Blue;
-    property public final androidx.ui.graphics.Color Cyan;
-    property public final androidx.ui.graphics.Color DarkGray;
-    property public final androidx.ui.graphics.Color Gray;
-    property public final androidx.ui.graphics.Color Green;
-    property public final androidx.ui.graphics.Color LightGray;
-    property public final androidx.ui.graphics.Color Magenta;
-    property public final androidx.ui.graphics.Color Red;
-    property public final androidx.ui.graphics.Color Transparent;
-    property public final androidx.ui.graphics.Color Unset;
-    property public final androidx.ui.graphics.Color White;
-    property public final androidx.ui.graphics.Color Yellow;
+    method public long getBlack();
+    method public long getBlue();
+    method public long getCyan();
+    method public long getDarkGray();
+    method public long getGray();
+    method public long getGreen();
+    method public long getLightGray();
+    method public long getMagenta();
+    method public long getRed();
+    method public long getTransparent();
+    method public long getUnset();
+    method public long getWhite();
+    method public long getYellow();
+    property public final long Black;
+    property public final long Blue;
+    property public final long Cyan;
+    property public final long DarkGray;
+    property public final long Gray;
+    property public final long Green;
+    property public final long LightGray;
+    property public final long Magenta;
+    property public final long Red;
+    property public final long Transparent;
+    property public final long Unset;
+    property public final long White;
+    property public final long Yellow;
   }
 
   public final class ColorFilter {
-    ctor public ColorFilter(androidx.ui.graphics.Color color, androidx.ui.graphics.BlendMode blendMode);
-    method public androidx.ui.graphics.Color component1();
+    method public long component1();
     method public androidx.ui.graphics.BlendMode component2();
-    method public androidx.ui.graphics.ColorFilter copy(androidx.ui.graphics.Color color, androidx.ui.graphics.BlendMode blendMode);
+    method public androidx.ui.graphics.ColorFilter copy-vOa7YyA(long color, androidx.ui.graphics.BlendMode blendMode);
     method public androidx.ui.graphics.BlendMode getBlendMode();
-    method public androidx.ui.graphics.Color getColor();
+    method public long getColor();
     field public static final androidx.ui.graphics.ColorFilter.Companion! Companion;
   }
 
   public static final class ColorFilter.Companion {
-    method public androidx.ui.graphics.ColorFilter tint(androidx.ui.graphics.Color color);
+    method public androidx.ui.graphics.ColorFilter tint-QEYXlZo(long color);
   }
 
   public final class ColorKt {
-    method public static androidx.ui.graphics.Color Color(float red, float green, float blue, float alpha = 1f, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
-    method public static androidx.ui.graphics.Color Color(@ColorInt int color);
-    method public static androidx.ui.graphics.Color Color(long color);
-    method public static androidx.ui.graphics.Color Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, @IntRange(from=0, to=255) int alpha = 0xFF);
-    method public static androidx.ui.graphics.Color compositeOver(androidx.ui.graphics.Color, androidx.ui.graphics.Color background);
-    method public static inline boolean isSet(androidx.ui.graphics.Color);
-    method public static inline boolean isUnset(androidx.ui.graphics.Color);
-    method public static androidx.ui.graphics.Color lerp(androidx.ui.graphics.Color start, androidx.ui.graphics.Color stop, @FloatRange(from=0.0, to=1.0) float fraction);
-    method public static float luminance(androidx.ui.graphics.Color);
-    method @ColorInt public static int toArgb(androidx.ui.graphics.Color);
+    method public static long Color(float red, float green, float blue, float alpha = 1f, androidx.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
+    method public static long Color(@ColorInt int color);
+    method public static long Color(long color);
+    method public static long Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, @IntRange(from=0, to=255) int alpha = 0xFF);
+    method public static long compositeOver-MsF30Tg(long, long background);
+    method public static inline boolean isSet-QEYXlZo(long);
+    method public static inline boolean isUnset-QEYXlZo(long);
+    method public static long lerp-hhXNEtA(long start, long stop, @FloatRange(from=0.0, to=1.0) float fraction);
+    method public static float luminance-QEYXlZo(long);
+    method @ColorInt public static int toArgb-QEYXlZo(long);
+    method public static inline long useOrElse-4UtWFt0(long, kotlin.jvm.functions.Function0<androidx.ui.graphics.Color> block);
   }
 
   public enum FilterQuality {
@@ -326,7 +327,7 @@ package androidx.ui.graphics {
     method public android.graphics.Paint asFrameworkPaint();
     method public float getAlpha();
     method public androidx.ui.graphics.BlendMode getBlendMode();
-    method public androidx.ui.graphics.Color getColor();
+    method public long getColor();
     method public androidx.ui.graphics.ColorFilter? getColorFilter();
     method public androidx.ui.graphics.FilterQuality getFilterQuality();
     method public androidx.ui.graphics.MaskFilter getMaskFilter();
@@ -340,7 +341,7 @@ package androidx.ui.graphics {
     method public void setAlpha(float value);
     method public void setAntiAlias(boolean value);
     method public void setBlendMode(androidx.ui.graphics.BlendMode value);
-    method public void setColor(androidx.ui.graphics.Color color);
+    method public void setColor-QEYXlZo(long color);
     method public void setColorFilter(androidx.ui.graphics.ColorFilter? value);
     method public void setFilterQuality(androidx.ui.graphics.FilterQuality value);
     method public void setMaskFilter(androidx.ui.graphics.MaskFilter value);
@@ -352,7 +353,7 @@ package androidx.ui.graphics {
     method public void setStyle(androidx.ui.graphics.PaintingStyle value);
     property public final float alpha;
     property public final androidx.ui.graphics.BlendMode blendMode;
-    property public final androidx.ui.graphics.Color color;
+    property public final long color;
     property public final androidx.ui.graphics.ColorFilter? colorFilter;
     property public final androidx.ui.graphics.FilterQuality filterQuality;
     property public final boolean isAntiAlias;
@@ -439,7 +440,7 @@ package androidx.ui.graphics {
 
   public final class PixelMap {
     ctor public PixelMap(int[] buffer, int width, int height, int bufferOffset, int stride);
-    method public operator androidx.ui.graphics.Color get(@IntRange(from=0) int x, @IntRange(from=0) int y);
+    method public operator long get(@IntRange(from=0) int x, @IntRange(from=0) int y);
     method public int[] getBuffer();
     method public int getBufferOffset();
     method public int getHeight();
@@ -475,14 +476,12 @@ package androidx.ui.graphics {
   }
 
   public final class Shadow {
-    ctor public Shadow(androidx.ui.graphics.Color color, androidx.ui.geometry.Offset offset, androidx.ui.unit.Px blurRadius);
-    ctor public Shadow();
-    method public androidx.ui.graphics.Color component1();
+    method public long component1();
     method public androidx.ui.geometry.Offset component2();
     method public androidx.ui.unit.Px component3();
-    method public androidx.ui.graphics.Shadow copy(androidx.ui.graphics.Color color, androidx.ui.geometry.Offset offset, androidx.ui.unit.Px blurRadius);
+    method public androidx.ui.graphics.Shadow copy-1LPazZ4(long color, androidx.ui.geometry.Offset offset, androidx.ui.unit.Px blurRadius);
     method public androidx.ui.unit.Px getBlurRadius();
-    method public androidx.ui.graphics.Color getColor();
+    method public long getColor();
     method public androidx.ui.geometry.Offset getOffset();
     field public static final androidx.ui.graphics.Shadow.Companion! Companion;
   }
@@ -501,11 +500,10 @@ package androidx.ui.graphics {
   }
 
   public final class SolidColor implements androidx.ui.graphics.Brush {
-    ctor public SolidColor(androidx.ui.graphics.Color value);
     method public void applyTo(androidx.ui.graphics.Paint p);
-    method public androidx.ui.graphics.Color component1();
-    method public androidx.ui.graphics.SolidColor copy(androidx.ui.graphics.Color value);
-    method public androidx.ui.graphics.Color getValue();
+    method public long component1();
+    method public androidx.ui.graphics.SolidColor copy-QEYXlZo(long value);
+    method public long getValue();
   }
 
   public enum StrokeCap {
@@ -735,10 +733,9 @@ package androidx.ui.graphics.colorspace {
 package androidx.ui.graphics.painter {
 
   public final class ColorPainter extends androidx.ui.graphics.painter.Painter {
-    ctor public ColorPainter(androidx.ui.graphics.Color color);
-    method public androidx.ui.graphics.Color component1();
-    method public androidx.ui.graphics.painter.ColorPainter copy(androidx.ui.graphics.Color color);
-    method public androidx.ui.graphics.Color getColor();
+    method public long component1();
+    method public androidx.ui.graphics.painter.ColorPainter copy-QEYXlZo(long color);
+    method public long getColor();
     method public androidx.ui.unit.PxSize getIntrinsicSize();
     method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
     property public androidx.ui.unit.PxSize intrinsicSize;

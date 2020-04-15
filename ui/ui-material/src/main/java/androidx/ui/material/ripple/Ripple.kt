@@ -39,6 +39,7 @@ import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.useOrElse
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxSize
@@ -62,7 +63,8 @@ import androidx.ui.util.fastForEach
  * @param radius Effects grow up to this size. If null is provided the size would be calculated
  * based on the target layout size.
  * @param color The Ripple color is usually the same color used by the text or iconography in the
- * component. If null is provided the color will be calculated by [RippleTheme.defaultColor].
+ * component. If [Color.Unset] is provided the color will be calculated by
+ * [RippleTheme.defaultColor].
  * @param clock The animation clock observable that will drive this ripple effect
  * @param enabled The ripple effect will not start if false is provided.
  */
@@ -70,7 +72,7 @@ import androidx.ui.util.fastForEach
 fun Modifier.ripple(
     bounded: Boolean = true,
     radius: Dp? = null,
-    color: Color? = null,
+    color: Color = Color.Unset,
     enabled: Boolean = true,
     clock: AnimationClockObservable = AnimationClockAmbient.current
 ): Modifier {
@@ -79,7 +81,7 @@ fun Modifier.ripple(
     val density = DensityAmbient.current
     val rippleModifier = remember { RippleModifier() }
     val theme = RippleThemeAmbient.current
-    rippleModifier.color = (color ?: theme.defaultColor()).copy(alpha = theme.opacity())
+    rippleModifier.color = (color.useOrElse { theme.defaultColor() }).copy(alpha = theme.opacity())
 
     val pressIndicator = Modifier.pressIndicatorGestureFilter(
         onStart = { position ->

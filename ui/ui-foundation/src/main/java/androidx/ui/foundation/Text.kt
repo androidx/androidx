@@ -23,6 +23,7 @@ import androidx.compose.ambientOf
 import androidx.ui.text.CoreText
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.useOrElse
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.text.AnnotatedString
@@ -45,8 +46,8 @@ import androidx.ui.text.style.TextOverflow
  *
  * @param text The text to be displayed.
  * @param modifier [Modifier] to apply to this layout node.
- * @param color [Color] to apply to the text. If `null`, and [style] has no color set, this will be
- * [contentColor].
+ * @param color [Color] to apply to the text. If [Color.Unset], and [style] has no color set, this
+ * will be [contentColor].
  * @param style Style configuration for the text such as color, font, line height etc.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
@@ -61,7 +62,7 @@ import androidx.ui.text.style.TextOverflow
 fun Text(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color? = null,
+    color: Color = Color.Unset,
     style: TextStyle = currentTextStyle(),
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
@@ -95,8 +96,8 @@ fun Text(
  *
  * @param text The text to be displayed.
  * @param modifier [Modifier] to apply to this layout node.
- * @param color [Color] to apply to the text. If `null`, and [style] has no color set, this will be
- * [contentColor].
+ * @param color [Color] to apply to the text. If [Color.Unset], and [style] has no color set, this
+ * will be [contentColor].
  * @param style Style configuration for the text such as color, font, line height etc.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
@@ -111,14 +112,14 @@ fun Text(
 fun Text(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
-    color: Color? = null,
+    color: Color = Color.Unset,
     style: TextStyle = currentTextStyle(),
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {}
 ) {
-    val textColor = color ?: style.color ?: contentColor()
+    val textColor = color.useOrElse { style.color.useOrElse { contentColor() } }
     val mergedStyle = style.merge(TextStyle(color = textColor))
     Semantics(properties = { accessibilityLabel = text.text }) {
         CoreText(

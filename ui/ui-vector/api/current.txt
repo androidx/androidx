@@ -120,7 +120,7 @@ package androidx.ui.graphics.vector {
     method public static androidx.ui.graphics.StrokeCap getDefaultStrokeLineCap();
     method public static androidx.ui.graphics.StrokeJoin getDefaultStrokeLineJoin();
     method public static androidx.ui.graphics.BlendMode getDefaultTintBlendMode();
-    method public static androidx.ui.graphics.Color getDefaultTintColor();
+    method public static long getDefaultTintColor();
     method public static java.util.List<androidx.ui.graphics.vector.PathNode> getEmptyPath();
     field public static final float DefaultAlpha = 1.0f;
     field public static final String DefaultGroupName = "";

@@ -115,9 +115,7 @@ import kotlin.math.min
  * [color spaces][ColorSpaces] for the exact ranges.
  */
 @Immutable
-class Color @PublishedApi internal constructor(
-    val value: ULong
-) {
+inline class Color(val value: ULong) {
     /**
      * Returns this color's color space.
      *
@@ -249,17 +247,6 @@ class Color @PublishedApi internal constructor(
         alpha = alpha,
         colorSpace = this.colorSpace
     )
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is Color) {
-            return false
-        }
-        return other.value == value
-    }
-
-    override fun hashCode(): Int {
-        return value.hashCode()
-    }
 
     /**
      * Returns a string representation of the object. This method returns
@@ -544,3 +531,9 @@ inline val Color.isSet: Boolean get() = value != Color.Unset.value
  * `true` when this is [Color.Unset].
  */
 inline val Color.isUnset: Boolean get() = value == Color.Unset.value
+
+/**
+ * If this [Color] [isSet] then this is returned, otherwise [block] is executed and its result
+ * is returned.
+ */
+inline fun Color.useOrElse(block: () -> Color): Color = if (isSet) this else block()
