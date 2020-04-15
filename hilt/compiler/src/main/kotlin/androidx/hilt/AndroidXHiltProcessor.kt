@@ -17,6 +17,7 @@
 package androidx.hilt
 
 import androidx.hilt.lifecycle.ViewModelInjectStep
+import androidx.hilt.work.WorkerInjectStep
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.service.AutoService
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
@@ -31,9 +32,8 @@ import javax.lang.model.SourceVersion
 @IncrementalAnnotationProcessor(ISOLATING)
 class AndroidXHiltProcessor : BasicAnnotationProcessor() {
     override fun initSteps() = listOf(
-        ViewModelInjectStep(
-            processingEnv
-        )
+        ViewModelInjectStep(processingEnv),
+        WorkerInjectStep(processingEnv)
     )
 
     override fun getSupportedSourceVersion() = SourceVersion.latest()
