@@ -408,19 +408,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 }
                 appContext = ((ContextWrapper) appContext).getBaseContext();
             }
-            if (application != null) {
-                mDefaultFactory = new SavedStateViewModelFactory(
-                        application,
-                        this,
-                        getArguments());
-            } else  {
-                if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
-                    Log.d(FragmentManager.TAG, "Could not find Application instance from "
-                            + "Context " + requireContext().getApplicationContext() + ", using "
-                            + "NewInstanceFactory as the default ViewModelProvider.Factory");
-                }
-                mDefaultFactory = new ViewModelProvider.NewInstanceFactory();
+            if (application == null && FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                Log.d(FragmentManager.TAG, "Could not find Application instance from "
+                        + "Context " + requireContext().getApplicationContext() + ", you will "
+                        + "not be able to use AndroidViewModel with the default "
+                        + "ViewModelProvider.Factory");
             }
+            mDefaultFactory = new SavedStateViewModelFactory(
+                    application,
+                    this,
+                    getArguments());
         }
         return mDefaultFactory;
     }
