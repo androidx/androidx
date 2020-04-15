@@ -30,6 +30,9 @@ internal class LayerWrapper(
     private var _layer: OwnedLayer? = null
     private var layerDestroyed = false
 
+    // Do not invalidate itself on position change.
+    override val invalidateLayerOnBoundsChange get() = false
+
     private val invalidateParentLayer: () -> Unit = {
         wrappedBy?.findLayer()?.invalidate()
     }

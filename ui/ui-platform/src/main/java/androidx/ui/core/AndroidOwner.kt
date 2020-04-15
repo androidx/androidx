@@ -256,20 +256,6 @@ internal class AndroidComposeView constructor(
         }
     }
 
-    override fun onSizeChange(layoutNode: LayoutNode) {
-        // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-        // ownerScope.launch {
-        onInvalidate(layoutNode)
-        // }
-    }
-
-    override fun onPositionChange(layoutNode: LayoutNode) {
-        // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-        // ownerScope.launch {
-        onInvalidate(layoutNode)
-        // }
-    }
-
     override fun onRequestMeasure(layoutNode: LayoutNode) {
         trace("AndroidOwner:onRequestMeasure") {
             layoutNode.requireOwner()

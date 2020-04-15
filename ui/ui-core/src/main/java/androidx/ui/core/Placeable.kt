@@ -71,7 +71,7 @@ abstract class Placeable {
     /**
      * Positions the [Placeable] at [position] in its parent's coordinate system.
      */
-    protected abstract fun performPlace(position: IntPxPosition)
+    protected abstract fun place(position: IntPxPosition)
 
     /**
      * The constraints used for the measurement made to obtain this [Placeable].
@@ -124,15 +124,7 @@ abstract class Placeable {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given [position], similar to the [placeAbsolute] method.
          */
-        fun Placeable.place(position: IntPxPosition) {
-            if (parentLayoutDirection == LayoutDirection.Ltr || parentWidth == IntPx.Zero) {
-                placeAbsolute(position)
-            } else {
-                placeAbsolute(
-                    IntPxPosition(parentWidth - measuredSize.width - position.x, position.y)
-                )
-            }
-        }
+        fun Placeable.place(position: IntPxPosition) = placeAutoMirrored(position)
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
@@ -143,9 +135,7 @@ abstract class Placeable {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given [position], similar to the [placeAbsolute] method.
          */
-        fun Placeable.place(position: PxPosition) {
-            place(position.round())
-        }
+        fun Placeable.place(position: PxPosition) = placeAutoMirrored(position.round())
 
         /**
          * Place a [Placeable] at [x], [y] in its parent's coordinate system.
@@ -156,7 +146,7 @@ abstract class Placeable {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given position, similar to the [placeAbsolute] method.
          */
-        fun Placeable.place(x: IntPx, y: IntPx) = place(IntPxPosition(x, y))
+        fun Placeable.place(x: IntPx, y: IntPx) = placeAutoMirrored(IntPxPosition(x, y))
 
         /**
          * Place a [Placeable] at [x], [y] in its parent's coordinate system.
@@ -167,16 +157,14 @@ abstract class Placeable {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given position, similar to the [placeAbsolute] method.
          */
-        fun Placeable.place(x: Px, y: Px) = place(IntPxPosition(x.round(), y.round()))
+        fun Placeable.place(x: Px, y: Px) = placeAutoMirrored(IntPxPosition(x.round(), y.round()))
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
          * Unlike [place], the given [position] will not implicitly react in RTL layout direction
          * contexts.
          */
-        fun Placeable.placeAbsolute(position: PxPosition) {
-            placeAbsolute(position.round())
-        }
+        fun Placeable.placeAbsolute(position: PxPosition) = placeAbsolute(position.round())
 
         /**
          * Place a [Placeable] at [x], [y] in its parent's coordinate system.
@@ -198,8 +186,17 @@ abstract class Placeable {
          * Unlike [place], the given [position] will not implicitly react in RTL layout direction
          * contexts.
          */
-        fun Placeable.placeAbsolute(position: IntPxPosition) {
-            performPlace(position + apparentToRealOffset)
+        fun Placeable.placeAbsolute(position: IntPxPosition) =
+            place(position + apparentToRealOffset)
+
+        private fun Placeable.placeAutoMirrored(position: IntPxPosition) {
+            if (parentLayoutDirection == LayoutDirection.Ltr || parentWidth == IntPx.Zero) {
+                placeAbsolute(position)
+            } else {
+                placeAbsolute(
+                    IntPxPosition(parentWidth - measuredSize.width - position.x, position.y)
+                )
+            }
         }
     }
 }

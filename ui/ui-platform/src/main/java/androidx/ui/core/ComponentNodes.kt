@@ -1290,9 +1290,6 @@ class LayoutNode : ComponentNode(), Measurable {
 
     internal fun handleMeasureResult(measureResult: MeasureScope.MeasureResult) {
         innerLayoutNodeWrapper.measureResult = measureResult
-        if (layoutNodeWrapper.hasDirtySize()) {
-            owner?.onSizeChange(this@LayoutNode)
-        }
         this.providedAlignmentLines.clear()
         this.providedAlignmentLines += measureResult.alignmentLines
     }

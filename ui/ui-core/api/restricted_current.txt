@@ -461,7 +461,7 @@ package androidx.ui.core {
     method protected abstract androidx.ui.unit.IntPxSize getMeasuredSize();
     method protected abstract androidx.ui.core.Constraints getMeasurementConstraints();
     method public final int getWidth();
-    method protected abstract void performPlace(androidx.ui.unit.IntPxPosition position);
+    method protected abstract void place(androidx.ui.unit.IntPxPosition position);
     property protected final androidx.ui.unit.IntPxPosition apparentToRealOffset;
     property public final int height;
     property protected abstract androidx.ui.unit.IntPxSize measuredSize;

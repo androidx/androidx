@@ -63,10 +63,6 @@ internal class InnerPlaceable(
     override val layoutDirection: LayoutDirection
         get() = layoutNode.layoutDirection!!
 
-    override fun findLayer(): OwnedLayer? {
-        return wrappedBy?.findLayer()
-    }
-
     override fun findFocusWrapperWrappingThisWrapper() =
         wrappedBy?.findFocusWrapperWrappingThisWrapper()
 
@@ -112,11 +108,7 @@ internal class InnerPlaceable(
 
     override fun place(position: IntPxPosition) {
         layoutNode.isPlaced = true
-        val wasMoved = position != this.position
         this.position = position
-        if (wasMoved) {
-            layoutNode.owner?.onPositionChange(layoutNode)
-        }
         layoutNode.layout()
     }
 
