@@ -234,7 +234,7 @@ package androidx.ui.core {
     method @FloatRange(from=0.0, to=360.0) public default float getRotationZ();
     method public default float getScaleX();
     method public default float getScaleY();
-    method public default androidx.ui.core.TransformOrigin getTransformOrigin();
+    method public default long getTransformOrigin();
     method public default float getTranslationX();
     method public default float getTranslationY();
     property @FloatRange(from=0.0, to=1.0) public default float alpha;
@@ -247,15 +247,15 @@ package androidx.ui.core {
     property @FloatRange(from=0.0, to=360.0) public default float rotationZ;
     property public default float scaleX;
     property public default float scaleY;
-    property public default androidx.ui.core.TransformOrigin transformOrigin;
+    property public default long transformOrigin;
     property public default float translationX;
     property public default float translationY;
   }
 
   public final class DrawLayerModifierKt {
-    method public static inline androidx.ui.core.TransformOrigin TransformOrigin(float pivotFractionX, float pivotFractionY);
-    method @Deprecated public static androidx.ui.core.Modifier drawLayer(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float translationX = 0f, float translationY = 0f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.core.TransformOrigin transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = false, boolean clipToOutline = false);
-    method public static androidx.ui.core.Modifier drawLayer(androidx.ui.core.Modifier, float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float translationX = 0f, float translationY = 0f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, androidx.ui.core.TransformOrigin transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = false, boolean clipToOutline = false);
+    method public static inline long TransformOrigin(float pivotFractionX, float pivotFractionY);
+    method public static androidx.ui.core.Modifier drawLayer-Z3WMmso(androidx.ui.core.Modifier, float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float translationX = 0f, float translationY = 0f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, long transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = false, boolean clipToOutline = false);
+    method @Deprecated public static androidx.ui.core.Modifier drawLayer-ebHciuY(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float translationX = 0f, float translationY = 0f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, long transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = false, boolean clipToOutline = false);
   }
 
   public interface DrawModifier extends androidx.ui.core.Modifier.Element {
@@ -528,18 +528,21 @@ package androidx.ui.core {
     property @Deprecated public final androidx.ui.core.FixedScale None;
   }
 
-  public final class TransformOrigin {
-    ctor public TransformOrigin(internal long value);
-    method public float getPivotFractionX();
-    method public float getPivotFractionY();
-    property public final float pivotFractionX;
-    property public final float pivotFractionY;
+  public final inline class TransformOrigin {
+    ctor public TransformOrigin();
+    method public static long constructor-impl(internal long value);
+    method public static boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public static float getPivotFractionX-impl(long $this);
+    method public static float getPivotFractionY-impl(long $this);
+    method public static int hashCode-impl(long p);
+    method public static String toString-impl(long p);
     field public static final androidx.ui.core.TransformOrigin.Companion! Companion;
   }
 
   public static final class TransformOrigin.Companion {
-    method public androidx.ui.core.TransformOrigin getCenter();
-    property public final androidx.ui.core.TransformOrigin Center;
+    method public long getCenter();
+    property public final long Center;
   }
 
   public final class VerticalAlignmentLine extends androidx.ui.core.AlignmentLine {
