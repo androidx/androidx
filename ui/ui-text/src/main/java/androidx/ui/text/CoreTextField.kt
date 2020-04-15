@@ -59,8 +59,7 @@ fun CoreTextField(
     textStyle: TextStyle = TextStyle.Default,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onFocus: () -> Unit = {},
-    onBlur: () -> Unit = {},
+    onFocusChange: (Boolean) -> Unit = {},
     focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null,
@@ -136,7 +135,7 @@ fun CoreTextField(
                         }
                     }
                 }
-                onFocus()
+                onFocusChange(true)
             },
             onBlur = { hasNextClient ->
                 state.hasFocus = false
@@ -147,7 +146,7 @@ fun CoreTextField(
                     hasNextClient,
                     onValueChangeWrapper
                 )
-                onBlur()
+                onFocusChange(false)
             },
             onRelease = {
                 state.layoutResult?.let { layoutResult ->

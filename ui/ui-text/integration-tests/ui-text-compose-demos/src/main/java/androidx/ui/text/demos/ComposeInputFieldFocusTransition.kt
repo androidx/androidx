@@ -59,8 +59,7 @@ private fun TextFieldWithFocusId(focusID: String, nextFocus: String) {
         onValueChange = {
             state.value = it
         },
-        onFocus = { focused.value = true },
-        onBlur = { focused.value = false },
+        onFocusChange = { focused.value = it },
         imeAction = ImeAction.Next,
         focusIdentifier = focusID,
         onImeActionPerformed = {
