@@ -22,7 +22,6 @@ import android.content.Context;
 import android.os.Parcelable;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -43,7 +42,7 @@ public interface MenuPresenter {
          * @param menu
          * @param allMenusAreClosing
          */
-        void onCloseMenu(@NonNull MenuBuilder menu, boolean allMenusAreClosing);
+        void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing);
 
         /**
          * Called when a submenu opens. Useful for notifying the application
@@ -54,7 +53,7 @@ public interface MenuPresenter {
          * @return true if the Callback will handle presenting the submenu, false if
          *         the presenter should attempt to do so.
          */
-        boolean onOpenSubMenu(@NonNull MenuBuilder subMenu);
+        boolean onOpenSubMenu(MenuBuilder subMenu);
     }
 
     /**
