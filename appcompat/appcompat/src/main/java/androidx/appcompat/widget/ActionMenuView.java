@@ -774,13 +774,13 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         }
 
         @Override
-        public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+        public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
             return mOnMenuItemClickListener != null &&
                     mOnMenuItemClickListener.onMenuItemClick(item);
         }
 
         @Override
-        public void onMenuModeChange(MenuBuilder menu) {
+        public void onMenuModeChange(@NonNull MenuBuilder menu) {
             if (mMenuBuilderCallback != null) {
                 mMenuBuilderCallback.onMenuModeChange(menu);
             }
@@ -792,11 +792,11 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
         }
 
         @Override
-        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+        public void onCloseMenu(@NonNull MenuBuilder menu, boolean allMenusAreClosing) {
         }
 
         @Override
-        public boolean onOpenSubMenu(MenuBuilder subMenu) {
+        public boolean onOpenSubMenu(@NonNull MenuBuilder subMenu) {
             return false;
         }
     }

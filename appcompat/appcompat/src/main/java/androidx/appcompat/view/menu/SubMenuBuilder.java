@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -85,7 +86,7 @@ public class SubMenuBuilder extends MenuBuilder implements SubMenu {
     }
 
     @Override
-    boolean dispatchMenuItemSelected(MenuBuilder menu, MenuItem item) {
+    boolean dispatchMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
         return super.dispatchMenuItemSelected(menu, item) ||
                 mParentMenu.dispatchMenuItemSelected(menu, item);
     }
