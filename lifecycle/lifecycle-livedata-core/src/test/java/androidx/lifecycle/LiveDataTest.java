@@ -544,7 +544,7 @@ public class LiveDataTest {
         mOwner2.handleLifecycleEvent(Lifecycle.Event.ON_START);
 
         verify(observer1).onChanged("1");
-        verify(observer1).onChanged("1");
+        verify(observer2).onChanged("1");
     }
 
     @Test
