@@ -30,6 +30,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.media2.common.BaseResult;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -378,7 +379,7 @@ public class VideoView extends SelectiveLayout {
         }
         mPlayer = new PlayerWrapper(controller, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (isAttachedToWindow()) {
+        if (ViewCompat.isAttachedToWindow(this)) {
             mPlayer.attachCallback();
         }
         if (this.isAggregatedVisible()) {
@@ -415,7 +416,7 @@ public class VideoView extends SelectiveLayout {
         }
         mPlayer = new PlayerWrapper(player, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (isAttachedToWindow()) {
+        if (ViewCompat.isAttachedToWindow(this)) {
             mPlayer.attachCallback();
         }
         if (this.isAggregatedVisible()) {

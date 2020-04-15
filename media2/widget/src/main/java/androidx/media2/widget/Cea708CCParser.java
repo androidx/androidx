@@ -20,7 +20,7 @@ import android.graphics.Color;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 // Note: This is forked from android.media.Cea708CCParser since P
@@ -97,7 +97,7 @@ class Cea708CCParser {
     private static final boolean DEBUG = false;
 
     private static final String MUSIC_NOTE_CHAR = new String(
-            "\u266B".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+            "\u266B".getBytes(Charset.forName("UTF-8")), Charset.forName("UTF-8"));
 
     private final StringBuilder mBuilder = new StringBuilder();
 
