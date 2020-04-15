@@ -108,7 +108,7 @@ public class PopupMenu {
         mMenu = new MenuBuilder(context);
         mMenu.setCallback(new MenuBuilder.Callback() {
             @Override
-            public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
+            public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
                 if (mMenuItemClickListener != null) {
                     return mMenuItemClickListener.onMenuItemClick(item);
                 }
@@ -116,7 +116,7 @@ public class PopupMenu {
             }
 
             @Override
-            public void onMenuModeChange(@NonNull MenuBuilder menu) {
+            public void onMenuModeChange(MenuBuilder menu) {
             }
         });
 

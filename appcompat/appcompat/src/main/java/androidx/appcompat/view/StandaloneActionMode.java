@@ -24,7 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
@@ -138,7 +137,7 @@ public class StandaloneActionMode extends ActionMode implements MenuBuilder.Call
     }
 
     @Override
-    public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
+    public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
         return mCallback.onActionItemClicked(this, item);
     }
 
@@ -158,7 +157,7 @@ public class StandaloneActionMode extends ActionMode implements MenuBuilder.Call
     }
 
     @Override
-    public void onMenuModeChange(@NonNull MenuBuilder menu) {
+    public void onMenuModeChange(MenuBuilder menu) {
         invalidate();
         mContextView.showOverflowMenu();
     }

@@ -340,6 +340,10 @@ class ActionMenuPresenter extends BaseMenuPresenter
             // Post this for later; we might still need a layout for the anchor to be right.
             ((View) mMenuView).post(mPostedOpenRunnable);
 
+            // ActionMenuPresenter uses null as a callback argument here
+            // to indicate overflow is opening.
+            super.onSubMenuSelected(null);
+
             return true;
         }
         return false;
@@ -756,8 +760,8 @@ class ActionMenuPresenter extends BaseMenuPresenter
         }
 
         @Override
-        public boolean onOpenSubMenu(@NonNull MenuBuilder subMenu) {
-            if (subMenu == mMenu) return false;
+        public boolean onOpenSubMenu(MenuBuilder subMenu) {
+            if (subMenu == null) return false;
 
             mOpenSubMenuId = ((SubMenuBuilder) subMenu).getItem().getItemId();
             final Callback cb = getCallback();
@@ -765,7 +769,7 @@ class ActionMenuPresenter extends BaseMenuPresenter
         }
 
         @Override
-        public void onCloseMenu(@NonNull MenuBuilder menu, boolean allMenusAreClosing) {
+        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
             if (menu instanceof SubMenuBuilder) {
                 menu.getRootMenu().close(false /* closeAllMenus */);
             }
