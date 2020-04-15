@@ -18,9 +18,11 @@ package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
 import androidx.compose.compositionReference
+import androidx.compose.currentComposer
 import androidx.compose.onPreCommit
 import androidx.compose.remember
 import androidx.ui.core.Alignment
+import androidx.ui.core.ContentScale
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
@@ -28,7 +30,6 @@ import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
-import androidx.ui.core.ContentScale
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.withSave
@@ -185,7 +186,7 @@ fun Modifier.drawVector(
         }
 
     val ref = compositionReference()
-    val composition = composeVector(vector, ref, children)
+    val composition = composeVector(vector, currentComposer.recomposer, ref, children)
     onPreCommit(vector) {
         onDispose {
             composition.dispose()

@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
+import androidx.compose.Recomposer
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
@@ -44,7 +45,7 @@ open class ComposeScrollInAndroidScrollSameOrientation : ComponentActivity() {
         findViewById<View>(R.id.container).setBackgroundColor(Color.DarkGray.toArgb())
 
         val container = findViewById<ViewGroup>(R.id.container)
-        composition = container.setContent {
+        composition = container.setContent(Recomposer.current()) {
             VerticalScroller(
                 modifier = Modifier
                     .padding(48.dp)
