@@ -263,14 +263,12 @@ def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId):
 
 		groupReleaseNotesStringList.append(str(releaseNotes))
 
-	
 	completeGroupIdReleaseNotes = "\n\n".join((groupReleaseNotesStringList))
 	writeGroupIdReleaseNotesToFile(
 		groupId,
 		completeGroupIdReleaseNotes
 	)
 	return completeGroupIdReleaseNotes
-		
 
 
 def generateArtifactIdReleaseNotes(gitClient, artifact, releaseDate, includeAllCommits):
@@ -279,12 +277,17 @@ def generateArtifactIdReleaseNotes(gitClient, artifact, releaseDate, includeAllC
 	fromSHA = artifact["fromSHA"]
 	if fromSHA == "NULL":
 		fromSHA = ""
-	
+
 	untilSHA = artifact["untilSHA"]
 	if untilSHA == "NULL" or untilSHA == "":
 		untilSHA = "HEAD"
 
-	commitList = gitClient.getGitLog(fromSHA, untilSHA, False, artifact["path"])
+	commitList = gitClient.getGitLog(
+		fromExclusiveSha = fromSHA,
+		untilInclusiveSha = untilSHA,
+		keepMerges = False,
+		subProjectDir = artifact["path"]
+	)
 
 	if len(commitList) == 0:
 		print_e("WARNING: Found no commits for %s:%s from " % (artifact["groupId"], artifact["artifactId"]) + \
