@@ -522,15 +522,19 @@ final class SqliteInspector extends Inspector {
         // TODO: replace with db open/closed tracking as this will keep the database open
         database.acquireReference();
 
-        String name = database.getPath();
-        response = createDatabaseOpenedEvent(id, name);
+        String path = database.getPath();
+        response = createDatabaseOpenedEvent(id, path);
         mRoomInvalidationRegistry.invalidateCache();
         getConnection().sendEvent(response.toByteArray());
     }
 
-    private Event createDatabaseOpenedEvent(int id, String name) {
+    private Event createDatabaseOpenedEvent(int id, String path) {
         return Event.newBuilder().setDatabaseOpened(
-                DatabaseOpenedEvent.newBuilder().setDatabaseId(id).setName(name).build())
+                DatabaseOpenedEvent.newBuilder()
+                        .setDatabaseId(id)
+                        .setName(path)
+                        .setPath(path)
+                        .build())
                 .build();
     }
 
