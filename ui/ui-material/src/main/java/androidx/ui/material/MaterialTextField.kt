@@ -241,13 +241,9 @@ private fun FilledTextFieldImpl(
                 modifier = tagModifier,
                 textStyle = textStyle,
                 onValueChange = onValueChange,
-                onFocus = {
-                    focused = true
-                    onFocusChange(true)
-                },
-                onBlur = {
-                    focused = false
-                    onFocusChange(false)
+                onFocusChange = {
+                    focused = it
+                    onFocusChange(it)
                 },
                 focusIdentifier = focusIdentifier
             )
