@@ -152,7 +152,7 @@ class GetSchemaTest {
 
         val schemas =
             databaseConnections
-                .sortedBy { it.name }
+                .sortedBy { it.path }
                 .map {
                     testEnvironment.sendCommand(createGetSchemaCommand(it.databaseId)).getSchema
                 }
