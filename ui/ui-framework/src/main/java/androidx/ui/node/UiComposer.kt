@@ -27,6 +27,7 @@ import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.ui.core.ComponentNode
+import androidx.ui.viewinterop.AndroidViewHolder
 
 // TODO: evaluate if this class is necessary or not
 private class Stack<T> {
@@ -131,10 +132,20 @@ internal class UiApplyAdapter : ApplyAdapter<Any> {
                         }
                     is ComponentNode ->
                         when (instance) {
-                            is View -> parent.insertAt(
-                                index,
-                                instance.toComponentNode()
-                            )
+                            is View -> {
+                                // Wrap the instance in an AndroidViewHolder, unless the instance
+                                // itself is already one.
+                                val androidViewHolder =
+                                    if (instance is AndroidViewHolder) {
+                                        instance
+                                    } else {
+                                        AndroidViewHolder(instance.context).apply {
+                                            view = instance
+                                        }
+                                    }
+
+                                parent.insertAt(index, androidViewHolder.toComponentNode())
+                            }
                             is ComponentNode -> parent.insertAt(index, instance)
                             else -> invalidNode(instance)
                         }

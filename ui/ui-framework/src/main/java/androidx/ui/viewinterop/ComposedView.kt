@@ -52,7 +52,8 @@ fun AndroidView(view: View) {
     AndroidViewHolder(view = view)
 }
 
-private class AndroidViewHolder(context: Context) : ViewGroup(context) {
+// Open to be mockable in tests.
+internal open class AndroidViewHolder(context: Context) : ViewGroup(context) {
     var view: View? = null
         set(value) {
             if (value != field) {
@@ -75,6 +76,8 @@ private class AndroidViewHolder(context: Context) : ViewGroup(context) {
             }
         }
 
+    var onRequestDisallowInterceptTouchEvent: ((Boolean) -> Unit)? = null
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         view?.measure(widthMeasureSpec, heightMeasureSpec)
         setMeasuredDimension(view?.measuredWidth ?: 0, view?.measuredHeight ?: 0)
@@ -86,5 +89,10 @@ private class AndroidViewHolder(context: Context) : ViewGroup(context) {
 
     override fun getLayoutParams(): LayoutParams? {
         return view?.layoutParams ?: LayoutParams(MATCH_PARENT, MATCH_PARENT)
+    }
+
+    override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+        onRequestDisallowInterceptTouchEvent?.invoke(disallowIntercept)
+        super.requestDisallowInterceptTouchEvent(disallowIntercept)
     }
 }
