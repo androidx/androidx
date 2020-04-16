@@ -127,7 +127,7 @@ package androidx.ui.graphics {
     method public default void drawArcRad(androidx.ui.geometry.Rect rect, float startAngleRad, float sweepAngleRad, boolean useCenter, androidx.ui.graphics.Paint paint);
     method public void drawCircle(androidx.ui.geometry.Offset center, float radius, androidx.ui.graphics.Paint paint);
     method public void drawImage(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Offset topLeftOffset, androidx.ui.graphics.Paint paint);
-    method public void drawImageRect(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Rect src, androidx.ui.geometry.Rect dst, androidx.ui.graphics.Paint paint);
+    method public void drawImageRect(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Rect? src, androidx.ui.geometry.Rect dst, androidx.ui.graphics.Paint paint);
     method public void drawLine(androidx.ui.geometry.Offset p1, androidx.ui.geometry.Offset p2, androidx.ui.graphics.Paint paint);
     method public void drawOval(androidx.ui.geometry.Rect rect, androidx.ui.graphics.Paint paint);
     method public void drawPath(androidx.ui.graphics.Path path, androidx.ui.graphics.Paint paint);
@@ -745,9 +745,11 @@ package androidx.ui.graphics.painter {
   }
 
   public final class ImagePainter extends androidx.ui.graphics.painter.Painter {
-    ctor public ImagePainter(androidx.ui.graphics.ImageAsset image);
-    method public androidx.ui.graphics.painter.ImagePainter copy(androidx.ui.graphics.ImageAsset image);
+    ctor public ImagePainter(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Rect? srcBounds);
+    method public androidx.ui.geometry.Rect? component2();
+    method public androidx.ui.graphics.painter.ImagePainter copy(androidx.ui.graphics.ImageAsset image, androidx.ui.geometry.Rect? srcBounds);
     method public androidx.ui.unit.PxSize getIntrinsicSize();
+    method public androidx.ui.geometry.Rect? getSrcBounds();
     method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
     property public androidx.ui.unit.PxSize intrinsicSize;
   }

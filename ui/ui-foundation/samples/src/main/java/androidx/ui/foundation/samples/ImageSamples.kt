@@ -29,6 +29,7 @@ import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.core.ContentScale
+import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.loadVectorResource
@@ -42,6 +43,16 @@ fun ImageSample() {
     val imageAsset = createTestImage()
     // Lays out and draws an image sized to the dimensions of the ImageAsset
     Image(asset = imageAsset)
+}
+
+@Sampled
+@Composable
+fun ImagePainterSubsectionSample() {
+    val imageAsset = createTestImage()
+    // Lays out and draws an image sized to the rectangular subsection of the ImageAsset
+    Image(
+        painter = ImagePainter(imageAsset, Rect.fromLTWH(10.0f, 12.0f, 50.0f, 60.0f))
+    )
 }
 
 @Sampled
