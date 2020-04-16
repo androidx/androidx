@@ -31,7 +31,6 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
-    implementation(KOTLIN_COROUTINES_ANDROID)
     // TODO: remove / refactor out reflection dependencies, this is a large dependency to bundle
     // with a library.
     implementation(KOTLIN_REFLECT)

@@ -30,7 +30,6 @@ plugins {
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
-    implementation(KOTLIN_COROUTINES_ANDROID)
     implementation(KOTLIN_STDLIB)
 
     implementation "androidx.autofill:autofill:1.0.0"
