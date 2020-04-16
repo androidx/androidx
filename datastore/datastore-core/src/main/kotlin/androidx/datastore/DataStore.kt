@@ -17,6 +17,7 @@
 package androidx.datastore
 
 import kotlinx.coroutines.flow.Flow
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -85,6 +86,14 @@ interface DataStore<T> {
          * not yet exist on disk.
          */
         val defaultValue: T
+
+        /**
+         * A subclass of IOException that indicates that the file could not be de-serialized due
+         * to data format corruption. This exception should not be thrown when the IOException is
+         * due to a transient IO issue or permissions issue.
+         */
+        class CorruptionException(message: String, cause: Throwable) :
+            IOException(message, cause)
     }
 
     /**
@@ -101,6 +110,5 @@ interface DataStore<T> {
         suspend fun updateData(transform: suspend (t: T) -> T): T
     }
 
-    // TODO(b/151635324): Add exception handlers.
     // TODO(b/151635324): Consider adding snapshot API.
 }

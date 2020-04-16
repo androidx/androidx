@@ -16,6 +16,7 @@
 
 package androidx.datastore
 
+import androidx.datastore.handlers.NoOpCorruptionHandler
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CancellationException
@@ -28,7 +29,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -503,16 +503,104 @@ class SingleProcessDataStoreTest {
         blockedCollection.await()
     }
 
+    @Test
+    fun testHandlerNotCalledGoodData() = runBlockingTest {
+        store.updateData { 1 } // Pre-seed the data so the file exists.
+
+        val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+        store = newDataStore(corruptionHandler = testingHandler, file = testFile)
+
+        store.updateData { 2 }
+        store.dataFlow.first()
+
+        assertThat(testingHandler.numCalls).isEqualTo(0)
+    }
+
+    @Test
+    fun handlerNotCalledNonCorruption() = runBlockingTest {
+        store.updateData { 1 } // Pre-seed the data so the file exists.
+
+        val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+        serializer.failingRead = true
+        store = newDataStore(corruptionHandler = testingHandler, file = testFile)
+
+        assertThrows<IOException> { store.updateData { 2 } }
+        assertThrows<IOException> { store.dataFlow.first() }
+
+        assertThat(testingHandler.numCalls).isEqualTo(0)
+    }
+
+    @Test
+    fun testHandlerCalledCorruptDataRead() = runBlockingTest {
+        store.updateData { 1 } // Pre-seed the data so the file exists.
+
+        val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+        serializer.failReadWithCorruptionException = true
+        store = newDataStore(corruptionHandler = testingHandler, file = testFile)
+
+        assertThrows<IOException> { store.dataFlow.first() }.hasMessageThat().contains(
+            "Handler thrown exception."
+        )
+
+        assertThat(testingHandler.numCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun testHandlerCalledCorruptDataWrite() = runBlockingTest {
+        store.updateData { 1 } // Pre-seed the data so the file exists.
+
+        val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler()
+        serializer.failReadWithCorruptionException = true
+        store = newDataStore(corruptionHandler = testingHandler, file = testFile)
+
+        assertThrows<IOException> { store.updateData { 1 } }.hasMessageThat().contains(
+            "Handler thrown exception."
+        )
+
+        assertThat(testingHandler.numCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun testHandlerReplaceData() = runBlockingTest {
+        store.updateData { 1 } // Pre-seed the data so the file exists.
+
+        val testingHandler: TestingCorruptionHandler = TestingCorruptionHandler(replaceWith = 10)
+        serializer.failReadWithCorruptionException = true
+        store = newDataStore(corruptionHandler = testingHandler, file = testFile)
+
+        assertThat(store.dataFlow.first()).isEqualTo(10)
+    }
+
+    private class TestingCorruptionHandler(
+        private val replaceWith: Byte? = null
+    ) : CorruptionHandler<Byte> {
+
+        @Volatile
+        var numCalls = 0
+
+        override suspend fun handleCorruption(ex: DataStore.Serializer.CorruptionException): Byte {
+            numCalls++
+
+            replaceWith?.let {
+                return it
+            }
+
+            throw IOException("Handler thrown exception.")
+        }
+    }
+
     private fun newDataStore(
         file: File = tmp.newFile(),
         scope: CoroutineScope = dataStoreScope,
-        initTasksList: List<suspend (api: DataStore.InitializerApi<Byte>) -> Unit> = listOf()
+        initTasksList: List<suspend (api: DataStore.InitializerApi<Byte>) -> Unit> = listOf(),
+        corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>()
     ): DataStore<Byte> {
         return SingleProcessDataStore(
             { file },
             serializer = serializer,
             scope = scope,
-            initTasksList = initTasksList
+            initTasksList = initTasksList,
+            corruptionHandler = corruptionHandler
         )
     }
 }
