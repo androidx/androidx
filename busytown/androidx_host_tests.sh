@@ -8,5 +8,4 @@ impl/build.sh --no-daemon test jacocoTestReport zipEcFiles --info --offline \
     -Pandroidx.ignoreTestFailures \
     -Pandroidx.allWarningsAsErrors "$@"
 
-# TODO: un-comment this when AMD is fixed (b/147824472)
-#python3 ./merge_outputs.py mergeExecutionData
+python3 impl/merge_outputs.py mergeExecutionData

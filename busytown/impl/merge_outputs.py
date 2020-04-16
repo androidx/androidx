@@ -62,7 +62,26 @@ def move_to_dist_dir(dist_dir):
     os.chdir(dist_dir)
     print("Currently in", os.getcwd())
 
+def thisRunIsValidForCoverage():
+    # Assert that AMD did not exclude any projects from being tested 
+    # in either androidx or ui build (thereby invalidating this run for coverage).
+    # If the AMD ran, that file will exist; if it skipped browser, that log will have:
+    # "checking whether I should include :browser:browser and my answer is false"
+    if (os.path.exists("affected_module_detector_log.txt") and\
+        'false' in open('affected_module_detector_log.txt').read()) or\
+        (os.path.exists("ui/affected_module_detector_log.txt") and\
+        'false' in open('ui/affected_module_detector_log.txt').read()):
+        print("WARNING: not doing coverage merging because the AMD was not a no-op")
+        return False
+    return True
+ 
+
 def mergeSourceJars():
+    if not thisRunIsValidForCoverage(): return
+    # assert that the report jars exist
+    if not (os.path.exists("jacoco-report-classes.jar") and os.path.exists("ui/jacoco-report-classes.jar")):
+        print("WARNING: not merging jacoco source jars as the source jars are not present")
+        return
     ziptmp = "ziptmp"
     run_command("rm -rf " + ziptmp)
     run_command("mkdir " + ziptmp)
@@ -75,6 +94,11 @@ def mergeSourceJars():
     run_command("rm -rf " + ziptmp)
 
 def mergeCoverageExecution():
+    if not thisRunIsValidForCoverage(): return
+    # assert that the coverage zips exist
+    if not (os.path.exists("coverage_ec_files.zip") and os.path.exists("ui/coverage_ec_files.zip")):
+        print("WARNING: not merging coverage execution data as the coverage zips are not present")
+        return
     ziptmp = "ziptmp"
     run_command("rm -rf " + ziptmp)
     run_command("mkdir " + ziptmp)
