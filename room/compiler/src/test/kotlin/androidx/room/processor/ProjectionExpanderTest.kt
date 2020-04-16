@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.parser.SqlParser
+import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.testing.TestInvocation
 import com.google.auto.common.MoreElements
 import com.google.testing.compile.CompileTester
@@ -31,7 +32,7 @@ import org.junit.runners.JUnit4
 import simpleRun
 
 @RunWith(JUnit4::class)
-class QueryInterpreterTest {
+class ProjectionExpanderTest {
 
     companion object {
         const val DATABASE_PREFIX = """
@@ -526,7 +527,9 @@ class QueryInterpreterTest {
             val query = SqlParser.parse("SELECT * FROM User JOIN Team ON User.id = Team.id")
             val verifier = createVerifierFromEntitiesAndViews(invocation)
             query.resultInfo = verifier.analyze(query.original)
-            val interpreter = QueryInterpreter(invocation.context, entities)
+            val interpreter = ProjectionExpander(
+                entities
+            )
             val expanded = interpreter.interpret(query, entity)
             val expected = """
                 SELECT `User`.`id` AS `id`, `User`.`firstName` AS `firstName`,
@@ -622,7 +625,7 @@ class QueryInterpreterTest {
             val query = SqlParser.parse(original)
             val verifier = createVerifierFromEntitiesAndViews(invocation)
             query.resultInfo = verifier.analyze(query.original)
-            val interpreter = QueryInterpreter(invocation.context, entities)
+            val interpreter = ProjectionExpander(entities)
             val expanded = interpreter.interpret(query, pojo)
             handler(expanded, invocation)
         }

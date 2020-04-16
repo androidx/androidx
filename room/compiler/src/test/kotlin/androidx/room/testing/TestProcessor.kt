@@ -19,12 +19,10 @@ package androidx.room.testing
 import androidx.room.processor.Context
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.RoundEnvironment
-import javax.annotation.processing.SupportedSourceVersion
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 import kotlin.reflect.KClass
 
-@SupportedSourceVersion(SourceVersion.RELEASE_11) // test are compiled w/ J_11
 class TestProcessor(
     val handlers: List<(TestInvocation) -> Boolean>,
     val annotations: MutableSet<String>
@@ -36,6 +34,10 @@ class TestProcessor(
     ): Boolean {
         return handlers.getOrNull(count++)?.invoke(
                     TestInvocation(processingEnv, annotations, roundEnv)) ?: true
+    }
+
+    override fun getSupportedSourceVersion(): SourceVersion {
+        return SourceVersion.latest()
     }
 
     override fun getSupportedAnnotationTypes(): MutableSet<String> {
