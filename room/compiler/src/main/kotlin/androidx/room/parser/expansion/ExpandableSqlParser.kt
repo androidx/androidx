@@ -16,17 +16,11 @@
 
 package androidx.room.parser.expansion
 
-import androidx.room.parser.ParserErrors
 import androidx.room.parser.QueryType
 import androidx.room.parser.SQLiteBaseVisitor
-import androidx.room.parser.SQLiteLexer
 import androidx.room.parser.SQLiteParser
+import androidx.room.parser.SingleQuerySqlParser
 import androidx.room.parser.Table
-import org.antlr.v4.runtime.BaseErrorListener
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.RecognitionException
-import org.antlr.v4.runtime.Recognizer
 import org.antlr.v4.runtime.RuleContext
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
@@ -36,7 +30,7 @@ import org.antlr.v4.runtime.tree.TerminalNode
 @Suppress("FunctionName")
 class ExpandableQueryVisitor(
     private val original: String,
-    private val syntaxErrors: ArrayList<String>,
+    private val syntaxErrors: List<String>,
     statement: ParseTree,
     private val forRuntimeQuery: Boolean
 ) : SQLiteBaseVisitor<Void?>() {
@@ -208,70 +202,28 @@ private val RuleContext.isCoreSelect: Boolean
 
 class ExpandableSqlParser {
     companion object {
-        private val INVALID_IDENTIFIER_CHARS = arrayOf('`', '\"')
-        fun parse(input: String): ExpandableParsedQuery {
-            val inputStream = CharStreams.fromString(input)
-            val lexer = SQLiteLexer(inputStream)
-            val tokenStream = CommonTokenStream(lexer)
-            val parser = SQLiteParser(tokenStream)
-            val syntaxErrors = arrayListOf<String>()
-            parser.addErrorListener(object : BaseErrorListener() {
-                override fun syntaxError(
-                    recognizer: Recognizer<*, *>,
-                    offendingSymbol: Any,
-                    line: Int,
-                    charPositionInLine: Int,
-                    msg: String,
-                    e: RecognitionException?
-                ) {
-                    syntaxErrors.add(msg)
-                }
-            })
-            try {
-                val parsed = parser.parse()
-                val statementList = parsed.sql_stmt_list()
-                if (statementList.isEmpty()) {
-                    syntaxErrors.add(ParserErrors.NOT_ONE_QUERY)
-                    return ExpandableParsedQuery(
-                        original = input,
-                        type = QueryType.UNKNOWN,
-                        projections = emptyList(),
-                        explicitColumns = emptyList(),
-                        inputs = emptyList(),
-                        tables = emptySet(),
-                        syntaxErrors = listOf(ParserErrors.NOT_ONE_QUERY),
-                        runtimeQueryPlaceholder = false
-                    )
-                }
-                val statements = statementList.first().children
-                    .filter { it is SQLiteParser.Sql_stmtContext }
-                if (statements.size != 1) {
-                    syntaxErrors.add(ParserErrors.NOT_ONE_QUERY)
-                }
-                val statement = statements.first()
-                return ExpandableQueryVisitor(
+        fun parse(input: String) = SingleQuerySqlParser.parse(
+            input = input,
+            visit = { statement, syntaxErrors ->
+                ExpandableQueryVisitor(
                     original = input,
                     syntaxErrors = syntaxErrors,
                     statement = statement,
                     forRuntimeQuery = false
                 ).createParsedQuery()
-            } catch (antlrError: RuntimeException) {
-                return ExpandableParsedQuery(
+            },
+            fallback = { syntaxErrors ->
+                ExpandableParsedQuery(
                     original = input,
                     type = QueryType.UNKNOWN,
                     projections = emptyList(),
                     explicitColumns = emptyList(),
                     inputs = emptyList(),
                     tables = emptySet(),
-                    syntaxErrors = listOf(
-                        "unknown error while parsing $input : ${antlrError.message}"
-                    ),
+                    syntaxErrors = syntaxErrors,
                     runtimeQueryPlaceholder = false
                 )
             }
-        }
-
-        fun isValidIdentifier(input: String): Boolean =
-            input.isNotBlank() && INVALID_IDENTIFIER_CHARS.none { input.contains(it) }
+        )
     }
 }
