@@ -31,6 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertFailsWith
 
 @LargeTest
 @RunWith(JUnit4::class)
@@ -56,6 +57,24 @@ class BenchmarkStateTest {
             "median $median should be between 2ms and 4ms",
             ms2ns(2) < median && median < ms2ns(4)
         )
+    }
+
+    @Test
+    fun keepRunningMissingResume() {
+        val state = BenchmarkState()
+
+        assertEquals(true, state.keepRunning())
+        state.pauseTiming()
+        assertFailsWith<IllegalStateException> { state.keepRunning() }
+    }
+
+    @Test
+    fun pauseCalledTwice() {
+        val state = BenchmarkState()
+
+        assertEquals(true, state.keepRunning())
+        state.pauseTiming()
+        assertFailsWith<IllegalStateException> { state.pauseTiming() }
     }
 
     @SdkSuppress(minSdkVersion = 21)
