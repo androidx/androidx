@@ -20,6 +20,8 @@ import androidx.animation.FloatPropKey
 import androidx.animation.LinearEasing
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.FrameManager
+import androidx.compose.Recomposer
 import androidx.compose.State
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
@@ -36,10 +38,10 @@ import androidx.ui.graphics.Paint
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
+@MediumTest
 class TestAnimationClockTest {
 
     private var animationRunning = false
@@ -55,8 +57,7 @@ class TestAnimationClockTest {
      * reported correctly when doing that.
      */
     @Test
-    @MediumTest
-    fun testAnimation_manuallyAdvanceClock_paused_singleStep() {
+    fun testAnimation_manuallyAdvanceClock_paused() {
         clockTestRule.pauseClock()
 
         val animationState = mutableStateOf(AnimationStates.From)
@@ -105,6 +106,7 @@ class TestAnimationClockTest {
         onIdle()
 
         // Did last animation frame
+        assertThat(animationRunning).isFalse()
         recordedAnimatedValues.forEach {
             assertThat(it).isIn(listOf(0f, 25f, 50f))
         }
@@ -115,10 +117,54 @@ class TestAnimationClockTest {
      * is reported correctly when doing that.
      */
     @Test
-    @MediumTest
-    @Ignore("b/150357516: not yet implemented")
-    fun testAnimation_manuallyAdvanceClock_resumed_singleStep() {
-        // TODO(b/150357516): Test advancing the clock while it is resumed
+    fun testAnimation_manuallyAdvanceClock_resumed() {
+        val animationState = mutableStateOf(AnimationStates.From)
+        composeTestRule.setContent { Ui(animationState) }
+
+        // Before we kick off the animation, the test clock should be idle
+        assertThat(clockTestRule.clock.isIdle).isTrue()
+
+        runOnIdleCompose {
+            recordedAnimatedValues.clear()
+
+            // Kick off the animation
+            animationRunning = true
+            animationState.value = AnimationStates.To
+
+            // Changes need to trickle down the animation system, so compose should be non-idle
+            assertThat(ComposeIdlingResource.isIdle()).isFalse()
+
+            // Force model changes down the pipeline
+            FrameManager.nextFrame()
+            Recomposer.current().recomposeSync()
+
+            // After we kicked off the animation, the test clock should be non-idle
+            assertThat(clockTestRule.clock.isIdle).isFalse()
+        }
+
+        // Animation is running, fast-forward it because we don't want to wait on it
+        clockTestRule.advanceClock(1000)
+
+        // Force the clock forwarding through the pipeline
+        // Avoid synchronization steps when doing this: if we would synchronize, we would never
+        // know it if advanceClock didn't work.
+        runOnUiThread {
+            FrameManager.nextFrame()
+            Recomposer.current().recomposeSync()
+        }
+
+        // After the animation is finished, ...
+        assertThat(animationRunning).isFalse()
+        // ... the test clock should be idle again
+        assertThat(clockTestRule.clock.isIdle).isTrue()
+
+        // Animation values are recorded in draw, so wait until we've drawn
+        onIdle()
+
+        // So the clock has now been pumped both by the test and the Choreographer, so there is
+        // really no way to tell in which states the animation has been rendered. Only that we
+        // rendered the final state.
+        assertThat(recordedAnimatedValues).contains(50f)
     }
 
     @Composable
