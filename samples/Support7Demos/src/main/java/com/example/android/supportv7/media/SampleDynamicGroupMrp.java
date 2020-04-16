@@ -150,6 +150,13 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT).getIntentSender();
 
+        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "1", VOLUME_DEFAULT);
+        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "2", VOLUME_DEFAULT);
+        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "3", VOLUME_DEFAULT);
+        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID + "4", VOLUME_DEFAULT);
+        mVolumes.put(FIXED_VOLUME_ROUTE_ID, VOLUME_DEFAULT);
+        mVolumes.put(STATIC_GROUP_ROUTE_ID, VOLUME_DEFAULT);
+
         MediaRouteDescriptor routeDescriptor1 = new MediaRouteDescriptor.Builder(
                 VARIABLE_VOLUME_BASIC_ROUTE_ID + "1",
                 r.getString(R.string.dg_tv_route_name1))
@@ -160,7 +167,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setCanDisconnect(true)
                 .setSettingsActivity(is)
                 .build();
@@ -175,7 +182,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setCanDisconnect(true)
                 .setSettingsActivity(is)
                 .build();
@@ -190,7 +197,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setCanDisconnect(true)
                 .setSettingsActivity(is)
                 .build();
@@ -205,7 +212,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setCanDisconnect(true)
                 .setSettingsActivity(is)
                 .build();

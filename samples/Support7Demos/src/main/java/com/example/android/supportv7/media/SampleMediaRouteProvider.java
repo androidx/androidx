@@ -29,6 +29,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.collection.ArrayMap;
 import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
@@ -57,6 +58,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
     private static final String VARIABLE_VOLUME_SESSION_ROUTE_ID = "variable_session";
 
     protected static final int VOLUME_MAX = 100;
+    protected static final int VOLUME_DEFAULT = 25;
 
     /**
      * A custom media control intent category for special requests that are
@@ -147,7 +149,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         }
     }
 
-    protected int mVolume = 5;
+    protected Map<String, Integer> mVolumes = new ArrayMap<>();
     protected Map<String, MediaRouteDescriptor> mRouteDescriptors = new HashMap<>();
 
     public SampleMediaRouteProvider(Context context) {
@@ -168,6 +170,11 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         IntentSender is = PendingIntent.getActivity(getContext(), 99, settingsIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT).getIntentSender();
+
+        mVolumes.put(FIXED_VOLUME_ROUTE_ID, VOLUME_DEFAULT);
+        mVolumes.put(VARIABLE_VOLUME_BASIC_ROUTE_ID, VOLUME_DEFAULT);
+        mVolumes.put(VARIABLE_VOLUME_QUEUING_ROUTE_ID, VOLUME_DEFAULT);
+        mVolumes.put(VARIABLE_VOLUME_SESSION_ROUTE_ID, VOLUME_DEFAULT);
 
         MediaRouteDescriptor routeDescriptor1 = new MediaRouteDescriptor.Builder(
                 FIXED_VOLUME_ROUTE_ID,
@@ -191,7 +198,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setSettingsActivity(is)
                 .build();
 
@@ -204,7 +211,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setCanDisconnect(true)
                 .build();
 
@@ -219,7 +226,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                 .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
                 .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
                 .setVolumeMax(VOLUME_MAX)
-                .setVolume(mVolume)
+                .setVolume(VOLUME_DEFAULT)
                 .setIconUri(iconUri)
                 .build();
 
@@ -235,6 +242,14 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                 .addRoutes(mRouteDescriptors.values())
                 .build();
         setDescriptor(providerDescriptor);
+    }
+
+    int getVolumeForRoute(String routeId) {
+        Integer volume = mVolumes.get(routeId);
+        if (volume == null) {
+            return VOLUME_DEFAULT;
+        }
+        return volume;
     }
 
     final class SampleRouteController extends MediaRouteProvider.RouteController {
@@ -261,7 +276,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
             if (routeDescriptor != null) {
                 mRouteDescriptors.put(mRouteId, new MediaRouteDescriptor.Builder(routeDescriptor)
                         .setConnectionState(RouteInfo.CONNECTION_STATE_CONNECTED)
-                        .setVolume(mVolume)
+                        .setVolume(getVolumeForRoute(mRouteId))
                         .build());
                 publishRoutes();
             }
@@ -275,7 +290,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
             if (routeDescriptor != null) {
                 mRouteDescriptors.put(mRouteId, new MediaRouteDescriptor.Builder(routeDescriptor)
                         .setConnectionState(RouteInfo.CONNECTION_STATE_DISCONNECTED)
-                        .setVolume(mVolume)
+                        .setVolume(getVolumeForRoute(mRouteId))
                         .build());
                 publishRoutes();
             }
@@ -342,7 +357,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
 
         public void onUpdateVolume(int delta) {
             if (!mRouteId.equals(FIXED_VOLUME_ROUTE_ID)) {
-                setVolumeInternal(mVolume + delta);
+                setVolumeInternal(getVolumeForRoute(mRouteId) + delta);
             }
         }
 
@@ -394,14 +409,16 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
 
         private void setVolumeInternal(int volume) {
             if (volume >= 0 && volume <= VOLUME_MAX) {
-                mVolume = volume;
-                Log.d(TAG, mRouteId + ": New volume is " + mVolume);
+                mVolumes.put(mRouteId, volume);
+                Log.d(TAG, mRouteId + ": New volume is " + volume);
                 AudioManager audioManager =
                         (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
+                int adjustedVolume = volume
+                        * audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) / VOLUME_MAX;
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, adjustedVolume, 0);
                 MediaRouteDescriptor groupDescriptor =
                         new MediaRouteDescriptor.Builder(mRouteDescriptors.get(mRouteId))
-                                .setVolume(mVolume)
+                                .setVolume(volume)
                                 .build();
                 mRouteDescriptors.put(mRouteId, groupDescriptor);
                 publishRoutes();

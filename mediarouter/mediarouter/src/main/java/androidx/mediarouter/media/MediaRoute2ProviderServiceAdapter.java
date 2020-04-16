@@ -46,8 +46,9 @@ import androidx.annotation.RequiresApi;
 import androidx.collection.ArrayMap;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
+import androidx.mediarouter.media.MediaRouteProvider.RouteController;
 import androidx.mediarouter.media.MediaRouteProviderService.MediaRouteProviderServiceImplApi30;
-import androidx.mediarouter.media.MediaRouteProviderService.MediaRouteProviderServiceImplBase.ClientRecord;
+import androidx.mediarouter.media.MediaRouteProviderService.MediaRouteProviderServiceImplApi30.ClientRecord;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -91,7 +92,14 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
 
     @Override
     public void onSetRouteVolume(long requestId, @NonNull String routeId, int volume) {
-        //TODO: Implement this when necessary APIs are added.
+        RouteController controller = mServiceImpl.getControllerForRouteId(routeId);
+
+        if (controller == null) {
+            Log.w(TAG, "onSetRouteVolume: Couldn't find a controller for routeId=" + routeId);
+            notifyRequestFailed(requestId, REASON_ROUTE_NOT_AVAILABLE);
+            return;
+        }
+        controller.onSetVolume(volume);
     }
 
     @Override
@@ -131,7 +139,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 return;
             }
         } else {
-            MediaRouteProvider.RouteController routeController =
+            RouteController routeController =
                     provider.onCreateRouteController(routeId);
             if (routeController == null) {
                 Log.w(TAG, "onCreateSession: Couldn't create a controller");
@@ -173,6 +181,16 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         mSessionIdMap.put(controllerId, sessionId);
         client.sendDynamicRouteControllerCreatedWithoutRequest(mProviderDescriptor,
                 controller, controllerId, routeId);
+
+        // Create route controllers for member route
+        if (selectedRoute.getGroupMemberIds().isEmpty()) {
+            client.saveRouteController(routeId, controller, mNextControllerId.getAndIncrement());
+        } else {
+            for (String memberId : selectedRoute.getGroupMemberIds()) {
+                client.createRouteController(memberId, sessionId,
+                        mNextControllerId.getAndIncrement());
+            }
+        }
     }
 
     @Override
@@ -434,7 +452,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         controller.onControlRequest(intent, callback);
     }
 
-    void addRouteController(MediaRouteProvider.RouteController routeController,
+    void addRouteController(RouteController routeController,
             int controllerId, String packageName, String routeId) {
         MediaRouteDescriptor descriptor = getRouteDescriptor(routeId, "addRouteController");
         if (descriptor == null) {
@@ -477,7 +495,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
     }
 
     private MediaRouteProvider getMediaRouteProvider() {
-        MediaRouteProviderService service =  mServiceImpl.getService();
+        MediaRouteProviderService service = mServiceImpl.getService();
         if (service == null) {
             return null;
         }
@@ -498,9 +516,9 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
 
     private static class DynamicGroupRouteControllerProxy
             extends DynamicGroupRouteController {
-        private final MediaRouteProvider.RouteController mRouteController;
+        private final RouteController mRouteController;
 
-        DynamicGroupRouteControllerProxy(MediaRouteProvider.RouteController routeController) {
+        DynamicGroupRouteControllerProxy(RouteController routeController) {
             mRouteController = routeController;
         }
 
