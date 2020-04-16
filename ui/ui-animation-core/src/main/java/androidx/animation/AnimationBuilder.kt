@@ -17,6 +17,7 @@
 package androidx.animation
 
 import androidx.animation.Spring.DampingRatioNoBouncy
+import androidx.animation.Spring.DefaultDisplacementThreshold
 import androidx.animation.Spring.StiffnessMedium
 import androidx.animation.Spring.StiffnessVeryLow
 
@@ -203,15 +204,44 @@ class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
  * @param dampingRatio Damping ratio of the spring. Defaults to [DampingRatioNoBouncy]
  * @param stiffness Stiffness of the spring. Defaults to [StiffnessVeryLow]
  */
-class PhysicsBuilder<T>(
+class PhysicsBuilder<T> private constructor(
     var dampingRatio: Float = DampingRatioNoBouncy,
-    var stiffness: Float = StiffnessMedium,
-    var displacementThreshold: Float = 0.01f
+    var stiffness: Float = StiffnessMedium
 ) : AnimationBuilder<T>() {
 
+    private var genericThreshold: T? = null
+    private var floatThreshold: Float = DefaultDisplacementThreshold
+
+    constructor(
+        dampingRatio: Float = DampingRatioNoBouncy,
+        stiffness: Float = StiffnessMedium,
+        displacementThreshold: T
+    ) : this(dampingRatio, stiffness) {
+        this.genericThreshold = displacementThreshold
+    }
+
+    constructor(
+        dampingRatio: Float = DampingRatioNoBouncy,
+        stiffness: Float = StiffnessMedium,
+        displacementThreshold: Float = DefaultDisplacementThreshold
+    ) : this(dampingRatio, stiffness) {
+        floatThreshold = displacementThreshold
+    }
+
     override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> {
-        return SpringAnimation(dampingRatio, stiffness, displacementThreshold)
-            .buildMultiDimensAnim()
+        val floatThreshold = this.floatThreshold
+        val genericThreshold = this.genericThreshold
+
+        return if (genericThreshold != null) {
+            SpringAnimationVector(
+                dampingRatio,
+                stiffness,
+                converter.convertToVector(genericThreshold)
+            )
+        } else {
+            SpringAnimation(dampingRatio, stiffness, floatThreshold)
+                .buildMultiDimensAnim()
+        }
     }
 }
 
@@ -221,6 +251,49 @@ class PhysicsBuilder<T>(
 class SnapBuilder<T> : AnimationBuilder<T>() {
     override fun <V : AnimationVector> build(converter: TwoWayConverter<T, V>): Animation<V> =
         SnapAnimation()
+}
+
+private class SpringAnimationVector<V : AnimationVector>(
+    val dampingRatio: Float,
+    val stiffness: Float,
+    val threshold: V
+) : Animation<V> {
+    private val anims = (0 until threshold.size).map { index ->
+        SpringAnimation(dampingRatio, stiffness, threshold[index])
+    }
+    private lateinit var valueVector: V
+    private lateinit var velocityVector: V
+
+    override fun getValue(playTime: Long, start: V, end: V, startVelocity: V): V {
+        if (!::valueVector.isInitialized) {
+            valueVector = start.newInstance()
+        }
+        for (i in 0 until valueVector.size) {
+            valueVector[i] = anims[i].getValue(playTime, start[i], end[i], startVelocity[i])
+        }
+        return valueVector
+    }
+
+    override fun getVelocity(playTime: Long, start: V, end: V, startVelocity: V): V {
+        if (!::velocityVector.isInitialized) {
+            velocityVector = startVelocity.newInstance()
+        }
+        for (i in 0 until velocityVector.size) {
+            velocityVector[i] = anims[i].getVelocity(playTime, start[i], end[i], startVelocity[i])
+        }
+        return velocityVector
+    }
+
+    override fun getDurationMillis(start: V, end: V, startVelocity: V): Long {
+        var maxDuration = 0L
+        (0 until start.size).forEach {
+            maxDuration = maxOf(
+                maxDuration,
+                anims[it].getDurationMillis(start[it], end[it], startVelocity[it])
+            )
+        }
+        return maxDuration
+    }
 }
 
 /**

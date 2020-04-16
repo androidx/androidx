@@ -34,10 +34,14 @@ import androidx.animation.AnimationEndReason.TargetReached
  *                      [AnimationVector2D], [AnimationVector3D], or [AnimationVector4D], and vice
  *                      versa.
  * @param clock An animation clock observable controlling the progression of the animated value
+ * @param visibilityThreshold Visibility threshold of the animation specifies the end condition:
+ *      for t > duration, value < visibilityThreshold. Null value defaults to [PhysicsBuilder]
+ *      default.
  */
 sealed class BaseAnimatedValue<T, V : AnimationVector>(
     internal val typeConverter: TwoWayConverter<T, V>,
-    private val clock: AnimationClockObservable
+    private val clock: AnimationClockObservable,
+    internal val visibilityThreshold: V?
 ) {
 
     /**
@@ -109,6 +113,12 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
         }
     }
 
+    private fun defaultPhysicsBuilder(): PhysicsBuilder<T> {
+        return visibilityThreshold?.let {
+            PhysicsBuilder(displacementThreshold = typeConverter.convertFromVector(it))
+        } ?: PhysicsBuilder()
+    }
+
     // TODO: Need a test for animateTo(...) being called with the same target value
     /**
      * Sets the target value, which effectively starts an animation to change the value from [value]
@@ -116,7 +126,7 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
      * the ongoing animation, invoke [onEnd] that is associated with that animation, and start
      * a new animation from the current value to the new target value.
      *
-     * @param targetValue The new value to animate to.
+     * @param targetValue The new value to animate to
      * @param anim The animation that will be used to animate from the current value to the new
      *             target value. If unspecified, a spring animation will be used by default.
      * @param onEnd An optional callback that will be invoked when the animation finished by any
@@ -124,7 +134,7 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
      */
     fun animateTo(
         targetValue: T,
-        anim: AnimationBuilder<T> = PhysicsBuilder(),
+        anim: AnimationBuilder<T> = defaultPhysicsBuilder(),
         onEnd: ((AnimationEndReason, T) -> Unit)? = null
     ) {
         if (isRunning) {
@@ -249,8 +259,9 @@ sealed class BaseAnimatedValue<T, V : AnimationVector>(
  */
 abstract class AnimatedValue<T, V : AnimationVector>(
     typeConverter: TwoWayConverter<T, V>,
-    clock: AnimationClockObservable
-) : BaseAnimatedValue<T, V>(typeConverter, clock) {
+    clock: AnimationClockObservable,
+    visibilityThreshold: V? = null
+) : BaseAnimatedValue<T, V>(typeConverter, clock, visibilityThreshold) {
     val velocity: V
         get() = velocityVector
 }
@@ -264,8 +275,10 @@ abstract class AnimatedValue<T, V : AnimationVector>(
  * @param clock An animation clock observable controlling the progression of the animated value
  */
 abstract class AnimatedFloat(
-    clock: AnimationClockObservable
-) : BaseAnimatedValue<Float, AnimationVector1D>(FloatToVectorConverter, clock) {
+    clock: AnimationClockObservable,
+    visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
+) : BaseAnimatedValue<Float, AnimationVector1D>(
+    FloatToVectorConverter, clock, AnimationVector(visibilityThreshold)) {
 
     /**
      * Lower bound of the animation value. When animations reach this lower bound, it will
@@ -425,9 +438,12 @@ private const val Unset: Long = -1
 fun <T, V : AnimationVector> AnimatedValue(
     initVal: T,
     typeConverter: TwoWayConverter<T, V>,
-    clock: AnimationClockObservable
+    clock: AnimationClockObservable,
+    visibilityThreshold: V = typeConverter
+        .convertToVector(initVal)
+        .newInstanceOfValue(Spring.DefaultDisplacementThreshold)
 ): AnimatedValue<T, V> =
-    AnimatedValueImpl(initVal, typeConverter, clock)
+    AnimatedValueImpl(initVal, typeConverter, clock, visibilityThreshold)
 
 /**
  * Factory method for creating an [AnimatedVector] object, and initialize the value field to
@@ -438,9 +454,10 @@ fun <T, V : AnimationVector> AnimatedValue(
  */
 fun <V : AnimationVector> AnimatedVector(
     initVal: V,
-    clock: AnimationClockObservable
+    clock: AnimationClockObservable,
+    visibilityThreshold: V = initVal.newInstanceOfValue(Spring.DefaultDisplacementThreshold)
 ): AnimatedValue<V, V> =
-    AnimatedValueImpl(initVal, TwoWayConverter({ it }, { it }), clock)
+    AnimatedValueImpl(initVal, TwoWayConverter({ it }, { it }), clock, visibilityThreshold)
 
 /**
  * Factory method for creating an [AnimatedFloat] object, and initialize the value field to
@@ -448,23 +465,35 @@ fun <V : AnimationVector> AnimatedVector(
  *
  * @param initVal Initial value to initialize the animation to.
  * @param clock The animation clock used to drive the animation.
+ * @param visibilityThreshold Threshold at which the animation may round off to its target value.
  */
-fun AnimatedFloat(initVal: Float, clock: AnimationClockObservable): AnimatedFloat =
-    AnimatedFloatImpl(initVal, clock)
+fun AnimatedFloat(
+    initVal: Float,
+    clock: AnimationClockObservable,
+    visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
+): AnimatedFloat = AnimatedFloatImpl(initVal, clock, visibilityThreshold)
 
 // Private impl for AnimatedValue
 private class AnimatedValueImpl<T, V : AnimationVector>(
     initVal: T,
     typeConverter: TwoWayConverter<T, V>,
-    clock: AnimationClockObservable
-) : AnimatedValue<T, V>(typeConverter, clock) {
+    clock: AnimationClockObservable,
+    visibilityThreshold: V
+) : AnimatedValue<T, V>(typeConverter, clock, visibilityThreshold) {
     override var value: T = initVal
 }
 
 // Private impl for AnimatedFloat
 private class AnimatedFloatImpl(
     initVal: Float,
-    clock: AnimationClockObservable
-) : AnimatedFloat(clock) {
+    clock: AnimationClockObservable,
+    visibilityThreshold: Float
+) : AnimatedFloat(clock, visibilityThreshold) {
     override var value: Float = initVal
+}
+
+private fun <V : AnimationVector> V.newInstanceOfValue(value: Float): V {
+    return newInstance().apply {
+        (0 until size).forEach { set(it, value) }
+    }
 }
