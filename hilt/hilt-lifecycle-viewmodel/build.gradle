@@ -35,8 +35,8 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":hilt:hilt-common"))
-    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-    implementation(project(":activity:activity"))
+    api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0")
+    implementation("androidx.activity:activity:1.1.0")
     implementation(DAGGER)
     annotationProcessor(DAGGER_COMPILER)
     implementation(HILT_ANDROID)

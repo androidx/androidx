@@ -35,7 +35,7 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":hilt:hilt-common"))
-    api(project(":work:work-runtime"))
+    api("androidx.work:work-runtime:2.3.4")
     implementation(DAGGER)
     annotationProcessor(DAGGER_COMPILER)
     implementation(HILT_ANDROID)
