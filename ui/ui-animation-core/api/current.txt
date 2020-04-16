@@ -2,7 +2,7 @@
 package androidx.animation {
 
   public abstract class AnimatedFloat extends androidx.animation.BaseAnimatedValue<java.lang.Float,androidx.animation.AnimationVector1D> {
-    ctor public AnimatedFloat(androidx.animation.AnimationClockObservable clock);
+    ctor public AnimatedFloat(androidx.animation.AnimationClockObservable clock, float visibilityThreshold);
     method public final float getMax();
     method public final float getMin();
     method public final float getVelocity();
@@ -14,15 +14,15 @@ package androidx.animation {
   }
 
   public abstract class AnimatedValue<T, V extends androidx.animation.AnimationVector> extends androidx.animation.BaseAnimatedValue<T,V> {
-    ctor public AnimatedValue(androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock);
+    ctor public AnimatedValue(androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock, V? visibilityThreshold);
     method public final V getVelocity();
     property public final V velocity;
   }
 
   public final class AnimatedValueKt {
-    method public static androidx.animation.AnimatedFloat AnimatedFloat(float initVal, androidx.animation.AnimationClockObservable clock);
-    method public static <T, V extends androidx.animation.AnimationVector> androidx.animation.AnimatedValue<T,V> AnimatedValue(T? initVal, androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock);
-    method public static <V extends androidx.animation.AnimationVector> androidx.animation.AnimatedValue<V,V> AnimatedVector(V initVal, androidx.animation.AnimationClockObservable clock);
+    method public static androidx.animation.AnimatedFloat AnimatedFloat(float initVal, androidx.animation.AnimationClockObservable clock, float visibilityThreshold = 0.01f);
+    method public static <T, V extends androidx.animation.AnimationVector> androidx.animation.AnimatedValue<T,V> AnimatedValue(T? initVal, androidx.animation.TwoWayConverter<T,V> typeConverter, androidx.animation.AnimationClockObservable clock, V visibilityThreshold = typeConverter.invoke(initVal).newInstanceOfValue(Spring.DefaultDisplacementThreshold));
+    method public static <V extends androidx.animation.AnimationVector> androidx.animation.AnimatedValue<V,V> AnimatedVector(V initVal, androidx.animation.AnimationClockObservable clock, V visibilityThreshold = initVal.newInstanceOfValue(Spring.DefaultDisplacementThreshold));
     method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.DecayAnimation decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
     method public static void fling(androidx.animation.AnimatedFloat, float startVelocity, androidx.animation.DecayAnimation decay = androidx.animation.ExponentialDecay(), kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget, kotlin.jvm.functions.Function3<? super androidx.animation.AnimationEndReason,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>? onEnd = null);
   }
@@ -125,7 +125,7 @@ package androidx.animation {
   }
 
   public abstract sealed class BaseAnimatedValue<T, V extends androidx.animation.AnimationVector> {
-    method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim = androidx.animation.PhysicsBuilder(), kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit>? onEnd = null);
+    method public final void animateTo(T? targetValue, androidx.animation.AnimationBuilder<T> anim = defaultPhysicsBuilder(), kotlin.jvm.functions.Function2<? super androidx.animation.AnimationEndReason,? super T,kotlin.Unit>? onEnd = null);
     method protected void checkFinished(long playtime);
     method public final T! getTargetValue();
     method public abstract T! getValue();
@@ -241,14 +241,12 @@ package androidx.animation {
   }
 
   public final class PhysicsBuilder<T> extends androidx.animation.AnimationBuilder<T> {
+    ctor public PhysicsBuilder(float dampingRatio, float stiffness, T! displacementThreshold);
     ctor public PhysicsBuilder(float dampingRatio, float stiffness, float displacementThreshold);
-    ctor public PhysicsBuilder();
     method public <V extends androidx.animation.AnimationVector> androidx.animation.Animation<V> build$lintWithKotlin(androidx.animation.TwoWayConverter<T,V> converter);
     method public float getDampingRatio();
-    method public float getDisplacementThreshold();
     method public float getStiffness();
     method public void setDampingRatio(float p);
-    method public void setDisplacementThreshold(float p);
     method public void setStiffness(float p);
   }
 
@@ -284,6 +282,7 @@ package androidx.animation {
     field public static final float DampingRatioLowBouncy = 0.75f;
     field public static final float DampingRatioMediumBouncy = 0.5f;
     field public static final float DampingRatioNoBouncy = 1.0f;
+    field public static final float DefaultDisplacementThreshold = 0.01f;
     field public static final androidx.animation.Spring! INSTANCE;
     field public static final float StiffnessHigh = 10000.0f;
     field public static final float StiffnessLow = 200.0f;
