@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNull;
 
 import android.graphics.Rect;
 
+import androidx.core.graphics.Insets;
+import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -36,11 +38,12 @@ import java.util.Arrays;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class DisplayCutoutCompatTest {
-
+    private static final Rect ZERO_RECT = new Rect();
     DisplayCutoutCompat mCutoutTop;
     DisplayCutoutCompat mCutoutTopBottom;
     DisplayCutoutCompat mCutoutTopBottomClone;
     DisplayCutoutCompat mCutoutLeftRight;
+    DisplayCutoutCompat mCutoutWaterfall;
 
     @Before
     public void setUp() throws Exception {
@@ -55,6 +58,8 @@ public class DisplayCutoutCompatTest {
         mCutoutLeftRight = new DisplayCutoutCompat(new Rect(30, 0, 40, 0), Arrays.asList(
                 new Rect(0, 50, 30, 60),
                 new Rect(100, 60, 140, 50)));
+        mCutoutWaterfall = new DisplayCutoutCompat(Insets.of(0, 20, 0, 20), ZERO_RECT, ZERO_RECT,
+                ZERO_RECT, ZERO_RECT, Insets.of(0, 20, 0, 20));
     }
 
     @Test
@@ -78,6 +83,15 @@ public class DisplayCutoutCompatTest {
             assertEquals(Arrays.asList(new Rect(50, 0, 60, 10)), mCutoutTop.getBoundingRects());
         } else {
             assertNull(mCutoutTop.getBoundingRects());
+        }
+    }
+
+    @Test
+    public void testWaterfallInsets() {
+        if (BuildCompat.isAtLeastR()) {
+            assertEquals(Insets.of(0, 20, 0, 20), mCutoutWaterfall.getWaterfallInsets());
+        } else {
+            assertNull(mCutoutWaterfall.getWaterfallInsets());
         }
     }
 
