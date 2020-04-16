@@ -16,8 +16,8 @@
 
 package androidx.sqlite.inspection.test
 
-data class Database(val name: String, val tables: List<Table>) {
-    constructor(name: String, vararg tables: Table) : this(name, tables.toList())
+data class Database(val name: String?, val tables: List<Table>) {
+    constructor(name: String?, vararg tables: Table) : this(name, tables.toList())
 }
 
 data class Table(val name: String, val columns: List<Column>) {

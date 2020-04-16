@@ -298,7 +298,7 @@ fun <T> TransitionDefinition<T>.createAnimation(
  *
  * @param init Initialization function for the [TransitionDefinition]
  */
-@UseExperimental(ExperimentalTypeInference::class)
+@OptIn(ExperimentalTypeInference::class)
 fun <T> transitionDefinition(@BuilderInference init: TransitionDefinition<T>.() -> Unit) =
     TransitionDefinition<T>().apply(init)
 

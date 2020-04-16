@@ -28,7 +28,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.SendChannel
@@ -40,6 +39,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -174,33 +174,34 @@ internal class RemoteMediatorAccessor<Key : Any, Value : Any>(
         state: PagingState<Key, Value>
     ): MediatorResult {
         val deferred = jobsByLoadTypeLock.withLock {
-            val oldDeferred = jobsByLoadType[loadType]
-            if (oldDeferred?.isActive == true) {
-                oldDeferred
-            } else {
-                scope
-                    .async {
-                        if (loadType == REFRESH) {
-                            // Since RemoteMediator is expected to perform writes to the local DB
-                            // in the common case, it's not safe to just cancel and proceed with
-                            // REFRESH here. If we do that, the REFRESH could race with e.g. the
-                            // START job, and it's unsafe for an old START to land in the DB after
-                            // a newer REFRESH. Due to cooperative cancellation, the START job may
-                            // not actually realize it's cancelled before performing its write.
-                            cancelAndJoinAll(jobsByLoadType[START], jobsByLoadType[END])
-                        }
+            if (jobsByLoadType[loadType]?.isActive != true) {
+                // List of RemoteMediator.load jobs that were registered prior to this one.
+                val existingJobs = jobsByLoadType.values.toList() // Immutable copy.
+                val existingBoundaryJobs = listOfNotNull(jobsByLoadType[START], jobsByLoadType[END])
 
-                        remoteMediator.load(loadType, state)
+                jobsByLoadType[loadType] = scope.async {
+                    if (loadType == REFRESH) {
+                        // Since RemoteMediator is expected to perform writes to the local DB
+                        // in the common case, it's not safe to just cancel and proceed with
+                        // REFRESH here. If we do that, the REFRESH could race with e.g. the
+                        // START job, and it's unsafe for an old START to land in the DB after
+                        // a newer REFRESH. Due to cooperative cancellation, the START job may
+                        // not actually realize it's cancelled before performing its write.
+                        existingBoundaryJobs.forEach { it.cancel() }
+                        existingBoundaryJobs.joinAll()
                     }
-                    .also { jobsByLoadType[loadType] = it }
+
+                    // Only allow one active RemoteMediator.load at a time, by joining all jobs
+                    // registered in jobsByLoadType before this one.
+                    existingJobs.forEach { it.join() }
+
+                    remoteMediator.load(loadType, state)
+                }
             }
+
+            jobsByLoadType.getValue(loadType)
         }
 
         return deferred.await()
-    }
-
-    private suspend fun cancelAndJoinAll(vararg jobs: Job?) {
-        jobs.forEach { it?.cancel() }
-        jobs.forEach { it?.join() }
     }
 }

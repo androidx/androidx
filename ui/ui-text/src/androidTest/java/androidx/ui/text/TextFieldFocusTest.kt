@@ -58,8 +58,7 @@ class TextFieldFocusTest {
                     editor.value = it
                 },
                 focusIdentifier = data.id,
-                onFocus = { data.focused = true },
-                onBlur = { data.focused = false }
+                onFocusChange = { data.focused = it }
             )
         }
     }

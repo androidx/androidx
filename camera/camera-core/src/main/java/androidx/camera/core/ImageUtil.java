@@ -20,15 +20,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,6 +43,33 @@ final class ImageUtil {
     private static final String TAG = "ImageUtil";
 
     private ImageUtil() {
+    }
+
+    /**
+     * Rotates aspect ratio based on rotation degrees.
+     */
+    static Rational getRotatedAspectRatio(
+            @IntRange(from = 0, to = 359) int rotationDegrees,
+            @NonNull Rational aspectRatio) {
+        if (rotationDegrees == 90 || rotationDegrees == 270) {
+            return inverseRational(aspectRatio);
+        }
+
+        return new Rational(aspectRatio.getNumerator(), aspectRatio.getDenominator());
+    }
+
+    /**
+     * Returns the max containing {@link RectF} with the given aspect ratio.
+     */
+    @NonNull
+    public static RectF fitCenter(@NonNull RectF dstRect, @NonNull Rational sourceAspectRatio) {
+        Matrix matrix = new Matrix();
+        RectF srcRect = new RectF(0, 0, sourceAspectRatio.getNumerator(),
+                sourceAspectRatio.getDenominator());
+        matrix.setRectToRect(srcRect, dstRect, Matrix.ScaleToFit.CENTER);
+        RectF result = new RectF();
+        matrix.mapRect(result, srcRect);
+        return result;
     }
 
     /** {@link android.media.Image} to JPEG byte array. */
@@ -141,22 +170,6 @@ final class ImageUtil {
         }
 
         return new Rect(cropLeft, cropTop, cropLeft + outputWidth, cropTop + outputHeight);
-    }
-
-    /**
-     * Rotate rational by rotation value, which inverse it if the degree is 90 or 270.
-     *
-     * @param rational Rational to be rotated.
-     * @param rotation Rotation value being applied.
-     */
-    @NonNull
-    public static Rational rotate(
-            @NonNull Rational rational, @RotationValue int rotation) {
-        if (rotation == 90 || rotation == 270) {
-            return inverseRational(rational);
-        }
-
-        return rational;
     }
 
     private static byte[] nv21ToJpeg(byte[] nv21, int width, int height, @Nullable Rect cropRect)

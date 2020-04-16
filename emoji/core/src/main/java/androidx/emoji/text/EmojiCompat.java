@@ -651,8 +651,8 @@ public class EmojiCompat {
      * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
      * @param start start index in the charSequence to look for emojis, should be greater than or
      *              equal to {@code 0}, also less than {@code charSequence.length()}
-     * @param end end index in the charSequence to look for emojis, should be greater than or
-     *            equal to {@code start} parameter, also less than {@code charSequence.length()}
+     * @param end end index in the charSequence to look for emojis, should be greater than
+     *             {@code start} parameter, also less than or equal to {@code charSequence.length()}
      *
      * @throws IllegalStateException if not initialized yet
      * @throws IllegalArgumentException in the following cases:

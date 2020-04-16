@@ -18,6 +18,7 @@ package androidx.ui.graphics.vector
 
 import androidx.compose.Composable
 import androidx.compose.compositionReference
+import androidx.compose.currentComposer
 import androidx.compose.onPreCommit
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
@@ -147,7 +148,12 @@ private fun createVector(
             )
         }
 
-    val composition = composeVector(vector, compositionReference(), children)
+    val composition = composeVector(
+        vector,
+        currentComposer.recomposer,
+        compositionReference(),
+        children
+    )
     onPreCommit(vector) {
         onDispose {
             composition.dispose()

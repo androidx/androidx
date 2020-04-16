@@ -25,7 +25,7 @@ import kotlin.contracts.contract
  * [kotlin.synchronized][synchronized] along with the IR compiler. As a workaround, we have this
  * function here, which is in a module that doesn't use the IR COmpiler.
  */
-@UseExperimental(ExperimentalContracts::class)
+@OptIn(ExperimentalContracts::class)
 fun <T> synchronized(lock: Any, block: () -> T): T {
     contract {
         callsInPlace(block, InvocationKind.EXACTLY_ONCE)

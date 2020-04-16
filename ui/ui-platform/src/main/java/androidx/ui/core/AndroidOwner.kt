@@ -32,6 +32,7 @@ import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RestrictTo
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -51,10 +52,11 @@ import androidx.ui.core.hapticfeedback.AndroidHapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.pointerinput.MotionEventAdapter
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
+import androidx.ui.core.pointerinput.ProcessResult
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
-import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.focus.FocusDetailedState.Active
+import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.graphics.Canvas
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
@@ -91,6 +93,7 @@ internal class AndroidComposeView constructor(
 ) : ViewGroup(context), AndroidOwner {
 
     override val view: View = this
+    private val accessibilityDelegate = AndroidComposeViewAccessibilityDelegateCompat(this)
 
     override var density = Density(context)
         private set
@@ -233,6 +236,7 @@ internal class AndroidComposeView constructor(
         isFocusableInTouchMode = true
         clipChildren = false
         root.isPlaced = true
+        ViewCompat.setAccessibilityDelegate(this, accessibilityDelegate)
     }
 
     override fun onInvalidate(drawNode: DrawNode) {
@@ -455,14 +459,12 @@ internal class AndroidComposeView constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         savedStateDelegate.stopWaitingForStateRestoration()
         trace("AndroidOwner:onMeasure") {
-            val maxWidth = getMaxSize(widthMeasureSpec)
-            val maxHeight = getMaxSize(heightMeasureSpec)
+            val targetWidth = convertMeasureSpec(widthMeasureSpec)
+            val targetHeight = convertMeasureSpec(heightMeasureSpec)
 
             this.constraints = Constraints(
-                minWidth = 0.ipx,
-                minHeight = 0.ipx,
-                maxWidth = maxWidth,
-                maxHeight = maxHeight
+                targetWidth.min, targetWidth.max,
+                targetHeight.min, targetHeight.max
             )
 
             relayoutNodes.add(root)
@@ -472,10 +474,7 @@ internal class AndroidComposeView constructor(
                 // View is not yet laid out.
                 measureAndLayout()
             }
-            setMeasuredDimension(
-                getMeasuredSize(widthMeasureSpec, root.width),
-                getMeasuredSize(heightMeasureSpec, root.height)
-            )
+            setMeasuredDimension(root.width.value, root.height.value)
         }
     }
 
@@ -615,7 +614,6 @@ internal class AndroidComposeView constructor(
         modelObserver.enableModelUpdatesObserving(true)
         ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
-        semanticsOwner.invalidateSemanticsRoot()
         if (lifecycleOwner == null) {
             lifecycleOwner = ViewTreeLifecycleOwner.get(this) ?: viewLifecycleOwner
         }
@@ -641,36 +639,37 @@ internal class AndroidComposeView constructor(
     }
 
     // TODO(shepshapard): Test this method.
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        trace("AndroidOwner:onTouch") {
-            val pointerInputEvent = motionEventAdapter.processMotionEvent(event)
+    override fun dispatchTouchEvent(motionEvent: MotionEvent): Boolean {
+        val processResult = trace("AndroidOwner:onTouch") {
+            val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
             if (pointerInputEvent != null) {
                 pointerInputEventProcessor.process(pointerInputEvent)
             } else {
                 pointerInputEventProcessor.processCancel()
+                ProcessResult(
+                    dispatchedToAPointerInputModifier = false,
+                    anyMovementConsumed = false
+                )
             }
         }
-        // TODO(shepshapard): Only return if some aspect of the change was consumed.
-        return true
+
+        if (processResult.anyMovementConsumed) {
+            parent.requestDisallowInterceptTouchEvent(true)
+        }
+
+        return processResult.dispatchedToAPointerInputModifier
     }
 
-    private fun getMaxSize(measureSpec: Int): IntPx {
+    private fun convertMeasureSpec(measureSpec: Int): ConstraintRange {
         val mode = MeasureSpec.getMode(measureSpec)
         val size = IntPx(MeasureSpec.getSize(measureSpec))
         return when (mode) {
-            MeasureSpec.EXACTLY -> size
-            MeasureSpec.UNSPECIFIED -> IntPx.Infinity
-            MeasureSpec.AT_MOST -> size
+            MeasureSpec.EXACTLY -> ConstraintRange(size, size)
+            MeasureSpec.UNSPECIFIED -> ConstraintRange(IntPx.Zero, IntPx.Infinity)
+            MeasureSpec.AT_MOST -> ConstraintRange(IntPx.Zero, size)
             else -> throw IllegalStateException()
         }
     }
-
-    private fun getMeasuredSize(measureSpec: Int, layoutNodeSize: IntPx) =
-        if (MeasureSpec.getMode(measureSpec) == MeasureSpec.EXACTLY) {
-            MeasureSpec.getSize(measureSpec)
-        } else {
-            layoutNodeSize.value
-        }
 
     private val textInputServiceAndroid = TextInputServiceAndroid(this)
 
@@ -762,6 +761,10 @@ internal class AndroidComposeView constructor(
     }
 
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+
+    public override fun dispatchHoverEvent(event: MotionEvent): Boolean {
+        return accessibilityDelegate.dispatchHoverEvent(event)
+    }
 
     companion object {
         private var systemPropertiesClass: Class<*>? = null
@@ -884,6 +887,8 @@ interface AndroidOwner : Owner {
             set
     }
 }
+
+private class ConstraintRange(val min: IntPx, val max: IntPx)
 
 /**
  * Return the layout direction set by the [Locale].

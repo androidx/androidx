@@ -65,8 +65,9 @@ class BoundsTest : ToolingTest() {
                 Assert.assertArrayEquals(
                     arrayOf(
                         0.dp.toIntPx(), // Root
-                        10.dp.toIntPx(), // Column
-                        15.dp.toIntPx()), // Text
+                        10.dp.toIntPx()), // Column
+// TODO(aelias): Uncomment this line when Semantics is no longer using PassThroughLayout
+//                        15.dp.toIntPx()), // Text
                     boundingBoxes
                 )
             }

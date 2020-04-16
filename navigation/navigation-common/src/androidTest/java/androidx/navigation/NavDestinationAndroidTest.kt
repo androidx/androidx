@@ -109,6 +109,30 @@ class NavDestinationAndroidTest {
     }
 
     @Test
+    fun matchDeepLinkBestMimeType() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.addArgument("deeplink1", stringArgument())
+        destination.addDeepLink(NavDeepLink("www.example.com/users/{deeplink1}",
+            null, "*/*"))
+
+        destination.addArgument("deeplink2", stringArgument())
+        destination.addDeepLink(NavDeepLink("www.example.com/users/{deeplink2}",
+            null, "image/*"))
+
+        val match = destination.matchDeepLink(
+            NavDeepLinkRequest(Uri.parse("https://www.example.com/users/result"), null,
+                "image/jpg"))
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link matching arg should be deeplink2")
+            .that(match?.matchingArgs?.getString("deeplink2"))
+            .isEqualTo("result")
+    }
+
+    @Test
     fun testIsValidDeepLinkValidLinkExact() {
         val destination = NoOpNavigator().createDestination()
         val deepLink = Uri.parse("android-app://androidx.navigation.test/test")

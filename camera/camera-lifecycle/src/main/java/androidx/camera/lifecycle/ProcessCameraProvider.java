@@ -34,6 +34,7 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.UseCaseAggregator;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -94,7 +95,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * @return A future which will contain the {@link ProcessCameraProvider}. Cancellation of
      * this future is a no-op.
      * @throws IllegalStateException if CameraX fails to initialize via a default provider or a
-     * CameraXConfig.Provider.
+     *                               CameraXConfig.Provider.
      */
     @NonNull
     public static ListenableFuture<ProcessCameraProvider> getInstance(
@@ -226,7 +227,32 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector,
             @NonNull UseCase... useCases) {
-        return CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, useCases);
+        return CameraX.bindToLifecycle(lifecycleOwner, cameraSelector, null, useCases);
+    }
+
+    /**
+     * Binds a {@link UseCaseAggregator} to a {@link LifecycleOwner}.
+     *
+     * <p> Similar to {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCase[])},
+     * with the addition that the bound collection of {@link UseCase} share parameters
+     * defined by {@link UseCaseAggregator} such as consistent camera sensor rect across all
+     * {@link UseCase}s.
+     *
+     * <p> If one {@link UseCase} is in multiple {@link UseCaseAggregator}s, it will be linked to
+     * the {@link UseCaseAggregator} in the latest
+     * {@link #bindToLifecycle(LifecycleOwner, CameraSelector, UseCaseAggregator)} call.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressWarnings("lambdaLast")
+    @MainThread
+    @NonNull
+    public Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
+            @NonNull CameraSelector cameraSelector,
+            @NonNull UseCaseAggregator useCaseAggregator) {
+        return CameraX.bindToLifecycle(lifecycleOwner, cameraSelector,
+                useCaseAggregator.getViewPort(), useCaseAggregator.getUseCases());
     }
 
     @Override

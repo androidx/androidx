@@ -60,7 +60,7 @@ fun remoteMediatorSample() {
             // pages from DB.
             val anchorItem = when (loadType) {
                 LoadType.REFRESH -> state.anchorPosition?.let { state.closestItemToPosition(it) }
-                LoadType.START -> return MediatorResult.Success(hasMoreData = false)
+                LoadType.START -> return MediatorResult.Success(canRequestMoreData = false)
                 LoadType.END -> state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.last()
             }
 
@@ -82,7 +82,7 @@ fun remoteMediatorSample() {
 
                 // Return a successful result, signaling that more items were fetched from
                 // network and that Paging should expect to be invalidated.
-                MediatorResult.Success(hasMoreData = response.items.isNotEmpty())
+                MediatorResult.Success(canRequestMoreData = response.items.isNotEmpty())
             } catch (e: IOException) {
                 MediatorResult.Error(e)
             } catch (e: HttpException) {

@@ -54,7 +54,7 @@ public final class ForegroundInfo {
      *
      * @param notificationId        The {@link Notification} id
      * @param notification          The {@link Notification}
-     * @param foregroundServiceType The foreground {@link android.app.Service} type
+     * @param foregroundServiceType The foreground {@link android.content.pm.ServiceInfo} type
      */
     public ForegroundInfo(
             int notificationId,
@@ -73,7 +73,7 @@ public final class ForegroundInfo {
     }
 
     /**
-     * @return The Foreground service notification type
+     * @return The foreground {@link android.content.pm.ServiceInfo} type
      */
     public int getForegroundServiceType() {
         return mForegroundServiceType;

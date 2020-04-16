@@ -169,8 +169,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         mSessionUri = new Uri.Builder().scheme(MediaSessionImplBase.class.getName()).appendPath(id)
                 .appendPath(String.valueOf(SystemClock.elapsedRealtime())).build();
         mSessionToken = new SessionToken(new SessionTokenImplBase(Process.myUid(),
-                SessionToken.TYPE_SESSION, context.getPackageName(), mSessionStub, tokenExtras,
-                MediaUtils.CURRENT_VERSION));
+                SessionToken.TYPE_SESSION, context.getPackageName(), mSessionStub, tokenExtras));
         String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
                 new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
 

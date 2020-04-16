@@ -30,12 +30,15 @@ import androidx.compose.currentComposer
 
 class VectorScope(val composer: VectorComposer)
 
+@Suppress("NAME_SHADOWING")
 fun composeVector(
     container: VectorComponent,
+    recomposer: Recomposer,
     parent: CompositionReference? = null,
     composable: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Composition = compositionFor(
     container = container,
+    recomposer = recomposer,
     parent = parent,
     composerFactory = { slots, recomposer -> VectorComposer(container.root, slots, recomposer) }
 ).apply {
@@ -45,6 +48,19 @@ fun composeVector(
         scope.composable(container.viewportWidth, container.viewportHeight)
     }
 }
+
+@Deprecated(
+    "Specify the Recomposer explicitly",
+    ReplaceWith(
+        "composeVector(container, Recomposer.current(), parent, composable)",
+        "androidx.compose.Recomposer"
+    )
+)
+fun composeVector(
+    container: VectorComponent,
+    parent: CompositionReference? = null,
+    composable: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+): Composition = composeVector(container, Recomposer.current(), parent, composable)
 
 class VectorComposer(
     val root: VNode,

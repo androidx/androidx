@@ -144,10 +144,15 @@ open class AsyncPagingDataDiffer<T : Any>(
     }
 
     fun submitData(lifecycle: Lifecycle, pagingData: PagingData<T>) {
-        val newJob = lifecycle.coroutineScope.launch(start = CoroutineStart.LAZY) {
-            differBase.collectFrom(pagingData, callback)
-        }
-        job.getAndSet(newJob)?.cancel()
+        var oldJob: Job?
+        var newJob: Job
+        do {
+            oldJob = job.get()
+            newJob = lifecycle.coroutineScope.launch(start = CoroutineStart.LAZY) {
+                oldJob?.cancelAndJoin()
+                differBase.collectFrom(pagingData, callback)
+            }
+        } while (!job.compareAndSet(oldJob, newJob))
         newJob.start()
     }
 

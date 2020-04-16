@@ -42,6 +42,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
+@Stable
 class CompositionTests {
 
     @After
@@ -92,7 +93,7 @@ class CompositionTests {
     fun testInsertAContact() {
         val model =
             testModel(mutableListOf(bob, jon))
-        var changed: (() -> Unit)? = null
+        var changed = {}
         val myComposer = compose {
             changed = invalidate
             selectContact(model)
@@ -112,7 +113,7 @@ class CompositionTests {
         }
 
         model.add(steve, after = bob)
-        changed!!()
+        changed()
         myComposer.expectChanges()
 
         validate(myComposer.root) {
@@ -139,14 +140,14 @@ class CompositionTests {
                 jon
             )
         )
-        var changed: (() -> Unit)? = null
+        var changed = {}
         val myComposer = compose {
             changed = invalidate
             selectContact(model)
         }
 
         model.move(steve, after = jon)
-        changed!!()
+        changed()
         myComposer.expectChanges()
 
         validate(myComposer.root) {
@@ -751,7 +752,7 @@ class CompositionTests {
 
     @Test
     fun testInvalidationAfterRemoval() {
-        var recomposeLois: (() -> Unit)? = null
+        var recomposeLois = {}
         val key = 0
 
         @Composable fun MockComposeScope.Reporter(report: Report? = null) {
@@ -792,7 +793,7 @@ class CompositionTests {
         val notLois: (report: Report) -> Boolean = { it.from != "Lois" && it.to != "Lois" }
 
         var filter = all
-        var changed: (() -> Unit)? = null
+        var changed = {}
         val myComposer = compose {
             changed = invalidate
             reportsReport(reports, filter)
@@ -808,7 +809,7 @@ class CompositionTests {
         }
 
         filter = notLois
-        changed!!()
+        changed()
         myComposer.expectChanges()
 
         validate(myComposer.root) {
@@ -819,7 +820,7 @@ class CompositionTests {
         }
 
         // Invalidate Lois which is now removed.
-        recomposeLois?.let { it() }
+        recomposeLois()
         myComposer.expectNoChanges()
 
         validate(myComposer.root) {
@@ -1198,8 +1199,8 @@ class CompositionTests {
     fun testInvalidateJoin_End() {
         var text = "Starting"
         var includeNested = true
-        var invalidate1: (() -> Unit)? = null
-        var invalidate2: (() -> Unit)? = null
+        var invalidate1 = {}
+        var invalidate2 = {}
 
         @Composable fun MockComposeScope.composition() {
             linear {
@@ -1227,8 +1228,8 @@ class CompositionTests {
 
         text = "Ending"
         includeNested = false
-        invalidate1?.invoke()
-        invalidate2?.invoke()
+        invalidate1()
+        invalidate2()
 
         myComposer.expectChanges()
 
@@ -1668,7 +1669,7 @@ class CompositionTests {
         }
 
         var lifecycleObject: Any = lifecycleObject1
-        var changed: (() -> Unit)? = null
+        var changed = {}
 
         @Composable fun MockComposeScope.composition(obj: Any) {
             linear {
@@ -1696,14 +1697,14 @@ class CompositionTests {
         assertEquals(0, lifecycleObject2.count, "second object should not have entered")
 
         lifecycleObject = lifecycleObject2
-        changed!!()
+        changed()
         myComposer.expectChanges()
         validate(myComposer.root) { composition() }
         assertEquals(0, lifecycleObject1.count, "first object should have left")
         assertEquals(1, lifecycleObject2.count, "second object should have entered")
 
         lifecycleObject = object {}
-        changed!!()
+        changed()
         myComposer.expectChanges()
         validate(myComposer.root) { composition() }
         assertEquals(0, lifecycleObject1.count, "first object should have left")
@@ -1902,6 +1903,65 @@ class CompositionTests {
 
         myComposer.expectChanges()
     }
+
+    @Test
+    fun testInsertingAfterSkipping() {
+        val items = mutableListOf(
+            1 to listOf(0, 1, 2, 3, 4)
+        )
+
+        val invalidates = mutableListOf<() -> Unit>()
+        fun invalidateComposition() {
+            invalidates.forEach { it() }
+            invalidates.clear()
+        }
+
+        @Composable
+        fun MockComposeScope.test() {
+            invalidates.add(invalidate)
+
+            linear {
+                for ((item, numbers) in items) {
+                    text(item.toString())
+                    linear {
+                        invalidates.add(invalidate)
+                        for (number in numbers) {
+                            text(number.toString())
+                        }
+                    }
+                }
+            }
+        }
+
+        fun MockViewValidator.test() {
+            linear {
+                for ((item, numbers) in items) {
+                    text(item.toString())
+                    linear {
+                        for (number in numbers) {
+                            text(number.toString())
+                        }
+                    }
+                }
+            }
+        }
+
+        val myComposition = compose {
+            test()
+        }
+
+        validate(myComposition.root) {
+            test()
+        }
+
+        items.add(2 to listOf(3, 4, 5, 6))
+        invalidateComposition()
+
+        myComposition.expectChanges()
+        validate(myComposition.root) {
+            test()
+        }
+    }
 }
 
 private fun <T> assertArrayEquals(message: String, expected: Array<T>, received: Array<T>) {
@@ -1928,6 +1988,7 @@ private fun compose(
         block()
     }
     composer.applyChanges()
+    composer.slotTable.verifyWellFormed()
 
     return composer
 }
@@ -1941,6 +2002,7 @@ private fun MockViewComposer.expectChanges() {
     val changes = recompose() && changeCount > 0
     assertTrue(changes, "Expected changes")
     applyChanges()
+    slotTable.verifyWellFormed()
 }
 
 // Contact test data

@@ -18,6 +18,7 @@ package androidx.benchmark.integration.startup.benchmark
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -31,6 +32,13 @@ class StartupBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
+    /**
+     * Simple behavior test for startupMode.
+     *
+     * Note that the flaky label is intentional opt-out of presubmit for this test, since
+     * presubmit is only configured for dryRunMode, and dryRunMode is incompatible with startupMode.
+     */
+    @FlakyTest // NOTE: intentional! Test can't run in presubmit!
     @Test
     fun spin() {
         var iterationCount = 0

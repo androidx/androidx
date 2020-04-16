@@ -23,6 +23,8 @@ import android.view.Window
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Composition
+import androidx.compose.Recomposer
+import androidx.compose.currentComposer
 import androidx.compose.remember
 import androidx.compose.onActive
 import androidx.compose.onCommit
@@ -47,7 +49,9 @@ import androidx.ui.core.setContent
 fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
     val context = ContextAmbient.current
 
-    val dialog = remember(context) { DialogWrapper(context, onCloseRequest) }
+    val recomposer = currentComposer.recomposer
+    // The recomposer can't change.
+    val dialog = remember(context) { DialogWrapper(context, recomposer) }
     dialog.onCloseRequest = onCloseRequest
 
     onActive {
@@ -64,9 +68,15 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
     }
 }
 
-private class DialogWrapper(context: Context, var onCloseRequest: () -> Unit) : Dialog(context) {
-    val frameLayout = FrameLayout(context)
+private class DialogWrapper(
+    context: Context,
+    private val recomposer: Recomposer
+) : Dialog(context) {
+    lateinit var onCloseRequest: () -> Unit
+
+    private val frameLayout = FrameLayout(context)
     private var composition: Composition? = null
+
     init {
         window!!.requestFeature(Window.FEATURE_NO_TITLE)
         window!!.setBackgroundDrawableResource(android.R.color.transparent)
@@ -74,7 +84,8 @@ private class DialogWrapper(context: Context, var onCloseRequest: () -> Unit) : 
     }
 
     fun setContent(children: @Composable() () -> Unit) {
-        composition = frameLayout.setContent(children)
+        // TODO: This should probably create a child composition of the original
+        composition = frameLayout.setContent(recomposer, children)
     }
 
     fun disposeComposition() {

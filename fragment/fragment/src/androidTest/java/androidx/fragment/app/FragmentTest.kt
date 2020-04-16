@@ -17,7 +17,6 @@ package androidx.fragment.app
 
 import android.app.Instrumentation
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
@@ -236,10 +235,7 @@ class FragmentTest {
             .add(R.id.content, fragmentC)
             .commitNow()
         val content = activity.findViewById(R.id.content) as ViewGroup
-        assertThat(content.childCount.toLong()).isEqualTo(3)
-        assertThat(content.getChildAt(0).findViewById<View>(R.id.textA)).isNotNull()
-        assertThat(content.getChildAt(1).findViewById<View>(R.id.textB)).isNotNull()
-        assertThat(content.getChildAt(2).findViewById<View>(R.id.textC)).isNotNull()
+        assertChildren(content, fragmentA, fragmentB, fragmentC)
     }
 
     @SmallTest

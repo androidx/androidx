@@ -28,6 +28,7 @@ import android.widget.FrameLayout
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.geometry.Rect
 import androidx.ui.test.captureToBitmap
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -78,6 +79,189 @@ class AndroidCanvasTest {
         assertEquals(Color.WHITE, bitmap.getPixel(0, 0))
         assertEquals(Color.WHITE, bitmap.getPixel(9, 9))
         assertNotEquals(Color.WHITE, bitmap.getPixel(10, 10))
+    }
+
+    @Test
+    fun testScaleWithDefaultPivot() {
+        val bg = androidx.ui.graphics.Color.Red
+        val fg = androidx.ui.graphics.Color.Blue
+        val width = 200
+        val height = 200
+        val imageAsset = ImageAsset(width, height)
+        val canvas = Canvas(imageAsset)
+        val paint = Paint().apply { this.color = bg }
+        val rect = Rect.fromLTWH(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        with(canvas) {
+            drawRect(rect, paint)
+            withSave {
+                scale(0.5f, 0.5f)
+                paint.color = fg
+                drawRect(rect, paint)
+            }
+        }
+
+        val pixelMap = imageAsset.toPixelMap()
+        assertEquals(fg, pixelMap[0, 0])
+        assertEquals(fg, pixelMap[99, 0])
+        assertEquals(fg, pixelMap[0, 99])
+        assertEquals(fg, pixelMap[99, 99])
+
+        assertEquals(bg, pixelMap[0, 100])
+        assertEquals(bg, pixelMap[100, 0])
+        assertEquals(bg, pixelMap[100, 100])
+        assertEquals(bg, pixelMap[100, 99])
+        assertEquals(bg, pixelMap[99, 100])
+    }
+
+    @Test
+    fun testScaleWithCenterPivot() {
+        val bg = androidx.ui.graphics.Color.Red
+        val fg = androidx.ui.graphics.Color.Blue
+        val width = 200
+        val height = 200
+        val imageAsset = ImageAsset(width, height)
+        val canvas = Canvas(imageAsset)
+        val paint = Paint().apply { this.color = bg }
+        val rect = Rect.fromLTWH(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        with(canvas) {
+            drawRect(rect, paint)
+            withSave {
+                scale(0.5f, 0.5f, width / 2.0f, height / 2.0f)
+                paint.color = fg
+                drawRect(rect, paint)
+            }
+        }
+
+        val pixelMap = imageAsset.toPixelMap()
+        val left = width / 2 - 50
+        val top = height / 2 - 50
+        val right = width / 2 + 50 - 1
+        val bottom = height / 2 + 50 - 1
+        assertEquals(fg, pixelMap[left, top])
+        assertEquals(fg, pixelMap[right, top])
+        assertEquals(fg, pixelMap[left, bottom])
+        assertEquals(fg, pixelMap[right, bottom])
+
+        assertEquals(bg, pixelMap[left - 1, top - 1])
+        assertEquals(bg, pixelMap[left - 1, top])
+        assertEquals(bg, pixelMap[left, top - 1])
+
+        assertEquals(bg, pixelMap[right + 1, top - 1])
+        assertEquals(bg, pixelMap[right + 1, top])
+        assertEquals(bg, pixelMap[right, top - 1])
+
+        assertEquals(bg, pixelMap[left - 1, bottom + 1])
+        assertEquals(bg, pixelMap[left - 1, bottom])
+        assertEquals(bg, pixelMap[left, bottom + 1])
+
+        assertEquals(bg, pixelMap[right + 1, bottom + 1])
+        assertEquals(bg, pixelMap[right + 1, bottom])
+        assertEquals(bg, pixelMap[right, bottom + 1])
+    }
+
+    @Test
+    fun testScaleWithBottomRightPivot() {
+        val bg = androidx.ui.graphics.Color.Red
+        val fg = androidx.ui.graphics.Color.Blue
+        val width = 200
+        val height = 200
+        val imageAsset = ImageAsset(width, height)
+        val canvas = Canvas(imageAsset)
+        val paint = Paint().apply { this.color = bg }
+        val rect = Rect.fromLTWH(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        with(canvas) {
+            drawRect(rect, paint)
+            withSave {
+                scale(0.5f, 0.5f, width.toFloat(), height.toFloat())
+                paint.color = fg
+                drawRect(rect, paint)
+            }
+        }
+
+        val pixelMap = imageAsset.toPixelMap()
+
+        val left = width - 100
+        val top = height - 100
+        val right = width - 1
+        val bottom = height - 1
+        assertEquals(fg, pixelMap[left, top])
+        assertEquals(fg, pixelMap[right, top])
+        assertEquals(fg, pixelMap[left, bottom])
+        assertEquals(fg, pixelMap[left, right])
+
+        assertEquals(bg, pixelMap[left, top - 1])
+        assertEquals(bg, pixelMap[left - 1, top])
+        assertEquals(bg, pixelMap[left - 1, top - 1])
+
+        assertEquals(bg, pixelMap[right, top - 1])
+        assertEquals(bg, pixelMap[left - 1, bottom])
+    }
+
+    @Test
+    fun testRotationCenterPivot() {
+        val bg = androidx.ui.graphics.Color.Red
+        val fg = androidx.ui.graphics.Color.Blue
+        val width = 200
+        val height = 200
+        val imageAsset = ImageAsset(width, height)
+        val canvas = Canvas(imageAsset)
+        val paint = Paint().apply { this.color = bg }
+        val rect = Rect.fromLTWH(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        with(canvas) {
+            drawRect(rect, paint)
+            withSave {
+                rotate(180.0f, 100.0f, 100.0f)
+                paint.color = fg
+                drawRect(
+                    Rect.fromLTRB(100.0f, 100.0f, 200.0f, 200.0f),
+                    paint
+                )
+            }
+        }
+
+        val pixelMap = imageAsset.toPixelMap()
+        assertEquals(fg, pixelMap[0, 0])
+        assertEquals(fg, pixelMap[99, 0])
+        assertEquals(fg, pixelMap[0, 99])
+        assertEquals(fg, pixelMap[99, 99])
+
+        assertEquals(bg, pixelMap[0, 100])
+        assertEquals(bg, pixelMap[100, 0])
+        assertEquals(bg, pixelMap[100, 100])
+        assertEquals(bg, pixelMap[100, 99])
+        assertEquals(bg, pixelMap[99, 100])
+    }
+
+    @Test
+    fun testRotationDefaultPivot() {
+        val bg = androidx.ui.graphics.Color.Red
+        val fg = androidx.ui.graphics.Color.Blue
+        val width = 200
+        val height = 200
+        val imageAsset = ImageAsset(width, height)
+        val canvas = Canvas(imageAsset)
+        val paint = Paint().apply { this.color = bg }
+        val rect = Rect.fromLTWH(0.0f, 0.0f, width.toFloat(), height.toFloat())
+        with(canvas) {
+            drawRect(rect, paint)
+            withSave {
+                rotate(-45.0f)
+                paint.color = fg
+                drawRect(
+                    Rect.fromLTRB(0.0f, 0.0f, 100.0f, 100.0f),
+                    paint
+                )
+            }
+        }
+
+        val pixelMap = imageAsset.toPixelMap()
+        assertEquals(fg, pixelMap[2, 0])
+        assertEquals(fg, pixelMap[50, 49])
+        assertEquals(fg, pixelMap[70, 0])
+        assertEquals(fg, pixelMap[70, 68])
+
+        assertEquals(bg, pixelMap[50, 51])
+        assertEquals(bg, pixelMap[75, 76])
     }
 
     class EnableDisableZViewGroup @JvmOverloads constructor(

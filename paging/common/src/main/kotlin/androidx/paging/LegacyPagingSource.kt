@@ -29,11 +29,13 @@ import kotlinx.coroutines.withContext
  * A wrapper around [DataSource] which adapts it to the [PagingSource] API.
  */
 internal class LegacyPagingSource<Key : Any, Value : Any>(
-    internal val dataSource: DataSource<Key, Value>,
-    private val fetchDispatcher: CoroutineDispatcher = DirectDispatcher
+    private val fetchDispatcher: CoroutineDispatcher = DirectDispatcher,
+    internal val dataSourceFactory: () -> DataSource<Key, Value>
 ) : PagingSource<Key, Value>() {
-    init {
-        dataSource.addInvalidatedCallback { invalidate() }
+    internal val dataSource by lazy {
+        dataSourceFactory().also {
+            it.addInvalidatedCallback { invalidate() }
+        }
     }
 
     override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {

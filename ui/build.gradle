@@ -2,11 +2,15 @@ import androidx.build.AndroidXPlugin
 import androidx.build.SdkHelperKt
 
 buildscript {
-    ext.supportRootFolder = file(project.projectDir.parent)
+    // Note this is different from the root project's `build.gradle`. We call this method to
+    // establish the "canonical" root project directory, e.g. `frameworks/support`.
+    SdkHelperKt.setSupportRootFolder(project, project.projectDir.parentFile)
+
     apply from: 'buildSrc/repos.gradle'
     apply from: 'buildSrc/build_dependencies.gradle'
     repos.addMavenRepositories(repositories)
-    SdkHelperKt.setSdkInLocalPropertiesFile(ext.supportRootFolder, project.projectDir)
+
+    SdkHelperKt.writeSdkPathToLocalPropertiesFile(project)
 
     dependencies {
         classpath build_libs.agp

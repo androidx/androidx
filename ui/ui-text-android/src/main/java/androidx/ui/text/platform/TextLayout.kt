@@ -219,6 +219,14 @@ class TextLayout constructor(
 
     fun getLineWidth(lineIndex: Int): Float = layout.getLineWidth(lineIndex)
 
+    fun getLineStart(lineIndex: Int): Int = layout.getLineStart(lineIndex)
+
+    fun getLineEnd(lineIndex: Int): Int = layout.getLineEnd(lineIndex)
+
+    fun getLineEllipsisOffset(lineIndex: Int): Int = layout.getEllipsisStart(lineIndex)
+
+    fun getLineEllipsisCount(lineIndex: Int): Int = layout.getEllipsisCount(lineIndex)
+
     fun getLineForVertical(vertical: Int): Int = layout.getLineForVertical(vertical)
 
     fun getOffsetForHorizontal(line: Int, horizontal: Float): Int =

@@ -81,10 +81,10 @@ class SqliteInspectorTestEnvironment(
         environment.consumeRegisteredHooks()
 
     /** Assumes an event with the relevant database will be fired. */
-    suspend fun awaitDatabaseOpenedEvent(databaseName: String): DatabaseOpenedEvent {
+    suspend fun awaitDatabaseOpenedEvent(databasePath: String): DatabaseOpenedEvent {
         while (true) {
             val event = receiveEvent().databaseOpened
-            if (event.name == databaseName) {
+            if (event.path == databasePath) {
                 return event
             }
         }

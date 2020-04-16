@@ -17,9 +17,10 @@ dependencies {
     implementation project(":compose:compose-runtime")
     implementation project(":ui:integration-tests:demos:common")
     implementation project(":ui:ui-core")
+    implementation project(":ui:ui-foundation")
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-text-core")
-    implementation project(":ui:ui-framework")
+    implementation project(":ui:ui-text-core:samples")
 }
 
 android {

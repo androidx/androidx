@@ -31,6 +31,7 @@ import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.core.ContentScale
+import androidx.ui.core.drawBehind
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredSizeIn
@@ -41,11 +42,12 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.unit.dp
 import org.junit.Assert
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -207,11 +209,13 @@ class ImageTest {
         }
     }
 
-    @Ignore("Flaky. b/151701537 for info")
     @Test
     fun testVectorScaledCentered() {
         val boxWidth = 240
         val boxHeight = 240
+
+        // latch used to wait until vector resource is loaded asynchronously
+        val vectorLatch = CountDownLatch(1)
         rule.setContent {
             val density = DensityAmbient.current.density
             val size = (boxWidth * 2 / density).dp
@@ -223,19 +227,25 @@ class ImageTest {
                     .wrapContentSize(Alignment.Center)
             ) {
                 TestTag(contentTag) {
+                    // This is an async call to parse the VectorDrawable xml asset into
+                    // a VectorAsset, update the latch once we receive this callback
+                    // and draw the Image composable
                     loadVectorResource(R.drawable.ic_vector_asset_test).resource.resource?.let {
                         Image(
                             it,
                             modifier = Modifier.preferredSizeIn(
                                 minWidth = minWidth,
                                 minHeight = minHeight
-                            ),
+                            )
+                            .drawBehind { vectorLatch.countDown() },
                             contentScale = ContentScale.Fit
                         )
                     }
                 }
             }
         }
+
+        Assert.assertTrue(vectorLatch.await(5, TimeUnit.SECONDS))
 
         val imageColor = Color.Red.toArgb()
         val containerBgColor = Color.White.toArgb()

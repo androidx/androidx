@@ -488,7 +488,13 @@ class FragmentStateManager {
             mFragment.mView.setSaveFromParentEnabled(false);
             mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
             if (container != null) {
-                container.addView(mFragment.mView);
+                Fragment underFragment = mFragmentStore.findFragmentUnder(mFragment);
+                // Ensure that our new Fragment is placed over (one index higher)
+                // than the fragment that should be under it if one exists
+                int index = underFragment != null && underFragment.mView != null
+                        ? container.indexOfChild(underFragment.mView) + 1
+                        : 0;
+                container.addView(mFragment.mView, index);
                 if (FragmentManager.USE_STATE_MANAGER) {
                     mFragment.mView.setVisibility(View.INVISIBLE);
                 }

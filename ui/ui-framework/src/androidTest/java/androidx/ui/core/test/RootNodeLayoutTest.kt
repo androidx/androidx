@@ -18,6 +18,7 @@ package androidx.ui.core.test
 
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.compose.Recomposer
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
@@ -28,6 +29,7 @@ import androidx.ui.core.boundsInRoot
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.layout.fillMaxSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -107,7 +109,7 @@ class RootNodeLayoutTest {
             parent.addView(child, FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT))
             activity.setContentView(parent)
-            child.setContent {
+            child.setContent(Recomposer.current()) {
                 Layout({}, Modifier.onPositioned {
                     latch.countDown()
                 }) { _, _, _ ->
@@ -130,8 +132,8 @@ class RootNodeLayoutTest {
             parent.addView(child, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT))
             activity.setContentView(parent)
-            child.setContent {
-                Layout({}, Modifier.onPositioned {
+            child.setContent(Recomposer.current()) {
+                Layout({}, Modifier.fillMaxSize().onPositioned {
                     latch.countDown()
                 }) { _, _, _ ->
                     layout(10.ipx, 15.ipx) {}

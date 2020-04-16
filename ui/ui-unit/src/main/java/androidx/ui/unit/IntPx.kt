@@ -251,7 +251,7 @@ inline fun IntPx.toPx(): Px = value.px
 /**
  * A two dimensional size using [IntPx] for units
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 @Immutable
 data class IntPxSize @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
     /**
@@ -284,7 +284,7 @@ data class IntPxSize @PublishedApi internal constructor(@PublishedApi internal v
 /**
  * Constructs an [IntPxSize] from width and height [IntPx] values.
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 inline fun IntPxSize(width: IntPx, height: IntPx): IntPxSize =
     IntPxSize(packInts(width.value, height.value))
 
@@ -305,7 +305,7 @@ fun IntPxSize.center(): IntPxPosition {
 /**
  * A two-dimensional position using [IntPx] for units
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 @Immutable
 data class IntPxPosition @PublishedApi internal constructor(
     @PublishedApi internal val value: Long
@@ -349,7 +349,7 @@ data class IntPxPosition @PublishedApi internal constructor(
 /**
  * Constructs a [IntPxPosition] from [x] and [y] position [IntPx] values.
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 inline fun IntPxPosition(x: IntPx, y: IntPx): IntPxPosition =
     IntPxPosition(packInts(x.value, y.value))
 

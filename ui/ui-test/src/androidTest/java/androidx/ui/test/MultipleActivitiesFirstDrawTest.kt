@@ -32,7 +32,7 @@ import org.junit.Test
 class MultipleActivitiesFirstDrawTest {
 
     @get:Rule
-    val testRule = AndroidComposeTestRule(Activity1::class.java)
+    val testRule = AndroidComposeTestRule<Activity1>()
 
     @Test
     fun test() {

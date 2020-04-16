@@ -113,13 +113,13 @@ class BenchmarkStateTest {
 
         val report = state.getReport()
         val expectedCount =
-            report.warmupIterations + report.repeatIterations * BenchmarkState.REPEAT_COUNT
+            report.warmupIterations + report.repeatIterations * BenchmarkState.REPEAT_COUNT[1]!!
         assertEquals(expectedCount, total)
 
         // verify we're not in warmup mode
         assertTrue(report.warmupIterations > 0)
         assertTrue(report.repeatIterations > 1)
-        assertEquals(50, BenchmarkState.REPEAT_COUNT)
+        assertEquals(50, BenchmarkState.REPEAT_COUNT[1])
     }
 
     @Test
@@ -139,7 +139,7 @@ class BenchmarkStateTest {
             while (keepRunning()) {
                 // nothing, we're ignoring numbers
             }
-        }.getFullStatusReport("foo")
+        }.getFullStatusReport(key = "foo", includeStats = true)
 
         assertTrue(
             (bundle.get("android.studio.display.benchmark") as String).contains("foo")
@@ -147,9 +147,16 @@ class BenchmarkStateTest {
 
         // check attribute presence and naming
         val prefix = Errors.PREFIX
+
+        // legacy - before metric name was included
         assertNotNull(bundle.get("${prefix}min"))
-        assertNotNull(bundle.get("${prefix}mean"))
-        assertNotNull(bundle.get("${prefix}count"))
+        assertNotNull(bundle.get("${prefix}median"))
+        assertNotNull(bundle.get("${prefix}standardDeviation"))
+
+        // including metric name
+        assertNotNull(bundle.get("${prefix}timeNs_min"))
+        assertNotNull(bundle.get("${prefix}timeNs_median"))
+        assertNotNull(bundle.get("${prefix}timeNs_stddev"))
     }
 
     @Test

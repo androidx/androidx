@@ -163,7 +163,7 @@ class PainterModifierTest {
         val containerSizePx = containerWidth.roundToInt().ipx * 3
         rule.runOnUiThread {
             activity.setContent {
-                FixedSize(size = containerSizePx, modifier = background(Color.White)) {
+                FixedSize(size = containerSizePx, modifier = Modifier.background(Color.White)) {
                     // Verify that the contents are scaled down appropriately even though
                     // the Painter's intrinsic width and height is twice that of the component
                     // it is to be drawn into
@@ -210,7 +210,7 @@ class PainterModifierTest {
         rule.runOnUiThread {
             activity.setContent {
                 AtLeastSize(size = containerWidth.roundToInt().ipx * 2,
-                    modifier = background(Color.White).paint(
+                    modifier = Modifier.background(Color.White).paint(
                         LatchPainter(
                             containerWidth,
                             containerHeight,
@@ -287,7 +287,7 @@ class PainterModifierTest {
         rule.runOnUiThread {
             activity.setContent {
                 NoIntrinsicSizeContainer(
-                    background(Color.White) +
+                    Modifier.background(Color.White) +
                             FixedSizeModifier(containerWidth.roundToInt().ipx)
                 ) {
                     NoIntrinsicSizeContainer(
@@ -335,7 +335,7 @@ class PainterModifierTest {
         rule.runOnUiThread {
             activity.setContent {
                 NoIntrinsicSizeContainer(
-                    background(Color.White) +
+                    Modifier.background(Color.White) +
                             FixedSizeModifier(containerSize.ipx)
                 ) {
                     NoIntrinsicSizeContainer(
@@ -380,7 +380,7 @@ class PainterModifierTest {
         with(DensityAmbient.current) {
             val p = LatchPainter(containerWidth, containerHeight, latch, rtl)
             AtLeastSize(
-                modifier = background(Color.White)
+                modifier = Modifier.background(Color.White)
                     .paint(p, alpha = alpha, colorFilter = colorFilter, rtl = rtl),
                 size = containerWidth.roundToInt().ipx
             ) {

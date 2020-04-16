@@ -17,10 +17,8 @@ package androidx.ui.core.test
 
 import android.widget.FrameLayout
 import androidx.compose.Composition
-import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
-import androidx.ui.framework.test.TestActivity
 import androidx.compose.Recompose
+import androidx.compose.Recomposer
 import androidx.compose.onActive
 import androidx.compose.onCommit
 import androidx.compose.onDispose
@@ -28,8 +26,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.test.filters.SmallTest
+import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.LifecycleOwnerAmbient
 import androidx.ui.core.setContent
+import androidx.ui.framework.test.TestActivity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -102,7 +103,7 @@ class WrapperTest {
         activityTestRule.runOnUiThread {
             val view = FrameLayout(activity)
             activity.setContentView(view)
-            view.setContent {
+            view.setContent(Recomposer.current()) {
                 owner = LifecycleOwnerAmbient.current
                 latch.countDown()
             }
@@ -123,7 +124,7 @@ class WrapperTest {
             val view = FrameLayout(activity)
             activity.setContentView(view)
             ViewTreeLifecycleOwner.set(view, owner)
-            view.setContent {
+            view.setContent(Recomposer.current()) {
                 onDispose {
                     disposeLatch.countDown()
                 }
@@ -151,7 +152,7 @@ class WrapperTest {
             val view = FrameLayout(activity)
             activity.setContentView(view)
             ViewTreeLifecycleOwner.set(view, owner)
-            composition = view.setContent {
+            composition = view.setContent(Recomposer.current()) {
                 composedLatch.countDown()
             }
         }

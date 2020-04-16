@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import androidx.annotation.RestrictTo
 import androidx.ui.unit.Duration
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
@@ -29,6 +30,17 @@ internal interface InputDispatcher {
      * @param position The coordinate of the click
      */
     fun sendClick(position: PxPosition)
+
+    /**
+     * Sends a press event at [position]. This is similar to [sendClick] however, only a down event
+     * will be sent with no following up event.
+     *
+     * @param position The coordinate of the down event
+     *
+     * @suppress
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun sendTouchDown(position: PxPosition)
 
     /**
      * Sends a swipe gesture from [start] to [end] with the given [duration]. This method blocks

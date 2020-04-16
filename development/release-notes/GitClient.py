@@ -234,6 +234,8 @@ class Commit:
 		`Relnote: "This is a one-line release note.  The quotes can be used this way too"`
 		"""
 
+		releaseNote = ""
+
 		# Account for the use of quotes in a release note line
 		# No quotes in the Release Note line means it's a one-line release note
 		# If there are quotes, assume it's a multi-line release note
@@ -241,7 +243,7 @@ class Commit:
 		for character in line:
 			if character == '"': quoteCountInRelNoteLine += 1
 		if quoteCountInRelNoteLine == 0:
-			self.getOneLineReleaseNotesFromGitLine(line)
+			releaseNote = self.getOneLineReleaseNotesFromGitLine(line)
 		else:
 			if self.releaseNoteDelimiter in line:
 				# Find the starting quote of the release notes quote block
@@ -257,16 +259,23 @@ class Commit:
 				releaseNoteEndIndex = releaseNoteStartIndex + 1
 				try:
 					releaseNoteEndIndex = gitCommit.index('"', releaseNoteEndIndex)
+					releaseNote = gitCommit[releaseNoteStartIndex:releaseNoteEndIndex].strip()
 				except ValueError:
 					# If there is no closing quote, just use the first line
-					self.getOneLineReleaseNotesFromGitLine(line)
-					return
-				self.releaseNote = gitCommit[releaseNoteStartIndex:releaseNoteEndIndex].strip()
+					releaseNote = self.getOneLineReleaseNotesFromGitLine(line)
+
+		# Finally, set the release note to be an empty string if the Relnote says the commit
+		# is not applicable for release notes.
+		if self.isIgnoredChange(releaseNote):
+			self.releaseNote = ""
+		else:
+			self.releaseNote = releaseNote
 
 	def getOneLineReleaseNotesFromGitLine(self, line):
 		if self.releaseNoteDelimiter in line:
 			releaseNoteStartIndex = line.index(self.releaseNoteDelimiter) + len(self.releaseNoteDelimiter)
-			self.releaseNote = line[releaseNoteStartIndex:].strip(' "')
+			return line[releaseNoteStartIndex:].strip(' "')
+		return ""
 
 	def getReleaseNoteString(self):
 		releaseNoteString = self.releaseNote
@@ -274,6 +283,10 @@ class Commit:
 		for bug in self.bugs:
 			releaseNoteString += " " + str(getBuganizerLink(bug))
 		return releaseNoteString
+
+	def isIgnoredChange(self, releaseNote):
+		notApplicableStringOptions = ['na', 'n/a', 'n a']
+		return releaseNote.lower().strip() in notApplicableStringOptions
 
 	def __str__(self):
 		commitString = self.summary

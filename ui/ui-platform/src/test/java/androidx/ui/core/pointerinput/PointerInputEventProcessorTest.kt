@@ -26,6 +26,7 @@ import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
+import androidx.ui.core.consumePositionChange
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -33,6 +34,7 @@ import androidx.ui.unit.Uptime
 import androidx.ui.unit.ipx
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
+import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.inOrder
@@ -2363,6 +2365,242 @@ class PointerInputEventProcessorTest {
         // Assert
         verify(childPointerInputFilter).onCancel()
         verify(parentPointerInputFilter, never()).onCancel()
+    }
+
+    @Test
+    fun process_downNoPointerInputModifiers_nothingInteractedWithAndNoMovementConsumed() {
+        val pointerInputEvent =
+            PointerInputEvent(0, Uptime.Boot + 7.milliseconds, PxPosition(0.px, 0.px), true)
+
+        val result: ProcessResult = pointerInputEventProcessor.process(pointerInputEvent)
+
+        assertThat(result).isEqualTo(
+            ProcessResult(
+                dispatchedToAPointerInputModifier = false,
+                anyMovementConsumed = false
+            )
+        )
+    }
+
+    @Test
+    fun process_downNoPointerInputModifiersHit_nothingInteractedWithAndNoMovementConsumed() {
+
+        // Arrange
+
+        val pointerInputFilter: PointerInputFilter = spy()
+
+        val layoutNode = LayoutNode(
+            0, 0, 1, 1,
+            PointerInputModifierImpl(
+                pointerInputFilter
+            )
+        )
+
+        root.apply {
+            insertAt(0, layoutNode)
+        }
+
+        val offsets =
+            listOf(
+                PxPosition((-1).px, 0.px),
+                PxPosition(0.px, (-1).px),
+                PxPosition(1.px, 0.px),
+                PxPosition(0.px, 1.px)
+            )
+        val pointerInputEvent =
+            PointerInputEvent(
+                Uptime.Boot + 11.milliseconds,
+                (offsets.indices).map {
+                    PointerInputEventData(it, Uptime.Boot + 11.milliseconds, offsets[it], true)
+                }
+            )
+
+        // Act
+
+        val result: ProcessResult = pointerInputEventProcessor.process(pointerInputEvent)
+
+        // Assert
+
+        assertThat(result).isEqualTo(
+            ProcessResult(
+                dispatchedToAPointerInputModifier = false,
+                anyMovementConsumed = false
+            )
+        )
+    }
+
+    @Test
+    fun process_downPointerInputModifierHit_somethingInteractedWithAndNoMovementConsumed() {
+
+        // Arrange
+
+        val pointerInputFilter: PointerInputFilter = spy()
+        val layoutNode = LayoutNode(
+            0, 0, 1, 1,
+            PointerInputModifierImpl(
+                pointerInputFilter
+            )
+        )
+        root.apply { insertAt(0, layoutNode) }
+        val pointerInputEvent =
+            PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(0.px, 0.px), true)
+
+        // Act
+
+        val result = pointerInputEventProcessor.process(pointerInputEvent)
+
+        // Assert
+
+        assertThat(result).isEqualTo(
+            ProcessResult(
+                dispatchedToAPointerInputModifier = true,
+                anyMovementConsumed = false
+            )
+        )
+    }
+
+    @Test
+    fun process_downHitsPifRemovedPointerMoves_nothingInteractedWithAndNoMovementConsumed() {
+
+        // Arrange
+
+        val pointerInputFilter: PointerInputFilter = spy()
+        val layoutNode = LayoutNode(
+            0, 0, 1, 1,
+            PointerInputModifierImpl(
+                pointerInputFilter
+            )
+        )
+        root.apply { insertAt(0, layoutNode) }
+        val down = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(0.px, 0.px), true)
+        pointerInputEventProcessor.process(down)
+        val move = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(1.px, 0.px), true)
+
+        // Act
+
+        root.removeAt(0, 1)
+        val result = pointerInputEventProcessor.process(move)
+
+        // Assert
+
+        assertThat(result).isEqualTo(
+            ProcessResult(
+                dispatchedToAPointerInputModifier = false,
+                anyMovementConsumed = false
+            )
+        )
+    }
+
+    @Test
+    fun process_downHitsPointerMovesNothingConsumed_somethingInteractedWithAndNoMovementConsumed() {
+
+        // Arrange
+
+        val pointerInputFilter: PointerInputFilter = spy()
+        val layoutNode = LayoutNode(
+            0, 0, 1, 1,
+            PointerInputModifierImpl(
+                pointerInputFilter
+            )
+        )
+        root.apply { insertAt(0, layoutNode) }
+        val down = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(0.px, 0.px), true)
+        pointerInputEventProcessor.process(down)
+        val move = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(1.px, 0.px), true)
+
+        // Act
+
+        val result = pointerInputEventProcessor.process(move)
+
+        // Assert
+
+        assertThat(result).isEqualTo(
+            ProcessResult(
+                dispatchedToAPointerInputModifier = true,
+                anyMovementConsumed = false
+            )
+        )
+    }
+
+    @Test
+    fun process_downHitsPointerMovementConsumed_somethingInteractedWithAndMovementConsumed() {
+
+        // Arrange
+
+        val pointerInputFilter: PointerInputFilter =
+            spy(
+                TestPointerInputFilter { changes, pass, _ ->
+                    if (pass == PointerEventPass.InitialDown) {
+                        changes.map { it.consumePositionChange(1.px, 0.px) }
+                    } else {
+                        changes
+                    }
+                }
+            )
+
+        val layoutNode = LayoutNode(
+            0, 0, 1, 1,
+            PointerInputModifierImpl(
+                pointerInputFilter
+            )
+        )
+        root.apply { insertAt(0, layoutNode) }
+        val down = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(0.px, 0.px), true)
+        pointerInputEventProcessor.process(down)
+        val move = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, PxPosition(1.px, 0.px), true)
+
+        // Act
+
+        val result = pointerInputEventProcessor.process(move)
+
+        // Assert
+
+        assertThat(result).isEqualTo(
+            ProcessResult(
+                dispatchedToAPointerInputModifier = true,
+                anyMovementConsumed = true
+            )
+        )
+    }
+
+    @Test
+    fun processResult_trueTrue_propValuesAreCorrect() {
+        val processResult1 = ProcessResult(
+            dispatchedToAPointerInputModifier = true,
+            anyMovementConsumed = true
+        )
+        assertThat(processResult1.dispatchedToAPointerInputModifier).isTrue()
+        assertThat(processResult1.anyMovementConsumed).isTrue()
+    }
+
+    @Test
+    fun processResult_trueFalse_propValuesAreCorrect() {
+        val processResult1 = ProcessResult(
+            dispatchedToAPointerInputModifier = true,
+            anyMovementConsumed = false
+        )
+        assertThat(processResult1.dispatchedToAPointerInputModifier).isTrue()
+        assertThat(processResult1.anyMovementConsumed).isFalse()
+    }
+
+    @Test
+    fun processResult_falseTrue_propValuesAreCorrect() {
+        val processResult1 = ProcessResult(
+            dispatchedToAPointerInputModifier = false,
+            anyMovementConsumed = true
+        )
+        assertThat(processResult1.dispatchedToAPointerInputModifier).isFalse()
+        assertThat(processResult1.anyMovementConsumed).isTrue()
+    }
+
+    @Test
+    fun processResult_falseFalse_propValuesAreCorrect() {
+        val processResult1 = ProcessResult(
+            dispatchedToAPointerInputModifier = false,
+            anyMovementConsumed = false
+        )
+        assertThat(processResult1.dispatchedToAPointerInputModifier).isFalse()
+        assertThat(processResult1.anyMovementConsumed).isFalse()
     }
 }
 

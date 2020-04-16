@@ -22,6 +22,7 @@ import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
+import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.unit.Uptime
@@ -38,8 +39,13 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
      * Receives [PointerInputEvent]s and process them through the tree rooted on [root].
      *
      * @param pointerEvent The [PointerInputEvent] to process.
+     *
+     * @return the result of processing.
+     *
+     * @see ProcessResult
+     * @see PointerInputEvent
      */
-    fun process(pointerEvent: PointerInputEvent) {
+    fun process(pointerEvent: PointerInputEvent): ProcessResult {
 
         // Gets a new PointerInputChangeEvent with the PointerInputEvent.
         val pointerInputChangeEvent =
@@ -52,25 +58,33 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                 it.current.position!!,
                 hitResult
             )
-            hitPathTracker.addHitPath(it.id, hitResult)
+            if (hitResult.isNotEmpty()) {
+                hitPathTracker.addHitPath(it.id, hitResult)
+            }
         }
 
         // Remove [PointerInputFilter]s that are no longer valid and refresh the offset information
         // for those that are.
         hitPathTracker.removeDetachedPointerInputFilters()
 
+        val eventDispatchedToPointerInputFilter = !hitPathTracker.isEmpty()
+
         // Dispatch the PointerInputChanges to the hit PointerInputFilters.
         var changes = pointerInputChangeEvent.changes
         hitPathTracker.apply {
             changes = dispatchChanges(changes, PointerEventPass.InitialDown, PointerEventPass.PreUp)
             changes = dispatchChanges(changes, PointerEventPass.PreDown, PointerEventPass.PostUp)
-            dispatchChanges(changes, PointerEventPass.PostDown)
+            changes = dispatchChanges(changes, PointerEventPass.PostDown)
         }
 
         // Remove hit paths from the tracker due to up events.
         pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.forEach {
             hitPathTracker.removeHitPath(it.id)
         }
+
+        return ProcessResult(
+            eventDispatchedToPointerInputFilter,
+            changes.any { it.anyPositionChangeConsumed() })
     }
 
     /**
@@ -132,3 +146,32 @@ private data class PointerInputChangeEvent(
     val uptime: Uptime,
     val changes: List<PointerInputChange>
 )
+
+/**
+ * The result of a call to [PointerInputEventProcessor.process].
+ */
+// TODO(shepshpard): Not sure if storing these values in a int is most efficient overall.
+internal /*inline*/ data class ProcessResult internal constructor(private var value: Int) {
+
+    val dispatchedToAPointerInputModifier
+        get() = (value and 1) != 0
+
+    val anyMovementConsumed
+        get() = (value and (1 shl 1)) != 0
+}
+
+/**
+ * Constructs a new ProcessResult.
+ *
+ * @param dispatchedToAPointerInputModifier True if the dispatch resulted in at least 1
+ * [PointerInputModifier] receiving the event.
+ * @param anyMovementConsumed True if any movement occurred and was consumed.
+ */
+internal fun ProcessResult(
+    dispatchedToAPointerInputModifier: Boolean,
+    anyMovementConsumed: Boolean
+): ProcessResult {
+    val val1 = if (dispatchedToAPointerInputModifier) 1 else 0
+    val val2 = if (anyMovementConsumed) (1 shl 1) else 0
+    return ProcessResult(val1 or val2)
+}

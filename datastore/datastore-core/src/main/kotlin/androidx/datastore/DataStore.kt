@@ -16,8 +16,9 @@
 
 package androidx.datastore
 
-import java.io.InputStream
 import kotlinx.coroutines.flow.Flow
+import java.io.InputStream
+import java.io.OutputStream
 
 /**
  * DataStore provides a safe and durable way to store small amounts of data, such as preferences
@@ -52,6 +53,19 @@ interface DataStore<T> {
     val dataFlow: Flow<T>
 
     /**
+     * Updates the data transactionally in an atomic read-modify-write operation. All operations
+     * are serialized, and the transform itself is a coroutine so it can perform heavy work
+     * such as RPCs.
+     *
+     * The coroutine completes when the data has been persisted durably to disk (after which
+     * {@link #dataFlow} will reflect the update). If storage or the transform fail, the transaction
+     * is aborted and an exception is returned.
+     *
+     * @return the snapshot returned by the transform.
+     */
+    suspend fun updateData(transform: suspend (t: T) -> T): T
+
+    /**
      * The serializer determines the on-disk format and API for accessing it.
      *
      * The type T MUST be immutable. Mutable types will result in broken DataStore functionality.
@@ -63,7 +77,8 @@ interface DataStore<T> {
         /** Unmarshal object from stream. */
         fun readFrom(input: InputStream): T
 
-        // TODO(b/151635324): Add writeTo() method.
+        /** Marshal object to a stream. */
+        fun writeTo(t: T, output: OutputStream)
 
         /**
          * The initial value of the serialized object. This value be returned if the file does
@@ -72,7 +87,6 @@ interface DataStore<T> {
         val defaultValue: T
     }
 
-    // TODO(b/151635324): Add updateData() method.
     // TODO(b/151635324): Add initializers.
     // TODO(b/151635324): Add exception handlers.
     // TODO(b/151635324): Consider adding snapshot API.

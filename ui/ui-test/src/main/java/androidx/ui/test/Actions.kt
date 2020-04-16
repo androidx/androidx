@@ -16,8 +16,8 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.findLastLayoutChild
+import androidx.ui.core.semantics.findClosestParentNode
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsPropertyKey
@@ -121,7 +121,7 @@ fun <T : Function<Unit>> SemanticsNodeInteraction.callSemanticsAction(
         throw AssertionError(
             buildGeneralErrorMessage(
                 "Failed to call ${key.name} action as it is not defined on the node.",
-                semanticsTreeInteraction.selector, node)
+                selector, node)
         )
     }
 

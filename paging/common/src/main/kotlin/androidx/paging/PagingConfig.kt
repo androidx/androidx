@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.annotation.IntRange
-import androidx.paging.PagingConfig.Builder
 import androidx.paging.PagingConfig.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 
@@ -45,39 +44,71 @@ class PagingConfig(
      */
     @JvmField
     val pageSize: Int,
+
     /**
-     * Prefetch distance which defines how far ahead to load.
+     * Prefetch distance which defines how far from the edge of loaded content an access must be to
+     * trigger further loading. Typically should be set several times the number of visible items
+     * onscreen.
      *
-     * If this value is set to 50, the paged list will attempt to load 50 items in advance of
+     * E.g., If this value is set to 50, a [PagingData] will attempt to load 50 items in advance of
      * data that's already been accessed.
      *
-     * @see PagedList.loadAround
+     * A value of 0 indicates that no list items will be loaded until they are specifically
+     * requested. This is generally not recommended, so that users don't observe a
+     * placeholder item (with placeholders) or end of list (without) while scrolling.
      */
     @JvmField
+    @IntRange(from = 0)
     val prefetchDistance: Int = pageSize,
+
     /**
-     * Defines whether the [PagedList] may display null placeholders, if the [PagingSource]
+     * Defines whether [PagingData] may display `null` placeholders, if the [PagingSource]
      * provides them.
+     *
+     * [PagingData] will present `null` placeholders for not-yet-loaded content if two
+     * conditions are met:
+     *
+     * 1) Its [PagingSource] can count all unloaded items (so that the number of nulls to
+     * present is known).
+     *
+     * 2) [enablePlaceholders] is set to `true`
      */
     @JvmField
     val enablePlaceholders: Boolean = true,
 
     /**
-     * Size requested size for initial load of from [PagingSource], generally larger than a regular
-     * page.
+     * Defines requested load size for initial load from [PagingSource], typically larger than
+     * [pageSize], so on first load data there's a large enough range of content loaded to cover
+     * small scrolls.
      */
     @JvmField
+    @IntRange(from = 1)
     val initialLoadSize: Int = pageSize * DEFAULT_INITIAL_PAGE_MULTIPLIER,
     /**
-     * Defines the maximum number of items that may be loaded into this pagedList before pages
-     * should be dropped.
+     * Defines the maximum number of items that may be loaded into [PagingData] before pages should
+     * be dropped.
      *
      * If set to [MAX_SIZE_UNBOUNDED], pages will never be dropped.
      *
-     * @see MAX_SIZE_UNBOUNDED
-     * @see Builder.setMaxSize
+     * This can be used to cap the number of items kept in memory by dropping pages. This value is
+     * typically many pages so old pages are cached in case the user scrolls back.
+     *
+     * This value must be at least two times the [prefetchDistance] plus the [pageSize]). This
+     * constraint prevent loads from being continuously fetched and discarded due to prefetching.
+     *
+     * [maxSize] is best effort, not a guarantee. In practice, if [maxSize] is many times
+     * [pageSize], the number of items held by [PagingData] will not grow above this number.
+     * Exceptions are made as necessary to guarantee:
+     *  * Pages are never dropped until there are more than two pages loaded. Note that
+     * a [PagingSource] may not be held strictly to [requested pageSize][PagingConfig.pageSize], so
+     * two pages may be larger than expected.
+     *  * Pages are never dropped if they are within a prefetch window (defined to be
+     * `pageSize + (2 * prefetchDistance)`) of the most recent load.
+     *
+     * @see PagingConfig.MAX_SIZE_UNBOUNDED
      */
     @JvmField
+    @IntRange(from = 2)
     val maxSize: Int = MAX_SIZE_UNBOUNDED,
 
     /**
@@ -92,8 +123,8 @@ class PagingConfig(
         if (!enablePlaceholders && prefetchDistance == 0) {
             throw IllegalArgumentException(
                 "Placeholders and prefetch are the only ways" +
-                        " to trigger loading of more data in the PagedList, so either" +
-                        " placeholders must be enabled, or prefetch distance must be > 0."
+                        " to trigger loading of more data in PagingData, so either placeholders" +
+                        " must be enabled, or prefetch distance must be > 0."
             )
         }
         if (maxSize != MAX_SIZE_UNBOUNDED && maxSize < pageSize + prefetchDistance * 2) {
@@ -116,138 +147,5 @@ class PagingConfig(
          */
         const val MAX_SIZE_UNBOUNDED = Int.MAX_VALUE
         internal const val DEFAULT_INITIAL_PAGE_MULTIPLIER = 3
-    }
-
-    /**
-     * Builder class for [PagingConfig] for Java callers.
-     *
-     * Kotlin callers should use the Config constructor directly.
-     */
-    class Builder(
-        private val pageSize: Int
-    ) {
-        private var prefetchDistance = -1
-        private var initialLoadSizeHint = -1
-        private var enablePlaceholders = true
-        private var maxSize = MAX_SIZE_UNBOUNDED
-
-        /**
-         * Defines how far from the edge of loaded content an access must be to trigger further
-         * loading.
-         *
-         * Should be several times the number of visible items onscreen.
-         *
-         * If not set, defaults to page size.
-         *
-         * A value of 0 indicates that no list items will be loaded until they are specifically
-         * requested. This is generally not recommended, so that users don't observe a
-         * placeholder item (with placeholders) or end of list (without) while scrolling.
-         *
-         * @param prefetchDistance Distance the [PagedList] should prefetch.
-         * @return this
-         */
-        fun setPrefetchDistance(@IntRange(from = 0) prefetchDistance: Int) = apply {
-            this.prefetchDistance = prefetchDistance
-        }
-
-        /**
-         * Pass false to disable null placeholders in [PagedList]s using this [PagingConfig].
-         *
-         * If not set, defaults to true.
-         *
-         * A [PagedList] will present null placeholders for not-yet-loaded content if two
-         * conditions are met:
-         *
-         * 1) Its [PagingSource] can count all unloaded items (so that the number of nulls to
-         * present is known).
-         *
-         * 2) placeholders are not disabled on the [PagingConfig].
-         *
-         * Call `setEnablePlaceholders(false)` to ensure the receiver of the PagedList
-         * (often a [androidx.paging.PagingDataAdapter]) doesn't need to account for null items.
-         *
-         * If placeholders are disabled, not-yet-loaded content will not be present in the list.
-         * Paging will still occur, but as items are loaded or removed, they will be signaled
-         * as inserts to the [PagedList.Callback].
-         *
-         * [PagedList.Callback.onChanged] will not be issued as part of loading, though a
-         * [androidx.paging.PagingDataAdapter] may still receive change events as a result of
-         * [PagedList] diffing.
-         *
-         * @param enablePlaceholders `false` if null placeholders should be disabled.
-         * @return this
-         */
-        fun setEnablePlaceholders(enablePlaceholders: Boolean) = apply {
-            this.enablePlaceholders = enablePlaceholders
-        }
-
-        /**
-         * Defines how many items to load when first load occurs.
-         *
-         * This value is typically larger than page size, so on first load data there's a large
-         * enough range of content loaded to cover small scrolls.
-         *
-         * If not set, defaults to three times page size.
-         *
-         * @param initialLoadSizeHint Number of items to load while initializing the [PagedList]
-         * @return this
-         */
-        fun setInitialLoadSizeHint(@IntRange(from = 1) initialLoadSizeHint: Int) = apply {
-            this.initialLoadSizeHint = initialLoadSizeHint
-        }
-
-        /**
-         * Defines how many items to keep loaded at once.
-         *
-         * This can be used to cap the number of items kept in memory by dropping pages. This
-         * value is typically many pages so old pages are cached in case the user scrolls back.
-         *
-         * This value must be at least two times the [prefetchDistance] plus the [pageSize]).
-         * This constraint prevent loads from being continuously fetched and discarded due to
-         * prefetching.
-         *
-         * The max size specified here best effort, not a guarantee. In practice, if [maxSize]
-         * is many times the page size, the number of items held by the [PagedList] will not
-         * grow above this number. Exceptions are made as necessary to guarantee:
-         *  * Pages are never dropped until there are more than two pages loaded. Note that
-         * a [PagingSource] may not be held strictly to [requested pageSize][PagingConfig.pageSize], so
-         * two pages may be larger than expected.
-         *  * Pages are never dropped if they are within a prefetch window (defined to be
-         * `pageSize + (2 * prefetchDistance)`) of the most recent load.
-         *
-         * If not set, defaults to [MAX_SIZE_UNBOUNDED], which disables page dropping.
-         *
-         * @param maxSize Maximum number of items to keep in memory, or [MAX_SIZE_UNBOUNDED] to
-         * disable page dropping.
-         * @return this
-         *
-         * @see PagingConfig.MAX_SIZE_UNBOUNDED
-         * @see PagingConfig.maxSize
-         */
-        fun setMaxSize(@IntRange(from = 2) maxSize: Int) = apply {
-            this.maxSize = maxSize
-        }
-
-        /**
-         * Creates a [PagingConfig] with the given parameters.
-         *
-         * @return A new [PagingConfig].
-         */
-        fun build(): PagingConfig {
-            if (prefetchDistance < 0) {
-                prefetchDistance = pageSize
-            }
-            if (initialLoadSizeHint < 0) {
-                initialLoadSizeHint = pageSize * DEFAULT_INITIAL_PAGE_MULTIPLIER
-            }
-
-            return PagingConfig(
-                pageSize,
-                prefetchDistance,
-                enablePlaceholders,
-                initialLoadSizeHint,
-                maxSize
-            )
-        }
     }
 }
