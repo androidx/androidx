@@ -25,39 +25,21 @@ import org.junit.runners.JUnit4
 @SmallTest
 @RunWith(JUnit4::class)
 class AllocationCountCaptureTest {
-    class Allocator {
-        init {
-            count++
-        }
-
-        companion object {
-            private var count = 0
-
-            fun allocate(numberToAllocate: Int) {
-                count = 0
-                repeat(numberToAllocate) {
-                    Allocator()
-                }
-                assertEquals(numberToAllocate, count)
-            }
-        }
-    }
-
     @Test
     fun simple() {
         AllocationCountCapture().verifyMedian(100..110) {
-            Allocator.allocate(100)
+            allocate(100)
         }
     }
 
     @Test
     fun pauseResume() {
         AllocationCountCapture().verifyMedian(100..110) {
-            Allocator.allocate(100)
+            allocate(100)
 
             capturePaused()
             // these 1000 allocations shouldn't be counted, capture is paused!
-            Allocator.allocate(1000)
+            allocate(1000)
             captureResumed()
         }
     }
