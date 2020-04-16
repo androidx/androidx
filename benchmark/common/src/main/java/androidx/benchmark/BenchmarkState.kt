@@ -445,13 +445,9 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         return idealIterations
     }
 
-    private fun throwIfPaused() {
-        if (paused) {
-            throw IllegalStateException(
-                "Benchmark step finished with paused state." +
-                        " Resume the benchmark before finishing each step."
-            )
-        }
+    private fun throwIfPaused() = check(!paused) {
+        "Benchmark loop finished in paused state." +
+                " Call BenchmarkState.resumeTiming() before BenchmarkState.keepRunning()."
     }
 
     internal data class Report(
