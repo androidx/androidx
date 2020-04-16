@@ -283,10 +283,10 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
     /**
      * @See Canvas.drawImageRect
      */
-    override fun drawImageRect(image: ImageAsset, src: Rect, dst: Rect, paint: Paint) {
+    override fun drawImageRect(image: ImageAsset, src: Rect?, dst: Rect, paint: Paint) {
         internalCanvas.drawBitmap(
             image.asAndroidBitmap(),
-            src.toAndroidRect(),
+            src?.toAndroidRect(),
             dst.toAndroidRect(),
             paint.asFrameworkPaint()
         )

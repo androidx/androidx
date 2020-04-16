@@ -135,7 +135,7 @@ internal class ModifiedDrawNode(
         override fun drawImage(image: ImageAsset, topLeftOffset: Offset, paint: Paint) =
             canvas!!.drawImage(image, topLeftOffset, paint)
 
-        override fun drawImageRect(image: ImageAsset, src: Rect, dst: Rect, paint: Paint) =
+        override fun drawImageRect(image: ImageAsset, src: Rect?, dst: Rect, paint: Paint) =
             canvas!!.drawImageRect(image, src, dst, paint)
 
         override fun drawPicture(picture: Picture) = canvas!!.drawPicture(picture)

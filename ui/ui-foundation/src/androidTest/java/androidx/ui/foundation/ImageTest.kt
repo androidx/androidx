@@ -31,6 +31,7 @@ import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
 import androidx.ui.core.ContentScale
+import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.core.drawBehind
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.preferredSize
@@ -120,6 +121,78 @@ class ImageTest {
             Assert.assertEquals(bgColorArgb, getPixel(imageStartX + (imageWidth / 2) - 2,
                 imageStartY + (imageHeight / 2) - 5))
             Assert.assertEquals(pathArgb, getPixel(imageStartX, imageStartY + imageHeight - 1))
+        }
+    }
+
+    @Test
+    fun testImageSubsection() {
+        val subsectionWidth = imageWidth / 2
+        val subsectionHeight = imageHeight / 2
+        rule.setContent {
+            val size = (containerSize / DensityAmbient.current.density).dp
+            Box(
+                Modifier.preferredSize(size)
+                    .drawBackground(Color.White)
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                TestTag(contentTag) {
+                    Image(
+                        ImagePainter(createImageAsset(),
+                            Rect.fromLTWH(
+                                imageWidth / 2.0f - subsectionWidth / 2.0f,
+                                imageHeight / 2.0f - subsectionHeight / 2.0f,
+                                subsectionWidth.toFloat(),
+                                subsectionHeight.toFloat()
+                            )
+                        )
+                    )
+                }
+            }
+        }
+
+        val boxBgArgb = Color.White.toArgb()
+        val bgColorArgb = bgColor.toArgb()
+        val pathArgb = pathColor.toArgb()
+
+        findByTag(contentTag).captureToBitmap().apply {
+            val imageStartX = width / 2 - subsectionWidth / 2
+            val imageStartY = height / 2 - subsectionHeight / 2
+            Assert.assertEquals(bgColorArgb, getPixel(imageStartX + 2, imageStartY))
+            Assert.assertEquals(pathArgb, getPixel(imageStartX, imageStartY + 1))
+            Assert.assertEquals(pathArgb, getPixel(imageStartX + (subsectionWidth / 2) - 1,
+                imageStartY + (subsectionHeight / 2) + 1))
+            Assert.assertEquals(bgColorArgb, getPixel(imageStartX + (subsectionWidth / 2) - 2,
+                imageStartY + (subsectionHeight / 2) - 5))
+            Assert.assertEquals(pathArgb, getPixel(imageStartX, imageStartY + subsectionHeight - 1))
+
+            // Verify top left region outside the subsection has a white background
+            Assert.assertEquals(boxBgArgb, getPixel(imageStartX - 1, imageStartY - 1))
+            Assert.assertEquals(boxBgArgb, getPixel(imageStartX - 1, imageStartY))
+            Assert.assertEquals(boxBgArgb, getPixel(imageStartX, imageStartY - 1))
+
+            // Verify top right region outside the subsection has a white background
+            Assert.assertEquals(boxBgArgb,
+                getPixel(imageStartX + subsectionWidth - 1, imageStartY - 1))
+            Assert.assertEquals(boxBgArgb,
+                getPixel(imageStartX + subsectionWidth, imageStartY - 1))
+            Assert.assertEquals(boxBgArgb,
+                getPixel(imageStartX + subsectionWidth, imageStartY))
+
+            // Verify bottom left region outside the subsection has a white background
+            Assert.assertEquals(boxBgArgb,
+                getPixel(imageStartX - 1, imageStartY + subsectionHeight - 1))
+            Assert.assertEquals(boxBgArgb,
+                getPixel(imageStartX - 1, imageStartY + subsectionHeight))
+            Assert.assertEquals(boxBgArgb,
+                getPixel(imageStartX, imageStartY + subsectionHeight))
+
+            // Verify bottom right region outside the subsection has a white background
+            Assert.assertEquals(boxBgArgb,
+                getPixel(imageStartX + subsectionWidth - 1, imageStartY + subsectionHeight))
+            Assert.assertEquals(boxBgArgb,
+                getPixel(imageStartX + subsectionWidth, imageStartY + subsectionHeight))
+            Assert.assertEquals(boxBgArgb,
+                getPixel(imageStartX + subsectionWidth, imageStartY + subsectionHeight - 1))
         }
     }
 
