@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.room.processor
+package androidx.room.parser.expansion
 
+import androidx.annotation.VisibleForTesting
 import androidx.room.parser.ParsedQuery
-import androidx.room.parser.Section
+import androidx.room.parser.SqlParser
+import androidx.room.processor.QueryRewriter
+import androidx.room.solver.query.result.PojoRowAdapter
+import androidx.room.solver.query.result.RowAdapter
 import androidx.room.verifier.QueryResultInfo
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Entity
@@ -28,12 +32,13 @@ import androidx.room.vo.columnNames
 import java.util.Locale
 
 /**
- * Interprets and rewrites SQL queries in the context of the provided entities and views.
+ * Interprets and rewrites SQL queries in the context of the provided entities and views such that
+ * star projection (select *) turn into explicit column lists and embedded fields are re-named to
+ * avoid conflicts in the response data set.
  */
-class QueryInterpreter(
-    val context: Context,
-    val tables: List<EntityOrView>
-) {
+class ProjectionExpander(
+    private val tables: List<EntityOrView>
+) : QueryRewriter {
 
     private class IdentifierMap<V> : HashMap<String, V>() {
         override fun put(key: String, value: V): V? {
@@ -50,18 +55,48 @@ class QueryInterpreter(
      * projection ('SELECT *') and converting its named binding templates to positional
      * templates (i.e. ':VVV' to '?').
      */
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun interpret(
         query: ParsedQuery,
+        pojo: Pojo?
+    ) = interpret(
+        query = ExpandableSqlParser.parse(query.original).also {
+            it.resultInfo = query.resultInfo
+        },
+        pojo = pojo
+    )
+
+    override fun rewrite(
+        query: ParsedQuery,
+        rowAdapter: RowAdapter
+    ) = if (rowAdapter is PojoRowAdapter) {
+        interpret(
+            query = ExpandableSqlParser.parse(query.original),
+            pojo = rowAdapter.pojo
+        ).let {
+            val reParsed = SqlParser.parse(it)
+            if (reParsed.errors.isEmpty()) {
+                reParsed
+            } else {
+                query // return original, expansion somewhat failed
+            }
+        }
+    } else {
+        query
+    }
+
+    private fun interpret(
+        query: ExpandableParsedQuery,
         pojo: Pojo?
     ): String {
         val queriedTableNames = query.tables.map { it.name }
         return query.sections.joinToString("") { section ->
             when (section) {
-                is Section.Text -> section.text
-                is Section.BindVar -> "?"
-                is Section.Newline -> "\n"
-                is Section.Projection -> {
-                    if (!context.expandProjection || pojo == null) {
+                is ExpandableSection.Text -> section.text
+                is ExpandableSection.BindVar -> "?"
+                is ExpandableSection.Newline -> "\n"
+                is ExpandableSection.Projection -> {
+                    if (pojo == null) {
                         section.text
                     } else {
                         interpretProjection(query, section, pojo, queriedTableNames)
@@ -72,8 +107,8 @@ class QueryInterpreter(
     }
 
     private fun interpretProjection(
-        query: ParsedQuery,
-        section: Section.Projection,
+        query: ExpandableParsedQuery,
+        section: ExpandableSection.Projection,
         pojo: Pojo,
         queriedTableNames: List<String>
     ): String {
@@ -86,7 +121,7 @@ class QueryInterpreter(
             .map { (name, pairs) -> name to pairs.first().alias }
             .toMap(IdentifierMap())
         return when (section) {
-            is Section.Projection.All -> {
+            is ExpandableSection.Projection.All -> {
                 expand(
                     pojo = pojo,
                     ignoredColumnNames = query.explicitColumns,
@@ -97,7 +132,7 @@ class QueryInterpreter(
                     resultInfo = query.resultInfo
                 )
             }
-            is Section.Projection.Table -> {
+            is ExpandableSection.Projection.Table -> {
                 val embedded = findEmbeddedField(pojo, section.tableAlias)
                 if (embedded != null) {
                     expandEmbeddedField(
