@@ -18,6 +18,7 @@
 
 package androidx.room.log
 
+import androidx.room.processor.Context
 import androidx.room.vo.Warning
 import java.io.StringWriter
 import javax.annotation.processing.ProcessingEnvironment
@@ -102,18 +103,12 @@ class RLog(
 
         fun hasErrors() = messages.containsKey(Diagnostic.Kind.ERROR)
 
-        fun writeTo(env: ProcessingEnvironment) {
+        fun writeTo(context: Context) {
+            val printMessage = context.logger.messager::printMessage
             messages.forEach { pair ->
                 val kind = pair.key
                 pair.value.forEach { (msg, element) ->
-                    env.messager.printMessage(
-                            kind,
-                            if (element != null && element.isFromCompiledClass()) {
-                                msg.appendElement(env.elementUtils, element)
-                            } else {
-                                msg
-                            },
-                            element)
+                    printMessage(kind, msg, element)
                 }
             }
         }
