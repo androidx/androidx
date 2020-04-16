@@ -28,15 +28,15 @@ import androidx.ui.semantics.SemanticsProperties
  *
  * @see FoundationSemanticsProperties.ToggleableState
  */
-fun isToggleable(): SemanticsPredicate =
-    SemanticsPredicate.keyIsDefined(FoundationSemanticsProperties.ToggleableState)
+fun isToggleable(): SemanticsMatcher =
+    SemanticsMatcher.keyIsDefined(FoundationSemanticsProperties.ToggleableState)
 
 /**
  * Returns whether the component is toggled.
  *
  * @see FoundationSemanticsProperties.ToggleableState
  */
-fun isOn(): SemanticsPredicate = SemanticsPredicate.expectValue(
+fun isOn(): SemanticsMatcher = SemanticsMatcher.expectValue(
     FoundationSemanticsProperties.ToggleableState, ToggleableState.On)
 
 /**
@@ -44,7 +44,7 @@ fun isOn(): SemanticsPredicate = SemanticsPredicate.expectValue(
  *
  * @see FoundationSemanticsProperties.ToggleableState
  */
-fun isOff(): SemanticsPredicate = SemanticsPredicate.expectValue(
+fun isOff(): SemanticsMatcher = SemanticsMatcher.expectValue(
     FoundationSemanticsProperties.ToggleableState, ToggleableState.Off)
 
 /**
@@ -52,56 +52,56 @@ fun isOff(): SemanticsPredicate = SemanticsPredicate.expectValue(
  *
  * @see FoundationSemanticsProperties.Selected
  */
-fun isSelectable(): SemanticsPredicate =
-    SemanticsPredicate.keyIsDefined(FoundationSemanticsProperties.Selected)
+fun isSelectable(): SemanticsMatcher =
+    SemanticsMatcher.keyIsDefined(FoundationSemanticsProperties.Selected)
 
 /**
  * Returns whether the component is selected.
  *
  * @see FoundationSemanticsProperties.Selected
  */
-fun isSelected(): SemanticsPredicate =
-    SemanticsPredicate.expectValue(FoundationSemanticsProperties.Selected, true)
+fun isSelected(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(FoundationSemanticsProperties.Selected, true)
 
 /**
  * Returns whether the component is not selected.
  *
  * @see FoundationSemanticsProperties.Selected
  */
-fun isUnselected(): SemanticsPredicate =
-    SemanticsPredicate.expectValue(FoundationSemanticsProperties.Selected, false)
+fun isUnselected(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(FoundationSemanticsProperties.Selected, false)
 
 /**
  * Return whether the component has a semantics click action defined.
  *
  * @see SemanticsActions.OnClick
  */
-fun hasClickAction(): SemanticsPredicate =
-    SemanticsPredicate.keyIsDefined(SemanticsActions.OnClick)
+fun hasClickAction(): SemanticsMatcher =
+    SemanticsMatcher.keyIsDefined(SemanticsActions.OnClick)
 
 /**
  * Return whether the component has no semantics click action defined.
  *
  * @see SemanticsActions.OnClick
  */
-fun hasNoClickAction(): SemanticsPredicate =
-    SemanticsPredicate.keyNotDefined(SemanticsActions.OnClick)
+fun hasNoClickAction(): SemanticsMatcher =
+    SemanticsMatcher.keyNotDefined(SemanticsActions.OnClick)
 
 /**
  * Return whether the component has a semantics scrollable action defined.
  *
  * @see SemanticsActions.ScrollTo
  */
-fun hasScrollAction(): SemanticsPredicate =
-    SemanticsPredicate.keyIsDefined(SemanticsActions.ScrollTo)
+fun hasScrollAction(): SemanticsMatcher =
+    SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollTo)
 
 /**
  * Return whether the component has no semantics scrollable action defined.
  *
  * @see SemanticsActions.ScrollTo
  */
-fun hasNoScrollAction(): SemanticsPredicate =
-    SemanticsPredicate.keyNotDefined(SemanticsActions.ScrollTo)
+fun hasNoScrollAction(): SemanticsMatcher =
+    SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollTo)
 
 /**
  * Returns whether the component's label matches exactly to the given text.
@@ -112,8 +112,8 @@ fun hasNoScrollAction(): SemanticsPredicate =
  * @see hasSubstring
  * @see SemanticsProperties.AccessibilityLabel
  */
-fun hasText(text: String, ignoreCase: Boolean = false): SemanticsPredicate {
-    return SemanticsPredicate(
+fun hasText(text: String, ignoreCase: Boolean = false): SemanticsMatcher {
+    return SemanticsMatcher.fromCondition(
         "${SemanticsProperties.AccessibilityLabel.name} = '$text' (ignoreCase: $ignoreCase)"
     ) {
         config.getOrNull(SemanticsProperties.AccessibilityLabel).equals(text, ignoreCase)
@@ -130,8 +130,8 @@ fun hasText(text: String, ignoreCase: Boolean = false): SemanticsPredicate {
  * @see SemanticsProperties.AccessibilityLabel
  */
 fun hasSubstring(substring: String, ignoreCase: Boolean = false):
-        SemanticsPredicate {
-    return SemanticsPredicate(
+        SemanticsMatcher {
+    return SemanticsMatcher.fromCondition(
         "${SemanticsProperties.AccessibilityLabel.name}.contains($substring, $ignoreCase)"
     ) {
         config.getOrNull(SemanticsProperties.AccessibilityLabel)?.contains(substring, ignoreCase)
@@ -146,7 +146,7 @@ fun hasSubstring(substring: String, ignoreCase: Boolean = false):
  *
  * @see SemanticsProperties.AccessibilityValue
  */
-fun hasValue(value: String): SemanticsPredicate = SemanticsPredicate.expectValue(
+fun hasValue(value: String): SemanticsMatcher = SemanticsMatcher.expectValue(
     SemanticsProperties.AccessibilityValue, value)
 
 /**
@@ -156,8 +156,8 @@ fun hasValue(value: String): SemanticsPredicate = SemanticsPredicate.expectValue
  *
  * @see SemanticsProperties.TestTag
  */
-fun hasTestTag(testTag: String): SemanticsPredicate =
-    SemanticsPredicate.expectValue(SemanticsProperties.TestTag, testTag)
+fun hasTestTag(testTag: String): SemanticsMatcher =
+    SemanticsMatcher.expectValue(SemanticsProperties.TestTag, testTag)
 
 // TODO(ryanmentley/pavlis): Do we want these convenience functions?
 /**
@@ -165,8 +165,8 @@ fun hasTestTag(testTag: String): SemanticsPredicate =
  * that [FoundationSemanticsProperties.InMutuallyExclusiveGroup] is set to true
  *
  */
-fun isInMutuallyExclusiveGroup(): SemanticsPredicate =
-    SemanticsPredicate.expectValue(FoundationSemanticsProperties.InMutuallyExclusiveGroup, true)
+fun isInMutuallyExclusiveGroup(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(FoundationSemanticsProperties.InMutuallyExclusiveGroup, true)
 
 /**
  * Returns whether the component is hidden.
@@ -175,8 +175,8 @@ fun isInMutuallyExclusiveGroup(): SemanticsPredicate =
  *
  * @see SemanticsProperties.Hidden
  */
-fun isHidden(): SemanticsPredicate =
-    SemanticsPredicate.expectValue(SemanticsProperties.Hidden, true)
+fun isHidden(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(SemanticsProperties.Hidden, true)
 
 /**
  * Returns whether the component is not hidden.
@@ -185,49 +185,50 @@ fun isHidden(): SemanticsPredicate =
  *
  * @see SemanticsProperties.Hidden
  */
-fun isNotHidden(): SemanticsPredicate =
-    SemanticsPredicate.expectValue(SemanticsProperties.Hidden, false)
+fun isNotHidden(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(SemanticsProperties.Hidden, false)
 
 /**
- * Returns whether the component's parent satisfies the given predicate.
+ * Returns whether the component's parent satisfies the given matcher.
  *
  * Returns false if no parent exists.
  */
-fun hasParentThat(predicate: SemanticsPredicate): SemanticsPredicate {
+fun hasParentThat(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the parent's node semantics
     //  in the error message or say that no parent was found.
-    return SemanticsPredicate("hasAnyParentThat(${predicate.description})") {
-        parent?.run { predicate.condition(this) } ?: false
+    return SemanticsMatcher.fromCondition("hasParentThat(${matcher.description})") {
+        parent?.run { matcher.matches(this) } ?: false
     }
 }
 
 /**
- * Returns whether the component has at least one child that satisfies the given predicate.
+ * Returns whether the component has at least one child that satisfies the given matcher.
  */
-fun hasAnyChildThat(predicate: SemanticsPredicate): SemanticsPredicate {
+fun hasAnyChildThat(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the children nodes semantics
     //  in the error message or say that no children were found.
-    return SemanticsPredicate("hasAnyChildThat(${predicate.description})") {
-        this.children.any { predicate.condition(it) }
+    return SemanticsMatcher.fromCondition("hasAnyChildThat(${matcher.description})") {
+        matcher.matchesAny(this.children)
     }
 }
 
 /**
- * Returns whether the component has at least one sibling that satisfies the given predicate.
+ * Returns whether the component has at least one sibling that satisfies the given matcher.
  *
  * Sibling is defined as a any other node that shares the same parent.
  */
-fun hasAnySiblingThat(predicate: SemanticsPredicate): SemanticsPredicate {
+fun hasAnySiblingThat(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the sibling nodes semantics
     //  in the error message or say that no siblings were found.
-    return SemanticsPredicate("hasAnySiblingThat(${predicate.description})") {
+    return SemanticsMatcher.fromCondition("hasAnySiblingThat(${matcher.description})"
+    ) {
         val node = this
-        parent?.run { this.children.any { it.id != node.id && predicate.condition(it) } } ?: false
+        parent?.run { matcher.match(this.children).any { it.id != node.id } } ?: false
     }
 }
 
 /**
- * Returns whether the component has at least one ancestor that satisfies the given predicate.
+ * Returns whether the component has at least one ancestor that satisfies the given matcher.
  *
  * Example: For the following tree
  * |-X
@@ -235,18 +236,18 @@ fun hasAnySiblingThat(predicate: SemanticsPredicate): SemanticsPredicate {
  *   |-B
  *     |-C1
  *     |-C2
- * In case of C1, we would check the predicate against A and B
+ * In case of C1, we would check the matcher against A and B
  */
-fun hasAnyAncestorThat(predicate: SemanticsPredicate): SemanticsPredicate {
+fun hasAnyAncestorThat(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the ancestor nodes semantics
     //  in the error message or say that no ancestors were found.
-    return SemanticsPredicate("hasAnyAncestorThat(${predicate.description})") {
-        ancestors.any { predicate.condition(it) }
+    return SemanticsMatcher.fromCondition("hasAnyAncestorThat(${matcher.description})") {
+        matcher.matchesAny(ancestors)
     }
 }
 
 /**
- * Returns whether the component has at least one descendant that satisfies the given predicate.
+ * Returns whether the component has at least one descendant that satisfies the given matcher.
  *
  * Example: For the following tree
  * |-X
@@ -254,23 +255,21 @@ fun hasAnyAncestorThat(predicate: SemanticsPredicate): SemanticsPredicate {
  *   |-B
  *     |-C1
  *     |-C2
- * In case of A, we would check the predicate against B,C1 and C2
+ * In case of A, we would check the matcher against B,C1 and C2
  */
-fun hasAnyDescendantThat(predicate: SemanticsPredicate): SemanticsPredicate {
+fun hasAnyDescendantThat(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we could consider printing the whole subtree but
     //  it might be too much to show. But we could at least warn if there were no ancestors found.
-    fun checkIfSubtreeMatches(predicate: SemanticsPredicate, node: SemanticsNode): Boolean {
-        if (predicate.condition(node)) {
+    fun checkIfSubtreeMatches(matcher: SemanticsMatcher, node: SemanticsNode): Boolean {
+        if (matcher.matchesAny(node.children)) {
             return true
         }
 
-        return node.children.any {
-            checkIfSubtreeMatches(predicate, it)
-        }
+        return node.children.any { checkIfSubtreeMatches(matcher, it) }
     }
 
-    return SemanticsPredicate("hasAnyDescendantThat(${predicate.description})") {
-        this.children.any { checkIfSubtreeMatches(predicate, it) }
+    return SemanticsMatcher.fromCondition("hasAnyDescendantThat(${matcher.description})") {
+        checkIfSubtreeMatches(matcher, this)
     }
 }
 
