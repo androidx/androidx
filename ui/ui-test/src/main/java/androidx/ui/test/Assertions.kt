@@ -210,20 +210,20 @@ fun <T : Collection<SemanticsNodeInteraction>> T.assertCountEquals(expectedSize:
 }
 
 /**
- * Asserts that the provided [predicate] is satisfied for this node.
+ * Asserts that the provided [matcher] is satisfied for this node.
  *
- * @param predicate Predicate to verify.
+ * @param matcher Matcher to verify.
  *
- * @throws AssertionError if the predicate fails or the node can no longer be found.
+ * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun SemanticsNodeInteraction.assert(
-    predicate: SemanticsPredicate
+    matcher: SemanticsMatcher
 ): SemanticsNodeInteraction {
-    val errorMessageOnFail = "Failed to assert the following: (${predicate.description})"
+    val errorMessageOnFail = "Failed to assert the following: (${matcher.description})"
     val node = fetchSemanticsNode(errorMessageOnFail)
-    if (!predicate.condition(node)) {
-        throw AssertionError(buildErrorMessageForPredicateFail(
-            selector, node, predicate))
+    if (!matcher.matches(node)) {
+        throw AssertionError(buildErrorMessageForMatcherFail(
+            selector, node, matcher))
     }
     return this
 }

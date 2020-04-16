@@ -70,7 +70,7 @@ class DumpToStringTest {
             ComposeSimpleCase()
         }
 
-        val result = findAll(SemanticsPredicate.any)
+        val result = findAll(SemanticsMatcher.any)
             .dumpToString()
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +

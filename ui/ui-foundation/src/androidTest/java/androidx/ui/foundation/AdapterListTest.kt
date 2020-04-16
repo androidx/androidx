@@ -22,7 +22,7 @@ import androidx.compose.setValue
 import androidx.test.filters.LargeTest
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.testTag
-import androidx.ui.test.SemanticsPredicate
+import androidx.ui.test.SemanticsMatcher
 import androidx.ui.test.assert
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
@@ -58,7 +58,7 @@ class AdapterListTest {
 
         while (numItems >= 0) {
             // Confirm the number of children to ensure there are no extra items
-            findByTag(tag).assert(SemanticsPredicate("Has $numItems children") {
+            findByTag(tag).assert(SemanticsMatcher.fromCondition("Has $numItems children") {
                 children.size == numItems
             })
 
@@ -104,7 +104,7 @@ class AdapterListTest {
 
             // Confirm the number of children to ensure there are no extra items
             val numItems = data.size
-            findByTag(tag).assert(SemanticsPredicate("Has $numItems children") {
+            findByTag(tag).assert(SemanticsMatcher.fromCondition("Has $numItems children") {
                 children.size == numItems
             })
 

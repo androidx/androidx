@@ -22,7 +22,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Layout
 import androidx.ui.core.test.ValueModel
 import androidx.ui.test.SemanticsNodeInteraction
-import androidx.ui.test.SemanticsPredicate
+import androidx.ui.test.SemanticsMatcher
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertLabelEquals
 import androidx.ui.test.assertValueEquals
@@ -381,7 +381,7 @@ class SemanticsTests {
 }
 
 private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: SemanticsPropertyKey<*>) {
-    assert(SemanticsPredicate.keyNotDefined(property))
+    assert(SemanticsMatcher.keyNotDefined(property))
 }
 
 /**
