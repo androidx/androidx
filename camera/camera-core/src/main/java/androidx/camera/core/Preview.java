@@ -297,10 +297,13 @@ public final class Preview extends UseCase {
      * Sets a {@link SurfaceProvider} to provide a {@link Surface} for Preview.
      *
      * <p> Setting the provider will signal to the camera that the use case is ready to receive
-     * data.
+     * data. If the provider is removed by calling this again with a {@code null} SurfaceProvider
+     * then the camera will stop producing data for this Preview instance.
      *
      * @param executor        on which the surfaceProvider will be invoked.
-     * @param surfaceProvider SurfaceProvider that provides a {@link Surface} for Preview.
+     * @param surfaceProvider SurfaceProvider that provides a {@link Surface} for Preview. This
+     *                        will replace the previous SurfaceProvider set either this method or
+     *                        {@link #setSurfaceProvider(SurfaceProvider)}.
      */
     @UiThread
     public void setSurfaceProvider(@NonNull Executor executor,
@@ -341,9 +344,13 @@ public final class Preview extends UseCase {
      * Sets a {@link SurfaceProvider} to provide a {@link Surface} for Preview.
      *
      * <p> Setting the provider will signal to the camera that the use case is ready to receive
-     * data. The provider will be triggered on main thread.
+     * data. The provider will be triggered on main thread. If the provider is removed by calling
+     * this again with a {@code null} SurfaceProvider then the camera will stop producing data for
+     * this Preview instance.
      *
-     * @param surfaceProvider PreviewSurfaceProvider that provides a Preview.
+     * @param surfaceProvider SurfaceProvider that provides a {@link Surface} for Preview. This
+     *                        will replace the previous SurfaceProvider set either this method or
+     *                        {@link #setSurfaceProvider(Executor, SurfaceProvider)}.
      */
     @UiThread
     public void setSurfaceProvider(@Nullable SurfaceProvider surfaceProvider) {
