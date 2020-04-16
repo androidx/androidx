@@ -47,7 +47,7 @@ android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()
 
-    // Create jar<variant> task for testImplementation in viewmodel-hilt--compiler.
+    // Create jar<variant> task for testImplementation in hilt--compiler.
     project.tasks.create(name: "jar${suffix}", type: Jar){
         dependsOn variant.javaCompileProvider.get()
         from variant.javaCompileProvider.get().destinationDir

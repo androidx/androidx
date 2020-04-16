@@ -16,6 +16,8 @@
 
 package androidx.hilt.lifecycle
 
+import androidx.hilt.GENERATED_ANNOTATION
+import androidx.hilt.GENERATED_TYPE
 import androidx.hilt.Sources
 import androidx.hilt.compiler
 import androidx.hilt.toJFO
@@ -26,16 +28,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class ViewModelGeneratorTest {
-
-    private val GENERATED_TYPE = try {
-        Class.forName("javax.annotation.processing.Generated")
-        "javax.annotation.processing.Generated"
-    } catch (_: ClassNotFoundException) {
-        "javax.annotation.Generated"
-    }
-
-    private val GENERATED_ANNOTATION =
-        "@Generated(\"androidx.hilt.AndroidXHiltProcessor\")"
 
     @Test
     fun verifyAssistedFactory_noArg() {
@@ -70,7 +62,7 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle handle) {
+            public MyViewModel create(@NonNull SavedStateHandle arg0) {
                 return new MyViewModel();
             }
         }
@@ -118,8 +110,8 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle handle) {
-                return new MyViewModel(handle);
+            public MyViewModel create(@NonNull SavedStateHandle arg0) {
+                return new MyViewModel(arg0);
             }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
@@ -184,8 +176,8 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle handle) {
-                return new MyViewModel(s.get(), f.get(), handle, l.get());
+            public MyViewModel create(@NonNull SavedStateHandle arg0) {
+                return new MyViewModel(s.get(), f.get(), arg0, l.get());
             }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
@@ -248,8 +240,8 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle handle) {
-                return new MyViewModel(s.get(), f, handle);
+            public MyViewModel create(@NonNull SavedStateHandle arg0) {
+                return new MyViewModel(s.get(), f, arg0);
             }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
@@ -322,8 +314,8 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle handle) {
-                return new MyViewModel(s.get(), l, handle);
+            public MyViewModel create(@NonNull SavedStateHandle arg0) {
+                return new MyViewModel(s.get(), l, arg0);
             }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
@@ -377,8 +369,8 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle handle) {
-                return new MyViewModel(handle, s.get(), handle);
+            public MyViewModel create(@NonNull SavedStateHandle arg0) {
+                return new MyViewModel(arg0, s.get(), arg0);
             }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
@@ -472,7 +464,7 @@ class ViewModelGeneratorTest {
 
             @Override
             @NonNull
-            public Outer.InnerViewModel create(@NonNull SavedStateHandle handle) {
+            public Outer.InnerViewModel create(@NonNull SavedStateHandle arg0) {
                 return new Outer.InnerViewModel();
             }
         }
