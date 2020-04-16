@@ -312,6 +312,24 @@ package androidx.ui.unit {
     property public final inline androidx.ui.unit.IntPx width;
   }
 
+  public final inline class IntSize {
+    ctor public IntSize();
+    method public static long constructor-impl(internal long value);
+    method public static operator long div-impl(long $this, int other);
+    method public static boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public static int getHeight-impl(long $this);
+    method public static int getWidth-impl(long $this);
+    method public static int hashCode-impl(long p);
+    method public static operator long times-impl(long $this, int other);
+    method public static String toString-impl(long $this);
+  }
+
+  public final class IntSizeKt {
+    method public static long IntSize(int width, int height);
+    method public static operator long times-twsQOwo(int, long size);
+  }
+
   public final inline class Position {
     ctor public Position();
     method public static long constructor-impl(internal long value);
