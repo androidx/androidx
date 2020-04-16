@@ -207,6 +207,7 @@ public final class NavDeepLink {
      * Get the uri from the NavDeepLink.
      *
      * @return the uri for the deep link.
+     * @see NavDeepLinkRequest#getUri()
      */
     @Nullable
     public String getUri() {
@@ -217,6 +218,7 @@ public final class NavDeepLink {
      * Get the action from the NavDeepLink.
      *
      * @return the action for the deep link.
+     * @see NavDeepLinkRequest#getAction()
      */
     @Nullable
     public String getAction() {
@@ -227,6 +229,7 @@ public final class NavDeepLink {
      * Get the mimeType from the NavDeepLink.
      *
      * @return the mimeType of the deep link.
+     * @see NavDeepLinkRequest#getMimeType()
      */
     @Nullable
     public String getMimeType() {
