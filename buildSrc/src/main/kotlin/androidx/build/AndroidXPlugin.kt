@@ -23,9 +23,9 @@ import androidx.build.SupportConfig.DEFAULT_MIN_SDK_VERSION
 import androidx.build.SupportConfig.INSTRUMENTATION_RUNNER
 import androidx.build.SupportConfig.TARGET_SDK_VERSION
 import androidx.build.checkapi.ApiType
-import androidx.build.checkapi.getApiLocation
+import androidx.build.checkapi.getVersionedApiLocation
 import androidx.build.checkapi.getRequiredCompatibilityApiFileFromDir
-import androidx.build.checkapi.hasApiFolder
+import androidx.build.checkapi.hasApiFileDirectory
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.dokka.Dokka.configureAndroidProjectForDokka
 import androidx.build.dokka.Dokka.configureJavaProjectForDokka
@@ -40,6 +40,7 @@ import androidx.build.license.configureExternalDependencyLicenseCheck
 import androidx.build.metalava.MetalavaTasks.configureAndroidProjectForMetalava
 import androidx.build.metalava.MetalavaTasks.configureJavaProjectForMetalava
 import androidx.build.metalava.UpdateApiTask
+import androidx.build.studio.StudioTask
 import androidx.build.studio.StudioTask.Companion.registerStudioTask
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
@@ -251,8 +252,7 @@ class AndroidXPlugin : Plugin<Project> {
             }
             task.systemProperty("robolectric.offline", "true")
             val robolectricDependencies =
-                File(SupportConfig.getPrebuiltsRootPath(project) +
-                        "/androidx/external/org/robolectric/android-all")
+                File(project.getPrebuiltsRoot(), "androidx/external/org/robolectric/android-all")
             task.systemProperty(
                 "robolectric.dependency.dir",
                 robolectricDependencies.absolutePath
@@ -331,8 +331,7 @@ class AndroidXPlugin : Plugin<Project> {
         buildOnServerTask.dependsOn(createCoverageJarTask)
         buildOnServerTask.dependsOn(Jacoco.createZipEcFilesTask(this))
 
-        val rootProjectDir = SupportConfig.getSupportRoot(rootProject).canonicalFile
-        val allDocsTask = DiffAndDocs.configureDiffAndDocs(this, rootProjectDir,
+        val allDocsTask = DiffAndDocs.configureDiffAndDocs(this,
                 DacOptions("androidx", "ANDROIDX_DATA"),
                 listOf(RELEASE_RULE))
         buildOnServerTask.dependsOn(allDocsTask)
@@ -346,19 +345,19 @@ class AndroidXPlugin : Plugin<Project> {
             // This requires evaluating all sub-projects to create the module:project map
             // and project dependencies.
             evaluationDependsOnChildren()
-            subprojects { project ->
-                project.configurations.all { configuration ->
-                    project.afterEvaluate {
-                        // Substitute only for debug configurations/tasks only because we can not
-                        // change release dependencies after evaluation. Test hooks, buildOnServer
-                        // and buildTestApks use the debug configurations as well.
-                        if (project.extra.has("publish") &&
-                            configuration.name.toLowerCase().contains("debug")
-                        ) {
-                            configuration.resolutionStrategy.dependencySubstitution.apply {
-                                for (e in projectModules) {
-                                    substitute(module(e.key)).with(project(e.value))
-                                }
+            subprojects { subproject ->
+                // TODO(153485458) remove most of these exceptions
+                if (subproject.name != "docs-fake" &&
+                    !subproject.name.contains("hilt") &&
+                    subproject.name != "camera-testapp-timing" &&
+                    subproject.name != "room-testapp" &&
+                    subproject.name != "support-media2-test-client-previous" &&
+                    subproject.name != "support-media2-test-service-previous") {
+
+                    subproject.configurations.all { configuration ->
+                        configuration.resolutionStrategy.dependencySubstitution.apply {
+                            for (e in projectModules) {
+                                substitute(module(e.key)).with(project(e.value))
                             }
                         }
                     }
@@ -372,7 +371,7 @@ class AndroidXPlugin : Plugin<Project> {
 
         project.tasks.register("listTaskOutputs", ListTaskOutputsTask::class.java) { task ->
             task.setOutput(File(project.getDistributionDirectory(), "task_outputs.txt"))
-            task.removePrefix(File(rootProjectDir, "../../").canonicalFile.path)
+            task.removePrefix(project.getCheckoutRoot().path)
         }
         publishInspectionArtifacts()
     }
@@ -431,7 +430,7 @@ class AndroidXPlugin : Plugin<Project> {
 
         val debugSigningConfig = signingConfigs.getByName("debug")
         // Use a local debug keystore to avoid build server issues.
-        debugSigningConfig.storeFile = SupportConfig.getKeystore(project)
+        debugSigningConfig.storeFile = project.getKeystore()
         buildTypes.all { buildType ->
             // Sign all the builds (including release) with debug key
             buildType.signingConfig = debugSigningConfig
@@ -716,7 +715,7 @@ private fun Project.createCheckResourceApiTask(): TaskProvider<CheckResourceApiT
     return tasks.registerWithConfig("checkResourceApi",
             CheckResourceApiTask::class.java) {
         newApiFile = getGenerateResourceApiFile()
-        oldApiFile = getApiLocation().resourceFile
+        oldApiFile = getVersionedApiLocation().resourceFile
         cacheEvenIfNoOutputs()
     }
 }
@@ -734,7 +733,7 @@ private fun Project.createUpdateResourceApiTask(): TaskProvider<UpdateResourceAp
         newApiFile = getGenerateResourceApiFile()
         oldApiFile = getRequiredCompatibilityApiFileFromDir(File(projectDir, "api/"),
                 version(), ApiType.RESOURCEAPI)
-        destApiFile = getApiLocation().resourceFile
+        destApiFile = getVersionedApiLocation().resourceFile
     }
 }
 
@@ -745,7 +744,7 @@ fun Project.getProjectsMap(): ConcurrentHashMap<String, String> {
 
 private fun Project.configureResourceApiChecks(extension: LibraryExtension) {
     afterEvaluate {
-        if (hasApiFolder()) {
+        if (project.hasApiFileDirectory()) {
             val checkResourceApiTask = createCheckResourceApiTask()
             val updateResourceApiTask = createUpdateResourceApiTask()
 
@@ -767,7 +766,11 @@ private fun Project.configureResourceApiChecks(extension: LibraryExtension) {
 // b/153193718 : builds are timing out
 private fun Project.configureTaskTimeouts() {
     tasks.configureEach { t ->
-        t.timeout.set(Duration.ofMinutes(10))
+        // skip adding a timeout for some tasks that both take a long time and
+        // that we can count on the user to monitor
+        if (t !is StudioTask) {
+            t.timeout.set(Duration.ofMinutes(30))
+        }
     }
 }
 
@@ -777,8 +780,8 @@ private fun Project.getGenerateResourceApiFile(): File {
 
 private fun Project.configureCompilationWarnings(task: JavaCompile) {
     if (hasProperty(ALL_WARNINGS_AS_ERRORS)) {
-            task.options.compilerArgs.add("-Werror")
-            task.options.compilerArgs.add("-Xlint:unchecked")
+        task.options.compilerArgs.add("-Werror")
+        task.options.compilerArgs.add("-Xlint:unchecked")
     }
 }
 
@@ -786,6 +789,7 @@ private fun Project.configureCompilationWarnings(task: KotlinCompile) {
     if (hasProperty(ALL_WARNINGS_AS_ERRORS)) {
         task.kotlinOptions.allWarningsAsErrors = true
     }
+    task.kotlinOptions.freeCompilerArgs += listOf("-Xskip-runtime-version-check")
 }
 
 private fun Project.setDependencyVersions() {

@@ -31,7 +31,6 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -863,15 +862,17 @@ public class WebViewCompat {
     /**
      * Returns true if {@link WebView} is running in multi process mode.
      *
-     * //TODO(laisminchillo): unhide
-     * @hide
+     * <p>In Android O and above, WebView may run in "multiprocess"
+     * mode. In multiprocess mode, rendering of web content is performed by
+     * a sandboxed renderer process separate to the application process.
+     * This renderer process may be shared with other WebViews in the
+     * application, but is not shared with other application processes.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresFeature(name = WebViewFeature.MULTI_PROCESS_QUERY,
+    @RequiresFeature(name = WebViewFeature.MULTI_PROCESS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean isMultiProcessEnabled() {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
-                WebViewFeature.MULTI_PROCESS_QUERY);
+                WebViewFeature.MULTI_PROCESS);
         if (feature.isSupportedByWebView()) {
             return getFactory().getStatics().isMultiProcessEnabled();
         } else {

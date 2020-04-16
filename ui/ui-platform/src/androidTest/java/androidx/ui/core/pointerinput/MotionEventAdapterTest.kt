@@ -18,7 +18,10 @@ package androidx.ui.core.pointerinput
 
 import android.view.MotionEvent
 import androidx.test.filters.SmallTest
+import androidx.ui.core.MotionEvent
+import androidx.ui.core.PointerCoords
 import androidx.ui.core.PointerId
+import androidx.ui.core.PointerProperties
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -1374,40 +1377,24 @@ class MotionEventAdapterTest {
         assertThat(motionEventAdapter.intIdToPointerIdMap).isEmpty()
     }
 
+    @Test
+    fun processMotionEvent_doesNotSynchronouslyMutateMotionEvent() {
+        val motionEvent = MotionEvent(
+            1,
+            MotionEvent.ACTION_DOWN,
+            1,
+            0,
+            arrayOf(PointerProperties(2)),
+            arrayOf(PointerCoords(3f, 4f)))
+        motionEvent.offsetLocation(10f, 100f)
+
+        motionEventAdapter.processMotionEvent(motionEvent)
+
+        assertThat(motionEvent.getX()).isEqualTo(13f)
+        assertThat(motionEvent.getY()).isEqualTo(104f)
+    }
+
     // Private help functions.
-
-    private fun PointerProperties(id: Int) =
-        MotionEvent.PointerProperties().apply { this.id = id }
-
-    private fun PointerCoords(x: Float, y: Float) =
-        MotionEvent.PointerCoords().apply {
-            this.x = x
-            this.y = y
-        }
-
-    private fun MotionEvent(
-        eventTime: Int,
-        action: Int,
-        numPointers: Int,
-        actionIndex: Int,
-        pointerProperties: Array<MotionEvent.PointerProperties>,
-        pointerCoords: Array<MotionEvent.PointerCoords>
-    ) = MotionEvent.obtain(
-        0,
-        eventTime.toLong(),
-        action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
-        numPointers,
-        pointerProperties,
-        pointerCoords,
-        0,
-        0,
-        0f,
-        0f,
-        0,
-        0,
-        0,
-        0
-    )
 
     private fun assertPointerInputEventData(
         actual: PointerInputEventData,

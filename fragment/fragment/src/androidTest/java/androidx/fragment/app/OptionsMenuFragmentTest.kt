@@ -31,6 +31,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CountDownLatch
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -84,6 +85,30 @@ class OptionsMenuFragmentTest {
             .that(parent.hasOptionsMenu()).isFalse()
         assertWithMessage("Child fragment should have an options menu")
             .that(parent.mChildFragmentManager.checkForMenus()).isTrue()
+    }
+
+    @Test
+    fun childFragmentWithOptionsMenuParentMenuVisibilityFalse() {
+        activityRule.setContentView(R.layout.simple_container)
+        val parent = ParentOptionsMenuFragment()
+        val fm = activityRule.activity.supportFragmentManager
+
+        parent.setMenuVisibility(false)
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, parent, "parent")
+            .commit()
+        activityRule.executePendingTransactions()
+
+        assertWithMessage("Fragment should not have an options menu")
+            .that(parent.hasOptionsMenu()).isFalse()
+        assertWithMessage("Child fragment should have an options menu")
+            .that(parent.childFragmentManager.checkForMenus()).isTrue()
+
+        activityRule.runOnUiThread {
+            assertWithMessage("child fragment onCreateOptions menu was not called")
+                .that(parent.childFragment.onCreateOptionsMenuCountDownLatch.count)
+                .isEqualTo(1)
+        }
     }
 
     @Test
@@ -151,6 +176,8 @@ class OptionsMenuFragmentTest {
     }
 
     class OptionsMenuFragment : StrictViewFragment(R.layout.fragment_a) {
+        val onCreateOptionsMenuCountDownLatch = CountDownLatch(1)
+
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setHasOptionsMenu(true)
@@ -158,6 +185,7 @@ class OptionsMenuFragmentTest {
 
         override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
             super.onCreateOptionsMenu(menu, inflater)
+            onCreateOptionsMenuCountDownLatch.countDown()
             inflater.inflate(R.menu.example_menu, menu)
         }
     }
@@ -165,6 +193,7 @@ class OptionsMenuFragmentTest {
     class ParentOptionsMenuFragment(
         val createMenu: Boolean = false
     ) : StrictViewFragment(R.layout.double_container) {
+        val childFragment = OptionsMenuFragment()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -179,7 +208,7 @@ class OptionsMenuFragmentTest {
             savedInstanceState: Bundle?
         ): View? {
             childFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer1, OptionsMenuFragment())
+                .replace(R.id.fragmentContainer1, childFragment)
                 .commit()
             childFragmentManager.executePendingTransactions()
             return super.onCreateView(inflater, container, savedInstanceState)

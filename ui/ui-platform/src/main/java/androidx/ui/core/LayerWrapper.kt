@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import android.graphics.Matrix
 import android.graphics.RectF
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntPxPosition
@@ -47,6 +48,8 @@ internal class LayerWrapper(
 
     // TODO(mount): This cache isn't thread safe at all.
     private var positionCache: FloatArray? = null
+    // TODO (njawad): This cache matrix is not thread safe
+    private var inverseMatrixCache: Matrix? = null
 
     override fun performMeasure(constraints: Constraints): Placeable {
         val placeable = super.performMeasure(constraints)
@@ -72,24 +75,47 @@ internal class LayerWrapper(
         return layer
     }
 
+    override fun fromParentPosition(position: PxPosition): PxPosition {
+        val matrix = layer.getMatrix()
+        val targetPosition =
+            if (!matrix.isIdentity) {
+                val inverse = inverseMatrixCache ?: Matrix().also { inverseMatrixCache = it }
+                matrix.invert(inverse)
+                mapPointsFromMatrix(inverse, position)
+            } else {
+                position
+            }
+        return super.fromParentPosition(targetPosition)
+    }
+
     override fun toParentPosition(position: PxPosition): PxPosition {
         val matrix = layer.getMatrix()
-        if (!matrix.isIdentity) {
-            val x = position.x.value
-            val y = position.y.value
-            val cache = positionCache
-            val point = if (cache != null) {
-                cache[0] = x
-                cache[1] = y
-                cache
+        val targetPosition =
+            if (!matrix.isIdentity) {
+                mapPointsFromMatrix(matrix, position)
             } else {
-                floatArrayOf(x, y).also { positionCache = it }
+                position
             }
-            matrix.mapPoints(point)
-            return super.toParentPosition(PxPosition(point[0].px, point[1].px))
+        return super.toParentPosition(targetPosition)
+    }
+
+    /**
+     * Return a transformed [PxPosition] based off of the provided matrix transformation
+     * and untransformed position.
+     */
+    private fun mapPointsFromMatrix(matrix: Matrix, position: PxPosition): PxPosition {
+        val x = position.x.value
+        val y = position.y.value
+        val cache = positionCache
+        val point = if (cache != null) {
+            cache[0] = x
+            cache[1] = y
+            cache
         } else {
-            return super.toParentPosition(position)
+            floatArrayOf(x, y).also { positionCache = it }
         }
+        matrix.mapPoints(point)
+        return PxPosition(point[0].px, point[1].px)
     }
 
     override fun rectInParent(bounds: RectF) {

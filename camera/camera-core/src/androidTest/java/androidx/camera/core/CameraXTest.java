@@ -26,8 +26,11 @@ import static org.mockito.Mockito.spy;
 
 import android.app.Instrumentation;
 import android.content.Context;
+import android.graphics.Rect;
+import android.util.Rational;
 import android.util.Size;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraFactory;
@@ -57,7 +60,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -111,6 +118,123 @@ public final class CameraXTest {
         }
 
         CameraX.shutdown().get();
+    }
+
+    @Test
+    public void cropRect_twoSurfacesIntersectCropWide() {
+        assertThat(
+                getCropRects(
+                        new Size(800, 800),
+                        180,
+                        new Rational(1, 2),
+                        new Size(400, 800),
+                        new Size(800, 400)))
+                .isEqualTo(
+                        new Rect[]{
+                                new Rect(100, 200, 300, 600),
+                                new Rect(300, 0, 500, 400)
+                        });
+    }
+
+    @Test
+    public void cropRect_twoSurfacesIntersectCropNarrow() {
+        assertThat(
+                getCropRects(
+                        new Size(800, 800),
+                        180,
+                        new Rational(2, 1),
+                        new Size(400, 800),
+                        new Size(800, 400)))
+                .isEqualTo(
+                        new Rect[]{
+                                new Rect(0, 300, 400, 500),
+                                new Rect(200, 100, 600, 300)
+                        });
+    }
+
+    @Test
+    public void cropRectRotation90_landscapeCropForPortraitMode() {
+        assertThat(
+                getCropRects(
+                        new Size(800, 600),
+                        90,
+                        new Rational(400, 300),
+                        new Size(400, 300)))
+                .isEqualTo(new Rect[]{
+                        new Rect(88, 0, 313, 300)
+                });
+    }
+
+    /**
+     * Calls {@link CameraX#calculateCropRects(Rect, Rational, int, Map)}.
+     */
+    private Rect[] getCropRects(Size sensorSize,
+            @IntRange(from = 0, to = 359) int rotationDegree,
+            Rational aspectRatio,
+            Size... sizes) {
+        // Convert the sizes into a UseCase map.
+        List<UseCase> orderedUseCases = new ArrayList<>();
+        Map<UseCase, Size> useCaseSizeMap = new HashMap<UseCase, Size>() {
+            {
+                for (Size size : sizes) {
+                    FakeUseCase fakeUseCase = new FakeUseCaseConfig.Builder().build();
+                    put(fakeUseCase, size);
+                    orderedUseCases.add(fakeUseCase);
+                }
+            }
+        };
+
+        Map<UseCase, Rect> useCaseCropRects = CameraX.calculateCropRects(
+                new Rect(0, 0, sensorSize.getWidth(), sensorSize.getHeight()),
+                aspectRatio,
+                rotationDegree,
+                useCaseSizeMap);
+
+        // Converts the map back to sizes array.
+        List<Rect> orderedCropRects = new ArrayList<>();
+        for (UseCase useCase : orderedUseCases) {
+            orderedCropRects.add(useCaseCropRects.get(useCase));
+        }
+
+        return orderedCropRects.toArray(new Rect[0]);
+    }
+
+    @Test
+    public void rotateUseCasesWith180Degrees_unchanged() {
+        // Arrange.
+        UseCase useCase1 = mock(UseCase.class);
+        UseCase useCase2 = mock(UseCase.class);
+        Map<UseCase, Size> useCaseSizeMap = new HashMap<UseCase, Size>() {
+            {
+                put(useCase1, new Size(800, 600));
+                put(useCase2, new Size(1600, 900));
+            }
+        };
+
+        // Assert: return the same set of sizes.
+        assertThat(CameraX.getRotatedUseCaseSizes(180, useCaseSizeMap)).isEqualTo(useCaseSizeMap);
+    }
+
+    @Test
+    public void rotateUseCasesWith90Degrees_rotated() {
+        // Arrange.
+        UseCase useCase1 = mock(UseCase.class);
+        UseCase useCase2 = mock(UseCase.class);
+        Map<UseCase, Size> useCaseSizeMap = new HashMap<UseCase, Size>() {
+            {
+                put(useCase1, new Size(800, 600));
+                put(useCase2, new Size(1600, 900));
+            }
+        };
+
+        // Assert: return a set of rotated sizes.
+        assertThat(CameraX.getRotatedUseCaseSizes(90, useCaseSizeMap)).isEqualTo(
+                new HashMap<UseCase, Size>() {
+                    {
+                        put(useCase1, new Size(600, 800));
+                        put(useCase2, new Size(900, 1600));
+                    }
+                });
     }
 
     @Test

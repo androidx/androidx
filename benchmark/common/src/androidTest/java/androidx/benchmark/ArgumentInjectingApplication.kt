@@ -38,8 +38,6 @@ class ArgumentInjectingApplication : Application() {
         super.onCreate()
 
         argumentSource = Bundle().apply {
-            putString("androidx.benchmark.output.enable", "true")
-
             // Since these benchmark correctness tests run as part of the regular
             // (non-performance-test) suite, they will have debuggable=true, won't be clock-locked,
             // can run with low-battery or on an emulator, and code coverage enabled.

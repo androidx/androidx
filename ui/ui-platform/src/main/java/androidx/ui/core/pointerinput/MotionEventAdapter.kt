@@ -23,13 +23,12 @@ import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import androidx.annotation.VisibleForTesting
-import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerId
+import androidx.ui.core.PointerInputData
 import androidx.ui.unit.NanosecondsPerMillisecond
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.Uptime
 import androidx.ui.unit.px
-import java.lang.IllegalStateException
 
 /**
  * Converts Android framework [MotionEvent]s into Compose [PointerInputEvent]s.
@@ -71,19 +70,29 @@ class MotionEventAdapter {
             else -> null
         }
 
-        // This offsets the entire MotionEvent to be relative to the screen.  This is required to
-        // create a valid PointerInputEvent.
-        motionEvent.setLocation(motionEvent.rawX, motionEvent.rawY)
-
         val pointers: MutableList<PointerInputEventData> = mutableListOf()
-        for (i in 0 until motionEvent.pointerCount) {
-            pointers.add(createPointerInputEventData(motionEvent, i, downIndex, upIndex))
+
+        @Suppress("NAME_SHADOWING")
+        motionEvent.asOffsetToScreen { motionEvent ->
+            for (i in 0 until motionEvent.pointerCount) {
+                pointers.add(createPointerInputEventData(motionEvent, i, downIndex, upIndex))
+            }
         }
 
         return PointerInputEvent(
             Uptime(motionEvent.eventTime * NanosecondsPerMillisecond),
             pointers
         )
+    }
+
+    private inline fun MotionEvent.asOffsetToScreen(block: (MotionEvent) -> Unit) {
+        // Mutate the motion event to be relative to the screen. This is required to create a
+        // valid PointerInputEvent.
+        val offsetX = rawX - x
+        val offsetY = rawY - y
+        offsetLocation(offsetX, offsetY)
+        block(this)
+        offsetLocation(-offsetX, -offsetY)
     }
 
     /**

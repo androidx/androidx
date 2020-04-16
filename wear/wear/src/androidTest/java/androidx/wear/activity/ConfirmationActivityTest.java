@@ -84,7 +84,6 @@ public class ConfirmationActivityTest {
         mActivityRule.getActivity().setDuration(duration);
         // WHEN we click on the button
         mActivityRule.runOnUiThread(button::performClick);
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         // THEN wait for the activity to be drawn
         Thread.sleep(MILLIS_TO_WAIT_FOR_ACTIVITY_TO_BE_DRAWN);
         // AND lose window focus to the confirmation activity on top

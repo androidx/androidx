@@ -22,6 +22,7 @@ import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.test.android.SynchronizedTreeCollector
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.height
@@ -192,7 +193,7 @@ fun <T : Collection<SemanticsNodeInteraction>> T.assertCountEquals(expectedSize:
         // Quite often all the elements of a collection come from the same selector. So we try to
         // distinct them hoping we get just one selector to show it to the user on failure.
         // TODO: If there is more than one selector maybe show selector per node?
-        val selectors = map { it.semanticsTreeInteraction.selector }
+        val selectors = map { it.selector }
             .distinct()
         val selector = if (selectors.size == 1) {
             selectors.first()
@@ -222,7 +223,7 @@ fun SemanticsNodeInteraction.assert(
     val node = fetchSemanticsNode(errorMessageOnFail)
     if (!predicate.condition(node)) {
         throw AssertionError(buildErrorMessageForPredicateFail(
-            semanticsTreeInteraction.selector, node, predicate))
+            selector, node, predicate))
     }
     return this
 }
@@ -239,11 +240,30 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
 
     // check node doesn't clip unintentionally (e.g. row too small for content)
     val globalRect = node.globalBounds
-    if (!semanticsTreeInteraction.isInScreenBounds(globalRect)) {
+    if (!isInScreenBounds(globalRect)) {
         return false
     }
 
     return (globalRect.width > 0.px && globalRect.height > 0.px)
+}
+
+internal fun isInScreenBounds(rectangle: PxBounds): Boolean {
+    if (rectangle.width == 0.px && rectangle.height == 0.px) {
+        return false
+    }
+    val displayMetrics = SynchronizedTreeCollector.collectOwners()
+        .findActivity()
+        .resources
+        .displayMetrics
+
+    val bottomRight = PxPosition(
+        displayMetrics.widthPixels.px,
+        displayMetrics.heightPixels.px
+    )
+    return rectangle.top >= 0.px &&
+            rectangle.left >= 0.px &&
+            rectangle.right <= bottomRight.x &&
+            rectangle.bottom <= bottomRight.y
 }
 
 /**

@@ -28,10 +28,15 @@ def includeProject(name, filePath) {
     settings.include(name)
 
     def file
-    if (filePath instanceof String) {
-        file = new File(rootDir, filePath)
+    if (filePath != null) {
+        if (filePath instanceof String) {
+            file = new File(rootDir, filePath)
+        } else {
+            file = filePath
+        }
+        project(name).projectDir = file
     } else {
-        file = filePath
+        file = project(name).projectDir
     }
     if (!file.exists()) {
         // This option is supported so that development/simplify_build_failure.sh can try
@@ -40,9 +45,11 @@ def includeProject(name, filePath) {
             throw new Exception("Path " + file + " does not exist; cannot include project " + name)
         }
     }
-    project(name).projectDir = file
 }
 
+def includeProject(name) {
+    includeProject(name, null)
+}
 
 /////////////////////////////
 //
@@ -84,6 +91,11 @@ includeProject(":benchmark:integration-tests:startup-benchmark", "benchmark/inte
 includeProject(":biometric:biometric", "biometric/biometric")
 includeProject(":browser:browser", "browser/browser")
 includeProject(":buildSrc-tests", "buildSrc-tests")
+// these projects intentionally fail to compile unless useMaxDepVersions is enabled
+if (startParameter.projectProperties.containsKey('useMaxDepVersions')) {
+    includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-dep")
+    includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", "buildSrc-tests/max-dep-versions/buildSrc-tests-max-dep-versions-main")
+}
 includeProject(":camera:camera-camera2", "camera/camera-camera2")
 includeProject(":camera:camera-core", "camera/camera-core")
 includeProject(":camera:camera-extensions", "camera/camera-extensions")
@@ -137,10 +149,12 @@ includeProject(":fragment:fragment-truth", "fragment/fragment-truth")
 includeProject(":fakeannotations", "fakeannotations")
 includeProject(":gridlayout:gridlayout", "gridlayout/gridlayout")
 includeProject(":heifwriter:heifwriter", "heifwriter/heifwriter")
-includeProject(":hilt:hilt-common", "hilt/common")
-includeProject(":hilt:hilt-compiler", "hilt/compiler")
-includeProject(":hilt:hilt-lifecycle-viewmodel", "hilt/lifecycle-viewmodel")
+includeProject(":hilt:hilt-common", "hilt/hilt-common")
+includeProject(":hilt:hilt-compiler", "hilt/hilt-compiler")
+includeProject(":hilt:hilt-lifecycle-viewmodel", "hilt/hilt-lifecycle-viewmodel")
+includeProject(":hilt:hilt-work", "hilt/hilt-work")
 includeProject(":hilt:integration-tests:hilt-testapp-viewmodel", "hilt/integration-tests/viewmodelapp")
+includeProject(":hilt:integration-tests:hilt-testapp-worker", "hilt/integration-tests/workerapp")
 includeProject(":inspection:inspection", "inspection/inspection")
 includeProject(":inspection:inspection-gradle-plugin", "inspection/inspection-gradle-plugin")
 includeProject(":inspection:inspection-testing", "inspection/inspection-testing")
@@ -386,8 +400,9 @@ includeProject(":support-media2-test-common", "media2/session/version-compat-tes
 apply(from: "include-composite-deps.gradle")
 File externalRoot = new File(rootDir, "../../external")
 
+includeProject(":icing:java", new File(externalRoot, "icing/java"))
+includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"))
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
-includeProject(":icing", new File(externalRoot, "icing"))
 
 // fake project which is used for docs generation from prebuilts
 // we need real android project to generate R.java, aidl etc files that mentioned in sources

@@ -1016,7 +1016,7 @@ class PagerTest {
             advanceUntilIdle()
 
             assertEquals(1, remoteMediator.loadEvents.size)
-            assertEquals(START, remoteMediator.loadEvents[0].loaddType)
+            assertEquals(START, remoteMediator.loadEvents[0].loadType)
             assertNotNull(remoteMediator.loadEvents[0].state)
         }
     }
@@ -1043,8 +1043,114 @@ class PagerTest {
             advanceUntilIdle()
 
             assertEquals(1, remoteMediator.loadEvents.size)
-            assertEquals(END, remoteMediator.loadEvents[0].loaddType)
+            assertEquals(END, remoteMediator.loadEvents[0].loadType)
             assertNotNull(remoteMediator.loadEvents[0].state)
+        }
+    }
+
+    @Test
+    fun remoteMediator_canRequestMoreDataLoadStateIdle() = testScope.runBlockingTest {
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                super.load(loadType, state)
+                return MediatorResult.Success(canRequestMoreData = true)
+            }
+        }
+
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 1,
+            maxSize = 5
+        )
+        val pager = Pager(
+            initialKey = 99,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
+        )
+
+        collectPagerData(pager) { pageEvents, _ ->
+            advanceUntilIdle()
+
+            assertEvents(
+                listOf(
+                    LoadStateUpdate(loadType = REFRESH, loadState = Loading),
+                    LoadStateUpdate(loadType = END, loadState = Loading),
+                    Refresh(
+                        pages = listOf(
+                            TransformablePage(
+                                originalPageOffset = 0,
+                                data = listOf(99),
+                                originalPageSize = 1,
+                                originalIndices = null
+                            )
+                        ),
+                        placeholdersStart = 99,
+                        placeholdersEnd = 0,
+                        loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                    )
+                ),
+                pageEvents
+            )
+        }
+    }
+
+    @Test
+    fun remoteMediator_canRequestMoreDataLoadStateDone() = testScope.runBlockingTest {
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                super.load(loadType, state)
+                return MediatorResult.Success(canRequestMoreData = false)
+            }
+        }
+
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 1,
+            maxSize = 5
+        )
+        val pager = Pager(
+            initialKey = 99,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
+        )
+
+        collectPagerData(pager) { pageEvents, _ ->
+            advanceUntilIdle()
+
+            assertEvents(
+                listOf(
+                    LoadStateUpdate(loadType = REFRESH, loadState = Loading),
+                    LoadStateUpdate(loadType = END, loadState = Loading),
+                    Refresh(
+                        pages = listOf(
+                            TransformablePage(
+                                originalPageOffset = 0,
+                                data = listOf(99),
+                                originalPageSize = 1,
+                                originalIndices = null
+                            )
+                        ),
+                        placeholdersStart = 99,
+                        placeholdersEnd = 0,
+                        loadStates = mapOf(REFRESH to Idle, START to Idle, END to Done)
+                    )
+                ),
+                pageEvents
+            )
         }
     }
 

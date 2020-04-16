@@ -576,6 +576,18 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 && isPrimaryNavigation(parentFragmentManager.mParent);
     }
 
+    /**
+     * Recursively check up the FragmentManager hierarchy of Fragments to see
+     * if the menus are all visible.
+     */
+    boolean isParentMenuVisible(@Nullable Fragment parent) {
+        if (parent == null) {
+            return true;
+        }
+
+        return parent.isMenuVisible();
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleOnBackPressed() {
         // First, execute any pending actions to make sure we're in an
@@ -1483,19 +1495,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
         moveToState(f);
 
         if (f.mView != null) {
-            // Move the view if it is out of order
-            Fragment underFragment = mFragmentStore.findFragmentUnder(f);
-            if (underFragment != null) {
-                final View underView = underFragment.mView;
-                // make sure this fragment is in the right order.
-                final ViewGroup container = f.mContainer;
-                int underIndex = container.indexOfChild(underView);
-                int viewIndex = container.indexOfChild(f.mView);
-                if (viewIndex < underIndex) {
-                    container.removeViewAt(viewIndex);
-                    container.addView(f.mView, underIndex);
-                }
-            }
             if (f.mIsNewlyAdded && f.mContainer != null) {
                 // Make it visible and run the animations
                 if (f.mPostponedAlpha > 0f) {
@@ -2791,6 +2790,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
             mExecutingActions = true;
             mFragmentStore.dispatchStateChange(nextState);
             moveToState(nextState, false);
+            if (USE_STATE_MANAGER) {
+                Set<SpecialEffectsController> controllers = collectAllSpecialEffectsController();
+                for (SpecialEffectsController controller : controllers) {
+                    controller.executePendingOperations();
+                }
+            }
         } finally {
             mExecutingActions = false;
         }
@@ -2837,7 +2842,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         ArrayList<Fragment> newMenus = null;
         for (Fragment f : mFragmentStore.getFragments()) {
             if (f != null) {
-                if (f.performCreateOptionsMenu(menu, inflater)) {
+                if (isParentMenuVisible(f) && f.performCreateOptionsMenu(menu, inflater)) {
                     show = true;
                     if (newMenus == null) {
                         newMenus = new ArrayList<>();

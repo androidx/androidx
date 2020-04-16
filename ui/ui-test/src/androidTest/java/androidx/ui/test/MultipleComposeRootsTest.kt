@@ -21,18 +21,19 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.compose.Model
+import androidx.compose.Recomposer
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.TestTag
 import androidx.ui.core.setContent
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.TriStateCheckbox
 import androidx.ui.material.Surface
+import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.material.TriStateCheckbox
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +61,7 @@ class CheckboxState(var value: ToggleableState = ToggleableState.Off) {
 class MultipleComposeRootsTest {
 
     @get:Rule
-    val activityTestRule = ActivityTestRule<ComponentActivity>(ComponentActivity::class.java)
+    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
 
     @get:Rule
     val disableTransitions = DisableTransitions()
@@ -80,7 +81,7 @@ class MultipleComposeRootsTest {
      */
     @Test
     fun twoHierarchiesSharingTheSameModel() {
-        val activity = activityTestRule.activity
+        val activity = composeTestRule.activityTestRule.activity
 
         activity.runOnUiThread(object : Runnable { // Workaround for lambda bug in IR
             override fun run() {
@@ -110,7 +111,7 @@ class MultipleComposeRootsTest {
                     textView2.text = "Compose 2 - ${state2.value}"
                 }
 
-                frameLayout1.setContent {
+                frameLayout1.setContent(Recomposer.current()) {
                     MaterialTheme {
                         Surface {
                             TestTag(tag = "checkbox1") {
@@ -127,7 +128,7 @@ class MultipleComposeRootsTest {
                     }
                 }
 
-                frameLayout2.setContent {
+                frameLayout2.setContent(Recomposer.current()) {
                     MaterialTheme {
                         Surface {
                             TestTag(tag = "checkbox2") {

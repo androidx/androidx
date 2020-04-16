@@ -29,7 +29,7 @@ import java.lang.annotation.Retention;
         VisibleForTesting.PROTECTED,
         VisibleForTesting.NONE}
 // Important: If updating these constants, also update
-// ../../../../external-annotations/android/support/annotation/annotations.xml
+// ../../../../../external-annotations/androidx/annotation/annotations.xml
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(SOURCE)

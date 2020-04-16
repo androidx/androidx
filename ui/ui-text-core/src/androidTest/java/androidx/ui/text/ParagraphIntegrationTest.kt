@@ -2249,6 +2249,213 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun getLineForOffset_withNewline() {
+        val text = "aaa\nbbb"
+
+        val paragraph = simpleParagraph(
+            text = text,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+        for (i in 0..2) {
+            assertThat(paragraph.getLineForOffset(i)).isEqualTo(0)
+        }
+        for (i in 4..6) {
+            assertThat(paragraph.getLineForOffset(i)).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun getLineForOffset_newline_belongsToPreviousLine() {
+        val text = "aaa\nbbb\n"
+
+        val paragraph = simpleParagraph(
+            text = text,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+        assertThat(paragraph.getLineForOffset(3)).isEqualTo(0)
+        assertThat(paragraph.getLineForOffset(7)).isEqualTo(1)
+    }
+
+    @Test
+    fun getLineForOffset_outOfBoundary() {
+        val text = "aaa\nbbb"
+
+        val paragraph = simpleParagraph(
+            text = text,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+        assertThat(paragraph.getLineForOffset(-1)).isEqualTo(0)
+        assertThat(paragraph.getLineForOffset(-2)).isEqualTo(0)
+
+        assertThat(paragraph.getLineForOffset(text.length)).isEqualTo(1)
+        assertThat(paragraph.getLineForOffset(text.length + 1)).isEqualTo(1)
+    }
+
+    @Test
+    fun getLineForOffset_ellipsisApplied() {
+        val text = "aaa\nbbb"
+
+        val paragraph = simpleParagraph(
+            text = text,
+            maxLines = 1,
+            ellipsis = true,
+            style = TextStyle(),
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+
+        for (i in 0..2) {
+            assertThat(paragraph.getLineForOffset(i)).isEqualTo(0)
+        }
+        assertThat(paragraph.getLineForOffset(3)).isEqualTo(0)
+        for (i in 4..6) {
+            // It returns 0 because the second line(index 1) is ellipsized
+            assertThat(paragraph.getLineForOffset(i)).isEqualTo(0)
+        }
+        // It returns 0 since the paragraph actually has 1 line
+        assertThat(paragraph.getLineForOffset(text.length + 1)).isEqualTo(0)
+    }
+
+    @Test
+    fun getLineStart_linebreak() {
+        with(defaultDensity) {
+            val text = "aaabbb"
+            val fontSize = 50f
+
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(
+                    fontFamily = fontFamilyMeasureFont,
+                    fontSize = fontSize.sp
+                ),
+                constraints = ParagraphConstraints(fontSize * 3)
+            )
+
+            // Prerequisite check for the this test.
+            assertThat(paragraph.lineCount).isEqualTo(2)
+            assertThat(paragraph.getLineStart(0)).isEqualTo(0)
+            assertThat(paragraph.getLineStart(1)).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun getLineStart_newline() {
+        val text = "aaa\nbbb"
+
+        val paragraph = simpleParagraph(
+            text = text,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+
+        // Prerequisite check for the this test.
+        assertThat(paragraph.lineCount).isEqualTo(text.lines().size)
+        assertThat(paragraph.getLineStart(0)).isEqualTo(0)
+        // First char after '\n'
+        assertThat(paragraph.getLineStart(1))
+            .isEqualTo(text.indexOfFirst { ch -> ch == '\n' } + 1)
+    }
+
+    @Test
+    fun getLineStart_emptyLine() {
+        val text = "aaa\n"
+
+        val paragraph = simpleParagraph(
+            text = text,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+
+        // Prerequisite check for the this test.
+        assertThat(paragraph.lineCount).isEqualTo(2)
+        assertThat(paragraph.getLineStart(0)).isEqualTo(0)
+        assertThat(paragraph.getLineStart(1)).isEqualTo(4)
+    }
+
+    @Test
+    fun getLineEnd_linebreak() {
+        val text = "aaabbb"
+        val fontSize = 50f
+
+        val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize.sp
+            ),
+            constraints = ParagraphConstraints(fontSize * 3),
+            density = defaultDensity
+        )
+
+        // Prerequisite check for the this test.
+        assertThat(paragraph.lineCount).isEqualTo(2)
+        assertThat(paragraph.getLineStart(0)).isEqualTo(0)
+        assertThat(paragraph.getLineStart(1)).isEqualTo(3)
+    }
+
+    @Test
+    fun getLineEnd_newline() {
+        val text = "aaa\nbbb"
+
+        val paragraph = simpleParagraph(
+            text = text,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+
+        // Prerequisite check for the this test.
+        assertThat(paragraph.lineCount).isEqualTo(text.lines().size)
+        assertThat(paragraph.getLineEnd(0)).isEqualTo(text.indexOfFirst { ch -> ch == '\n' } + 1)
+        assertThat(paragraph.getLineEnd(1)).isEqualTo(text.length)
+    }
+
+    @Test
+    fun getLineEnd_emptyLine() {
+        val text = "aaa\n"
+
+        val paragraph = simpleParagraph(
+            text = text,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+
+        // Prerequisite check for the this test.
+        assertThat(paragraph.lineCount).isEqualTo(2)
+        assertThat(paragraph.getLineEnd(0)).isEqualTo(4)
+        assertThat(paragraph.getLineEnd(1)).isEqualTo(4)
+    }
+
+    @Test
+    fun getLineEllipsisOffset() {
+        val text = "aaa\nbbb\nccc"
+
+        val paragraph = simpleParagraph(
+            text = text,
+            maxLines = 2,
+            ellipsis = true,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+
+        assertThat(paragraph.lineCount).isEqualTo(2)
+        assertThat(paragraph.getLineEllipsisOffset(0)).isEqualTo(0)
+        assertThat(paragraph.getLineEllipsisOffset(1)).isGreaterThan(0)
+    }
+
+    @Test
+    fun getLineEllipsisCount() {
+        val text = "aaa\nbbb\nccc"
+
+        val paragraph = simpleParagraph(
+            text = text,
+            maxLines = 2,
+            ellipsis = true,
+            constraints = ParagraphConstraints(Float.MAX_VALUE)
+        )
+
+        assertThat(paragraph.lineCount).isEqualTo(2)
+        assertThat(paragraph.getLineEllipsisCount(0)).isEqualTo(0)
+        assertThat(paragraph.getLineEllipsisCount(1)).isGreaterThan(0)
+        // Ellipsis offset plus ellipsis count equals to length of the line.
+        assertThat(paragraph.getLineEllipsisCount(1) + paragraph.getLineEllipsisOffset(1))
+            .isEqualTo(paragraph.getLineEnd(1) - paragraph.getLineStart(1))
+    }
+
+    @Test
     fun lineHeight_inSp() {
         with(defaultDensity) {
             val text = "abcdefgh"
@@ -3601,6 +3808,7 @@ class ParagraphIntegrationTest {
         text: String = "",
         style: TextStyle? = null,
         maxLines: Int = Int.MAX_VALUE,
+        ellipsis: Boolean = false,
         spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
         density: Density? = null,
         constraints: ParagraphConstraints = ParagraphConstraints(Float.MAX_VALUE)
@@ -3613,6 +3821,7 @@ class ParagraphIntegrationTest {
                 textDirectionAlgorithm = TextDirectionAlgorithm.ContentOrLtr
             ).merge(style),
             maxLines = maxLines,
+            ellipsis = ellipsis,
             constraints = constraints,
             density = density ?: defaultDensity,
             resourceLoader = TestFontResourceLoader(context)

@@ -18,7 +18,6 @@ package androidx.navigation;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.net.Uri;
 import android.util.AttributeSet;
 
 import androidx.annotation.IdRes;
@@ -72,12 +71,12 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
 
     @Override
     @Nullable
-    DeepLinkMatch matchDeepLink(@NonNull Uri uri) {
+    DeepLinkMatch matchDeepLink(@NonNull NavDeepLinkRequest request) {
         // First search through any deep links directly added to this NavGraph
-        DeepLinkMatch bestMatch = super.matchDeepLink(uri);
+        DeepLinkMatch bestMatch = super.matchDeepLink(request);
         // Then search through all child destinations for a matching deep link
         for (NavDestination child : this) {
-            DeepLinkMatch childBestMatch = child.matchDeepLink(uri);
+            DeepLinkMatch childBestMatch = child.matchDeepLink(request);
             if (childBestMatch != null && (bestMatch == null
                     || childBestMatch.compareTo(bestMatch) > 0)) {
                 bestMatch = childBestMatch;

@@ -116,7 +116,7 @@ public class WebViewRenderProcessTest {
     @SuppressLint("NewApi")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     public void testGetWebViewRenderProcess() throws Throwable {
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS_QUERY)
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS)
                 && !WebViewCompat.isMultiProcessEnabled()) {
             return;
         }

@@ -275,15 +275,29 @@ public final class NavInflater {
     }
 
     private void inflateDeepLink(@NonNull Resources res, @NonNull NavDestination dest,
-            @NonNull AttributeSet attrs) {
+            @NonNull AttributeSet attrs) throws XmlPullParserException {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavDeepLink);
         String uri = a.getString(R.styleable.NavDeepLink_uri);
-        if (TextUtils.isEmpty(uri)) {
-            throw new IllegalArgumentException("Every <" + TAG_DEEP_LINK
-                    + "> must include an app:uri");
+        String action = a.getString(R.styleable.NavDeepLink_action);
+        String mimeType = a.getString(R.styleable.NavDeepLink_mimeType);
+        if (TextUtils.isEmpty(uri) && TextUtils.isEmpty(action) && TextUtils.isEmpty(mimeType)) {
+            throw new XmlPullParserException("Every <" + TAG_DEEP_LINK
+                    + "> must include at least one of app:uri, app:action, or app:mimeType");
         }
-        uri = uri.replace(APPLICATION_ID_PLACEHOLDER, mContext.getPackageName());
-        dest.addDeepLink(uri);
+        NavDeepLink.Builder builder = new NavDeepLink.Builder();
+        if (uri != null) {
+            builder.setUri(uri.replace(APPLICATION_ID_PLACEHOLDER,
+                    mContext.getPackageName()));
+        }
+        if (action != null) {
+            builder.setAction(action.replace(APPLICATION_ID_PLACEHOLDER,
+                    mContext.getPackageName()));
+        }
+        if (mimeType != null) {
+            builder.setMimeType(mimeType.replace(APPLICATION_ID_PLACEHOLDER,
+                    mContext.getPackageName()));
+        }
+        dest.addDeepLink(builder.build());
         a.recycle();
     }
 

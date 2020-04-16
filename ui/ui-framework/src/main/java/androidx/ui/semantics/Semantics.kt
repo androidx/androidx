@@ -16,10 +16,9 @@
 package androidx.ui.semantics
 
 import androidx.compose.Composable
-import androidx.compose.remember
-import androidx.ui.core.SemanticsComponentNode
-import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.core.PassThroughLayout
+import androidx.ui.core.Modifier
+import androidx.ui.core.semantics.semanticsCore
 
 @Composable
 fun Semantics(
@@ -43,23 +42,8 @@ fun Semantics(
     properties: (SemanticsPropertyReceiver.() -> Unit)? = null,
     children: @Composable() () -> Unit
 ) {
-    require(!mergeAllDescendants || container) {
-        "Attempting to set mergeAllDescendants to true on a configuration" +
-                " that is not a semantic boundary (container must be true)"
-    }
-    val semanticsConfiguration = SemanticsConfiguration().also {
-        it.isSemanticBoundary = container
-        it.isMergingSemanticsOfDescendants = mergeAllDescendants
-
-        properties?.invoke(it)
-    }
-
-    val id = remember { SemanticsNode.generateNewId() }
-
-    SemanticsComponentNode(
-        id = id,
-        localSemanticsConfiguration = semanticsConfiguration
-    ) {
-        children()
-    }
+    @Suppress("DEPRECATION")
+    PassThroughLayout(
+        Modifier.semanticsCore(container, mergeAllDescendants, properties),
+        children)
 }

@@ -210,9 +210,4 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
         // extra binder inside of the mLegacyToken are shared only through the fromBundle().
         mLegacyToken = MediaSessionCompat.Token.fromBundle(mLegacyTokenBundle);
     }
-
-    @Override
-    public int getSessionVersion() {
-        return MediaUtils.VERSION_UNKNOWN;
-    }
 }

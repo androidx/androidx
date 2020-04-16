@@ -28,6 +28,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Build;
 import android.util.Base64;
 import android.util.Rational;
@@ -47,6 +48,9 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Unit tests for {@link ImageUtil}.
+ */
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -97,6 +101,46 @@ public class ImageUtilTest {
     }
 
     @Test
+    public void rotateAspectRatioFor90Degrees_rotated() {
+        // Arrange.
+        Rational aspectRatio = new Rational(3, 4);
+
+        // Assert: return a rotated value.
+        assertThat(ImageUtil.getRotatedAspectRatio(90, aspectRatio)).isEqualTo(new Rational(4, 3));
+    }
+
+    @Test
+    public void rotateRectFor180Degrees_rectUnchanged() {
+        // Arrange.
+        Rational aspectRatio = new Rational(3, 4);
+
+        // Assert: return the original value.
+        assertThat(ImageUtil.getRotatedAspectRatio(180, aspectRatio)).isEqualTo(aspectRatio);
+    }
+
+    @Test
+    public void fitNarrowRectIntoContainer() {
+        // Arrange.
+        RectF rect = new RectF(10, 10, 50, 40);
+
+        // Assert.
+        // The aspect ratio is narrower than the container.
+        assertThat(ImageUtil.fitCenter(rect, new Rational(1, 1))).isEqualTo(
+                new RectF(15, 10, 45, 40));
+    }
+
+    @Test
+    public void fitWideRectIntoContainer() {
+        // Arrange.
+        RectF rect = new RectF(10, 10, 50, 40);
+
+        // Assert.
+        // The aspect ratio is wider than the container.
+        assertThat(ImageUtil.fitCenter(rect, new Rational(2, 1))).isEqualTo(
+                new RectF(10, 15, 50, 35));
+    }
+
+    @Test
     public void canTransformImageToByteArray() throws ImageUtil.CodecFailedException {
         byte[] byteArray = ImageUtil.imageToJpegByteArray(mImage);
         assertThat(byteArray).isEqualTo(mDataByteArray);
@@ -141,15 +185,5 @@ public class ImageUtilTest {
         } else {
             assertEquals(HEIGHT, resultRect.height());
         }
-    }
-
-    @Test
-    public void canRotateRationalByDegree() {
-        Rational resultRatio = ImageUtil.rotate(ASPECT_RATIO, 0);
-        assertThat(resultRatio).isEqualTo(ASPECT_RATIO);
-
-        resultRatio = ImageUtil.rotate(ASPECT_RATIO, 90);
-        assertThat(resultRatio).isEqualTo(
-                new Rational(ASPECT_RATIO.getDenominator(), ASPECT_RATIO.getNumerator()));
     }
 }

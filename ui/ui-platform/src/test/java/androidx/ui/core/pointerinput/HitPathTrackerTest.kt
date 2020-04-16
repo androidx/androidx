@@ -2577,6 +2577,24 @@ class HitPathTrackerTest {
         )
     }
 
+    @Test
+    fun isEmpty_nothingAdded_returnsTrue() {
+        assertThat(hitPathTracker.isEmpty()).isTrue()
+    }
+
+    @Test
+    fun isEmpty_oneNodeAdded_returnsFalse() {
+        hitPathTracker.addHitPath(PointerId(0), listOf(PointerInputFilterMock()))
+        assertThat(hitPathTracker.isEmpty()).isFalse()
+    }
+
+    @Test
+    fun isEmpty_oneNodeAddedThenRemoved_returnsTrue() {
+        hitPathTracker.addHitPath(PointerId(0), listOf(PointerInputFilterMock()))
+        hitPathTracker.removeHitPath(PointerId(0))
+        assertThat(hitPathTracker.isEmpty()).isTrue()
+    }
+
     private fun dispatchCustomEvent_1Parent2ChildrenChildDispatches_dispatchCorrect(
         firstChildDispatches: Boolean
     ) {

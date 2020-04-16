@@ -27,40 +27,6 @@ import androidx.ui.semantics.SemanticsPropertyKey
  * semantics tree
  */
 class SemanticsOwner(rootNode: ComponentNode) {
-    private val dirtyNodes: MutableSet<SemanticsNode> = mutableSetOf()
-    private val nodes: MutableMap<Int, SemanticsNode> = mutableMapOf()
-    private val detachedNodes: MutableSet<SemanticsNode> = mutableSetOf()
-
-    /**
-     * Should *only* be called by [SemanticsNode.attach]
-     */
-    internal fun onAttach(node: SemanticsNode) {
-        // TODO: b/150777826 - fix and re-enable assertion
-        // check(node.id !in nodes)
-        nodes[node.id] = node
-        detachedNodes.remove(node)
-    }
-
-    /**
-     * Should *only* be called by [SemanticsNode.markDirty]
-     */
-    internal fun onNodeMarkedDirty(node: SemanticsNode) {
-        // TODO: b/150777826 - fix and re-enable assertion
-        // check(node !in detachedNodes)
-        dirtyNodes.add(node)
-    }
-
-    /**
-     * Should *only* be called by [SemanticsNode.detach]
-     */
-    internal fun onDetach(node: SemanticsNode) {
-        check(nodes.containsKey(node.id))
-        // TODO: b/150777826 - fix and re-enable assertion
-        // check(!detachedNodes.contains(node))
-        nodes.remove(node.id)
-        detachedNodes.add(node)
-    }
-
     /**
      * The root node of the semantics tree.  Does not contain any unmerged data.
      * May contain merged data.
@@ -71,17 +37,11 @@ class SemanticsOwner(rootNode: ComponentNode) {
         rootNode
     )
 
-    private fun dispose() {
-        dirtyNodes.clear()
-        nodes.clear()
-        detachedNodes.clear()
-    }
-
     private fun <T : Function<Unit>> getSemanticsActionHandlerForId(
         id: Int,
         action: SemanticsPropertyKey<AccessibilityAction<T>>
     ): AccessibilityAction<*>? {
-        var result: SemanticsNode? = nodes[id]
+        var result: SemanticsNode? = rootSemanticsNode.findChildById(id)
         if (result != null && !result.canPerformAction(action)) {
             result.visitDescendants { node: SemanticsNode ->
                 if (node.canPerformAction(action)) {
@@ -95,10 +55,6 @@ class SemanticsOwner(rootNode: ComponentNode) {
             return null
         }
         return result!!.unmergedConfig.getOrNull(action)
-    }
-
-    internal fun invalidateSemanticsRoot() {
-        rootSemanticsNode.invalidateChildren()
     }
 }
 

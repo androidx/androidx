@@ -44,11 +44,11 @@ import java.util.concurrent.ExecutionException;
 public final class UseCaseOccupancyTest {
 
     @Before
-    public void setUp() {
+    public void setUp() throws ExecutionException, InterruptedException {
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 FakeAppConfig.create()).build();
-        CameraX.initialize(context, cameraXConfig);
+        CameraX.initialize(context, cameraXConfig).get();
     }
 
     @After

@@ -40,7 +40,7 @@ class InsertSeparatorsJavaSample {
     }
 
     @SuppressLint("CheckResult")
-    @SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
+    @SuppressWarnings({"unused", "ResultOfMethodCallIgnored", "RxReturnValueIgnored"})
     public void insertSeparatorsSample() {
         /*
          * Create letter separators in an alphabetically sorted list.

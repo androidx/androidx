@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.compose.Composable
+import androidx.compose.Recomposer
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Alignment
 import androidx.ui.core.AlignmentLine
@@ -92,7 +93,7 @@ open class LayoutTest {
     internal fun show(composable: @Composable() () -> Unit) {
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                activity.setContent(composable)
+                activity.setContent(Recomposer.current(), composable)
             }
         }
         activityTestRule.runOnUiThread(runnable)

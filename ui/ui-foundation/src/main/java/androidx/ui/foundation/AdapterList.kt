@@ -20,8 +20,10 @@ import android.content.Context
 import androidx.compose.Composable
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
+import androidx.compose.Recomposer
 import androidx.compose.Untracked
 import androidx.compose.compositionReference
+import androidx.compose.currentComposer
 import androidx.compose.remember
 import androidx.ui.core.Constraints
 import androidx.ui.core.ContextAmbient
@@ -58,10 +60,11 @@ private inline class DataIndex(val value: Int) {
 
 private inline class LayoutIndex(val value: Int)
 
-private class ListState<T>(
-    var itemCallback: @Composable() (T) -> Unit,
-    var data: List<T>
-) {
+private class ListState<T> {
+    lateinit var recomposer: Recomposer
+    lateinit var itemCallback: @Composable() (T) -> Unit
+    lateinit var data: List<T>
+
     var forceRecompose = false
     var compositionRef: CompositionReference? = null
     /**
@@ -357,7 +360,12 @@ private class ListState<T>(
 
     private fun recomposeAllChildren() {
         for (idx in rootNode.layoutChildren.indices) {
-            composeChildForDataIndex(LayoutIndex(idx).toDataIndex())
+            val dataIdx = LayoutIndex(idx).toDataIndex()
+            // Make sure that we're only recomposing items that still exist in the data.
+            // Excess layout children will be removed in the next measure/layout pass
+            if (dataIdx.value < data.size && dataIdx.value >= 0) {
+                composeChildForDataIndex(dataIdx)
+            }
         }
         forceRecompose = false
     }
@@ -447,7 +455,7 @@ private class ListState<T>(
             node = rootNode.layoutChildren[layoutIndex.value]
         }
         // TODO(b/150390669): Review use of @Untracked
-        subcomposeInto(node, context!!, compositionRef) @Untracked {
+        subcomposeInto(context!!, node, recomposer, compositionRef) @Untracked {
             itemCallback(data[dataIndex.value])
         }
         return node
@@ -468,7 +476,8 @@ fun <T> AdapterList(
     modifier: Modifier = Modifier,
     itemCallback: @Composable() (T) -> Unit
 ) {
-    val state = remember { ListState(data = data, itemCallback = itemCallback) }
+    val state = remember { ListState<T>() }
+    state.recomposer = currentComposer.recomposer
     state.itemCallback = itemCallback
     state.data = data
     state.context = ContextAmbient.current

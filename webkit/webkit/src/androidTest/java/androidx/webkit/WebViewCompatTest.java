@@ -324,8 +324,8 @@ public class WebViewCompatTest {
      * This test should have an equivalent in CTS when this is implemented in the framework.
      */
     @Test
-    public void testMultiProcessQuery() {
-        WebkitUtils.checkFeature(WebViewFeature.MULTI_PROCESS_QUERY);
+    public void testMultiProcess() {
+        WebkitUtils.checkFeature(WebViewFeature.MULTI_PROCESS);
         WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
 
         // Creates a new WebView for non static getWebViewRenderProcess method

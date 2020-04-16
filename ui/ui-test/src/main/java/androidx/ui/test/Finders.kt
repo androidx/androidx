@@ -16,6 +16,9 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.semantics.SemanticsNode
+import androidx.ui.test.android.SynchronizedTreeCollector
+
 /**
  * Finds a component identified by the given tag.
  *
@@ -60,8 +63,13 @@ fun findAllByText(text: String, ignoreCase: Boolean = false): List<SemanticsNode
  * For usage patterns see [SemanticsNodeInteraction]
  * @see findAll to work with multiple elements
  */
-fun find(selector: SemanticsPredicate): SemanticsNodeInteraction =
-    semanticsTreeInteractionFactory(selector).findOne()
+fun find(selector: SemanticsPredicate): SemanticsNodeInteraction {
+    val nodes = getAllSemanticsNodes()
+        .filter { node ->
+            selector.condition(node)
+        }
+    return SemanticsNodeInteraction(nodes, selector)
+}
 
 /**
  * Finds all components that match the given condition.
@@ -70,5 +78,15 @@ fun find(selector: SemanticsPredicate): SemanticsNodeInteraction =
  * instead.
  * @see find
  */
-fun findAll(selector: SemanticsPredicate): List<SemanticsNodeInteraction> =
-    semanticsTreeInteractionFactory(selector).findAllMatching()
+fun findAll(selector: SemanticsPredicate): List<SemanticsNodeInteraction> {
+    return getAllSemanticsNodes()
+        .filter { node ->
+            selector.condition(node)
+        }.map {
+            SemanticsNodeInteraction(it, selector)
+        }
+}
+
+internal fun getAllSemanticsNodes(): List<SemanticsNode> {
+    return SynchronizedTreeCollector.collectOwners().getAllSemanticNodes()
+}

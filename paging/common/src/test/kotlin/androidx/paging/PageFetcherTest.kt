@@ -273,7 +273,7 @@ class PageFetcherTest {
 
         // Assert onBoundary is called for terminal page load.
         assertEquals(1, remoteMediatorMock.loadEvents.size)
-        assertEquals(END, remoteMediatorMock.loadEvents[0].loaddType)
+        assertEquals(END, remoteMediatorMock.loadEvents[0].loadType)
 
         fetcherState.job.cancel()
     }

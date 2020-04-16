@@ -149,7 +149,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                             context, "markerClass", annotationName
                         )
                     ) {
-                        return true
+                        return@any true
                     }
 
                     // Java uses a separate attribute for multiple-marker usages.
@@ -157,11 +157,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                             context, "markerClasses", annotationName
                         )
                     ) {
-                        return true
+                        return@any true
                     }
                 }
 
-                return false
+                return@any false
             }
             if (matchUse) {
                 return true

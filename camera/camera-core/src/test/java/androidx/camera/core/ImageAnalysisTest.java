@@ -76,7 +76,7 @@ public class ImageAnalysisTest {
     private HandlerThread mBackgroundThread;
 
     @Before
-    public void setUp() {
+    public void setUp() throws ExecutionException, InterruptedException {
         HandlerThread callbackThread = new HandlerThread("Callback");
         callbackThread.start();
         mCallbackHandler = new Handler(callbackThread.getLooper());
@@ -101,7 +101,7 @@ public class ImageAnalysisTest {
                 FakeAppConfig.create()).setCameraFactoryProvider(cameraFactoryProvider).build();
 
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, cameraXConfig);
+        CameraX.initialize(context, cameraXConfig).get();
     }
 
     @After

@@ -21,8 +21,11 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
@@ -32,6 +35,7 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
 import androidx.ui.graphics.asAndroidPath
+import androidx.ui.test.android.SynchronizedTreeCollector
 import androidx.ui.test.android.captureRegionToBitmap
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
@@ -41,8 +45,32 @@ import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.round
+import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+
+@RequiresApi(Build.VERSION_CODES.O)
+internal fun captureNodeToBitmap(node: SemanticsNode): Bitmap {
+    val collectedInfo = SynchronizedTreeCollector.collectOwners()
+
+    val exists = getAllSemanticsNodes().any { it.id == node.id }
+    if (!exists) {
+        throw AssertionError("The required node is no longer in the tree!")
+    }
+
+    val window = collectedInfo.findActivity().window
+
+    // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
+
+    // TODO(pavlis): Make sure that the Activity actually hosts the view. As in case of popup
+    // it wouldn't. This will require us rewriting the structure how we collect the nodes.
+
+    // TODO(pavlis): Add support for popups. So if we find composable hosted in popup we can
+    // grab its reference to its window (need to add a hook to popup).
+
+    val handler = Handler(Looper.getMainLooper())
+    return captureRegionToBitmap(node.globalBounds.toRect(), handler, window)
+}
 
 /**
  * Captures the underlying component's surface into bitmap.
@@ -54,7 +82,7 @@ import org.junit.Assert.assertTrue
 @RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
     val errorMessageOnFail = "Failed to capture a node to bitmap."
-    return semanticsTreeInteraction.captureNodeToBitmap(fetchSemanticsNode(errorMessageOnFail))
+    return captureNodeToBitmap(fetchSemanticsNode(errorMessageOnFail))
 }
 
 /**

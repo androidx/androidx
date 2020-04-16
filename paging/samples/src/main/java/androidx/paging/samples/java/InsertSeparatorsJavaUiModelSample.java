@@ -39,7 +39,7 @@ class InsertSeparatorsJavaUiModelSample {
     }
 
     @SuppressLint("CheckResult")
-    @SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
+    @SuppressWarnings({"unused", "ResultOfMethodCallIgnored", "RxReturnValueIgnored"})
     public void insertSeparatorsSample() {
 
         /*

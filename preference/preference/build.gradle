@@ -58,6 +58,10 @@ android {
 
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
+        // TODO(b/153189766): remove this 'if', always set multiDexEnabled
+        if (project.hasProperty("useMaxDepVersions")) {
+            multiDexEnabled true
+        }
     }
 
     buildTypes.all {

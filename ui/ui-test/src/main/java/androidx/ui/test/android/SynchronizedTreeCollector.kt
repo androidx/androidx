@@ -19,17 +19,11 @@ package androidx.ui.test.android
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.view.View
-import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.Root
-import androidx.test.espresso.ViewAssertion
-import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getAllSemanticsNodes
-import org.hamcrest.BaseMatcher
-import org.hamcrest.Description
 
 /**
  * Collects all [AndroidOwner]s that are part of the currently visible window.
@@ -37,11 +31,9 @@ import org.hamcrest.Description
  * This operation is performed only after compose is idle via Espresso.
  */
 internal object SynchronizedTreeCollector {
-    /** ViewAssertion that asserts nothing (any View is valid) */
-    private val noChecks = ViewAssertion { _, _ -> }
-
     /**
-     * Collects all [AndroidOwner]s that are part of the currently visible window.
+     * Collects all [AndroidOwner]s that are part of the currently visible window. Can only be
+     * used when using [ComposeTestRule][androidx.ui.test.ComposeTestRule]
      *
      * This is a blocking call. Returns only after compose is idle.
      *
@@ -49,20 +41,21 @@ internal object SynchronizedTreeCollector {
      * surfaces only in incorrect tests.
      */
     internal fun collectOwners(): CollectedOwners {
-        registerComposeWithEspresso()
-        val rootSearcher = RootSearcher()
-
-        // Use Espresso to iterate over all roots and find all SemanticsTreeProviders
-        // We can't use onView(instanceOf(SemanticsTreeProvider::class.java)) as Espresso throws
-        // on multiple instances in the tree.
-        Espresso.onView(isRoot())
-            .inRoot(rootSearcher)
-            .check(noChecks)
-
-        require(rootSearcher.owners.isNotEmpty()) {
-            "No SemanticsTreeProviders found. Is your Activity resumed?"
+        waitForIdle()
+        check(AndroidOwnerRegistry.isSetup) {
+            "Test not setup properly. Use a ComposeTestRule in your test to be able to interact " +
+                    "with composables"
         }
-        return CollectedOwners(rootSearcher.owners)
+        return CollectedOwners(AndroidOwnerRegistry.getAllOwners().filterTo(mutableSetOf()) {
+            // lifecycleOwner can only be null if it.view is not yet attached, and since owners
+            // are only in the registry when they're attached we don't care about the
+            // lifecycleOwner being null.
+            val lifecycleOwner = it.lifecycleOwner ?: return@filterTo false
+            lifecycleOwner.lifecycle.currentState == Lifecycle.State.RESUMED
+        }.also {
+            // TODO(b/153632210): This check should be done by callers of collectOwners
+            check(it.isNotEmpty()) { "No AndroidOwners found. Is your Activity resumed?" }
+        })
     }
 
     /**
@@ -77,78 +70,6 @@ internal object SynchronizedTreeCollector {
         registerComposeWithEspresso()
         Espresso.onIdle()
     }
-
-    /**
-     * Root matcher that can be used in [inRoot][androidx.test.espresso.ViewInteraction.inRoot]
-     * to search all [AndroidOwner]s that are ultimately attached to the window.
-     */
-    private class RootSearcher : BaseMatcher<Root>() {
-        private var isFirstRoot = true
-        private var resumedActivity: Activity? = null
-
-        val owners = mutableSetOf<AndroidOwner>()
-
-        override fun describeTo(description: Description?) {
-            description?.appendText("Root iterator")
-        }
-
-        override fun matches(item: Any?): Boolean {
-            var useRoot = false
-            if (item is Root) {
-                val view = item.decorView.findViewById<View>(android.R.id.content) ?: return false
-                val hostActivity = view.context.getActivity()
-
-                // TODO(b/151835993): Instead of finding out if the activity that hosts the view
-                //  is resumed by making assumptions on the iteration order, collect all
-                //  SemanticsTreeProviders, from them take the Owner (add owner: Owner to
-                //  SemanticsTreeProvider), from them get the LifecycleOwner and find out if that
-                //  is resumed. Then only add the SemanticsTreeProvider if the corresponding
-                //  LifecycleOwner is resumed.
-
-                if (resumedActivity == null) {
-                    // While we don't enforce views have a LifecycleOwner yet,
-                    // assume that the resumed activity is listed first
-                    resumedActivity = hostActivity
-                }
-
-                if (hostActivity == resumedActivity) {
-                    owners.addAll(getOwners(view))
-                    if (isFirstRoot) {
-                        useRoot = true
-                        isFirstRoot = false
-                    }
-                }
-            }
-            return useRoot
-        }
-
-        private fun getOwners(view: View): Set<AndroidOwner> {
-            val owners = mutableSetOf<AndroidOwner>()
-
-            fun getOwnersRecursive(view: View) {
-                when (view) {
-                    is AndroidOwner -> owners.add(view)
-                    is ViewGroup -> {
-                        repeat(view.childCount) { i ->
-                            getOwnersRecursive(view.getChildAt(i))
-                        }
-                    }
-                }
-            }
-
-            getOwnersRecursive(view)
-            return owners
-        }
-    }
-}
-
-// Recursively search for the Activity context through (possible) ContextWrappers
-private fun Context.getActivity(): Activity? {
-    return when (this) {
-        is Activity -> this
-        is ContextWrapper -> this.baseContext.getActivity()
-        else -> null
-    }
 }
 
 /**
@@ -157,6 +78,15 @@ private fun Context.getActivity(): Activity? {
  * might be interacting with several Compose roots.
  */
 internal data class CollectedOwners(val owners: Set<AndroidOwner>) {
+    // Recursively search for the Activity context through (possible) ContextWrappers
+    private fun Context.getActivity(): Activity? {
+        return when (this) {
+            is Activity -> this
+            is ContextWrapper -> this.baseContext.getActivity()
+            else -> null
+        }
+    }
+
     fun findActivity(): Activity {
         owners.forEach {
             val activity = it.view.context.getActivity()

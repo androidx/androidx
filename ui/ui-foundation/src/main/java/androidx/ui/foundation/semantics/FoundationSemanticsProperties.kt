@@ -25,22 +25,53 @@ import androidx.ui.semantics.SemanticsPropertyReceiver
  * assertions in testing.
  */
 object FoundationSemanticsProperties {
-    // TODO(ryanmentley): Is this useful?
+    /**
+     * Whether this element is in a group from which only a single item can be selected at any given
+     * time (such as a radio group)
+     *
+     *  @see SemanticsPropertyReceiver.inMutuallyExclusiveGroup
+     */
     val InMutuallyExclusiveGroup = SemanticsPropertyKey<Boolean>("InMutuallyExclusiveGroup")
 
+    /**
+     * Whether this element is selected (out of a list of possible selections).
+     * The presence of this property indicates that the element is selectable.
+     *
+     * @see SemanticsPropertyReceiver.selected
+     */
     val Selected = SemanticsPropertyKey<Boolean>("Selected")
 
-    // TODO(ryanmentley): Can we think of a better name?
+    /**
+     * The state of a toggleable component.
+     * The presence of this property indicates that the element is toggleable.
+     *
+     * @see SemanticsPropertyReceiver.toggleableState
+     */
     val ToggleableState = SemanticsPropertyKey<ToggleableState>("ToggleableState")
 }
 
-// TODO(ryanmentley): should these be public?  is that confusing?
-
-// TODO(ryanmentley): This one is kind of weird...it's sort of nonsense if this one is ever false
+/**
+ * Whether this element is in a group from which only a single item can be selected at any given
+ * time (such as a radio group)
+ *
+ *  @see FoundationSemanticsProperties.InMutuallyExclusiveGroup
+ */
 var SemanticsPropertyReceiver.inMutuallyExclusiveGroup
         by FoundationSemanticsProperties.InMutuallyExclusiveGroup
 
+/**
+ * Whether this element is selected (out of a list of possible selections).
+ * The presence of this property indicates that the element is selectable.
+ *
+ * @see FoundationSemanticsProperties.Selected
+ */
 var SemanticsPropertyReceiver.selected by FoundationSemanticsProperties.Selected
 
+/**
+ * The state of a toggleable component.
+ * The presence of this property indicates that the element is toggleable.
+ *
+ * @see FoundationSemanticsProperties.ToggleableState
+ */
 var SemanticsPropertyReceiver.toggleableState
         by FoundationSemanticsProperties.ToggleableState

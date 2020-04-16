@@ -127,7 +127,7 @@ package androidx.ui.test {
   }
 
   public final class ComposeTestRuleKt {
-    method public static androidx.ui.test.ComposeTestRule createComposeRule(boolean disableTransitions = false);
+    method public static androidx.ui.test.ComposeTestRule createComposeRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
   }
 
   public final class DisableTransitions implements org.junit.rules.TestRule {
@@ -238,9 +238,6 @@ package androidx.ui.test {
     property public final androidx.ui.test.SemanticsPredicate any;
   }
 
-  public final class SemanticsTreeInteractionKt {
-  }
-
   public final class SizesTestingKt {
     method public static androidx.ui.layout.DpConstraints getBigTestConstraints();
     method public static androidx.ui.test.CollectedSizes setContentAndCollectSizes(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -282,7 +279,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
-    ctor public AndroidComposeTestRule(Class<T> activityClass, boolean disableTransitions);
+    ctor public AndroidComposeTestRule(androidx.test.rule.ActivityTestRule<T> activityTestRule, androidx.compose.Recomposer? recomposer, boolean disableTransitions);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public android.graphics.Bitmap captureScreenOnIdle();
     method public androidx.ui.test.ComposeTestCaseSetup forGivenContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
@@ -291,8 +288,8 @@ package androidx.ui.test.android {
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
+    method public androidx.compose.Recomposer? getRecomposer();
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    property public final androidx.test.rule.ActivityTestRule<T> activityTestRule;
     property public androidx.ui.test.AnimationClockTestRule clockTestRule;
     property public androidx.ui.unit.Density density;
     property public android.util.DisplayMetrics displayMetrics;
@@ -304,7 +301,7 @@ package androidx.ui.test.android {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T> AndroidComposeTestRule(boolean disableTransitions = false);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T> AndroidComposeTestRule(androidx.compose.Recomposer? recomposer = null, boolean disableTransitions = false);
   }
 
   public final class ComposeIdlingResourceKt {
@@ -312,9 +309,6 @@ package androidx.ui.test.android {
     method public static void registerTestClock(androidx.ui.test.TestAnimationClock clock);
     method public static void unregisterComposeFromEspresso();
     method public static void unregisterTestClock(androidx.ui.test.TestAnimationClock clock);
-  }
-
-  public final class SynchronizedTreeCollectorKt {
   }
 
   public final class WindowCaptureKt {

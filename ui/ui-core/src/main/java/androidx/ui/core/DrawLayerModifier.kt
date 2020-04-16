@@ -34,10 +34,9 @@ inline fun TransformOrigin(pivotFractionX: Float, pivotFractionY: Float): Transf
 /**
  * A two-dimensional position represented as a fraction of the Layer's width and height
  */
-@UseExperimental(ExperimentalUnsignedTypes::class)
+@OptIn(ExperimentalUnsignedTypes::class)
 @Immutable
-// TODO (njawad) make inline once b/152232807 is fixed
-/* inline */ class TransformOrigin(@PublishedApi internal val value: Long) {
+inline class TransformOrigin(@PublishedApi internal val value: Long) {
 
     /**
      * Return the position along the x-axis that should be used as the

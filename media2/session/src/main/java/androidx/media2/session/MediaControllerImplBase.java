@@ -1314,7 +1314,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 }
                 mConnectedToken = new SessionToken(new SessionTokenImplBase(
                         mToken.getUid(), TYPE_SESSION, mToken.getPackageName(), sessionBinder,
-                        tokenExtras, sessionVersion));
+                        tokenExtras));
             }
             mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
                 @Override

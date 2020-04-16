@@ -33,6 +33,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.Person;
+import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.Arrays;
@@ -46,6 +47,7 @@ public class ShortcutInfoCompat {
 
     private static final String EXTRA_PERSON_COUNT = "extraPersonCount";
     private static final String EXTRA_PERSON_ = "extraPerson_";
+    private static final String EXTRA_LOCUS_ID = "extraLocusId";
     private static final String EXTRA_LONG_LIVED = "extraLongLived";
 
     Context mContext;
@@ -64,6 +66,8 @@ public class ShortcutInfoCompat {
     Person[] mPersons;
     Set<String> mCategories;
 
+    @Nullable
+    LocusIdCompat mLocusId;
     // TODO: Support |auto| when the value of mIsLongLived is not set
     boolean mIsLongLived;
 
@@ -104,6 +108,9 @@ public class ShortcutInfoCompat {
                 }
                 builder.setPersons(persons);
             }
+            if (mLocusId != null) {
+                builder.setLocusId(mLocusId.toLocusId());
+            }
             builder.setLongLived(mIsLongLived);
         } else {
             // ShortcutInfo.Builder#setPersons(...) and ShortcutInfo.Builder#setLongLived(...) are
@@ -127,6 +134,9 @@ public class ShortcutInfoCompat {
                 bundle.putPersistableBundle(EXTRA_PERSON_ + (i + 1),
                         mPersons[i].toPersistableBundle());
             }
+        }
+        if (mLocusId != null) {
+            bundle.putString(EXTRA_LOCUS_ID, mLocusId.getId());
         }
         bundle.putBoolean(EXTRA_LONG_LIVED, mIsLongLived);
         return bundle;
@@ -244,6 +254,18 @@ public class ShortcutInfoCompat {
     }
 
     /**
+     * Gets the {@link LocusIdCompat} associated with this shortcut.
+     *
+     * <p>Used by the device's intelligence services to correlate objects (such as
+     * {@link androidx.core.app.NotificationCompat} and
+     * {@link android.view.contentcapture.ContentCaptureContext}) that are correlated.
+     */
+    @Nullable
+    public LocusIdCompat getLocusId() {
+        return mLocusId;
+    }
+
+    /**
      * Returns the rank of the shortcut set with {@link Builder#setRank(int)}.
      *
      * @see Builder#setRank(int)
@@ -295,6 +317,33 @@ public class ShortcutInfoCompat {
     }
 
     /**
+     * @hide
+     */
+    @RequiresApi(25)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
+    static LocusIdCompat getLocusId(@NonNull final ShortcutInfo shortcutInfo) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            if (shortcutInfo.getLocusId() == null) return null;
+            return LocusIdCompat.toLocusIdCompat(shortcutInfo.getLocusId());
+        } else {
+            return getLocusIdFromExtra(shortcutInfo.getExtras());
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @RequiresApi(25)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Nullable
+    private static LocusIdCompat getLocusIdFromExtra(@Nullable PersistableBundle bundle) {
+        if (bundle == null) return null;
+        final String locusId = bundle.getString(EXTRA_LOCUS_ID);
+        return locusId == null ? null : new LocusIdCompat(locusId);
+    }
+
+    /**
      * Builder class for {@link ShortcutInfoCompat} objects.
      */
     public static class Builder {
@@ -322,6 +371,7 @@ public class ShortcutInfoCompat {
             mInfo.mDisabledMessage = shortcutInfo.mDisabledMessage;
             mInfo.mIcon = shortcutInfo.mIcon;
             mInfo.mIsAlwaysBadged = shortcutInfo.mIsAlwaysBadged;
+            mInfo.mLocusId = shortcutInfo.mLocusId;
             mInfo.mIsLongLived = shortcutInfo.mIsLongLived;
             mInfo.mRank = shortcutInfo.mRank;
             if (shortcutInfo.mPersons != null) {
@@ -349,6 +399,7 @@ public class ShortcutInfoCompat {
             mInfo.mDisabledMessage = shortcutInfo.getDisabledMessage();
             mInfo.mCategories = shortcutInfo.getCategories();
             mInfo.mPersons = ShortcutInfoCompat.getPersonsFromExtra(shortcutInfo.getExtras());
+            mInfo.mLocusId = ShortcutInfoCompat.getLocusId(shortcutInfo);
             mInfo.mRank = shortcutInfo.getRank();
         }
 
@@ -425,6 +476,20 @@ public class ShortcutInfoCompat {
         @NonNull
         public Builder setIcon(IconCompat icon) {
             mInfo.mIcon = icon;
+            return this;
+        }
+
+        /**
+         * Sets the {@link LocusIdCompat} associated with this shortcut.
+         *
+         * <p>This method should be called when the {@link LocusIdCompat} is used in other places
+         * (such as {@link androidx.core.app.NotificationCompat} and
+         * {@link android.view.contentcapture.ContentCaptureContext}) so the device's intelligence
+         * services can correlate them.
+         */
+        @NonNull
+        public Builder setLocusId(@Nullable final LocusIdCompat locusId) {
+            mInfo.mLocusId = locusId;
             return this;
         }
 

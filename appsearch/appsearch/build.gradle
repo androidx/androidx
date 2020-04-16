@@ -24,10 +24,17 @@ plugins {
     id('com.android.library')
 }
 
+configurations {
+    jarjarConf
+}
+
 dependencies {
+    // Treat icing-java as a local jar and package it inside the aar.
+    jarjarConf project(path: ':icing:java', configuration: 'jarjarConf')
+    implementation files(configurations.jarjarConf)
+
     api('androidx.annotation:annotation:1.1.0')
 
-    implementation project(':icing')
     implementation('androidx.collection:collection:1.1.0')
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
     implementation('androidx.core:core:1.2.0')

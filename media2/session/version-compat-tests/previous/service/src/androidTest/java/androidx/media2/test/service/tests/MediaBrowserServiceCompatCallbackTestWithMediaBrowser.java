@@ -85,7 +85,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
             public BrowserRoot onGetRoot(String clientPackageName, int clientUid,
                     Bundle rootHints) {
                 assertEquals(CLIENT_PACKAGE_NAME, clientPackageName);
-                if (rootHints.keySet().contains(testMediaId)) {
+                if (rootHints != null && rootHints.keySet().contains(testMediaId)) {
                     MediaTestUtils.assertEqualLibraryParams(testParams, rootHints);
                     // This should happen because getLibraryRoot() is called with testExtras.
                     latch.countDown();

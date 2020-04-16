@@ -21,8 +21,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.content.ComponentCallbacks;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
@@ -34,6 +36,7 @@ import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -396,8 +399,23 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new IllegalStateException("Can't access ViewModels from detached fragment");
         }
         if (mDefaultFactory == null) {
+            Application application = null;
+            Context appContext = requireContext().getApplicationContext();
+            while (appContext instanceof ContextWrapper) {
+                if (appContext instanceof Application) {
+                    application = (Application) appContext;
+                    break;
+                }
+                appContext = ((ContextWrapper) appContext).getBaseContext();
+            }
+            if (application == null && FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+                Log.d(FragmentManager.TAG, "Could not find Application instance from "
+                        + "Context " + requireContext().getApplicationContext() + ", you will "
+                        + "not be able to use AndroidViewModel with the default "
+                        + "ViewModelProvider.Factory");
+            }
             mDefaultFactory = new SavedStateViewModelFactory(
-                    requireActivity().getApplication(),
+                    application,
                     this,
                     getArguments());
         }
@@ -1139,7 +1157,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     final public boolean isMenuVisible() {
-        return mMenuVisible;
+        return mMenuVisible && (mFragmentManager == null
+                || mFragmentManager.isParentMenuVisible(mParentFragment));
     }
 
     /**

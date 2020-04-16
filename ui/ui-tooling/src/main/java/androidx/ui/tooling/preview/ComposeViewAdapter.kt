@@ -27,6 +27,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.Providers
+import androidx.compose.Recomposer
 import androidx.compose.currentComposer
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.setContent
@@ -272,7 +273,7 @@ internal class ComposeViewAdapter : FrameLayout {
             emptyArray()
         }
 
-        composition = setContent {
+        composition = setContent(Recomposer.current()) {
             WrapPreview {
                 val composer = currentComposer
                 // We need to delay the reflection instantiation of the class until we are in the

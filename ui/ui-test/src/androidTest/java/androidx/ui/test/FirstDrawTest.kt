@@ -19,6 +19,7 @@ package androidx.ui.test
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.Recomposer
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
@@ -36,7 +37,7 @@ import org.junit.Test
 class FirstDrawTest {
 
     @get:Rule
-    val testRule = AndroidComposeTestRule(ComponentActivity::class.java)
+    val testRule = AndroidComposeTestRule<ComponentActivity>()
 
     /**
      * Tests that the compose tree has been drawn at least once when [onIdle] finishes.
@@ -85,7 +86,7 @@ class FirstDrawTest {
 
             root.addView(outOfBoundsView)
             activity.setContentView(root)
-            outOfBoundsView.setContent {
+            outOfBoundsView.setContent(Recomposer.current()) {
                 // If you see this box when running the test, the test is setup incorrectly
                 Box(Modifier, backgroundColor = Color.Yellow)
                 Canvas(Modifier) {

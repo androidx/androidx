@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,6 +48,22 @@ class SavedStateFactoryTest {
             activityRule.activity)
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
         assertThat(vm.get(MyAndroidViewModel::class.java).handle).isNotNull()
+        assertThat(vm.get(MyViewModel::class.java).handle).isNotNull()
+    }
+
+    @Test
+    fun testCreateFailAndroidVM() {
+        val savedStateVMFactory = SavedStateViewModelFactory(
+            null,
+            activityRule.activity)
+        val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
+        try {
+            vm.get(MyAndroidViewModel::class.java)
+            fail("Creating an AndroidViewModel should fail when no Application is provided")
+        } catch (e: RuntimeException) {
+            assertThat(e).hasMessageThat().isEqualTo("Cannot create an instance of " +
+                    MyAndroidViewModel::class.java)
+        }
         assertThat(vm.get(MyViewModel::class.java).handle).isNotNull()
     }
 

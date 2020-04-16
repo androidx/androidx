@@ -16,11 +16,17 @@
 
 package androidx.paging
 
+import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingSource.LoadResult.Page
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.launch
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -54,17 +60,24 @@ class LegacyPagingSourceTest {
                 Assert.fail("loadInitial not expected")
             }
 
-            override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<String>) {
+            override fun loadAfter(
+                params: LoadParams<Int>,
+                callback: LoadCallback<String>
+            ) {
                 Assert.fail("loadAfter not expected")
             }
 
-            override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<String>) {
+            override fun loadBefore(
+                params: LoadParams<Int>,
+                callback: LoadCallback<String>
+            ) {
                 Assert.fail("loadBefore not expected")
             }
 
             override fun getKey(item: String) = item.hashCode()
         }
-        val pagingSource = LegacyPagingSource(dataSource)
+        val pagingSource = LegacyPagingSource { dataSource }
+
         val refreshKey = pagingSource.getRefreshKey(fakePagingState)
         assertEquals("fakeData".hashCode(), refreshKey)
 
@@ -88,15 +101,22 @@ class LegacyPagingSourceTest {
                 Assert.fail("loadInitial not expected")
             }
 
-            override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, String>) {
+            override fun loadBefore(
+                params: LoadParams<Int>,
+                callback: LoadCallback<Int, String>
+            ) {
                 Assert.fail("loadBefore not expected")
             }
 
-            override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, String>) {
+            override fun loadAfter(
+                params: LoadParams<Int>,
+                callback: LoadCallback<Int, String>
+            ) {
                 Assert.fail("loadAfter not expected")
             }
         }
-        val pagingSource = LegacyPagingSource(dataSource)
+        val pagingSource = LegacyPagingSource { dataSource }
+
         val refreshKey = pagingSource.getRefreshKey(fakePagingState)
         assertEquals(refreshKey, null)
 
@@ -111,8 +131,7 @@ class LegacyPagingSourceTest {
 
     @Test
     fun positional() {
-        val dataSource = createTestPositionalDataSource()
-        val pagingSource = LegacyPagingSource(dataSource)
+        val pagingSource = LegacyPagingSource { createTestPositionalDataSource() }
 
         assertEquals(
             3,
@@ -158,8 +177,8 @@ class LegacyPagingSourceTest {
 
     @Test
     fun invalidateFromPagingSource() {
-        val dataSource = createTestPositionalDataSource()
-        val pagingSource = LegacyPagingSource(dataSource)
+        val pagingSource = LegacyPagingSource { createTestPositionalDataSource() }
+        val dataSource = pagingSource.dataSource
 
         assertFalse { pagingSource.invalid }
         assertFalse { dataSource.isInvalid }
@@ -172,8 +191,8 @@ class LegacyPagingSourceTest {
 
     @Test
     fun invalidateFromDataSource() {
-        val dataSource = createTestPositionalDataSource()
-        val pagingSource = LegacyPagingSource(dataSource)
+        val pagingSource = LegacyPagingSource { createTestPositionalDataSource() }
+        val dataSource = pagingSource.dataSource
 
         assertFalse { pagingSource.invalid }
         assertFalse { dataSource.isInvalid }
@@ -182,6 +201,43 @@ class LegacyPagingSourceTest {
 
         assertTrue { pagingSource.invalid }
         assertTrue { dataSource.isInvalid }
+    }
+
+    @Test
+    fun createDataSourceOnFetchDispatcher() {
+        val manualDispatcher = object : CoroutineDispatcher() {
+            val coroutines = ArrayList<Pair<CoroutineContext, Runnable>>()
+            override fun dispatch(context: CoroutineContext, block: Runnable) {
+                coroutines.add(context to block)
+            }
+        }
+
+        var initialized = false
+        val pagingSource = LegacyPagingSource(manualDispatcher) {
+            initialized = true
+            createTestPositionalDataSource()
+        }
+
+        assertFalse { initialized }
+
+        // Trigger lazy-initialization dispatch.
+        val job = GlobalScope.launch {
+            pagingSource.load(PagingSource.LoadParams(REFRESH, 0, 1, false, 1))
+        }
+
+        // Assert that initialization has been scheduled on manualDispatcher, which has not been
+        // triggered yet.
+        assertFalse { initialized }
+
+        // Force all tasks on manualDispatcher to run.
+        while (!job.isCompleted) {
+            while (manualDispatcher.coroutines.isNotEmpty()) {
+                @OptIn(ExperimentalStdlibApi::class)
+                manualDispatcher.coroutines.removeFirst().second.run()
+            }
+        }
+
+        assertTrue { initialized }
     }
 
     @Suppress("DEPRECATION")

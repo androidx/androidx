@@ -1,0 +1,16 @@
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.Publish
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+androidx {
+    name = "Sample Library"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.BUILDSRC_TESTS
+    inceptionYear = "2020"
+    description = "This is a sample library for confirming that maxDepVersions builds work correctly"
+}

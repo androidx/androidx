@@ -66,6 +66,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
@@ -81,6 +82,12 @@ final class SqliteInspector extends Inspector {
     private static final String sOpenDatabaseCommandSignature = "openDatabase"
             + "("
             + "Ljava/io/File;"
+            + "Landroid/database/sqlite/SQLiteDatabase$OpenParams;"
+            + ")"
+            + "Landroid/database/sqlite/SQLiteDatabase;";
+
+    private static final String sCreateInMemoryDatabaseCommandSignature = "createInMemory"
+            + "("
             + "Landroid/database/sqlite/SQLiteDatabase$OpenParams;"
             + ")"
             + "Landroid/database/sqlite/SQLiteDatabase;";
@@ -184,26 +191,29 @@ final class SqliteInspector extends Inspector {
                 .build().toByteArray()
         );
 
-        mEnvironment.registerExitHook(
-                SQLiteDatabase.class,
-                sOpenDatabaseCommandSignature,
-                new InspectorEnvironment.ExitHook<SQLiteDatabase>() {
-                    @SuppressLint("SyntheticAccessor")
-                    @Override
-                    public SQLiteDatabase onExit(SQLiteDatabase database) {
-                        try {
-                            onDatabaseAdded(database);
-                        } catch (Exception exception) {
-                            getConnection().sendEvent(createErrorOccurredEvent(
-                                    "Unhandled Exception while processing an onDatabaseAdded "
-                                            + "event: "
-                                            + exception.getMessage(),
-                                    stackTraceFromException(exception), null)
-                                    .toByteArray());
+        for (String method : Arrays.asList(sOpenDatabaseCommandSignature,
+                sCreateInMemoryDatabaseCommandSignature)) {
+            mEnvironment.registerExitHook(
+                    SQLiteDatabase.class,
+                    method,
+                    new InspectorEnvironment.ExitHook<SQLiteDatabase>() {
+                        @SuppressLint("SyntheticAccessor")
+                        @Override
+                        public SQLiteDatabase onExit(SQLiteDatabase database) {
+                            try {
+                                onDatabaseAdded(database);
+                            } catch (Exception exception) {
+                                getConnection().sendEvent(createErrorOccurredEvent(
+                                        "Unhandled Exception while processing an onDatabaseAdded "
+                                                + "event: "
+                                                + exception.getMessage(),
+                                        stackTraceFromException(exception), null)
+                                        .toByteArray());
+                            }
+                            return database;
                         }
-                        return database;
-                    }
-                });
+                    });
+        }
 
         registerInvalidationHooks();
 
@@ -515,27 +525,25 @@ final class SqliteInspector extends Inspector {
         // avoiding a synthetic accessor
     void onDatabaseAdded(SQLiteDatabase database) {
         Event response;
-        try {
-            int id = mDatabaseRegistry.addDatabase(database);
-            String name = database.getPath();
-            response = createDatabaseOpenedEvent(id, name);
-            mRoomInvalidationRegistry.invalidateCache();
-        } catch (IllegalArgumentException exception) {
-            String message = exception.getMessage();
-            // TODO: clean up, e.g. replace Exception message check with a custom Exception class
-            if (message != null && message.contains("Database is already tracked")) {
-                response = createErrorOccurredEvent(exception, null);
-            } else {
-                throw exception;
-            }
-        }
+        int id = mDatabaseRegistry.addDatabase(database);
+        if (id == DatabaseRegistry.ALREADY_TRACKED) return; // Nothing to do
 
+        // TODO: replace with db open/closed tracking as this will keep the database open
+        database.acquireReference();
+
+        String path = database.getPath();
+        response = createDatabaseOpenedEvent(id, path);
+        mRoomInvalidationRegistry.invalidateCache();
         getConnection().sendEvent(response.toByteArray());
     }
 
-    private Event createDatabaseOpenedEvent(int id, String name) {
+    private Event createDatabaseOpenedEvent(int id, String path) {
         return Event.newBuilder().setDatabaseOpened(
-                DatabaseOpenedEvent.newBuilder().setDatabaseId(id).setName(name).build())
+                DatabaseOpenedEvent.newBuilder()
+                        .setDatabaseId(id)
+                        .setName(path)
+                        .setPath(path)
+                        .build())
                 .build();
     }
 
@@ -549,11 +557,6 @@ final class SqliteInspector extends Inspector {
                                         isRecoverable))
                         .build())
                 .build();
-    }
-
-    private Event createErrorOccurredEvent(@NonNull Exception exception, Boolean isRecoverable) {
-        return createErrorOccurredEvent(exception.getMessage(), stackTraceFromException(exception),
-                isRecoverable);
     }
 
     private static ErrorContent createErrorContentMessage(@Nullable String message,
@@ -597,6 +600,9 @@ final class SqliteInspector extends Inspector {
     }
 
     static class DatabaseRegistry {
+        private static final String IN_MEMORY_DB_PATH = ":memory:";
+        static final int ALREADY_TRACKED = -1;
+
         private final Object mLock = new Object();
 
         // starting from '1' to distinguish from '0' which could stand for an unset parameter
@@ -608,21 +614,24 @@ final class SqliteInspector extends Inspector {
          * Thread safe
          *
          * @return id used to track the database
-         * @throws IllegalArgumentException if database is already in the registry
          */
         int addDatabase(@NonNull SQLiteDatabase database) {
             synchronized (mLock) {
-                // TODO: decide if compare by path or object-reference; for now using reference
-                // TODO: decide if the same database object here twice an Exception
                 // TODO: decide if to track database close events and update here
                 // TODO: decide if use weak-references to database objects
                 // TODO: consider database.acquireReference() approach
 
                 // check if already tracked
                 for (Map.Entry<Integer, SQLiteDatabase> entry : mDatabases.entrySet()) {
+                    // Instance already tracked
                     if (entry.getValue() == database) {
-                        throw new IllegalArgumentException(
-                                "Database is already tracked: " + database.getPath());
+                        return ALREADY_TRACKED;
+                    }
+                    // Path already tracked (and not an in-memory database)
+                    final String path = database.getPath();
+                    if (!Objects.equals(IN_MEMORY_DB_PATH, path)
+                            && Objects.equals(path, entry.getValue().getPath())) {
+                        return ALREADY_TRACKED;
                     }
                 }
 

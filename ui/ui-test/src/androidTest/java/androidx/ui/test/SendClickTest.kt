@@ -21,7 +21,9 @@ import android.view.Gravity
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.Composable
+import androidx.compose.Recomposer
 import androidx.test.filters.MediumTest
+import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
@@ -77,7 +79,7 @@ class ActivityWithActionBar : ComponentActivity() {
     }
 
     fun setContent(composable: @Composable() () -> Unit) {
-        composeHolder.setContent(composable)
+        composeHolder.setContent(Recomposer.current(), composable)
     }
 }
 
@@ -153,7 +155,10 @@ class SendClickWithoutArgumentsTest(config: TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule(config.activityClass, disableTransitions = true)
+    val composeTestRule = AndroidComposeTestRule(
+        ActivityTestRule(config.activityClass),
+        disableTransitions = true
+    )
 
     @Test
     fun testClickWithoutArguments() {
@@ -201,7 +206,10 @@ class SendClickWithArgumentsTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule(config.activityClass, disableTransitions = true)
+    val composeTestRule = AndroidComposeTestRule(
+        ActivityTestRule(config.activityClass),
+        disableTransitions = true
+    )
 
     @Test
     fun testClickWithArguments() {

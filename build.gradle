@@ -19,11 +19,13 @@ import androidx.build.SdkHelperKt
 import static androidx.build.dependencies.DependenciesKt.*
 
 buildscript {
-    ext.supportRootFolder = project.projectDir
+    SdkHelperKt.setSupportRootFolder(project, project.projectDir)
+
     apply from: 'buildSrc/repos.gradle'
     apply from: 'buildSrc/build_dependencies.gradle'
     repos.addMavenRepositories(repositories)
-    SdkHelperKt.setSdkInLocalPropertiesFile(ext.supportRootFolder)
+
+    SdkHelperKt.writeSdkPathToLocalPropertiesFile(project)
 
     dependencies {
         classpath build_libs.agp
@@ -34,8 +36,10 @@ buildscript {
     }
 }
 
-allprojects {
-    repos.addMavenRepositories(repositories)
+def root = project
+repos.addMavenRepositories(root.repositories)
+subprojects { subproject ->
+    subproject.repositories.addAll(root.repositories)
 }
 
 apply from: "buildSrc/dependencies.gradle"
