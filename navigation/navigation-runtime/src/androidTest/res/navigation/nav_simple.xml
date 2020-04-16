@@ -34,6 +34,7 @@
             app:popUpToInclusive="true" />
         <deepLink app:uri="android-app://androidx.navigation.test/test"
             app:action="test.action" app:mimeType="type/test"/>
-        <deepLink app:uri="android-app://androidx.navigation.test/test/{arg1}/{arg2}" />
+        <deepLink app:uri="android-app://androidx.navigation.test/test/{arg1}/{arg2}"
+            app:action="" />
     </test>
 </navigation>

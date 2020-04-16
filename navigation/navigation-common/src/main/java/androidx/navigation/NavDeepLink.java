@@ -401,11 +401,17 @@ public final class NavDeepLink {
         /**
          * Creates a {@link NavDeepLink.Builder} with a set action.
          *
+         * @throws IllegalArgumentException if the action is empty.
+         *
          * @param action the intent action for the NavDeepLink
          * @return a {@link Builder} instance
          */
         @NonNull
         public static Builder fromAction(@NonNull String action) {
+            // if the action given at runtime is empty we should throw
+            if (action.isEmpty()) {
+                throw new IllegalArgumentException("The NavDeepLink cannot have an empty action.");
+            }
             Builder builder = new Builder();
             builder.setAction(action);
             return builder;
@@ -440,12 +446,18 @@ public final class NavDeepLink {
         /**
          * Set the action for the {@link NavDeepLink}.
          *
+         * @throws IllegalArgumentException if the action is empty.
+         *
          * @param action the intent action for the NavDeepLink
          *
          * @return This builder.
          */
         @NonNull
         public Builder setAction(@NonNull String action) {
+            // if the action given at runtime is empty we should throw
+            if (action.isEmpty()) {
+                throw new IllegalArgumentException("The NavDeepLink cannot have an empty action.");
+            }
             mAction = action;
             return this;
         }

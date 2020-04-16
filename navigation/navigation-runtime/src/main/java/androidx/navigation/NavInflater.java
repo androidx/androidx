@@ -289,7 +289,7 @@ public final class NavInflater {
             builder.setUri(uri.replace(APPLICATION_ID_PLACEHOLDER,
                     mContext.getPackageName()));
         }
-        if (action != null) {
+        if (!TextUtils.isEmpty(action)) {
             builder.setAction(action.replace(APPLICATION_ID_PLACEHOLDER,
                     mContext.getPackageName()));
         }
