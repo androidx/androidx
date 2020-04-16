@@ -21,17 +21,14 @@ import androidx.test.filters.MediumTest
 import androidx.work.OneTimeWorkRequest
 import androidx.work.RunnableScheduler
 import androidx.work.worker.TestWorker
-import org.hamcrest.Matchers.lessThanOrEqualTo
-import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import java.util.concurrent.TimeUnit
-import kotlin.math.abs
 
 @RunWith(AndroidJUnit4::class)
 class DelayedWorkTrackerTest {
@@ -57,15 +54,10 @@ class DelayedWorkTrackerTest {
         val request = builder.build()
         mDelayedWorkTracker.schedule(request.workSpec)
 
-        val timeCaptor = ArgumentCaptor.forClass(Long::class.java)
         verify(mRunnableScheduler).scheduleWithDelay(
-            timeCaptor.capture(),
+            anyLong(),
             any(Runnable::class.java)
         )
-        val delta = abs(timeCaptor.value - delay)
-        // Scheduling uses System.currentTimeInMillis() independently which introduces a small
-        //  delta when tests run slow. Its more important to verify the call to scheduleWithDelay.
-        assertThat(delta, lessThanOrEqualTo(2L))
     }
 
     private fun newWorkRequestBuilder(): OneTimeWorkRequest.Builder {
