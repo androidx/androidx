@@ -161,7 +161,7 @@ public final class CameraXTest {
                         new Rational(400, 300),
                         new Size(400, 300)))
                 .isEqualTo(new Rect[]{
-                        new Rect(0, 88, 300, 313)
+                        new Rect(88, 0, 313, 300)
                 });
     }
 
