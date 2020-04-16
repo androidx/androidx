@@ -35,6 +35,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
     implementation(KOTLIN_COROUTINES_RX2)
 
+    testImplementation(project(":paging:paging-testutils"))
     testImplementation(project(":internal-testutils-common"))
     testImplementation(JUNIT)
     testImplementation(KOTLIN_TEST)

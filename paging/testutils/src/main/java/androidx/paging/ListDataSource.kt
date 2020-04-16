@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,23 @@
 
 package androidx.paging
 
-import androidx.annotation.VisibleForTesting
 import java.util.ArrayList
 
 @Suppress("DEPRECATION")
-@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 class ListDataSource<T : Any>(list: List<T>) : PositionalDataSource<T>() {
     private val list: List<T> = ArrayList(list)
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
         val totalCount = list.size
-        val position = computeInitialLoadPosition(params, totalCount)
-        val loadSize = computeInitialLoadSize(params, position, totalCount)
+        val position = computeInitialLoadPosition(
+            params,
+            totalCount
+        )
+        val loadSize = computeInitialLoadSize(
+            params,
+            position,
+            totalCount
+        )
 
         // for simplicity, we could return everything immediately,
         // but we tile here since it's expected behavior
