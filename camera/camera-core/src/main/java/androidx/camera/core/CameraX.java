@@ -887,7 +887,7 @@ public final class CameraX {
      *
      * <p> The calculation steps:
      * <ul>
-     * <li> Rotating sensor rect and surface size to match the output rotation.
+     * <li> Rotate output aspect ratio to match the sensor orientation.
      * <li> Get the transformation matrix from use case coordinates to sensor coordinates for
      * each use case.
      * <li> Get the intersection of all use case sensor rect and apply user provided aspect ratio
@@ -895,35 +895,33 @@ public final class CameraX {
      * <li> Map the sensor rect back to each UseCase's coordinates.
      * </ul>
      *
-     * @param originalFullSensorRect full sensor rect of the camera.
-     * @param outputAspectRatio      aspect ratio of the output crop rect specified by caller.
-     * @param outputRotationDegrees  output rotation degrees in relation to the sensor orientation.
-     * @param sensorUseCaseSize      the {@link Surface} size of each use case.
+     * @param fullSensorRect        full sensor rect of the camera.
+     * @param outputAspectRatio     aspect ratio of the output crop rect specified by caller.
+     * @param outputRotationDegrees output rotation degrees in relation to the sensor orientation.
+     * @param useCaseSizes          the {@link Surface} size of each use case.
      * @return the crop rect in each {@link UseCase}'s output coordinates.
      */
     @NonNull
     static Map<UseCase, Rect> calculateCropRects(
-            @NonNull Rect originalFullSensorRect,
+            @NonNull Rect fullSensorRect,
             @NonNull Rational outputAspectRatio,
             @IntRange(from = 0, to = 359) int outputRotationDegrees,
-            @NonNull Map<UseCase, Size> sensorUseCaseSize) {
-        // Transform sensor rect and output size based on output rotation. The calculation
-        // for the rest of the method is in output orientation.
-        RectF outputFullSensorRect = new RectF(ImageUtil.getRotatedRect(outputRotationDegrees,
-                originalFullSensorRect));
-        Map<UseCase, Size> useCaseOutputSizes = getRotatedUseCaseSizes(
-                outputRotationDegrees,
-                sensorUseCaseSize);
+            @NonNull Map<UseCase, Size> useCaseSizes) {
+        // Transform aspect ratio to sensor orientation. The the rest of the method is in sensor
+        // orientation.
+        Rational aspectRatio = ImageUtil.getRotatedAspectRatio(outputRotationDegrees,
+                outputAspectRatio);
+        RectF fullSensorRectF = new RectF(fullSensorRect);
 
         // Calculate the transformation for each UseCase.
         Map<UseCase, Matrix> useCaseToSensorTransformations = new HashMap<>();
-        RectF sensorIntersectionRect = new RectF(outputFullSensorRect);
-        for (Map.Entry<UseCase, Size> entry : useCaseOutputSizes.entrySet()) {
+        RectF sensorIntersectionRect = new RectF(fullSensorRect);
+        for (Map.Entry<UseCase, Size> entry : useCaseSizes.entrySet()) {
             // Calculate the transformation from UseCase to sensor.
             Matrix useCaseToSensorTransformation = new Matrix();
             RectF srcRect = new RectF(0, 0, entry.getValue().getWidth(),
                     entry.getValue().getHeight());
-            useCaseToSensorTransformation.setRectToRect(srcRect, outputFullSensorRect,
+            useCaseToSensorTransformation.setRectToRect(srcRect, fullSensorRectF,
                     Matrix.ScaleToFit.CENTER);
             useCaseToSensorTransformations.put(entry.getKey(), useCaseToSensorTransformation);
 
@@ -934,7 +932,7 @@ public final class CameraX {
         }
 
         // Get the max shared sensor rect by the given aspect ratio.
-        sensorIntersectionRect = ImageUtil.fitCenter(sensorIntersectionRect, outputAspectRatio);
+        sensorIntersectionRect = ImageUtil.fitCenter(sensorIntersectionRect, aspectRatio);
 
         // Map the max shared sensor rect to UseCase coordinates.
         Map<UseCase, Rect> useCaseOutputRects = new HashMap<>();

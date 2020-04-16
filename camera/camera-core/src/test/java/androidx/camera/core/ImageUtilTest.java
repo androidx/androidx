@@ -101,21 +101,21 @@ public class ImageUtilTest {
     }
 
     @Test
-    public void rotateRectFor90Degrees_rectRotated() {
+    public void rotateAspectRatioFor90Degrees_rotated() {
         // Arrange.
-        Rect rect = new Rect(10, 20, 30, 40);
+        Rational aspectRatio = new Rational(3, 4);
 
-        // Assert: return a rotated rect.
-        assertThat(ImageUtil.getRotatedRect(90, rect)).isEqualTo(new Rect(20, 10, 40, 30));
+        // Assert: return a rotated value.
+        assertThat(ImageUtil.getRotatedAspectRatio(90, aspectRatio)).isEqualTo(new Rational(4, 3));
     }
 
     @Test
     public void rotateRectFor180Degrees_rectUnchanged() {
         // Arrange.
-        Rect rect = new Rect(10, 20, 30, 40);
+        Rational aspectRatio = new Rational(3, 4);
 
-        // Assert: return the same rect.
-        assertThat(ImageUtil.getRotatedRect(180, rect)).isEqualTo(rect);
+        // Assert: return the original value.
+        assertThat(ImageUtil.getRotatedAspectRatio(180, aspectRatio)).isEqualTo(aspectRatio);
     }
 
     @Test
@@ -185,15 +185,5 @@ public class ImageUtilTest {
         } else {
             assertEquals(HEIGHT, resultRect.height());
         }
-    }
-
-    @Test
-    public void canRotateRationalByDegree() {
-        Rational resultRatio = ImageUtil.rotate(ASPECT_RATIO, 0);
-        assertThat(resultRatio).isEqualTo(ASPECT_RATIO);
-
-        resultRatio = ImageUtil.rotate(ASPECT_RATIO, 90);
-        assertThat(resultRatio).isEqualTo(
-                new Rational(ASPECT_RATIO.getDenominator(), ASPECT_RATIO.getNumerator()));
     }
 }

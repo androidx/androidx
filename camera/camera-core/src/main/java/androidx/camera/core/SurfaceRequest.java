@@ -73,6 +73,7 @@ public final class SurfaceRequest {
 
     /**
      * Creates a new surface request with the given resolution.
+     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -194,6 +195,7 @@ public final class SurfaceRequest {
     /**
      * Returns the {@link DeferrableSurface} instance used to track usage of the surface that
      * fulfills this request.
+     *
      * @hide
      */
     @NonNull
@@ -226,9 +228,8 @@ public final class SurfaceRequest {
      * <p> The returned value dictates how the {@link Surface} provided in
      * {@link #provideSurface(Surface, Executor, Consumer)} should be displayed.
      *
-     * <p> The {@link Rect} is based on the output coordinates, which has the size of
-     * rotated {@link #getResolution()}. The caller should update the UI so that only the area
-     * defined by the {@link Rect} is visible to app users.
+     * <p> The {@link Rect} is based on the Surface coordinates. The caller should update the UI
+     * so that only the area defined by the {@link Rect} is visible to app users.
      *
      * @hide
      */
@@ -262,8 +263,9 @@ public final class SurfaceRequest {
      * should be used to track when the provided {@link Surface} is no longer in use by the
      * camera, as subsequent invocations will always invoke the {@code resultListener} with a
      * {@link Result} containing {@link Result#RESULT_SURFACE_ALREADY_PROVIDED}.
-     * @param surface The surface which will complete the request.
-     * @param executor Executor used to execute the {@code resultListener}.
+     *
+     * @param surface        The surface which will complete the request.
+     * @param executor       Executor used to execute the {@code resultListener}.
      * @param resultListener Listener used to track how the surface is used by the camera in
      *                       response to being provided by this method.
      */
@@ -396,6 +398,7 @@ public final class SurfaceRequest {
 
         /**
          * Possible result codes.
+         *
          * @hide
          */
         @IntDef({RESULT_SURFACE_USED_SUCCESSFULLY, RESULT_REQUEST_CANCELLED, RESULT_INVALID_SURFACE,
@@ -484,6 +487,7 @@ public final class SurfaceRequest {
         /**
          * Returns the result of invoking {@link #provideSurface(Surface, Executor, Consumer)}
          * with the surface from {@link #getSurface()}.
+         *
          * @return One of {@link #RESULT_SURFACE_USED_SUCCESSFULLY},
          * {@link #RESULT_REQUEST_CANCELLED}, {@link #RESULT_INVALID_SURFACE}, or
          * {@link #RESULT_SURFACE_ALREADY_PROVIDED}, {@link #RESULT_WILL_NOT_PROVIDE_SURFACE}.
@@ -494,6 +498,7 @@ public final class SurfaceRequest {
         /**
          * The surface used to complete a {@link SurfaceRequest} with
          * {@link #provideSurface(Surface, Executor, Consumer)}.
+         *
          * @return the surface.
          */
         @NonNull
