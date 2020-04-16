@@ -19,6 +19,8 @@ import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
+import androidx.build.SdkHelperKt
+import androidx.build.SupportConfig
 
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.Publish
@@ -43,13 +45,20 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation(GOOGLE_COMPILE_TESTING)
+    testImplementation(HILT_ANDROID)
     testImplementation fileTree(
             dir: "${new File(project(":hilt:hilt-lifecycle-viewmodel").buildDir, "libJar")}",
             include : "*.jar")
-    testImplementation(HILT_ANDROID)
+    testImplementation fileTree(
+            dir: "${new File(project(":hilt:hilt-work").buildDir, "libJar")}",
+            include : "*.jar")
+    testImplementation fileTree(
+            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
+            include : "android.jar")
 }
 
 tasks.findByName("compileKotlin").dependsOn(":hilt:hilt-lifecycle-viewmodel:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":hilt:hilt-work:jarDebug")
 
 androidx {
     name = "AndroidX Hilt Extension Compiler"

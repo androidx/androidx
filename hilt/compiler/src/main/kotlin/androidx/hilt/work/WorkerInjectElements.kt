@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.hilt.lifecycle
+package androidx.hilt.work
 
 import androidx.hilt.ClassNames
 import androidx.hilt.assisted.toDependencyRequest
@@ -25,9 +25,9 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
 /**
- * Data class that represents a Hilt injected ViewModel
+ * Data class that represents a Hilt injected Worker
  */
-internal data class ViewModelInjectElements(
+internal data class WorkerInjectElements(
     val typeElement: TypeElement,
     val constructorElement: ExecutableElement
 ) {
@@ -38,7 +38,7 @@ internal data class ViewModelInjectElements(
         "${className.simpleNames().joinToString("_")}_AssistedFactory")
 
     val factorySuperTypeName = ParameterizedTypeName.get(
-        ClassNames.VIEW_MODEL_ASSISTED_FACTORY,
+        ClassNames.WORKER_ASSISTED_FACTORY,
         className)
 
     val moduleClassName = ClassName.get(
@@ -47,7 +47,7 @@ internal data class ViewModelInjectElements(
 
     val dependencyRequests = constructorElement.parameters.map { constructorArg ->
         constructorArg.toDependencyRequest { paramTypeName ->
-            paramTypeName == ClassNames.SAVED_STATE_HANDLE
+            listOf(ClassNames.CONTEXT, ClassNames.WORKER_PARAMETERS).any { paramTypeName == it }
         }
     }
 }
