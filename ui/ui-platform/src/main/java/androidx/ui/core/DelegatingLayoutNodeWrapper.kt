@@ -28,8 +28,9 @@ import androidx.ui.unit.toPx
 /**
  * [LayoutNodeWrapper] with default implementations for methods.
  */
-internal open class DelegatingLayoutNodeWrapper(
-    override val wrapped: LayoutNodeWrapper
+internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
+    override val wrapped: LayoutNodeWrapper,
+    val modifier: T
 ) : LayoutNodeWrapper(wrapped.layoutNode) {
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = wrapped.providedAlignmentLines

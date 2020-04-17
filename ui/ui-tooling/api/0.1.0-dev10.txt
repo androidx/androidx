@@ -10,6 +10,7 @@ package androidx.ui.tooling {
     method public final java.util.Collection<androidx.ui.tooling.Group> getChildren();
     method public final java.util.Collection<java.lang.Object> getData();
     method public final Object? getKey();
+    method public final java.util.List<androidx.ui.core.ModifierInfo> getModifierInfo();
   }
 
   public final class InspectableKt {
@@ -28,7 +29,7 @@ package androidx.ui.tooling {
   }
 
   public final class NodeGroup extends androidx.ui.tooling.Group {
-    ctor public NodeGroup(Object? key, Object node, androidx.ui.unit.IntPxBounds box, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
+    ctor public NodeGroup(Object? key, Object node, androidx.ui.unit.IntPxBounds box, java.util.Collection<?> data, java.util.List<androidx.ui.core.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.ui.tooling.Group> children);
     method public Object getNode();
   }
 

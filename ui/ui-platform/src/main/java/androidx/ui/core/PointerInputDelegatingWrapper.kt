@@ -22,8 +22,8 @@ import androidx.ui.unit.PxPosition
 
 internal class PointerInputDelegatingWrapper(
     wrapped: LayoutNodeWrapper,
-    private val pointerInputModifier: PointerInputModifier
-) : DelegatingLayoutNodeWrapper(wrapped) {
+    pointerInputModifier: PointerInputModifier
+) : DelegatingLayoutNodeWrapper<PointerInputModifier>(wrapped, pointerInputModifier) {
 
     init {
         pointerInputModifier.pointerInputFilter.layoutCoordinates = this
@@ -36,7 +36,7 @@ internal class PointerInputDelegatingWrapper(
         if (isGlobalPointerInBounds(pointerPositionRelativeToScreen)) {
             // If we were hit, add the pointerInputFilter and keep looking to see if anything
             // further down the tree is also hit and return true.
-            hitPointerInputFilters.add(pointerInputModifier.pointerInputFilter)
+            hitPointerInputFilters.add(modifier.pointerInputFilter)
             super.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
             return true
         } else {

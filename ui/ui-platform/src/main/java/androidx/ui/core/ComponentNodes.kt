@@ -1338,6 +1338,28 @@ class LayoutNode : ComponentNode(), Measurable {
         layoutChildren.fastForEach { it.dispatchOnPositionedCallbacks() }
     }
 
+    /**
+     * This returns a new List of Modifiers and the coordinates and any extra information
+     * that may be useful. This is used for tooling to retrieve layout modifier and layer
+     * information.
+     */
+    fun getModifierInfo(): List<ModifierInfo> {
+        val infoList = mutableListOf<ModifierInfo>()
+        var wrapper = layoutNodeWrapper
+
+        while (wrapper != innerLayoutNodeWrapper) {
+            val info = if (wrapper is LayerWrapper) {
+                ModifierInfo(wrapper.modifier, wrapper, wrapper.layer)
+            } else {
+                wrapper as DelegatingLayoutNodeWrapper<*>
+                ModifierInfo(wrapper.modifier, wrapper)
+            }
+            infoList += info
+            wrapper = wrapper.wrapped!!
+        }
+        return infoList
+    }
+
     override fun toString(): String {
         return "${super.toString()} measureBlocks: $measureBlocks"
     }
@@ -1365,6 +1387,15 @@ class LayoutNode : ComponentNode(), Measurable {
         }
     }
 }
+
+/**
+ * Used by tooling to examine the modifiers on a [LayoutNode].
+ */
+class ModifierInfo(
+    val modifier: Modifier,
+    val coordinates: LayoutCoordinates,
+    val extra: Any? = null
+)
 
 /**
  * The key used in DataNode.

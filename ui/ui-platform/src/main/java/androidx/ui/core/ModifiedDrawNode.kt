@@ -35,8 +35,8 @@ import androidx.ui.unit.toPxSize
 
 internal class ModifiedDrawNode(
     wrapped: LayoutNodeWrapper,
-    private val drawModifier: DrawModifier
-) : DelegatingLayoutNodeWrapper(wrapped) {
+    drawModifier: DrawModifier
+) : DelegatingLayoutNodeWrapper<DrawModifier>(wrapped, drawModifier) {
     private val drawScope = DrawScopeImpl()
     private var canvas: Canvas? = null
 
@@ -54,7 +54,7 @@ internal class ModifiedDrawNode(
         withPositionTranslation(canvas) {
             this.canvas = canvas
             with(drawScope) {
-                with(drawModifier) { draw() }
+                with(modifier) { draw() }
             }
             this.canvas = null
         }
