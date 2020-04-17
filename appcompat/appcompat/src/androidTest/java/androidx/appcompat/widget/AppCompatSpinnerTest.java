@@ -37,7 +37,6 @@ import static org.junit.Assert.assertTrue;
 import android.app.Instrumentation;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -48,7 +47,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.lifecycle.Lifecycle;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.CoordinatesProvider;
 import androidx.test.espresso.action.GeneralSwipeAction;
@@ -57,9 +55,7 @@ import androidx.test.espresso.action.Swipe;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.testutils.LifecycleOwnerUtils;
 import androidx.testutils.PollingCheck;
 
 import org.hamcrest.Description;
@@ -243,29 +239,24 @@ public class AppCompatSpinnerTest
     @Test
     @FlakyTest
     public void testHorizontalOffset() {
-        checkOffsetIsCorrect(500, false, false);
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
-    public void testHorizontalOffsetRtl() {
-        setRtlOneShotAndRecreate();
-        checkOffsetIsCorrect(200, false, true);
+        checkOffsetIsCorrect(mInstrumentation, mContainer, 500, false, false);
     }
 
     @Test
     public void testVerticalOffset() {
-        checkOffsetIsCorrect(100, true, false);
+        checkOffsetIsCorrect(mInstrumentation, mContainer, 100, true, false);
     }
 
-    private void checkOffsetIsCorrect(
+    public static void checkOffsetIsCorrect(
+            final Instrumentation instrumentation,
+            final ViewGroup container,
             final int offset,
             final boolean isVerticalOffset,
             final boolean isRtl) {
         final int spinnerId = R.id.spinner_dropdown_popup_small;
-        final AppCompatSpinner spinner = mContainer.findViewById(spinnerId);
+        final AppCompatSpinner spinner = container.findViewById(spinnerId);
 
-        mInstrumentation.runOnMainSync(new Runnable() {
+        instrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 if (isVerticalOffset) {
@@ -359,7 +350,7 @@ public class AppCompatSpinnerTest
         return child.getHeight() * 2;
     }
 
-    private void waitUntilPopupIsShown(final AppCompatSpinner spinner) {
+    private static void waitUntilPopupIsShown(final AppCompatSpinner spinner) {
         PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
@@ -368,7 +359,7 @@ public class AppCompatSpinnerTest
         });
     }
 
-    private void waitUntilPopupIsHidden(final AppCompatSpinner spinner) {
+    private static void waitUntilPopupIsHidden(final AppCompatSpinner spinner) {
         PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
             @Override
             public boolean canProceed() {
@@ -377,7 +368,7 @@ public class AppCompatSpinnerTest
         });
     }
 
-    private Matcher<View> hasOffset(
+    public static Matcher<View> hasOffset(
             final int offset,
             final String desc,
             final boolean isVerticalOffset) {
@@ -401,26 +392,5 @@ public class AppCompatSpinnerTest
                 return false;
             }
         };
-    }
-
-    private void setRtlOneShotAndRecreate() {
-        try {
-            // Wait for the Activity to be resumed and visible
-            LifecycleOwnerUtils.waitUntilState(mActivity, Lifecycle.State.RESUMED);
-
-            mActivity = LifecycleOwnerUtils.waitForRecreation(mActivity, new Runnable() {
-                        public void run() {
-                            mActivity.setRtlOneShotAndRecreate();
-                        }
-                    });
-
-            mContainer = mActivity.findViewById(R.id.container);
-            mResources = mActivity.getResources();
-        } catch (Throwable t) {
-            // The Activity may still get reused, so make sure it's really a one-shot.
-            mActivity.resetRtlOneShot();
-
-            throw new RuntimeException(t);
-        }
     }
 }

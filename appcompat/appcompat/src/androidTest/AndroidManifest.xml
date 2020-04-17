@@ -79,6 +79,11 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatSpinnerRtlActivity"
+            android:label="@string/app_compat_spinner_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatTextViewActivity"
             android:label="@string/app_compat_text_view_activity"
             android:theme="@style/Theme.TextColors"/>
