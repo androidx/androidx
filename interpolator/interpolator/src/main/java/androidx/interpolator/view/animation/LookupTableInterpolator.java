@@ -18,22 +18,14 @@ package androidx.interpolator.view.animation;
 
 import android.view.animation.Interpolator;
 
-/**
- * An {@link Interpolator} that uses a lookup table to compute an interpolation based on a
- * given input.
- */
-abstract class LookupTableInterpolator implements Interpolator {
+final class LookupTableInterpolator {
+    private LookupTableInterpolator() {}
 
-    private final float[] mValues;
-    private final float mStepSize;
-
-    protected LookupTableInterpolator(float[] values) {
-        mValues = values;
-        mStepSize = 1f / (mValues.length - 1);
-    }
-
-    @Override
-    public float getInterpolation(float input) {
+    /**
+     * An {@link Interpolator} helper that uses a lookup table to compute an interpolation based
+     * on a given input.
+     */
+    static float interpolate(float[] values, float stepSize, float input) {
         if (input >= 1.0f) {
             return 1.0f;
         }
@@ -43,15 +35,15 @@ abstract class LookupTableInterpolator implements Interpolator {
 
         // Calculate index - We use min with length - 2 to avoid IndexOutOfBoundsException when
         // we lerp (linearly interpolate) in the return statement
-        int position = Math.min((int) (input * (mValues.length - 1)), mValues.length - 2);
+        int position = Math.min((int) (input * (values.length - 1)), values.length - 2);
 
         // Calculate values to account for small offsets as the lookup table has discrete values
-        float quantized = position * mStepSize;
+        float quantized = position * stepSize;
         float diff = input - quantized;
-        float weight = diff / mStepSize;
+        float weight = diff / stepSize;
 
         // Linearly interpolate between the table values
-        return mValues[position] + weight * (mValues[position + 1] - mValues[position]);
+        return values[position] + weight * (values[position + 1] - values[position]);
     }
 
 }
