@@ -244,6 +244,18 @@ class FragmentAnim {
     }
 
     /**
+     * An {@link AnimationSet} that allows us to call
+     * {@link Animation#setAnimationListener(AnimationListener)} without overriding
+     * any listener set on the underlying Animation
+     */
+    static class EnterViewTransitionAnimation extends AnimationSet {
+        EnterViewTransitionAnimation(@NonNull Animation animation) {
+            super(false);
+            addAnimation(animation);
+        }
+    }
+
+    /**
      * We must call endViewTransition() before the animation ends or else the parent doesn't
      * get nulled out. We use both startViewTransition() and startAnimation() to solve a problem
      * with Views remaining in the hierarchy as disappearing children after the view has been
