@@ -51,6 +51,7 @@ public class NavDeepLinkRequest {
      * Get the uri from the NavDeepLinkRequest.
      *
      * @return the uri for the request.
+     * @see NavDeepLink#getUri()
      */
     @Nullable
     public Uri getUri() {
@@ -61,6 +62,7 @@ public class NavDeepLinkRequest {
      * Get the action from the NavDeepLinkRequest.
      *
      * @return the action for the request.
+     * @see NavDeepLink#getAction()
      */
     @Nullable
     public String getAction() {
@@ -71,6 +73,7 @@ public class NavDeepLinkRequest {
      * Get the mimeType from the NavDeepLinkRequest.
      *
      * @return the mimeType of the request.
+     * @see NavDeepLink#getMimeType()
      */
     @Nullable
     public String getMimeType() {
