@@ -273,7 +273,7 @@ fun hasAnyDescendantThat(matcher: SemanticsMatcher): SemanticsMatcher {
     }
 }
 
-private val SemanticsNode.ancestors: Iterable<SemanticsNode>
+internal val SemanticsNode.ancestors: Iterable<SemanticsNode>
     get() = object : Iterable<SemanticsNode> {
         override fun iterator(): Iterator<SemanticsNode> {
             return object : Iterator<SemanticsNode> {
