@@ -1010,7 +1010,7 @@ public class FragmentActivity extends ComponentActivity implements
                 FragmentManager childFragmentManager = fragment.getChildFragmentManager();
                 hadNotMarked |= markState(childFragmentManager, state);
             }
-            if (fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+            if (fragment.mLifecycleRegistry.getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
                 fragment.mLifecycleRegistry.setCurrentState(state);
                 hadNotMarked = true;
             }
