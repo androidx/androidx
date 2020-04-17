@@ -61,11 +61,23 @@ public interface CameraControlInternal extends CameraControl {
      */
     void setFlashMode(@FlashMode int flashMode);
 
-    /** Performs a AF trigger. */
-    void triggerAf();
+    /**
+     * Performs a AF trigger.
+     *
+     * @return a {@link ListenableFuture} which completes when the request is completed.
+     * Cancelling the ListenableFuture is a no-op.
+     */
+    @NonNull
+    ListenableFuture<CameraCaptureResult> triggerAf();
 
-    /** Performs a AE Precapture trigger. */
-    void triggerAePrecapture();
+    /**
+     * Performs a AE Precapture trigger.
+     *
+     * @return a {@link ListenableFuture} which completes when the request is completed.
+     * Cancelling the ListenableFuture is a no-op.
+     */
+    @NonNull
+    ListenableFuture<CameraCaptureResult> triggerAePrecapture();
 
     /** Cancel AF trigger AND/OR AE Precapture trigger.* */
     void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger);
@@ -97,11 +109,15 @@ public interface CameraControlInternal extends CameraControl {
         }
 
         @Override
-        public void triggerAf() {
+        @NonNull
+        public ListenableFuture<CameraCaptureResult> triggerAf() {
+            return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
         }
 
         @Override
-        public void triggerAePrecapture() {
+        @NonNull
+        public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
+            return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
         }
 
         @Override
@@ -147,5 +163,28 @@ public interface CameraControlInternal extends CameraControl {
 
         /** Called when CameraControlInternal need to send capture requests. */
         void onCameraControlCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
+    }
+
+    /**
+     * An exception thrown when the camera control is failed to execute the request.
+     */
+    final class CameraControlException extends Exception {
+        @NonNull
+        private CameraCaptureFailure mCameraCaptureFailure;
+        public CameraControlException(@NonNull CameraCaptureFailure failure) {
+            super();
+            mCameraCaptureFailure = failure;
+        }
+
+        public CameraControlException(@NonNull CameraCaptureFailure failure,
+                @NonNull Throwable cause) {
+            super(cause);
+            mCameraCaptureFailure = failure;
+        }
+
+        @NonNull
+        public CameraCaptureFailure getCameraCaptureFailure() {
+            return mCameraCaptureFailure;
+        }
     }
 }
