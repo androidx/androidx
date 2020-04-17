@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -52,6 +51,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -346,7 +346,7 @@ public class MediaControlView extends MediaViewGroup {
         }
         mPlayer = new PlayerWrapper(controller, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (isAttachedToWindow()) {
+        if (ViewCompat.isAttachedToWindow(this)) {
             mPlayer.attachCallback();
         }
     }
@@ -383,7 +383,7 @@ public class MediaControlView extends MediaViewGroup {
         }
         mPlayer = new PlayerWrapper(player, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (isAttachedToWindow()) {
+        if (ViewCompat.isAttachedToWindow(this)) {
             mPlayer.attachCallback();
         }
     }
@@ -740,7 +740,7 @@ public class MediaControlView extends MediaViewGroup {
                 R.dimen.media2_widget_full_settings_width);
         mSettingsItemHeight = mResources.getDimensionPixelSize(
                 R.dimen.media2_widget_settings_height);
-        mSettingsWindowMargin = -1 * mResources.getDimensionPixelSize(
+        mSettingsWindowMargin = mResources.getDimensionPixelSize(
                 R.dimen.media2_widget_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
                 LayoutParams.WRAP_CONTENT, true);
@@ -1598,7 +1598,7 @@ public class MediaControlView extends MediaViewGroup {
         mSettingsWindow.setWidth(itemWidth);
 
         // Calculate height of window
-        int maxHeight = getMeasuredHeight() + mSettingsWindowMargin * 2;
+        int maxHeight = getHeight() - mSettingsWindowMargin * 2;
         int totalHeight = adapter.getCount() * mSettingsItemHeight;
         int height = (totalHeight < maxHeight) ? totalHeight : maxHeight;
         mSettingsWindow.setHeight(height);
@@ -1608,8 +1608,9 @@ public class MediaControlView extends MediaViewGroup {
         mSettingsWindow.dismiss();
         // Workaround for b/123271636.
         if (height > 0) {
-            mSettingsWindow.showAsDropDown(this, mSettingsWindowMargin,
-                    mSettingsWindowMargin - height, Gravity.BOTTOM | Gravity.RIGHT);
+            int xoff = getWidth() - mSettingsWindow.getWidth() - mSettingsWindowMargin;
+            int yoff = -mSettingsWindow.getHeight() - mSettingsWindowMargin;
+            mSettingsWindow.showAsDropDown(this, xoff, yoff);
             mNeedToHideBars = true;
         }
     }

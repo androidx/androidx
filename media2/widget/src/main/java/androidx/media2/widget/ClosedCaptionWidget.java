@@ -16,17 +16,22 @@
 
 package androidx.media2.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build.VERSION;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.CaptioningManager;
-import android.view.accessibility.CaptioningManager.CaptionStyle;
 import android.view.accessibility.CaptioningManager.CaptioningChangeListener;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * Abstract widget class to render a closed caption track.
  */
+// TODO: Remove once the minSdkVersion is lowered enough
+@SuppressLint("ObsoleteSdkInt")
 abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.RenderingWidget {
 
     interface ClosedCaptionLayout {
@@ -35,7 +40,8 @@ abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.Re
     }
 
     /** Captioning manager, used to obtain and track caption properties. */
-    private final CaptioningManager mManager;
+    @RequiresApi(19)
+    private CaptioningManager mManager;
 
     /** Current caption style. */
     protected CaptionStyle mCaptionStyle;
@@ -63,12 +69,18 @@ abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.Re
         // Cannot render text over video when layer type is hardware.
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-        mManager = (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
-        mCaptionStyle = mManager.getUserStyle();
+        float fontScale = 1.f;
+        if (VERSION.SDK_INT >= 19) {
+            mManager = (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
+            mCaptionStyle = new CaptionStyle(mManager.getUserStyle());
+            fontScale = mManager.getFontScale();
+        } else {
+            mCaptionStyle = CaptionStyle.DEFAULT;
+        }
 
         mClosedCaptionLayout = createCaptionLayout(context);
         mClosedCaptionLayout.setCaptionStyle(mCaptionStyle);
-        mClosedCaptionLayout.setFontScale(mManager.getFontScale());
+        mClosedCaptionLayout.setFontScale(fontScale);
         addView((ViewGroup) mClosedCaptionLayout, LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT);
 
@@ -130,10 +142,11 @@ abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.Re
     /**
      * Manages whether this renderer is listening for caption style changes.
      */
+    @RequiresApi(19)
     private final CaptioningChangeListener mCaptioningListener = new CaptioningChangeListener() {
         @Override
-        public void onUserStyleChanged(CaptionStyle userStyle) {
-            mCaptionStyle = userStyle;
+        public void onUserStyleChanged(CaptioningManager.CaptionStyle userStyle) {
+            mCaptionStyle = new CaptionStyle(userStyle);
             mClosedCaptionLayout.setCaptionStyle(mCaptionStyle);
         }
 
@@ -144,6 +157,9 @@ abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.Re
     };
 
     private void manageChangeListener() {
+        if (VERSION.SDK_INT < 19) {
+            return;
+        }
         final boolean needsListener = isAttachedToWindow() && getVisibility() == View.VISIBLE;
         if (mHasChangeListener != needsListener) {
             mHasChangeListener = needsListener;
