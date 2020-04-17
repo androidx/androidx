@@ -283,6 +283,14 @@ internal class AndroidComposeView constructor(
                 // requestMeasure has already been called for this node
                 return
             }
+            if (layoutNode.isLayingOut) {
+                // requestMeasure is currently laying out and it is incorrect to request remeasure
+                // now, let's postpone it.
+                layoutNode.markRemeasureRequested()
+                postponedMeasureRequests.add(layoutNode)
+                consistencyChecker?.assertConsistent()
+                return
+            }
 
             // find root of layout request:
             var layout = layoutNode
@@ -290,7 +298,7 @@ internal class AndroidComposeView constructor(
                 val parent = layout.parentLayoutNode!!
                 if (parent.isMeasuring || parent.isLayingOut) {
                     if (!layout.needsRemeasure) {
-                        layout.needsRemeasure = true
+                        layout.markRemeasureRequested()
                         // parent is currently measuring and we set needsRemeasure to true so if
                         // the parent didn't yet try to measure the node it will remeasure it.
                         // if the parent didn't plan to measure during this pass then needsRemeasure
@@ -319,10 +327,10 @@ internal class AndroidComposeView constructor(
 
     private fun requestRelayout(layoutNode: LayoutNode) {
         if (layoutNode.needsRelayout || (layoutNode.needsRemeasure && layoutNode !== root) ||
-            layoutNode.isLayingOut
+            layoutNode.isLayingOut || layoutNode.isMeasuring
         ) {
             // don't need to do anything else since the parent is already scheduled
-            // for a relayout (measure pass includes relayout), or is laying out right now
+            // for a relayout (measure will trigger relayout), or is laying out right now
             consistencyChecker?.assertConsistent()
             return
         }
@@ -343,7 +351,8 @@ internal class AndroidComposeView constructor(
             var layout = layoutNode
             while (layout != layoutNode.alignmentLinesQueryOwner &&
                 // and relayout or remeasure(includes relayout) is not scheduled already
-                !(layout.needsRelayout || layout.needsRemeasure)
+                !(layout.needsRelayout || layout.needsRemeasure || layoutNode.isLayingOut ||
+                        layoutNode.isMeasuring)
             ) {
                 layout.markRelayoutRequested()
                 layout.dirtyAlignmentLines = true

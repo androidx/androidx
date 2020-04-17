@@ -865,7 +865,6 @@ class LayoutNode : ComponentNode(), Measurable {
     var needsRemeasure = false
         internal set(value) {
             require(!isMeasuring)
-            require(!isLayingOut)
             field = value
         }
 
