@@ -180,7 +180,7 @@ class TabTest {
     fun singleLineTab_textBaseline() {
         lateinit var tabRowCoords: LayoutCoordinates
         lateinit var textCoords: LayoutCoordinates
-        lateinit var textBaseline: Px
+        var textBaseline: Px = Px(Float.NEGATIVE_INFINITY)
 
         composeTestRule.setMaterialContent {
             var state by state { 0 }
@@ -225,7 +225,7 @@ class TabTest {
     fun singleLineTab_withIcon_textBaseline() {
         lateinit var tabRowCoords: LayoutCoordinates
         lateinit var textCoords: LayoutCoordinates
-        lateinit var textBaseline: Px
+        var textBaseline: Px = Px(Float.NEGATIVE_INFINITY)
 
         composeTestRule.setMaterialContent {
             var state by state { 0 }
@@ -271,7 +271,7 @@ class TabTest {
     fun twoLineTab_textBaseline() {
         lateinit var tabRowCoords: LayoutCoordinates
         lateinit var textCoords: LayoutCoordinates
-        lateinit var textBaseline: Px
+        var textBaseline: Px = Px(Float.NEGATIVE_INFINITY)
 
         composeTestRule.setMaterialContent {
             var state by state { 0 }

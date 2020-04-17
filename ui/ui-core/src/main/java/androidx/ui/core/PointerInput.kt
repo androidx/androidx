@@ -57,7 +57,7 @@ data class PointerInputChange(
  *
  * @param value The actual value of the id.
  */
-/* inline */ data class PointerId(val value: Long)
+inline class PointerId(val value: Long)
 
 // TODO(shepshapard): Uptime will be an Inline Class, so it should not be nullable.
 /**

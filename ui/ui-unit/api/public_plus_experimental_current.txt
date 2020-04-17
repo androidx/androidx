@@ -17,22 +17,22 @@ package androidx.ui.unit {
   public interface Density {
     method public float getDensity();
     method public float getFontScale();
-    method public default androidx.ui.unit.Dp toDp(androidx.ui.unit.TextUnit);
-    method public default androidx.ui.unit.Dp toDp(androidx.ui.unit.Px);
-    method public default androidx.ui.unit.Dp toDp(androidx.ui.unit.IntPx);
     method public default androidx.ui.unit.Dp toDp(float);
     method public default androidx.ui.unit.Dp toDp(int);
-    method public default androidx.ui.unit.IntPx toIntPx(androidx.ui.unit.Dp);
-    method public default androidx.ui.unit.IntPx toIntPx(androidx.ui.unit.TextUnit);
-    method public default androidx.ui.unit.Px toPx(androidx.ui.unit.Dp);
-    method public default androidx.ui.unit.Px toPx(androidx.ui.unit.TextUnit);
+    method public default androidx.ui.unit.Dp toDp-NgWp0Z8(float);
+    method public default androidx.ui.unit.Dp toDp-gshw56o(int);
+    method public default androidx.ui.unit.Dp toDp-vVlMl6k(long);
+    method public default int toIntPx(androidx.ui.unit.Dp);
+    method public default int toIntPx-vVlMl6k(long);
+    method public default float toPx(androidx.ui.unit.Dp);
     method public default androidx.ui.unit.PxSize toPx-kAYDl8w(long);
+    method public default float toPx-vVlMl6k(long);
     method public default androidx.ui.geometry.Rect toRect(androidx.ui.unit.Bounds);
-    method public default androidx.ui.unit.TextUnit toSp(androidx.ui.unit.Dp);
-    method public default androidx.ui.unit.TextUnit toSp(androidx.ui.unit.Px);
-    method public default androidx.ui.unit.TextUnit toSp(androidx.ui.unit.IntPx);
-    method public default androidx.ui.unit.TextUnit toSp(float);
-    method public default androidx.ui.unit.TextUnit toSp(int);
+    method public default long toSp(androidx.ui.unit.Dp);
+    method public default long toSp(float);
+    method public default long toSp(int);
+    method public default long toSp-NgWp0Z8(float);
+    method public default long toSp-gshw56o(int);
     property public abstract float density;
     property public abstract float fontScale;
   }
@@ -215,71 +215,74 @@ package androidx.ui.unit {
     field public static final long SecondsPerMinute = 60L; // 0x3cL
   }
 
-  public final class IntPx implements java.lang.Comparable<androidx.ui.unit.IntPx> {
-    ctor public IntPx(int value);
-    method public operator int compareTo(androidx.ui.unit.IntPx other);
-    method public inline operator int compareTo(androidx.ui.unit.Px other);
-    method public int component1();
-    method public androidx.ui.unit.IntPx copy(int value);
-    method public operator androidx.ui.unit.IntPx div(float other);
-    method public operator androidx.ui.unit.IntPx div(double other);
-    method public operator androidx.ui.unit.IntPx div(int other);
+  public final inline class IntPx implements java.lang.Comparable<androidx.ui.unit.IntPx> {
+    ctor public IntPx();
+    method public static inline operator int compareTo-NgWp0Z8(int $this, float other);
+    method public operator int compareTo-gshw56o(int p);
+    method public static operator int compareTo-gshw56o(int $this, int other);
+    method public static int constructor-impl(int value);
+    method public static operator int div-impl(int $this, float other);
+    method public static operator int div-impl(int $this, double other);
+    method public static operator int div-impl(int $this, int other);
+    method public static boolean equals-impl(int p, Object? p1);
+    method public static boolean equals-impl0(int p1, int p2);
     method public int getValue();
-    method public operator androidx.ui.unit.IntPx minus(androidx.ui.unit.IntPx other);
-    method public operator androidx.ui.unit.IntPx plus(androidx.ui.unit.IntPx other);
-    method public inline operator androidx.ui.unit.IntPx rem(int other);
-    method public operator androidx.ui.unit.IntPx times(float other);
-    method public operator androidx.ui.unit.IntPx times(double other);
-    method public operator androidx.ui.unit.IntPx times(int other);
-    method public operator androidx.ui.unit.IntPx unaryMinus();
+    method public static int hashCode-impl(int p);
+    method public static operator int minus-gshw56o(int $this, int other);
+    method public static operator int plus-gshw56o(int $this, int other);
+    method public static inline operator int rem-impl(int $this, int other);
+    method public static operator int times-impl(int $this, float other);
+    method public static operator int times-impl(int $this, double other);
+    method public static operator int times-impl(int $this, int other);
+    method public static String toString-impl(int $this);
+    method public static operator int unaryMinus-impl(int $this);
     field public static final androidx.ui.unit.IntPx.Companion! Companion;
   }
 
   public static final class IntPx.Companion {
-    method public androidx.ui.unit.IntPx getInfinity();
-    method public androidx.ui.unit.IntPx getZero();
-    property public final androidx.ui.unit.IntPx Infinity;
-    property public final androidx.ui.unit.IntPx Zero;
+    method public int getInfinity();
+    method public int getZero();
+    property public final int Infinity;
+    property public final int Zero;
   }
 
   public final class IntPxBounds {
-    ctor public IntPxBounds(androidx.ui.unit.IntPx left, androidx.ui.unit.IntPx top, androidx.ui.unit.IntPx right, androidx.ui.unit.IntPx bottom);
-    method public androidx.ui.unit.IntPx component1();
-    method public androidx.ui.unit.IntPx component2();
-    method public androidx.ui.unit.IntPx component3();
-    method public androidx.ui.unit.IntPx component4();
-    method public androidx.ui.unit.IntPxBounds copy(androidx.ui.unit.IntPx left, androidx.ui.unit.IntPx top, androidx.ui.unit.IntPx right, androidx.ui.unit.IntPx bottom);
-    method public androidx.ui.unit.IntPx getBottom();
-    method public androidx.ui.unit.IntPx getLeft();
-    method public androidx.ui.unit.IntPx getRight();
-    method public androidx.ui.unit.IntPx getTop();
+    method public int component1();
+    method public int component2();
+    method public int component3();
+    method public int component4();
+    method public androidx.ui.unit.IntPxBounds copy-Q13GOEE(int left, int top, int right, int bottom);
+    method public int getBottom();
+    method public int getLeft();
+    method public int getRight();
+    method public int getTop();
   }
 
   public final class IntPxKt {
-    method public static inline androidx.ui.unit.IntPxPosition IntPxPosition(androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
-    method public static inline androidx.ui.unit.IntPxSize IntPxSize(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
-    method public static inline androidx.ui.unit.PxPosition PxPosition(androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
-    method public static inline androidx.ui.unit.PxSize PxSize(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
-    method public static inline androidx.ui.unit.IntPx ceil(androidx.ui.unit.Px);
+    method public static inline androidx.ui.unit.IntPxPosition IntPxPosition-rRMsBxU(int x, int y);
+    method public static inline androidx.ui.unit.IntPxSize IntPxSize-rRMsBxU(int width, int height);
+    method public static inline androidx.ui.unit.PxPosition PxPosition-rRMsBxU(int x, int y);
+    method public static inline androidx.ui.unit.PxSize PxSize-rRMsBxU(int width, int height);
+    method public static inline int ceil-NgWp0Z8(float);
     method public static androidx.ui.unit.IntPxPosition center(androidx.ui.unit.IntPxSize);
     method public static inline androidx.ui.unit.IntPxPosition center(androidx.ui.unit.IntPxBounds);
-    method public static inline androidx.ui.unit.IntPx coerceAtLeast(androidx.ui.unit.IntPx, androidx.ui.unit.IntPx minimumValue);
-    method public static inline androidx.ui.unit.IntPx coerceAtMost(androidx.ui.unit.IntPx, androidx.ui.unit.IntPx maximumValue);
-    method public static inline androidx.ui.unit.IntPx coerceIn(androidx.ui.unit.IntPx, androidx.ui.unit.IntPx minimumValue, androidx.ui.unit.IntPx maximumValue);
-    method public static inline androidx.ui.unit.IntPx getHeight(androidx.ui.unit.IntPxBounds);
-    method public static inline androidx.ui.unit.IntPx getIpx(int);
-    method public static inline androidx.ui.unit.IntPx getWidth(androidx.ui.unit.IntPxBounds);
-    method public static inline boolean isFinite(androidx.ui.unit.IntPx);
-    method public static androidx.ui.unit.IntPx lerp(androidx.ui.unit.IntPx start, androidx.ui.unit.IntPx stop, float fraction);
+    method public static inline int coerceAtLeast-rRMsBxU(int, int minimumValue);
+    method public static inline int coerceAtMost-rRMsBxU(int, int maximumValue);
+    method public static inline int coerceIn-qx1LT1w(int, int minimumValue, int maximumValue);
+    method public static inline int getHeight(androidx.ui.unit.IntPxBounds);
+    method public static inline int getIpx(int);
+    method public static inline int getWidth(androidx.ui.unit.IntPxBounds);
+    method public static inline boolean isFinite-gshw56o(int);
     method public static androidx.ui.unit.IntPxPosition lerp(androidx.ui.unit.IntPxPosition start, androidx.ui.unit.IntPxPosition stop, float fraction);
-    method public static inline androidx.ui.unit.IntPx max(androidx.ui.unit.IntPx a, androidx.ui.unit.IntPx b);
-    method public static inline androidx.ui.unit.IntPx min(androidx.ui.unit.IntPx a, androidx.ui.unit.IntPx b);
-    method public static inline androidx.ui.unit.IntPx round(androidx.ui.unit.Px);
-    method public static inline operator androidx.ui.unit.IntPx times(float, androidx.ui.unit.IntPx other);
-    method public static inline operator androidx.ui.unit.IntPx times(double, androidx.ui.unit.IntPx other);
-    method public static inline operator androidx.ui.unit.IntPx times(int, androidx.ui.unit.IntPx other);
+    method public static int lerp-9BbVZj8(int start, int stop, float fraction);
+    method public static inline int max-rRMsBxU(int a, int b);
+    method public static inline int min-rRMsBxU(int a, int b);
+    method public static inline int round-NgWp0Z8(float);
     method public static inline operator androidx.ui.unit.IntPxSize times(int, androidx.ui.unit.IntPxSize size);
-    method public static inline androidx.ui.unit.Px toPx(androidx.ui.unit.IntPx);
+    method public static inline operator int times--Vi_IPY(float, int other);
+    method public static inline operator int times-9kGzznM(int, int other);
+    method public static inline operator int times-tHVXE4c(double, int other);
+    method public static inline float toPx-gshw56o(int);
     method public static inline androidx.ui.unit.PxPosition toPxPosition(androidx.ui.unit.IntPxPosition);
     method public static inline androidx.ui.unit.PxSize toPxSize(androidx.ui.unit.IntPxSize);
     method public static inline androidx.ui.unit.IntPxSize toSize(androidx.ui.unit.IntPxBounds);
@@ -287,13 +290,13 @@ package androidx.ui.unit {
 
   public final class IntPxPosition {
     method public androidx.ui.unit.IntPxPosition copy(long value);
-    method public inline androidx.ui.unit.IntPx getX();
-    method public inline androidx.ui.unit.IntPx getY();
+    method public inline int getX();
+    method public inline int getY();
     method public inline operator androidx.ui.unit.IntPxPosition minus(androidx.ui.unit.IntPxPosition other);
     method public inline operator androidx.ui.unit.IntPxPosition plus(androidx.ui.unit.IntPxPosition other);
     method public inline operator androidx.ui.unit.IntPxPosition unaryMinus();
-    property public final inline androidx.ui.unit.IntPx x;
-    property public final inline androidx.ui.unit.IntPx y;
+    property public final inline int x;
+    property public final inline int y;
     field public static final androidx.ui.unit.IntPxPosition.Companion! Companion;
   }
 
@@ -305,11 +308,11 @@ package androidx.ui.unit {
   public final class IntPxSize {
     method public androidx.ui.unit.IntPxSize copy(long value);
     method public inline operator androidx.ui.unit.IntPxSize div(int other);
-    method public inline androidx.ui.unit.IntPx getHeight();
-    method public inline androidx.ui.unit.IntPx getWidth();
+    method public inline int getHeight();
+    method public inline int getWidth();
     method public inline operator androidx.ui.unit.IntPxSize times(int other);
-    property public final inline androidx.ui.unit.IntPx height;
-    property public final inline androidx.ui.unit.IntPx width;
+    property public final inline int height;
+    property public final inline int width;
   }
 
   public final inline class IntSize {
@@ -343,47 +346,50 @@ package androidx.ui.unit {
     method public static String toString-impl(long $this);
   }
 
-  public final class Px implements java.lang.Comparable<androidx.ui.unit.Px> {
-    ctor public Px(float value);
-    method public operator int compareTo(androidx.ui.unit.Px other);
-    method public inline operator int compareTo(androidx.ui.unit.IntPx other);
-    method public float component1();
-    method public androidx.ui.unit.Px copy(float value);
-    method public inline operator androidx.ui.unit.Px div(float other);
-    method public inline operator androidx.ui.unit.Px div(int other);
-    method public inline operator float div(androidx.ui.unit.Px other);
-    method public inline operator float div-RjPF0Mw(float other);
+  public final inline class Px implements java.lang.Comparable<androidx.ui.unit.Px> {
+    ctor public Px();
+    method public operator int compareTo-NgWp0Z8(float p);
+    method public static operator int compareTo-NgWp0Z8(float $this, float other);
+    method public static inline operator int compareTo-gshw56o(float $this, int other);
+    method public static float constructor-impl(float value);
+    method public static inline operator float div-NgWp0Z8(float $this, float other);
+    method public static inline operator float div-RjPF0Mw(float $this, float other);
+    method public static inline operator float div-impl(float $this, float other);
+    method public static inline operator float div-impl(float $this, int other);
+    method public static boolean equals-impl(float p, Object? p1);
+    method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public inline operator androidx.ui.unit.Px minus(androidx.ui.unit.Px other);
-    method public inline operator androidx.ui.unit.Px minus(androidx.ui.unit.IntPx other);
-    method public inline operator androidx.ui.unit.Px plus(androidx.ui.unit.Px other);
-    method public inline operator androidx.ui.unit.Px plus(androidx.ui.unit.IntPx other);
-    method public inline operator androidx.ui.unit.Px times(float other);
-    method public inline operator androidx.ui.unit.Px times(int other);
-    method public inline operator float times(androidx.ui.unit.Px other);
-    method public inline operator float times-RjPF0Mw(float other);
-    method public inline operator androidx.ui.unit.Px unaryMinus();
+    method public static int hashCode-impl(float p);
+    method public static inline operator float minus-NgWp0Z8(float $this, float other);
+    method public static inline operator float minus-gshw56o(float $this, int other);
+    method public static inline operator float plus-NgWp0Z8(float $this, float other);
+    method public static inline operator float plus-gshw56o(float $this, int other);
+    method public static inline operator float times-NgWp0Z8(float $this, float other);
+    method public static inline operator float times-RjPF0Mw(float $this, float other);
+    method public static inline operator float times-impl(float $this, float other);
+    method public static inline operator float times-impl(float $this, int other);
+    method public static String toString-impl(float $this);
+    method public static inline operator float unaryMinus-impl(float $this);
     field public static final androidx.ui.unit.Px.Companion! Companion;
   }
 
   public static final class Px.Companion {
-    method public androidx.ui.unit.Px getInfinity();
-    method public androidx.ui.unit.Px getZero();
-    property public final androidx.ui.unit.Px Infinity;
-    property public final androidx.ui.unit.Px Zero;
+    method public float getInfinity();
+    method public float getZero();
+    property public final float Infinity;
+    property public final float Zero;
   }
 
   public final class PxBounds {
-    ctor public PxBounds(androidx.ui.unit.Px left, androidx.ui.unit.Px top, androidx.ui.unit.Px right, androidx.ui.unit.Px bottom);
-    method public androidx.ui.unit.Px component1();
-    method public androidx.ui.unit.Px component2();
-    method public androidx.ui.unit.Px component3();
-    method public androidx.ui.unit.Px component4();
-    method public androidx.ui.unit.PxBounds copy(androidx.ui.unit.Px left, androidx.ui.unit.Px top, androidx.ui.unit.Px right, androidx.ui.unit.Px bottom);
-    method public androidx.ui.unit.Px getBottom();
-    method public androidx.ui.unit.Px getLeft();
-    method public androidx.ui.unit.Px getRight();
-    method public androidx.ui.unit.Px getTop();
+    method public float component1();
+    method public float component2();
+    method public float component3();
+    method public float component4();
+    method public androidx.ui.unit.PxBounds copy-wHlpFhg(float left, float top, float right, float bottom);
+    method public float getBottom();
+    method public float getLeft();
+    method public float getRight();
+    method public float getTop();
   }
 
   public final inline class PxCubed implements java.lang.Comparable<androidx.ui.unit.PxCubed> {
@@ -391,10 +397,10 @@ package androidx.ui.unit {
     method public operator int compareTo-bji3ab4(float p);
     method public static operator int compareTo-bji3ab4(float $this, float other);
     method public static float constructor-impl(float value);
-    method public static inline operator androidx.ui.unit.Px div-RjPF0Mw(float $this, float other);
+    method public static inline operator float div-NgWp0Z8(float $this, float other);
+    method public static inline operator float div-RjPF0Mw(float $this, float other);
     method public static inline operator float div-bji3ab4(float $this, float other);
     method public static inline operator float div-impl(float $this, float other);
-    method public static inline operator float div-impl(float $this, androidx.ui.unit.Px other);
     method public static boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
@@ -417,44 +423,44 @@ package androidx.ui.unit {
     method public static int hashCode-impl(float p);
     method public static inline operator float minus-KGV0gLo(float $this, float dimension);
     method public static inline operator float plus-KGV0gLo(float $this, float dimension);
-    method public static inline operator androidx.ui.unit.Px times-RjPF0Mw(float $this, float other);
+    method public static inline operator float times-NgWp0Z8(float $this, float other);
+    method public static inline operator float times-RjPF0Mw(float $this, float other);
     method public static inline operator float times-bji3ab4(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
-    method public static inline operator float times-impl(float $this, androidx.ui.unit.Px other);
     method public static String toString-impl(float $this);
   }
 
   public final class PxKt {
     method public static inline androidx.ui.unit.PxBounds PxBounds(androidx.ui.unit.PxPosition topLeft, androidx.ui.unit.PxSize size);
-    method public static inline androidx.ui.unit.PxPosition PxPosition(androidx.ui.unit.Px x, androidx.ui.unit.Px y);
-    method public static inline androidx.ui.unit.PxSize PxSize(androidx.ui.unit.Px width, androidx.ui.unit.Px height);
-    method public static inline androidx.ui.unit.Px abs(androidx.ui.unit.Px x);
+    method public static inline androidx.ui.unit.PxPosition PxPosition-qHcltEY(float x, float y);
+    method public static inline androidx.ui.unit.PxSize PxSize-qHcltEY(float width, float height);
+    method public static inline float abs-NgWp0Z8(float x);
     method public static androidx.ui.unit.PxPosition center(androidx.ui.unit.PxSize);
     method public static inline androidx.ui.unit.PxPosition center(androidx.ui.unit.PxBounds);
-    method public static inline androidx.ui.unit.Px coerceAtLeast(androidx.ui.unit.Px, androidx.ui.unit.Px minimumValue);
-    method public static inline androidx.ui.unit.Px coerceAtMost(androidx.ui.unit.Px, androidx.ui.unit.Px maximumValue);
-    method public static inline androidx.ui.unit.Px coerceIn(androidx.ui.unit.Px, androidx.ui.unit.Px minimumValue, androidx.ui.unit.Px maximumValue);
-    method public static inline operator float div(float, androidx.ui.unit.Px other);
-    method public static inline operator float div(double, androidx.ui.unit.Px other);
-    method public static inline operator float div(int, androidx.ui.unit.Px other);
-    method public static androidx.ui.unit.Px getDistance(androidx.ui.unit.PxPosition);
-    method public static inline androidx.ui.unit.Px getHeight(androidx.ui.unit.PxBounds);
-    method public static androidx.ui.unit.Px! getMinDimension(androidx.ui.unit.PxSize);
-    method public static inline androidx.ui.unit.Px getPx(int);
-    method public static inline androidx.ui.unit.Px getPx(double);
-    method public static inline androidx.ui.unit.Px getPx(float);
-    method public static inline androidx.ui.unit.Px getWidth(androidx.ui.unit.PxBounds);
-    method public static androidx.ui.unit.Px lerp(androidx.ui.unit.Px start, androidx.ui.unit.Px stop, float fraction);
+    method public static inline float coerceAtLeast-qHcltEY(float, float minimumValue);
+    method public static inline float coerceAtMost-qHcltEY(float, float maximumValue);
+    method public static inline float coerceIn-HXvnt1Q(float, float minimumValue, float maximumValue);
+    method public static inline operator float div-78fIwVY(double, float other);
+    method public static inline operator float div-Ndu7NvY(int, float other);
+    method public static inline operator float div-kxDXtn8(float, float other);
+    method public static float getDistance(androidx.ui.unit.PxPosition);
+    method public static inline float getHeight(androidx.ui.unit.PxBounds);
+    method public static float getMinDimension(androidx.ui.unit.PxSize);
+    method public static inline float getPx(int);
+    method public static inline float getPx(double);
+    method public static inline float getPx(float);
+    method public static inline float getWidth(androidx.ui.unit.PxBounds);
     method public static androidx.ui.unit.PxPosition lerp(androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition stop, float fraction);
-    method public static inline androidx.ui.unit.Px max(androidx.ui.unit.Px a, androidx.ui.unit.Px b);
-    method public static inline androidx.ui.unit.Px min(androidx.ui.unit.Px a, androidx.ui.unit.Px b);
+    method public static float lerp-g-Fs4Ag(float start, float stop, float fraction);
+    method public static inline float max-qHcltEY(float a, float b);
+    method public static inline float min-qHcltEY(float a, float b);
     method public static inline androidx.ui.unit.IntPxPosition round(androidx.ui.unit.PxPosition);
-    method public static inline operator androidx.ui.unit.Px times(float, androidx.ui.unit.Px other);
-    method public static inline operator androidx.ui.unit.Px times(double, androidx.ui.unit.Px other);
-    method public static inline operator androidx.ui.unit.Px times(int, androidx.ui.unit.Px other);
     method public static inline operator androidx.ui.unit.PxSize times(int, androidx.ui.unit.PxSize size);
     method public static inline operator androidx.ui.unit.PxSize times(float, androidx.ui.unit.PxSize size);
     method public static inline operator androidx.ui.unit.PxSize times(double, androidx.ui.unit.PxSize size);
+    method public static inline operator float times-78fIwVY(double, float other);
+    method public static inline operator float times-Ndu7NvY(int, float other);
+    method public static inline operator float times-kxDXtn8(float, float other);
     method public static androidx.ui.unit.PxBounds toBounds(androidx.ui.unit.PxSize);
     method public static inline androidx.ui.geometry.Offset toOffset(androidx.ui.unit.PxPosition);
     method public static androidx.ui.geometry.Rect toRect(androidx.ui.unit.PxBounds);
@@ -464,15 +470,15 @@ package androidx.ui.unit {
 
   public final class PxPosition {
     method public androidx.ui.unit.PxPosition copy(long value);
-    method public inline androidx.ui.unit.Px getX();
-    method public inline androidx.ui.unit.Px getY();
+    method public inline float getX();
+    method public inline float getY();
     method public inline operator androidx.ui.unit.PxPosition minus(androidx.ui.unit.PxPosition other);
     method public inline operator androidx.ui.unit.PxPosition minus(androidx.ui.unit.IntPxPosition other);
     method public inline operator androidx.ui.unit.PxPosition plus(androidx.ui.unit.PxPosition other);
     method public inline operator androidx.ui.unit.PxPosition plus(androidx.ui.unit.IntPxPosition other);
     method public inline operator androidx.ui.unit.PxPosition unaryMinus();
-    property public final inline androidx.ui.unit.Px x;
-    property public final inline androidx.ui.unit.Px y;
+    property public final inline float x;
+    property public final inline float y;
     field public static final androidx.ui.unit.PxPosition.Companion! Companion;
   }
 
@@ -486,13 +492,13 @@ package androidx.ui.unit {
     method public inline operator androidx.ui.unit.PxSize div(int other);
     method public inline operator androidx.ui.unit.PxSize div(float other);
     method public inline operator androidx.ui.unit.PxSize div(double other);
-    method public inline androidx.ui.unit.Px getHeight();
-    method public inline androidx.ui.unit.Px getWidth();
+    method public inline float getHeight();
+    method public inline float getWidth();
     method public inline operator androidx.ui.unit.PxSize times(int other);
     method public inline operator androidx.ui.unit.PxSize times(float other);
     method public inline operator androidx.ui.unit.PxSize times(double other);
-    property public final inline androidx.ui.unit.Px height;
-    property public final inline androidx.ui.unit.Px width;
+    property public final inline float height;
+    property public final inline float width;
     field public static final androidx.ui.unit.PxSize.Companion! Companion;
   }
 
@@ -508,18 +514,18 @@ package androidx.ui.unit {
     method public operator int compareTo-RjPF0Mw(float p);
     method public static operator int compareTo-RjPF0Mw(float $this, float other);
     method public static float constructor-impl(float value);
+    method public static inline operator float div-NgWp0Z8(float $this, float other);
     method public static inline operator float div-RjPF0Mw(float $this, float other);
     method public static inline operator float div-bji3ab4(float $this, float other);
     method public static inline operator float div-impl(float $this, float other);
-    method public static inline operator androidx.ui.unit.Px div-impl(float $this, androidx.ui.unit.Px other);
     method public static boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
     method public static int hashCode-impl(float p);
     method public static inline operator float minus-RjPF0Mw(float $this, float other);
     method public static inline operator float plus-RjPF0Mw(float $this, float other);
+    method public static inline operator float times-NgWp0Z8(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
-    method public static inline operator float times-impl(float $this, androidx.ui.unit.Px other);
     method public static String toString-impl(float $this);
   }
 
@@ -540,62 +546,60 @@ package androidx.ui.unit {
     method public static String toString-impl(long $this);
   }
 
-  public final class TextUnit {
-    ctor public TextUnit(long packedValue);
-    method public inline operator int compareTo(androidx.ui.unit.TextUnit other);
-    method public long component1();
-    method public androidx.ui.unit.TextUnit copy(long packedValue);
-    method public inline operator androidx.ui.unit.TextUnit div(float other);
-    method public inline operator androidx.ui.unit.TextUnit div(double other);
-    method public inline operator androidx.ui.unit.TextUnit div(int other);
-    method public inline operator float div(androidx.ui.unit.TextUnit other);
+  public final inline class TextUnit {
+    ctor public TextUnit();
+    method public static inline operator int compareTo-vVlMl6k(long $this, long other);
+    method public static long constructor-impl(long packedValue);
+    method public static inline operator long div-impl(long $this, float other);
+    method public static inline operator long div-impl(long $this, double other);
+    method public static inline operator long div-impl(long $this, int other);
+    method public static inline operator float div-vVlMl6k(long $this, long other);
+    method public static boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
     method public long getPackedValue();
-    method public androidx.ui.unit.TextUnitType getType();
-    method public float getValue();
-    method public boolean isEm();
-    method public boolean isInherit();
-    method public boolean isSp();
-    method public inline operator androidx.ui.unit.TextUnit minus(androidx.ui.unit.TextUnit other);
-    method public inline operator androidx.ui.unit.TextUnit plus(androidx.ui.unit.TextUnit other);
-    method public inline operator androidx.ui.unit.TextUnit times(float other);
-    method public inline operator androidx.ui.unit.TextUnit times(double other);
-    method public inline operator androidx.ui.unit.TextUnit times(int other);
-    method public inline operator androidx.ui.unit.TextUnit unaryMinus();
-    property public final boolean isEm;
-    property public final boolean isInherit;
-    property public final boolean isSp;
-    property public final androidx.ui.unit.TextUnitType type;
-    property public final float value;
+    method public static androidx.ui.unit.TextUnitType getType-impl(long $this);
+    method public static float getValue-impl(long $this);
+    method public static int hashCode-impl(long p);
+    method public static boolean isEm-impl(long $this);
+    method public static boolean isInherit-impl(long $this);
+    method public static boolean isSp-impl(long $this);
+    method public static inline operator long minus-vVlMl6k(long $this, long other);
+    method public static inline operator long plus-vVlMl6k(long $this, long other);
+    method public static inline operator long times-impl(long $this, float other);
+    method public static inline operator long times-impl(long $this, double other);
+    method public static inline operator long times-impl(long $this, int other);
+    method public static String toString-impl(long $this);
+    method public static inline operator long unaryMinus-impl(long $this);
     field public static final androidx.ui.unit.TextUnit.Companion! Companion;
   }
 
   public static final class TextUnit.Companion {
-    method public androidx.ui.unit.TextUnit Em(int value);
-    method public androidx.ui.unit.TextUnit Em(float value);
-    method public androidx.ui.unit.TextUnit Em(double value);
-    method public androidx.ui.unit.TextUnit Sp(int value);
-    method public androidx.ui.unit.TextUnit Sp(float value);
-    method public androidx.ui.unit.TextUnit Sp(double value);
-    method public androidx.ui.unit.TextUnit getInherit();
-    property public final androidx.ui.unit.TextUnit Inherit;
+    method public long Em(int value);
+    method public long Em(float value);
+    method public long Em(double value);
+    method public long Sp(int value);
+    method public long Sp(float value);
+    method public long Sp(double value);
+    method public long getInherit();
+    property public final long Inherit;
   }
 
   public final class TextUnitKt {
-    method public static inline androidx.ui.unit.TextUnit coerceAtLeast(androidx.ui.unit.TextUnit, androidx.ui.unit.TextUnit minimumValue);
-    method public static inline androidx.ui.unit.TextUnit coerceAtMost(androidx.ui.unit.TextUnit, androidx.ui.unit.TextUnit maximumValue);
-    method public static inline androidx.ui.unit.TextUnit coerceIn(androidx.ui.unit.TextUnit, androidx.ui.unit.TextUnit minimumValue, androidx.ui.unit.TextUnit maximumValue);
-    method public static androidx.ui.unit.TextUnit getEm(float);
-    method public static androidx.ui.unit.TextUnit getEm(double);
-    method public static androidx.ui.unit.TextUnit getEm(int);
-    method public static androidx.ui.unit.TextUnit getSp(float);
-    method public static androidx.ui.unit.TextUnit getSp(double);
-    method public static androidx.ui.unit.TextUnit getSp(int);
-    method public static androidx.ui.unit.TextUnit lerp(androidx.ui.unit.TextUnit a, androidx.ui.unit.TextUnit b, float t);
-    method public static inline androidx.ui.unit.TextUnit max(androidx.ui.unit.TextUnit a, androidx.ui.unit.TextUnit b);
-    method public static inline androidx.ui.unit.TextUnit min(androidx.ui.unit.TextUnit a, androidx.ui.unit.TextUnit b);
-    method public static inline operator androidx.ui.unit.TextUnit times(float, androidx.ui.unit.TextUnit other);
-    method public static inline operator androidx.ui.unit.TextUnit times(double, androidx.ui.unit.TextUnit other);
-    method public static inline operator androidx.ui.unit.TextUnit times(int, androidx.ui.unit.TextUnit other);
+    method public static inline long coerceAtLeast-gL_aCS0(long, long minimumValue);
+    method public static inline long coerceAtMost-gL_aCS0(long, long maximumValue);
+    method public static inline long coerceIn-Y2exRck(long, long minimumValue, long maximumValue);
+    method public static long getEm(float);
+    method public static long getEm(double);
+    method public static long getEm(int);
+    method public static long getSp(float);
+    method public static long getSp(double);
+    method public static long getSp(int);
+    method public static long lerp-SpZbbpo(long a, long b, float t);
+    method public static inline long max-gL_aCS0(long a, long b);
+    method public static inline long min-gL_aCS0(long a, long b);
+    method public static inline operator long times-GncdoDw(double, long other);
+    method public static inline operator long times-MVx5XBU(float, long other);
+    method public static inline operator long times-UlzjdM0(int, long other);
   }
 
   public enum TextUnitType {

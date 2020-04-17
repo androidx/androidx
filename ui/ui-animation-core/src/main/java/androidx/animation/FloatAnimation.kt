@@ -144,7 +144,7 @@ internal class SpringAnimation(
         startVelocity: Float
     ): Float {
         spring.finalPosition = end
-        val (value, _) = spring.updateValues(start, startVelocity, playTime)
+        val value = spring.updateValues(start, startVelocity, playTime).value
         return value
     }
 
@@ -155,7 +155,7 @@ internal class SpringAnimation(
         startVelocity: Float
     ): Float {
         spring.finalPosition = end
-        val (_, velocity) = spring.updateValues(start, startVelocity, playTime)
+        val velocity = spring.updateValues(start, startVelocity, playTime).velocity
         return velocity
     }
 

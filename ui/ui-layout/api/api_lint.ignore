@@ -1,3 +1,55 @@
 // Baseline format: 1.0
+AcronymName: androidx.ui.layout.Arrangement#arrange-SVHdN54(int, java.util.List<androidx.ui.unit.IntPx>, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `arrange-SVHdN54`, should this be `arrange-SvHdN54`?
+AcronymName: androidx.ui.layout.Arrangement.Bottom#arrange-SVHdN54(int, java.util.List<androidx.ui.unit.IntPx>, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `arrange-SVHdN54`, should this be `arrange-SvHdN54`?
+AcronymName: androidx.ui.layout.Arrangement.Center#arrange-SVHdN54(int, java.util.List<androidx.ui.unit.IntPx>, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `arrange-SVHdN54`, should this be `arrange-SvHdN54`?
+AcronymName: androidx.ui.layout.Arrangement.End#arrange-SVHdN54(int, java.util.List<androidx.ui.unit.IntPx>, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `arrange-SVHdN54`, should this be `arrange-SvHdN54`?
+AcronymName: androidx.ui.layout.Arrangement.SpaceAround#arrange-SVHdN54(int, java.util.List<androidx.ui.unit.IntPx>, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `arrange-SVHdN54`, should this be `arrange-SvHdN54`?
+AcronymName: androidx.ui.layout.Arrangement.SpaceBetween#arrange-SVHdN54(int, java.util.List<androidx.ui.unit.IntPx>, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `arrange-SVHdN54`, should this be `arrange-SvHdN54`?
+AcronymName: androidx.ui.layout.Arrangement.SpaceEvenly#arrange-SVHdN54(int, java.util.List<androidx.ui.unit.IntPx>, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `arrange-SVHdN54`, should this be `arrange-SvHdN54`?
+AcronymName: androidx.ui.layout.Arrangement.Start#arrange-SVHdN54(int, java.util.List<androidx.ui.unit.IntPx>, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `arrange-SVHdN54`, should this be `arrange-SvHdN54`?
+AcronymName: androidx.ui.layout.Arrangement.Top#arrange-SVHdN54(int, java.util.List<androidx.ui.unit.IntPx>, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `arrange-SVHdN54`, should this be `arrange-SvHdN54`?
+AcronymName: androidx.ui.layout.LayoutAspectRatio#maxIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `maxIntrinsicHeightOf-hc1DRLk`, should this be `maxIntrinsicHeightOf-hc1DrLk`?
+AcronymName: androidx.ui.layout.LayoutAspectRatio#maxIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `maxIntrinsicWidthOf-hc1DRLk`, should this be `maxIntrinsicWidthOf-hc1DrLk`?
+AcronymName: androidx.ui.layout.LayoutAspectRatio#minIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `minIntrinsicHeightOf-hc1DRLk`, should this be `minIntrinsicHeightOf-hc1DrLk`?
+AcronymName: androidx.ui.layout.LayoutAspectRatio#minIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `minIntrinsicWidthOf-hc1DRLk`, should this be `minIntrinsicWidthOf-hc1DrLk`?
+AcronymName: androidx.ui.layout.LayoutHeight#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutHeight.Constrain#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutHeight.Max#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutHeight.Min#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutSize#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutSize.Constrain#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutSize.Max#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutSize.Min#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutWidth#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutWidth.Constrain#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutWidth.Max#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.layout.LayoutWidth.Min#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+
+
 HiddenTypeParameter: androidx.ui.layout.Arrangement#Companion:
     Field Arrangement.Companion references hidden type androidx.ui.layout.Arrangement.Companion.

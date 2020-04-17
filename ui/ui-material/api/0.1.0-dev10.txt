@@ -246,13 +246,13 @@ package androidx.ui.material {
   }
 
   public static final class TabRow.TabPosition {
-    method public androidx.ui.unit.IntPx component1();
-    method public androidx.ui.unit.IntPx component2();
-    method public androidx.ui.material.TabRow.TabPosition copy(androidx.ui.unit.IntPx left, androidx.ui.unit.IntPx width);
-    method public androidx.ui.unit.IntPx getLeft();
-    method public androidx.ui.unit.IntPx getRight();
-    method public androidx.ui.unit.IntPx getWidth();
-    property public final androidx.ui.unit.IntPx right;
+    method public int component1();
+    method public int component2();
+    method public androidx.ui.material.TabRow.TabPosition copy-rRMsBxU(int left, int width);
+    method public int getLeft();
+    method public int getRight();
+    method public int getWidth();
+    property public final int right;
   }
 
   public final class TextButton {

@@ -118,7 +118,7 @@ package androidx.ui.core {
 
   public static final class Alignment.Horizontal {
     ctor public Alignment.Horizontal(float bias);
-    method public androidx.ui.unit.IntPx align(androidx.ui.unit.IntPx size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
+    method public int align-Ujlv2dA(int size, androidx.ui.core.LayoutDirection layoutDirection = androidx.ui.core.LayoutDirection.Ltr);
     method public float component1();
     method public androidx.ui.core.Alignment.Horizontal copy(float bias);
     method public float getBias();
@@ -126,7 +126,7 @@ package androidx.ui.core {
 
   public static final class Alignment.Vertical {
     ctor public Alignment.Vertical(float bias);
-    method public androidx.ui.unit.IntPx align(androidx.ui.unit.IntPx size);
+    method public int align-gshw56o(int size);
     method public float component1();
     method public androidx.ui.core.Alignment.Vertical copy(float bias);
     method public float getBias();
@@ -136,28 +136,26 @@ package androidx.ui.core {
   }
 
   public final class AlignmentLineKt {
-    method public static androidx.ui.unit.IntPx merge(androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx position1, androidx.ui.unit.IntPx position2);
+    method public static int merge-CBRbNzc(androidx.ui.core.AlignmentLine, int position1, int position2);
   }
 
   public final class Constraints {
-    ctor public Constraints(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
-    ctor public Constraints();
-    method public androidx.ui.unit.IntPx component1();
-    method public androidx.ui.unit.IntPx component2();
-    method public androidx.ui.unit.IntPx component3();
-    method public androidx.ui.unit.IntPx component4();
-    method public androidx.ui.core.Constraints copy(androidx.ui.unit.IntPx minWidth, androidx.ui.unit.IntPx maxWidth, androidx.ui.unit.IntPx minHeight, androidx.ui.unit.IntPx maxHeight);
-    method public androidx.ui.unit.IntPx getMaxHeight();
-    method public androidx.ui.unit.IntPx getMaxWidth();
-    method public androidx.ui.unit.IntPx getMinHeight();
-    method public androidx.ui.unit.IntPx getMinWidth();
+    method public int component1();
+    method public int component2();
+    method public int component3();
+    method public int component4();
+    method public androidx.ui.core.Constraints copy-Q13GOEE(int minWidth, int maxWidth, int minHeight, int maxHeight);
+    method public int getMaxHeight();
+    method public int getMaxWidth();
+    method public int getMinHeight();
+    method public int getMinWidth();
     field public static final androidx.ui.core.Constraints.Companion! Companion;
   }
 
   public static final class Constraints.Companion {
-    method public androidx.ui.core.Constraints fixed(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height);
-    method public androidx.ui.core.Constraints fixedHeight(androidx.ui.unit.IntPx height);
-    method public androidx.ui.core.Constraints fixedWidth(androidx.ui.unit.IntPx width);
+    method public androidx.ui.core.Constraints fixed-rRMsBxU(int width, int height);
+    method public androidx.ui.core.Constraints fixedHeight-gshw56o(int height);
+    method public androidx.ui.core.Constraints fixedWidth-gshw56o(int width);
   }
 
   public final inline class Constraints2 {
@@ -203,7 +201,7 @@ package androidx.ui.core {
     method public static boolean getHasFixedHeight(androidx.ui.core.Constraints);
     method public static boolean getHasFixedWidth(androidx.ui.core.Constraints);
     method public static boolean isZero(androidx.ui.core.Constraints);
-    method public static androidx.ui.core.Constraints offset(androidx.ui.core.Constraints, androidx.ui.unit.IntPx horizontal = 0.ipx, androidx.ui.unit.IntPx vertical = 0.ipx);
+    method public static androidx.ui.core.Constraints offset-3L2DHGc(androidx.ui.core.Constraints, int horizontal = 0.ipx, int vertical = 0.ipx);
     method public static boolean satisfiedBy(androidx.ui.core.Constraints, androidx.ui.unit.IntPxSize size);
   }
 
@@ -325,10 +323,10 @@ package androidx.ui.core {
 
   public interface IntrinsicMeasurable {
     method public Object? getParentData();
-    method public androidx.ui.unit.IntPx maxIntrinsicHeight(androidx.ui.unit.IntPx width);
-    method public androidx.ui.unit.IntPx maxIntrinsicWidth(androidx.ui.unit.IntPx height);
-    method public androidx.ui.unit.IntPx minIntrinsicHeight(androidx.ui.unit.IntPx width);
-    method public androidx.ui.unit.IntPx minIntrinsicWidth(androidx.ui.unit.IntPx height);
+    method public int maxIntrinsicHeight-gshw56o(int width);
+    method public int maxIntrinsicWidth-gshw56o(int height);
+    method public int minIntrinsicHeight-gshw56o(int width);
+    method public int minIntrinsicWidth-gshw56o(int height);
     property public abstract Object? parentData;
   }
 
@@ -367,11 +365,11 @@ package androidx.ui.core {
   }
 
   @Deprecated public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
-    method @Deprecated public default androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method @Deprecated public default int maxIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method @Deprecated public default int maxIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
+    method @Deprecated public default int minIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method @Deprecated public default int minIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
+    method @Deprecated public default androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method @Deprecated public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
     method @Deprecated public default androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method @Deprecated public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
@@ -379,11 +377,11 @@ package androidx.ui.core {
   }
 
   public interface LayoutModifier2 extends androidx.ui.core.Modifier.Element {
-    method public default androidx.ui.unit.IntPx maxIntrinsicHeight(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.unit.IntPx maxIntrinsicWidth(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default int maxIntrinsicHeight-1_Ebvac(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default int maxIntrinsicWidth-1_Ebvac(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.MeasureScope.MeasureResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.unit.IntPx minIntrinsicHeight(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default androidx.ui.unit.IntPx minIntrinsicWidth(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default int minIntrinsicHeight-1_Ebvac(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default int minIntrinsicWidth-1_Ebvac(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
   }
 
   public interface Measurable extends androidx.ui.core.IntrinsicMeasurable {
@@ -392,17 +390,17 @@ package androidx.ui.core {
 
   public abstract class MeasureScope implements androidx.ui.unit.Density {
     ctor public MeasureScope();
-    method public final androidx.ui.core.MeasureScope.MeasureResult layout(androidx.ui.unit.IntPx width, androidx.ui.unit.IntPx height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+    method public final androidx.ui.core.MeasureScope.MeasureResult layout-Ocy6_kE(int width, int height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
   }
 
   public static interface MeasureScope.MeasureResult {
     method public java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> getAlignmentLines();
-    method public androidx.ui.unit.IntPx getHeight();
-    method public androidx.ui.unit.IntPx getWidth();
+    method public int getHeight();
+    method public int getWidth();
     method public void placeChildren(androidx.ui.core.LayoutDirection layoutDirection);
     property public abstract java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines;
-    property public abstract androidx.ui.unit.IntPx height;
-    property public abstract androidx.ui.unit.IntPx width;
+    property public abstract int height;
+    property public abstract int width;
   }
 
   public final class MeasureScopeKt {
@@ -411,10 +409,10 @@ package androidx.ui.core {
   public final class Measured {
     ctor public Measured(internal androidx.ui.core.Placeable placeable);
     method public operator androidx.ui.unit.IntPx? get(androidx.ui.core.AlignmentLine alignmentLine);
-    method public androidx.ui.unit.IntPx getHeight();
-    method public androidx.ui.unit.IntPx getWidth();
-    property public final androidx.ui.unit.IntPx height;
-    property public final androidx.ui.unit.IntPx width;
+    method public int getHeight();
+    method public int getWidth();
+    property public final int height;
+    property public final int width;
   }
 
   public interface Modifier {
@@ -459,28 +457,28 @@ package androidx.ui.core {
     ctor public Placeable();
     method public abstract operator androidx.ui.unit.IntPx? get(androidx.ui.core.AlignmentLine line);
     method protected final androidx.ui.unit.IntPxPosition getApparentToRealOffset();
-    method public final androidx.ui.unit.IntPx getHeight();
+    method public final int getHeight();
     method protected abstract androidx.ui.unit.IntPxSize getMeasuredSize();
     method protected abstract androidx.ui.core.Constraints getMeasurementConstraints();
-    method public final androidx.ui.unit.IntPx getWidth();
+    method public final int getWidth();
     method protected abstract void performPlace(androidx.ui.unit.IntPxPosition position);
     property protected final androidx.ui.unit.IntPxPosition apparentToRealOffset;
-    property public final androidx.ui.unit.IntPx height;
+    property public final int height;
     property protected abstract androidx.ui.unit.IntPxSize measuredSize;
     property protected abstract androidx.ui.core.Constraints measurementConstraints;
-    property public final androidx.ui.unit.IntPx width;
+    property public final int width;
     field public static final androidx.ui.core.Placeable.PlacementScope! PlacementScope;
   }
 
   public static final class Placeable.PlacementScope {
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
     method public void place(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
-    method public void place(androidx.ui.core.Placeable, androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
-    method public void place(androidx.ui.core.Placeable, androidx.ui.unit.Px x, androidx.ui.unit.Px y);
+    method public void place-Guq6mTs(androidx.ui.core.Placeable, float x, float y);
+    method public void place-sXe7h04(androidx.ui.core.Placeable, int x, int y);
     method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
-    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPx x, androidx.ui.unit.IntPx y);
-    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.Px x, androidx.ui.unit.Px y);
     method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
+    method public void placeAbsolute-Guq6mTs(androidx.ui.core.Placeable, float x, float y);
+    method public void placeAbsolute-sXe7h04(androidx.ui.core.Placeable, int x, int y);
   }
 
   public enum PointerEventPass {
@@ -491,23 +489,25 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.PointerEventPass PreUp;
   }
 
-  public final class PointerId {
-    ctor public PointerId(long value);
-    method public long component1();
-    method public androidx.ui.core.PointerId copy(long value);
+  public final inline class PointerId {
+    ctor public PointerId();
+    method public static long constructor-impl(long value);
+    method public static boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
     method public long getValue();
+    method public static int hashCode-impl(long p);
+    method public static String toString-impl(long p);
   }
 
   public final class PointerInputChange {
-    ctor public PointerInputChange(androidx.ui.core.PointerId id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
-    method public androidx.ui.core.PointerId component1();
+    method public long component1();
     method public androidx.ui.core.PointerInputData component2();
     method public androidx.ui.core.PointerInputData component3();
     method public androidx.ui.core.ConsumedData component4();
-    method public androidx.ui.core.PointerInputChange copy(androidx.ui.core.PointerId id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
+    method public androidx.ui.core.PointerInputChange copy-jh1A5Og(long id, androidx.ui.core.PointerInputData current, androidx.ui.core.PointerInputData previous, androidx.ui.core.ConsumedData consumed);
     method public androidx.ui.core.ConsumedData getConsumed();
     method public androidx.ui.core.PointerInputData getCurrent();
-    method public androidx.ui.core.PointerId getId();
+    method public long getId();
     method public androidx.ui.core.PointerInputData getPrevious();
   }
 
@@ -530,7 +530,7 @@ package androidx.ui.core {
     method public static boolean changedToUp(androidx.ui.core.PointerInputChange);
     method public static boolean changedToUpIgnoreConsumed(androidx.ui.core.PointerInputChange);
     method public static androidx.ui.core.PointerInputChange consumeDownChange(androidx.ui.core.PointerInputChange);
-    method public static androidx.ui.core.PointerInputChange consumePositionChange(androidx.ui.core.PointerInputChange, androidx.ui.unit.Px consumedDx, androidx.ui.unit.Px consumedDy);
+    method public static androidx.ui.core.PointerInputChange consumePositionChange-3EnrK0w(androidx.ui.core.PointerInputChange, float consumedDx, float consumedDy);
     method public static androidx.ui.unit.PxPosition positionChange(androidx.ui.core.PointerInputChange);
     method public static androidx.ui.unit.PxPosition positionChangeIgnoreConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean positionChanged(androidx.ui.core.PointerInputChange);
