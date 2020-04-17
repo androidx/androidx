@@ -41,7 +41,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.CaptioningManager;
-import android.view.accessibility.CaptioningManager.CaptionStyle;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -787,10 +786,16 @@ class Cea708CaptionRenderer extends SubtitleController.Renderer {
                 addView(mCCView, params);
 
                 // Set the system wide CC preferences to the subtitle view.
-                CaptioningManager captioningManager =
-                        (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
-                mFontScale = captioningManager.getFontScale();
-                setCaptionStyle(captioningManager.getUserStyle());
+                if (Build.VERSION.SDK_INT >= 19) {
+                    CaptioningManager captioningManager =
+                            (CaptioningManager) context.getSystemService(
+                                    Context.CAPTIONING_SERVICE);
+                    mFontScale = captioningManager.getFontScale();
+                    setCaptionStyle(new CaptionStyle(captioningManager.getUserStyle()));
+                } else {
+                    mFontScale = 1f;
+                    setCaptionStyle(CaptionStyle.DEFAULT);
+                }
                 mCCView.setText("");
                 updateWidestChar();
             }

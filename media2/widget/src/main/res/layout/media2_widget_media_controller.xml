@@ -81,7 +81,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="5dip"
+                android:paddingLeft="5dip"
                 android:paddingEnd="10dip"
+                android:paddingRight="10dip"
                 android:orientation="horizontal"
                 android:visibility="gone">
 
@@ -91,6 +93,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:paddingEnd="5dip"
+                    android:paddingRight="5dip"
                     android:text="@string/MediaControlView_ad_text"
                     android:textSize="10sp"
                     android:textColor="#FFFFFFFF" />
@@ -138,6 +141,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
             android:gravity="center"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
