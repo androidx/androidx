@@ -35,8 +35,6 @@ dependencies {
 
     api project(":compose:compose-runtime")
     api(RX_JAVA)
-    implementation project(":ui:ui-framework")
-    implementation "androidx.core:core:1.2.0"
 
     androidTestImplementation project(':ui:ui-test')
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
