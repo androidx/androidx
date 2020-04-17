@@ -144,13 +144,15 @@ public class ForceDarkStrategyActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 int forceDarkStrategy =
-                        WebSettingsCompat.PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING;
+                        WebSettingsCompat.DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING;
                 switch (mDarkStrategySpinner.getSelectedItemPosition()) {
                     case 0:
-                        forceDarkStrategy = WebSettingsCompat.USER_AGENT_DARKENING_ONLY;
+                        forceDarkStrategy =
+                                WebSettingsCompat.DARK_STRATEGY_USER_AGENT_DARKENING_ONLY;
                         break;
                     case 1:
-                        forceDarkStrategy = WebSettingsCompat.WEB_THEME_DARKENING_ONLY;
+                        forceDarkStrategy =
+                                WebSettingsCompat.DARK_STRATEGY_WEB_THEME_DARKENING_ONLY;
                         break;
                 }
                 WebSettingsCompat.setForceDarkStrategy(mDarkThemeWebView.getSettings(),
