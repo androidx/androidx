@@ -32,11 +32,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.invoke
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.integration.antelope.cameracontrollers.camera2Abort
 import androidx.camera.integration.antelope.cameracontrollers.cameraXAbort
 import androidx.camera.integration.antelope.cameracontrollers.closeAllCameras
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -107,6 +108,15 @@ class MainActivity : AppCompatActivity() {
         fun logd(message: String) {
             if (camViewModel.getShouldOutputLog().value ?: false)
                 Log.d(LOG_TAG, message)
+        }
+    }
+
+    private val requestPermission = registerForActivityResult(RequestPermission()) { granted ->
+        if (granted) {
+            // We now have permission, restart the app
+            val intent = this.intent
+            finish()
+            startActivity(intent)
         }
     }
 
@@ -245,59 +255,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Act on the result of a permissions request. If permission granted simply restart the activity
-     */
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-
-        when (requestCode) {
-            REQUEST_CAMERA_PERMISSION -> {
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // We now have permission, restart the app
-                    val intent = this.intent
-                    finish()
-                    startActivity(intent)
-                } else {
-                }
-                return
-            }
-            REQUEST_FILE_WRITE_PERMISSION -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // We now have permission, restart the app
-                    val intent = this.intent
-                    finish()
-                    startActivity(intent)
-                } else {
-                }
-                return
-            }
-            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        }
-    }
-
-    /**
      * Check if we have been granted the need camera and file-system permissions
      */
     fun checkCameraPermissions(): Boolean {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
-
-            // No explanation needed; request the permission
-            ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.CAMERA),
-                REQUEST_CAMERA_PERMISSION)
+            // Launch the permission request for CAMERA
+            requestPermission(Manifest.permission.CAMERA)
             return false
         } else if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            // No explanation needed; request the permission
-            ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_FILE_WRITE_PERMISSION)
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Launch the permission request for WRITE_EXTERNAL_STORAGE
+            requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             return false
         }
 
