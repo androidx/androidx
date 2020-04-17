@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.ui.test
+package androidx.ui.test.inputdispatcher
 
 import android.view.MotionEvent
 import androidx.test.filters.SmallTest
-import androidx.ui.unit.Duration
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.inMilliseconds
-import androidx.ui.unit.px
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
@@ -29,6 +25,10 @@ import androidx.ui.test.util.isMonotonousBetween
 import androidx.ui.test.util.moveEvents
 import androidx.ui.test.util.splitsDurationEquallyInto
 import androidx.ui.test.util.verify
+import androidx.ui.unit.Duration
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.inMilliseconds
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -48,7 +48,7 @@ private val end = PxPosition(23f.px, 29f.px)
  */
 @SmallTest
 @RunWith(Parameterized::class)
-class AndroidInputDispatcherSendSwipeLineTest(private val config: TestConfig) {
+class SendSwipeLineTest(private val config: TestConfig) {
     data class TestConfig(
         val duration: Duration,
         val eventPeriod: Long

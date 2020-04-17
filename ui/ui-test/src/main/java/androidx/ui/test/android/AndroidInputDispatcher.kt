@@ -20,9 +20,11 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
+import androidx.ui.test.GestureToken
 import androidx.ui.test.InputDispatcher
 import androidx.ui.unit.Duration
 import androidx.ui.unit.PxPosition
@@ -65,9 +67,14 @@ internal class AndroidInputDispatcher constructor(
     private var nextDownTime = DownTimeNotSet
 
     /**
-     * Generates the downTime of the next gesture. The gesture's [duration] is necessary to
-     * facilitate chaining of gestures. Always use this method to determine the downTime of the
-     * [ACTION_DOWN] event of a gesture.
+     * Generates the downTime of the next gesture with the given [duration]. The gesture's
+     * [duration] is necessary to facilitate chaining of gestures: if another gesture is made
+     * after the next one, it will start exactly [duration] after the start of the next gesture.
+     * Always use this method to determine the downTime of the [ACTION_DOWN] event of a gesture.
+     *
+     * If the duration is unknown when calling this method, use a duration of zero and update
+     * with [moveNextDownTime] when the duration is known, or use [moveNextDownTime]
+     * incrementally if the gesture unfolds gradually.
      */
     private fun generateDownTime(duration: Duration): Long {
         val downTime = if (nextDownTime == DownTimeNotSet) {
@@ -79,11 +86,20 @@ internal class AndroidInputDispatcher constructor(
         return downTime
     }
 
+    /**
+     * Moves the start time of the next gesture ahead by the given [duration]. Does not affect
+     * any event time from the current gesture. Use this when the expected duration passed to
+     * [generateDownTime] has changed.
+     */
+    private fun moveNextDownTime(duration: Duration) {
+        generateDownTime(duration)
+    }
+
     override fun delay(duration: Duration) {
         require(duration >= Duration.Zero) {
             "duration of a delay can only be positive, not $duration"
         }
-        generateDownTime(duration)
+        moveNextDownTime(duration)
         sleepUntil(nextDownTime)
     }
 
@@ -93,9 +109,34 @@ internal class AndroidInputDispatcher constructor(
         sendMotionEvent(downTime, downTime + eventPeriod, ACTION_UP, position)
     }
 
-    override fun sendTouchDown(position: PxPosition) {
-        val downTime = generateDownTime(eventPeriod.milliseconds)
+    override fun sendDown(position: PxPosition): GestureToken {
+        val downTime = generateDownTime(0.milliseconds)
         sendMotionEvent(downTime, downTime, ACTION_DOWN, position)
+        return GestureToken(downTime, position)
+    }
+
+    override fun sendMove(token: GestureToken, position: PxPosition) {
+        sendNextMotionEvent(token, ACTION_MOVE, position)
+    }
+
+    override fun sendUp(token: GestureToken, position: PxPosition) {
+        sendNextMotionEvent(token, ACTION_UP, position)
+        token.finished = true
+    }
+
+    override fun sendCancel(token: GestureToken, position: PxPosition) {
+        sendNextMotionEvent(token, ACTION_CANCEL, position)
+        token.finished = true
+    }
+
+    private fun sendNextMotionEvent(token: GestureToken, action: Int, position: PxPosition) {
+        require(!token.finished) {
+            "Can't send an event to a gesture that already had an up or cancel event"
+        }
+        moveNextDownTime(eventPeriod.milliseconds)
+        token.eventTime += eventPeriod
+        token.lastPosition = position
+        sendMotionEvent(token.downTime, token.eventTime, action, position)
     }
 
     override fun sendSwipe(

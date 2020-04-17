@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.ui.test
+package androidx.ui.test.inputdispatcher
 
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
 import androidx.test.filters.SmallTest
+import androidx.ui.test.InputDispatcher
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.unit.Duration
@@ -42,7 +43,7 @@ private val anyPosition = PxPosition.Origin
  */
 @SmallTest
 @RunWith(Parameterized::class)
-class AndroidInputDispatcherDelayTest(private val config: TestConfig) {
+class DelayTest(private val config: TestConfig) {
     data class TestConfig(
         val firstDelay: Duration,
         val secondDelay: Duration,
@@ -53,7 +54,12 @@ class AndroidInputDispatcherDelayTest(private val config: TestConfig) {
 
     enum class Gesture(internal val function: (InputDispatcher) -> Unit) {
         Click({ it.sendClick(anyPosition) }),
-        Swipe({ it.sendSwipe(anyPosition, anyPosition, 100.milliseconds) })
+        Swipe({ it.sendSwipe(anyPosition, anyPosition, 100.milliseconds) }),
+        Partial({
+            val token = it.sendDown(anyPosition)
+            it.sendMove(token, anyPosition)
+            it.sendUp(token, anyPosition)
+        })
     }
 
     companion object {
