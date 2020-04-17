@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadState.Done
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Idle
@@ -989,6 +990,36 @@ class PagerTest {
                     LoadStateUpdate(REFRESH, Loading),
                     LoadStateUpdate(REFRESH, Error(LOAD_ERROR))
                 ),
+                pageEvents
+            )
+        }
+    }
+
+    @Test
+    fun remoteMediator_initialLoadLoadStateError() = testScope.runBlockingTest {
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                return MediatorResult.Error(EXCEPTION)
+            }
+        }
+
+        val pager = Pager(
+            initialKey = 0,
+            pagingSource = pagingSourceFactory(),
+            config = PagingConfig(1),
+            retryFlow = retryCh.asFlow(),
+            triggerRemoteRefresh = true,
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
+        )
+
+        collectPagerData(pager) { pageEvents, _ ->
+            advanceUntilIdle()
+
+            assertEvents(
+                listOf(LoadStateUpdate(REFRESH, Error(EXCEPTION))),
                 pageEvents
             )
         }
