@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.test
+package androidx.ui.test.gesturescope
 
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
@@ -22,8 +22,8 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
-import androidx.ui.core.gesture.longPressGestureFilter
 import androidx.ui.core.gesture.LongPressTimeout
+import androidx.ui.core.gesture.longPressGestureFilter
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
@@ -31,6 +31,11 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.semantics.Semantics
+import androidx.ui.test.createComposeRule
+import androidx.ui.test.doGesture
+import androidx.ui.test.findByTag
+import androidx.ui.test.runOnUiThread
+import androidx.ui.test.sendLongClick
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.areAlmostEqualTo
 import androidx.ui.test.util.assertOnlyLastEventIsUp
@@ -70,7 +75,7 @@ private fun Ui(recorder: PointerInputRecorder, onLongPress: (PxPosition) -> Unit
 }
 
 /**
- * Tests [GestureScope.sendLongClick] without arguments. Verifies that the click is in the middle
+ * Tests [sendLongClick] without arguments. Verifies that the click is in the middle
  * of the component, that the gesture has a duration of 600 milliseconds and that all input
  * events were on the same location.
  */
@@ -113,7 +118,7 @@ class SendLongClickWithoutArgumentsTest {
 }
 
 /**
- * Tests [GestureScope.sendLongClick] with arguments. Verifies that the click is in the middle
+ * Tests [sendLongClick] with arguments. Verifies that the click is in the middle
  * of the component, that the gesture has a duration of 600 milliseconds and that all input
  * events were on the same location.
  */

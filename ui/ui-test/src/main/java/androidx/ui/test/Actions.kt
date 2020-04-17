@@ -84,15 +84,46 @@ fun SemanticsNodeInteraction.doScrollTo(): SemanticsNodeInteraction {
  * Executes the gestures specified in the given block.
  *
  * Example usage:
+ * ```
  * findByTag("myWidget")
  *    .doGesture {
  *        sendSwipeUp()
  *    }
+ * ```
  */
 fun SemanticsNodeInteraction.doGesture(
     block: GestureScope.() -> Unit
 ): SemanticsNodeInteraction {
     val scope = GestureScope(this)
+    scope.block()
+    return this
+}
+
+/**
+ * Executes the (partial) gesture specified in the given block. The gesture doesn't need to be
+ * complete and can be resumed later. It is the responsibility of the caller to make sure partial
+ * gestures don't leave the test in an inconsistent state.
+ *
+ * When [sending the down event][sendDown], a token is returned which needs to be used in all
+ * subsequent events of this gesture.
+ *
+ * Example usage:
+ * ```
+ * lateinit var token: GestureToken
+ * findByTag("myWidget")
+ *    .doPartialGesture {
+ *        token = sendDown()
+ *    }
+ *    .assertHasClickAction()
+ *    .doPartialGesture {
+ *        sendUp(token)
+ *    }
+ * ```
+ */
+fun SemanticsNodeInteraction.doPartialGesture(
+    block: PartialGestureScope.() -> Unit
+): SemanticsNodeInteraction {
+    val scope = PartialGestureScope(this)
     scope.block()
     return this
 }
