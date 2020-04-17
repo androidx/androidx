@@ -238,7 +238,7 @@ private object MeasuringIntrinsics {
         override fun get(line: AlignmentLine): IntPx? = null
         override val measurementConstraints = Constraints()
         override val measuredSize = IntPxSize(width, height)
-        override fun performPlace(position: IntPxPosition) { }
+        override fun place(position: IntPxPosition) { }
     }
 
     private enum class IntrinsicMinMax { Min, Max }
