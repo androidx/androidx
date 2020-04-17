@@ -22,6 +22,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clip
 import androidx.ui.core.drawShadow
+import androidx.ui.core.zIndex
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
@@ -88,7 +89,8 @@ fun Surface(
     content: @Composable() () -> Unit
 ) {
     SurfaceLayout(
-        modifier.drawShadow(shape = shape, elevation = elevation, clipToOutline = false)
+        modifier.drawShadow(elevation = elevation, shape = shape, clipToOutline = false)
+            .zIndex(elevation.value)
             .plus(if (border != null) Modifier.drawBorder(border, shape) else Modifier)
             .drawBackground(
                 color = getBackgroundColorForElevation(color, elevation),

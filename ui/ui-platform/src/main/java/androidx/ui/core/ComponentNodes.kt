@@ -989,13 +989,13 @@ class LayoutNode : ComponentNode(), Measurable {
      * elevation as a zIndex. We will have a separate zIndex modifier later instead to decouple
      * this features.
      */
-    internal val zIndex: Float get() = outerLayerModifier?.elevation ?: 0f
+    internal val zIndex: Float get() = outerZIndexModifier?.zIndex ?: 0f
 
     /**
-     * The outermost DrawLayerModifier in the modifier chain or `null` if there are no
-     * DrawLayerModifiers in the modifier chain.
+     * The outermost ZIndexModifier in the modifier chain or `null` if there are no
+     * ZIndexModifier in the modifier chain.
      */
-    private var outerLayerModifier: DrawLayerModifier? = null
+    private var outerZIndexModifier: ZIndexModifier? = null
 
     /**
      * The [Modifier] currently applied to this node.
@@ -1010,7 +1010,7 @@ class LayoutNode : ComponentNode(), Measurable {
             val addedCallback = hasNewPositioningCallback()
             onPositionedCallbacks.clear()
             onChildPositionedCallbacks.clear()
-            outerLayerModifier = null
+            outerZIndexModifier = null
             layoutNodeWrapper = modifier.foldOut(innerLayoutNodeWrapper) { mod, toWrap ->
                 var wrapper = toWrap
                 // The order in which the following blocks occur matters.  For example, the
@@ -1028,7 +1028,6 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 if (mod is DrawLayerModifier) {
                     wrapper = LayerWrapper(wrapper, mod)
-                    outerLayerModifier = mod
                 }
                 if (mod is FocusModifier) {
                     require(mod is FocusModifierImpl)
@@ -1049,6 +1048,9 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 if (mod is SemanticsModifier) {
                     wrapper = SemanticsWrapper(wrapper, mod)
+                }
+                if (mod is ZIndexModifier) {
+                    outerZIndexModifier = mod
                 }
                 wrapper
             }
