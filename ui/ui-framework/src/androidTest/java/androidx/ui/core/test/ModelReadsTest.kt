@@ -16,6 +16,8 @@
 
 package androidx.ui.core.test
 
+import androidx.compose.FrameManager
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Layout
@@ -24,6 +26,7 @@ import androidx.ui.core.drawBehind
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.unit.ipx
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -40,6 +43,8 @@ class ModelReadsTest {
 
     @get:Rule
     val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+    @get:Rule
+    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
     private lateinit var activity: TestActivity
     private lateinit var latch: CountDownLatch
 
@@ -341,6 +346,147 @@ class ModelReadsTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         assertCountDownOnlyWhileEnabled(enabled, model, false)
+    }
+
+    @Test
+    fun remeasureRequestForTheNodeBeingMeasured() {
+        var latch = CountDownLatch(1)
+        val model = mutableStateOf(0)
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout({}) { _, _, _ ->
+                    if (model.value == 1) {
+                        // this will trigger remeasure request for this node we currently measure
+                        model.value = 2
+                        FrameManager.nextFrame()
+                    }
+                    latch.countDown()
+                    layout(100.ipx, 100.ipx) {}
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        latch = CountDownLatch(1)
+
+        rule.runOnUiThread {
+            model.value = 1
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun remeasureRequestForTheNodeBeingLaidOut() {
+        var remeasureLatch = CountDownLatch(1)
+        var relayoutLatch = CountDownLatch(1)
+        val remeasureModel = mutableStateOf(0)
+        val relayoutModel = mutableStateOf(0)
+        var valueReadDuringMeasure = -1
+        var modelAlreadyChanged = false
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout({}) { _, _, _ ->
+                    valueReadDuringMeasure = remeasureModel.value
+                    remeasureLatch.countDown()
+                    layout(100.ipx, 100.ipx) {
+                        if (relayoutModel.value != 0) {
+                            if (!modelAlreadyChanged) {
+                                // this will trigger remeasure request for this node we layout
+                                remeasureModel.value = 1
+                                FrameManager.nextFrame()
+                                // the remeasure will also include another relayout and we don't
+                                // want to loop and request remeasure again
+                                modelAlreadyChanged = true
+                            }
+                        }
+                        relayoutLatch.countDown()
+                    }
+                }
+            }
+        }
+
+        assertTrue(remeasureLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(relayoutLatch.await(1, TimeUnit.SECONDS))
+
+        remeasureLatch = CountDownLatch(1)
+        relayoutLatch = CountDownLatch(1)
+
+        rule.runOnUiThread {
+            relayoutModel.value = 1
+        }
+
+        assertTrue(remeasureLatch.await(1, TimeUnit.HOURS))
+        assertTrue(relayoutLatch.await(1, TimeUnit.HOURS))
+        assertEquals(1, valueReadDuringMeasure)
+    }
+
+    @Test
+    fun relayoutRequestForTheNodeBeingMeasured() {
+        var remeasureLatch = CountDownLatch(1)
+        var relayoutLatch = CountDownLatch(1)
+        val remeasureModel = mutableStateOf(0)
+        val relayoutModel = mutableStateOf(0)
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout({}) { _, _, _ ->
+                    if (remeasureModel.value != 0) {
+                        // this will trigger relayout request for this node we currently measure
+                        relayoutModel.value = 1
+                        FrameManager.nextFrame()
+                    }
+                    remeasureLatch.countDown()
+                    layout(100.ipx, 100.ipx) {
+                        relayoutModel.value // just register the read
+                        relayoutLatch.countDown()
+                    }
+                }
+            }
+        }
+
+        assertTrue(remeasureLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(relayoutLatch.await(1, TimeUnit.SECONDS))
+
+        remeasureLatch = CountDownLatch(1)
+        relayoutLatch = CountDownLatch(1)
+
+        rule.runOnUiThread {
+            remeasureModel.value = 1
+        }
+
+        assertTrue(remeasureLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(relayoutLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun relayoutRequestForTheNodeBeingLaidOut() {
+        var latch = CountDownLatch(1)
+        val model = mutableStateOf(0)
+        rule.runOnUiThread {
+            activity.setContent {
+                Layout({}) { _, _, _ ->
+                    layout(100.ipx, 100.ipx) {
+                        if (model.value == 1) {
+                            // this will trigger relayout request for this node we currently layout
+                            model.value = 2
+                            FrameManager.nextFrame()
+                        }
+                        latch.countDown()
+                    }
+                }
+            }
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        latch = CountDownLatch(1)
+
+        rule.runOnUiThread {
+            model.value = 1
+        }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
     fun assertCountDownOnlyWhileEnabled(
