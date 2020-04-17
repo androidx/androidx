@@ -207,7 +207,7 @@ fun DemoColorPalette.loadColorsFromSharedPreferences(context: Context) {
         PreferenceManager.getDefaultSharedPreferences(context)
 
     fun getColorsFromSharedPreferences(isLightTheme: Boolean): ColorPalette {
-        val function = if (isLightTheme) ::lightColorPalette else ::darkColorPalette
+        val function = if (isLightTheme) ::reflectLightColorPalette else ::reflectDarkColorPalette
         val parametersToSet = function.parameters.mapNotNull { parameter ->
             val savedValue = sharedPreferences.getString(parameter.name + isLightTheme, "")
             if (savedValue.isNullOrBlank()) {
@@ -223,3 +223,65 @@ fun DemoColorPalette.loadColorsFromSharedPreferences(context: Context) {
     lightColors = getColorsFromSharedPreferences(true)
     darkColors = getColorsFromSharedPreferences(false)
 }
+
+/**
+ * Inline classes don't play well with reflection, so we want boxed classes for our
+ * call to [lightColorPalette].
+ */
+internal fun reflectLightColorPalette(
+    primary: Color? = Color(0xFF6200EE),
+    primaryVariant: Color? = Color(0xFF3700B3),
+    secondary: Color? = Color(0xFF03DAC6),
+    secondaryVariant: Color? = Color(0xFF018786),
+    background: Color? = Color.White,
+    surface: Color? = Color.White,
+    error: Color? = Color(0xFFB00020),
+    onPrimary: Color? = Color.White,
+    onSecondary: Color? = Color.Black,
+    onBackground: Color? = Color.Black,
+    onSurface: Color? = Color.Black,
+    onError: Color? = Color.White
+) = lightColorPalette(
+    primary = primary!!,
+    primaryVariant = primaryVariant!!,
+    secondary = secondary!!,
+    secondaryVariant = secondaryVariant!!,
+    background = background!!,
+    surface = surface!!,
+    error = error!!,
+    onPrimary = onPrimary!!,
+    onSecondary = onSecondary!!,
+    onBackground = onBackground!!,
+    onSurface = onSurface!!,
+    onError = onError!!
+)
+
+/**
+ * Inline classes don't play well with reflection, so we want boxed classes for our
+ * call to [darkColorPalette].
+ */
+internal fun reflectDarkColorPalette(
+    primary: Color? = Color(0xFFBB86FC),
+    primaryVariant: Color? = Color(0xFF3700B3),
+    secondary: Color? = Color(0xFF03DAC6),
+    background: Color? = Color(0xFF121212),
+    surface: Color? = Color(0xFF121212),
+    error: Color? = Color(0xFFCF6679),
+    onPrimary: Color? = Color.Black,
+    onSecondary: Color? = Color.Black,
+    onBackground: Color? = Color.White,
+    onSurface: Color? = Color.White,
+    onError: Color? = Color.Black
+) = darkColorPalette(
+    primary = primary!!,
+    primaryVariant = primaryVariant!!,
+    secondary = secondary!!,
+    background = background!!,
+    surface = surface!!,
+    error = error!!,
+    onPrimary = onPrimary!!,
+    onSecondary = onSecondary!!,
+    onBackground = onBackground!!,
+    onSurface = onSurface!!,
+    onError = onError!!
+)
