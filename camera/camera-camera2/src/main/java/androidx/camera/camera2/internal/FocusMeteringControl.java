@@ -34,6 +34,10 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.MeteringPoint;
+import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraCaptureFailure;
+import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -358,9 +362,19 @@ class FocusMeteringControl {
         return CameraDevice.TEMPLATE_PREVIEW;
     }
 
+    /**
+     * Trigger an AF scan.
+     *
+     * @param completer used to complete the associated {@link ListenableFuture} when the
+     *                  operation succeeds or fails. Passing null to simply ignore the result.
+     */
     @WorkerThread
-    void triggerAf() {
+    void triggerAf(@Nullable Completer<CameraCaptureResult> completer) {
         if (!mIsActive) {
+            if (completer != null) {
+                completer.setException(
+                        new CameraControl.OperationCanceledException("Camera is not active."));
+            }
             return;
         }
 
@@ -371,12 +385,47 @@ class FocusMeteringControl {
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
                 CaptureRequest.CONTROL_AF_TRIGGER_START);
         builder.addImplementationOptions(configBuilder.build());
+        builder.addCameraCaptureCallback(new CameraCaptureCallback() {
+            @Override
+            public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
+                if (completer != null) {
+                    completer.set(cameraCaptureResult);
+                }
+            }
+
+            @Override
+            public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+                if (completer != null) {
+                    completer.setException(
+                            new CameraControlInternal.CameraControlException(failure));
+                }
+            }
+
+            @Override
+            public void onCaptureCancelled() {
+                if (completer != null) {
+                    completer.setException(
+                            new CameraControl.OperationCanceledException("Camera is closed"));
+                }
+            }
+        });
+
         mCameraControl.submitCaptureRequestsInternal(Collections.singletonList(builder.build()));
     }
 
+    /**
+     * Trigger an AE precapture sequence.
+     *
+     * @param completer used to complete the associated {@link ListenableFuture} when the
+     *                  operation succeeds or fails. Passing null to simply ignore the result.
+     */
     @WorkerThread
-    void triggerAePrecapture() {
+    void triggerAePrecapture(@Nullable Completer<CameraCaptureResult> completer) {
         if (!mIsActive) {
+            if (completer != null) {
+                completer.setException(
+                        new CameraControl.OperationCanceledException("Camera is not active."));
+            }
             return;
         }
 
@@ -387,6 +436,30 @@ class FocusMeteringControl {
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
         builder.addImplementationOptions(configBuilder.build());
+        builder.addCameraCaptureCallback(new CameraCaptureCallback() {
+            @Override
+            public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
+                if (completer != null) {
+                    completer.set(cameraCaptureResult);
+                }
+            }
+
+            @Override
+            public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+                if (completer != null) {
+                    completer.setException(
+                            new CameraControlInternal.CameraControlException(failure));
+                }
+            }
+
+            @Override
+            public void onCaptureCancelled() {
+                if (completer != null) {
+                    completer.setException(
+                            new CameraControl.OperationCanceledException("Camera is closed"));
+                }
+            }
+        });
         mCameraControl.submitCaptureRequestsInternal(Collections.singletonList(builder.build()));
     }
 
@@ -511,7 +584,7 @@ class FocusMeteringControl {
             mIsAutoFocusCompleted = false;
             mIsFocusSuccessful = false;
             mCameraControl.updateSessionConfig();
-            triggerAf();
+            triggerAf(null);
         } else {
             mIsInAfAutoMode = false;
             mIsAutoFocusCompleted = true; // Don't need to wait for auto-focus
