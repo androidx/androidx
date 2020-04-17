@@ -29,6 +29,7 @@ import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.core.ContentScale
+import androidx.ui.graphics.isUnset
 import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
@@ -185,7 +186,7 @@ fun Image(
 @Composable
 fun SimpleImage(
     image: ImageAsset,
-    tint: Color? = null
+    tint: Color = Color.Unset
 ) {
     with(DensityAmbient.current) {
         Box(
@@ -194,7 +195,9 @@ fun SimpleImage(
                 .paint(
                     ImagePainter(image),
                     contentScale = ContentScale.Crop,
-                    colorFilter = tint?.let { ColorFilter(it, BlendMode.srcIn) }
+                    colorFilter = if (tint.isUnset) null else {
+                        ColorFilter(tint, BlendMode.srcIn)
+                    }
                 )
         )
     }

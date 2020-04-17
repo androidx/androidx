@@ -27,6 +27,7 @@ import androidx.compose.setValue
 import androidx.compose.staticAmbientOf
 import androidx.ui.foundation.contentColor
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.useOrElse
 
 /**
  * Collection of colors in the
@@ -182,11 +183,11 @@ fun darkColorPalette(
  * [ColorPalette.onPrimary]. If [color] is not present in the theme, this will return `null`.
  *
  * @return the matching `on` color for [color]. If [color] is not part of the theme's
- * [ColorPalette], then returns `null`.
+ * [ColorPalette], then returns [Color.Unset].
  *
  * @see contentColorFor
  */
-fun ColorPalette.contentColorFor(color: Color): Color? {
+fun ColorPalette.contentColorFor(color: Color): Color {
     return when (color) {
         primary -> onPrimary
         primaryVariant -> onPrimary
@@ -195,7 +196,7 @@ fun ColorPalette.contentColorFor(color: Color): Color? {
         background -> onBackground
         surface -> onSurface
         error -> onError
-        else -> null
+        else -> Color.Unset
     }
 }
 
@@ -208,7 +209,7 @@ fun ColorPalette.contentColorFor(color: Color): Color? {
  */
 @Composable
 fun contentColorFor(color: Color) =
-    MaterialTheme.colors.contentColorFor(color) ?: contentColor()
+    MaterialTheme.colors.contentColorFor(color).useOrElse { contentColor() }
 
 /**
  * Default observable backing implementation for [ColorPalette].
