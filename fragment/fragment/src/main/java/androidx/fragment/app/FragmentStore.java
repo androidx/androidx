@@ -17,7 +17,6 @@
 package androidx.fragment.app;
 
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.IdRes;
@@ -320,38 +319,51 @@ class FragmentStore {
     }
 
     /**
-     * Find a fragment within the fragment's container whose View should be below the passed
-     * fragment. {@code null} is returned when the fragment has no View or if there should be
-     * no fragment with a View below the given fragment.
+     * Find the index within the fragment's container that the given fragment's view should be
+     * added at such that the order in the container matches the order in mAdded.
      *
      * As an example, if mAdded has two Fragments with Views sharing the same container:
      * FragmentA
      * FragmentB
      *
-     * Then, when processing FragmentB, FragmentA will be returned. If, however, FragmentA
-     * had no View, null would be returned.
+     * Then, when processing FragmentB, we return the index of FragmentA's view in the
+     * shared container + 1 so that FragmentB is directly on top of FragmentA. In cases where
+     * this is the first fragment in the container, this method returns -1 to signal that
+     * the view should be added to the end of the container.
      *
      * @param f The fragment that may be on top of another fragment.
-     * @return The fragment with a View under f, if one exists or null if f has no View or
-     * there are no fragments with Views in the same container.
+     * @return The correct index for the given fragment relative to other fragments in the same
+     * container, or -1 if there are no fragments in the same container.
      */
-    Fragment findFragmentUnder(@NonNull Fragment f) {
+    int findFragmentIndexInContainer(@NonNull Fragment f) {
         final ViewGroup container = f.mContainer;
-        final View view = f.mView;
 
-        if (container == null || view == null) {
-            return null;
+        if (container == null) {
+            return -1;
         }
-
         final int fragmentIndex = mAdded.indexOf(f);
+        // First search if there's a fragment that should be under this new fragment
         for (int i = fragmentIndex - 1; i >= 0; i--) {
             Fragment underFragment = mAdded.get(i);
             if (underFragment.mContainer == container && underFragment.mView != null) {
                 // Found the fragment under this one
-                return underFragment;
+                int underIndex = container.indexOfChild(underFragment.mView);
+                // The new fragment needs to go right after it
+                return underIndex + 1;
             }
         }
-        return null;
+        // Now search if there's a fragment that should be over this new fragment
+        for (int i = fragmentIndex + 1; i < mAdded.size(); i++) {
+            Fragment overFragment = mAdded.get(i);
+            if (overFragment.mContainer == container && overFragment.mView != null) {
+                // Found the fragment over this one
+                // so the new fragment needs to go right under it
+                return container.indexOfChild(overFragment.mView);
+            }
+        }
+        // Else, there's no other fragments in this container so we
+        // should just add the fragment to the end
+        return -1;
     }
 
     void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
