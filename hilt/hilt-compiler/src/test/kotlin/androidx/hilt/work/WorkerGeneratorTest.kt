@@ -21,7 +21,7 @@ import androidx.hilt.GENERATED_TYPE
 import androidx.hilt.Sources
 import androidx.hilt.compiler
 import androidx.hilt.toJFO
-import com.google.testing.compile.CompilationSubject
+import com.google.testing.compile.CompilationSubject.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -93,10 +93,11 @@ class WorkerGeneratorTest {
 
         val compilation = compiler()
             .compile(foo, myWorker, Sources.WORKER, Sources.WORKER_PARAMETERS)
-        CompilationSubject.assertThat(compilation).succeeded()
-        CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.work.test.MyWorker_AssistedFactory")
-            .hasSourceEquivalentTo(expected)
+        assertThat(compilation).apply {
+            succeeded()
+            generatedSourceFile("androidx.hilt.work.test.MyWorker_AssistedFactory")
+                .hasSourceEquivalentTo(expected)
+        }
     }
 
     @Test
@@ -143,9 +144,10 @@ class WorkerGeneratorTest {
 
         val compilation = compiler()
             .compile(myWorker, Sources.WORKER, Sources.WORKER_PARAMETERS)
-        CompilationSubject.assertThat(compilation).succeeded()
-        CompilationSubject.assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.work.test.MyWorker_HiltModule")
-            .hasSourceEquivalentTo(expected)
+        assertThat(compilation).apply {
+            succeeded()
+            generatedSourceFile("androidx.hilt.work.test.MyWorker_HiltModule")
+                .hasSourceEquivalentTo(expected)
+        }
     }
 }
