@@ -39,8 +39,16 @@ class NavDeepLinkDslBuilder {
 
     /**
      * Intent action for the deep link
+     *
+     * @throws IllegalArgumentException if attempting to set to empty.
      */
     var action: String? = null
+        set(p) {
+            if (p != null && p.isEmpty()) {
+                throw IllegalArgumentException("The NavDeepLink cannot have an empty action.")
+            }
+            field = p
+        }
 
     /**
      * MimeType for the deep link
