@@ -22,7 +22,6 @@ import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.lerp
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
@@ -42,13 +41,13 @@ class SpanStyleTest {
     fun `constructor with default values`() {
         val style = SpanStyle()
 
-        assertThat(style.color).isNull()
+        assertThat(style.color).isEqualTo(Color.Unset)
         assertThat(style.fontSize.isInherit).isTrue()
         assertThat(style.fontWeight).isNull()
         assertThat(style.fontStyle).isNull()
         assertThat(style.letterSpacing.isInherit).isTrue()
         assertThat(style.localeList).isNull()
-        assertThat(style.background).isNull()
+        assertThat(style.background).isEqualTo(Color.Unset)
         assertThat(style.textDecoration).isNull()
         assertThat(style.fontFamily).isNull()
     }
@@ -156,7 +155,7 @@ class SpanStyleTest {
     fun `merge with other's color is null should use this' color`() {
         val style = SpanStyle(color = Color.Red)
 
-        val newSpanStyle = style.merge(SpanStyle(color = null))
+        val newSpanStyle = style.merge(SpanStyle(color = Color.Unset))
 
         assertThat(newSpanStyle.color).isEqualTo(style.color)
     }
@@ -327,7 +326,7 @@ class SpanStyleTest {
     fun `merge with other's background is null should use this' background`() {
         val style = SpanStyle(background = Color.Red)
 
-        val newSpanStyle = style.merge(SpanStyle(background = null))
+        val newSpanStyle = style.merge(SpanStyle(background = Color.Unset))
 
         assertThat(newSpanStyle.background).isEqualTo(style.background)
     }
@@ -590,8 +589,8 @@ class SpanStyleTest {
 
     @Test
     fun `lerp background with a and b are Null and t is smaller than half`() {
-        val style1 = SpanStyle(background = null)
-        val style2 = SpanStyle(background = null)
+        val style1 = SpanStyle(background = Color.Unset)
+        val style2 = SpanStyle(background = Color.Unset)
 
         val newSpanStyle = lerp(start = style1, stop = style2, fraction = 0.1f)
 
@@ -601,7 +600,7 @@ class SpanStyleTest {
     @Test
     fun `lerp background with a is Null and b is not Null`() {
         val t = 0.1f
-        val style1 = SpanStyle(background = null)
+        val style1 = SpanStyle(background = Color.Unset)
         val color2 = Color.Red
         val style2 = SpanStyle(background = color2)
 
@@ -615,7 +614,7 @@ class SpanStyleTest {
         val t = 0.1f
         val color1 = Color.Red
         val style1 = SpanStyle(background = color1)
-        val style2 = SpanStyle(background = null)
+        val style2 = SpanStyle(background = Color.Unset)
 
         val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 

@@ -448,7 +448,11 @@ class RippleTest {
     }
 
     @Composable
-    private fun RippleButton(size: Dp = 10.dp, color: Color? = null, enabled: Boolean = true) {
+    private fun RippleButton(
+        size: Dp = 10.dp,
+        color: Color = Color.Unset,
+        enabled: Boolean = true
+    ) {
         Clickable(
             onClick = {},
             modifier = Modifier.ripple(bounded = false, color = color, enabled = enabled)

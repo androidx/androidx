@@ -19,6 +19,7 @@ package androidx.ui.text
 import androidx.compose.Immutable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
+import androidx.ui.graphics.useOrElse
 import androidx.ui.graphics.lerp
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
@@ -66,7 +67,7 @@ import androidx.ui.unit.lerp
  */
 @Immutable
 data class SpanStyle(
-    val color: Color? = null,
+    val color: Color = Color.Unset,
     val fontSize: TextUnit = TextUnit.Inherit,
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
@@ -77,7 +78,7 @@ data class SpanStyle(
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
     val localeList: LocaleList? = null,
-    val background: Color? = null,
+    val background: Color = Color.Unset,
     val textDecoration: TextDecoration? = null,
     val shadow: Shadow? = null
 ) {
@@ -94,7 +95,7 @@ data class SpanStyle(
         if (other == null) return this
 
         return SpanStyle(
-            color = other.color ?: this.color,
+            color = other.color.useOrElse { this.color },
             fontFamily = other.fontFamily ?: this.fontFamily,
             fontSize = if (!other.fontSize.isInherit) other.fontSize else this.fontSize,
             fontWeight = other.fontWeight ?: this.fontWeight,
@@ -109,7 +110,7 @@ data class SpanStyle(
             baselineShift = other.baselineShift ?: this.baselineShift,
             textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
             localeList = other.localeList ?: this.localeList,
-            background = other.background ?: this.background,
+            background = other.background.useOrElse { this.background },
             textDecoration = other.textDecoration ?: this.textDecoration,
             shadow = other.shadow ?: this.shadow
         )
@@ -145,7 +146,8 @@ internal fun <T> lerpDiscrete(a: T, b: T, fraction: Float): T = if (fraction < 0
  */
 fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
     return SpanStyle(
-        color = lerp(start.color ?: Color.Black, stop.color ?: Color.Black, fraction),
+        color = lerp(start.color.useOrElse { Color.Black }, stop.color.useOrElse { Color.Black },
+            fraction),
         fontFamily = lerpDiscrete(
             start.fontFamily,
             stop.fontFamily,
@@ -189,8 +191,8 @@ fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
         ),
         localeList = lerpDiscrete(start.localeList, stop.localeList, fraction),
         background = lerp(
-            start.background ?: Color.Transparent,
-            stop.background ?: Color.Transparent,
+            start.background.useOrElse { Color.Transparent },
+            stop.background.useOrElse { Color.Transparent },
             fraction
         ),
         textDecoration = lerpDiscrete(
