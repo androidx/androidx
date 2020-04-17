@@ -341,7 +341,6 @@ package androidx.mediarouter.media {
     method public void addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int);
     method public void addProvider(androidx.mediarouter.media.MediaRouteProvider);
     method public void addRemoteControlClient(Object);
-    method public void enableTransfer();
     method public androidx.mediarouter.media.MediaRouter.RouteInfo! getBluetoothRoute();
     method public androidx.mediarouter.media.MediaRouter.RouteInfo getDefaultRoute();
     method public static androidx.mediarouter.media.MediaRouter! getInstance(android.content.Context);
