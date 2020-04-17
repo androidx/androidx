@@ -19,8 +19,12 @@ package androidx.ui.foundation
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationEndReason
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.Stable
+import androidx.compose.StructurallyEqual
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
@@ -67,7 +71,7 @@ fun ScrollerPosition(
  * @param animationClock clock observable to run animation on. Consider querying
  * [AnimationClockAmbient] to get current composition value
  */
-@Model
+@Stable
 class ScrollerPosition(
     /** Configuration that specifies fling logic when scrolling ends with velocity. */
     flingConfig: FlingConfig,
@@ -95,7 +99,7 @@ class ScrollerPosition(
     /**
      * current scroller position value
      */
-    var value = initial
+    var value by mutableStateOf(initial, StructurallyEqual)
         private set
 
     /**
@@ -108,11 +112,8 @@ class ScrollerPosition(
      * maxPosition this scroller that consume this ScrollerPosition can reach, or
      * [Float.POSITIVE_INFINITY] if still unknown
      */
-    var maxPosition: Float = Float.POSITIVE_INFINITY
-        internal set(newMax) {
-            field = newMax
-            value = value.coerceIn(0f, newMax)
-        }
+    var maxPosition by mutableStateOf(Float.POSITIVE_INFINITY, StructurallyEqual)
+        private set
 
     /**
      * Smooth scroll to position in pixels
@@ -155,6 +156,13 @@ class ScrollerPosition(
      */
     fun scrollBy(value: Float) {
         scrollTo(this.value + value)
+    }
+
+    internal fun updateMaxPosition(newMax: Float) {
+        maxPosition = newMax
+        if (value > newMax) {
+            value = newMax
+        }
     }
 }
 
@@ -237,7 +245,6 @@ private fun Scroller(
     }) {
         ScrollerLayout(
             scrollerPosition = scrollerPosition,
-            onMaxPositionChanged = { scrollerPosition.maxPosition = it },
             modifier = modifier.scrollable(
                 scrollableState = scrollerPosition.scrollableState,
                 dragDirection = direction,
@@ -253,7 +260,6 @@ private fun Scroller(
 private fun ScrollerLayout(
     scrollerPosition: ScrollerPosition,
     modifier: Modifier,
-    onMaxPositionChanged: (Float) -> Unit,
     isVertical: Boolean,
     child: @Composable() () -> Unit
 ) {
@@ -290,9 +296,7 @@ private fun ScrollerLayout(
                 val scrollHeight = childHeight - height.toPx()
                 val scrollWidth = childWidth - width.toPx()
                 val side = if (isVertical) scrollHeight else scrollWidth
-                if (side != scrollerPosition.maxPosition.px) {
-                    onMaxPositionChanged(side.value)
-                }
+                scrollerPosition.updateMaxPosition(side.value)
                 val xOffset = if (isVertical) 0 else -scrollerPosition.value.roundToInt()
                 val yOffset = if (isVertical) -scrollerPosition.value.roundToInt() else 0
                 placeable?.place(xOffset.ipx, yOffset.ipx)
