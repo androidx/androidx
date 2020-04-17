@@ -65,7 +65,7 @@ internal class V3RemoteMediator(
                     }
                 }
 
-                MediatorResult.Success(canRequestMoreData = true)
+                MediatorResult.Success(endOfPaginationReached = false)
             }
             is PagingSource.LoadResult.Error -> {
                 MediatorResult.Error(result.throwable)
