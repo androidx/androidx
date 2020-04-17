@@ -13,6 +13,7 @@ package androidx.slice {
     method public android.net.Uri! getUri();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean hasHint(String!);
     field public static final String EXTRA_SELECTION = "android.app.slice.extra.SELECTION";
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final String SUBTYPE_RANGE_MODE = "range_mode";
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class Slice.Builder {
@@ -225,11 +226,13 @@ package androidx.slice.core {
   }
 
   @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SliceHints {
+    field public static final int DETERMINATE_RANGE = 0; // 0x0
     field public static final String HINT_ACTIVITY = "activity";
     field public static final String HINT_CACHED = "cached";
     field public static final String HINT_RAW = "raw";
     field public static final String HINT_SELECTION_OPTION = "selection_option";
     field public static final int ICON_IMAGE = 0; // 0x0
+    field public static final int INDETERMINATE_RANGE = 1; // 0x1
     field public static final long INFINITY = -1L; // 0xffffffffffffffffL
     field public static final int LARGE_IMAGE = 2; // 0x2
     field public static final int RAW_IMAGE_LARGE = 4; // 0x4
