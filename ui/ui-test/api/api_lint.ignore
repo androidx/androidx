@@ -1,3 +1,9 @@
 // Baseline format: 1.0
+AcronymName: androidx.ui.test.BitmapHelpersKt#assertPixelColor-9bBi3KA(android.graphics.Bitmap, long, int, int, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String>):
+    Acronyms should not be capitalized in method names: was `assertPixelColor-9bBi3KA`, should this be `assertPixelColor-9bBi3Ka`?
+AcronymName: androidx.ui.test.BitmapHelpersKt#assertShape-nbwoFSQ(android.graphics.Bitmap, androidx.ui.unit.Density, androidx.ui.graphics.Shape, long, long, androidx.ui.graphics.Shape, float, float, float, float, float, float, float):
+    Acronyms should not be capitalized in method names: was `assertShape-nbwoFSQ`, should this be `assertShape-nbwoFsq`?
+
+
 DocumentExceptions: androidx.ui.test.GoldenSemanticsKt#assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration):
     Method GoldenSemanticsKt.assertEquals appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions

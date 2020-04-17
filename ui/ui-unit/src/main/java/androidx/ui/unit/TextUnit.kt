@@ -53,7 +53,7 @@ enum class TextUnitType { Inherit, Sp, Em }
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-data /*inline*/ class TextUnit(val packedValue: Long) {
+inline class TextUnit(val packedValue: Long) {
     /**
      * Add two [TextUnit]s together.
      *

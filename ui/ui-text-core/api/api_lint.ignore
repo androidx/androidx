@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+AcronymName: androidx.ui.text.TextStyle#copy-4Bo2vQE(long, long, androidx.ui.text.font.FontWeight, androidx.ui.text.font.FontStyle, androidx.ui.text.font.FontSynthesis, androidx.ui.text.font.FontFamily, String, long, androidx.ui.text.style.BaselineShift, androidx.ui.text.style.TextGeometricTransform, androidx.ui.text.LocaleList, long, androidx.ui.text.style.TextDecoration, androidx.ui.graphics.Shadow, androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirectionAlgorithm, long, androidx.ui.text.style.TextIndent):
+    Acronyms should not be capitalized in method names: was `copy-4Bo2vQE`, should this be `copy-4Bo2vQe`?
+
+
 KotlinOperator: androidx.ui.text.font.FontListFontFamily#contains(androidx.ui.text.font.Font):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
 KotlinOperator: androidx.ui.text.style.TextDecoration#contains(androidx.ui.text.style.TextDecoration):

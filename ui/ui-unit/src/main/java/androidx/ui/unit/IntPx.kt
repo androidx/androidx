@@ -33,7 +33,7 @@ import kotlin.math.roundToInt
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-data /*inline*/ class IntPx(val value: Int) : Comparable<IntPx> {
+inline class IntPx(val value: Int) : Comparable<IntPx> {
     /**
      * Add two [IntPx]s together. Any operation on an
      * [IntPx.Infinity] results in [IntPx.Infinity]

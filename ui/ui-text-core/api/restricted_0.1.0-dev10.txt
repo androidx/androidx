@@ -421,14 +421,12 @@ package androidx.ui.text {
   }
 
   public final class ParagraphStyle {
-    ctor public ParagraphStyle(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.unit.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
-    ctor public ParagraphStyle();
     method public androidx.ui.text.style.TextAlign? component1();
     method public androidx.ui.text.style.TextDirectionAlgorithm? component2();
-    method public androidx.ui.unit.TextUnit component3();
+    method public long component3();
     method public androidx.ui.text.style.TextIndent? component4();
-    method public androidx.ui.text.ParagraphStyle copy(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.unit.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
-    method public androidx.ui.unit.TextUnit getLineHeight();
+    method public androidx.ui.text.ParagraphStyle copy-ffQossE(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, long lineHeight, androidx.ui.text.style.TextIndent? textIndent);
+    method public long getLineHeight();
     method public androidx.ui.text.style.TextAlign? getTextAlign();
     method public androidx.ui.text.style.TextDirectionAlgorithm? getTextDirectionAlgorithm();
     method public androidx.ui.text.style.TextIndent? getTextIndent();
@@ -440,14 +438,13 @@ package androidx.ui.text {
   }
 
   public final class Placeholder {
-    ctor public Placeholder(androidx.ui.unit.TextUnit width, androidx.ui.unit.TextUnit height, androidx.ui.text.PlaceholderVerticalAlign placeholderVerticalAlign);
-    method public androidx.ui.unit.TextUnit component1();
-    method public androidx.ui.unit.TextUnit component2();
+    method public long component1();
+    method public long component2();
     method public androidx.ui.text.PlaceholderVerticalAlign component3();
-    method public androidx.ui.text.Placeholder copy(androidx.ui.unit.TextUnit width, androidx.ui.unit.TextUnit height, androidx.ui.text.PlaceholderVerticalAlign placeholderVerticalAlign);
-    method public androidx.ui.unit.TextUnit getHeight();
+    method public androidx.ui.text.Placeholder copy-eLqjHCw(long width, long height, androidx.ui.text.PlaceholderVerticalAlign placeholderVerticalAlign);
+    method public long getHeight();
     method public androidx.ui.text.PlaceholderVerticalAlign getPlaceholderVerticalAlign();
-    method public androidx.ui.unit.TextUnit getWidth();
+    method public long getWidth();
   }
 
   public enum PlaceholderVerticalAlign {
@@ -467,25 +464,25 @@ package androidx.ui.text {
     method public long component12();
     method public androidx.ui.text.style.TextDecoration? component13();
     method public androidx.ui.graphics.Shadow? component14();
-    method public androidx.ui.unit.TextUnit component2();
+    method public long component2();
     method public androidx.ui.text.font.FontWeight? component3();
     method public androidx.ui.text.font.FontStyle? component4();
     method public androidx.ui.text.font.FontSynthesis? component5();
     method public androidx.ui.text.font.FontFamily? component6();
     method public String? component7();
-    method public androidx.ui.unit.TextUnit component8();
+    method public long component8();
     method public androidx.ui.text.style.BaselineShift? component9();
-    method public androidx.ui.text.SpanStyle copy-kRoccyE(long color, androidx.ui.unit.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.unit.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, long background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow);
+    method public androidx.ui.text.SpanStyle copy-kRoccyE(long color, long fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, long letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, long background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow);
     method public long getBackground();
     method public androidx.ui.text.style.BaselineShift? getBaselineShift();
     method public long getColor();
     method public androidx.ui.text.font.FontFamily? getFontFamily();
     method public String? getFontFeatureSettings();
-    method public androidx.ui.unit.TextUnit getFontSize();
+    method public long getFontSize();
     method public androidx.ui.text.font.FontStyle? getFontStyle();
     method public androidx.ui.text.font.FontSynthesis? getFontSynthesis();
     method public androidx.ui.text.font.FontWeight? getFontWeight();
-    method public androidx.ui.unit.TextUnit getLetterSpacing();
+    method public long getLetterSpacing();
     method public androidx.ui.text.LocaleList? getLocaleList();
     method public androidx.ui.graphics.Shadow? getShadow();
     method public androidx.ui.text.style.TextDecoration? getTextDecoration();
@@ -511,9 +508,9 @@ package androidx.ui.text {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TextDelegate {
     ctor public TextDelegate(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle style, int maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> placeholders);
     method public androidx.ui.unit.Density getDensity();
-    method public androidx.ui.unit.IntPx getMaxIntrinsicWidth();
+    method public int getMaxIntrinsicWidth();
     method public int getMaxLines();
-    method public androidx.ui.unit.IntPx getMinIntrinsicWidth();
+    method public int getMinIntrinsicWidth();
     method public androidx.ui.text.style.TextOverflow getOverflow();
     method public java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> getPlaceholders();
     method public androidx.ui.text.font.Font.ResourceLoader getResourceLoader();
@@ -522,8 +519,8 @@ package androidx.ui.text {
     method public androidx.ui.text.AnnotatedString getText();
     method public androidx.ui.text.TextLayoutResult layout(androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.TextLayoutResult? prevResult = null);
     method public void layoutIntrinsics(androidx.ui.core.LayoutDirection layoutDirection);
-    property public final androidx.ui.unit.IntPx maxIntrinsicWidth;
-    property public final androidx.ui.unit.IntPx minIntrinsicWidth;
+    property public final int maxIntrinsicWidth;
+    property public final int minIntrinsicWidth;
     field public static final androidx.ui.text.TextDelegate.Companion! Companion;
   }
 
@@ -569,16 +566,16 @@ package androidx.ui.text {
     method public androidx.ui.geometry.Rect getCursorRect(int offset);
     method public boolean getDidOverflowHeight();
     method public boolean getDidOverflowWidth();
-    method public androidx.ui.unit.Px getFirstBaseline();
+    method public float getFirstBaseline();
     method public boolean getHasVisualOverflow();
-    method public androidx.ui.unit.Px getHorizontalPosition(int offset, boolean usePrimaryDirection);
-    method public androidx.ui.unit.Px getLastBaseline();
+    method public float getHorizontalPosition(int offset, boolean usePrimaryDirection);
+    method public float getLastBaseline();
     method public androidx.ui.text.TextLayoutInput getLayoutInput();
-    method public androidx.ui.unit.Px getLineBottom(int lineIndex);
+    method public float getLineBottom(int lineIndex);
     method public int getLineEnd(int lineIndex);
     method public int getLineForOffset(int offset);
     method public int getLineStart(int lineIndex);
-    method public androidx.ui.unit.Px getLineTop(int lineIndex);
+    method public float getLineTop(int lineIndex);
     method public int getOffsetForPosition(androidx.ui.unit.PxPosition position);
     method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
@@ -587,9 +584,9 @@ package androidx.ui.text {
     method public androidx.ui.text.TextRange getWordBoundary(int offset);
     property public final boolean didOverflowHeight;
     property public final boolean didOverflowWidth;
-    property public final androidx.ui.unit.Px firstBaseline;
+    property public final float firstBaseline;
     property public final boolean hasVisualOverflow;
-    property public final androidx.ui.unit.Px lastBaseline;
+    property public final float lastBaseline;
     property public final java.util.List<androidx.ui.geometry.Rect> placeholderRects;
   }
 
@@ -631,28 +628,28 @@ package androidx.ui.text {
     method public androidx.ui.graphics.Shadow? component14();
     method public androidx.ui.text.style.TextAlign? component15();
     method public androidx.ui.text.style.TextDirectionAlgorithm? component16();
-    method public androidx.ui.unit.TextUnit component17();
+    method public long component17();
     method public androidx.ui.text.style.TextIndent? component18();
-    method public androidx.ui.unit.TextUnit component2();
+    method public long component2();
     method public androidx.ui.text.font.FontWeight? component3();
     method public androidx.ui.text.font.FontStyle? component4();
     method public androidx.ui.text.font.FontSynthesis? component5();
     method public androidx.ui.text.font.FontFamily? component6();
     method public String? component7();
-    method public androidx.ui.unit.TextUnit component8();
+    method public long component8();
     method public androidx.ui.text.style.BaselineShift? component9();
-    method public androidx.ui.text.TextStyle copy-4Bo2vQE(long color, androidx.ui.unit.TextUnit fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, androidx.ui.unit.TextUnit letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, long background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow, androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, androidx.ui.unit.TextUnit lineHeight, androidx.ui.text.style.TextIndent? textIndent);
+    method public androidx.ui.text.TextStyle copy-4Bo2vQE(long color, long fontSize, androidx.ui.text.font.FontWeight? fontWeight, androidx.ui.text.font.FontStyle? fontStyle, androidx.ui.text.font.FontSynthesis? fontSynthesis, androidx.ui.text.font.FontFamily? fontFamily, String? fontFeatureSettings, long letterSpacing, androidx.ui.text.style.BaselineShift? baselineShift, androidx.ui.text.style.TextGeometricTransform? textGeometricTransform, androidx.ui.text.LocaleList? localeList, long background, androidx.ui.text.style.TextDecoration? textDecoration, androidx.ui.graphics.Shadow? shadow, androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirectionAlgorithm? textDirectionAlgorithm, long lineHeight, androidx.ui.text.style.TextIndent? textIndent);
     method public long getBackground();
     method public androidx.ui.text.style.BaselineShift? getBaselineShift();
     method public long getColor();
     method public androidx.ui.text.font.FontFamily? getFontFamily();
     method public String? getFontFeatureSettings();
-    method public androidx.ui.unit.TextUnit getFontSize();
+    method public long getFontSize();
     method public androidx.ui.text.font.FontStyle? getFontStyle();
     method public androidx.ui.text.font.FontSynthesis? getFontSynthesis();
     method public androidx.ui.text.font.FontWeight? getFontWeight();
-    method public androidx.ui.unit.TextUnit getLetterSpacing();
-    method public androidx.ui.unit.TextUnit getLineHeight();
+    method public long getLetterSpacing();
+    method public long getLineHeight();
     method public androidx.ui.text.LocaleList? getLocaleList();
     method public androidx.ui.graphics.Shadow? getShadow();
     method public androidx.ui.text.style.TextAlign? getTextAlign();
@@ -855,25 +852,28 @@ package androidx.ui.text.platform {
 
 package androidx.ui.text.style {
 
-  public final class BaselineShift {
-    ctor public BaselineShift(float multiplier);
-    method public float component1();
-    method public androidx.ui.text.style.BaselineShift copy(float multiplier);
+  public final inline class BaselineShift {
+    ctor public BaselineShift();
+    method public static float constructor-impl(float multiplier);
+    method public static boolean equals-impl(float p, Object? p1);
+    method public static boolean equals-impl0(float p1, float p2);
     method public float getMultiplier();
+    method public static int hashCode-impl(float p);
+    method public static String toString-impl(float p);
     field public static final androidx.ui.text.style.BaselineShift.Companion! Companion;
   }
 
   public static final class BaselineShift.Companion {
-    method public androidx.ui.text.style.BaselineShift getNone();
-    method public androidx.ui.text.style.BaselineShift getSubscript();
-    method public androidx.ui.text.style.BaselineShift getSuperscript();
-    property public final androidx.ui.text.style.BaselineShift None;
-    property public final androidx.ui.text.style.BaselineShift Subscript;
-    property public final androidx.ui.text.style.BaselineShift Superscript;
+    method public float getNone();
+    method public float getSubscript();
+    method public float getSuperscript();
+    property public final float None;
+    property public final float Subscript;
+    property public final float Superscript;
   }
 
   public final class BaselineShiftKt {
-    method public static androidx.ui.text.style.BaselineShift lerp(androidx.ui.text.style.BaselineShift start, androidx.ui.text.style.BaselineShift stop, float fraction);
+    method public static float lerp-7csQwvo(float start, float stop, float fraction);
   }
 
   public enum TextAlign {
@@ -934,13 +934,11 @@ package androidx.ui.text.style {
   }
 
   public final class TextIndent {
-    ctor public TextIndent(androidx.ui.unit.TextUnit firstLine, androidx.ui.unit.TextUnit restLine);
-    ctor public TextIndent();
-    method public androidx.ui.unit.TextUnit component1();
-    method public androidx.ui.unit.TextUnit component2();
-    method public androidx.ui.text.style.TextIndent copy(androidx.ui.unit.TextUnit firstLine, androidx.ui.unit.TextUnit restLine);
-    method public androidx.ui.unit.TextUnit getFirstLine();
-    method public androidx.ui.unit.TextUnit getRestLine();
+    method public long component1();
+    method public long component2();
+    method public androidx.ui.text.style.TextIndent copy-gL_aCS0(long firstLine, long restLine);
+    method public long getFirstLine();
+    method public long getRestLine();
     field public static final androidx.ui.text.style.TextIndent.Companion! Companion;
   }
 
