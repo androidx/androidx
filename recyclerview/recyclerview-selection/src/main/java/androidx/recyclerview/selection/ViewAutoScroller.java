@@ -263,7 +263,7 @@ final class ViewAutoScroller extends AutoScroller {
         @Override
         void scrollBy(int dy) {
             if (VERBOSE) Log.v(TAG, "Scrolling view by: " + dy);
-            mView.scrollBy(0, dy);
+            mView.nestedScrollBy(0, dy);
         }
 
         @Override
