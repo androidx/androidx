@@ -25,8 +25,8 @@ import androidx.ui.unit.px
 
 internal class LayerWrapper(
     wrapped: LayoutNodeWrapper,
-    val drawLayerModifier: DrawLayerModifier
-) : DelegatingLayoutNodeWrapper(wrapped) {
+    modifier: DrawLayerModifier
+) : DelegatingLayoutNodeWrapper<DrawLayerModifier>(wrapped, modifier) {
     private var _layer: OwnedLayer? = null
     private var layerDestroyed = false
 
@@ -37,7 +37,7 @@ internal class LayerWrapper(
     val layer: OwnedLayer
         get() {
             return _layer ?: layoutNode.requireOwner().createLayer(
-                drawLayerModifier,
+                modifier,
                 wrapped::draw,
                 invalidateParentLayer
             ).also {
@@ -119,8 +119,8 @@ internal class LayerWrapper(
     }
 
     override fun rectInParent(bounds: RectF) {
-        if ((drawLayerModifier.clipToBounds ||
-                    (drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null)) &&
+        if ((modifier.clipToBounds ||
+                    (modifier.clipToOutline && modifier.outlineShape != null)) &&
             !bounds.intersect(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
         ) {
             bounds.setEmpty()

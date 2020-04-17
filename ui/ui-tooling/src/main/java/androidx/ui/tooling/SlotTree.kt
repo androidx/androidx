@@ -24,6 +24,7 @@ import androidx.compose.joinedKeyRight
 import androidx.compose.keySourceInfoOf
 import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
+import androidx.ui.core.ModifierInfo
 import androidx.ui.core.globalPosition
 import androidx.ui.core.isAttached
 import androidx.ui.unit.IntPxBounds
@@ -52,6 +53,11 @@ sealed class Group(
     val data: Collection<Any?>,
 
     /**
+     * Modifier information for the Group, or empty list if there isn't any.
+     */
+    val modifierInfo: List<ModifierInfo>,
+
+    /**
      * The child groups of this group
      */
     val children: Collection<Group>
@@ -61,7 +67,7 @@ sealed class Group(
  * A group that represents the invocation of a component
  */
 class CallGroup(key: Any?, box: IntPxBounds, data: Collection<Any?>, children: Collection<Group>) :
-    Group(key, box, data, children)
+    Group(key, box, data, emptyList(), children)
 
 /**
  * A group that represents an emitted node
@@ -75,8 +81,9 @@ class NodeGroup(
     val node: Any,
     box: IntPxBounds,
     data: Collection<Any?>,
+    modifierInfo: List<ModifierInfo>,
     children: Collection<Group>
-) : Group(key, box, data, children)
+) : Group(key, box, data, modifierInfo, children)
 
 /**
  * A key that has being joined together to form one key.
@@ -122,6 +129,12 @@ private fun SlotReader.getGroup(): Group {
         children.add(getGroup())
     }
 
+    val modifierInfo = if (node is LayoutNode) {
+        node.getModifierInfo()
+    } else {
+        emptyList()
+    }
+
     // Calculate bounding box
     val box = when (node) {
         is LayoutNode -> boundsOfLayoutNode(node)
@@ -134,6 +147,7 @@ private fun SlotReader.getGroup(): Group {
         node as Any,
         box,
         data,
+        modifierInfo,
         children
     ) else
         CallGroup(key, box, data, children)

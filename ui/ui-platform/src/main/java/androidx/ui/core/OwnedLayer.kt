@@ -27,6 +27,12 @@ import androidx.ui.unit.IntPxSize
  */
 interface OwnedLayer {
     /**
+     * The ID of the layer. This is used by tooling to match a layer to the associated
+     * LayoutNode.
+     */
+    val layerId: Long
+
+    /**
      * Reads the [DrawLayerModifier] and dirties the layer so that it will be redrawn.
      */
     fun updateLayerProperties()

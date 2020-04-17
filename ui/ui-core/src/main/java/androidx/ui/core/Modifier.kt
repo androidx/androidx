@@ -85,9 +85,7 @@ interface Modifier {
      * Returns a [Modifier] representing this modifier followed by [other] in sequence.
      */
     operator fun plus(other: Modifier): Modifier =
-        if (other === Modifier) this else foldOut(other) { element, wrapped ->
-            CombinedModifier(element, wrapped)
-        }
+        if (other === Modifier) this else CombinedModifier(this, other)
 
     /**
      * A single element contained within a [Modifier] chain.
@@ -138,23 +136,22 @@ interface Modifier {
 
 /**
  * A node in a [Modifier] chain. A CombinedModifier always contains at least two elements;
- * a Modifier of one is always just the [Modifier.Element] itself, and a Modifier of zero is always
- * [Modifier].
+ * a Modifier [outer] that wraps around the Modifier [inner].
  */
 private class CombinedModifier(
-    private val element: Modifier.Element,
-    private val wrapped: Modifier
+    private val outer: Modifier,
+    private val inner: Modifier
 ) : Modifier {
     override fun <R> foldIn(initial: R, operation: (R, Modifier.Element) -> R): R =
-        wrapped.foldIn(operation(initial, element), operation)
+        inner.foldIn(outer.foldIn(initial, operation), operation)
 
     override fun <R> foldOut(initial: R, operation: (Modifier.Element, R) -> R): R =
-        operation(element, wrapped.foldOut(initial, operation))
+        outer.foldOut(inner.foldOut(initial, operation), operation)
 
     override fun equals(other: Any?): Boolean =
-        other is CombinedModifier && element == other.element && wrapped == other.wrapped
+        other is CombinedModifier && outer == other.outer && inner == other.inner
 
-    override fun hashCode(): Int = wrapped.hashCode() + 31 * element.hashCode()
+    override fun hashCode(): Int = outer.hashCode() + 31 * inner.hashCode()
 
     override fun toString() = "[" + foldIn("") { acc, element ->
         if (acc.isEmpty()) element.toString() else "$acc, $element"

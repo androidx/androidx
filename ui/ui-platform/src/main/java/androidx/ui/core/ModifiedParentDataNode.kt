@@ -18,10 +18,10 @@ package androidx.ui.core
 
 internal class ModifiedParentDataNode(
     wrapped: LayoutNodeWrapper,
-    val parentDataModifier: ParentDataModifier
-) : DelegatingLayoutNodeWrapper(wrapped) {
+    parentDataModifier: ParentDataModifier
+) : DelegatingLayoutNodeWrapper<ParentDataModifier>(wrapped, parentDataModifier) {
     override val parentData: Any?
-        get() = with(parentDataModifier) {
+        get() = with(modifier) {
             /**
              * ParentData provided through the parentData node will override the data provided
              * through a modifier

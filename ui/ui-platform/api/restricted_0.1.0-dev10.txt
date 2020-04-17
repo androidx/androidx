@@ -132,6 +132,7 @@ package androidx.ui.core {
     method public androidx.ui.core.LayoutNode.MeasureBlocks getMeasureBlocks();
     method public androidx.ui.core.MeasureScope getMeasureScope();
     method public androidx.ui.core.Modifier getModifier();
+    method public java.util.List<androidx.ui.core.ModifierInfo> getModifierInfo();
     method public boolean getNeedsRelayout();
     method public boolean getNeedsRemeasure();
     method public kotlin.jvm.functions.Function1<androidx.ui.core.Owner,kotlin.Unit>? getOnAttach();
@@ -222,15 +223,24 @@ package androidx.ui.core {
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final kotlin.jvm.functions.Function2<java.util.Set<?>,androidx.compose.frames.Frame,kotlin.Unit> frameCommitObserver;
   }
 
+  public final class ModifierInfo {
+    ctor public ModifierInfo(androidx.ui.core.Modifier modifier, androidx.ui.core.LayoutCoordinates coordinates, Object? extra);
+    method public androidx.ui.core.LayoutCoordinates getCoordinates();
+    method public Object? getExtra();
+    method public androidx.ui.core.Modifier getModifier();
+  }
+
   public interface OwnedLayer {
     method public void destroy();
     method public void drawLayer(androidx.ui.graphics.Canvas canvas);
+    method public long getLayerId();
     method public android.graphics.Matrix getMatrix();
     method public void invalidate();
     method public void move(androidx.ui.unit.IntPxPosition position);
     method public void resize(androidx.ui.unit.IntPxSize size);
     method public void updateDisplayList();
     method public void updateLayerProperties();
+    property public abstract long layerId;
   }
 
   public interface Owner {
