@@ -61,4 +61,34 @@ class NavDeepLinkBuilderTest {
                 )
         }
     }
+
+    @Test
+    fun buildDeepLinkEmptyAction() {
+        try {
+            navDeepLink { action = "" }
+            fail("NavDeepLink must throw when attempting to build with an empty action.")
+        } catch (e: IllegalArgumentException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "The NavDeepLink cannot have an empty action."
+                )
+        }
+    }
+
+    @Test
+    fun buildDeepLinkDoubleActionSetNull() {
+        val expectedUri = "www.example.com"
+        val navDeepLink = navDeepLink {
+            uri = expectedUri
+            action = "blah"
+            action = null
+        }
+
+        assertWithMessage("NavDeepLink should have uri set")
+            .that(navDeepLink.uri)
+            .isEqualTo(expectedUri)
+        assertWithMessage("NavDeepLink should have action set")
+            .that(navDeepLink.action)
+            .isNull()
+    }
 }

@@ -131,11 +131,17 @@ public class NavDeepLinkRequest {
         /**
          * Creates a {@link NavDeepLinkRequest.Builder} with a set action.
          *
+         * @throws IllegalArgumentException if the action is empty.
+         *
          * @param action the intent action for the NavDeepLinkRequest
          * @return a {@link Builder} instance
          */
         @NonNull
         public static Builder fromAction(@NonNull String action) {
+            if (action.isEmpty()) {
+                throw new IllegalArgumentException("The NavDeepLinkRequest cannot have an empty "
+                        + "action.");
+            }
             Builder builder = new Builder();
             builder.setAction(action);
             return builder;
@@ -170,12 +176,18 @@ public class NavDeepLinkRequest {
         /**
          * Set the action for the {@link NavDeepLinkRequest}.
          *
+         * @throws IllegalArgumentException if the action is empty.
+         *
          * @param action the intent action for the NavDeepLinkRequest
          *
          * @return This builder.
          */
         @NonNull
         public Builder setAction(@NonNull String action) {
+            if (action.isEmpty()) {
+                throw new IllegalArgumentException("The NavDeepLinkRequest cannot have an empty "
+                        + "action.");
+            }
             mAction = action;
             return this;
         }
