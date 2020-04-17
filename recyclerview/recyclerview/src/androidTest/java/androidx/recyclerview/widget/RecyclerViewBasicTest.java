@@ -464,11 +464,14 @@ public class RecyclerViewBasicTest {
     }
 
     @Test
-    public void getNanoTime() {
+    public void getNanoTime() throws InterruptedException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // check that it looks vaguely time-ish
             long time = mRecyclerView.getNanoTime();
             assertNotEquals(0, time);
+
+            // Sleep for 1 nano to ensure next call won't have the same measurement.
+            Thread.sleep(0, 1);
             assertNotEquals(time, mRecyclerView.getNanoTime());
         } else {
             // expect to avoid cost of system.nanoTime on older platforms that don't do prefetch
