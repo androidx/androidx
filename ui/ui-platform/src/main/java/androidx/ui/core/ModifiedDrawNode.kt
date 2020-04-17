@@ -40,15 +40,6 @@ internal class ModifiedDrawNode(
     private val drawScope = DrawScopeImpl()
     private var canvas: Canvas? = null
 
-    override fun performMeasure(constraints: Constraints): Placeable {
-        val thisPlaceable = super.performMeasure(constraints)
-        if (dirtySize) {
-            // In case there is a layer between this modifier and the layout node.
-            findLayer()?.invalidate()
-        }
-        return thisPlaceable
-    }
-
     // This is not thread safe
     override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {

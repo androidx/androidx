@@ -268,9 +268,7 @@ package androidx.ui.core {
     method public void onDetach(androidx.ui.core.ComponentNode node);
     method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onInvalidate(androidx.ui.core.LayoutNode layoutNode);
-    method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
     method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
-    method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean requestFocus();
     method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);

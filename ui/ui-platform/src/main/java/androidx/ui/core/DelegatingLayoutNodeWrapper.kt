@@ -89,10 +89,6 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         return this
     }
 
-    override fun findLayer(): OwnedLayer? {
-        return wrappedBy?.findLayer()
-    }
-
     override fun findFocusWrapperWrappingThisWrapper() =
         wrappedBy?.findFocusWrapperWrappingThisWrapper()
 
