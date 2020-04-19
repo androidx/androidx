@@ -204,6 +204,7 @@ class SubtitleView extends View {
         computeMeasurements(width);
     }
 
+    @SuppressWarnings("deprecation")  // The constructor of StaticLayout is deprecated.
     private boolean computeMeasurements(int maxWidth) {
         if (mHasMeasurements && maxWidth == mLastMeasuredWidth) {
             return true;
