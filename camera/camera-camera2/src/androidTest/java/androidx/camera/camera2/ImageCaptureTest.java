@@ -789,6 +789,30 @@ public final class ImageCaptureTest {
     }
 
     @Test
+    public void unbind_abortAllCaptureRequests() throws InterruptedException {
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        mInstrumentation.runOnMainSync(() -> {
+            CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, imageCapture,
+                    mRepeatingUseCase);
+            mLifecycleOwner.startAndResume();
+        });
+
+        CountingCallback callback = new CountingCallback(3, 500);
+
+        imageCapture.takePicture(mMainExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
+        imageCapture.takePicture(mMainExecutor, callback);
+
+        mInstrumentation.runOnMainSync(CameraX::unbindAll);
+
+        assertThat(callback.getNumOnCaptureSuccess() + callback.getNumOnError()).isEqualTo(3);
+
+        for (Integer imageCaptureError : callback.getImageCaptureErrors()) {
+            assertThat(imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED);
+        }
+    }
+
+    @Test
     public void takePictureReturnsErrorNO_CAMERA_whenNotBound() {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
 
