@@ -317,18 +317,6 @@ package androidx.ui.layout {
     method public static androidx.ui.layout.DpConstraints offset-bB8corQ(androidx.ui.layout.DpConstraints, float horizontal = 0.dp, float vertical = 0.dp);
   }
 
-  @Deprecated public final class EdgeInsets {
-    method @Deprecated public float component1();
-    method @Deprecated public float component2();
-    method @Deprecated public float component3();
-    method @Deprecated public float component4();
-    method @Deprecated public androidx.ui.layout.EdgeInsets copy-rIHlIKc(float left, float top, float right, float bottom);
-    method @Deprecated public float getBottom();
-    method @Deprecated public float getLeft();
-    method @Deprecated public float getRight();
-    method @Deprecated public float getTop();
-  }
-
   public enum FlowCrossAxisAlignment {
     enum_constant public static final androidx.ui.layout.FlowCrossAxisAlignment Center;
     enum_constant public static final androidx.ui.layout.FlowCrossAxisAlignment End;
@@ -455,37 +443,11 @@ package androidx.ui.layout {
     method public static androidx.ui.core.Modifier offset-qJOR85M(androidx.ui.core.Modifier, float x, float y);
   }
 
-  public final class LayoutPadding implements androidx.ui.core.LayoutModifier2 {
-    method public float component1();
-    method public float component2();
-    method public float component3();
-    method public float component4();
-    method public androidx.ui.layout.LayoutPadding copy-rIHlIKc(float start, float top, float end, float bottom);
-    method public float getBottom();
-    method public float getEnd();
-    method public float getStart();
-    method public float getTop();
-    method public androidx.ui.core.MeasureScope.MeasureResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
-  }
-
-  public final class LayoutPaddingAbsolute implements androidx.ui.core.LayoutModifier2 {
-    method public float component1();
-    method public float component2();
-    method public float component3();
-    method public float component4();
-    method public androidx.ui.layout.LayoutPaddingAbsolute copy-rIHlIKc(float left, float top, float right, float bottom);
-    method public float getBottom();
-    method public float getLeft();
-    method public float getRight();
-    method public float getTop();
-    method public androidx.ui.core.MeasureScope.MeasureResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
-  }
-
   public final class LayoutPaddingKt {
-    method @Deprecated public static androidx.ui.layout.LayoutPadding LayoutPadding-ipo6vVg(float all);
     method public static androidx.ui.core.Modifier absolutePadding-AwkAAmk(androidx.ui.core.Modifier, float left = 0.dp, float top = 0.dp, float right = 0.dp, float bottom = 0.dp);
     method public static androidx.ui.core.Modifier padding-AwkAAmk(androidx.ui.core.Modifier, float start = 0.dp, float top = 0.dp, float end = 0.dp, float bottom = 0.dp);
     method public static androidx.ui.core.Modifier padding-H3qe284(androidx.ui.core.Modifier, float all);
+    method public static androidx.ui.core.Modifier padding-qJOR85M(androidx.ui.core.Modifier, float horizontal = 0.dp, float vertical = 0.dp);
   }
 
   @kotlin.DslMarker public @interface LayoutScopeMarker {

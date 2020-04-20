@@ -31,6 +31,8 @@ AcronymName: androidx.ui.layout.LayoutHeight.Min#modifyAlignmentLine-4TLTOQ4(and
     Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
 AcronymName: androidx.ui.layout.LayoutOffsetKt#offset-qJOR85M(androidx.ui.core.Modifier, float, float):
     Acronyms should not be capitalized in method names: was `offset-qJOR85M`, should this be `offset-qJoR85M`?
+AcronymName: androidx.ui.layout.LayoutPaddingKt#padding-qJOR85M(androidx.ui.core.Modifier, float, float):
+    Acronyms should not be capitalized in method names: was `padding-qJOR85M`, should this be `padding-qJoR85M`?
 AcronymName: androidx.ui.layout.LayoutSize#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
     Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
 AcronymName: androidx.ui.layout.LayoutSize.Constrain#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
