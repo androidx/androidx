@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.ui.layout
 
 import androidx.annotation.FloatRange
 import androidx.ui.core.Constraints
+import androidx.ui.core.IntrinsicMeasurable
+import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier
+import androidx.ui.core.LayoutModifier2
 import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.satisfiedBy
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
@@ -37,105 +37,88 @@ import androidx.ui.unit.isFinite
  * [Constraints.maxWidth], [Constraints.maxHeight], [Constraints.minWidth], [Constraints.minHeight].
  * The size in the other dimension is determined by the aspect ratio.
  *
- * @param ratio the desired width/height ratio
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleAspectRatio
+ *
+ * @param ratio the desired width/height positive ratio
  */
 fun Modifier.aspectRatio(
     @FloatRange(from = 0.0, fromInclusive = false)
     ratio: Float
-) = this + LayoutAspectRatio(ratio)
+) = this + AspectRatioModifier(ratio)
 
-/**
- * A layout modifier that attempts to size a layout to match a specified aspect ratio. The layout
- * modifier will try to match one of the incoming constraints, in the following order: maxWidth,
- * maxHeight, minWidth, minHeight. The size in the other dimension will then be computed
- * according to the aspect ratio. Note that the provided aspectRatio will always correspond to
- * the width/height ratio.
- *
- * If a valid size that satisfies the constraints is found this way, the modifier will size the
- * target layout to it: the layout will be measured with the tight constraints to match the size.
- * If a child is present, it will be measured with tight constraints to match the size.
- * If no valid size is found, the aspect ratio will not be satisfied, and the target layout will
- * be measured with the original constraints.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.SimpleAspectRatio
- *
- * @param aspectRatio A positive non-zero value representing the aspect ratio.
- */
-data class LayoutAspectRatio
-@Deprecated(
-    "Use Modifier.aspectRatio",
-    replaceWith = ReplaceWith(
-        "Modifier.aspectRatio(aspectRatio)",
-        "androidx.ui.core.Modifier",
-        "androidx.ui.layout.aspectRatio"
-    )
-)
-constructor(
-    @FloatRange(from = 0.0, fromInclusive = false)
-    val aspectRatio: Float
-) : LayoutModifier {
+private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier2 {
     init {
         require(aspectRatio > 0) { "aspectRatio $aspectRatio must be > 0" }
     }
 
-    override fun Density.modifyConstraints(
+    override fun MeasureScope.measure(
+        measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ): Constraints {
+    ): MeasureScope.MeasureResult {
         val size = constraints.findSizeWith(aspectRatio)
-        return if (size != null)
+        val wrappedConstraints = if (size != null) {
             Constraints.fixed(size.width, size.height)
-        else
+        } else {
             constraints
+        }
+        val placeable = measurable.measure(wrappedConstraints)
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0.ipx, 0.ipx)
+        }
     }
 
-    override fun Density.minIntrinsicWidthOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx {
-        return if (height == IntPx.Infinity) measurable.minIntrinsicWidth(height, layoutDirection)
-        else height * aspectRatio
+    ) = if (height != IntPx.Infinity) {
+        height * aspectRatio
+    } else {
+        measurable.minIntrinsicWidth(height)
     }
 
-    override fun Density.maxIntrinsicWidthOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx {
-        return if (height == IntPx.Infinity) measurable.maxIntrinsicWidth(height, layoutDirection)
-        else height * aspectRatio
+    ) = if (height != IntPx.Infinity) {
+        height * aspectRatio
+    } else {
+        measurable.maxIntrinsicWidth(height)
     }
 
-    override fun Density.minIntrinsicHeightOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx {
-        return if (width == IntPx.Infinity) measurable.minIntrinsicHeight(width, layoutDirection)
-        else width / aspectRatio
+    ) = if (width != IntPx.Infinity) {
+        width / aspectRatio
+    } else {
+        measurable.minIntrinsicHeight(width)
     }
 
-    override fun Density.maxIntrinsicHeightOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx {
-        return if (width == IntPx.Infinity) measurable.maxIntrinsicHeight(width, layoutDirection)
-        else width / aspectRatio
+    ) = if (width != IntPx.Infinity) {
+        width / aspectRatio
+    } else {
+        measurable.maxIntrinsicHeight(width)
     }
-}
 
-private fun Constraints.findSizeWith(aspectRatio: Float): IntPxSize? {
-    return listOf(
-        IntPxSize(this.maxWidth, this.maxWidth / aspectRatio),
-        IntPxSize(this.maxHeight * aspectRatio, this.maxHeight),
-        IntPxSize(this.minWidth, this.minWidth / aspectRatio),
-        IntPxSize(this.minHeight * aspectRatio, this.minHeight)
-    ).find {
-        this.satisfiedBy(it) &&
-                it.width != 0.ipx && it.height != 0.ipx &&
-                it.width.isFinite() && it.height.isFinite()
+    private fun Constraints.findSizeWith(aspectRatio: Float): IntPxSize? {
+        return listOf(
+            IntPxSize(this.maxWidth, this.maxWidth / aspectRatio),
+            IntPxSize(this.maxHeight * aspectRatio, this.maxHeight),
+            IntPxSize(this.minWidth, this.minWidth / aspectRatio),
+            IntPxSize(this.minHeight * aspectRatio, this.minHeight)
+        ).find {
+            this.satisfiedBy(it) &&
+                    it.width != 0.ipx && it.height != 0.ipx &&
+                    it.width.isFinite() && it.height.isFinite()
+        }
     }
 }

@@ -366,18 +366,6 @@ package androidx.ui.layout {
     enum_constant public static final androidx.ui.layout.IntrinsicSize Min;
   }
 
-  public final class LayoutAspectRatio implements androidx.ui.core.LayoutModifier {
-    ctor @Deprecated public LayoutAspectRatio(@FloatRange(from=null, fromInclusive=null) float aspectRatio);
-    method public float component1();
-    method public androidx.ui.layout.LayoutAspectRatio copy(float aspectRatio);
-    method public float getAspectRatio();
-    method public int maxIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
-    method public int maxIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
-    method public int minIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
-    method public int minIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
-    method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
-  }
-
   public final class LayoutAspectRatioKt {
     method public static androidx.ui.core.Modifier aspectRatio(androidx.ui.core.Modifier, @FloatRange(from=0.0, fromInclusive=false) float ratio);
   }

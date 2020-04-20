@@ -21,14 +21,6 @@ AcronymName: androidx.ui.layout.ConstraintSetBuilderScope#max-p2ctyXY(androidx.u
     Acronyms should not be capitalized in method names: was `max-p2ctyXY`, should this be `max-p2ctyXy`?
 AcronymName: androidx.ui.layout.ConstraintSetBuilderScope#min-p2ctyXY(androidx.ui.layout.ConstraintSetBuilderScope.Dimension.Coercible, float):
     Acronyms should not be capitalized in method names: was `min-p2ctyXY`, should this be `min-p2ctyXy`?
-AcronymName: androidx.ui.layout.LayoutAspectRatio#maxIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `maxIntrinsicHeightOf-hc1DRLk`, should this be `maxIntrinsicHeightOf-hc1DrLk`?
-AcronymName: androidx.ui.layout.LayoutAspectRatio#maxIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `maxIntrinsicWidthOf-hc1DRLk`, should this be `maxIntrinsicWidthOf-hc1DrLk`?
-AcronymName: androidx.ui.layout.LayoutAspectRatio#minIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `minIntrinsicHeightOf-hc1DRLk`, should this be `minIntrinsicHeightOf-hc1DrLk`?
-AcronymName: androidx.ui.layout.LayoutAspectRatio#minIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `minIntrinsicWidthOf-hc1DRLk`, should this be `minIntrinsicWidthOf-hc1DrLk`?
 AcronymName: androidx.ui.layout.LayoutHeight#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
     Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
 AcronymName: androidx.ui.layout.LayoutHeight.Constrain#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
