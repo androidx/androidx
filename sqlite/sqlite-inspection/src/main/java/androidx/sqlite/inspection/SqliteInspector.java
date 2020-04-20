@@ -135,9 +135,8 @@ final class SqliteInspector extends Inspector {
             + "where m.type in ('table', 'view')\n"
             + "order by type, tableName, ti.cid  -- cid = columnId";
 
-    // TODO: decide if to expose the 'android_metadata' table
-    private static final Set<String> sHiddenTables = new HashSet<>(Collections.singletonList(
-            "android_metadata"));
+    private static final Set<String> sHiddenTables = new HashSet<>(Arrays.asList(
+            "android_metadata", "sqlite_sequence"));
 
     private final DatabaseRegistry mDatabaseRegistry = new DatabaseRegistry();
     private final InspectorEnvironment mEnvironment;
