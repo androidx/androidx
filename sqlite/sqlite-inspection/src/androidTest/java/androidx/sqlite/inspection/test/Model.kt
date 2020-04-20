@@ -20,7 +20,12 @@ data class Database(val name: String?, val tables: List<Table>) {
     constructor(name: String?, vararg tables: Table) : this(name, tables.toList())
 }
 
-data class Table(val name: String, val columns: List<Column>) {
+data class Table(
+    val name: String,
+    val columns: List<Column>,
+    val isView: Boolean = false, // true for a view, false for a regular table
+    val viewQuery: String = "" // only relevant if isView = true
+) {
     constructor(name: String, vararg columns: Column) : this(name, columns.toList())
 }
 
