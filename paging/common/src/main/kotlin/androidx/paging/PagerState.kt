@@ -346,13 +346,14 @@ internal class DropInfo(val pageCount: Int, val placeholdersRemaining: Int)
  *  * [PagingSource.LoadResult.Error] returned from [PagingSource.load]
  *  * [RemoteMediator.MediatorResult.Error] returned from [RemoteMediator.load]
  */
-internal sealed class LoadError<Key : Any, Value : Any> {
+internal sealed class LoadError<Key : Any, Value : Any>(val loadType: LoadType) {
     internal class Hint<Key : Any, Value : Any>(
+        loadType: LoadType,
         val viewportHint: ViewportHint
-    ) : LoadError<Key, Value>()
+    ) : LoadError<Key, Value>(loadType)
 
     internal class Mediator<Key : Any, Value : Any>(
-        val loadType: LoadType,
+        loadType: LoadType,
         val state: PagingState<Key, Value>
-    ) : LoadError<Key, Value>()
+    ) : LoadError<Key, Value>(loadType)
 }

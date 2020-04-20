@@ -19,8 +19,6 @@ package androidx.paging
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
-import androidx.paging.PagingSource.LoadResult.Page
-import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.RemoteMediator.InitializeAction
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.MediatorResult
@@ -68,38 +66,9 @@ internal class PageFetcher<Key : Any, Value : Any>(
     val flow: Flow<PagingData<Value>> = channelFlow {
         refreshChannel.asFlow()
             .onStart {
-                val shouldLaunch = remoteMediatorAccessor?.onInitialize()
-                if (shouldLaunch == LAUNCH_INITIAL_REFRESH) {
-                    remoteMediatorAccessor?.load(
-                        scope = this@channelFlow,
-                        loadType = REFRESH,
-                        state = PagingState(
-                            pages = emptyList<Page<Key, Value>>(),
-                            anchorPosition = null,
-                            config = config,
-                            placeholdersStart = COUNT_UNDEFINED
-                        )
-                    )
-                }
-
-                emit(false)
+                emit(remoteMediatorAccessor?.onInitialize() == LAUNCH_INITIAL_REFRESH)
             }
             .scan(null) { previousGeneration: Pager<Key, Value>?, triggerRemoteRefresh ->
-                // Only trigger remote refresh on refresh signals that do not originate from
-                // initialization or PagingSource invalidation.
-                if (triggerRemoteRefresh) {
-                    remoteMediatorAccessor?.load(
-                        scope = this@channelFlow,
-                        loadType = REFRESH,
-                        state = PagingState(
-                            pages = emptyList<Page<Key, Value>>(),
-                            anchorPosition = null,
-                            config = config,
-                            placeholdersStart = COUNT_UNDEFINED
-                        )
-                    )
-                }
-
                 val pagingSource = pagingSourceFactory()
                 val initialKey = previousGeneration?.refreshKeyInfo()
                     ?.let { pagingSource.getRefreshKey(it) }
@@ -116,6 +85,9 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     pagingSource = pagingSource,
                     config = config,
                     retryFlow = retryChannel.asFlow(),
+                    // Only trigger remote refresh on refresh signals that do not originate from
+                    // initialization or PagingSource invalidation.
+                    triggerRemoteRefresh = triggerRemoteRefresh,
                     remoteMediatorAccessor = remoteMediatorAccessor,
                     invalidate = this@PageFetcher::refresh
                 )
