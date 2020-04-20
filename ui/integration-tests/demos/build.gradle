@@ -58,6 +58,9 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 21
+        // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
+        // part of CI.
+        archivesBaseName = "compose-demos-testapp"
     }
     /*
     Kotlin generates kotlin_module files based off the gradle *sub*module name, ignoring the
