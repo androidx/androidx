@@ -278,7 +278,8 @@ final class CameraXModule {
         mImageCapture.takePicture(executor, callback);
     }
 
-    public void takePicture(File saveLocation, Executor executor, OnImageSavedCallback callback) {
+    public void takePicture(@NonNull ImageCapture.OutputFileOptions outputFileOptions,
+            @NonNull Executor executor, OnImageSavedCallback callback) {
         if (mImageCapture == null) {
             return;
         }
@@ -294,9 +295,6 @@ final class CameraXModule {
         ImageCapture.Metadata metadata = new ImageCapture.Metadata();
         metadata.setReversedHorizontal(
                 mCameraLensFacing != null && mCameraLensFacing == CameraSelector.LENS_FACING_FRONT);
-        ImageCapture.OutputFileOptions outputFileOptions =
-                new ImageCapture.OutputFileOptions.Builder(saveLocation).setMetadata(
-                        metadata).build();
         mImageCapture.takePicture(outputFileOptions, executor, callback);
     }
 
