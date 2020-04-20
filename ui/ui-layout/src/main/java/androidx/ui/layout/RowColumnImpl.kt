@@ -25,6 +25,7 @@ import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.Measurable
 import androidx.ui.core.Measured
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
@@ -56,6 +57,10 @@ internal fun RowColumnImpl(
         if (orientation == LayoutOrientation.Horizontal) width else height
     fun Placeable.crossAxisSize() =
         if (orientation == LayoutOrientation.Horizontal) height else width
+    fun Measurable.alignmentLineProvider() =
+        (this.crossAxisAlignment as? CrossAxisAlignment)
+            ?.alignmentLineProvider
+            ?: (crossAxisAlignment as? CrossAxisAlignment)?.alignmentLineProvider
 
     Layout(
         children,
@@ -78,8 +83,8 @@ internal fun RowColumnImpl(
         var totalWeight = 0f
         var fixedSpace = IntPx.Zero
         var crossAxisSpace = IntPx.Zero
-        var beforeCrossAxisAlignmentLine = IntPx.Zero
-        var afterCrossAxisAlignmentLine = IntPx.Zero
+
+        var anyAlignWithSiblings = false
 
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure children with zero weight.
@@ -100,27 +105,7 @@ internal fun RowColumnImpl(
                 )
                 fixedSpace += placeable.mainAxisSize()
                 crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
-
-                val lineProvider =
-                    (measurables[i].crossAxisAlignment as? CrossAxisAlignment)
-                        ?.alignmentLineProvider
-                        ?: (crossAxisAlignment as? CrossAxisAlignment)?.alignmentLineProvider
-                if (lineProvider != null) {
-                    val alignmentLinePosition = when (lineProvider) {
-                        is AlignmentLineProvider.Block ->
-                            lineProvider.lineProviderBlock(Measured(placeable))
-                        is AlignmentLineProvider.Value -> placeable[lineProvider.line]
-                    }
-                    beforeCrossAxisAlignmentLine = max(
-                        beforeCrossAxisAlignmentLine,
-                        alignmentLinePosition ?: 0.ipx
-                    )
-                    afterCrossAxisAlignmentLine = max(
-                        afterCrossAxisAlignmentLine,
-                        placeable.crossAxisSize() -
-                                (alignmentLinePosition ?: placeable.crossAxisSize())
-                    )
-                }
+                anyAlignWithSiblings = anyAlignWithSiblings || child.alignmentLineProvider() != null
                 placeables[i] = placeable
             }
         }
@@ -168,7 +153,33 @@ internal fun RowColumnImpl(
                 )
                 weightedSpace += placeable.mainAxisSize()
                 crossAxisSpace = max(crossAxisSpace, placeable.crossAxisSize())
+                anyAlignWithSiblings = anyAlignWithSiblings || child.alignmentLineProvider() != null
                 placeables[i] = placeable
+            }
+        }
+
+        var beforeCrossAxisAlignmentLine = IntPx.Zero
+        var afterCrossAxisAlignmentLine = IntPx.Zero
+        if (anyAlignWithSiblings) {
+            for (i in 0 until placeables.size) {
+                val placeable = placeables[i]!!
+                val lineProvider = measurables[i].alignmentLineProvider()
+                if (lineProvider != null) {
+                    val alignmentLinePosition = when (lineProvider) {
+                        is AlignmentLineProvider.Block ->
+                            lineProvider.lineProviderBlock(Measured(placeable))
+                        is AlignmentLineProvider.Value -> placeable[lineProvider.line]
+                    }
+                    beforeCrossAxisAlignmentLine = max(
+                        beforeCrossAxisAlignmentLine,
+                        alignmentLinePosition ?: 0.ipx
+                    )
+                    afterCrossAxisAlignmentLine = max(
+                        afterCrossAxisAlignmentLine,
+                        placeable.crossAxisSize() -
+                                (alignmentLinePosition ?: placeable.crossAxisSize())
+                    )
+                }
             }
         }
 
