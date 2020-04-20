@@ -182,7 +182,7 @@ package androidx.fragment.app {
     method public void setExitSharedElementCallback(androidx.core.app.SharedElementCallback?);
     method public void startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int);
     method public void startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int, android.os.Bundle?);
-    method public void startIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void startIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
     method public void supportFinishAfterTransition();
     method @Deprecated public void supportInvalidateOptionsMenu();
     method public void supportPostponeEnterTransition();
@@ -263,12 +263,12 @@ package androidx.fragment.app {
     method public int onGetWindowAnimations();
     method public boolean onHasView();
     method public boolean onHasWindowAnimations();
-    method public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment, String![], int);
+    method @Deprecated public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment, String![], int);
     method public boolean onShouldSaveFragmentState(androidx.fragment.app.Fragment);
     method public boolean onShouldShowRequestPermissionRationale(String);
     method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int);
     method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int, android.os.Bundle?);
-    method public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
     method public void onSupportInvalidateOptionsMenu();
   }
 
