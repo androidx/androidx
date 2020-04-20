@@ -34,8 +34,10 @@ fun SideBySideAlertDialogSample() {
     if (openDialog.value) {
         AlertDialog(
             onCloseRequest = {
-                // Because we are not setting openDialog.value to false here,
-                // the user can close this dialog only via one of the buttons we provide.
+                // Dismiss the dialog when the user clicks outside the dialog or on the back
+                // button. If you want to disable that functionality, simply use an empty
+                // onCloseRequest.
+                openDialog.value = false
             },
             title = {
                 Text(text = "Title")
