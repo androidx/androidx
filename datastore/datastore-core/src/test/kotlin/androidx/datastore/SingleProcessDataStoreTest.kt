@@ -41,8 +41,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
 import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -516,29 +514,5 @@ class SingleProcessDataStoreTest {
             scope = scope,
             initTasksList = initTasksList
         )
-    }
-
-    private class TestingSerializer(
-        override val defaultValue: Byte = 0,
-        @Volatile var failingRead: Boolean = false,
-        @Volatile var failingWrite: Boolean = false
-    ) : DataStore.Serializer<Byte> {
-        override fun readFrom(input: InputStream): Byte {
-            if (failingRead) {
-                throw IOException("I was asked to fail on reads")
-            }
-            val read = input.read()
-            if (read == -1) {
-                return defaultValue
-            }
-            return read.toByte()
-        }
-
-        override fun writeTo(t: Byte, output: OutputStream) {
-            if (failingWrite) {
-                throw IOException("I was asked to fail on writes")
-            }
-            output.write(t.toInt())
-        }
     }
 }

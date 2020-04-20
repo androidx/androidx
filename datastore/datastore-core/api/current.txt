@@ -1,6 +1,12 @@
 // Signature format: 3.0
 package androidx.datastore {
 
+  public interface DataMigration<T> {
+    method public suspend Object? cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public suspend Object? migrate(T? currentData, kotlin.coroutines.Continuation<? super T> p);
+    method public suspend Object? shouldMigrate(kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
+  }
+
   public interface DataStore<T> {
     method public kotlinx.coroutines.flow.Flow<T> getDataFlow();
     method public suspend Object? updateData(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> transform, kotlin.coroutines.Continuation<? super T> p);
