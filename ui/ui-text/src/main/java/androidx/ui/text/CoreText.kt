@@ -31,6 +31,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
+import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
@@ -128,24 +129,14 @@ fun CoreText(
         }.onPositioned {
             // Get the layout coordinates of the text composable. This is for hit test of
             // cross-composable selection.
-            val oldLayoutCoordinates = state.layoutCoordinates
             state.layoutCoordinates = it
 
-            if ((oldLayoutCoordinates == null || !oldLayoutCoordinates.isAttached) &&
-                it.isAttached
-            ) {
-                selectionRegistrar?.onPositionChange()
-            }
-
-            if (oldLayoutCoordinates != null && oldLayoutCoordinates.isAttached &&
-                it.isAttached
-            ) {
-                if (
-                    oldLayoutCoordinates.localToGlobal(PxPosition.Origin) !=
-                    it.localToGlobal(PxPosition.Origin)
-                ) {
-                    selectionRegistrar?.onPositionChange()
+            if (selectionRegistrar != null) {
+                val newGlobalPosition = it.globalPosition
+                if (newGlobalPosition != state.previousGlobalPosition) {
+                    selectionRegistrar.onPositionChange()
                 }
+                state.previousGlobalPosition = newGlobalPosition
             }
         },
         minIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
@@ -255,6 +246,8 @@ private class TextState(
     var layoutCoordinates: LayoutCoordinates? = null
     /** The latest TextLayoutResult calculated in the measure block */
     var layoutResult: TextLayoutResult? = null
+    /** The global position calculated during the last onPositioned callback */
+    var previousGlobalPosition: PxPosition = PxPosition.Origin
 }
 
 /**
