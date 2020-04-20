@@ -16,11 +16,7 @@
 
 package androidx.ui.test.predicates
 
-import androidx.compose.Composable
 import androidx.test.filters.MediumTest
-import androidx.ui.layout.Column
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
@@ -29,6 +25,7 @@ import androidx.ui.test.findAll
 import androidx.ui.test.hasAnySiblingThat
 import androidx.ui.test.hasParentThat
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -159,24 +156,5 @@ class HasAnySiblingTest {
 
         find(hasParentThat(hasAnySiblingThat(hasTestTag("ParentSibling"))))
             .assert(hasTestTag("Me"))
-    }
-
-    @Composable
-    fun BoundaryNode(
-        testTag: String,
-        children: @Composable() () -> Unit
-    ) {
-        Semantics(container = true, properties = { this.testTag = testTag }) {
-            Column { children() }
-        }
-    }
-
-    @Composable
-    fun BoundaryNode(
-        testTag: String
-    ) {
-        Semantics(container = true, properties = { this.testTag = testTag }) {
-            Column {}
-        }
     }
 }

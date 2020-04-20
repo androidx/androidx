@@ -212,6 +212,15 @@ package androidx.ui.test {
     method public static String dumpToString(java.util.Collection<androidx.ui.test.SemanticsNodeInteraction>);
   }
 
+  public final class SelectorsKt {
+    method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> ancestors(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction child(androidx.ui.test.SemanticsNodeInteraction);
+    method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> children(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction parent(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction sibling(androidx.ui.test.SemanticsNodeInteraction);
+    method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> siblings(androidx.ui.test.SemanticsNodeInteraction);
+  }
+
   public final class SemanticsMatcher {
     ctor public SemanticsMatcher(String description, kotlin.jvm.functions.Function1<? super java.lang.Iterable<androidx.ui.core.semantics.SemanticsNode>,? extends java.lang.Iterable<androidx.ui.core.semantics.SemanticsNode>> selector);
     method public infix androidx.ui.test.SemanticsMatcher and(androidx.ui.test.SemanticsMatcher other);
@@ -231,6 +240,9 @@ package androidx.ui.test {
     method public <T> androidx.ui.test.SemanticsMatcher keyIsDefined(androidx.ui.semantics.SemanticsPropertyKey<T> key);
     method public <T> androidx.ui.test.SemanticsMatcher keyNotDefined(androidx.ui.semantics.SemanticsPropertyKey<T> key);
     property public final androidx.ui.test.SemanticsMatcher any;
+  }
+
+  public final class SemanticsMatcherKt {
   }
 
   public final class SemanticsNodeInteraction {

@@ -28,8 +28,8 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.SemanticsActions
-import androidx.ui.test.util.obfuscateNodesInfo
-import com.google.common.truth.Truth.assertThat
+import androidx.ui.test.util.expectErrorMessage
+import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -339,29 +339,5 @@ class ErrorMessagesTest {
                 }
             }
         }
-    }
-
-    private fun expectErrorMessage(expectedErrorMessage: String, block: () -> Unit) {
-        try {
-            block()
-        } catch (e: AssertionError) {
-            val received = obfuscateNodesInfo(e.localizedMessage!!)
-            assertThat(received).isEqualTo(expectedErrorMessage.trim())
-            return
-        }
-
-        throw AssertionError("No AssertionError thrown!")
-    }
-
-    private fun expectErrorMessageStartsWith(expectedErrorMessage: String, block: () -> Unit) {
-        try {
-            block()
-        } catch (e: AssertionError) {
-            val received = obfuscateNodesInfo(e.localizedMessage!!)
-            assertThat(received).startsWith(expectedErrorMessage.trim())
-            return
-        }
-
-        throw AssertionError("No AssertionError thrown!")
     }
 }
