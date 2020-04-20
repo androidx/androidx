@@ -21,16 +21,19 @@ import androidx.ui.util.lerp
 /**
  * The thickness of the glyphs, in a range of [1, 1000].
  *
+ * @param weight Font weight value in the range of [1, 1000]
+ *
  * @see Font
  * @see FontFamily
  */
 @Immutable
-/* inline */ data class FontWeight private constructor(
-    /**
-     * Can be in the range of [1,1000]
-     */
-    internal val weight: Int
-) : Comparable<FontWeight> {
+/* inline */ class FontWeight(val weight: Int) : Comparable<FontWeight> {
+
+    init {
+        require(weight in 1..1000) {
+            "Font weight can be in range [1, 1000]. Current value: $weight"
+        }
+    }
 
     companion object {
         /** [Thin] */
@@ -94,18 +97,7 @@ import androidx.ui.util.lerp
     }
 
     override fun toString(): String {
-        return when (index) {
-            0 -> "FontWeight.W100"
-            1 -> "FontWeight.W200"
-            2 -> "FontWeight.W300"
-            3 -> "FontWeight.W400"
-            4 -> "FontWeight.W500"
-            5 -> "FontWeight.W600"
-            6 -> "FontWeight.W700"
-            7 -> "FontWeight.W800"
-            8 -> "FontWeight.W900"
-            else -> "FontWeight Unknown"
-        }
+        return "FontWeight.$weight"
     }
 }
 
