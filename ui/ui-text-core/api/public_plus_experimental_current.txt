@@ -733,8 +733,9 @@ package androidx.ui.text.font {
   }
 
   public final class FontWeight implements java.lang.Comparable<androidx.ui.text.font.FontWeight> {
+    ctor public FontWeight(int weight);
     method public int compareTo(androidx.ui.text.font.FontWeight other);
-    method public androidx.ui.text.font.FontWeight copy(int weight);
+    method public int getWeight();
     field public static final androidx.ui.text.font.FontWeight.Companion! Companion;
   }
 

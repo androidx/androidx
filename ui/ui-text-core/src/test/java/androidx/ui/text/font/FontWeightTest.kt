@@ -23,6 +23,26 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class FontWeightTest {
     @Test
+    fun `constructor accept 1000`() {
+        assertThat(FontWeight(1000).weight).isEqualTo(1000)
+    }
+
+    @Test
+    fun `constructor accept 1`() {
+        assertThat(FontWeight(1).weight).isEqualTo(1)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `constructor does not accept greater than 1000`() {
+        FontWeight(1001)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `constructor does not accept less than 1`() {
+        FontWeight(0)
+    }
+
+    @Test
     fun `lerp at start returns start value`() {
         assertThat(
             lerp(
@@ -68,8 +88,8 @@ class FontWeightTest {
 
     @Test
     fun `toString return FontsWeight`() {
-        assertThat(FontWeight.W100.toString()).isEqualTo("FontWeight.W100")
-        assertThat(FontWeight.W900.toString()).isEqualTo("FontWeight.W900")
+        assertThat(FontWeight.W100.toString()).isEqualTo("FontWeight.100")
+        assertThat(FontWeight.W900.toString()).isEqualTo("FontWeight.900")
     }
 
     @Test
