@@ -180,6 +180,10 @@
             android:theme="@style/Theme.AppCompat.DayNight" />
 
         <activity
+            android:name="androidx.appcompat.app.NightModeLocalBeforeAttachBaseActivity"
+            android:theme="@style/Theme.AppCompat.DayNight" />
+
+        <activity
             android:name="androidx.appcompat.app.AppCompatVectorDrawableIntegrationActivity"/>
 
         <activity

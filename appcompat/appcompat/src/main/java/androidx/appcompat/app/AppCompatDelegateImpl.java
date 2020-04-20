@@ -2394,7 +2394,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
         if (mLocalNightMode != mode) {
             mLocalNightMode = mode;
-            applyDayNight();
+            if (mBaseContextAttached) {
+                // If we the base context is attached, we call through to apply the new value.
+                // Otherwise we just wait for attachBaseContext/onCreate
+                applyDayNight();
+            }
         }
     }
 
