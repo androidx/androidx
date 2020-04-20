@@ -96,6 +96,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
                 madeVisible[0]);
     }
 
+    @UiThreadTest
     @Test
     public void testActionBarShowHideNoOverflowVisibilityListener() {
         ActionBar actionBar = mActivityTestRule.getActivity().getSupportActionBar();
