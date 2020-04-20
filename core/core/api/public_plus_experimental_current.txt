@@ -1460,6 +1460,10 @@ package androidx.core.os {
     method @Deprecated public T![]! newArray(int);
   }
 
+  public final class ProcessCompat {
+    method public static boolean isApplicationUid(int);
+  }
+
   @Deprecated public final class TraceCompat {
     method @Deprecated public static void beginAsyncSection(String, int);
     method @Deprecated public static void beginSection(String);
