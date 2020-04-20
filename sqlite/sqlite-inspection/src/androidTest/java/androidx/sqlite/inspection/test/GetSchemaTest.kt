@@ -126,6 +126,26 @@ class GetSchemaTest {
     }
 
     @Test
+    fun test_get_schema_views() {
+        val c1 = Column("c1", "INT")
+        val c2 = Column("c2", "INT")
+        val c3 = Column("c3", "INT")
+        test_get_schema(
+            listOf(
+                Database(
+                    "db1",
+                    Table("t1", c1, c2),
+                    Table("t2", c1, c2, c3),
+                    Table(
+                        "v1", listOf(c1, c2), isView = true,
+                        viewQuery = "select t1.c1, t2.c2 from t1 inner join t2 on t1.c1 = t2.c2"
+                    )
+                )
+            )
+        )
+    }
+
+    @Test
     fun test_get_schema_wrong_database_id() = runBlocking {
         val databaseId = 123456789
         testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).let { response ->
@@ -168,6 +188,7 @@ class GetSchemaTest {
                     .zipSameSize(actualTables)
                     .forEach { (expectedTable, actualTable) ->
                         assertThat(actualTable.name).isEqualTo(expectedTable.name)
+                        assertThat(actualTable.isView).isEqualTo(expectedTable.isView)
 
                         val expectedColumns = expectedTable.columns.sortedBy { it.name }
                         val actualColumns = actualTable.columnsList.sortedBy { it.name }

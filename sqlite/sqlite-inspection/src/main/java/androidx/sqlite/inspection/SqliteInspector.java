@@ -132,7 +132,7 @@ final class SqliteInspector extends Inspector {
             + "  )\n"
             + "    as tci  -- tableName|columnName|unique : unique=1 and countOfColumnsInIndex=1\n"
             + "  on tci.tableName = m.name and tci.columnName = ti.name\n"
-            + "where m.type in ('table')\n"
+            + "where m.type in ('table', 'view')\n"
             + "order by type, tableName, ti.cid  -- cid = columnId";
 
     // TODO: decide if to expose the 'android_metadata' table
@@ -474,6 +474,7 @@ final class SqliteInspector extends Inspector {
             cursor = rawQuery(database, sQueryTableInfo, new String[0], null);
             GetSchemaResponse.Builder schemaBuilder = GetSchemaResponse.newBuilder();
 
+            int objectTypeIx = cursor.getColumnIndex("type"); // view or table
             int tableNameIx = cursor.getColumnIndex("tableName");
             int columnNameIx = cursor.getColumnIndex("columnName");
             int typeIx = cursor.getColumnIndex("columnType");
@@ -497,6 +498,7 @@ final class SqliteInspector extends Inspector {
                     }
                     tableBuilder = Table.newBuilder();
                     tableBuilder.setName(tableName);
+                    tableBuilder.setIsView("view".equalsIgnoreCase(cursor.getString(objectTypeIx)));
                 }
 
                 // append column information to the current table info
