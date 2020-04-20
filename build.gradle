@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXPlugin
+import androidx.build.AndroidXRootPlugin
 import androidx.build.SdkHelperKt
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -46,4 +46,4 @@ apply from: "buildSrc/dependencies.gradle"
 apply from: "buildSrc/out.gradle"
 init.chooseOutDir()
 
-apply plugin: AndroidXPlugin
+apply plugin: AndroidXRootPlugin
