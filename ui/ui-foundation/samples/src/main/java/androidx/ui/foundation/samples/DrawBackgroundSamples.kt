@@ -21,10 +21,10 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CutCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.HorizontalGradient
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.padding
 import androidx.ui.unit.dp
 import androidx.ui.unit.px

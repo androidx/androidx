@@ -458,6 +458,10 @@ package androidx.ui.graphics {
     method public androidx.ui.graphics.RadialGradient copy(java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? stops, float centerX, float centerY, float radius, androidx.ui.graphics.TileMode tileMode);
   }
 
+  public final class RectangleShapeKt {
+    method public static androidx.ui.graphics.Shape getRectangleShape();
+  }
+
   public final inline class Shader {
     ctor public Shader();
     method public static android.graphics.Shader! constructor-impl(android.graphics.Shader nativeShader);

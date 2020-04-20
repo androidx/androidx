@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.ui.framework.samples
+package androidx.ui.graphics
 
-import androidx.annotation.Sampled
-import androidx.compose.Composable
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawShadow
-import androidx.ui.foundation.Box
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.layout.preferredSize
-import androidx.ui.unit.dp
+import androidx.ui.unit.Density
+import androidx.ui.unit.PxSize
+import androidx.ui.unit.toRect
 
-@Sampled
-@Composable
-fun DrawShadowSample() {
-    Box(
-        Modifier.drawShadow(RectangleShape, 12.dp, true, 1f)
-            .preferredSize(100.dp, 100.dp)
-    )
+/**
+ * A shape describing the rectangle.
+ */
+val RectangleShape: Shape = object : Shape {
+    override fun createOutline(size: PxSize, density: Density) =
+        Outline.Rectangle(size.toRect())
 }

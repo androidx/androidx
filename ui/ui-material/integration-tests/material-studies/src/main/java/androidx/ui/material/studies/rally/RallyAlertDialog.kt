@@ -19,7 +19,7 @@ package androidx.ui.material.studies.rally
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.fillMaxWidth

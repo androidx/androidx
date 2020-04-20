@@ -21,7 +21,6 @@ import androidx.compose.remember
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.isSimple
@@ -34,6 +33,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.addOutline
