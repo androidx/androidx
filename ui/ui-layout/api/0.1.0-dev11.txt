@@ -366,40 +366,6 @@ package androidx.ui.layout {
     enum_constant public static final androidx.ui.layout.IntrinsicSize Min;
   }
 
-  public final class LayoutAlign {
-    method @Deprecated public androidx.ui.core.LayoutModifier getBottom();
-    method @Deprecated public androidx.ui.core.LayoutModifier getBottomCenter();
-    method @Deprecated public androidx.ui.core.LayoutModifier getBottomEnd();
-    method @Deprecated public androidx.ui.core.LayoutModifier getBottomStart();
-    method @Deprecated public androidx.ui.core.LayoutModifier getCenter();
-    method @Deprecated public androidx.ui.core.LayoutModifier getCenterEnd();
-    method @Deprecated public androidx.ui.core.LayoutModifier getCenterHorizontally();
-    method @Deprecated public androidx.ui.core.LayoutModifier getCenterStart();
-    method @Deprecated public androidx.ui.core.LayoutModifier getCenterVertically();
-    method @Deprecated public androidx.ui.core.LayoutModifier getEnd();
-    method @Deprecated public androidx.ui.core.LayoutModifier getStart();
-    method @Deprecated public androidx.ui.core.LayoutModifier getTop();
-    method @Deprecated public androidx.ui.core.LayoutModifier getTopCenter();
-    method @Deprecated public androidx.ui.core.LayoutModifier getTopEnd();
-    method @Deprecated public androidx.ui.core.LayoutModifier getTopStart();
-    property @Deprecated public final androidx.ui.core.LayoutModifier Bottom;
-    property @Deprecated public final androidx.ui.core.LayoutModifier BottomCenter;
-    property @Deprecated public final androidx.ui.core.LayoutModifier BottomEnd;
-    property @Deprecated public final androidx.ui.core.LayoutModifier BottomStart;
-    property @Deprecated public final androidx.ui.core.LayoutModifier Center;
-    property @Deprecated public final androidx.ui.core.LayoutModifier CenterEnd;
-    property @Deprecated public final androidx.ui.core.LayoutModifier CenterHorizontally;
-    property @Deprecated public final androidx.ui.core.LayoutModifier CenterStart;
-    property @Deprecated public final androidx.ui.core.LayoutModifier CenterVertically;
-    property @Deprecated public final androidx.ui.core.LayoutModifier End;
-    property @Deprecated public final androidx.ui.core.LayoutModifier Start;
-    property @Deprecated public final androidx.ui.core.LayoutModifier Top;
-    property @Deprecated public final androidx.ui.core.LayoutModifier TopCenter;
-    property @Deprecated public final androidx.ui.core.LayoutModifier TopEnd;
-    property @Deprecated public final androidx.ui.core.LayoutModifier TopStart;
-    field public static final androidx.ui.layout.LayoutAlign! INSTANCE;
-  }
-
   public final class LayoutAspectRatio implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutAspectRatio(@FloatRange(from=null, fromInclusive=null) float aspectRatio);
     method public float component1();
@@ -419,10 +385,6 @@ package androidx.ui.layout {
   public final class LayoutDirectionsKt {
     method public static androidx.ui.core.Modifier getLtr(androidx.ui.core.Modifier);
     method public static androidx.ui.core.Modifier getRtl(androidx.ui.core.Modifier);
-  }
-
-  public final class LayoutGravity {
-    field public static final androidx.ui.layout.LayoutGravity! INSTANCE;
   }
 
   public final class LayoutHeight implements androidx.ui.core.LayoutModifier {
@@ -638,10 +600,8 @@ package androidx.ui.layout {
     method public static androidx.ui.core.Modifier sizeIn-AwkAAmk(androidx.ui.core.Modifier, float minWidth = Dp.Unspecified, float minHeight = Dp.Unspecified, float maxWidth = Dp.Unspecified, float maxHeight = Dp.Unspecified);
     method public static androidx.ui.core.Modifier width-H3qe284(androidx.ui.core.Modifier, float width);
     method public static androidx.ui.core.Modifier widthIn-qJOR85M(androidx.ui.core.Modifier, float minWidth = Dp.Unspecified, float maxWidth = Dp.Unspecified);
-    method @Deprecated public static androidx.ui.core.Modifier wrapContentHeight(androidx.ui.core.Modifier, androidx.ui.core.Alignment align = Alignment.Center);
     method public static androidx.ui.core.Modifier wrapContentHeight(androidx.ui.core.Modifier, androidx.ui.core.Alignment.Vertical align = Alignment.CenterVertically);
     method public static androidx.ui.core.Modifier wrapContentSize(androidx.ui.core.Modifier, androidx.ui.core.Alignment align = Alignment.Center);
-    method @Deprecated public static androidx.ui.core.Modifier wrapContentWidth(androidx.ui.core.Modifier, androidx.ui.core.Alignment align = Alignment.Center);
     method public static androidx.ui.core.Modifier wrapContentWidth(androidx.ui.core.Modifier, androidx.ui.core.Alignment.Horizontal align = Alignment.CenterHorizontally);
   }
 

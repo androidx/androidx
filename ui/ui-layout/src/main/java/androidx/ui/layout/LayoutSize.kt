@@ -23,7 +23,9 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.LayoutModifier2
 import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.enforce
 import androidx.ui.core.hasBoundedHeight
@@ -31,6 +33,8 @@ import androidx.ui.core.hasBoundedWidth
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
@@ -302,66 +306,37 @@ fun Modifier.fillMaxSize() = this + LayoutSize.Fill
  * Allow the content to measure at its desired width without regard for the incoming measurement
  * [minimum width constraint][Constraints.minWidth]. If the content's measured size is smaller
  * than the minimum width constraint, [align] it within that minimum width space.
- */
-@Deprecated("wrapContentWidth(Alignment) is deprecated. " +
-        "Please use wrapContentWidth(Alignment.Horizontal) instead.")
-fun Modifier.wrapContentWidth(align: Alignment = Alignment.Center) = this + when (align) {
-    Alignment.TopStart, Alignment.CenterStart, Alignment.BottomStart -> LayoutAlign.Start
-    Alignment.TopCenter, Alignment.Center, Alignment.BottomCenter -> LayoutAlign.CenterHorizontally
-    Alignment.TopEnd, Alignment.CenterEnd, Alignment.BottomEnd -> LayoutAlign.End
-    else -> error("Unexpected alignment")
-}
-
-/**
- * Allow the content to measure at its desired width without regard for the incoming measurement
- * [minimum width constraint][Constraints.minWidth]. If the content's measured size is smaller
- * than the minimum width constraint, [align] it within that minimum width space.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleWrapContentHorizontallyAlignedModifier
  */
 // TODO(popam): avoid recreating modifier for common align
 fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) =
-    this + AlignmentModifier(Alignment(-1f, align.bias), Direction.Horizontal)
+    this + AlignmentModifier(Alignment(-1f, align.bias), AlignmentModifier.Direction.Horizontal)
 
 /**
  * Allow the content to measure at its desired height without regard for the incoming measurement
  * [minimum height constraint][Constraints.minHeight]. If the content's measured size is smaller
  * than the minimum height constraint, [align] it within that minimum height space.
- */
-@Deprecated("wrapContentWidth(Alignment) is deprecated. " +
-        "Please use wrapContentWidth(Alignment.Horizontal) instead.")
-fun Modifier.wrapContentHeight(align: Alignment = Alignment.Center) = this + when (align) {
-        Alignment.TopStart, Alignment.TopCenter, Alignment.TopEnd -> LayoutAlign.Top
-        Alignment.CenterStart, Alignment.Center, Alignment.CenterEnd -> LayoutAlign.CenterVertically
-        Alignment.BottomStart, Alignment.BottomCenter, Alignment.BottomEnd -> LayoutAlign.Bottom
-        else -> error("Unexpected alignment")
-    }
-
-/**
- * Allow the content to measure at its desired height without regard for the incoming measurement
- * [minimum height constraint][Constraints.minHeight]. If the content's measured size is smaller
- * than the minimum height constraint, [align] it within that minimum height space.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleWrapContentVerticallyAlignedModifier
  */
 // TODO(popam): avoid recreating modifier for common align
 fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVertically) =
-    this + AlignmentModifier(Alignment(align.bias, -1f), Direction.Vertical)
+    this + AlignmentModifier(Alignment(align.bias, -1f), AlignmentModifier.Direction.Vertical)
 
 /**
  * Allow the content to measure at its desired size without regard for the incoming measurement
  * [minimum width][Constraints.minWidth] or [minimum height][Constraints.minHeight] constraints.
  * If the content's measured size is smaller than the minimum size constraint, [align] it
  * within that minimum sized space.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.SimpleWrapContentAlignedModifier
  */
-fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) = this + when (align) {
-    Alignment.TopStart -> LayoutAlign.TopStart
-    Alignment.TopCenter -> LayoutAlign.TopCenter
-    Alignment.TopEnd -> LayoutAlign.TopEnd
-    Alignment.CenterStart -> LayoutAlign.CenterStart
-    Alignment.Center -> LayoutAlign.Center
-    Alignment.CenterEnd -> LayoutAlign.CenterEnd
-    Alignment.BottomStart -> LayoutAlign.BottomStart
-    Alignment.BottomCenter -> LayoutAlign.BottomCenter
-    Alignment.BottomEnd -> LayoutAlign.BottomEnd
-    else -> error("Unexpected alignment")
-}
+fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
+    this + AlignmentModifier(align, AlignmentModifier.Direction.Both)
 
 private data class SizeModifier(
     private val minWidth: Dp = Dp.Unspecified,
@@ -978,5 +953,39 @@ constructor(val width: Dp, val height: Dp)
                 )
                 else -> constraints
             }
+    }
+}
+
+private data class AlignmentModifier(
+    private val alignment: Alignment,
+    private val direction: Direction
+) : LayoutModifier2 {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): MeasureScope.MeasureResult {
+        val wrappedConstraints = when (direction) {
+            Direction.Both -> constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+            Direction.Horizontal -> constraints.copy(minWidth = 0.ipx)
+            Direction.Vertical -> constraints.copy(minHeight = 0.ipx)
+        }
+        val placeable = measurable.measure(wrappedConstraints)
+        val wrapperWidth = max(constraints.minWidth, placeable.width)
+        val wrapperHeight = max(constraints.minHeight, placeable.height)
+        return layout(
+            wrapperWidth,
+            wrapperHeight
+        ) {
+            val position = alignment.align(
+                IntPxSize(wrapperWidth - placeable.width, wrapperHeight - placeable.height),
+                layoutDirection
+            )
+            placeable.placeAbsolute(position)
+        }
+    }
+
+    internal enum class Direction {
+        Vertical, Horizontal, Both
     }
 }
