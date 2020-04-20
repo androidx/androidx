@@ -37,6 +37,11 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
     internal val selectables: List<Selectable>
         get() = _selectables
 
+    /**
+     * The callback to be invoked when the position change was triggered.
+     */
+    internal var onPositionChangeCallback: (() -> Unit)? = null
+
     override fun subscribe(selectable: Selectable): Selectable {
         _selectables.add(selectable)
         sorted = false
@@ -84,5 +89,6 @@ internal class SelectionRegistrarImpl : SelectionRegistrar {
         // Set the variable sorted to be false, when the global position of a registered
         // selectable changes.
         sorted = false
+        onPositionChangeCallback?.invoke()
     }
 }
