@@ -14,59 +14,37 @@
  * limitations under the License.
  */
 
-@file:Suppress("Deprecation")
-
 package androidx.ui.layout
 
+import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier
+import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
-import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.dp
 
 /**
- * Offset the content by ([x]dp, [y]dp).
+ * Offset the content by ([x]dp, [y]dp). The offsets can be positive as well as non positive.
  *
  * Example usage:
  * @sample androidx.ui.layout.samples.LayoutOffsetModifier
  */
-fun Modifier.offset(x: Dp, y: Dp) = this + LayoutOffset(x = x, y = y)
+fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this + OffsetModifier(x, y)
 
-/**
- * A [LayoutModifier] that offsets the position of the wrapped layout with the given
- * horizontal and vertical offsets. The offsets can be positive as well as non positive.
- * If the position of the wrapped layout on screen is (posx, posy) and the offsets are [x] and [y],
- * by applying this modifier the position will become (posx + x, posy + y) if the current
- * layout direction is LTR, or (posx - x, posy + y) otherwise.
- * The [LayoutOffset] modifier should always be used instead of [LayoutPadding] whenever only the
- * position of the wrapped layout should be modified, since using [LayoutPadding] will also affect
- * the size of the wrapped layout. Also note that [LayoutPadding] cannot be used with negative
- * padding in order to achieve negative offsets.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.LayoutOffsetModifier
- *
- * @param x The horizontal offset added to the position of the wrapped layout
- * @param y The vertical offset added to the position of the wrapped layout
- */
-data class LayoutOffset
-@Deprecated(
-    "Use Modifier.offset",
-    replaceWith = ReplaceWith(
-        "Modifier.offset(x, y)",
-        "androidx.ui.core.Modifier",
-        "androidx.ui.layout.offset"
-    )
-)
-constructor(val x: Dp, val y: Dp) : LayoutModifier {
-    override fun Density.modifyPosition(
-        childSize: IntPxSize,
-        containerSize: IntPxSize,
+private data class OffsetModifier(val x: Dp, val y: Dp) : LayoutModifier2 {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
         layoutDirection: LayoutDirection
-    ) = IntPxPosition(
-        (if (layoutDirection == LayoutDirection.Ltr) x else -x).toIntPx(),
-        y.toIntPx()
-    )
+    ): MeasureScope.MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) {
+            placeable.placeAbsolute(
+                (if (layoutDirection == LayoutDirection.Ltr) x else -x).toIntPx(),
+                y.toIntPx()
+            )
+        }
+    }
 }

@@ -430,17 +430,8 @@ package androidx.ui.layout {
     method public androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
   }
 
-  public final class LayoutOffset implements androidx.ui.core.LayoutModifier {
-    method public float component1();
-    method public float component2();
-    method public androidx.ui.layout.LayoutOffset copy-98Cn76g(float x, float y);
-    method public float getX();
-    method public float getY();
-    method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
-  }
-
   public final class LayoutOffsetKt {
-    method public static androidx.ui.core.Modifier offset-qJOR85M(androidx.ui.core.Modifier, float x, float y);
+    method public static androidx.ui.core.Modifier offset-qJOR85M(androidx.ui.core.Modifier, float x = 0.dp, float y = 0.dp);
   }
 
   public final class LayoutPaddingKt {
