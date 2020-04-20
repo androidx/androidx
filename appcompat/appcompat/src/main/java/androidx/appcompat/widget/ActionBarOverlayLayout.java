@@ -357,8 +357,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
         // Cannot use the result of computeSystemWindowInsets, because that consumes the
         // systemWindowInsets. Instead, we do the insetting by the local insets ourselves.
-        mBaseContentInsets.setEmpty();
-        ViewCompat.computeSystemWindowInsets(this, mBaseInnerInsets, mBaseContentInsets);
+        ViewCompat.computeSystemWindowInsets(this, insets, mBaseContentInsets);
         mBaseInnerInsets = insets.inset(mBaseContentInsets.left, mBaseContentInsets.top,
                 mBaseContentInsets.right, mBaseContentInsets.bottom);
 
