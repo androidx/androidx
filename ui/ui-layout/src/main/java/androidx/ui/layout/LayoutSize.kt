@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-@file:Suppress("Deprecation")
-
 package androidx.ui.layout
 
-import androidx.compose.Stable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
+import androidx.ui.core.IntrinsicMeasurable
+import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier
 import androidx.ui.core.LayoutModifier2
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
@@ -34,9 +32,7 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
 import androidx.ui.unit.min
 
@@ -277,7 +273,7 @@ fun Modifier.sizeIn(
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleFillWidthModifier
  */
-fun Modifier.fillMaxWidth() = this + LayoutWidth.Fill
+fun Modifier.fillMaxWidth() = this + FillModifier(Direction.Horizontal)
 
 /**
  * Have the content fill the [Constraints.maxHeight] of the incoming measurement constraints
@@ -288,7 +284,7 @@ fun Modifier.fillMaxWidth() = this + LayoutWidth.Fill
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleFillHeightModifier
  */
-fun Modifier.fillMaxHeight() = this + LayoutHeight.Fill
+fun Modifier.fillMaxHeight() = this + FillModifier(Direction.Vertical)
 
 /**
  * Have the content fill the [Constraints.maxWidth] and [Constraints.maxHeight] of the incoming
@@ -300,7 +296,7 @@ fun Modifier.fillMaxHeight() = this + LayoutHeight.Fill
  * Example usage:
  * @sample androidx.ui.layout.samples.SimpleFillModifier
  */
-fun Modifier.fillMaxSize() = this + LayoutSize.Fill
+fun Modifier.fillMaxSize() = this + FillModifier(Direction.Both)
 
 /**
  * Allow the content to measure at its desired width without regard for the incoming measurement
@@ -312,7 +308,7 @@ fun Modifier.fillMaxSize() = this + LayoutSize.Fill
  */
 // TODO(popam): avoid recreating modifier for common align
 fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHorizontally) =
-    this + AlignmentModifier(Alignment(-1f, align.bias), AlignmentModifier.Direction.Horizontal)
+    this + AlignmentModifier(Alignment(-1f, align.bias), Direction.Horizontal)
 
 /**
  * Allow the content to measure at its desired height without regard for the incoming measurement
@@ -324,7 +320,7 @@ fun Modifier.wrapContentWidth(align: Alignment.Horizontal = Alignment.CenterHori
  */
 // TODO(popam): avoid recreating modifier for common align
 fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVertically) =
-    this + AlignmentModifier(Alignment(align.bias, -1f), AlignmentModifier.Direction.Vertical)
+    this + AlignmentModifier(Alignment(align.bias, -1f), Direction.Vertical)
 
 /**
  * Allow the content to measure at its desired size without regard for the incoming measurement
@@ -336,7 +332,35 @@ fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVerti
  * @sample androidx.ui.layout.samples.SimpleWrapContentAlignedModifier
  */
 fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
-    this + AlignmentModifier(align, AlignmentModifier.Direction.Both)
+    this + AlignmentModifier(align, Direction.Both)
+
+private data class FillModifier(private val direction: Direction) : LayoutModifier2 {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): MeasureScope.MeasureResult {
+        val wrappedConstraints = Constraints(
+            minWidth = if (constraints.hasBoundedWidth && direction != Direction.Vertical) {
+                constraints.maxWidth
+            } else {
+                constraints.minWidth
+            },
+            maxWidth = constraints.maxWidth,
+            minHeight = if (constraints.hasBoundedHeight && direction != Direction.Horizontal) {
+                constraints.maxHeight
+            } else {
+                constraints.minHeight
+            },
+            maxHeight = constraints.maxHeight
+        )
+        val placeable = measurable.measure(wrappedConstraints)
+
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0.ipx, 0.ipx)
+        }
+    }
+}
 
 private data class SizeModifier(
     private val minWidth: Dp = Dp.Unspecified,
@@ -344,47 +368,60 @@ private data class SizeModifier(
     private val maxWidth: Dp = Dp.Unspecified,
     private val maxHeight: Dp = Dp.Unspecified,
     private val enforceIncoming: Boolean
-) : LayoutModifier {
-    private val Density.targetConstraints get() = Constraints(
-        minWidth = if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0.ipx,
-        minHeight = if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0.ipx,
-        maxWidth = if (maxWidth != Dp.Unspecified) maxWidth.toIntPx() else IntPx.Infinity,
-        maxHeight = if (maxHeight != Dp.Unspecified) maxHeight.toIntPx() else IntPx.Infinity
-    )
+) : LayoutModifier2 {
+    private val Density.targetConstraints
+        get() = Constraints(
+            minWidth = if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0.ipx,
+            minHeight = if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0.ipx,
+            maxWidth = if (maxWidth != Dp.Unspecified) maxWidth.toIntPx() else IntPx.Infinity,
+            maxHeight = if (maxHeight != Dp.Unspecified) maxHeight.toIntPx() else IntPx.Infinity
+        )
 
-    override fun Density.modifyConstraints(
+    override fun MeasureScope.measure(
+        measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ) = targetConstraints.let { targetConstraints ->
-        if (enforceIncoming) {
-            targetConstraints.enforce(constraints)
-        } else {
-            val resolvedMinWidth = if (minWidth != Dp.Unspecified) {
-                targetConstraints.minWidth
+    ): MeasureScope.MeasureResult {
+        val wrappedConstraints = targetConstraints.let { targetConstraints ->
+            if (enforceIncoming) {
+                targetConstraints.enforce(constraints)
             } else {
-                min(constraints.minWidth, targetConstraints.maxWidth)
+                val resolvedMinWidth = if (minWidth != Dp.Unspecified) {
+                    targetConstraints.minWidth
+                } else {
+                    min(constraints.minWidth, targetConstraints.maxWidth)
+                }
+                val resolvedMaxWidth = if (maxWidth != Dp.Unspecified) {
+                    targetConstraints.maxWidth
+                } else {
+                    max(constraints.maxWidth, targetConstraints.minWidth)
+                }
+                val resolvedMinHeight = if (minHeight != Dp.Unspecified) {
+                    targetConstraints.minHeight
+                } else {
+                    min(constraints.minHeight, targetConstraints.maxHeight)
+                }
+                val resolvedMaxHeight = if (maxHeight != Dp.Unspecified) {
+                    targetConstraints.maxHeight
+                } else {
+                    max(constraints.maxHeight, targetConstraints.minHeight)
+                }
+                Constraints(
+                    resolvedMinWidth,
+                    resolvedMaxWidth,
+                    resolvedMinHeight,
+                    resolvedMaxHeight
+                )
             }
-            val resolvedMaxWidth = if (maxWidth != Dp.Unspecified) {
-                targetConstraints.maxWidth
-            } else {
-                max(constraints.maxWidth, targetConstraints.minWidth)
-            }
-            val resolvedMinHeight = if (minHeight != Dp.Unspecified) {
-                targetConstraints.minHeight
-            } else {
-                min(constraints.minHeight, targetConstraints.maxHeight)
-            }
-            val resolvedMaxHeight = if (maxHeight != Dp.Unspecified) {
-                targetConstraints.maxHeight
-            } else {
-                max(constraints.maxHeight, targetConstraints.minHeight)
-            }
-            Constraints(resolvedMinWidth, resolvedMaxWidth, resolvedMinHeight, resolvedMaxHeight)
+        }
+        val placeable = measurable.measure(wrappedConstraints)
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0.ipx, 0.ipx)
         }
     }
 
-    override fun Density.minIntrinsicWidthOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
     ) = measurable.minIntrinsicWidth(height, layoutDirection).let {
@@ -392,8 +429,8 @@ private data class SizeModifier(
         it.coerceIn(constraints.minWidth, constraints.maxWidth)
     }
 
-    override fun Density.maxIntrinsicWidthOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
     ) = measurable.maxIntrinsicWidth(height, layoutDirection).let {
@@ -401,8 +438,8 @@ private data class SizeModifier(
         it.coerceIn(constraints.minWidth, constraints.maxWidth)
     }
 
-    override fun Density.minIntrinsicHeightOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
     ) = measurable.minIntrinsicHeight(width, layoutDirection).let {
@@ -410,549 +447,13 @@ private data class SizeModifier(
         it.coerceIn(constraints.minHeight, constraints.maxHeight)
     }
 
-    override fun Density.maxIntrinsicHeightOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
     ) = measurable.maxIntrinsicHeight(width, layoutDirection).let {
         val constraints = targetConstraints
         it.coerceIn(constraints.minHeight, constraints.maxHeight)
-    }
-}
-
-/**
- * [Modifies][LayoutModifier] the width of a Compose UI layout element.
- * `LayoutWidth(16.dp)` will instruct the layout element to be exactly 16dp wide if permitted by
- * its parent.
- *
- * This modifies the incoming [Constraints] provided by a layout element's parent.
- * If the incoming constraints do not allow the modified size, the incoming constraints from
- * the parent will restrict the final size.
- *
- * See [Min], [Max], [Constrain] and [Fill] to modify the width of a layout element within a
- * range rather than to an exact size. See [LayoutHeight] to modify height, or [LayoutSize]
- * to modify both width and height at once.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.SimpleWidthModifier
- */
-@Stable
-data class LayoutWidth
-@Deprecated(
-    "Use Modifier.preferredWidth",
-    replaceWith = ReplaceWith(
-        "Modifier.preferredWidth(width)",
-        "androidx.ui.core.Modifier",
-        "androidx.ui.layout.preferredWidth"
-    )
-)
-constructor(val width: Dp)
-// TODO: remove delegation here and implement inline
-    : LayoutModifier by SizeModifier(minWidth = width, maxWidth = width, enforceIncoming = true) {
-    init {
-        require(width.isFinite()) { "width must be finite" }
-        require(width >= Dp.Hairline) { "width must be >= 0.dp" }
-    }
-
-    /**
-     * [Modifies][LayoutModifier] the width of a Compose UI layout element to be at least
-     * [minWidth] wide if permitted by its parent.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     */
-    @Stable
-    data class Min
-    @Deprecated(
-        "Use Modifier.preferredWidthIn",
-        replaceWith = ReplaceWith(
-            "Modifier.preferredWidthIn(minWidth = minWidth)",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.preferredWidthIn"
-        )
-    )
-    constructor(val minWidth: Dp)
-    // TODO: remove delegation here and implement inline
-        : LayoutModifier by SizeModifier(minWidth = minWidth, enforceIncoming = true) {
-        init {
-            require(minWidth.isFinite()) { "minWidth must be finite" }
-        }
-    }
-
-    /**
-     * [Modifies][LayoutModifier] the width of a Compose UI layout element to be at most
-     * [maxWidth] wide if permitted by its parent.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     */
-    @Stable
-    data class Max
-    @Deprecated(
-        "Use Modifier.preferredWidthIn",
-        replaceWith = ReplaceWith(
-            "Modifier.preferredWidthIn(maxWidth = maxWidth)",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.preferredWidthIn"
-        )
-    )
-    constructor(val maxWidth: Dp)
-    // TODO: remove delegation here and implement inline
-        : LayoutModifier by SizeModifier(maxWidth = maxWidth, enforceIncoming = true)
-
-    /**
-     * [Modifies][LayoutModifier] the width of a Compose UI layout element to be at least
-     * [minWidth] and at most [maxWidth] wide if permitted by its parent.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     */
-    @Stable
-    data class Constrain
-    @Deprecated(
-        "Use Modifier.preferredWidthIn",
-        replaceWith = ReplaceWith(
-            "Modifier.preferredWidthIn(minWidth, maxWidth)",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.preferredWidthIn"
-        )
-    )
-    constructor(val minWidth: Dp, val maxWidth: Dp)
-    // TODO: remove delegation here and implement inline
-        : LayoutModifier by SizeModifier(
-        minWidth = minWidth,
-        maxWidth = maxWidth,
-        enforceIncoming = true
-    ) {
-        init {
-            require(minWidth.isFinite()) { "minWidth must be finite" }
-        }
-    }
-
-    /**
-     * [Modifies][LayoutModifier] the width of a Compose UI layout element to fill all available
-     * space.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     *
-     * Example usage:
-     * @sample androidx.ui.layout.samples.SimpleFillWidthModifier
-     */
-    @Stable
-    @Deprecated(
-        "Use Modifier.fillMaxWidth",
-        replaceWith = ReplaceWith(
-            "Modifier.fillMaxWidth()",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.fillMaxWidth"
-        )
-    )
-    object Fill : LayoutModifier {
-        override fun Density.modifyConstraints(
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
-        ): Constraints =
-            if (constraints.hasBoundedWidth) {
-                constraints.copy(minWidth = constraints.maxWidth, maxWidth = constraints.maxWidth)
-            } else {
-                constraints
-            }
-    }
-}
-
-/**
- * [Modifies][LayoutModifier] the height of a Compose UI layout element.
- * `LayoutHeight(16.dp)` will instruct the layout element to be exactly 16dp tall if permitted by
- * its parent.
- *
- * This modifies the incoming [Constraints] provided by a layout element's parent.
- * If the incoming constraints do not allow the modified size, the incoming constraints from
- * the parent will restrict the final size.
- *
- * See [Min], [Max], [Constrain] and [Fill] to modify the height of a layout element within a
- * range rather than to an exact size. See [LayoutWidth] to modify width, or [LayoutSize]
- * to modify both width and height at once.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.SimpleHeightModifier
- */
-@Stable
-data class LayoutHeight
-@Deprecated(
-    "Use Modifier.preferredHeight",
-    replaceWith = ReplaceWith(
-        "Modifier.preferredHeight(height)",
-        "androidx.ui.core.Modifier",
-        "androidx.ui.layout.preferredHeight"
-    )
-)
-constructor(val height: Dp)
-// TODO: remove delegation here and implement inline
-    : LayoutModifier by SizeModifier(
-    minHeight = height,
-    maxHeight = height,
-    enforceIncoming = true
-) {
-    init {
-        require(height.isFinite()) { "height must be finite" }
-        require(height >= Dp.Hairline) { "height must be >= 0.dp" }
-    }
-
-    /**
-     * [Modifies][LayoutModifier] the height of a Compose UI layout element to be at least
-     * [minHeight] tall if permitted by its parent.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     */
-    @Stable
-    data class Min
-    @Deprecated(
-        "Use Modifier.preferredHeightIn",
-        replaceWith = ReplaceWith(
-            "Modifier.preferredHeightIn(minHeight = minHeight)",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.preferredHeightIn"
-        )
-    )
-    constructor(val minHeight: Dp)
-    // TODO: remove delegation here and implement inline
-        : LayoutModifier by SizeModifier(minHeight = minHeight, enforceIncoming = true) {
-        init {
-            require(minHeight.isFinite()) { "minHeight must be finite" }
-        }
-    }
-
-    /**
-     * [Modifies][LayoutModifier] the height of a Compose UI layout element to be at most
-     * [maxHeight] tall if permitted by its parent.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     */
-    @Stable
-    data class Max
-    @Deprecated(
-        "Use Modifier.preferredHeightIn",
-        replaceWith = ReplaceWith(
-            "Modifier.preferredHeightIn(maxHeight = maxHeight)",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.preferredHeightIn"
-        )
-    )
-    constructor(val maxHeight: Dp)
-    // TODO: remove delegation here and implement inline
-        : LayoutModifier by SizeModifier(maxHeight = maxHeight, enforceIncoming = true)
-
-    /**
-     * [Modifies][LayoutModifier] the height of a Compose UI layout element to be at least
-     * [minHeight] and at most [maxHeight] tall if permitted by its parent.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     */
-    @Stable
-    data class Constrain
-    @Deprecated(
-        "Use Modifier.preferredHeightIn",
-        replaceWith = ReplaceWith(
-            "Modifier.preferredHeightIn(minHeight, maxHeight)",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.preferredHeightIn"
-        )
-    )
-    constructor(val minHeight: Dp, val maxHeight: Dp)
-    // TODO: remove delegation here and implement inline
-        : LayoutModifier by SizeModifier(
-        minHeight = minHeight,
-        maxHeight = maxHeight,
-        enforceIncoming = true
-    ) {
-        init {
-            require(minHeight.isFinite()) { "minHeight must be finite" }
-        }
-    }
-
-    /**
-     * [Modifies][LayoutModifier] the height of a Compose UI layout element to fill all available
-     * space.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     *
-     * Example usage:
-     * @sample androidx.ui.layout.samples.SimpleFillHeightModifier
-     */
-    @Stable
-    @Deprecated(
-        "Use Modifier.fillMaxHeight",
-        replaceWith = ReplaceWith(
-            "Modifier.fillMaxHeight()",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.fillMaxHeight"
-        )
-    )
-    object Fill : LayoutModifier {
-        override fun Density.modifyConstraints(
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
-        ): Constraints =
-            if (constraints.hasBoundedHeight) {
-                constraints.copy(
-                    minHeight = constraints.maxHeight,
-                    maxHeight = constraints.maxHeight
-                )
-            } else {
-                constraints
-            }
-    }
-}
-
-/**
- * [Modifies][LayoutModifier] the width and height of a Compose UI layout element together.
- * `LayoutSize(24.dp, 16.dp)` will instruct the layout element to be exactly 24dp wide and 16dp
- * tall if permitted by its parent.
- *
- * This modifies the incoming [Constraints] provided by a layout element's parent.
- * If the incoming constraints do not allow the modified size, the incoming constraints from
- * the parent will restrict the final size.
- *
- * See [Min], [Max], [Constrain] and [Fill] to modify the height of a layout element within a
- * range rather than to an exact size. See [LayoutWidth] to modify width, or [LayoutSize]
- * to modify both width and height at once.
- *
- * Example usage:
- * @sample androidx.ui.layout.samples.SimpleSizeModifier
- */
-@Stable
-data class LayoutSize
-@Deprecated(
-    "Use Modifier.preferredSize",
-    replaceWith = ReplaceWith(
-        "Modifier.preferredSize(width, height)",
-        "androidx.ui.core.Modifier",
-        "androidx.ui.layout.preferredSize"
-    )
-)
-constructor(val width: Dp, val height: Dp)
-// TODO: remove delegation here and implement inline
-    : LayoutModifier by SizeModifier(
-    minWidth = width,
-    maxWidth = width,
-    minHeight = height,
-    maxHeight = height,
-    enforceIncoming = true
-) {
-
-    /**
-     * [Modifies][LayoutModifier] a Compose UI layout element to have a square size of [size].
-     */
-    @Deprecated(
-        "Use Modifier.preferredSize",
-        replaceWith = ReplaceWith(
-            "Modifier.preferredSize(size)",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.preferredSize"
-        )
-    )
-    constructor(size: Dp) : this(width = size, height = size)
-
-    init {
-        require(width.isFinite()) { "width must be finite" }
-        require(height.isFinite()) { "height must be finite" }
-        require(width >= Dp.Hairline) { "width must be >= 0.dp" }
-        require(height >= Dp.Hairline) { "height must be >= 0.dp" }
-    }
-
-    /**
-     * [Modifies][LayoutModifier] the size of a Compose UI layout element to be at least
-     * [minWidth] wide and [minHeight] tall if permitted by its parent.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     */
-    @Stable
-    data class Min
-    @Deprecated(
-        "Use Modifier.preferredSizeIn",
-        replaceWith = ReplaceWith(
-            "Modifier.preferredSizeIn(minWidth = minWidth, minHeight = minHeight)",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.preferredSizeIn"
-        )
-    )
-    constructor(val minWidth: Dp, val minHeight: Dp)
-    // TODO: remove delegation here and implement inline
-        : LayoutModifier by SizeModifier(
-        minWidth = minWidth,
-        minHeight = minHeight,
-        enforceIncoming = true
-    ) {
-        /**
-         * [Modifies][LayoutModifier] a Compose UI layout element to have a square minimum size of
-         * [minSize].
-         */
-        @Deprecated(
-            "Use Modifier.preferredSizeIn",
-            replaceWith = ReplaceWith(
-                "Modifier.preferredSizeIn(minWidth = minSize, minHeight = minSize)",
-                "androidx.ui.core.Modifier",
-                "androidx.ui.layout.preferredSizeIn"
-            )
-        )
-        constructor(minSize: Dp) : this(minWidth = minSize, minHeight = minSize)
-
-        init {
-            require(minWidth.isFinite()) { "minWidth must be finite" }
-            require(minHeight.isFinite()) { "minHeight must be finite" }
-        }
-    }
-
-    /**
-     * [Modifies][LayoutModifier] the size of a Compose UI layout element to be at most
-     * [maxWidth] wide and [maxHeight] tall if permitted by its parent.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     */
-    @Stable
-    data class Max
-    @Deprecated(
-        "Use Modifier.preferredSizeIn",
-        replaceWith = ReplaceWith(
-            "Modifier.preferredSizeIn(maxWidth = maxWidth, maxHeight = maxHeight)",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.preferredSizeIn"
-        )
-    )
-    constructor(val maxWidth: Dp, val maxHeight: Dp)
-    // TODO: remove delegation here and implement inline
-        : LayoutModifier by SizeModifier(
-        maxWidth = maxWidth,
-        maxHeight = maxHeight,
-        enforceIncoming = true
-    ) {
-        /**
-         * [Modifies][LayoutModifier] a Compose UI layout element to have a square maximum size of
-         * [maxSize].
-         */
-        @Deprecated(
-            "Use Modifier.preferredSizeIn",
-            replaceWith = ReplaceWith(
-                "Modifier.preferredSizeIn(maxWidth = maxSize, maxHeight = maxSize)",
-                "androidx.ui.core.Modifier",
-                "androidx.ui.layout.preferredSizeIn"
-            )
-        )
-        constructor(maxSize: Dp) : this(maxWidth = maxSize, maxHeight = maxSize)
-    }
-
-    /**
-     * [Modifies][LayoutModifier] the height of a Compose UI layout element to be at least
-     * [minWidth] wide and [minHeight] tall, and at most [minWidth] wide and [maxHeight] tall if
-     * permitted by its parent.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     */
-    @Stable
-    data class Constrain
-    @Deprecated(
-        "Use Modifier.preferredSizeIn",
-        replaceWith = ReplaceWith(
-            "Modifier.preferredSizeIn(minWidth, minHeight, maxWidth, maxHeight)",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.preferredSizeIn"
-        )
-    )
-    constructor(
-        val minWidth: Dp,
-        val minHeight: Dp,
-        val maxWidth: Dp,
-        val maxHeight: Dp
-    ) : LayoutModifier by SizeModifier(
-        // TODO: remove delegation here and implement inline
-        minWidth = minWidth,
-        minHeight = minHeight,
-        maxWidth = maxWidth,
-        maxHeight = maxHeight,
-        enforceIncoming = true
-    ) {
-        /**
-         * [Modifies][LayoutModifier] a Compose UI layout element to have a square minimum
-         * size of [minSize] and a square maximum size of [maxSize].
-         */
-        @Deprecated(
-            "Use Modifier.preferredSizeIn",
-            replaceWith = ReplaceWith(
-                "Modifier.preferredSize(minSize, minSize, maxSize, maxSize)",
-                "androidx.ui.core.Modifier",
-                "androidx.ui.layout.preferredSizeIn"
-            )
-        )
-        constructor(minSize: Dp, maxSize: Dp) : this(
-            minWidth = minSize,
-            minHeight = minSize,
-            maxWidth = maxSize,
-            maxHeight = maxSize
-        )
-
-        init {
-            require(minWidth.isFinite()) { "minWidth must be finite" }
-            require(minHeight.isFinite()) { "minHeight must be finite" }
-        }
-    }
-
-    /**
-     * [Modifies][LayoutModifier] the size of a Compose UI layout element to fill all available
-     * space.
-     *
-     * This modifies the incoming [Constraints] provided by a layout element's parent.
-     * If the incoming constraints do not allow the modified size, the incoming constraints from
-     * the parent will restrict the final size.
-     *
-     * Example usage:
-     * @sample androidx.ui.layout.samples.SimpleFillModifier
-     */
-    @Stable
-    @Deprecated(
-        "Use Modifier.fillMaxSize",
-        replaceWith = ReplaceWith(
-            "Modifier.fillMaxSize()",
-            "androidx.ui.core.Modifier",
-            "androidx.ui.layout.fillMaxSize"
-        )
-    )
-    object Fill : LayoutModifier {
-        override fun Density.modifyConstraints(
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
-        ): Constraints =
-            when {
-                constraints.hasBoundedWidth && constraints.hasBoundedHeight -> constraints.copy(
-                    minWidth = constraints.maxWidth,
-                    minHeight = constraints.maxHeight
-                )
-                constraints.hasBoundedWidth -> constraints.copy(
-                    minWidth = constraints.maxWidth
-                )
-                constraints.hasBoundedHeight -> constraints.copy(
-                    minHeight = constraints.maxHeight
-                )
-                else -> constraints
-            }
     }
 }
 
@@ -984,8 +485,8 @@ private data class AlignmentModifier(
             placeable.placeAbsolute(position)
         }
     }
+}
 
-    internal enum class Direction {
-        Vertical, Horizontal, Both
-    }
+internal enum class Direction {
+    Vertical, Horizontal, Both
 }
