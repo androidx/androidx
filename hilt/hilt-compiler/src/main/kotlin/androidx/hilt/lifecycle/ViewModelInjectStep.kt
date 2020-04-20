@@ -21,6 +21,7 @@ import androidx.hilt.ext.hasAnnotation
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.MoreElements
 import com.google.common.collect.SetMultimap
+import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
@@ -68,6 +69,12 @@ class ViewModelInjectStep(
     ): ViewModelInjectElements? {
         var valid = true
 
+        if (elements.getTypeElement(ClassNames.VIEW_MODEL_ASSISTED_FACTORY.toString()) == null) {
+            error("To use @ViewModelInject you must add the 'lifecycle-viewmodel' " +
+                    "artifact. androidx.hilt:hilt-lifecyclew-viewmodel:<version>")
+            valid = false
+        }
+
         if (!types.isSubtype(typeElement.asType(),
                 elements.getTypeElement(ClassNames.VIEW_MODEL.toString()).asType())) {
             error("@ViewModelInject is only supported on types that subclass " +
@@ -92,6 +99,16 @@ class ViewModelInjectStep(
             !typeElement.modifiers.contains(Modifier.STATIC)) {
             error("@ViewModelInject may only be used on inner classes if they are static.",
                 typeElement)
+            valid = false
+        }
+
+        // Validate there is at most one SavedStateHandle constructor arg.
+        val savedStateArgs = constructorElement.parameters
+            .map { TypeName.get(it.asType()) }
+            .count { it == ClassNames.SAVED_STATE_HANDLE }
+        if (savedStateArgs > 1) {
+            error("Expected zero or one constructor argument of type androidx.lifecycle" +
+                    ".SavedStateHandle, found $savedStateArgs", constructorElement)
             valid = false
         }
 
