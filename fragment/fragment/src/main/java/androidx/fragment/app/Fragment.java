@@ -54,6 +54,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.ActivityResultRegistryOwner;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
@@ -3198,6 +3199,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         ensureAnimationInfo().mIsHideReplaced = replaced;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * If the host of this fragment is an {@link ActivityResultRegistryOwner} the
+     * {@link ActivityResultRegistry} of the host will be used. Otherwise, this will use the
+     * registry of the Fragment's Activity.
+     */
     @NonNull
     @Override
     public final <I, O> ActivityResultLauncher<I> registerForActivityResult(
@@ -3206,6 +3215,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return prepareCallInternal(contract, new Function<Void, ActivityResultRegistry>() {
             @Override
             public ActivityResultRegistry apply(Void input) {
+                if (mHost instanceof ActivityResultRegistryOwner) {
+                    return ((ActivityResultRegistryOwner) mHost).getActivityResultRegistry();
+                }
                 return requireActivity().getActivityResultRegistry();
             }
         }, callback);
