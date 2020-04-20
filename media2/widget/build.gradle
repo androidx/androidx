@@ -64,6 +64,4 @@ androidx {
     mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "AndroidX Media2 Widget"
-    // TODO: Remove these (b/130838274)
-    failOnDeprecationWarnings = false
 }

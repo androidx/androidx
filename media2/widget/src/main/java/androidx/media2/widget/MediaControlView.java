@@ -1285,15 +1285,15 @@ public class MediaControlView extends MediaViewGroup {
 
             final boolean isEnteringFullScreen = !mIsFullScreen;
             if (isEnteringFullScreen) {
-                mFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen_exit));
-                mMinimalFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen_exit));
+                mFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen_exit));
+                mMinimalFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen_exit));
             } else {
-                mFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen));
-                mMinimalFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen));
+                mFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen));
+                mMinimalFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen));
             }
             mIsFullScreen = isEnteringFullScreen;
             mOnFullScreenListener.onFullScreen(MediaControlView.this,
@@ -1821,13 +1821,16 @@ public class MediaControlView extends MediaViewGroup {
         Drawable drawable;
         String description;
         if (type == PLAY_BUTTON_PAUSE) {
-            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_pause_circle_filled);
+            drawable = ContextCompat.getDrawable(getContext(),
+                    R.drawable.media2_widget_ic_pause_circle_filled);
             description = mResources.getString(R.string.mcv2_pause_button_desc);
         } else if (type == PLAY_BUTTON_PLAY) {
-            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_play_circle_filled);
+            drawable = ContextCompat.getDrawable(getContext(),
+                    R.drawable.media2_widget_ic_play_circle_filled);
             description = mResources.getString(R.string.mcv2_play_button_desc);
         } else if (type == PLAY_BUTTON_REPLAY) {
-            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_replay_circle_filled);
+            drawable = ContextCompat.getDrawable(getContext(),
+                    R.drawable.media2_widget_ic_replay_circle_filled);
             description = mResources.getString(R.string.mcv2_replay_button_desc);
         } else {
             throw new IllegalArgumentException("unknown type " + type);
@@ -1983,7 +1986,8 @@ public class MediaControlView extends MediaViewGroup {
                 iconView.setVisibility(View.GONE);
             } else {
                 // Otherwise, set main icon.
-                iconView.setImageDrawable(mResources.getDrawable(mIconIds.get(position)));
+                iconView.setImageDrawable(
+                        ContextCompat.getDrawable(getContext(), mIconIds.get(position)));
             }
             return row;
         }
@@ -2255,8 +2259,8 @@ public class MediaControlView extends MediaViewGroup {
                         if (mSettingsMode == SETTINGS_MODE_SUBTITLE_TRACK) {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex + 1);
                         }
-                        mSubtitleButton.setImageDrawable(
-                                mResources.getDrawable(R.drawable.media2_widget_ic_subtitle_on));
+                        mSubtitleButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                                R.drawable.media2_widget_ic_subtitle_on));
                         mSubtitleButton.setContentDescription(
                                 mResources.getString(R.string.mcv2_cc_is_on));
                         break;
@@ -2290,8 +2294,8 @@ public class MediaControlView extends MediaViewGroup {
                         if (mSettingsMode == SETTINGS_MODE_SUBTITLE_TRACK) {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex + 1);
                         }
-                        mSubtitleButton.setImageDrawable(
-                                mResources.getDrawable(R.drawable.media2_widget_ic_subtitle_off));
+                        mSubtitleButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                                R.drawable.media2_widget_ic_subtitle_off));
                         mSubtitleButton.setContentDescription(
                                 mResources.getString(R.string.mcv2_cc_is_off));
                         break;
