@@ -70,10 +70,11 @@ class ViewModelGeneratorTest {
 
         val compilation = compiler()
             .compile(myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
-        assertThat(compilation).succeeded()
-        assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
-            .hasSourceEquivalentTo(expected)
+        assertThat(compilation).apply {
+            succeeded()
+            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+                .hasSourceEquivalentTo(expected)
+        }
     }
 
     @Test
@@ -118,10 +119,11 @@ class ViewModelGeneratorTest {
 
         val compilation = compiler()
             .compile(myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
-        assertThat(compilation).succeeded()
-        assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
-            .hasSourceEquivalentTo(expected)
+        assertThat(compilation).apply {
+            succeeded()
+            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+                .hasSourceEquivalentTo(expected)
+        }
     }
 
     @Test
@@ -184,10 +186,11 @@ class ViewModelGeneratorTest {
 
         val compilation = compiler()
             .compile(foo, myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
-        assertThat(compilation).succeeded()
-        assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
-            .hasSourceEquivalentTo(expected)
+        assertThat(compilation).apply {
+            succeeded()
+            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+                .hasSourceEquivalentTo(expected)
+        }
     }
 
     @Test
@@ -248,10 +251,11 @@ class ViewModelGeneratorTest {
 
         val compilation = compiler()
             .compile(foo, myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
-        assertThat(compilation).succeeded()
-        assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
-            .hasSourceEquivalentTo(expected)
+        assertThat(compilation).apply {
+            succeeded()
+            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+                .hasSourceEquivalentTo(expected)
+        }
     }
 
     @Test
@@ -322,65 +326,11 @@ class ViewModelGeneratorTest {
 
         val compilation = compiler()
             .compile(myQualifier, myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
-        assertThat(compilation).succeeded()
-        assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
-            .hasSourceEquivalentTo(expected)
-    }
-
-    @Test
-    fun verifyAssistedFactory_multipleSavedStateArg() {
-        val myViewModel = """
-        package androidx.hilt.lifecycle.test;
-
-        import androidx.hilt.lifecycle.ViewModelInject;
-        import androidx.lifecycle.ViewModel;
-        import androidx.lifecycle.SavedStateHandle;
-        import java.lang.String;
-
-        class MyViewModel extends ViewModel {
-            @ViewModelInject
-            MyViewModel(SavedStateHandle savedState, String s, SavedStateHandle savedState2) { }
+        assertThat(compilation).apply {
+            succeeded()
+            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
+                .hasSourceEquivalentTo(expected)
         }
-        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
-
-        val expected = """
-        package androidx.hilt.lifecycle.test;
-
-        import androidx.annotation.NonNull;
-        import androidx.hilt.lifecycle.ViewModelAssistedFactory;
-        import androidx.lifecycle.SavedStateHandle;
-        import java.lang.Override;
-        import java.lang.String;
-        import $GENERATED_TYPE;
-        import javax.inject.Inject;
-        import javax.inject.Provider;
-
-        $GENERATED_ANNOTATION
-        public final class MyViewModel_AssistedFactory implements
-                ViewModelAssistedFactory<MyViewModel> {
-
-            private final Provider<String> s;
-
-            @Inject
-            MyViewModel_AssistedFactory(Provider<String> s) {
-                this.s = s;
-            }
-
-            @Override
-            @NonNull
-            public MyViewModel create(@NonNull SavedStateHandle arg0) {
-                return new MyViewModel(arg0, s.get(), arg0);
-            }
-        }
-        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
-
-        val compilation = compiler()
-            .compile(myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
-        assertThat(compilation).succeeded()
-        assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_AssistedFactory")
-            .hasSourceEquivalentTo(expected)
     }
 
     @Test
@@ -423,10 +373,11 @@ class ViewModelGeneratorTest {
 
         val compilation = compiler()
             .compile(myViewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
-        assertThat(compilation).succeeded()
-        assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
-            .hasSourceEquivalentTo(expected)
+        assertThat(compilation).apply {
+            succeeded()
+            generatedSourceFile("androidx.hilt.lifecycle.test.MyViewModel_HiltModule")
+                .hasSourceEquivalentTo(expected)
+        }
     }
 
     @Test
@@ -497,14 +448,14 @@ class ViewModelGeneratorTest {
 
         val compilation = compiler()
             .compile(viewModel, Sources.VIEW_MODEL, Sources.SAVED_STATE_HANDLE)
-        assertThat(compilation).succeeded()
-        assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.lifecycle.test" +
-                    ".Outer_InnerViewModel_AssistedFactory")
-            .hasSourceEquivalentTo(expectedFactory)
-        assertThat(compilation)
-            .generatedSourceFile("androidx.hilt.lifecycle.test" +
-                    ".Outer_InnerViewModel_HiltModule")
-            .hasSourceEquivalentTo(expectedModule)
+        assertThat(compilation).apply {
+            succeeded()
+            generatedSourceFile("androidx.hilt.lifecycle.test" +
+                        ".Outer_InnerViewModel_AssistedFactory")
+                .hasSourceEquivalentTo(expectedFactory)
+            generatedSourceFile("androidx.hilt.lifecycle.test" +
+                        ".Outer_InnerViewModel_HiltModule")
+                .hasSourceEquivalentTo(expectedModule)
+        }
     }
 }
