@@ -37,6 +37,8 @@ import android.view.Window;
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.ActivityResultRegistryOwner;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -877,7 +879,8 @@ public class FragmentActivity extends ComponentActivity implements
 
     class HostCallbacks extends FragmentHostCallback<FragmentActivity> implements
             ViewModelStoreOwner,
-            OnBackPressedDispatcherOwner {
+            OnBackPressedDispatcherOwner,
+            ActivityResultRegistryOwner {
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
         }
@@ -991,6 +994,12 @@ public class FragmentActivity extends ComponentActivity implements
         public boolean onHasView() {
             final Window w = getWindow();
             return (w != null && w.peekDecorView() != null);
+        }
+
+        @NonNull
+        @Override
+        public ActivityResultRegistry getActivityResultRegistry() {
+            return FragmentActivity.this.getActivityResultRegistry();
         }
     }
 
