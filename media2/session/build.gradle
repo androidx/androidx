@@ -38,6 +38,5 @@ androidx {
     mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "Media2 Session"
-    // TODO: Remove these (b/130838274)
     failOnDeprecationWarnings = false
 }

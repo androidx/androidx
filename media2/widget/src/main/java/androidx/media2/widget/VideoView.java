@@ -630,7 +630,8 @@ public class VideoView extends SelectiveLayout {
             Resources resources = getResources();
 
             Drawable albumDrawable = getAlbumArt(metadata,
-                    resources.getDrawable(R.drawable.media2_widget_ic_default_album_image));
+                    ContextCompat.getDrawable(
+                            getContext(), R.drawable.media2_widget_ic_default_album_image));
             String title = getString(metadata, MediaMetadata.METADATA_KEY_TITLE,
                     resources.getString(R.string.mcv2_music_title_unknown_text));
             String artist = getString(metadata, MediaMetadata.METADATA_KEY_ARTIST,
@@ -699,8 +700,8 @@ public class VideoView extends SelectiveLayout {
             });
             drawable = new BitmapDrawable(getResources(), bitmap);
         } else {
-            mMusicView.setBackgroundColor(
-                    getResources().getColor(R.color.media2_widget_music_view_default_background));
+            mMusicView.setBackgroundColor(ContextCompat.getColor(getContext(),
+                    R.color.media2_widget_music_view_default_background));
         }
         return drawable;
     }
