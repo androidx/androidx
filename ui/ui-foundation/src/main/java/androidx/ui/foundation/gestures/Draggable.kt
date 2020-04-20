@@ -17,14 +17,14 @@
 package androidx.ui.foundation.gestures
 
 import androidx.animation.AnimatedFloat
-import androidx.compose.Composable
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.dragGestureFilter
-import androidx.ui.foundation.InteractionState
 import androidx.ui.foundation.Interaction
+import androidx.ui.foundation.InteractionState
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 
@@ -59,7 +59,6 @@ import androidx.ui.unit.px
  * @param onDragDeltaConsumptionRequested callback to be invoked when drag occurs. Users must
  * update their state in this lambda and return amount of delta consumed
  */
-@Composable
 fun Modifier.draggable(
     dragDirection: DragDirection,
     onDragStarted: (startedPosition: PxPosition) -> Unit = {},
@@ -68,14 +67,12 @@ fun Modifier.draggable(
     interactionState: InteractionState? = null,
     startDragImmediately: Boolean = false,
     onDragDeltaConsumptionRequested: (Float) -> Float
-): Modifier {
-    val dragState = remember {
-        DraggableState()
-    }
+): Modifier = composed {
+    val dragState = remember { DraggableState() }
     onDispose {
         interactionState?.removeInteraction(Interaction.Dragged)
     }
-    return dragGestureFilter(
+    dragGestureFilter(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {

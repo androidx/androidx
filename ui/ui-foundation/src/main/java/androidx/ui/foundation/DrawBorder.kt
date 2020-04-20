@@ -18,9 +18,10 @@ package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.core.DrawModifier
 import androidx.ui.core.ContentDrawScope
+import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.geometry.isSimple
@@ -123,7 +124,6 @@ fun DrawBorder(size: Dp, brush: Brush, shape: Shape): DrawBorder {
  * @param border [Border] class that specifies border appearance, such as size and color
  * @param shape shape of the border
  */
-@Composable
 fun Modifier.drawBorder(border: Border, shape: Shape = RectangleShape) =
     drawBorder(size = border.size, brush = border.brush, shape = shape)
 
@@ -137,7 +137,6 @@ fun Modifier.drawBorder(border: Border, shape: Shape = RectangleShape) =
  * @param color color to paint the border with
  * @param shape shape of the border
  */
-@Composable
 fun Modifier.drawBorder(size: Dp, color: Color, shape: Shape = RectangleShape) =
     drawBorder(size, SolidColor(color), shape)
 
@@ -151,12 +150,8 @@ fun Modifier.drawBorder(size: Dp, color: Color, shape: Shape = RectangleShape) =
  * @param brush brush to paint the border with
  * @param shape shape of the border
  */
-@Composable
-fun Modifier.drawBorder(size: Dp, brush: Brush, shape: Shape): Modifier {
-    val cache = remember {
-        DrawBorderCache()
-    }
-    return this + DrawBorder(cache, shape, size, brush)
+fun Modifier.drawBorder(size: Dp, brush: Brush, shape: Shape): Modifier = composed {
+    DrawBorder(remember { DrawBorderCache() }, shape, size, brush)
 }
 
 class DrawBorder internal constructor(

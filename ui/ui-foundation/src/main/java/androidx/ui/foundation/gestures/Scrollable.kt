@@ -28,6 +28,7 @@ import androidx.compose.remember
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.animation.FlingConfig
@@ -156,18 +157,17 @@ class ScrollableState(
  * unconsumed provided
  * @param enabled whether of not scrolling in enabled
  */
-@Composable
 fun Modifier.scrollable(
     dragDirection: DragDirection,
     scrollableState: ScrollableState,
     onScrollStarted: (startedPosition: PxPosition) -> Unit = {},
     onScrollStopped: (velocity: Float) -> Unit = {},
     enabled: Boolean = true
-): Modifier {
+): Modifier = composed {
     onDispose {
         scrollableState.stopAnimation()
     }
-    return dragGestureFilter(
+    dragGestureFilter(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {

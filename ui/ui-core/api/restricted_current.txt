@@ -139,6 +139,19 @@ package androidx.ui.core {
     method public static int merge-CBRbNzc(androidx.ui.core.AlignmentLine, int position1, int position2);
   }
 
+  public final class CombinedModifier implements androidx.ui.core.Modifier {
+    ctor public CombinedModifier(androidx.ui.core.Modifier outer, androidx.ui.core.Modifier inner);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
+    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
+  }
+
+  public final class ComposedModifierKt {
+    method public static androidx.ui.core.Modifier composed(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier,? extends androidx.ui.core.Modifier> factory);
+    method public static androidx.ui.core.Modifier materialize(androidx.compose.Composer<?>, androidx.ui.core.Modifier modifier);
+  }
+
   public final class Constraints {
     method public int component1();
     method public int component2();
@@ -427,6 +440,8 @@ package androidx.ui.core {
   }
 
   public interface Modifier {
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
@@ -434,6 +449,8 @@ package androidx.ui.core {
   }
 
   public static final class Modifier.Companion implements androidx.ui.core.Modifier {
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method @Deprecated public androidx.ui.core.Modifier getNone();
@@ -441,6 +458,8 @@ package androidx.ui.core {
   }
 
   public static interface Modifier.Element extends androidx.ui.core.Modifier {
+    method public default boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public default boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public default <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
   }

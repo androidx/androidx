@@ -109,6 +109,7 @@ package androidx.ui.core {
     method @Deprecated public static androidx.compose.ProvidableAmbient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.lifecycle.LifecycleOwner> getLifecycleOwnerAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.input.TextInputService> getTextInputServiceAmbient();
+    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.texttoolbar.TextToolbar> getTextToolbarAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.platform.UriHandler> getUriHandlerAmbient();
     method public static androidx.compose.Composition setContent(androidx.activity.ComponentActivity, androidx.compose.Recomposer recomposer = Recomposer.current(), kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @Deprecated public static androidx.compose.Composition setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
@@ -274,6 +275,7 @@ package androidx.ui.core.input {
 package androidx.ui.core.selection {
 
   public interface Selectable {
+    method public androidx.ui.geometry.Rect getBoundingBox(int offset);
     method public androidx.ui.unit.PxPosition getHandlePosition(androidx.ui.core.selection.Selection selection, boolean isStartHandle);
     method public androidx.ui.core.LayoutCoordinates? getLayoutCoordinates();
     method public androidx.ui.core.selection.Selection? getSelection(androidx.ui.unit.PxPosition startPosition, androidx.ui.unit.PxPosition endPosition, androidx.ui.core.LayoutCoordinates containerLayoutCoordinates, boolean longPress, androidx.ui.core.selection.Selection? previousSelection = null, boolean isStartHandle = true);
