@@ -165,15 +165,21 @@ public final class DisplayCutoutCompat {
     }
 
     /**
-     * Return the insets of the curved areas that extend to the sides of the device. Apps should
-     * carefully handle the touches of these areas since they are most frequently touched areas.
+     * Returns the insets representing the curved areas of a waterfall display.
+     *
+     * A waterfall display has curved areas along the edges of the screen. Apps should be careful
+     * when showing UI and handling touch input in those insets because the curve may impair
+     * legibility and can frequently lead to unintended touch inputs.
+     *
+     * @return the insets for the curved areas of a waterfall display in pixels or {@code
+     * Insets.NONE} if there are no curved areas or they don't overlap with the window.
      */
-    @Nullable
+    @NonNull
     public Insets getWaterfallInsets() {
         if (BuildCompat.isAtLeastR()) {
             return Insets.toCompatInsets(((DisplayCutout) mDisplayCutout).getWaterfallInsets());
         } else {
-            return null;
+            return Insets.NONE;
         }
     }
 

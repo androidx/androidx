@@ -91,7 +91,7 @@ public class DisplayCutoutCompatTest {
         if (BuildCompat.isAtLeastR()) {
             assertEquals(Insets.of(0, 20, 0, 20), mCutoutWaterfall.getWaterfallInsets());
         } else {
-            assertNull(mCutoutWaterfall.getWaterfallInsets());
+            assertEquals(Insets.NONE, mCutoutWaterfall.getWaterfallInsets());
         }
     }
 

@@ -1788,7 +1788,7 @@ package androidx.core.view {
     method public int getSafeInsetLeft();
     method public int getSafeInsetRight();
     method public int getSafeInsetTop();
-    method public androidx.core.graphics.Insets? getWaterfallInsets();
+    method public androidx.core.graphics.Insets getWaterfallInsets();
   }
 
   public final class DragAndDropPermissionsCompat {
