@@ -122,9 +122,7 @@ class TextFieldTest {
             throw RuntimeException("Not implemented")
         }
 
-        override fun blur(client: FocusNode) {
-            throw RuntimeException("Not implemented")
-        }
+        override fun blur(client: FocusNode) { }
     }
 
     @Test
