@@ -123,3 +123,10 @@ class SemanticsMatcher(
         }
     }
 }
+
+internal fun SemanticsMatcher.appendSelector(
+    description: String,
+    selector: (Iterable<SemanticsNode>) -> Iterable<SemanticsNode>
+): SemanticsMatcher {
+    return SemanticsMatcher("(${this.description}).$description", selector)
+}

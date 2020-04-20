@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.ui.test.predicates
+package androidx.ui.test.selectors
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
-import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.find
-import androidx.ui.test.findAll
-import androidx.ui.test.hasParentThat
+import androidx.ui.test.findByTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.sibling
 import androidx.ui.test.util.BoundaryNode
+import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,83 +31,71 @@ import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class HasParentTest {
+class SiblingSelectorTest {
 
     @get:Rule
-    val composeTestRule =
-        createComposeRule(disableTransitions = true)
+    val composeTestRule = createComposeRule()
 
     @Test
-    fun findByParent_oneSubtree_oneChild_matches() {
+    fun oneSibling() {
         composeTestRule.setContent {
-            BoundaryNode(testTag = "Node")
+            BoundaryNode(testTag = "Parent") {
+                BoundaryNode(testTag = "Child1")
+                BoundaryNode(testTag = "Child2")
+            }
+        }
+
+        findByTag("Child1")
+            .sibling()
+            .assert(hasTestTag("Child2"))
+    }
+
+    @Test
+    fun twoSiblings_fail() {
+        composeTestRule.setContent {
+            BoundaryNode(testTag = "Parent") {
+                BoundaryNode(testTag = "Child1")
+                BoundaryNode(testTag = "Child2")
+                BoundaryNode(testTag = "Child3")
+            }
+        }
+
+        expectErrorMessageStartsWith("" +
+                "Failed to assert the following: (TestTag = 'Child2')\n" +
+                "Reason: Expected exactly '1' node but found '2' nodes that satisfy: " +
+                "((TestTag = 'Child1').sibling)\n" +
+                "Nodes found:"
+
+        ) {
+            findByTag("Child1")
+                .sibling()
+                .assert(hasTestTag("Child2"))
+        }
+    }
+
+    @Test
+    fun noSibling() {
+        composeTestRule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child")
             }
         }
 
-        find(hasParentThat(hasTestTag("Parent")))
-            .assert(hasTestTag("Child"))
-    }
-
-    @Test
-    fun findByParent_oneSubtree_twoChildren_matches() {
-        composeTestRule.setContent {
-            BoundaryNode(testTag = "Node")
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child1")
-                BoundaryNode(testTag = "Child2")
-            }
-        }
-
-        findAll(hasParentThat(hasTestTag("Parent")))
-            .assertCountEquals(2)
-    }
-
-    @Test
-    fun findByParent_twoSubtrees_twoChildren_matches() {
-        composeTestRule.setContent {
-            BoundaryNode(testTag = "Node")
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child1")
-                BoundaryNode(testTag = "Child2")
-            }
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child3")
-                BoundaryNode(testTag = "Child4")
-            }
-        }
-
-        findAll(hasParentThat(hasTestTag("Parent")))
-            .assertCountEquals(4)
-    }
-
-    @Test
-    fun findByParent_nothingFound() {
-        composeTestRule.setContent {
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "ExtraNode") {
-                    BoundaryNode(testTag = "Child")
-                }
-            }
-        }
-
-        find(hasParentThat(hasTestTag("Parent"))
-                and hasTestTag("Child"))
+        findByTag("Child")
+            .sibling()
             .assertDoesNotExist()
     }
 
-    @Test
-    fun findByGrandParent_oneFound() {
+    @Test(expected = AssertionError::class)
+    fun noSibling_fail() {
         composeTestRule.setContent {
             BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "ExtraNode") {
-                    BoundaryNode(testTag = "Child")
-                }
+                BoundaryNode(testTag = "Child")
             }
         }
 
-        find(hasParentThat(hasParentThat(hasTestTag("Parent"))))
-            .assert(hasTestTag("Child"))
+        findByTag("Child")
+            .sibling()
+            .assertExists()
     }
 }

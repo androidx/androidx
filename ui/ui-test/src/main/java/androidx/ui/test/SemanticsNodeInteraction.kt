@@ -27,6 +27,13 @@ internal fun SemanticsNodeInteraction(
     return SemanticsNodeInteraction(listOf(node), selector)
 }
 
+internal fun SemanticsNodeInteraction(
+    selector: SemanticsMatcher
+): SemanticsNodeInteraction {
+    val matchedNodes = selector.match(getAllSemanticsNodes()).toList()
+    return SemanticsNodeInteraction(matchedNodes, selector)
+}
+
 /**
  * Represents a component with which one can interact with the hierarchy.
  * Examples of interactions include [findByTag], [isToggleable], [assertIsOn], [doClick]
