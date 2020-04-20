@@ -132,6 +132,7 @@ class FragmentReceiveResultTest {
         return fragment
     }
 
+    @Suppress("DEPRECATION")
     private fun startActivityForResult(
         requestCode: Int,
         resultCode: Int,
@@ -148,6 +149,7 @@ class FragmentReceiveResultTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 
+    @Suppress("DEPRECATION")
     private fun startIntentSenderForResult(
         requestCode: Int,
         resultCode: Int,
