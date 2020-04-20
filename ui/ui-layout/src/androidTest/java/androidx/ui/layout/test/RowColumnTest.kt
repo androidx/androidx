@@ -849,6 +849,52 @@ class RowColumnTest : LayoutTest() {
             childPosition[3]
         )
     }
+
+    @Test
+    fun testRow_withRelativeToSiblingsModifier_andWeight() = with(density) {
+        val baselineDp = 30.dp
+        val baseline = baselineDp.toIntPx()
+        val sizeDp = 40.dp
+        val size = sizeDp.toIntPx()
+
+        val drawLatch = CountDownLatch(2)
+        val childSize = arrayOfNulls<IntPxSize>(2)
+        val childPosition = arrayOfNulls<PxPosition>(2)
+        show {
+            Row(Modifier.fillMaxHeight()) {
+                BaselineTestLayout(
+                    baseline = baselineDp,
+                    width = sizeDp,
+                    height = sizeDp,
+                    modifier = Modifier.alignWithSiblings(TestHorizontalLine)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[0] = coordinates.size
+                            childPosition[0] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        }
+                ) {
+                }
+                Container(
+                    height = sizeDp,
+                    modifier = Modifier.alignWithSiblings { it.height * 0.5 }
+                        .weight(1f)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[1] = coordinates.size
+                            childPosition[1] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        }
+                ) {
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(IntPxSize(size, size), childSize[0])
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+
+        assertEquals(size, childSize[1]!!.height)
+        assertEquals(PxPosition(size.toPx(), (baseline - size / 2).toPx()), childPosition[1])
+    }
     // endregion
 
     // region Cross axis alignment tests in Column
@@ -1107,6 +1153,52 @@ class RowColumnTest : LayoutTest() {
             PxPosition((size - firstBaseline2Dp.toIntPx()).toPx(), size.toPx() * 3),
             childPosition[3]
         )
+    }
+
+    @Test
+    fun testColumn_withRelativeToSiblingsModifier_andWeight() = with(density) {
+        val baselineDp = 30.dp
+        val baseline = baselineDp.toIntPx()
+        val sizeDp = 40.dp
+        val size = sizeDp.toIntPx()
+
+        val drawLatch = CountDownLatch(2)
+        val childSize = arrayOfNulls<IntPxSize>(2)
+        val childPosition = arrayOfNulls<PxPosition>(2)
+        show {
+            Column(Modifier.fillMaxWidth()) {
+                BaselineTestLayout(
+                    baseline = baselineDp,
+                    width = sizeDp,
+                    height = sizeDp,
+                    modifier = Modifier.alignWithSiblings(TestVerticalLine)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[0] = coordinates.size
+                            childPosition[0] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        }
+                ) {
+                }
+                Container(
+                    width = sizeDp,
+                    modifier = Modifier.alignWithSiblings { it.width * 0.5 }
+                        .weight(1f)
+                        .onPositioned { coordinates: LayoutCoordinates ->
+                            childSize[1] = coordinates.size
+                            childPosition[1] = coordinates.globalPosition
+                            drawLatch.countDown()
+                        }
+                ) {
+                }
+            }
+        }
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(IntPxSize(size, size), childSize[0])
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+
+        assertEquals(size, childSize[1]!!.width)
+        assertEquals(PxPosition((baseline - (size / 2)).toPx(), size.toPx()), childPosition[1])
     }
     // endregion
 
