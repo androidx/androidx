@@ -75,6 +75,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -119,7 +121,7 @@ final class Camera2CameraImpl implements CameraInternal {
             new LiveDataObservable<>();
     /** The camera control shared across all use cases bound to this Camera. */
     private final Camera2CameraControl mCameraControlInternal;
-    private final StateCallback mStateCallback = new StateCallback();
+    private final StateCallback mStateCallback;
     /** Information about the characteristics of this camera */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @NonNull
@@ -180,6 +182,7 @@ final class Camera2CameraImpl implements CameraInternal {
         ScheduledExecutorService executorScheduler =
                 CameraXExecutors.newHandlerExecutor(schedulerHandler);
         mExecutor = CameraXExecutors.newSequentialExecutor(executor);
+        mStateCallback = new StateCallback(mExecutor, executorScheduler);
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mObservableState.postValue(State.CLOSED);
 
@@ -269,7 +272,12 @@ final class Camera2CameraImpl implements CameraInternal {
                 break;
             case OPENING:
             case REOPENING:
+                boolean canFinish = mStateCallback.cancelScheduledReopen();
                 setState(InternalState.CLOSING);
+                if (canFinish) {
+                    Preconditions.checkState(isSessionCloseComplete());
+                    finishClose();
+                }
                 break;
             case PENDING_OPEN:
                 // We should be able to transition directly to an initialized state since the
@@ -438,8 +446,13 @@ final class Camera2CameraImpl implements CameraInternal {
             case CLOSING:
             case REOPENING:
             case RELEASING:
+                boolean canFinish = mStateCallback.cancelScheduledReopen();
                 // Wait for the camera async callback to finish releasing
                 setState(InternalState.RELEASING);
+                if (canFinish) {
+                    Preconditions.checkState(isSessionCloseComplete());
+                    finishClose();
+                }
                 break;
             default:
                 debugLog("release() ignored due to being in state: " + mState);
@@ -768,6 +781,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
     void openCameraDevice() {
+        mStateCallback.cancelScheduledReopen();
         // Check that we have an available camera to open here before attempting
         // to open the camera again.
         if (!mCameraAvailability.isCameraAvailable() || !mCameraStateRegistry.tryOpenCamera(this)) {
@@ -1216,6 +1230,23 @@ final class Camera2CameraImpl implements CameraInternal {
 
     final class StateCallback extends CameraDevice.StateCallback {
 
+        // Delay long enough to guarantee the app could have been backgrounded.
+        // See ProcessLifecycleProvider for where this delay comes from.
+        private static final int REOPEN_DELAY_MS = 700;
+
+        @CameraExecutor
+        private final Executor mExecutor;
+        private final ScheduledExecutorService mScheduler;
+        private ScheduledReopen mScheduledReopenRunnable;
+        @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+                ScheduledFuture<?> mScheduledReopenHandle;
+
+        StateCallback(@NonNull @CameraExecutor Executor executor, @NonNull ScheduledExecutorService
+                scheduler) {
+            this.mExecutor = executor;
+            this.mScheduler = scheduler;
+        }
+
         @Override
         @ExecutedBy("mExecutor")
         public void onOpened(@NonNull CameraDevice cameraDevice) {
@@ -1258,7 +1289,20 @@ final class Camera2CameraImpl implements CameraInternal {
                     finishClose();
                     break;
                 case REOPENING:
-                    openCameraDevice();
+                    if (mCameraDeviceError != ERROR_NONE) {
+                        Preconditions.checkState(mScheduledReopenRunnable == null);
+                        Preconditions.checkState(mScheduledReopenHandle == null);
+                        mScheduledReopenRunnable = new ScheduledReopen(mExecutor);
+                        debugLog(
+                                "Camera closed due to error: " + getErrorMessage(mCameraDeviceError)
+                                        + ". Attempting re-open in " + REOPEN_DELAY_MS + "ms: "
+                                        + mScheduledReopenRunnable);
+                        mScheduledReopenHandle = mScheduler.schedule(mScheduledReopenRunnable,
+                                REOPEN_DELAY_MS,
+                                TimeUnit.MILLISECONDS);
+                    } else {
+                        openCameraDevice();
+                    }
                     break;
                 default:
                     throw new IllegalStateException("Camera closed while in state: " + mState);
@@ -1355,6 +1399,66 @@ final class Camera2CameraImpl implements CameraInternal {
                             + "in an error state.");
             setState(InternalState.REOPENING);
             closeCamera(/*abortInFlightCaptures=*/false);
+        }
+
+        /**
+         * Attempts to cancel reopen.
+         *
+         * <p>If successful, it is safe to finish closing the camera via {@link #finishClose()} as
+         * a reopen will only be scheduled after {@link #onClosed(CameraDevice)} has been called.
+         *
+         * @return true if reopen was cancelled. False if no re-open was scheduled.
+         */
+        @ExecutedBy("mExecutor")
+        boolean cancelScheduledReopen() {
+            boolean cancelled = false;
+            if (mScheduledReopenHandle != null) {
+                // A reopen has been scheduled
+                debugLog("Cancelling scheduled re-open: " + mScheduledReopenRunnable);
+
+                // Ensure the runnable doesn't try to open the camera if it has already
+                // been pushed to the executor.
+                mScheduledReopenRunnable.cancel();
+                mScheduledReopenRunnable = null;
+
+                // Un-schedule the runnable in case if hasn't run.
+                mScheduledReopenHandle.cancel(/*mayInterruptIfRunning=*/false);
+                mScheduledReopenHandle = null;
+
+                cancelled = true;
+            }
+
+            return cancelled;
+        }
+
+        /**
+         * A {@link Runnable} which will attempt to reopen the camera after a scheduled delay.
+         */
+        class ScheduledReopen implements Runnable {
+
+            @CameraExecutor
+            private Executor mExecutor;
+            private boolean mCancelled = false;
+
+            ScheduledReopen(@NonNull @CameraExecutor Executor executor) {
+                mExecutor = executor;
+            }
+
+            void cancel() {
+                mCancelled = true;
+            }
+
+            @Override
+            public void run() {
+                mExecutor.execute(() -> {
+                    // Scheduled reopen may have been cancelled after execute(). Check to ensure
+                    // this is still the scheduled reopen.
+                    if (!mCancelled) {
+                        Preconditions.checkState(mState == InternalState.REOPENING);
+                        openCameraDevice();
+                    }
+                });
+            }
         }
     }
 
