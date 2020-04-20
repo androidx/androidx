@@ -1,4 +1,4 @@
-import androidx.build.AndroidXPlugin
+import androidx.build.AndroidXRootPlugin
 import androidx.build.SdkHelperKt
 
 buildscript {
@@ -27,4 +27,4 @@ apply from: "buildSrc/dependencies.gradle"
 apply from: "buildSrc/out.gradle"
 init.chooseOutDir("/ui")
 
-apply plugin: AndroidXPlugin
+apply plugin: AndroidXRootPlugin
