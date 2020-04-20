@@ -1019,7 +1019,10 @@ class PagerTest {
             advanceUntilIdle()
 
             assertEvents(
-                listOf(LoadStateUpdate(REFRESH, Error(EXCEPTION))),
+                listOf(
+                    LoadStateUpdate(REFRESH, Loading),
+                    LoadStateUpdate(REFRESH, Error(EXCEPTION))
+                ),
                 pageEvents
             )
         }
