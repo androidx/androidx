@@ -16,6 +16,9 @@
 
 package androidx.ui.foundation
 
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.layout.Stack
@@ -109,6 +112,83 @@ class ClickableTest {
 
         runOnIdleCompose {
             assertThat(counter).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun clickableTest_interactionState() {
+        val interactionState = InteractionState()
+
+        composeTestRule.setContent {
+            Stack {
+                TestTag(tag = "myClickable") {
+                    Clickable(onClick = {}, interactionState = interactionState) {
+                        Text("ClickableText")
+                    }
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
+
+        // TODO: b/154498119 simulate press event, replace with gesture injection when supported
+        runOnIdleCompose {
+            interactionState.addInteraction(Interaction.Pressed)
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).contains(Interaction.Pressed)
+        }
+
+        // TODO: b/154498119 simulate press event, replace with gesture injection when supported
+        runOnIdleCompose {
+            interactionState.removeInteraction(Interaction.Pressed)
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
+    }
+
+    @Test
+    fun clickableTest_interactionState_resetWhenDisposed() {
+        val interactionState = InteractionState()
+        var emitClickableText by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Stack {
+                TestTag(tag = "myClickable") {
+                    if (emitClickableText) {
+                        Clickable(onClick = {}, interactionState = interactionState) {
+                            Text("ClickableText")
+                        }
+                    }
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
+
+        // TODO: b/154498119 simulate press event, replace with gesture injection when supported
+        runOnIdleCompose {
+            interactionState.addInteraction(Interaction.Pressed)
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).contains(Interaction.Pressed)
+        }
+
+        // Dispose clickable
+        runOnIdleCompose {
+            emitClickableText = false
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
         }
     }
 }

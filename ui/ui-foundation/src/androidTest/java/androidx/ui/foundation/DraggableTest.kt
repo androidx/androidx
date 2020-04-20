@@ -17,7 +17,9 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
@@ -342,6 +344,82 @@ class DraggableTest {
             assertThat(outerDrag).isGreaterThan(0f)
             // we consumed half delta in child, so exactly half should go to the parent
             assertThat(outerDrag).isEqualTo(innerDrag)
+        }
+    }
+
+    @Test
+    fun draggable_interactionState() {
+        val interactionState = InteractionState()
+
+        setDraggableContent {
+            Modifier.draggable(DragDirection.Horizontal, interactionState = interactionState) { 0f }
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
+        }
+
+        // TODO: b/154498119 simulate drag event, replace with gesture injection when supported
+        runOnIdleCompose {
+            interactionState.addInteraction(Interaction.Dragged)
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).contains(Interaction.Dragged)
+        }
+
+        // TODO: b/154498119 simulate drag event, replace with gesture injection when supported
+        runOnIdleCompose {
+            interactionState.removeInteraction(Interaction.Dragged)
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
+        }
+    }
+
+    @Test
+    fun draggable_interactionState_resetWhenDisposed() {
+        val interactionState = InteractionState()
+        var emitDraggableBox by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            Stack {
+                TestTag(draggableBoxTag) {
+                    Semantics(container = true) {
+                        if (emitDraggableBox) {
+                            Box(modifier = Modifier.preferredSize(100.dp)
+                                .draggable(
+                                    DragDirection.Horizontal,
+                                    interactionState = interactionState
+                                ) { 0f }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
+        }
+
+        // TODO: b/154498119 simulate drag event, replace with gesture injection when supported
+        runOnIdleCompose {
+            interactionState.addInteraction(Interaction.Dragged)
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).contains(Interaction.Dragged)
+        }
+
+        // Dispose draggable
+        runOnIdleCompose {
+            emitDraggableBox = false
+        }
+
+        runOnIdleCompose {
+            assertThat(interactionState.value).doesNotContain(Interaction.Dragged)
         }
     }
 
