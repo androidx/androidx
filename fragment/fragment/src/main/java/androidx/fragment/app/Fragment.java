@@ -55,6 +55,9 @@ import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
+import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -1343,7 +1346,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Call {@link Activity#startActivityForResult(Intent, int)} from the fragment's
      * containing Activity.
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
+    @Deprecated
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
             int requestCode) {
         startActivityForResult(intent, requestCode, null);
@@ -1352,7 +1360,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Call {@link Activity#startActivityForResult(Intent, int, Bundle)} from the fragment's
      * containing Activity.
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
+    @Deprecated
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
             int requestCode, @Nullable Bundle options) {
         if (mHost == null) {
@@ -1364,7 +1376,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Call {@link Activity#startIntentSenderForResult(IntentSender, int, Intent, int, int, int,
      * Bundle)} from the fragment's containing Activity.
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartIntentSenderForResult} object for the
+     * {@link ActivityResultContract}.
      */
+    @Deprecated
     public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
@@ -1388,7 +1406,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                   through its setResult().
      * @param data An Intent, which can return result data to the caller
      *               (various data can be attached to Intent "extras").
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * with the appropriate {@link ActivityResultContract} and handling the result in the
+     * {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
+    @Deprecated
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
     }
 
@@ -1464,7 +1488,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @see #onRequestPermissionsResult(int, String[], int[])
      * @see android.content.Context#checkSelfPermission(String)
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing
+     * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
+     * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
+    @Deprecated
     public final void requestPermissions(@NonNull String[] permissions, int requestCode) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
@@ -1488,7 +1517,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
      *
      * @see #requestPermissions(String[], int)
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing
+     * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
+     * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
+    @Deprecated
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
         /* callback - do nothing */

@@ -149,6 +149,7 @@ public class FragmentActivity extends ComponentActivity implements
     /**
      * Dispatch incoming result to the correct fragment.
      */
+    @SuppressWarnings("deprecation")
     @Override
     @CallSuper
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -754,6 +755,7 @@ public class FragmentActivity extends ComponentActivity implements
      *
      * @see #requestPermissions(String[], int)
      */
+    @SuppressWarnings("deprecation")
     @CallSuper
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
