@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.SpinnerAdapter;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.WindowCallbackWrapper;
 import androidx.appcompat.view.menu.MenuBuilder;
@@ -555,7 +556,7 @@ class ToolbarActionBar extends ActionBar {
         }
 
         @Override
-        public boolean onOpenSubMenu(MenuBuilder subMenu) {
+        public boolean onOpenSubMenu(@NonNull MenuBuilder subMenu) {
             if (mWindowCallback != null) {
                 mWindowCallback.onMenuOpened(AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR, subMenu);
                 return true;
@@ -564,7 +565,7 @@ class ToolbarActionBar extends ActionBar {
         }
 
         @Override
-        public void onCloseMenu(MenuBuilder menu, boolean allMenusAreClosing) {
+        public void onCloseMenu(@NonNull MenuBuilder menu, boolean allMenusAreClosing) {
             if (mClosingActionMenu) {
                 return;
             }
@@ -584,12 +585,12 @@ class ToolbarActionBar extends ActionBar {
         }
 
         @Override
-        public boolean onMenuItemSelected(MenuBuilder menu, MenuItem item) {
+        public boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
             return false;
         }
 
         @Override
-        public void onMenuModeChange(MenuBuilder menu) {
+        public void onMenuModeChange(@NonNull MenuBuilder menu) {
             if (mWindowCallback != null) {
                 if (mDecorToolbar.isOverflowMenuShowing()) {
                     mWindowCallback.onPanelClosed(AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR, menu);
