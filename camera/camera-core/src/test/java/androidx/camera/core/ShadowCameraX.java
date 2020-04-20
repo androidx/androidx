@@ -16,10 +16,11 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
@@ -32,16 +33,21 @@ import org.robolectric.annotation.Implements;
  */
 @Implements(CameraX.class)
 public class ShadowCameraX {
-    public static final String DEFAULT_CAMERA_ID = "DEFAULT_CAMERA_ID";
+    public static final String DEFAULT_CAMERA_ID = "0";
 
     private static final UseCaseConfig<ImageAnalysis> DEFAULT_IMAGE_ANALYSIS_CONFIG =
             new ImageAnalysis.Builder().setSessionOptionUnpacker(
-                    new SessionConfig.OptionUnpacker() {
-                        @Override
-                        public void unpack(@NonNull UseCaseConfig<?> config,
-                                @NonNull SessionConfig.Builder builder) {
-                            // no op.
-                        }
+                    (config, builder) -> {
+                    }).getUseCaseConfig();
+
+    private static final UseCaseConfig<Preview> DEFAULT_PREVIEW_CONFIG =
+            new Preview.Builder().setSessionOptionUnpacker(
+                    (config, builder) -> {
+                    }).getUseCaseConfig();
+
+    private static final UseCaseConfig<ImageCapture> DEFAULT_IMAGE_CAPTURE_CONFIG =
+            new ImageCapture.Builder().setSessionOptionUnpacker(
+                    (config, builder) -> {
                     }).getUseCaseConfig();
 
     private static final CameraInfo DEFAULT_CAMERA_INFO = new FakeCameraInfoInternal();
@@ -64,7 +70,15 @@ public class ShadowCameraX {
     @Implementation
     public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(Class<C> configType,
             @Nullable CameraInfo cameraInfo) {
-        return (C) DEFAULT_IMAGE_ANALYSIS_CONFIG;
+        if (configType.equals(PreviewConfig.class)) {
+            return (C) DEFAULT_PREVIEW_CONFIG;
+        } else if (configType.equals(ImageAnalysisConfig.class)) {
+            return (C) DEFAULT_IMAGE_ANALYSIS_CONFIG;
+        } else if (configType.equals(ImageCaptureConfig.class)) {
+            return (C) DEFAULT_IMAGE_CAPTURE_CONFIG;
+        }
+        throw new UnsupportedOperationException(
+                "Shadow UseCase config not implemented: " + configType);
     }
 
     /**
