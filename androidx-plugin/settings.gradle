@@ -1,0 +1,3 @@
+include ':gradle-plugin'
+include ':jetpad-integration'
+project(':jetpad-integration').projectDir = file('../buildSrc/jetpad-integration')
