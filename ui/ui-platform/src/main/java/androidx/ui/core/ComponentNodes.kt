@@ -741,8 +741,8 @@ class LayoutNode : ComponentNode(), Measurable {
                 if (mod is PointerInputModifier) {
                     wrapper = PointerInputDelegatingWrapper(wrapper, mod)
                 }
-                if (mod is LayoutModifier2) {
-                    wrapper = ModifiedLayoutNode2(wrapper, mod)
+                if (mod is LayoutModifier) {
+                    wrapper = ModifiedLayoutNode(wrapper, mod)
                 }
                 if (mod is ParentDataModifier) {
                     wrapper = ModifiedParentDataNode(wrapper, mod)

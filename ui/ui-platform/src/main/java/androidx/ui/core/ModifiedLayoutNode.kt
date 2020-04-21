@@ -21,12 +21,11 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
 
-internal class ModifiedLayoutNode2(
+internal class ModifiedLayoutNode(
     wrapped: LayoutNodeWrapper,
-    private val layoutModifier: LayoutModifier2
-) : DelegatingLayoutNodeWrapper<LayoutModifier2>(wrapped, layoutModifier) {
+    private val layoutModifier: LayoutModifier
+) : DelegatingLayoutNodeWrapper<LayoutModifier>(wrapped, layoutModifier) {
 
     override val measureScope = ModifierMeasureScope()
 
@@ -36,7 +35,7 @@ internal class ModifiedLayoutNode2(
     ): Placeable = with(layoutModifier) {
         measureScope.layoutDirection = layoutDirection
         measureResult = measureScope.measure(wrapped, constraints, layoutDirection)
-        this@ModifiedLayoutNode2
+        this@ModifiedLayoutNode
     }
 
     override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =

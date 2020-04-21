@@ -21,7 +21,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -334,7 +334,7 @@ fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVerti
 fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
     this + AlignmentModifier(align, Direction.Both)
 
-private data class FillModifier(private val direction: Direction) : LayoutModifier2 {
+private data class FillModifier(private val direction: Direction) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -368,7 +368,7 @@ private data class SizeModifier(
     private val maxWidth: Dp = Dp.Unspecified,
     private val maxHeight: Dp = Dp.Unspecified,
     private val enforceIncoming: Boolean
-) : LayoutModifier2 {
+) : LayoutModifier {
     private val Density.targetConstraints
         get() = Constraints(
             minWidth = if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0.ipx,
@@ -460,7 +460,7 @@ private data class SizeModifier(
 private data class AlignmentModifier(
     private val alignment: Alignment,
     private val direction: Direction
-) : LayoutModifier2 {
+) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,

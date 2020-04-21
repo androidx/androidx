@@ -23,7 +23,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -171,7 +171,7 @@ fun ExtendedFloatingActionButton(
  *
  * TODO: b/150460257 remove after support for this is added as a SizeModifier / similar
  */
-private object MinimumFabSizeModifier : LayoutModifier2 {
+private object MinimumFabSizeModifier : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -198,25 +198,25 @@ private object MinimumFabSizeModifier : LayoutModifier2 {
         measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = max(measurable.minIntrinsicWidth(height, layoutDirection), FabSize.toIntPx())
+    ) = max(measurable.minIntrinsicWidth(height), FabSize.toIntPx())
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = max(measurable.minIntrinsicHeight(width, layoutDirection), FabSize.toIntPx())
+    ) = max(measurable.minIntrinsicHeight(width), FabSize.toIntPx())
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = max(measurable.maxIntrinsicWidth(height, layoutDirection), FabSize.toIntPx())
+    ) = max(measurable.maxIntrinsicWidth(height), FabSize.toIntPx())
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = max(measurable.maxIntrinsicHeight(width, layoutDirection), FabSize.toIntPx())
+    ) = max(measurable.maxIntrinsicHeight(width), FabSize.toIntPx())
 }
 
 private val FabSize = 56.dp

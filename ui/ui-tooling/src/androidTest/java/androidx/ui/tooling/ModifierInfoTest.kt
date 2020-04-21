@@ -20,7 +20,7 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.OwnedLayer
 import androidx.ui.core.drawLayer
@@ -73,12 +73,12 @@ class ModifierInfoTest : ToolingTest() {
             val boxModifierInfo = modifierInfo[0]
             assertEquals(2, boxModifierInfo.size)
             assertTrue("Box should only have LayoutModifiers, but the first was " +
-                "${boxModifierInfo[0].modifier}", boxModifierInfo[0].modifier is LayoutModifier2)
+                "${boxModifierInfo[0].modifier}", boxModifierInfo[0].modifier is LayoutModifier)
             assertEquals(10.px, boxModifierInfo[0].coordinates.positionInRoot.x)
 
             assertTrue("Box should only have LayoutModifiers, but the second was " +
                     "${boxModifierInfo[1].modifier}",
-                boxModifierInfo[1].modifier is androidx.ui.core.LayoutModifier2
+                boxModifierInfo[1].modifier is LayoutModifier
             )
             assertEquals(15.px, boxModifierInfo[1].coordinates.positionInRoot.x)
 
@@ -87,7 +87,7 @@ class ModifierInfoTest : ToolingTest() {
             assertTrue(
                 "The first modifier in the column should be a LayoutModifier" +
                         "but was ${columnModifierInfo[0].modifier}",
-                columnModifierInfo[0].modifier is LayoutModifier2
+                columnModifierInfo[0].modifier is LayoutModifier
             )
             assertEquals(0.px, columnModifierInfo[0].coordinates.positionInRoot.x)
             assertTrue(

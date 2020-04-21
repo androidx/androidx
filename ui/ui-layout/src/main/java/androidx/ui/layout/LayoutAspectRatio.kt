@@ -21,7 +21,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -47,7 +47,7 @@ fun Modifier.aspectRatio(
     ratio: Float
 ) = this + AspectRatioModifier(ratio)
 
-private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier2 {
+private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier {
     init {
         require(aspectRatio > 0) { "aspectRatio $aspectRatio must be > 0" }
     }

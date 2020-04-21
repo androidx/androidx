@@ -121,7 +121,7 @@ private data class PainterModifier(
     val alpha: Float = DefaultAlpha,
     val colorFilter: ColorFilter? = null,
     val rtl: Boolean = false
-) : LayoutModifier2, DrawModifier {
+) : LayoutModifier, DrawModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,

@@ -39,7 +39,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.LayoutModifier2
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -57,7 +56,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.ipx
 import junit.framework.TestCase.assertNotNull
@@ -383,7 +381,7 @@ class AndroidViewCompatTest {
         }
     }
 
-    fun LayoutConstraints(childConstraints: Constraints) = object : LayoutModifier2 {
+    fun LayoutConstraints(childConstraints: Constraints) = object : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
             constraints: Constraints,

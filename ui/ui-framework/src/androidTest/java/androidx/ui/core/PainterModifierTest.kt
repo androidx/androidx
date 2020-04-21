@@ -39,9 +39,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.toArgb
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
@@ -463,7 +461,7 @@ class PainterModifierTest {
         }
     }
 
-    class FixedSizeModifier(val width: IntPx, val height: IntPx = width) : LayoutModifier2 {
+    class FixedSizeModifier(val width: IntPx, val height: IntPx = width) : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
             constraints: Constraints,

@@ -34,7 +34,7 @@ import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -96,7 +96,7 @@ fun Modifier.ripple(
     pressIndicator + rippleModifier
 }
 
-private class RippleModifier : DrawModifier, LayoutModifier2, CompositionLifecycleObserver {
+private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycleObserver {
 
     var color: Color by mutableStateOf(Color.Transparent, StructurallyEqual)
 

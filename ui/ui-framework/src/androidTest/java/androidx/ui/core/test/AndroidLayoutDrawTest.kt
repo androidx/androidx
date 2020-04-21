@@ -41,13 +41,12 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
-import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
@@ -78,7 +77,6 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.rtl
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
@@ -1649,7 +1647,7 @@ class AndroidLayoutDrawTest {
 
     @Test
     fun modifiers_validateCorrectSizes() {
-        val layoutModifier = object : LayoutModifier2 {
+        val layoutModifier = object : LayoutModifier {
             override fun MeasureScope.measure(
                 measurable: Measurable,
                 constraints: Constraints,
@@ -2758,7 +2756,7 @@ data class PaddingModifier(
     val top: IntPx = 0.ipx,
     val right: IntPx = 0.ipx,
     val bottom: IntPx = 0.ipx
-) : LayoutModifier2 {
+) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -2805,39 +2803,9 @@ data class PaddingModifier(
         layoutDirection: LayoutDirection
     ): IntPx = measurable.maxIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
             (top + bottom)
-
-    override fun Density.modifyConstraints(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ) = constraints.offset(
-        horizontal = -left - right,
-        vertical = -top - bottom
-    )
-
-    override fun Density.modifySize(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection,
-        childSize: IntPxSize
-    ) = IntPxSize(
-        (left + childSize.width + right)
-            .coerceIn(constraints.minWidth, constraints.maxWidth),
-        (top + childSize.height + bottom)
-            .coerceIn(constraints.minHeight, constraints.maxHeight)
-    )
-
-    override fun Density.modifyPosition(
-        childSize: IntPxSize,
-        containerSize: IntPxSize,
-        layoutDirection: LayoutDirection
-    ) = IntPxPosition(left, top)
-=======
-    ): IntPx =
-        measurable.maxIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
-                (top + bottom)
->>>>>>> 8c2936f133... Remove deprecated LayoutModifier interface
 }
 
-internal val AlignTopLeft = object : LayoutModifier2 {
+internal val AlignTopLeft = object : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -2942,7 +2910,7 @@ fun Modifier.background(model: SquareModel, isInner: Boolean) = drawBehind {
     drawRect(size.toRect(), paint)
 }
 
-class CombinedModifier(color: Color) : LayoutModifier2, DrawModifier {
+class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
     val paint = Paint().also { paint ->
         paint.color = color
         paint.style = PaintingStyle.fill
@@ -2970,7 +2938,7 @@ class CombinedModifier(color: Color) : LayoutModifier2, DrawModifier {
 fun Modifier.scale(scale: Float) = plus(LayoutScale(scale))
     .drawLayer(scaleX = scale, scaleY = scale)
 
-class LayoutScale(val scale: Float) : LayoutModifier2 {
+class LayoutScale(val scale: Float) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,

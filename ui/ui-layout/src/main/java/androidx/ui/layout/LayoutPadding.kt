@@ -20,7 +20,7 @@ import androidx.compose.Immutable
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.offset
@@ -116,7 +116,7 @@ private data class PaddingModifier(
     val end: Dp = 0.dp,
     val bottom: Dp = 0.dp,
     val rtlAware: Boolean
-) : LayoutModifier2 {
+) : LayoutModifier {
     init {
         require(start.value >= 0f && top.value >= 0f && end.value >= 0f && bottom.value >= 0f) {
             "Padding must be non-negative"

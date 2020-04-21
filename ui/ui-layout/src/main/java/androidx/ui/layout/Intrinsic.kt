@@ -22,7 +22,7 @@ import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -75,12 +75,11 @@ fun Modifier.preferredHeight(intrinsicSize: IntrinsicSize) = when (intrinsicSize
 enum class IntrinsicSize { Min, Max }
 
 private object PreferredMinIntrinsicWidthModifier : PreferredIntrinsicSizeModifier {
-    override fun calculateContentConstraints(
+    override fun MeasureScope.calculateContentConstraints(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): Constraints {
-        val width = measurable.minIntrinsicWidth(constraints.maxHeight, layoutDirection)
+        val width = measurable.minIntrinsicWidth(constraints.maxHeight)
         return Constraints.fixedWidth(width)
     }
 
@@ -88,16 +87,15 @@ private object PreferredMinIntrinsicWidthModifier : PreferredIntrinsicSizeModifi
         measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.minIntrinsicWidth(height, layoutDirection)
+    ) = measurable.minIntrinsicWidth(height)
 }
 
 private object PreferredMinIntrinsicHeightModifier : PreferredIntrinsicSizeModifier {
-    override fun calculateContentConstraints(
+    override fun MeasureScope.calculateContentConstraints(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): Constraints {
-        val height = measurable.minIntrinsicHeight(constraints.maxWidth, layoutDirection)
+        val height = measurable.minIntrinsicHeight(constraints.maxWidth)
         return Constraints.fixedHeight(height)
     }
 
@@ -105,16 +103,15 @@ private object PreferredMinIntrinsicHeightModifier : PreferredIntrinsicSizeModif
         measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.minIntrinsicHeight(width, layoutDirection)
+    ) = measurable.minIntrinsicHeight(width)
 }
 
 private object PreferredMaxIntrinsicWidthModifier : PreferredIntrinsicSizeModifier {
-    override fun calculateContentConstraints(
+    override fun MeasureScope.calculateContentConstraints(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): Constraints {
-        val width = measurable.maxIntrinsicWidth(constraints.maxHeight, layoutDirection)
+        val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
         return Constraints.fixedWidth(width)
     }
 
@@ -126,12 +123,11 @@ private object PreferredMaxIntrinsicWidthModifier : PreferredIntrinsicSizeModifi
 }
 
 private object PreferredMaxIntrinsicHeightModifier : PreferredIntrinsicSizeModifier {
-    override fun calculateContentConstraints(
+    override fun MeasureScope.calculateContentConstraints(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): Constraints {
-        val height = measurable.maxIntrinsicHeight(constraints.maxWidth, layoutDirection)
+        val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
         return Constraints.fixedHeight(height)
     }
 
@@ -139,14 +135,13 @@ private object PreferredMaxIntrinsicHeightModifier : PreferredIntrinsicSizeModif
         measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.maxIntrinsicHeight(width, layoutDirection)
+    ) = measurable.maxIntrinsicHeight(width)
 }
 
-private interface PreferredIntrinsicSizeModifier : LayoutModifier2 {
-    fun calculateContentConstraints(
+private interface PreferredIntrinsicSizeModifier : LayoutModifier {
+    fun MeasureScope.calculateContentConstraints(
         measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
+        constraints: Constraints
     ): Constraints
 
     override fun MeasureScope.measure(
@@ -157,8 +152,7 @@ private interface PreferredIntrinsicSizeModifier : LayoutModifier2 {
         val placeable = measurable.measure(
             calculateContentConstraints(
                 measurable,
-                constraints,
-                layoutDirection
+                constraints
             ).enforce(constraints)
         )
         return layout(placeable.width, placeable.height) {

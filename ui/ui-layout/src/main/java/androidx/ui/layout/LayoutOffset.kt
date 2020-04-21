@@ -18,7 +18,7 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -33,7 +33,7 @@ import androidx.ui.unit.dp
  */
 fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) = this + OffsetModifier(x, y)
 
-private data class OffsetModifier(val x: Dp, val y: Dp) : LayoutModifier2 {
+private data class OffsetModifier(val x: Dp, val y: Dp) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,

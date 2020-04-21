@@ -30,16 +30,16 @@ import androidx.ui.unit.IntPxSize
  *
  * @see androidx.ui.core.Layout
  */
-interface LayoutModifier2 : Modifier.Element {
+interface LayoutModifier : Modifier.Element {
     /**
      * The function used to measure the modifier. The [measurable] corresponds to the
      * wrapped content, and it can be measured with the desired constraints according
-     * to the logic of the [LayoutModifier2]. The modifier needs to choose its own
+     * to the logic of the [LayoutModifier]. The modifier needs to choose its own
      * size, which can depend on the size chosen by the wrapped content (the obtained
      * [Placeable]), if the wrapped content was measured. The size needs to be returned
      * as part of a [MeasureScope.MeasureResult], alongside the placement logic of the
      * [Placeable], which defines how the wrapped content should be positioned inside
-     * the [LayoutModifier2]. A convenient way to create the [MeasureScope.MeasureResult]
+     * the [LayoutModifier]. A convenient way to create the [MeasureScope.MeasureResult]
      * is to use the [MeasureScope.layout] factory function.
      */
     fun MeasureScope.measure(
@@ -56,7 +56,7 @@ interface LayoutModifier2 : Modifier.Element {
         height: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx = MeasuringIntrinsics.minWidth(
-        this@LayoutModifier2,
+        this@LayoutModifier,
         this,
         measurable,
         height,
@@ -71,7 +71,7 @@ interface LayoutModifier2 : Modifier.Element {
         width: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx = MeasuringIntrinsics.minHeight(
-        this@LayoutModifier2,
+        this@LayoutModifier,
         this,
         measurable,
         width,
@@ -86,7 +86,7 @@ interface LayoutModifier2 : Modifier.Element {
         height: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx = MeasuringIntrinsics.maxWidth(
-        this@LayoutModifier2,
+        this@LayoutModifier,
         this,
         measurable,
         height,
@@ -101,7 +101,7 @@ interface LayoutModifier2 : Modifier.Element {
         width: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx = MeasuringIntrinsics.maxHeight(
-        this@LayoutModifier2,
+        this@LayoutModifier,
         this,
         measurable,
         width,
@@ -112,7 +112,7 @@ interface LayoutModifier2 : Modifier.Element {
 // TODO(popam): deduplicate from the copy-pasted logic of Layout.kt without making it public
 private object MeasuringIntrinsics {
     internal fun minWidth(
-        modifier: LayoutModifier2,
+        modifier: LayoutModifier,
         density: Density,
         intrinsicMeasurable: IntrinsicMeasurable,
         h: IntPx,
@@ -132,7 +132,7 @@ private object MeasuringIntrinsics {
     }
 
     internal fun minHeight(
-        modifier: LayoutModifier2,
+        modifier: LayoutModifier,
         density: Density,
         intrinsicMeasurable: IntrinsicMeasurable,
         w: IntPx,
@@ -152,7 +152,7 @@ private object MeasuringIntrinsics {
     }
 
     internal fun maxWidth(
-        modifier: LayoutModifier2,
+        modifier: LayoutModifier,
         density: Density,
         intrinsicMeasurable: IntrinsicMeasurable,
         h: IntPx,
@@ -172,7 +172,7 @@ private object MeasuringIntrinsics {
     }
 
     internal fun maxHeight(
-        modifier: LayoutModifier2,
+        modifier: LayoutModifier,
         density: Density,
         intrinsicMeasurable: IntrinsicMeasurable,
         w: IntPx,

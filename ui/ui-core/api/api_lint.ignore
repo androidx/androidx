@@ -21,23 +21,13 @@ AcronymName: androidx.ui.core.IntrinsicMeasureScope#minIntrinsicHeight-e0m06WU(a
     Acronyms should not be capitalized in method names: was `minIntrinsicHeight-e0m06WU`, should this be `minIntrinsicHeight-e0m06Wu`?
 AcronymName: androidx.ui.core.IntrinsicMeasureScope#minIntrinsicWidth-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int):
     Acronyms should not be capitalized in method names: was `minIntrinsicWidth-e0m06WU`, should this be `minIntrinsicWidth-e0m06Wu`?
-AcronymName: androidx.ui.core.LayoutModifier#maxIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `maxIntrinsicHeightOf-hc1DRLk`, should this be `maxIntrinsicHeightOf-hc1DrLk`?
-AcronymName: androidx.ui.core.LayoutModifier#maxIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `maxIntrinsicWidthOf-hc1DRLk`, should this be `maxIntrinsicWidthOf-hc1DrLk`?
-AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `minIntrinsicHeightOf-hc1DRLk`, should this be `minIntrinsicHeightOf-hc1DrLk`?
-AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `minIntrinsicWidthOf-hc1DRLk`, should this be `minIntrinsicWidthOf-hc1DrLk`?
-AcronymName: androidx.ui.core.LayoutModifier#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
-AcronymName: androidx.ui.core.LayoutModifier2#maxIntrinsicHeight-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
+AcronymName: androidx.ui.core.LayoutModifier#maxIntrinsicHeight-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
     Acronyms should not be capitalized in method names: was `maxIntrinsicHeight-QYUUffc`, should this be `maxIntrinsicHeight-QyuUffc`?
-AcronymName: androidx.ui.core.LayoutModifier2#maxIntrinsicWidth-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
+AcronymName: androidx.ui.core.LayoutModifier#maxIntrinsicWidth-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
     Acronyms should not be capitalized in method names: was `maxIntrinsicWidth-QYUUffc`, should this be `maxIntrinsicWidth-QyuUffc`?
-AcronymName: androidx.ui.core.LayoutModifier2#minIntrinsicHeight-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
+AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicHeight-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
     Acronyms should not be capitalized in method names: was `minIntrinsicHeight-QYUUffc`, should this be `minIntrinsicHeight-QyuUffc`?
-AcronymName: androidx.ui.core.LayoutModifier2#minIntrinsicWidth-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
+AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicWidth-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
     Acronyms should not be capitalized in method names: was `minIntrinsicWidth-QYUUffc`, should this be `minIntrinsicWidth-QyuUffc`?
 
 
