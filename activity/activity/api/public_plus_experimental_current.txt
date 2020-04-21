@@ -10,10 +10,16 @@ package androidx.activity {
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
+    method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
     method public final Object? onRetainNonConfigurationInstance();
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method @Deprecated public void startActivityForResult(android.content.Intent!, int);
+    method @Deprecated public void startActivityForResult(android.content.Intent!, int, android.os.Bundle?);
+    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
   }
 
   public abstract class OnBackPressedCallback {
