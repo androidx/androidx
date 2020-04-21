@@ -63,6 +63,35 @@ class FragmentArchLifecycleTest {
     }
 
     @Test
+    fun testFragmentAdditionDuringOnStopViewLifecycle() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+            val activityLifecycle = withActivity { lifecycle }
+
+            val first = StrictViewFragment()
+            val second = StrictFragment()
+            fm.beginTransaction().add(android.R.id.content, first).commit()
+            executePendingTransactions()
+            first.viewLifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        fm.beginTransaction().add(second, "second").commitNow()
+                        first.viewLifecycleOwner.lifecycle.removeObserver(this)
+                    }
+                }
+            })
+            onActivity {
+                it.onSaveInstanceState(Bundle())
+            }
+            assertThat(first.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+            assertThat(first.viewLifecycleOwner.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.CREATED)
+            assertThat(second.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+            assertThat(activityLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        }
+    }
+
+    @Test
     fun testNestedFragmentLifecycle() {
         with(ActivityScenario.launch(FragmentArchLifecycleActivity::class.java)) {
 
