@@ -19,8 +19,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.view.ContextThemeWrapper;
 
-import androidx.testutils.LocaleTestUtils;
-
 import java.util.Locale;
 
 public class AppCompatSpinnerRtlActivity extends AppCompatSpinnerActivity {
@@ -28,7 +26,7 @@ public class AppCompatSpinnerRtlActivity extends AppCompatSpinnerActivity {
         Configuration overrideConfig = new Configuration();
         overrideConfig.fontScale = 0;
         // Mark activity to use RTL language / locale
-        overrideConfig.locale = new Locale(LocaleTestUtils.RTL_LANGUAGE);
+        overrideConfig.locale = new Locale("ar", "sa");
 
         ContextThemeWrapper wrappedBase = new ContextThemeWrapper(
                 newBase, androidx.appcompat.test.R.style.Theme_AppCompat_Empty);
@@ -38,5 +36,4 @@ public class AppCompatSpinnerRtlActivity extends AppCompatSpinnerActivity {
 
         super.attachBaseContext(newBase);
     }
-
 }
