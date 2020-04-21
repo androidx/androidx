@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -459,6 +460,8 @@ class FragmentStateManager {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "moveto CREATE_VIEW: " + mFragment);
         }
+        LayoutInflater layoutInflater = mFragment.performGetLayoutInflater(
+                mFragment.mSavedFragmentState);
         ViewGroup container = null;
         if (mFragment.mContainer != null) {
             container = mFragment.mContainer;
@@ -482,8 +485,7 @@ class FragmentStateManager {
             }
         }
         mFragment.mContainer = container;
-        mFragment.performCreateView(mFragment.performGetLayoutInflater(
-                mFragment.mSavedFragmentState), container, mFragment.mSavedFragmentState);
+        mFragment.performCreateView(layoutInflater, container, mFragment.mSavedFragmentState);
         if (mFragment.mView != null) {
             mFragment.mView.setSaveFromParentEnabled(false);
             mFragment.mView.setTag(R.id.fragment_container_view_tag, mFragment);
