@@ -280,8 +280,12 @@ public final class ImageAnalysis extends UseCase {
      * {@link ImageAnalysis#setTargetRotation} to set target rotation dynamically according to
      * the {@link android.view.OrientationEventListener}, without re-creating the use case. Note
      * the OrientationEventListener output of degrees in the range [0..359] should be converted to
-     * a surface rotation, i.e. one of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
-     * {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
+     * a surface rotation. The mapping values are listed as the following.
+     * <p>{@link android.view.OrientationEventListener#ORIENTATION_UNKNOWN}: orientation == -1
+     * <p>{@link Surface#ROTATION_0}: orientation >= 315 || orientation < 45
+     * <p>{@link Surface#ROTATION_90}: orientation >= 225 && orientation < 315
+     * <p>{@link Surface#ROTATION_180}: orientation >= 135 && orientation < 225
+     * <p>{@link Surface#ROTATION_270}: orientation >= 45 && orientation < 135
      *
      * <p>When this function is called, value set by
      * {@link ImageAnalysis.Builder#setTargetResolution(Size)} will be updated automatically to
@@ -797,8 +801,7 @@ public final class ImageAnalysis extends UseCase {
          * <p>The aspect ratio is the ratio of width to height in the sensor orientation.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
-         * use case.  Attempting so will throw an IllegalArgumentException when building the
-         * Config.
+         * use case. Attempting so will throw an IllegalArgumentException when building the Config.
          *
          * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
          * ratio which may differ from the request, possibly due to device constraints.
@@ -862,13 +865,13 @@ public final class ImageAnalysis extends UseCase {
          * higher priority before resolutions of different aspect ratios.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
-         * use case.  Attempting so will throw an IllegalArgumentException when building the
-         * Config.
+         * use case. Attempting so will throw an IllegalArgumentException when building the Config.
          *
-         * <p>The resolution {@link Size} should be expressed at the use cases's target rotation.
-         * For example, a device with portrait natural orientation in natural target rotation
-         * requesting a portrait image may specify 480x640, and the same device, rotated 90 degrees
-         * and targeting landscape orientation may specify 640x480.
+         * <p>The resolution {@link Size} should be expressed in the coordinate frame after
+         * rotating the supported sizes by the target rotation. For example, a device with
+         * portrait natural orientation in natural target rotation requesting a portrait image
+         * may specify 480x640, and the same device, rotated 90 degrees and targeting landscape
+         * orientation may specify 640x480.
          *
          * <p>The maximum available resolution that could be selected for an {@link ImageAnalysis}
          * is limited to be under 1080p. The limitation of 1080p for {@link ImageAnalysis} has

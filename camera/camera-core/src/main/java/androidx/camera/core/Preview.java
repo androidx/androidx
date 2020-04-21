@@ -756,8 +756,7 @@ public final class Preview extends UseCase {
          * <p>The aspect ratio is the ratio of width to height in the sensor orientation.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
-         * use case.  Attempting so will throw an IllegalArgumentException when building the
-         * Config.
+         * use case. Attempting so will throw an IllegalArgumentException when building the Config.
          *
          * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
          * ratio which may differ from the request, possibly due to device constraints.
@@ -820,13 +819,13 @@ public final class Preview extends UseCase {
          * be considered in higher priority before resolutions of different aspect ratios.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
-         * use case.  Attempting so will throw an IllegalArgumentException when building the
-         * Config.
+         * use case. Attempting so will throw an IllegalArgumentException when building the Config.
          *
-         * <p>The resolution {@link Size} should be expressed at the use cases's target rotation.
-         * For example, a device with portrait natural orientation in natural target rotation
-         * requesting a portrait image may specify 480x640, and the same device, rotated 90 degrees
-         * and targeting landscape orientation may specify 640x480.
+         * <p>The resolution {@link Size} should be expressed in the coordinate frame after
+         * rotating the supported sizes by the target rotation. For example, a device with
+         * portrait natural orientation in natural target rotation requesting a portrait image
+         * may specify 480x640, and the same device, rotated 90 degrees and targeting landscape
+         * orientation may specify 640x480.
          *
          * <p>The maximum available resolution that could be selected for a {@link Preview} is
          * limited to be under 1080p. The limitation of 1080p for {@link Preview} has considered
