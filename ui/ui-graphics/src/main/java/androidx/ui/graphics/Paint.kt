@@ -16,7 +16,6 @@
 
 package androidx.ui.graphics
 
-import android.graphics.BlurMaskFilter
 import android.graphics.PorterDuffColorFilter
 
 /**
@@ -28,8 +27,6 @@ class Paint {
 
     private var internalPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
     private var porterDuffMode = android.graphics.PorterDuff.Mode.SRC_OVER
-    private var blurStyle = android.graphics.BlurMaskFilter.Blur.NORMAL
-    private var blurRadius = 0.0f
     private var internalShader: Shader? = null
     private var internalColorFilter: ColorFilter? = null
 
@@ -214,37 +211,8 @@ class Paint {
             internalPaint.strokeMiter = value
         }
 
-    // A mask filter (for example, a blur) to apply to a shape after it has been
-    // drawn but before it has been composited into the image.
-    //
-    // See [MaskFilter] for details.
-    var maskFilter: MaskFilter
-        get() {
-            val style = when (blurStyle) {
-                android.graphics.BlurMaskFilter.Blur.NORMAL -> BlurStyle.normal
-                android.graphics.BlurMaskFilter.Blur.SOLID -> BlurStyle.solid
-                android.graphics.BlurMaskFilter.Blur.OUTER -> BlurStyle.outer
-                android.graphics.BlurMaskFilter.Blur.INNER -> BlurStyle.inner
-            }
-            // sigma is equivalent to roughly half the radius: sigma = radius / 2
-            return MaskFilter(style, blurRadius / 2.0f)
-        }
-        set(value) {
-            val blur = when (value.style) {
-                BlurStyle.inner -> android.graphics.BlurMaskFilter.Blur.INNER
-                BlurStyle.normal -> android.graphics.BlurMaskFilter.Blur.NORMAL
-                BlurStyle.outer -> android.graphics.BlurMaskFilter.Blur.OUTER
-                BlurStyle.solid -> android.graphics.BlurMaskFilter.Blur.SOLID
-            }
-
-            // radius is equivalent to roughly twice the sigma: radius = sigma * 2
-            // TODO(njawad): Add support for framework EmbossMaskFilter?)
-            internalPaint.maskFilter = BlurMaskFilter((value.sigma * 2), blur)
-        }
-
     // Controls the performance vs quality trade-off to use when applying
-    // filters, such as [maskFilter], or when drawing images, as with
-    // [Canvas.drawImageRect] or [Canvas.drawImageNine].
+    // when drawing images, as with [Canvas.drawImageRect]
     //
     // Defaults to [FilterQuality.none].
     // TODO(ianh): verify that the image drawing methods actually respect this

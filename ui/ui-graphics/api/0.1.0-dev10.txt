@@ -95,13 +95,6 @@ package androidx.ui.graphics {
     enum_constant public static final androidx.ui.graphics.BlendMode xor;
   }
 
-  public enum BlurStyle {
-    enum_constant public static final androidx.ui.graphics.BlurStyle inner;
-    enum_constant public static final androidx.ui.graphics.BlurStyle normal;
-    enum_constant public static final androidx.ui.graphics.BlurStyle outer;
-    enum_constant public static final androidx.ui.graphics.BlurStyle solid;
-  }
-
   public interface Brush {
     method public void applyTo(androidx.ui.graphics.Paint p);
   }
@@ -278,21 +271,6 @@ package androidx.ui.graphics {
     method public androidx.ui.graphics.LinearGradient copy-OCut9AY(java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float>? stops, float startX, float startY, float endX, float endY, androidx.ui.graphics.TileMode tileMode);
   }
 
-  public final class MaskFilter {
-    ctor public MaskFilter(androidx.ui.graphics.BlurStyle style, float sigma);
-    method public androidx.ui.graphics.BlurStyle component1();
-    method public float component2();
-    method public androidx.ui.graphics.MaskFilter copy(androidx.ui.graphics.BlurStyle style, float sigma);
-    method public float getSigma();
-    method public androidx.ui.graphics.BlurStyle getStyle();
-    field public static final androidx.ui.graphics.MaskFilter.Companion! Companion;
-    field public static final int TYPE_BLUR = 1; // 0x1
-    field public static final int TYPE_NONE = 0; // 0x0
-  }
-
-  public static final class MaskFilter.Companion {
-  }
-
   public abstract sealed class Outline {
   }
 
@@ -330,7 +308,6 @@ package androidx.ui.graphics {
     method public long getColor();
     method public androidx.ui.graphics.ColorFilter? getColorFilter();
     method public androidx.ui.graphics.FilterQuality getFilterQuality();
-    method public androidx.ui.graphics.MaskFilter getMaskFilter();
     method public android.graphics.Shader? getShader();
     method public androidx.ui.graphics.StrokeCap getStrokeCap();
     method public androidx.ui.graphics.StrokeJoin getStrokeJoin();
@@ -344,7 +321,6 @@ package androidx.ui.graphics {
     method public void setColor-QEYXlZo(long color);
     method public void setColorFilter(androidx.ui.graphics.ColorFilter? value);
     method public void setFilterQuality(androidx.ui.graphics.FilterQuality value);
-    method public void setMaskFilter(androidx.ui.graphics.MaskFilter value);
     method public void setShader-DcPGf4I(android.graphics.Shader? value);
     method public void setStrokeCap(androidx.ui.graphics.StrokeCap value);
     method public void setStrokeJoin(androidx.ui.graphics.StrokeJoin value);
@@ -357,7 +333,6 @@ package androidx.ui.graphics {
     property public final androidx.ui.graphics.ColorFilter? colorFilter;
     property public final androidx.ui.graphics.FilterQuality filterQuality;
     property public final boolean isAntiAlias;
-    property public final androidx.ui.graphics.MaskFilter maskFilter;
     property public final android.graphics.Shader? shader;
     property public final androidx.ui.graphics.StrokeCap strokeCap;
     property public final androidx.ui.graphics.StrokeJoin strokeJoin;
