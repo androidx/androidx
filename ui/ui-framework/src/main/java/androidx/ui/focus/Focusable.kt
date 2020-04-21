@@ -17,17 +17,6 @@
 package androidx.ui.focus
 
 import androidx.compose.Composable
-import androidx.compose.Recompose
-import androidx.compose.remember
-import androidx.ui.core.FocusNode
-import androidx.ui.core.Modifier
-import androidx.ui.core.PassThroughLayout
-import androidx.ui.core.Ref
-import androidx.ui.core.focus.initializeFocusState
-import androidx.ui.core.onChildPositioned
-import androidx.ui.focus.FocusDetailedState.Inactive
-
-private val focusNotCreated = "Focus node could not be created."
 
 /**
  * This composable can be used to create components that are Focusable. A component that is focused
@@ -42,66 +31,27 @@ private val focusNotCreated = "Focus node could not be created."
  * focusOperator so that you can control the focusable from outside the scope of its children.
  *
  * [children]: This is a composable block called with [focusOperator] in its receiver scope.
- * Children can use [FocusOperator.focusState] for conditional composition.
+ * Children can use FocusOperator.focusState for conditional composition.
  *
  */
+@Suppress("UNUSED_PARAMETER")
+@Deprecated(
+    message = "Focusable is deprecated. Use androidx.ui.focus.FocusModifier instead.",
+    level = DeprecationLevel.ERROR
+)
 @Composable
-fun Focusable(
-    focusOperator: FocusOperator = remember { FocusOperator() },
-    children: @Composable() (FocusOperator) -> Unit
-) {
-    // TODO (b/144897112): Remove manual recomposition.
-    Recompose { recompose ->
-
-        val focusNodeRef = Ref<FocusNode>()
-        FocusNode(recompose = recompose, ref = focusNodeRef) {
-
-            val focusNode = (focusNodeRef.value ?: error(focusNotCreated))
-
-            focusOperator.focusNode = focusNode
-
-            // Set the focusNode coordinates when the composable is positioned. Also, if this is
-            // the focus root and the host view is in focus, request focus for this node.
-            @Suppress("DEPRECATION")
-            PassThroughLayout(Modifier.onChildPositioned {
-                focusNode.layoutCoordinates = it
-                if (focusNode.focusState == Inactive) {
-                    focusNode.initializeFocusState()
-                }
-            }) {
-                children(focusOperator)
-            }
-        }
-    }
+fun Focusable(focusOperator: Any, children: @Composable() (Any) -> Unit) {
 }
 
 /**
  * The [FocusOperator] is returned in the receiver scope of the children of a [Focusable]. It
  * access to focus APIs pertaining to the [Focusable].
+ *
+ * TODO(b/154633015): Deprecated in Dev11. Delete for Dev12.
  */
-class FocusOperator {
-    /**
-     * The [FocusNode] associated with this [FocusOperator].
-     *
-     * @throws UninitializedPropertyAccessException if this [FocusOperator] has no associated
-     * [FocusNode].
-     */
-    internal lateinit var focusNode: FocusNode
-
-    /**
-     * A more detailed focus state of the [Focusable] associated with this [FocusOperator]. For a
-     * smaller subset of states, use [focusState].
-     */
-    val focusDetailedState: FocusDetailedState get() = focusNode.focusState
-
-    /**
-     * The current focus state of the [Focusable] associated with this [FocusOperator]. For more
-     * detailed focus state information, use [focusDetailedState].
-     */
-    val focusState: FocusState get() = focusDetailedState.focusState()
-
-    /**
-     * Request focus for the [Focusable] associated with this [FocusOperator].
-     */
-    fun requestFocus() = focusNode.requestFocus()
-}
+@Deprecated(
+    message = "FocusOperator is used along with a Focusable. Focusable is deprecated in favor of " +
+            "androidx.ui.focus.FocusModifier.",
+    level = DeprecationLevel.ERROR
+)
+class FocusOperator

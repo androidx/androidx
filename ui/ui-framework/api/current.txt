@@ -335,19 +335,12 @@ package androidx.ui.focus {
     method public static androidx.ui.focus.FocusState getFocusState(androidx.ui.focus.FocusModifier);
   }
 
-  public final class FocusOperator {
-    ctor public FocusOperator();
-    method public androidx.ui.focus.FocusDetailedState getFocusDetailedState();
-    method public androidx.ui.focus.FocusState getFocusState();
-    method public void requestFocus();
-    property public final androidx.ui.focus.FocusDetailedState focusDetailedState;
-    property public final androidx.ui.focus.FocusState focusState;
+  @Deprecated public final class FocusOperator {
+    ctor @Deprecated public FocusOperator();
   }
 
   public final class FocusableKt {
-    method public static void Focusable(androidx.ui.focus.FocusOperator focusOperator = remember({ 
-    <init>()
-}), kotlin.jvm.functions.Function1<? super androidx.ui.focus.FocusOperator,kotlin.Unit> children);
+    method @Deprecated public static void Focusable(Object focusOperator, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> children);
   }
 
 }
