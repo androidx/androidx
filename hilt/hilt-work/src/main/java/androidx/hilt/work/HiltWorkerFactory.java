@@ -30,6 +30,9 @@ import javax.inject.Provider;
 
 /**
  * Worker Factory for the Hilt Extension
+ * <p>
+ * A provider for this factory will be installed in the
+ * {@link dagger.hilt.android.components.ApplicationComponent}.
  */
 public final class HiltWorkerFactory extends androidx.work.WorkerFactory {
 
