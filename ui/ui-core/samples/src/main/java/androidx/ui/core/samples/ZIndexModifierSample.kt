@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.shape
+package androidx.ui.core.samples
 
-import androidx.ui.graphics.Shape
+import androidx.annotation.Sampled
+import androidx.compose.Composable
+import androidx.ui.core.Modifier
+import androidx.ui.core.zIndex
+import androidx.ui.foundation.Text
+import androidx.ui.layout.Stack
 
-/**
- * A shape describing the rectangle.
- */
-@Deprecated(
-    "Use RectangleShape",
-    replaceWith = ReplaceWith(
-        "RectangleShape",
-        "androidx.ui.graphics.RectangleShape"
-    )
-)
-val RectangleShape: Shape = androidx.ui.graphics.RectangleShape
+@Sampled
+@Composable
+fun ZIndexModifierSample() {
+    Stack {
+        Text("Drawn second", Modifier.zIndex(1f))
+        Text("Drawn first")
+    }
+}

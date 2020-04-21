@@ -21,7 +21,7 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawShadow
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
@@ -29,7 +29,7 @@ import androidx.ui.unit.dp
 @Composable
 fun DrawShadowSample() {
     Box(
-        Modifier.drawShadow(RectangleShape, 12.dp, true, 1f)
+        Modifier.drawShadow(12.dp, RectangleShape)
             .preferredSize(100.dp, 100.dp)
     )
 }

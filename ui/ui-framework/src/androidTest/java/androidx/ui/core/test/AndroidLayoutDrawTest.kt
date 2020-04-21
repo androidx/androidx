@@ -38,10 +38,9 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
+import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
-import androidx.ui.core.ContentDrawScope
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
@@ -70,19 +69,13 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
-import androidx.ui.layout.Column
-import androidx.ui.layout.Stack
-import androidx.ui.layout.height
 import androidx.ui.layout.ltr
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.rtl
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxSize
-import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
@@ -2251,78 +2244,6 @@ class AndroidLayoutDrawTest {
             val composeView = activityTestRule.findAndroidComposeView()
             composeView.restoreHierarchyState(SparseArray())
             composition.dispose()
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testInvalidateIntroducedLayer() {
-        val color = mutableStateOf(Color.Red)
-        activityTestRule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30.ipx) {
-                    FixedSize(
-                        10.ipx,
-                        PaddingModifier(10.ipx).drawLayer(elevation = 1f).background(Color.White)
-                    )
-                    FixedSize(30.ipx, Modifier.background(color.value).drawLatchModifier())
-                }
-            }
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-        drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            color.value = Color.Blue
-        }
-        validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testInvalidateLayer_whenOnlyModifierPositionChanges() {
-        val size1 = mutableStateOf(20.dp)
-        val size2 = 20.dp
-        lateinit var density: Density
-
-        activityTestRule.runOnUiThread {
-            activity.setContent {
-                Stack(Modifier.drawLayer()) {
-                    Column(Modifier.height(200.dp)) {
-                        Stack(Modifier.preferredWidth(100.dp).drawLayer()) {
-                            Padding(
-                                0.ipx,
-                                Modifier.background(Color.Gray)
-                                    .preferredSize(100.dp, size1.value)
-                            ) {}
-                        }
-                        Stack(
-                            Modifier.preferredSize(size2)
-                                .background(Color.Blue)
-                                .drawLatchModifier()
-                        ) {}
-                    }
-                }
-                density = DensityAmbient.current
-            }
-        }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-
-        var size1Px = with(density) { 20.dp.toIntPx().value }
-        val size2Px = with(density) { size2.toIntPx().value }
-        activityTestRule.waitAndScreenShot().apply {
-            assertRect(Color.Gray, 0, size1Px, size1Px / 2, size1Px / 2)
-            assertRect(Color.Blue, 0, size2Px, size2Px / 2, size1Px + size2Px / 2)
-        }
-
-        drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            size1.value = 40.dp
-        }
-
-        size1Px = with(density) { 40.dp.toIntPx().value }
-        activityTestRule.waitAndScreenShot().apply {
-            assertRect(Color.Gray, 0, size1Px, size1Px / 2, size1Px / 2)
-            assertRect(Color.Blue, 0, size2Px, size2Px / 2, size1Px + size2Px / 2)
         }
     }
 
