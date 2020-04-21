@@ -286,7 +286,7 @@ public final class NavInflater {
         }
         NavDeepLink.Builder builder = new NavDeepLink.Builder();
         if (uri != null) {
-            builder.setUri(uri.replace(APPLICATION_ID_PLACEHOLDER,
+            builder.setUriPattern(uri.replace(APPLICATION_ID_PLACEHOLDER,
                     mContext.getPackageName()));
         }
         if (!TextUtils.isEmpty(action)) {

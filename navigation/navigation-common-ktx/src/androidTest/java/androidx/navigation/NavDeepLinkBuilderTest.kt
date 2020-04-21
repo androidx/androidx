@@ -34,12 +34,12 @@ class NavDeepLinkBuilderTest {
         val expectedAction = "test.action"
         val expectedMimeType = "test/type"
         val navDeepLink = navDeepLink {
-            uri = expectedUri
+            uriPattern = expectedUri
             action = expectedAction
             mimeType = expectedMimeType
         }
-        assertWithMessage("NavDeepLink should have uri set")
-            .that(navDeepLink.uri)
+        assertWithMessage("NavDeepLink should have uri pattern set")
+            .that(navDeepLink.uriPattern)
             .isEqualTo(expectedUri)
         assertWithMessage("NavDeepLink should have action set")
             .that(navDeepLink.action)
@@ -79,13 +79,13 @@ class NavDeepLinkBuilderTest {
     fun buildDeepLinkDoubleActionSetNull() {
         val expectedUri = "www.example.com"
         val navDeepLink = navDeepLink {
-            uri = expectedUri
+            uriPattern = expectedUri
             action = "blah"
             action = null
         }
 
-        assertWithMessage("NavDeepLink should have uri set")
-            .that(navDeepLink.uri)
+        assertWithMessage("NavDeepLink should have uri pattern set")
+            .that(navDeepLink.uriPattern)
             .isEqualTo(expectedUri)
         assertWithMessage("NavDeepLink should have action set")
             .that(navDeepLink.action)
