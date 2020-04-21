@@ -16,32 +16,32 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_action_mode_done" msgid="2571498368472823490">"කළා"</string>
-    <string name="abc_action_bar_home_description" msgid="7903180715631665059">"මුල් පිටුවට සංචාලනය කරන්න"</string>
-    <string name="abc_action_bar_up_description" msgid="6794660482873516081">"ඉහළට සංචාලනය කරන්න"</string>
-    <string name="abc_action_menu_overflow_description" msgid="1155814932213556626">"තවත් විකල්ප"</string>
-    <string name="abc_toolbar_collapse_description" msgid="6389460216547290468">"හකුළන්න"</string>
-    <string name="abc_searchview_description_search" msgid="5466662225065974044">"සෙවීම"</string>
-    <string name="abc_search_hint" msgid="940844115270746197">"සොයන්න..."</string>
-    <string name="abc_searchview_description_query" msgid="908784302972860853">"සෙවුම් විමසුම"</string>
-    <string name="abc_searchview_description_clear" msgid="1769270744562318534">"විමසුම හිස් කරන්න"</string>
-    <string name="abc_searchview_description_submit" msgid="8203855622131699655">"විමසුම යොමු කරන්න"</string>
-    <string name="abc_searchview_description_voice" msgid="3478748990613108725">"හඬ සෙවීම"</string>
-    <string name="abc_activitychooserview_choose_application" msgid="1798588241954930982">"යෙදුමක් තෝරන්න"</string>
-    <string name="abc_activity_chooser_view_see_all" msgid="3732416590524162402">"සියල්ල බලන්න"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> සමඟ බෙදා ගන්න"</string>
-    <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"සමග බෙදා ගන්න"</string>
-    <string name="abc_capital_on" msgid="7831734969929204599">"ක්‍රියාත්මකයි"</string>
-    <string name="abc_capital_off" msgid="3403923230105792483">"ක්‍රියාවිරහිතයි"</string>
-    <string name="search_menu_title" msgid="730395136688082741">"සෙවීම"</string>
-    <string name="abc_prepend_shortcut_label" msgid="3570106412128999382">"Menu+"</string>
-    <string name="abc_menu_meta_shortcut_label" msgid="8046416353848716905">"Meta+"</string>
-    <string name="abc_menu_ctrl_shortcut_label" msgid="944415252197684443">"Ctrl+"</string>
-    <string name="abc_menu_alt_shortcut_label" msgid="5725160506500770567">"Alt+"</string>
-    <string name="abc_menu_shift_shortcut_label" msgid="3271697756921353410">"Shift+"</string>
-    <string name="abc_menu_sym_shortcut_label" msgid="8327365089695024394">"Sym+"</string>
-    <string name="abc_menu_function_shortcut_label" msgid="4974283687810130415">"Function+"</string>
-    <string name="abc_menu_space_shortcut_label" msgid="2304645930658438191">"space"</string>
-    <string name="abc_menu_enter_shortcut_label" msgid="6840127756824236027">"enter"</string>
-    <string name="abc_menu_delete_shortcut_label" msgid="129742188101734366">"මකන්න"</string>
+    <string name="abc_action_mode_done" msgid="4692188335987374352">"කළා"</string>
+    <string name="abc_action_bar_home_description" msgid="5976598919945601918">"මුල් පිටුවට සංචාලනය කරන්න"</string>
+    <string name="abc_action_bar_up_description" msgid="8388173803310557296">"ඉහළට සංචාලනය කරන්න"</string>
+    <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"තවත් විකල්ප"</string>
+    <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"හකුළන්න"</string>
+    <string name="abc_searchview_description_search" msgid="3417662926640357176">"සෙවීම"</string>
+    <string name="abc_search_hint" msgid="7208076849092622260">"සොයන්න..."</string>
+    <string name="abc_searchview_description_query" msgid="693312494995508443">"සෙවුම් විමසුම"</string>
+    <string name="abc_searchview_description_clear" msgid="3741173234950517107">"විමසුම හිස් කරන්න"</string>
+    <string name="abc_searchview_description_submit" msgid="1486535517437947103">"විමසුම යොමු කරන්න"</string>
+    <string name="abc_searchview_description_voice" msgid="2293578557972875415">"හඬ සෙවීම"</string>
+    <string name="abc_activitychooserview_choose_application" msgid="2165779757652331008">"යෙදුමක් තෝරන්න"</string>
+    <string name="abc_activity_chooser_view_see_all" msgid="1189761859438369441">"සියල්ල බලන්න"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="9055268688411532828">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> සමඟ බෙදා ගන්න"</string>
+    <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"සමග බෙදා ගන්න"</string>
+    <string name="abc_capital_on" msgid="884982626291842264">"ක්‍රියාත්මකයි"</string>
+    <string name="abc_capital_off" msgid="4215997306490295099">"ක්‍රියාවිරහිතයි"</string>
+    <string name="search_menu_title" msgid="6264217191555673260">"සෙවීම"</string>
+    <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"Menu+"</string>
+    <string name="abc_menu_meta_shortcut_label" msgid="4192209724446364286">"Meta+"</string>
+    <string name="abc_menu_ctrl_shortcut_label" msgid="2223301931652355242">"Ctrl+"</string>
+    <string name="abc_menu_alt_shortcut_label" msgid="8833365367933412986">"Alt+"</string>
+    <string name="abc_menu_shift_shortcut_label" msgid="4741552369836443843">"Shift+"</string>
+    <string name="abc_menu_sym_shortcut_label" msgid="6180552449598693998">"Sym+"</string>
+    <string name="abc_menu_function_shortcut_label" msgid="375214403600139847">"Function+"</string>
+    <string name="abc_menu_space_shortcut_label" msgid="5473865519181928982">"space"</string>
+    <string name="abc_menu_enter_shortcut_label" msgid="7986526966204849475">"enter"</string>
+    <string name="abc_menu_delete_shortcut_label" msgid="838001238306846836">"මකන්න"</string>
 </resources>
