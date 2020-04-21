@@ -27,7 +27,7 @@ import androidx.ui.util.lerp
  * @see FontFamily
  */
 @Immutable
-/* inline */ class FontWeight(val weight: Int) : Comparable<FontWeight> {
+/* inline */ data class FontWeight(val weight: Int) : Comparable<FontWeight> {
 
     init {
         require(weight in 1..1000) {
@@ -90,22 +90,13 @@ import androidx.ui.util.lerp
         )
     }
 
-    internal val index: Int get() = weight / 100 - 1
-
     override fun compareTo(other: FontWeight): Int {
         return weight.compareTo(other.weight)
-    }
-
-    override fun toString(): String {
-        return "FontWeight.$weight"
     }
 }
 
 /**
- * Linearly interpolate between two font weights
- *
- * Rather than using fractional weights, the interpolation rounds to the
- * nearest weight.
+ * Linearly interpolate between two font weights.
  *
  * The [fraction] argument represents position on the timeline, with 0.0 meaning
  * that the interpolation has not started, returning [start] (or something
@@ -120,8 +111,6 @@ import androidx.ui.util.lerp
  * an `AnimationController`.
  */
 fun lerp(start: FontWeight, stop: FontWeight, fraction: Float): FontWeight {
-    val index = lerp(start.index, stop.index, fraction)
-        .coerceIn(0, FontWeight.values.size - 1)
-
-    return FontWeight.values[index]
+    val weight = lerp(start.weight, stop.weight, fraction).coerceIn(1, 1000)
+    return FontWeight(weight)
 }

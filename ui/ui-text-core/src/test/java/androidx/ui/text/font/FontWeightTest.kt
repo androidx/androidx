@@ -54,6 +54,12 @@ class FontWeightTest {
     }
 
     @Test
+    fun `lerp at start returns font weight 1`() {
+        val start = FontWeight(1)
+        assertThat(lerp(start, FontWeight.W400, 0.0f)).isEqualTo(start)
+    }
+
+    @Test
     fun `lerp at end returns end value`() {
         assertThat(
             lerp(
@@ -77,19 +83,15 @@ class FontWeightTest {
 
     @Test
     fun `lerp in the mid-time with odd distance should be rounded to up`() {
+        val start = FontWeight.W200
+        val stop = FontWeight.W900
         assertThat(
             lerp(
-                FontWeight.W200,
-                FontWeight.W900,
+                start,
+                stop,
                 0.5f
             )
-        ).isEqualTo(FontWeight.W600)
-    }
-
-    @Test
-    fun `toString return FontsWeight`() {
-        assertThat(FontWeight.W100.toString()).isEqualTo("FontWeight.100")
-        assertThat(FontWeight.W900.toString()).isEqualTo("FontWeight.900")
+        ).isEqualTo(FontWeight(((stop.weight + start.weight) * 0.5).toInt()))
     }
 
     @Test
