@@ -17,7 +17,6 @@
 package androidx.ui.text.matchers
 
 import android.graphics.Typeface
-import android.os.Build
 import android.text.TextPaint
 import androidx.ui.text.FontTestData
 import androidx.ui.text.font.FontStyle
@@ -110,16 +109,7 @@ internal class TypefaceSubject private constructor(
         }!!
 
         val isSelectedFont = isSelectedFont(typeface, charInfo.character)
-
-        if (Build.VERSION.SDK_INT >= 28) {
-            check("sameTypeface()")
-                .that(isSelectedFont && typeface.weight == fontWeight.weight).isTrue()
-            // cannot check typeface.isItalic == (fontStyle == FontStyle.Italic) since it is for
-            // fake italic, and for cases where synthesis is disable this does not give correct
-            // signal
-        } else {
-            check("sameTypeface()").that(isSelectedFont).isTrue()
-        }
+        check("sameTypeface()").that(isSelectedFont).isTrue()
     }
 
     override fun actualCustomStringRepresentation(): String {
