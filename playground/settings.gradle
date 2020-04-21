@@ -49,6 +49,8 @@ includeProject(":benchmark:benchmark-common", "benchmark/common")
 includeProject(":fakeannotations", "../fakeannotations")
 includeProject(":lint-checks", "../lint-checks")
 includeProject(":lint-checks:tests", "../lint-checks/tests")
+includeProject(":mppsample:mppsample-library", "../mppsample/mppsample-library")
+includeProject(":mppsample:mppsample-executable", "../mppsample/mppsample-executable")
 includeProject(":tracing:tracing", "../tracing/tracing")
 includeProject(":tracing:tracing-ktx", "../tracing/tracing-ktx")
 
