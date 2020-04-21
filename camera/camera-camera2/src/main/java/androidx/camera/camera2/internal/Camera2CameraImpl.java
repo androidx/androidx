@@ -654,7 +654,7 @@ final class Camera2CameraImpl implements CameraInternal {
                     mUseCaseAttachState.setUseCaseOnline(useCase);
                     useCasesChangedToOnline.add(useCase);
                 } catch (NullPointerException e) {
-                    Log.e(TAG, "Failed to set already detached use case online");
+                    debugLog("Failed to set already detached use case online");
                 }
             }
         }
