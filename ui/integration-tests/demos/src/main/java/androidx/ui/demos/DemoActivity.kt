@@ -213,7 +213,8 @@ fun DemoColorPalette.loadColorsFromSharedPreferences(context: Context) {
             if (savedValue.isNullOrBlank()) {
                 null
             } else {
-                val parsedColor = Color(savedValue.toLong(16))
+                // TODO: should be a Color(savedValue.toLong(16)) when b/154329050 is fixed
+                val parsedColor = savedValue.toLong(16)
                 parameter to parsedColor
             }
         }.toMap()
@@ -225,63 +226,65 @@ fun DemoColorPalette.loadColorsFromSharedPreferences(context: Context) {
 }
 
 /**
+ * TODO: remove after b/154329050 is fixed
  * Inline classes don't play well with reflection, so we want boxed classes for our
  * call to [lightColorPalette].
  */
 internal fun reflectLightColorPalette(
-    primary: Color? = Color(0xFF6200EE),
-    primaryVariant: Color? = Color(0xFF3700B3),
-    secondary: Color? = Color(0xFF03DAC6),
-    secondaryVariant: Color? = Color(0xFF018786),
-    background: Color? = Color.White,
-    surface: Color? = Color.White,
-    error: Color? = Color(0xFFB00020),
-    onPrimary: Color? = Color.White,
-    onSecondary: Color? = Color.Black,
-    onBackground: Color? = Color.Black,
-    onSurface: Color? = Color.Black,
-    onError: Color? = Color.White
+    primary: Long = 0xFF6200EE,
+    primaryVariant: Long = 0xFF3700B3,
+    secondary: Long = 0xFF03DAC6,
+    secondaryVariant: Long = 0xFF018786,
+    background: Long = 0xFFFFFFFF,
+    surface: Long = 0xFFFFFFFF,
+    error: Long = 0xFFB00020,
+    onPrimary: Long = 0xFFFFFFFF,
+    onSecondary: Long = 0xFF000000,
+    onBackground: Long = 0xFF000000,
+    onSurface: Long = 0xFF000000,
+    onError: Long = 0xFFFFFFFF
 ) = lightColorPalette(
-    primary = primary!!,
-    primaryVariant = primaryVariant!!,
-    secondary = secondary!!,
-    secondaryVariant = secondaryVariant!!,
-    background = background!!,
-    surface = surface!!,
-    error = error!!,
-    onPrimary = onPrimary!!,
-    onSecondary = onSecondary!!,
-    onBackground = onBackground!!,
-    onSurface = onSurface!!,
-    onError = onError!!
+    primary = Color(primary),
+    primaryVariant = Color(primaryVariant),
+    secondary = Color(secondary),
+    secondaryVariant = Color(secondaryVariant),
+    background = Color(background),
+    surface = Color(surface),
+    error = Color(error),
+    onPrimary = Color(onPrimary),
+    onSecondary = Color(onSecondary),
+    onBackground = Color(onBackground),
+    onSurface = Color(onSurface),
+    onError = Color(onError)
 )
 
 /**
+ * TODO: remove after b/154329050 is fixed
  * Inline classes don't play well with reflection, so we want boxed classes for our
  * call to [darkColorPalette].
  */
 internal fun reflectDarkColorPalette(
-    primary: Color? = Color(0xFFBB86FC),
-    primaryVariant: Color? = Color(0xFF3700B3),
-    secondary: Color? = Color(0xFF03DAC6),
-    background: Color? = Color(0xFF121212),
-    surface: Color? = Color(0xFF121212),
-    error: Color? = Color(0xFFCF6679),
-    onPrimary: Color? = Color.Black,
-    onSecondary: Color? = Color.Black,
-    onBackground: Color? = Color.White,
-    onSurface: Color? = Color.White,
-    onError: Color? = Color.Black
+    primary: Long = 0xFFBB86FC,
+    primaryVariant: Long = 0xFF3700B3,
+    secondary: Long = 0xFF03DAC6,
+    background: Long = 0xFF121212,
+    surface: Long = 0xFF121212,
+    error: Long = 0xFFCF6679,
+    onPrimary: Long = 0xFF000000,
+    onSecondary: Long = 0xFF000000,
+    onBackground: Long = 0xFFFFFFFF,
+    onSurface: Long = 0xFFFFFFFF,
+    onError: Long = 0xFF000000
 ) = darkColorPalette(
-    primary = primary!!,
-    primaryVariant = primaryVariant!!,
-    secondary = secondary!!,
-    background = background!!,
-    surface = surface!!,
-    error = error!!,
-    onPrimary = onPrimary!!,
-    onSecondary = onSecondary!!,
-    onBackground = onBackground!!,
-    onSurface = onSurface!!,
-    onError = onError!!
+    primary = Color(primary),
+    primaryVariant = Color(primaryVariant),
+    secondary = Color(secondary),
+    background = Color(background),
+    surface = Color(surface),
+    error = Color(error),
+    onPrimary = Color(onPrimary),
+    onSecondary = Color(onSecondary),
+    onBackground = Color(onBackground),
+    onSurface = Color(onSurface),
+    onError = Color(onError)
 )

@@ -30,6 +30,7 @@ import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.Column
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.material.IconButton
@@ -86,7 +87,11 @@ fun FilterAppBar(
             IconButton(modifier = Modifier.gravity(Alignment.CenterVertically), onClick = onClose) {
                 Icon(Icons.Filled.Close)
             }
-            FilterField(filterText, onFilter, Modifier.gravity(Alignment.CenterVertically))
+            FilterField(
+                filterText,
+                onFilter,
+                Modifier.fillMaxWidth().gravity(Alignment.CenterVertically)
+            )
         }
     }
 }
