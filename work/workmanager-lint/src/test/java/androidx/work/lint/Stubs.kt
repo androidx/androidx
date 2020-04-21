@@ -21,14 +21,26 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFile
 
 object Stubs {
+
+    val WORKER_FACTORY: TestFile = kotlin(
+        "androidx/work/WorkerFactory.kt", """
+        package androidx.work
+
+        open class WorkerFactory
+    """
+    ).indented().within("src")
+
     val WORK_MANAGER_CONFIGURATION_PROVIDER: TestFile = java(
         "androidx/work/Configuration.java",
         """
-                 package androidx.work;
+                 package androidx.work; 
 
                  class Configuration {
                     static class Builder {
                         void setJobSchedulerJobIdRange(int minId, int maxId) {
+
+                        }
+                        void setWorkerFactory(WorkerFactory factory) {
 
                         }
                     }
@@ -132,7 +144,8 @@ object Stubs {
         """
     ).indented().within("src")
 
-    val CONSTRAINTS: TestFile = java("androidx/work/Constraints.java", """
+    val CONSTRAINTS: TestFile = java(
+        "androidx/work/Constraints.java", """
         package androidx.work;
 
         class Constraints {
@@ -145,7 +158,8 @@ object Stubs {
                 }
             }
         }
-    """).indented().within("src")
+    """
+    ).indented().within("src")
 
     val NOTIFICATION: TestFile = kotlin(
         "android/app/Notification.kt",
