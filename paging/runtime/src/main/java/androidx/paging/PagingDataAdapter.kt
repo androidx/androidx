@@ -59,6 +59,18 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
     )
 
     /**
+     * Note: [getItemId] is final, because stable IDs are unnecessary and therefore unsupported.
+     *
+     * [PagingDataAdapter]'s async diffing means that efficient change animations are handled for
+     * you, without the performance drawbacks of [RecyclerView.Adapter.notifyDataSetChanged].
+     * Instead, the diffCallback parameter of the [PagingDataAdapter] serves the same
+     * functionality - informing the adapter and [RecyclerView] how items are changed and moved.
+     */
+    final override fun getItemId(position: Int): Long {
+        return super.getItemId(position)
+    }
+
+    /**
      * Present the new [PagingData], and suspend as long as it is not invalidated.
      *
      * This method should be called on the same [CoroutineDispatcher] where updates will be
