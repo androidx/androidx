@@ -685,7 +685,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
          */
         fun minIntrinsicWidth(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx,
             layoutDirection: LayoutDirection
@@ -695,7 +695,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
          */
         fun minIntrinsicHeight(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx,
             layoutDirection: LayoutDirection
@@ -705,7 +705,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
          */
         fun maxIntrinsicWidth(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx,
             layoutDirection: LayoutDirection
@@ -715,7 +715,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
          */
         fun maxIntrinsicHeight(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx,
             layoutDirection: LayoutDirection
@@ -724,28 +724,28 @@ class LayoutNode : ComponentNode(), Measurable {
 
     abstract class NoIntrinsicsMeasureBlocks(private val error: String) : MeasureBlocks {
         override fun minIntrinsicWidth(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx,
             layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun minIntrinsicHeight(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx,
             layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun maxIntrinsicWidth(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx,
             layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun maxIntrinsicHeight(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx,
             layoutDirection: LayoutDirection
@@ -1146,17 +1146,17 @@ class LayoutNode : ComponentNode(), Measurable {
         return layoutNodeWrapper
     }
 
-    override fun minIntrinsicWidth(height: IntPx): IntPx =
-        layoutNodeWrapper.minIntrinsicWidth(height)
+    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+        layoutNodeWrapper.minIntrinsicWidth(height, layoutDirection)
 
-    override fun maxIntrinsicWidth(height: IntPx): IntPx =
-        layoutNodeWrapper.maxIntrinsicWidth(height)
+    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+        layoutNodeWrapper.maxIntrinsicWidth(height, layoutDirection)
 
-    override fun minIntrinsicHeight(width: IntPx): IntPx =
-        layoutNodeWrapper.minIntrinsicHeight(width)
+    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+        layoutNodeWrapper.minIntrinsicHeight(width, layoutDirection)
 
-    override fun maxIntrinsicHeight(width: IntPx): IntPx =
-        layoutNodeWrapper.maxIntrinsicHeight(width)
+    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+        layoutNodeWrapper.maxIntrinsicHeight(width, layoutDirection)
 
     fun place(x: IntPx, y: IntPx) {
         with(InnerPlacementScope) {

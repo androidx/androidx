@@ -73,39 +73,39 @@ internal class InnerPlaceable(
 
     override fun findLastFocusWrapper(): ModifiedFocusNode? = findFocusWrapperWrappingThisWrapper()
 
-    override fun minIntrinsicWidth(height: IntPx): IntPx {
+    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.minIntrinsicWidth(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             height,
-            measureScope.layoutDirection
+            layoutDirection
         )
     }
 
-    override fun minIntrinsicHeight(width: IntPx): IntPx {
+    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.minIntrinsicHeight(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             width,
-            measureScope.layoutDirection
+            layoutDirection
         )
     }
 
-    override fun maxIntrinsicWidth(height: IntPx): IntPx {
+    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.maxIntrinsicWidth(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             height,
-            measureScope.layoutDirection
+            layoutDirection
         )
     }
 
-    override fun maxIntrinsicHeight(width: IntPx): IntPx {
+    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.maxIntrinsicHeight(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             width,
-            measureScope.layoutDirection
+            layoutDirection
         )
     }
 

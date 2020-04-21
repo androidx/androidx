@@ -21,8 +21,14 @@ package androidx.ui.core.test
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Constraints
+import androidx.ui.core.IntrinsicMeasurable
+import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.offset
@@ -36,10 +42,13 @@ import androidx.ui.layout.rtl
 import androidx.ui.layout.size
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -222,6 +231,48 @@ class RtlLayoutTest {
         Unit
     }
 
+    @Test
+    fun intrinsics_subsequentChanges() {
+        val latch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                Stack(Modifier
+                    .queryIntrinsics()
+                    .rtl
+                    .assertLayoutDirection(LayoutDirection.Rtl)
+                    .ltr
+                    .assertLayoutDirection(LayoutDirection.Ltr)
+                    .rtl
+                ) {
+                    Layout(
+                        children = {},
+                        minIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
+                            assertEquals(LayoutDirection.Rtl, layoutDirection)
+                            0.ipx
+                        },
+                        minIntrinsicHeightMeasureBlock = { _, _, layoutDirection ->
+                            assertEquals(LayoutDirection.Rtl, layoutDirection)
+                            0.ipx
+                        },
+                        maxIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
+                            assertEquals(LayoutDirection.Rtl, layoutDirection)
+                            0.ipx
+                        },
+                        maxIntrinsicHeightMeasureBlock = { _, _, layoutDirection ->
+                            assertEquals(LayoutDirection.Rtl, layoutDirection)
+                            0.ipx
+                        }
+                    ) { _, _, layoutDirection ->
+                        assertEquals(LayoutDirection.Rtl, layoutDirection)
+                        latch.countDown()
+                        layout(0.ipx, 0.ipx) {}
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
     @Composable
     private fun CustomLayout(
         absolutePositioning: Boolean,
@@ -294,6 +345,27 @@ class RtlLayoutTest {
         }
     }
 
+    private fun Modifier.queryIntrinsics() = this + object : LayoutModifier2 {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ): MeasureScope.MeasureResult {
+            measurable.minIntrinsicWidth(0.ipx, layoutDirection)
+            measurable.minIntrinsicHeight(0.ipx, layoutDirection)
+            measurable.maxIntrinsicWidth(0.ipx, layoutDirection)
+            measurable.maxIntrinsicHeight(0.ipx, layoutDirection)
+            measurable.minIntrinsicWidth(0.ipx)
+            measurable.minIntrinsicHeight(0.ipx)
+            measurable.maxIntrinsicWidth(0.ipx)
+            measurable.maxIntrinsicHeight(0.ipx)
+            val placeable = measurable.measure(constraints)
+            return layout(placeable.width, placeable.height) {
+                placeable.place(0.ipx, 0.ipx)
+            }
+        }
+    }
+
     @Composable
     private fun saveLayoutInfo(
         position: Ref<PxPosition>,
@@ -303,3 +375,58 @@ class RtlLayoutTest {
         countDownLatch.countDown()
     }
 }
+
+private fun Modifier.assertLayoutDirection(expectedLayoutDirection: LayoutDirection): Modifier =
+    this + object : LayoutModifier2 {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ): MeasureScope.MeasureResult {
+            assertEquals(expectedLayoutDirection, layoutDirection)
+            val placeable = measurable.measure(constraints)
+            return layout(placeable.width, placeable.height) {
+                placeable.place(0.ipx, 0.ipx)
+            }
+        }
+
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(
+            measurable: IntrinsicMeasurable,
+            height: IntPx,
+            layoutDirection: LayoutDirection
+        ): IntPx {
+            assertEquals(expectedLayoutDirection, layoutDirection)
+            measurable.minIntrinsicWidth(height)
+            return measurable.minIntrinsicWidth(height, layoutDirection)
+        }
+
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(
+            measurable: IntrinsicMeasurable,
+            width: IntPx,
+            layoutDirection: LayoutDirection
+        ): IntPx {
+            assertEquals(expectedLayoutDirection, layoutDirection)
+            measurable.minIntrinsicHeight(width)
+            return measurable.minIntrinsicHeight(width, layoutDirection)
+        }
+
+        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+            measurable: IntrinsicMeasurable,
+            height: IntPx,
+            layoutDirection: LayoutDirection
+        ): IntPx {
+            assertEquals(expectedLayoutDirection, layoutDirection)
+            measurable.maxIntrinsicWidth(height)
+            return measurable.maxIntrinsicWidth(height, layoutDirection)
+        }
+
+        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+            measurable: IntrinsicMeasurable,
+            width: IntPx,
+            layoutDirection: LayoutDirection
+        ): IntPx {
+            assertEquals(expectedLayoutDirection, layoutDirection)
+            measurable.maxIntrinsicHeight(width)
+            return measurable.maxIntrinsicHeight(width, layoutDirection)
+        }
+    }

@@ -400,7 +400,7 @@ class AndroidLayoutDrawTest {
     fun multiChildLayoutTest() {
         val childrenCount = 3
         val childConstraints = arrayOf(
-
+            Constraints(),
             Constraints.fixedWidth(50.ipx),
             Constraints.fixedHeight(50.ipx)
         )
@@ -2750,7 +2750,8 @@ data class PaddingModifier(
         height: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx = measurable.minIntrinsicWidth(
-        (height - (top + bottom)).coerceAtLeast(0.ipx)
+        (height - (top + bottom)).coerceAtLeast(0.ipx),
+        layoutDirection
     ) + (left + right)
 
     override fun Density.maxIntrinsicWidthOf(
@@ -2758,7 +2759,8 @@ data class PaddingModifier(
         height: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx = measurable.maxIntrinsicWidth(
-        (height - (top + bottom)).coerceAtLeast(0.ipx)
+        (height - (top + bottom)).coerceAtLeast(0.ipx),
+        layoutDirection
     ) + (left + right)
 
     override fun Density.minIntrinsicHeightOf(
@@ -2766,7 +2768,8 @@ data class PaddingModifier(
         width: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx = measurable.minIntrinsicHeight(
-        (width - (left + right)).coerceAtLeast(0.ipx)
+        (width - (left + right)).coerceAtLeast(0.ipx),
+        layoutDirection
     ) + (top + bottom)
 
     override fun Density.maxIntrinsicHeightOf(
@@ -2774,7 +2777,8 @@ data class PaddingModifier(
         width: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx = measurable.maxIntrinsicHeight(
-        (width - (left + right)).coerceAtLeast(0.ipx)
+        (width - (left + right)).coerceAtLeast(0.ipx),
+        layoutDirection
     ) + (top + bottom)
 
     override fun Density.modifyConstraints(

@@ -25,6 +25,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureBlock
+import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
@@ -689,7 +690,7 @@ private val MaxIntrinsicHeightMeasureBlock:
         }
     }
 
-private fun Density.intrinsicWidth(
+private fun IntrinsicMeasureScope.intrinsicWidth(
     columns: Int,
     columnWidth: (columnIndex: Int) -> TableColumnWidth,
     children: List<IntrinsicMeasurable>,
@@ -732,7 +733,7 @@ private fun Density.intrinsicWidth(
     return flexibleSpace * totalFlex + inflexibleSpace
 }
 
-private fun Density.intrinsicHeight(
+private fun IntrinsicMeasureScope.intrinsicHeight(
     columns: Int,
     columnWidth: (columnIndex: Int) -> TableColumnWidth,
     children: List<IntrinsicMeasurable>,

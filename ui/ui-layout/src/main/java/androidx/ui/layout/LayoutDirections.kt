@@ -17,11 +17,14 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
+import androidx.ui.core.IntrinsicMeasurable
+import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier2
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
+import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 
 /**
@@ -51,4 +54,28 @@ private data class LayoutDirectionModifier(
             placeable.place(0.ipx, 0.ipx)
         }
     }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.minIntrinsicWidth(height, prescribedLayoutDirection)
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.minIntrinsicHeight(width, prescribedLayoutDirection)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.maxIntrinsicWidth(height, prescribedLayoutDirection)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.maxIntrinsicHeight(width, prescribedLayoutDirection)
 }

@@ -16,28 +16,20 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 
 /**
  * The receiver scope of a layout's measure lambda. The return value of the
  * measure lambda is [MeasureResult], which should be returned by [layout]
  */
-abstract class MeasureScope : Density {
-    /**
-     * The [LayoutDirection] of the `Layout` or `LayoutModifier2` using the [MeasureScope]
-     * to measure their children.
-     */
-    // TODO(popam): Try to make this protected after the modules structure is updated.
-    abstract val layoutDirection: LayoutDirection
-
+abstract class MeasureScope : IntrinsicMeasureScope() {
     /**
      * Measures the layout with [constraints], returning a [Placeable]
      * layout that has its new size. A [Measurable] can only be measured
      * once inside a layout pass. The layout will inherit the layout
      * direction from its parent layout.
      */
-    fun Measurable.measure(constraints: Constraints) = this.measure(constraints, layoutDirection)
+    fun Measurable.measure(constraints: Constraints) = measure(constraints, layoutDirection)
 
     /**
      * Interface holding the size and alignment lines of the measured layout, as well as the

@@ -118,10 +118,14 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         return lastFocusWrapper
     }
 
-    override fun minIntrinsicWidth(height: IntPx) = wrapped.minIntrinsicWidth(height)
-    override fun maxIntrinsicWidth(height: IntPx) = wrapped.maxIntrinsicWidth(height)
-    override fun minIntrinsicHeight(width: IntPx) = wrapped.minIntrinsicHeight(width)
-    override fun maxIntrinsicHeight(width: IntPx) = wrapped.maxIntrinsicHeight(width)
+    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection) =
+        wrapped.minIntrinsicWidth(height, layoutDirection)
+    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection) =
+        wrapped.maxIntrinsicWidth(height, layoutDirection)
+    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection) =
+        wrapped.minIntrinsicHeight(width, layoutDirection)
+    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection) =
+        wrapped.maxIntrinsicHeight(width, layoutDirection)
     override val parentData: Any? get() = wrapped.parentData
 
     override fun detach() {

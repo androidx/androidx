@@ -25,7 +25,7 @@ import androidx.ui.unit.IntPxSize
 
 internal class ModifiedLayoutNode2(
     wrapped: LayoutNodeWrapper,
-    val layoutModifier: LayoutModifier2
+    private val layoutModifier: LayoutModifier2
 ) : DelegatingLayoutNodeWrapper<LayoutModifier2>(wrapped, layoutModifier) {
 
     override val measureScope = ModifierMeasureScope()
@@ -39,22 +39,29 @@ internal class ModifiedLayoutNode2(
         this@ModifiedLayoutNode2
     }
 
-    // TODO(popam): wire up layout direction to intrinsics as well
-    override fun minIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
-        measureScope.minIntrinsicWidth(wrapped, height, LayoutDirection.Ltr)
-    }
+    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+        with(layoutModifier) {
+            measureScope.layoutDirection = layoutDirection
+            measureScope.minIntrinsicWidth(wrapped, height, layoutDirection)
+        }
 
-    override fun maxIntrinsicWidth(height: IntPx): IntPx = with(layoutModifier) {
-        measureScope.maxIntrinsicWidth(wrapped, height, LayoutDirection.Ltr)
-    }
+    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+        with(layoutModifier) {
+            measureScope.layoutDirection = layoutDirection
+            measureScope.maxIntrinsicWidth(wrapped, height, layoutDirection)
+        }
 
-    override fun minIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
-        measureScope.minIntrinsicHeight(wrapped, width, LayoutDirection.Ltr)
-    }
+    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+        with(layoutModifier) {
+            measureScope.layoutDirection = layoutDirection
+            measureScope.minIntrinsicHeight(wrapped, width, layoutDirection)
+        }
 
-    override fun maxIntrinsicHeight(width: IntPx): IntPx = with(layoutModifier) {
-        measureScope.maxIntrinsicHeight(wrapped, width, LayoutDirection.Ltr)
-    }
+    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+        with(layoutModifier) {
+            measureScope.layoutDirection = layoutDirection
+            measureScope.maxIntrinsicHeight(wrapped, width, layoutDirection)
+        }
 
     override operator fun get(line: AlignmentLine): IntPx? =
         measureResult.alignmentLines.getOrElse(line, { wrapped[line] })
@@ -128,21 +135,29 @@ internal class ModifiedLayoutNode(
         this@ModifiedLayoutNode
     }
 
-    override fun minIntrinsicWidth(height: IntPx): IntPx = with(modifier) {
-        measureScope.minIntrinsicWidthOf(wrapped, height, LayoutDirection.Ltr)
-    }
+    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+        with(modifier) {
+            measureScope.layoutDirection = layoutDirection
+            measureScope.minIntrinsicWidthOf(wrapped, height, layoutDirection)
+        }
 
-    override fun maxIntrinsicWidth(height: IntPx): IntPx = with(modifier) {
-        measureScope.maxIntrinsicWidthOf(wrapped, height, LayoutDirection.Ltr)
-    }
+    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+        with(modifier) {
+            measureScope.layoutDirection = layoutDirection
+            measureScope.maxIntrinsicWidthOf(wrapped, height, layoutDirection)
+        }
 
-    override fun minIntrinsicHeight(width: IntPx): IntPx = with(modifier) {
-        measureScope.minIntrinsicHeightOf(wrapped, width, LayoutDirection.Ltr)
-    }
+    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+        with(modifier) {
+            measureScope.layoutDirection = layoutDirection
+            measureScope.minIntrinsicHeightOf(wrapped, width, layoutDirection)
+        }
 
-    override fun maxIntrinsicHeight(width: IntPx): IntPx = with(modifier) {
-        measureScope.maxIntrinsicHeightOf(wrapped, width, LayoutDirection.Ltr)
-    }
+    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+        with(modifier) {
+            measureScope.layoutDirection = layoutDirection
+            measureScope.maxIntrinsicHeightOf(wrapped, width, layoutDirection)
+        }
 
     override operator fun get(line: AlignmentLine): IntPx? = with(modifier) {
         return layoutNode.measureScope.modifyAlignmentLine(
