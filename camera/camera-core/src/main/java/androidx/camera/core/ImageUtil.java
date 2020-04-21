@@ -20,9 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.util.Log;
 import android.util.Rational;
@@ -56,20 +54,6 @@ final class ImageUtil {
         }
 
         return new Rational(aspectRatio.getNumerator(), aspectRatio.getDenominator());
-    }
-
-    /**
-     * Returns the max containing {@link RectF} with the given aspect ratio.
-     */
-    @NonNull
-    public static RectF fitCenter(@NonNull RectF dstRect, @NonNull Rational sourceAspectRatio) {
-        Matrix matrix = new Matrix();
-        RectF srcRect = new RectF(0, 0, sourceAspectRatio.getNumerator(),
-                sourceAspectRatio.getDenominator());
-        matrix.setRectToRect(srcRect, dstRect, Matrix.ScaleToFit.CENTER);
-        RectF result = new RectF();
-        matrix.mapRect(result, srcRect);
-        return result;
     }
 
     /** {@link android.media.Image} to JPEG byte array. */

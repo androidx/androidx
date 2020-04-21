@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
@@ -37,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraFilter;
@@ -896,21 +898,23 @@ public final class CameraX {
      * </ul>
      *
      * @param fullSensorRect        full sensor rect of the camera.
-     * @param outputAspectRatio     aspect ratio of the output crop rect specified by caller.
+     * @param viewPortAspectRatio   aspect ratio of the {@link ViewPort} specified by the
+     *                              caller.
      * @param outputRotationDegrees output rotation degrees in relation to the sensor orientation.
      * @param useCaseSizes          the {@link Surface} size of each use case.
-     * @return the crop rect in each {@link UseCase}'s output coordinates.
+     * @return the {@link ViewPort} rect in each {@link UseCase}'s output coordinates.
      */
     @NonNull
-    static Map<UseCase, Rect> calculateCropRects(
+    static Map<UseCase, Rect> calculateViewPortRects(
             @NonNull Rect fullSensorRect,
-            @NonNull Rational outputAspectRatio,
+            @NonNull Rational viewPortAspectRatio,
             @IntRange(from = 0, to = 359) int outputRotationDegrees,
+            @ViewPort.ScaleType int scaleType,
             @NonNull Map<UseCase, Size> useCaseSizes) {
         // Transform aspect ratio to sensor orientation. The the rest of the method is in sensor
         // orientation.
-        Rational aspectRatio = ImageUtil.getRotatedAspectRatio(outputRotationDegrees,
-                outputAspectRatio);
+        Rational rotatedViewPortAspectRatio = ImageUtil.getRotatedAspectRatio(
+                outputRotationDegrees, viewPortAspectRatio);
         RectF fullSensorRectF = new RectF(fullSensorRect);
 
         // Calculate the transformation for each UseCase.
@@ -931,8 +935,9 @@ public final class CameraX {
             sensorIntersectionRect.intersect(useCaseSensorRect);
         }
 
-        // Get the max shared sensor rect by the given aspect ratio.
-        sensorIntersectionRect = ImageUtil.fitCenter(sensorIntersectionRect, aspectRatio);
+        // Get the shared sensor rect by the given aspect ratio.
+        sensorIntersectionRect = getScaledRect(
+                sensorIntersectionRect, rotatedViewPortAspectRatio, scaleType);
 
         // Map the max shared sensor rect to UseCase coordinates.
         Map<UseCase, Rect> useCaseOutputRects = new HashMap<>();
@@ -947,6 +952,70 @@ public final class CameraX {
             useCaseOutputRects.put(entry.getKey(), outputCropRect);
         }
         return useCaseOutputRects;
+    }
+
+    /**
+     * Returns the scaled surface rect that fits/fills the given view port aspect ratio.
+     *
+     * <p> Scale type represents the transformation from surface to view port. For FIT types,
+     * this method returns the smallest rectangle that is larger the surface; For FILL types,
+     * returns the largest rectangle that is smaller than the view port. The returned rectangle
+     * is also required to 1) have the view port's aspect ratio and 2) be in the surface
+     * coordinates.
+     */
+    @SuppressLint("SwitchIntDef")
+    @VisibleForTesting
+    @NonNull
+    static RectF getScaledRect(
+            @NonNull RectF surfaceRect,
+            @NonNull Rational viewPortAspectRatio,
+            @ViewPort.ScaleType int scaleType) {
+        Matrix viewPortToSurfaceTransformation = new Matrix();
+        RectF viewPortRect = new RectF(0, 0, viewPortAspectRatio.getNumerator(),
+                viewPortAspectRatio.getDenominator());
+        if (scaleType == ViewPort.FIT_CENTER || scaleType == ViewPort.FIT_END
+                || scaleType == ViewPort.FIT_START) {
+            Matrix surfaceToViewPortTransformation = new Matrix();
+            switch (scaleType) {
+                // To workaround the limitation that Matrix doesn't not support FILL types
+                // natively, use inverted backward FIT mapping to achieve forward FILL mapping.
+                case ViewPort.FIT_CENTER:
+                    surfaceToViewPortTransformation.setRectToRect(
+                            surfaceRect, viewPortRect, Matrix.ScaleToFit.CENTER);
+                    break;
+                case ViewPort.FIT_START:
+                    surfaceToViewPortTransformation.setRectToRect(
+                            surfaceRect, viewPortRect, Matrix.ScaleToFit.START);
+                    break;
+                case ViewPort.FIT_END:
+                    surfaceToViewPortTransformation.setRectToRect(
+                            surfaceRect, viewPortRect, Matrix.ScaleToFit.END);
+                    break;
+            }
+            surfaceToViewPortTransformation.invert(viewPortToSurfaceTransformation);
+        } else if (scaleType == ViewPort.FILL_CENTER || scaleType == ViewPort.FILL_END
+                || scaleType == ViewPort.FILL_START) {
+            switch (scaleType) {
+                case ViewPort.FILL_CENTER:
+                    viewPortToSurfaceTransformation.setRectToRect(
+                            viewPortRect, surfaceRect, Matrix.ScaleToFit.CENTER);
+                    break;
+                case ViewPort.FILL_START:
+                    viewPortToSurfaceTransformation.setRectToRect(
+                            viewPortRect, surfaceRect, Matrix.ScaleToFit.START);
+                    break;
+                case ViewPort.FILL_END:
+                    viewPortToSurfaceTransformation.setRectToRect(
+                            viewPortRect, surfaceRect, Matrix.ScaleToFit.END);
+                    break;
+            }
+        } else {
+            throw new IllegalStateException("Unexpected scale type: " + scaleType);
+        }
+
+        RectF viewPortRectInSurfaceCoordinates = new RectF();
+        viewPortToSurfaceTransformation.mapRect(viewPortRectInSurfaceCoordinates, viewPortRect);
+        return viewPortRectInSurfaceCoordinates;
     }
 
     /**
