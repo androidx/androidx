@@ -459,6 +459,7 @@ class TypeAdapterStore private constructor(
                     ).process()
                     PojoRowAdapter(
                             context = subContext,
+                            info = resultInfo,
                             pojo = pojo,
                             out = typeMirror)
                 }
@@ -477,6 +478,11 @@ class TypeAdapterStore private constructor(
                 }
             }
 
+            if (rowAdapter != null && rowAdapterLogs?.hasErrors() != true) {
+                rowAdapterLogs?.writeTo(context)
+                return rowAdapter
+            }
+
             if ((resultInfo?.columns?.size ?: 1) == 1) {
                 val singleColumn = findCursorValueReader(typeMirror,
                         resultInfo?.columns?.get(0)?.type)
@@ -486,7 +492,7 @@ class TypeAdapterStore private constructor(
             }
             // if we tried, return its errors
             if (rowAdapter != null) {
-                rowAdapterLogs?.writeTo(context.processingEnv)
+                rowAdapterLogs?.writeTo(context)
                 return rowAdapter
             }
             if (query.runtimeQueryPlaceholder) {
@@ -500,6 +506,7 @@ class TypeAdapterStore private constructor(
                 ).process()
                 return PojoRowAdapter(
                         context = context,
+                        info = null,
                         pojo = pojo,
                         out = typeMirror)
             }
