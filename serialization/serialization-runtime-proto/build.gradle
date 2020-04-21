@@ -33,7 +33,8 @@ dependencies {
 
 androidx {
     name = "AndroidX Serialization - Protocol Buffers Runtime"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.SERIALIZATION
     compilationTarget = CompilationTarget.HOST
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2020"
