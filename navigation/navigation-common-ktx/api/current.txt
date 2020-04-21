@@ -58,13 +58,13 @@ package androidx.navigation {
     ctor public NavDeepLinkDslBuilder();
     method public String? getAction();
     method public String? getMimeType();
-    method public String? getUri();
+    method public String? getUriPattern();
     method public void setAction(String? p);
     method public void setMimeType(String? p);
-    method public void setUri(String? p);
+    method public void setUriPattern(String? p);
     property public final String? action;
     property public final String? mimeType;
-    property public final String? uri;
+    property public final String? uriPattern;
   }
 
   public final class NavDeepLinkDslBuilderKt {

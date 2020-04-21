@@ -83,7 +83,7 @@ class NavDeepLinkActionTest {
     @Test
     fun deepLinkEmptySetAction() {
         try {
-            NavDeepLink.Builder.fromUri(DEEP_LINK_EXACT_HTTPS).setAction("").build()
+            NavDeepLink.Builder.fromUriPattern(DEEP_LINK_EXACT_HTTPS).setAction("").build()
         } catch (e: IllegalArgumentException) {
             assertThat(e)
                 .hasMessageThat().contains(

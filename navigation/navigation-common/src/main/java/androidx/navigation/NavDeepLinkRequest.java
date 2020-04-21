@@ -51,7 +51,7 @@ public class NavDeepLinkRequest {
      * Get the uri from the NavDeepLinkRequest.
      *
      * @return the uri for the request.
-     * @see NavDeepLink#getUri()
+     * @see NavDeepLink#getUriPattern()
      */
     @Nullable
     public Uri getUri() {
@@ -118,7 +118,7 @@ public class NavDeepLinkRequest {
         /**
          * Creates a {@link NavDeepLinkRequest.Builder} with a set uri.
          *
-         * @param uri The uri pattern to add to the NavDeepLinkRequest
+         * @param uri The uri to add to the NavDeepLinkRequest
          * @return a {@link Builder} instance
          */
         @NonNull
@@ -163,7 +163,7 @@ public class NavDeepLinkRequest {
         /**
          * Set the uri for the {@link NavDeepLinkRequest}.
          *
-         * @param uri The uri pattern to add to the NavDeepLinkRequest
+         * @param uri The uri to add to the NavDeepLinkRequest
          *
          * @return This builder.
          */
