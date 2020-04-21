@@ -18,9 +18,9 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagedList.Config
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
@@ -44,14 +44,14 @@ class LegacyPageFetcherTest {
 
             val start = when (params.loadType) {
                 REFRESH -> key
-                START -> key - params.loadSize
-                END -> key
+                PREPEND -> key - params.loadSize
+                APPEND -> key
             }.coerceAtLeast(0)
 
             val end = when (params.loadType) {
                 REFRESH -> key + params.loadSize
-                START -> key
-                END -> key + params.loadSize
+                PREPEND -> key
+                APPEND -> key + params.loadSize
             }.coerceAtMost(data.size)
 
             return Page(
@@ -98,8 +98,8 @@ class LegacyPageFetcherTest {
         override fun onPageResult(type: LoadType, page: Page<*, String>): Boolean {
             @Suppress("NON_EXHAUSTIVE_WHEN")
             when (type) {
-                START -> storage?.prependPage(page)
-                END -> storage?.appendPage(page)
+                PREPEND -> storage?.prependPage(page)
+                APPEND -> storage?.appendPage(page)
             }
 
             results.add(Result(type, page))
@@ -163,15 +163,15 @@ class LegacyPageFetcherTest {
 
         assertTrue(consumer.takeResults().isEmpty())
         assertEquals(
-            listOf(StateChange(END, LoadState.Loading)),
+            listOf(StateChange(APPEND, LoadState.Loading)),
             consumer.takeStateChanges()
         )
 
         testDispatcher.executeAll()
 
-        assertEquals(listOf(Result(END, rangeResult(6, 8))), consumer.takeResults())
+        assertEquals(listOf(Result(APPEND, rangeResult(6, 8))), consumer.takeResults())
         assertEquals(
-            listOf(StateChange(END, LoadState.NotLoading(endOfPaginationReached = false))),
+            listOf(StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = false))),
             consumer.takeStateChanges()
         )
     }
@@ -185,18 +185,18 @@ class LegacyPageFetcherTest {
 
         assertTrue(consumer.takeResults().isEmpty())
         assertEquals(
-            listOf(StateChange(START, LoadState.Loading)),
+            listOf(StateChange(PREPEND, LoadState.Loading)),
             consumer.takeStateChanges()
         )
 
         testDispatcher.executeAll()
 
         assertEquals(
-            listOf(Result(START, rangeResult(2, 4))),
+            listOf(Result(PREPEND, rangeResult(2, 4))),
             consumer.takeResults()
         )
         assertEquals(
-            listOf(StateChange(START, LoadState.NotLoading(endOfPaginationReached = false))),
+            listOf(StateChange(PREPEND, LoadState.NotLoading(endOfPaginationReached = false))),
             consumer.takeStateChanges()
         )
     }
@@ -213,16 +213,16 @@ class LegacyPageFetcherTest {
 
         assertEquals(
             listOf(
-                Result(END, rangeResult(6, 8)),
-                Result(END, rangeResult(8, 9))
+                Result(APPEND, rangeResult(6, 8)),
+                Result(APPEND, rangeResult(8, 9))
             ), consumer.takeResults()
         )
         assertEquals(
             listOf(
-                StateChange(END, LoadState.Loading),
-                StateChange(END, LoadState.NotLoading(endOfPaginationReached = false)),
-                StateChange(END, LoadState.Loading),
-                StateChange(END, LoadState.NotLoading(endOfPaginationReached = false))
+                StateChange(APPEND, LoadState.Loading),
+                StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = false)),
+                StateChange(APPEND, LoadState.Loading),
+                StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = false))
             ),
             consumer.takeStateChanges()
         )
@@ -240,16 +240,16 @@ class LegacyPageFetcherTest {
 
         assertEquals(
             listOf(
-                Result(START, rangeResult(2, 4)),
-                Result(START, rangeResult(0, 2))
+                Result(PREPEND, rangeResult(2, 4)),
+                Result(PREPEND, rangeResult(0, 2))
             ), consumer.takeResults()
         )
         assertEquals(
             listOf(
-                StateChange(START, LoadState.Loading),
-                StateChange(START, LoadState.NotLoading(endOfPaginationReached = false)),
-                StateChange(START, LoadState.Loading),
-                StateChange(START, LoadState.NotLoading(endOfPaginationReached = false))
+                StateChange(PREPEND, LoadState.Loading),
+                StateChange(PREPEND, LoadState.NotLoading(endOfPaginationReached = false)),
+                StateChange(PREPEND, LoadState.Loading),
+                StateChange(PREPEND, LoadState.NotLoading(endOfPaginationReached = false))
             ),
             consumer.takeStateChanges()
         )
@@ -264,11 +264,11 @@ class LegacyPageFetcherTest {
 
         // Pager triggers an immediate empty response here, so we don't need to flush the executor
         assertEquals(
-            listOf(Result(END, Page.empty<Int, String>())),
+            listOf(Result(APPEND, Page.empty<Int, String>())),
             consumer.takeResults()
         )
         assertEquals(
-            listOf(StateChange(END, LoadState.NotLoading(endOfPaginationReached = true))),
+            listOf(StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = true))),
             consumer.takeStateChanges()
         )
     }
@@ -282,11 +282,11 @@ class LegacyPageFetcherTest {
 
         // Pager triggers an immediate empty response here, so we don't need to flush the executor
         assertEquals(
-            listOf(Result(START, Page.empty<Int, String>())),
+            listOf(Result(PREPEND, Page.empty<Int, String>())),
             consumer.takeResults()
         )
         assertEquals(
-            listOf(StateChange(START, LoadState.NotLoading(endOfPaginationReached = true))),
+            listOf(StateChange(PREPEND, LoadState.NotLoading(endOfPaginationReached = true))),
             consumer.takeStateChanges()
         )
     }

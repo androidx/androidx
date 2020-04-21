@@ -16,9 +16,9 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import kotlinx.coroutines.CoroutineScope
@@ -73,7 +73,7 @@ class RemoteMediatorAccessorTest {
                     pages = listOf(),
                     anchorPosition = null,
                     config = PagingConfig(10),
-                    placeholdersStart = COUNT_UNDEFINED
+                    placeholdersBefore = COUNT_UNDEFINED
                 )
             )
         }
@@ -104,7 +104,7 @@ class RemoteMediatorAccessorTest {
         launch {
             remoteMediatorAccessor.load(
                 scope = testScope,
-                loadType = START,
+                loadType = PREPEND,
                 state = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
             )
         }
@@ -112,7 +112,7 @@ class RemoteMediatorAccessorTest {
         launch {
             remoteMediatorAccessor.load(
                 scope = testScope,
-                loadType = END,
+                loadType = APPEND,
                 state = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
             )
         }

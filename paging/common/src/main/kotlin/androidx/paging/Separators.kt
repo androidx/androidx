@@ -16,8 +16,8 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.END
-import androidx.paging.LoadType.START
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
 import kotlinx.coroutines.flow.Flow
@@ -224,16 +224,16 @@ private class SeparatorState<R : Any, T : R>(
     }
 
     internal fun <T : Any> Insert<T>.terminatesStart(): Boolean =
-        if (loadType == END) {
+        if (loadType == APPEND) {
             startTerminalSeparatorDeferred
         } else {
-            loadStates[START] == LoadState.NotLoading(endOfPaginationReached = true)
+            loadStates[PREPEND] == LoadState.NotLoading(endOfPaginationReached = true)
         }
 
-    internal fun <T : Any> Insert<T>.terminatesEnd(): Boolean = if (loadType == START) {
+    internal fun <T : Any> Insert<T>.terminatesEnd(): Boolean = if (loadType == PREPEND) {
         endTerminalSeparatorDeferred
     } else {
-        loadStates[END] == LoadState.NotLoading(endOfPaginationReached = true)
+        loadStates[APPEND] == LoadState.NotLoading(endOfPaginationReached = true)
     }
 
     fun onInsert(event: Insert<T>): Insert<R> {
@@ -284,10 +284,10 @@ private class SeparatorState<R : Any, T : R>(
 
         // create pages based on data in the event
         if (!eventEmpty) {
-            var itemBefore = if (event.loadType == END) pageStash.lastOrNull()?.last else null
+            var itemBefore = if (event.loadType == APPEND) pageStash.lastOrNull()?.last else null
             event.pages.forEachIndexed { index, page ->
                 // If page is being appended, or if we're in between pages, insert separator page
-                if (index != 0 || (event.loadType == END && pageStash.isNotEmpty())) {
+                if (index != 0 || (event.loadType == APPEND && pageStash.isNotEmpty())) {
                     val separator = generator(itemBefore!!, page.data.first())
                     outStateList.add(null) // represents separator
                     outList.add(separatorPage(separator, page, originalIndex = 0))
@@ -298,7 +298,7 @@ private class SeparatorState<R : Any, T : R>(
 
                 itemBefore = page.data.last()
             }
-            if (event.loadType == START && pageStash.isNotEmpty()) {
+            if (event.loadType == PREPEND && pageStash.isNotEmpty()) {
                 val lastPage = event.pages.last()
                 val separator = generator(lastPage.data.last(), pageStash.first()!!.first)
                 outStateList.add(null) // represents separator
@@ -328,7 +328,7 @@ private class SeparatorState<R : Any, T : R>(
         endTerminalSeparatorDeferred = false
         startTerminalSeparatorDeferred = false
 
-        if (event.loadType == END) {
+        if (event.loadType == APPEND) {
             pageStash.addAll(outStateList)
         } else {
             pageStash.addAll(0, outStateList)
@@ -337,7 +337,7 @@ private class SeparatorState<R : Any, T : R>(
     }
 
     fun onDrop(event: Drop<T>): Drop<T> {
-        val newCount = if (event.loadType == START) {
+        val newCount = if (event.loadType == PREPEND) {
             if (pageStash.isEmpty()) {
                 startTerminalSeparatorDeferred = false
             }

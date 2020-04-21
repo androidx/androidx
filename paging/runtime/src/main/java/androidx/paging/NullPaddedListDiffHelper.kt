@@ -113,10 +113,10 @@ internal fun <T : Any> NullPaddedList<T>.dispatchDiff(
     newList: NullPaddedList<T>,
     diffResult: DiffUtil.DiffResult
 ) {
-    val trailingOld = placeholdersEnd
-    val trailingNew = newList.placeholdersEnd
-    val leadingOld = placeholdersStart
-    val leadingNew = newList.placeholdersStart
+    val trailingOld = placeholdersAfter
+    val trailingNew = newList.placeholdersAfter
+    val leadingOld = placeholdersBefore
+    val leadingNew = newList.placeholdersBefore
 
     if (trailingOld == 0 &&
         trailingNew == 0 &&
@@ -162,7 +162,7 @@ internal fun NullPaddedList<*>.transformAnchorIndex(
 ): Int {
     // diffResult's indices starting after nulls, need to transform to diffutil indices
     // (see also dispatchDiff(), which adds this offset when dispatching)
-    val diffIndex = oldPosition - placeholdersStart
+    val diffIndex = oldPosition - placeholdersBefore
 
     val oldSize = storageCount
 
@@ -180,7 +180,7 @@ internal fun NullPaddedList<*>.transformAnchorIndex(
             val result = diffResult.convertOldPositionToNew(positionToTry)
             if (result != -1) {
                 // also need to transform from diffutil output indices to newList
-                return result + newList.placeholdersStart
+                return result + newList.placeholdersBefore
             }
         }
     }

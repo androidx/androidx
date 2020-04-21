@@ -17,13 +17,13 @@
 package androidx.paging
 
 import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
-import androidx.paging.PageEvent.Insert.Companion.End
+import androidx.paging.PageEvent.Insert.Companion.Append
+import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.Insert.Companion.Start
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
@@ -97,12 +97,12 @@ class SeparatorsTest {
                             originalIndices = null
                         )
                     ),
-                    placeholdersStart = 0,
-                    placeholdersEnd = 1,
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Idle
                     )
                 )
             ),
@@ -112,12 +112,12 @@ class SeparatorsTest {
                         listOf("a2", "b1"),
                         listOf("c1", "c2")
                     ).toTransformablePages(),
-                    placeholdersStart = 0,
-                    placeholdersEnd = 1,
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Idle
                     )
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
@@ -130,18 +130,18 @@ class SeparatorsTest {
             pages = listOf(
                 listOf("c1")
             ).toTransformablePages(),
-            placeholdersStart = 0,
-            placeholdersEnd = 1,
+            placeholdersBefore = 0,
+            placeholdersAfter = 1,
             loadStates = mapOf(
                 REFRESH to NotLoading.Idle,
-                START to NotLoading.Idle,
-                END to NotLoading.Idle
+                PREPEND to NotLoading.Idle,
+                APPEND to NotLoading.Idle
             )
         )
         assertEvents(
             listOf(
                 refresh,
-                Start(
+                Prepend(
                     pages = listOf(
                         TransformablePage(
                             originalPageOffset = -2,
@@ -168,26 +168,26 @@ class SeparatorsTest {
                             originalIndices = listOf(1) // note: using last index of 2nd page in
                         )
                     ),
-                    placeholdersStart = 1,
+                    placeholdersBefore = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Idle
                     )
                 )
             ),
             flowOf(
                 refresh,
-                Start(
+                Prepend(
                     pages = listOf(
                         listOf("a1", "b1"),
                         listOf("b2", "b3")
                     ).toTransformablePages(2),
-                    placeholdersStart = 1,
+                    placeholdersBefore = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Idle
                     )
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
@@ -200,18 +200,18 @@ class SeparatorsTest {
             pages = listOf(
                 listOf("a1", "a2")
             ).toTransformablePages(),
-            placeholdersStart = 0,
-            placeholdersEnd = 1,
+            placeholdersBefore = 0,
+            placeholdersAfter = 1,
             loadStates = mapOf(
                 REFRESH to NotLoading.Idle,
-                START to NotLoading.Idle,
-                END to NotLoading.Idle
+                PREPEND to NotLoading.Idle,
+                APPEND to NotLoading.Idle
             )
         )
         assertEvents(
             listOf(
                 refresh,
-                End(
+                Append(
                     pages = listOf(
                         TransformablePage(
                             originalPageOffset = 1,
@@ -238,26 +238,26 @@ class SeparatorsTest {
                             originalIndices = null
                         )
                     ),
-                    placeholdersEnd = 1,
+                    placeholdersAfter = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Idle
                     )
                 )
             ),
             flowOf(
                 refresh,
-                End(
+                Append(
                     pages = listOf(
                         listOf("c1", "d1"),
                         listOf("d2", "d3")
                     ).toTransformablePages(-1),
-                    placeholdersEnd = 1,
+                    placeholdersAfter = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Idle
                     )
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
@@ -289,15 +289,15 @@ class SeparatorsTest {
                             originalIndices = null
                         )
                     ),
-                    placeholdersStart = 0,
-                    placeholdersEnd = 1,
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Idle
                     )
                 ),
-                Drop<String>(END, 2, 4)
+                Drop<String>(APPEND, 2, 4)
             ),
             actual = flowOf(
                 Refresh(
@@ -305,56 +305,56 @@ class SeparatorsTest {
                         listOf("a1"),
                         listOf("a2")
                     ).toTransformablePages(),
-                    placeholdersStart = 0,
-                    placeholdersEnd = 1,
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Idle
                     )
                 ),
-                Drop<String>(END, 1, 4)
+                Drop<String>(APPEND, 1, 4)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
 
     private fun refresh(
         pages: List<String?>,
-        start: LoadState = NotLoading.Idle,
-        end: LoadState = NotLoading.Idle
+        prepend: LoadState = NotLoading.Idle,
+        append: LoadState = NotLoading.Idle
     ) = Refresh(
         pages = pages.map {
             if (it != null) listOf(it) else emptyList()
         }.toTransformablePages(),
-        placeholdersStart = 0,
-        placeholdersEnd = 1,
-        loadStates = mapOf(REFRESH to NotLoading.Idle, START to start, END to end)
+        placeholdersBefore = 0,
+        placeholdersAfter = 1,
+        loadStates = mapOf(REFRESH to NotLoading.Idle, PREPEND to prepend, APPEND to append)
     )
 
-    private fun start(
+    private fun prepend(
         pages: List<String?>,
-        start: LoadState = NotLoading.Idle
-    ) = Start(
+        prepend: LoadState = NotLoading.Idle
+    ) = Prepend(
         pages = pages.map {
             if (it != null) listOf(it) else emptyList()
         }.toTransformablePages(),
-        placeholdersStart = 0,
+        placeholdersBefore = 0,
         loadStates = mapOf(
             REFRESH to NotLoading.Idle,
-            START to start,
-            END to NotLoading.Idle
+            PREPEND to prepend,
+            APPEND to NotLoading.Idle
         )
     )
 
-    private fun end(
+    private fun append(
         pages: List<String?>,
-        end: LoadState = NotLoading.Idle
-    ) = End(
+        append: LoadState = NotLoading.Idle
+    ) = Append(
         pages = pages.map {
             if (it != null) listOf(it) else emptyList()
         }.toTransformablePages(),
-        placeholdersEnd = 0,
-        loadStates = mapOf(REFRESH to NotLoading.Idle, START to NotLoading.Idle, END to end)
+        placeholdersAfter = 0,
+        loadStates = mapOf(REFRESH to NotLoading.Idle, PREPEND to NotLoading.Idle, APPEND to append)
     )
 
     private fun drop(
@@ -381,7 +381,7 @@ class SeparatorsTest {
                 refresh(pages = listOf("A", "a1"))
             ),
             flowOf(
-                refresh(pages = listOf("a1"), start = NotLoading.Done)
+                refresh(pages = listOf("a1"), prepend = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -393,7 +393,7 @@ class SeparatorsTest {
                 refresh(pages = listOf("a1", "END"))
             ),
             flowOf(
-                refresh(pages = listOf("a1"), end = NotLoading.Done)
+                refresh(pages = listOf("a1"), append = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -407,8 +407,8 @@ class SeparatorsTest {
             flowOf(
                 refresh(
                     pages = listOf("a1"),
-                    start = NotLoading.Done,
-                    end = NotLoading.Done
+                    prepend = NotLoading.Done,
+                    append = NotLoading.Done
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
@@ -435,17 +435,17 @@ class SeparatorsTest {
                 // not enough data to create separators yet
                 refresh(pages = listOf()),
                 // now we can, since we know what's on the other side
-                end(pages = listOf("A", "a1")),
-                // empty should be noop, since it's not end = Done
-                end(pages = listOf()),
-                // end = Done, so resolve final separator
-                end(pages = listOf("END"))
+                append(pages = listOf("A", "a1")),
+                // empty should be noop, since it's not append = NotLoading(true)
+                append(pages = listOf()),
+                // append = NotLoading(true), so resolve final separator
+                append(pages = listOf("END"))
             ),
             flowOf(
-                refresh(pages = listOf(), start = NotLoading.Done),
-                end(pages = listOf("a1")),
-                end(pages = listOf()),
-                end(pages = listOf(), end = NotLoading.Done)
+                refresh(pages = listOf(), prepend = NotLoading.Done),
+                append(pages = listOf("a1")),
+                append(pages = listOf()),
+                append(pages = listOf(), append = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -457,17 +457,17 @@ class SeparatorsTest {
                 // not enough data to create separators yet
                 refresh(pages = listOf()),
                 // now we can, since we know what's on the other side
-                start(pages = listOf("a1", "END")),
-                // empty should be noop, since it's not start = Done
-                start(pages = listOf()),
-                // start = Done, so resolve final separator
-                start(pages = listOf("A"))
+                prepend(pages = listOf("a1", "END")),
+                // empty should be noop, since it's not prepend = NotLoading(true)
+                prepend(pages = listOf()),
+                // prepend = NotLoading(true), so resolve final separator
+                prepend(pages = listOf("A"))
             ),
             flowOf(
-                refresh(pages = listOf(), end = NotLoading.Done),
-                start(pages = listOf("a1")),
-                start(pages = listOf()),
-                start(pages = listOf(), start = NotLoading.Done)
+                refresh(pages = listOf(), append = NotLoading.Done),
+                prepend(pages = listOf("a1")),
+                prepend(pages = listOf()),
+                prepend(pages = listOf(), prepend = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -479,15 +479,15 @@ class SeparatorsTest {
                 // not enough data to create separators yet
                 refresh(pages = listOf()),
                 // don't insert a separator, since a drop occurred (even though it's 0 size)
-                end(pages = listOf("a1")),
+                append(pages = listOf("a1")),
                 // but now add the separator, since start is done again
-                start(pages = listOf("A"))
+                prepend(pages = listOf("A"))
             ),
             flowOf(
-                refresh(pages = listOf(), start = NotLoading.Done),
-                drop(loadType = START, count = 0),
-                end(pages = listOf("a1")),
-                start(pages = listOf(), start = NotLoading.Done)
+                refresh(pages = listOf(), prepend = NotLoading.Done),
+                drop(loadType = PREPEND, count = 0),
+                append(pages = listOf("a1")),
+                prepend(pages = listOf(), prepend = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -499,15 +499,15 @@ class SeparatorsTest {
                 // not enough data to create separators yet
                 refresh(pages = listOf()),
                 // don't insert a separator, since a drop occurred (even though it's 0 size)
-                start(pages = listOf("a1")),
+                prepend(pages = listOf("a1")),
                 // but now add the separator, since end is done again
-                end(pages = listOf("END"))
+                append(pages = listOf("END"))
             ),
             flowOf(
-                refresh(pages = listOf(), end = NotLoading.Done),
-                drop(loadType = END, count = 0),
-                start(pages = listOf("a1")),
-                end(pages = listOf(), end = NotLoading.Done)
+                refresh(pages = listOf(), append = NotLoading.Done),
+                drop(loadType = APPEND, count = 0),
+                prepend(pages = listOf("a1")),
+                append(pages = listOf(), append = NotLoading.Done)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -518,11 +518,11 @@ class SeparatorsTest {
             listOf(
                 refresh(pages = listOf()),
                 // not enough data to create separators yet
-                start(pages = listOf("a1"))
+                prepend(pages = listOf("a1"))
             ),
             flowOf(
                 refresh(pages = listOf()),
-                start(pages = listOf("a1"))
+                prepend(pages = listOf("a1"))
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -533,11 +533,11 @@ class SeparatorsTest {
             listOf(
                 refresh(pages = listOf()),
                 // not enough data to create separators yet
-                end(pages = listOf("a1"))
+                append(pages = listOf("a1"))
             ),
             flowOf(
                 refresh(pages = listOf()),
-                end(pages = listOf("a1"))
+                append(pages = listOf("a1"))
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -574,22 +574,22 @@ class SeparatorsTest {
                             originalIndices = null
                         )
                     ),
-                    placeholdersStart = 0,
-                    placeholdersEnd = 1,
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Done,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Done,
+                        APPEND to NotLoading.Idle
                     )
                 ),
-                drop(loadType = START, count = 3)
+                drop(loadType = PREPEND, count = 3)
             ),
             flowOf(
                 refresh(
                     pages = listOf("a1", "b1"),
-                    start = NotLoading.Done
+                    prepend = NotLoading.Done
                 ),
-                drop(loadType = START, count = 1)
+                drop(loadType = PREPEND, count = 1)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -626,22 +626,22 @@ class SeparatorsTest {
                             originalIndices = listOf(0)
                         )
                     ),
-                    placeholdersStart = 0,
-                    placeholdersEnd = 1,
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Done
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Done
                     )
                 ),
-                drop(loadType = END, count = 3)
+                drop(loadType = APPEND, count = 3)
             ),
             flowOf(
                 refresh(
                     pages = listOf("a1", "b1"),
-                    end = NotLoading.Done
+                    append = NotLoading.Done
                 ),
-                drop(loadType = END, count = 1)
+                drop(loadType = APPEND, count = 1)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
         )
     }
@@ -662,12 +662,12 @@ class SeparatorsTest {
                             PrimaryType("b1")
                         )
                     ).toTransformablePages(),
-                    placeholdersStart = 0,
-                    placeholdersEnd = 1,
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Idle
                     )
                 )
             ),
@@ -675,12 +675,12 @@ class SeparatorsTest {
                 Refresh(
                     pages = listOf(listOf(PrimaryType("a1"), PrimaryType("b1")))
                         .toTransformablePages(),
-                    placeholdersStart = 0,
-                    placeholdersEnd = 1,
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
                     loadStates = mapOf(
                         REFRESH to NotLoading.Idle,
-                        START to NotLoading.Idle,
-                        END to NotLoading.Idle
+                        PREPEND to NotLoading.Idle,
+                        APPEND to NotLoading.Idle
                     )
                 )
             ).insertEventSeparators<PrimaryType, Base> { before, after ->

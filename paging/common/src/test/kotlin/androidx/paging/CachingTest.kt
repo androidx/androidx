@@ -379,14 +379,14 @@ class CachingTest {
                         size = params.loadSize
                     )
                 }
-                LoadType.START -> {
+                LoadType.PREPEND -> {
                     val loadSize = minOf(params.key!!, params.pageSize)
                     return doLoad(
                         position = params.key!! - params.loadSize,
                         size = loadSize
                     )
                 }
-                LoadType.END -> {
+                LoadType.APPEND -> {
                     return doLoad(
                         position = params.key!!,
                         size = params.loadSize

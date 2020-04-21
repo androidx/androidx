@@ -530,7 +530,7 @@ open class AsyncPagedListDiffer<T : Any> {
      * Add a [LoadState] listener to observe the loading state of the current [PagedList].
      *
      * As new PagedLists are submitted and displayed, the listener will be notified to reflect
-     * current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
+     * current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
      *
      * @param listener [LoadState] listener to receive updates.
      *

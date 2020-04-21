@@ -16,9 +16,9 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagingSource.LoadResult.Page
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -39,9 +39,9 @@ class PageFetcherSnapshotStateTest {
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
-        pagerState.insert(0, START, Page(listOf(2, 3), 1, 4))
+        pagerState.insert(0, PREPEND, Page(listOf(2, 3), 1, 4))
         advanceUntilIdle()
-        pagerState.insert(0, END, Page(listOf(6, 7), 5, 8))
+        pagerState.insert(0, APPEND, Page(listOf(6, 7), 5, 8))
         advanceUntilIdle()
 
         with(pagerState) {
@@ -59,9 +59,9 @@ class PageFetcherSnapshotStateTest {
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
-        pagerState.insert(0, START, Page(listOf(2, 3), 1, 4))
+        pagerState.insert(0, PREPEND, Page(listOf(2, 3), 1, 4))
         advanceUntilIdle()
-        pagerState.insert(0, END, Page(listOf(6, 7), 5, 8))
+        pagerState.insert(0, APPEND, Page(listOf(6, 7), 5, 8))
         advanceUntilIdle()
 
         with(pagerState) {
@@ -82,9 +82,9 @@ class PageFetcherSnapshotStateTest {
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
-        pagerState.insert(0, START, Page(listOf(2, 3), 1, 4))
+        pagerState.insert(0, PREPEND, Page(listOf(2, 3), 1, 4))
         advanceUntilIdle()
-        pagerState.insert(0, END, Page(listOf(6, 7), 5, 8))
+        pagerState.insert(0, APPEND, Page(listOf(6, 7), 5, 8))
         advanceUntilIdle()
 
         with(pagerState) {
@@ -105,9 +105,9 @@ class PageFetcherSnapshotStateTest {
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
-        pagerState.insert(0, START, Page(listOf(2, 3), 1, 4))
+        pagerState.insert(0, PREPEND, Page(listOf(2, 3), 1, 4))
         advanceUntilIdle()
-        pagerState.insert(0, END, Page(listOf(6, 7), 5, 8))
+        pagerState.insert(0, APPEND, Page(listOf(6, 7), 5, 8))
         advanceUntilIdle()
 
         with(pagerState) {
@@ -128,9 +128,9 @@ class PageFetcherSnapshotStateTest {
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
-        pagerState.insert(0, START, Page(listOf(2, 3), 1, 4))
+        pagerState.insert(0, PREPEND, Page(listOf(2, 3), 1, 4))
         advanceUntilIdle()
-        pagerState.insert(0, END, Page(listOf(6, 7), 5, 8))
+        pagerState.insert(0, APPEND, Page(listOf(6, 7), 5, 8))
         advanceUntilIdle()
 
         with(pagerState) {
@@ -169,9 +169,9 @@ class PageFetcherSnapshotStateTest {
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
-        pagerState.insert(0, START, Page(listOf(2, 3), 1, 4))
+        pagerState.insert(0, PREPEND, Page(listOf(2, 3), 1, 4))
         advanceUntilIdle()
-        pagerState.insert(0, END, Page(listOf(6, 7), 5, 8))
+        pagerState.insert(0, APPEND, Page(listOf(6, 7), 5, 8))
         advanceUntilIdle()
 
         with(pagerState) {
@@ -192,9 +192,9 @@ class PageFetcherSnapshotStateTest {
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
-        pagerState.insert(0, START, Page(listOf(2, 3), 1, 4))
+        pagerState.insert(0, PREPEND, Page(listOf(2, 3), 1, 4))
         advanceUntilIdle()
-        pagerState.insert(0, END, Page(listOf(6, 7), 5, 8))
+        pagerState.insert(0, APPEND, Page(listOf(6, 7), 5, 8))
         advanceUntilIdle()
 
         with(pagerState) {
@@ -233,9 +233,9 @@ class PageFetcherSnapshotStateTest {
 
         pagerState.insert(0, REFRESH, Page(listOf(4, 5), 3, 6))
         advanceUntilIdle()
-        pagerState.insert(0, START, Page(listOf(2, 3), 1, 4))
+        pagerState.insert(0, PREPEND, Page(listOf(2, 3), 1, 4))
         advanceUntilIdle()
-        pagerState.insert(0, END, Page(listOf(6, 7), 5, 8))
+        pagerState.insert(0, APPEND, Page(listOf(6, 7), 5, 8))
         advanceUntilIdle()
 
         with(pagerState) {

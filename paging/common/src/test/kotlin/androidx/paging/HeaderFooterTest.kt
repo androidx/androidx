@@ -19,12 +19,12 @@
 package androidx.paging
 
 import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
-import androidx.paging.PageEvent.Insert.Companion.End
+import androidx.paging.PageEvent.Insert.Companion.Append
+import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.Insert.Companion.Start
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.test.runBlockingTest
@@ -53,7 +53,7 @@ class HeaderFooterTest {
 
     @Test
     fun insertHeader_prepend() = runBlockingTest {
-        val actual = Start(
+        val actual = Prepend(
             pages = listOf(
                 TransformablePage(
                     data = listOf(0),
@@ -62,11 +62,11 @@ class HeaderFooterTest {
                     originalIndices = listOf(0)
                 )
             ),
-            placeholdersStart = 0,
+            placeholdersBefore = 0,
             loadStates = loadStates
         ).insertHeaderItem(-1)
 
-        val expected = Start(
+        val expected = Prepend(
             pages = listOf(
                 TransformablePage(
                     data = listOf(-1),
@@ -81,7 +81,7 @@ class HeaderFooterTest {
                     originalIndices = listOf(0)
                 )
             ),
-            placeholdersStart = 0,
+            placeholdersBefore = 0,
             loadStates = loadStates
         )
 
@@ -99,8 +99,8 @@ class HeaderFooterTest {
                     originalIndices = listOf(0)
                 )
             ),
-            placeholdersStart = 0,
-            placeholdersEnd = 0,
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
             loadStates = loadStates
         ).insertHeaderItem("HEADER")
 
@@ -125,8 +125,8 @@ class HeaderFooterTest {
                     originalIndices = null
                 )
             ),
-            placeholdersStart = 0,
-            placeholdersEnd = 0,
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
             loadStates = loadStates
         )
 
@@ -144,8 +144,8 @@ class HeaderFooterTest {
                     originalIndices = emptyList()
                 )
             ),
-            placeholdersStart = 0,
-            placeholdersEnd = 0,
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
             loadStates = loadStates
         ).insertHeaderItem("HEADER")
 
@@ -158,8 +158,8 @@ class HeaderFooterTest {
                     originalIndices = listOf(0)
                 )
             ),
-            placeholdersStart = 0,
-            placeholdersEnd = 0,
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
             loadStates = loadStates
         )
 
@@ -168,7 +168,7 @@ class HeaderFooterTest {
 
     @Test
     fun insertFooter_append() = runBlockingTest {
-        val actual = End(
+        val actual = Append(
             pages = listOf(
                 TransformablePage(
                     data = listOf("b"),
@@ -177,11 +177,11 @@ class HeaderFooterTest {
                     originalIndices = listOf(0)
                 )
             ),
-            placeholdersEnd = 0,
+            placeholdersAfter = 0,
             loadStates = loadStates
         ).insertFooterItem("FOOTER")
 
-        val expected = End(
+        val expected = Append(
             pages = listOf(
                 TransformablePage(
                     data = listOf("b"),
@@ -196,7 +196,7 @@ class HeaderFooterTest {
                     originalIndices = listOf(0)
                 )
             ),
-            placeholdersEnd = 0,
+            placeholdersAfter = 0,
             loadStates = loadStates
         )
 
@@ -214,8 +214,8 @@ class HeaderFooterTest {
                     originalIndices = listOf(0)
                 )
             ),
-            placeholdersStart = 0,
-            placeholdersEnd = 0,
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
             loadStates = loadStates
         ).insertFooterItem("FOOTER")
 
@@ -240,8 +240,8 @@ class HeaderFooterTest {
                     originalIndices = listOf(0)
                 )
             ),
-            placeholdersStart = 0,
-            placeholdersEnd = 0,
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
             loadStates = loadStates
         )
 
@@ -259,8 +259,8 @@ class HeaderFooterTest {
                     originalIndices = emptyList()
                 )
             ),
-            placeholdersStart = 0,
-            placeholdersEnd = 0,
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
             loadStates = loadStates
         ).insertFooterItem("FOOTER")
 
@@ -273,8 +273,8 @@ class HeaderFooterTest {
                     originalIndices = listOf(0)
                 )
             ),
-            placeholdersStart = 0,
-            placeholdersEnd = 0,
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
             loadStates = loadStates
         )
 
@@ -284,6 +284,6 @@ class HeaderFooterTest {
 
 private val loadStates = mapOf(
     REFRESH to NotLoading.Idle,
-    START to NotLoading.Done,
-    END to NotLoading.Done
+    PREPEND to NotLoading.Done,
+    APPEND to NotLoading.Done
 )

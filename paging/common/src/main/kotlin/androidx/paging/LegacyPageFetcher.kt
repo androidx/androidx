@@ -71,8 +71,8 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
 
         if (pageConsumer.onPageResult(type, value)) {
             when (type) {
-                LoadType.START -> schedulePrepend()
-                LoadType.END -> scheduleAppend()
+                LoadType.PREPEND -> schedulePrepend()
+                LoadType.APPEND -> scheduleAppend()
                 else -> throw IllegalStateException("Can only fetch more during append/prepend")
             }
         } else {
@@ -107,38 +107,38 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     private fun schedulePrepend() {
         val key = keyProvider.prevKey
         if (key == null) {
-            onLoadSuccess(LoadType.START, PagingSource.LoadResult.Page.empty())
+            onLoadSuccess(LoadType.PREPEND, PagingSource.LoadResult.Page.empty())
             return
         }
 
-        loadStateManager.setState(LoadType.START, LoadState.Loading)
+        loadStateManager.setState(LoadType.PREPEND, LoadState.Loading)
 
         val loadParams = LoadParams(
-            LoadType.START,
+            LoadType.PREPEND,
             key,
             config.pageSize,
             config.enablePlaceholders,
             config.pageSize
         )
-        scheduleLoad(LoadType.START, loadParams)
+        scheduleLoad(LoadType.PREPEND, loadParams)
     }
 
     private fun scheduleAppend() {
         val key = keyProvider.nextKey
         if (key == null) {
-            onLoadSuccess(LoadType.END, PagingSource.LoadResult.Page.empty())
+            onLoadSuccess(LoadType.APPEND, PagingSource.LoadResult.Page.empty())
             return
         }
 
-        loadStateManager.setState(LoadType.END, LoadState.Loading)
+        loadStateManager.setState(LoadType.APPEND, LoadState.Loading)
         val loadParams = LoadParams(
-            LoadType.END,
+            LoadType.APPEND,
             key,
             config.pageSize,
             config.enablePlaceholders,
             config.pageSize
         )
-        scheduleLoad(LoadType.END, loadParams)
+        scheduleLoad(LoadType.APPEND, loadParams)
     }
 
     fun retry() {
