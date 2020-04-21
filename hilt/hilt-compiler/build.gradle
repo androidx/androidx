@@ -62,7 +62,7 @@ tasks.findByName("compileKotlin").dependsOn(":hilt:hilt-work:jarDebug")
 
 androidx {
     name = "AndroidX Hilt Extension Compiler"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.HILT
     mavenGroup = LibraryGroups.HILT
     inceptionYear = "2020"
