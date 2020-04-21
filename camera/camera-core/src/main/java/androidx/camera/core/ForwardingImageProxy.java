@@ -70,6 +70,17 @@ abstract class ForwardingImageProxy implements ImageProxy {
         mImage.setCropRect(rect);
     }
 
+    @NonNull
+    @Override
+    public synchronized Rect getViewPortRect() {
+        return mImage.getViewPortRect();
+    }
+
+    @Override
+    public synchronized void setViewPortRect(@NonNull Rect viewPortRect) {
+        mImage.setViewPortRect(viewPortRect);
+    }
+
     @Override
     public synchronized int getFormat() {
         return mImage.getFormat();
