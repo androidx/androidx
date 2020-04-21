@@ -741,10 +741,6 @@ class LayoutNode : ComponentNode(), Measurable {
                 if (mod is PointerInputModifier) {
                     wrapper = PointerInputDelegatingWrapper(wrapper, mod)
                 }
-                @Suppress("Deprecation")
-                if (mod is LayoutModifier) {
-                    wrapper = ModifiedLayoutNode(wrapper, mod)
-                }
                 if (mod is LayoutModifier2) {
                     wrapper = ModifiedLayoutNode2(wrapper, mod)
                 }

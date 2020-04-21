@@ -20,9 +20,12 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.ui.core.Constraints
+import androidx.ui.core.IntrinsicMeasurable
+import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier
+import androidx.ui.core.LayoutModifier2
 import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.enforce
 import androidx.ui.foundation.Box
@@ -39,10 +42,10 @@ import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
-import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 
 /**
@@ -168,14 +171,15 @@ fun ExtendedFloatingActionButton(
  *
  * TODO: b/150460257 remove after support for this is added as a SizeModifier / similar
  */
-private object MinimumFabSizeModifier : LayoutModifier {
-    override fun Density.modifyConstraints(
+private object MinimumFabSizeModifier : LayoutModifier2 {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ): Constraints {
+    ): MeasureScope.MeasureResult {
         val minWidth = constraints.minWidth.takeIf { it != IntPx.Zero }
         val minHeight = constraints.minHeight.takeIf { it != IntPx.Zero }
-        return when {
+        val wrappedConstraints = when {
             minWidth != null && minHeight != null -> constraints
             else -> {
                 Constraints(
@@ -184,28 +188,32 @@ private object MinimumFabSizeModifier : LayoutModifier {
                 ).enforce(constraints)
             }
         }
+        val placeable = measurable.measure(wrappedConstraints)
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0.ipx, 0.ipx)
+        }
     }
 
-    override fun Density.minIntrinsicWidthOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
     ) = max(measurable.minIntrinsicWidth(height, layoutDirection), FabSize.toIntPx())
 
-    override fun Density.minIntrinsicHeightOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
     ) = max(measurable.minIntrinsicHeight(width, layoutDirection), FabSize.toIntPx())
 
-    override fun Density.maxIntrinsicWidthOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
     ) = max(measurable.maxIntrinsicWidth(height, layoutDirection), FabSize.toIntPx())
 
-    override fun Density.maxIntrinsicHeightOf(
-        measurable: Measurable,
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
     ) = max(measurable.maxIntrinsicHeight(width, layoutDirection), FabSize.toIntPx())

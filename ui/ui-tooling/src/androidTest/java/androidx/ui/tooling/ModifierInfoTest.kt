@@ -76,10 +76,9 @@ class ModifierInfoTest : ToolingTest() {
                 "${boxModifierInfo[0].modifier}", boxModifierInfo[0].modifier is LayoutModifier2)
             assertEquals(10.px, boxModifierInfo[0].coordinates.positionInRoot.x)
 
-            @Suppress("DEPRECATION")
             assertTrue("Box should only have LayoutModifiers, but the second was " +
                     "${boxModifierInfo[1].modifier}",
-                boxModifierInfo[1].modifier is androidx.ui.core.LayoutModifier
+                boxModifierInfo[1].modifier is androidx.ui.core.LayoutModifier2
             )
             assertEquals(15.px, boxModifierInfo[1].coordinates.positionInRoot.x)
 

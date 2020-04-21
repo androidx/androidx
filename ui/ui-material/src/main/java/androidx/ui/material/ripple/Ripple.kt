@@ -34,7 +34,9 @@ import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier
+import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
@@ -94,7 +96,7 @@ fun Modifier.ripple(
     pressIndicator + rippleModifier
 }
 
-private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycleObserver {
+private class RippleModifier : DrawModifier, LayoutModifier2, CompositionLifecycleObserver {
 
     var color: Color by mutableStateOf(Color.Transparent, StructurallyEqual)
 
@@ -102,13 +104,16 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
     private var effects = modelListOf<RippleEffect>()
     private var currentEffect: RippleEffect? = null
 
-    override fun Density.modifySize(
+    override fun MeasureScope.measure(
+        measurable: Measurable,
         constraints: Constraints,
-        layoutDirection: LayoutDirection,
-        childSize: IntPxSize
-    ): IntPxSize {
-        size = childSize
-        return childSize
+        layoutDirection: LayoutDirection
+    ): MeasureScope.MeasureResult {
+        val placeable = measurable.measure(constraints)
+        size = IntPxSize(placeable.width, placeable.height)
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0.ipx, 0.ipx)
+        }
     }
 
     fun handleStart(
