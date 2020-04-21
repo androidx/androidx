@@ -393,6 +393,29 @@ class SpanStyleTest {
     }
 
     @Test
+    fun `lerp color with a and b are Unset`() {
+        val style1 = SpanStyle(color = Color.Unset)
+        val style2 = SpanStyle(color = Color.Unset)
+
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = 0.3f)
+
+        assertThat(newSpanStyle.color).isEqualTo(Color.Unset)
+    }
+
+    @Test
+    fun `lerp color with a is set, and b is Unset`() {
+        val t = 0.3f
+        val color1 = Color.Red
+        val color2 = Color.Unset
+        val style1 = SpanStyle(color = color1)
+        val style2 = SpanStyle(color = color2)
+
+        val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
+
+        assertThat(newSpanStyle.color).isEqualTo(lerp(start = color1, stop = color2, fraction = t))
+    }
+
+    @Test
     fun `lerp fontFamily with a and b are not Null and t is smaller than half`() {
         val fontFamily1 = FontFamily.SansSerif
         val fontFamily2 = FontFamily.Serif
@@ -594,19 +617,20 @@ class SpanStyleTest {
 
         val newSpanStyle = lerp(start = style1, stop = style2, fraction = 0.1f)
 
-        assertThat(newSpanStyle.background).isEqualTo(Color.Transparent)
+        assertThat(newSpanStyle.background).isEqualTo(Color.Unset)
     }
 
     @Test
     fun `lerp background with a is Null and b is not Null`() {
         val t = 0.1f
-        val style1 = SpanStyle(background = Color.Unset)
+        val color1 = Color.Unset
+        val style1 = SpanStyle(background = color1)
         val color2 = Color.Red
         val style2 = SpanStyle(background = color2)
 
         val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newSpanStyle.background).isEqualTo(lerp(Color.Transparent, color2, t))
+        assertThat(newSpanStyle.background).isEqualTo(lerp(color1, color2, t))
     }
 
     @Test
@@ -618,7 +642,7 @@ class SpanStyleTest {
 
         val newSpanStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newSpanStyle.background).isEqualTo(lerp(color1, Color.Transparent, t))
+        assertThat(newSpanStyle.background).isEqualTo(lerp(color1, Color.Unset, t))
     }
 
     @Test

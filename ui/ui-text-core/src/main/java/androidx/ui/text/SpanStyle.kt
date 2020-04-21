@@ -146,8 +146,7 @@ internal fun <T> lerpDiscrete(a: T, b: T, fraction: Float): T = if (fraction < 0
  */
 fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
     return SpanStyle(
-        color = lerp(start.color.useOrElse { Color.Black }, stop.color.useOrElse { Color.Black },
-            fraction),
+        color = lerp(start.color, stop.color, fraction),
         fontFamily = lerpDiscrete(
             start.fontFamily,
             stop.fontFamily,
@@ -191,8 +190,8 @@ fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
         ),
         localeList = lerpDiscrete(start.localeList, stop.localeList, fraction),
         background = lerp(
-            start.background.useOrElse { Color.Transparent },
-            stop.background.useOrElse { Color.Transparent },
+            start.background,
+            stop.background,
             fraction
         ),
         textDecoration = lerpDiscrete(
