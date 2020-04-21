@@ -23,7 +23,6 @@ import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Alignment
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.DensityAmbient
@@ -41,8 +40,10 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.vectorResource
 import androidx.ui.semantics.Semantics
+import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.findByTag
+import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth
 import org.junit.Rule
@@ -70,7 +71,7 @@ class IconComparisonTest {
      * to run this test ~tenfold.
      */
     @get:Rule
-    val activityTestRule = ActivityTestRule(ComponentActivity::class.java)
+    val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
 
     @Test
     fun compareVectorAssets() {
@@ -79,8 +80,8 @@ class IconComparisonTest {
             val programmaticVector = property.get()
             var composition: Composition? = null
 
-            activityTestRule.runOnUiThread {
-                composition = activityTestRule.activity.setContent {
+            runOnUiThread {
+                composition = composeTestRule.activityTestRule.activity.setContent {
                     xmlVector = drawableName.toVectorAsset()
                     DrawVectors(programmaticVector, xmlVector!!)
                 }
@@ -97,7 +98,7 @@ class IconComparisonTest {
             )
 
             // Dispose between composing each pair of icons to ensure correctness
-            activityTestRule.runOnUiThread {
+            runOnUiThread {
                 composition?.dispose()
             }
         }
