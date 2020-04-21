@@ -33,6 +33,7 @@ class WorkManagerIssueRegistry : IssueRegistry() {
         RemoveWorkManagerInitializerDetector.ISSUE,
         RxWorkerSetProgressDetector.ISSUE,
         SpecifyForegroundServiceTypeIssueDetector.ISSUE,
-        SpecifyJobSchedulerIdRangeIssueDetector.ISSUE
+        SpecifyJobSchedulerIdRangeIssueDetector.ISSUE,
+        WorkerHasPublicModifierDetector.ISSUE
     )
 }
