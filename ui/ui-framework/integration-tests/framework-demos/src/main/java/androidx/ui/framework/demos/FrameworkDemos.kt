@@ -63,7 +63,6 @@ private val GestureDemos = DemoCategory("Gestures", listOf(
 ))
 
 val FrameworkDemos = DemoCategory("Framework", listOf(
-    ComposableDemo("Animations, gestures, and semantics") { AnimationGestureSemanticsDemo() },
     ComposableDemo("Explicit autofill types") { ExplicitAutofillTypesDemo() },
     ComposableDemo("Focus") { FocusableDemo() },
     ComposableDemo("Multiple collects measure") { MultipleCollectTest() },
