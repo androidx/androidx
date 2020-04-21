@@ -28,6 +28,7 @@ import org.junit.Test;
  * This class is for testing RTL-related functionality of {@link AppCompatSpinner}
  */
 @LargeTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class AppCompatSpinnerRtlTest
         extends AppCompatBaseViewTest<AppCompatSpinnerRtlActivity, AppCompatSpinner> {
     private Instrumentation mInstrumentation;
@@ -49,7 +50,6 @@ public class AppCompatSpinnerRtlTest
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void testHorizontalOffsetRtl() {
         AppCompatSpinnerTest.checkOffsetIsCorrect(mInstrumentation, mContainer, 200, false, true);
     }
