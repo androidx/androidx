@@ -147,7 +147,7 @@ data class TextLayoutResult internal constructor(
      * @see TextLayoutInput.placeholders
      * @see Placeholder
      */
-    val placeholderRects: List<Rect> = multiParagraph.placeholderRects
+    val placeholderRects: List<Rect?> = multiParagraph.placeholderRects
 
     /**
      * Returns the end offset of the given line, inclusive.
