@@ -146,6 +146,19 @@ class GetSchemaTest {
     }
 
     @Test
+    fun test_get_schema_auto_increment() = runBlocking {
+        val databaseId = testEnvironment.inspectDatabase(
+            Database("db1").createInstance(temporaryFolder).also {
+                it.execSQL("CREATE TABLE t1 (c2 INTEGER PRIMARY KEY AUTOINCREMENT)")
+                it.execSQL("INSERT INTO t1 VALUES(3)")
+            })
+        testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).let { response ->
+            val tableNames = response.getSchema.tablesList.map { it.name }
+            assertThat(tableNames).isEqualTo(listOf("t1"))
+        }
+    }
+
+    @Test
     fun test_get_schema_wrong_database_id() = runBlocking {
         val databaseId = 123456789
         testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).let { response ->
