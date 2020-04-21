@@ -16,32 +16,32 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="abc_action_mode_done" msgid="4076576682505996667">"Done"</string>
-    <string name="abc_action_bar_home_description" msgid="4600421777120114993">"Navigate home"</string>
-    <string name="abc_action_bar_up_description" msgid="1594238315039666878">"Navigate up"</string>
-    <string name="abc_action_menu_overflow_description" msgid="3588849162933574182">"More options"</string>
-    <string name="abc_toolbar_collapse_description" msgid="1603543279005712093">"Collapse"</string>
-    <string name="abc_searchview_description_search" msgid="8264924765203268293">"Search"</string>
-    <string name="abc_search_hint" msgid="7723749260725869598">"Search…"</string>
-    <string name="abc_searchview_description_query" msgid="2550479030709304392">"Search query"</string>
-    <string name="abc_searchview_description_clear" msgid="3691816814315814921">"Clear query"</string>
-    <string name="abc_searchview_description_submit" msgid="8928215447528550784">"Submit query"</string>
-    <string name="abc_searchview_description_voice" msgid="893419373245838918">"Voice search"</string>
-    <string name="abc_activitychooserview_choose_application" msgid="2031811694353399454">"Choose an app"</string>
-    <string name="abc_activity_chooser_view_see_all" msgid="7468859129482906941">"See all"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="3300176832234831527">"Share with <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
-    <string name="abc_shareactionprovider_share_with" msgid="3421042268587513524">"Share with"</string>
-    <string name="abc_capital_on" msgid="3405795526292276155">"ON"</string>
-    <string name="abc_capital_off" msgid="121134116657445385">"OFF"</string>
-    <string name="search_menu_title" msgid="146198913615257606">"Search"</string>
-    <string name="abc_prepend_shortcut_label" msgid="1351762916121158029">"Menu+"</string>
-    <string name="abc_menu_meta_shortcut_label" msgid="7643535737296831317">"Meta+"</string>
-    <string name="abc_menu_ctrl_shortcut_label" msgid="1324831542140195728">"Ctrl+"</string>
-    <string name="abc_menu_alt_shortcut_label" msgid="1302280443949172191">"Alt+"</string>
-    <string name="abc_menu_shift_shortcut_label" msgid="8126296154200614004">"Shift+"</string>
-    <string name="abc_menu_sym_shortcut_label" msgid="9002602288060866689">"Sym+"</string>
-    <string name="abc_menu_function_shortcut_label" msgid="4792426091847145555">"Function+"</string>
-    <string name="abc_menu_space_shortcut_label" msgid="2378550843553983978">"space"</string>
-    <string name="abc_menu_enter_shortcut_label" msgid="8341180395196749340">"enter"</string>
-    <string name="abc_menu_delete_shortcut_label" msgid="8362206064229013510">"delete"</string>
+    <string name="abc_action_mode_done" msgid="4692188335987374352">"Done"</string>
+    <string name="abc_action_bar_home_description" msgid="5976598919945601918">"Navigate home"</string>
+    <string name="abc_action_bar_up_description" msgid="8388173803310557296">"Navigate up"</string>
+    <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"More options"</string>
+    <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"Collapse"</string>
+    <string name="abc_searchview_description_search" msgid="3417662926640357176">"Search"</string>
+    <string name="abc_search_hint" msgid="7208076849092622260">"Search…"</string>
+    <string name="abc_searchview_description_query" msgid="693312494995508443">"Search query"</string>
+    <string name="abc_searchview_description_clear" msgid="3741173234950517107">"Clear query"</string>
+    <string name="abc_searchview_description_submit" msgid="1486535517437947103">"Submit query"</string>
+    <string name="abc_searchview_description_voice" msgid="2293578557972875415">"Voice search"</string>
+    <string name="abc_activitychooserview_choose_application" msgid="2165779757652331008">"Choose an app"</string>
+    <string name="abc_activity_chooser_view_see_all" msgid="1189761859438369441">"See all"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="9055268688411532828">"Share with <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
+    <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"Share with"</string>
+    <string name="abc_capital_on" msgid="884982626291842264">"ON"</string>
+    <string name="abc_capital_off" msgid="4215997306490295099">"OFF"</string>
+    <string name="search_menu_title" msgid="6264217191555673260">"Search"</string>
+    <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"Menu+"</string>
+    <string name="abc_menu_meta_shortcut_label" msgid="4192209724446364286">"Meta+"</string>
+    <string name="abc_menu_ctrl_shortcut_label" msgid="2223301931652355242">"Ctrl+"</string>
+    <string name="abc_menu_alt_shortcut_label" msgid="8833365367933412986">"Alt+"</string>
+    <string name="abc_menu_shift_shortcut_label" msgid="4741552369836443843">"Shift+"</string>
+    <string name="abc_menu_sym_shortcut_label" msgid="6180552449598693998">"Sym+"</string>
+    <string name="abc_menu_function_shortcut_label" msgid="375214403600139847">"Function+"</string>
+    <string name="abc_menu_space_shortcut_label" msgid="5473865519181928982">"space"</string>
+    <string name="abc_menu_enter_shortcut_label" msgid="7986526966204849475">"enter"</string>
+    <string name="abc_menu_delete_shortcut_label" msgid="838001238306846836">"delete"</string>
 </resources>
