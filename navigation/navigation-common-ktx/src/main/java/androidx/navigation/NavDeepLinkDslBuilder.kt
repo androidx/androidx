@@ -33,9 +33,9 @@ class NavDeepLinkDslBuilder {
     private val builder = NavDeepLink.Builder()
 
     /**
-     * The uri of the deep link
+     * The uri pattern of the deep link
      */
-    var uri: String? = null
+    var uriPattern: String? = null
 
     /**
      * Intent action for the deep link
@@ -56,10 +56,10 @@ class NavDeepLinkDslBuilder {
     var mimeType: String? = null
 
     internal fun build() = builder.apply {
-        check(!(uri == null && action == null && mimeType == null)) {
+        check(!(uriPattern == null && action == null && mimeType == null)) {
             ("The NavDeepLink must have an uri, action, and/or mimeType.")
         }
-        uri?.let { setUri(it) }
+        uriPattern?.let { setUriPattern(it) }
         action?.let { setAction(it) }
         mimeType?.let { setMimeType(it) }
     }.build()

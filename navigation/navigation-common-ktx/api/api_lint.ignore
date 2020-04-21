@@ -37,8 +37,8 @@ SetterReturnsThis: androidx.navigation.NavDeepLinkDslBuilder#setAction(String):
     Methods must return the builder object (return type androidx.navigation.NavDeepLinkDslBuilder instead of void): method androidx.navigation.NavDeepLinkDslBuilder.setAction(String)
 SetterReturnsThis: androidx.navigation.NavDeepLinkDslBuilder#setMimeType(String):
     Methods must return the builder object (return type androidx.navigation.NavDeepLinkDslBuilder instead of void): method androidx.navigation.NavDeepLinkDslBuilder.setMimeType(String)
-SetterReturnsThis: androidx.navigation.NavDeepLinkDslBuilder#setUri(String):
-    Methods must return the builder object (return type androidx.navigation.NavDeepLinkDslBuilder instead of void): method androidx.navigation.NavDeepLinkDslBuilder.setUri(String)
+SetterReturnsThis: androidx.navigation.NavDeepLinkDslBuilder#setUriPattern(String):
+    Methods must return the builder object (return type androidx.navigation.NavDeepLinkDslBuilder instead of void): method androidx.navigation.NavDeepLinkDslBuilder.setUriPattern(String)
 SetterReturnsThis: androidx.navigation.NavDestinationBuilder#setLabel(CharSequence):
     Methods must return the builder object (return type androidx.navigation.NavDestinationBuilder<D> instead of void): method androidx.navigation.NavDestinationBuilder.setLabel(CharSequence)
 SetterReturnsThis: androidx.navigation.NavOptionsBuilder#setLaunchSingleTop(boolean):
