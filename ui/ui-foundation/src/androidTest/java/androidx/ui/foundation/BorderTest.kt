@@ -23,10 +23,10 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.layout.Stack

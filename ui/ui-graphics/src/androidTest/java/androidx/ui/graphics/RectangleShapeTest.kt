@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.ui.foundation.shape
+package androidx.ui.graphics
 
 import androidx.test.filters.SmallTest
-import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Shape
 import androidx.ui.unit.Density
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.px
 import androidx.ui.unit.toRect
-import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -40,7 +38,7 @@ class RectangleShapeTest {
         val rectangular = RectangleShape
 
         val outline = rectangular.toOutline() as Outline.Rectangle
-        assertThat(outline.rect).isEqualTo(size.toRect())
+        assertEquals(outline.rect, size.toRect())
     }
 
     private fun Shape.toOutline() = createOutline(size, density)

@@ -21,11 +21,11 @@ import androidx.compose.remember
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.drawOutline

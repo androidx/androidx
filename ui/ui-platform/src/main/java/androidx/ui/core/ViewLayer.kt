@@ -69,7 +69,7 @@ internal class ViewLayer(
         this.alpha = drawLayerModifier.alpha
         this.translationX = drawLayerModifier.translationX
         this.translationY = drawLayerModifier.translationY
-        this.elevation = drawLayerModifier.elevation
+        this.elevation = drawLayerModifier.shadowElevation
         this.rotation = drawLayerModifier.rotationZ
         this.rotationX = drawLayerModifier.rotationX
         this.rotationY = drawLayerModifier.rotationY

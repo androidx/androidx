@@ -23,7 +23,7 @@ package androidx.ui.core {
 
   public final class DrawShadowKt {
     method @Deprecated public static androidx.ui.core.Modifier drawShadow(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation, boolean clipToOutline = true, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
-    method public static androidx.ui.core.Modifier drawShadow(androidx.ui.core.Modifier, androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation, boolean clipToOutline = true, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
+    method public static androidx.ui.core.Modifier drawShadow(androidx.ui.core.Modifier, androidx.ui.unit.Dp elevation, androidx.ui.graphics.Shape shape = RectangleShape, boolean clipToOutline = elevation > 0.dp, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
   }
 
   public enum DropDownAlignment {

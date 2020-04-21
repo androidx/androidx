@@ -31,11 +31,11 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.drawBackground
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.Row
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize

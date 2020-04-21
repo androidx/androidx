@@ -26,12 +26,12 @@ import android.os.Looper
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.ui.core.semantics.SemanticsNode
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
 import androidx.ui.graphics.asAndroidPath
