@@ -33,13 +33,13 @@ import javax.inject.Provider;
 /**
  * View Model Provider Factory for the Hilt Extension.
  */
-public final class ViewModelFactory extends AbstractSavedStateViewModelFactory {
+public final class HiltViewModelFactory extends AbstractSavedStateViewModelFactory {
 
     private final SavedStateViewModelFactory mDelegateFactory;
     private final Map<String,
             Provider<ViewModelAssistedFactory<? extends ViewModel>>> mViewModelFactories;
 
-    ViewModelFactory(
+    HiltViewModelFactory(
             @NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs,
             @NonNull SavedStateViewModelFactory delegateFactory,
