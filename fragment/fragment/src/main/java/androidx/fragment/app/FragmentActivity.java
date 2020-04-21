@@ -16,6 +16,7 @@
 
 package androidx.fragment.app;
 
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
@@ -37,8 +38,10 @@ import android.view.Window;
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.ActivityResultRegistryOwner;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -814,7 +817,13 @@ public class FragmentActivity extends ComponentActivity implements
 
     /**
      * Called by Fragment.startIntentSenderForResult() to implement its behavior.
+     *
+     * @deprecated Fragments should use
+     * {@link Fragment#registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * with the {@link StartIntentSenderForResult} contract. This method will still be called when
+     * Fragments call the deprecated <code>startIntentSenderForResult()</code> method.
      */
+    @Deprecated
     public void startIntentSenderFromFragment(@NonNull Fragment fragment,
             @SuppressLint("UnknownNullness") IntentSender intent, int requestCode,
             @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
@@ -946,6 +955,7 @@ public class FragmentActivity extends ComponentActivity implements
             FragmentActivity.this.startActivityFromFragment(fragment, intent, requestCode, options);
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void onStartIntentSenderFromFragment(
                 @NonNull Fragment fragment, IntentSender intent, int requestCode,
@@ -955,6 +965,7 @@ public class FragmentActivity extends ComponentActivity implements
                     fillInIntent, flagsMask, flagsValues, extraFlags, options);
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public void onRequestPermissionsFromFragment(@NonNull Fragment fragment,
                 @NonNull String[] permissions, int requestCode) {

@@ -16,6 +16,9 @@
 
 package androidx.fragment.app;
 
+import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -26,6 +29,9 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultRegistryOwner;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -136,7 +142,14 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     /**
      * Starts a new {@link IntentSender} from the given fragment.
      * See {@link Activity#startIntentSender(IntentSender, Intent, int, int, int, Bundle)}.
+     *
+     * @deprecated Have your FragmentHostCallback implement {@link ActivityResultRegistryOwner}
+     * to allow Fragments to use
+     * {@link Fragment#registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * with {@link StartIntentSenderForResult}. This method will still be called when Fragments
+     * call the deprecated <code>startIntentSenderForResult()</code> method.
      */
+    @Deprecated
     public void onStartIntentSenderFromFragment(@NonNull Fragment fragment,
             @SuppressLint("UnknownNullness") IntentSender intent, int requestCode,
             @Nullable Intent fillInIntent, int flagsMask, int flagsValues, int extraFlags,
@@ -152,7 +165,14 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     /**
      * Requests permissions from the given fragment.
      * See {@link FragmentActivity#requestPermissions(String[], int)}
+     *
+     * @deprecated Have your FragmentHostCallback implement {@link ActivityResultRegistryOwner}
+     * to allow Fragments to use
+     * {@link Fragment#registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * with {@link RequestMultiplePermissions}. This method will still be called when Fragments
+     * call the deprecated <code>requestPermissions()</code> method.
      */
+    @Deprecated
     public void onRequestPermissionsFromFragment(@NonNull Fragment fragment,
             @NonNull String[] permissions, int requestCode) {
     }
