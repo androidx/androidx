@@ -150,11 +150,11 @@ class FloatingActionButtonTest {
         val themeShape = CutCornerShape(4.dp)
         val realShape = CutCornerShape(50)
         var surface = Color.Transparent
-        var primary = Color.Transparent
+        var fabColor = Color.Transparent
         composeTestRule.setMaterialContent {
             Stack {
                 surface = MaterialTheme.colors.surface
-                primary = MaterialTheme.colors.primary
+                fabColor = MaterialTheme.colors.secondary
                 Providers(ShapesAmbient provides Shapes(small = themeShape)) {
                     TestTag(tag = "myButton") {
                         FloatingActionButton(onClick = {}, elevation = 0.dp) {
@@ -170,7 +170,39 @@ class FloatingActionButtonTest {
             .assertShape(
                 density = composeTestRule.density,
                 shape = realShape,
-                shapeColor = primary,
+                shapeColor = fabColor,
+                backgroundColor = surface,
+                shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx() }
+            )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun extendedFab_shapeAndColorFromThemeIsUsed() {
+        val themeShape = CutCornerShape(4.dp)
+        val realShape = CutCornerShape(50)
+        var surface = Color.Transparent
+        var fabColor = Color.Transparent
+        composeTestRule.setMaterialContent {
+            Stack {
+                surface = MaterialTheme.colors.surface
+                fabColor = MaterialTheme.colors.secondary
+                Providers(ShapesAmbient provides Shapes(small = themeShape)) {
+                    TestTag(tag = "myButton") {
+                        ExtendedFloatingActionButton(onClick = {}, elevation = 0.dp, text = {
+                            Box(Modifier.preferredSize(10.dp, 50.dp))
+                        })
+                    }
+                }
+            }
+        }
+
+        findByTag("myButton")
+            .captureToBitmap()
+            .assertShape(
+                density = composeTestRule.density,
+                shape = realShape,
+                shapeColor = fabColor,
                 backgroundColor = surface,
                 shapeOverlapPixelCount = with(composeTestRule.density) { 1.dp.toPx() }
             )

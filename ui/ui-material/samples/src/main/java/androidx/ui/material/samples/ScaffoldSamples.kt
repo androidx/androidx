@@ -37,7 +37,6 @@ import androidx.ui.material.BottomAppBar
 import androidx.ui.material.DrawerState
 import androidx.ui.material.ExtendedFloatingActionButton
 import androidx.ui.material.IconButton
-import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Scaffold
 import androidx.ui.material.ScaffoldState
 import androidx.ui.material.TopAppBar
@@ -145,8 +144,7 @@ fun ScaffoldWithBottomBarAndCutout() {
             ExtendedFloatingActionButton(
                 text = { Text("Change shape") },
                 onClick = changeShape,
-                shape = fabShape,
-                backgroundColor = MaterialTheme.colors.secondary
+                shape = fabShape
             )
         },
         floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,

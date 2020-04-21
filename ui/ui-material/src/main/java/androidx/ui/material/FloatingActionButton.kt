@@ -69,7 +69,7 @@ fun FloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
-    backgroundColor: Color = MaterialTheme.colors.primary,
+    backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp,
     icon: @Composable() () -> Unit
@@ -125,7 +125,7 @@ fun ExtendedFloatingActionButton(
     modifier: Modifier = Modifier,
     icon: @Composable() (() -> Unit)? = null,
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
-    backgroundColor: Color = MaterialTheme.colors.primary,
+    backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = 6.dp
 ) {
