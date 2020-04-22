@@ -44,6 +44,7 @@ import android.view.Display;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.content.ContextCompat;
@@ -98,14 +99,16 @@ public final class MediaRouter {
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
-     * Passed to {@link androidx.mediarouter.media.MediaRouteProvider.RouteController#onUnselect(int)}
-     * and {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} when the reason the route
+     * Passed to {@link MediaRouteProvider.RouteController#onUnselect(int)},
+     * {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} and
+     * {@link Callback#onRouteSelected(MediaRouter, RouteInfo, int)} when the reason the route
      * was unselected is unknown.
      */
     public static final int UNSELECT_REASON_UNKNOWN = 0;
     /**
-     * Passed to {@link androidx.mediarouter.media.MediaRouteProvider.RouteController#onUnselect(int)}
-     * and {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} when the user pressed
+     * Passed to {@link MediaRouteProvider.RouteController#onUnselect(int)},
+     * {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} and
+     * {@link Callback#onRouteSelected(MediaRouter, RouteInfo, int)} when the user pressed
      * the disconnect button to disconnect and keep playing.
      * <p>
      *
@@ -113,14 +116,18 @@ public final class MediaRouter {
      */
     public static final int UNSELECT_REASON_DISCONNECTED = 1;
     /**
-     * Passed to {@link androidx.mediarouter.media.MediaRouteProvider.RouteController#onUnselect(int)}
-     * and {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} when the user pressed
+     * Passed to {@link MediaRouteProvider.RouteController#onUnselect(int)},
+     * {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} and
+     * {@link Callback#onRouteSelected(MediaRouter, RouteInfo, int)} when the user pressed
      * the stop casting button.
+     * <p>
+     * Media should stop when this reason is passed.
      */
     public static final int UNSELECT_REASON_STOPPED = 2;
     /**
-     * Passed to {@link androidx.mediarouter.media.MediaRouteProvider.RouteController#onUnselect(int)}
-     * and {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} when the user selected
+     * Passed to {@link MediaRouteProvider.RouteController#onUnselect(int)},
+     * {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} and
+     * {@link Callback#onRouteSelected(MediaRouter, RouteInfo, int)} when the user selected
      * a different route.
      */
     public static final int UNSELECT_REASON_ROUTE_CHANGED = 3;
@@ -1978,8 +1985,30 @@ public final class MediaRouter {
          *
          * @param router The media router reporting the event.
          * @param route The route that has been selected.
+         * @deprecated Use {@link #onRouteSelected(MediaRouter, RouteInfo, int)} instead.
          */
+        @Deprecated
         public void onRouteSelected(MediaRouter router, RouteInfo route) {
+        }
+
+        /**
+         * Called when the supplied media route becomes selected as the active route.
+         * <p>
+         * The reason provided will be one of the following:
+         * <ul>
+         * <li>{@link MediaRouter#UNSELECT_REASON_UNKNOWN}</li>
+         * <li>{@link MediaRouter#UNSELECT_REASON_DISCONNECTED}</li>
+         * <li>{@link MediaRouter#UNSELECT_REASON_STOPPED}</li>
+         * <li>{@link MediaRouter#UNSELECT_REASON_ROUTE_CHANGED}</li>
+         * </ul>
+         *
+         * @param router The media router reporting the event.
+         * @param route The route that has been selected.
+         * @param reason The reason for unselecting the previous route.
+         */
+        public void onRouteSelected(@NonNull MediaRouter router, @NonNull RouteInfo route,
+                int reason) {
+            onRouteSelected(router, route);
         }
 
         /**
@@ -1989,7 +2018,9 @@ public final class MediaRouter {
          *
          * @param router The media router reporting the event.
          * @param route The route that has been unselected.
+         * @deprecated Use {@link #onRouteUnselected(MediaRouter, RouteInfo, int)} instead.
          */
+        @Deprecated
         public void onRouteUnselected(MediaRouter router, RouteInfo route) {
         }
 
@@ -2150,6 +2181,7 @@ public final class MediaRouter {
         final Context mApplicationContext;
         final MediaRouter2 mMediaRouter2Fwk;
         final MediaRouter2.RouteCallback mMr2RouteCallbackFwk;
+        final MediaRouter2.TransferCallback mMr2TransferCallbackFwk;
         final Executor mMr2CbExecutor;
         final ArrayList<WeakReference<MediaRouter>> mRouters = new ArrayList<>();
         private final ArrayList<RouteInfo> mRoutes = new ArrayList<>();
@@ -2202,13 +2234,17 @@ public final class MediaRouter {
             if (BuildCompat.isAtLeastR()) {
                 mMediaRouter2Fwk = MediaRouter2.getInstance(mApplicationContext);
                 mMr2RouteCallbackFwk = new MediaRouter2.RouteCallback() {};
+                mMr2TransferCallbackFwk = new MR2TransferCallback();
                 mMr2CbExecutor = new Executor() {
                     @Override
-                    public void execute(@NonNull Runnable command) { }
+                    public void execute(@NonNull Runnable command) {
+                        mCallbackHandler.post(command);
+                    }
                 };
             } else {
                 mMediaRouter2Fwk = null;
                 mMr2RouteCallbackFwk = null;
+                mMr2TransferCallbackFwk = null;
                 mMr2CbExecutor = null;
             }
             // Add the system media route provider for interoperating with
@@ -2530,8 +2566,10 @@ public final class MediaRouter {
                                 .collect(Collectors.toList()), /* activeScan= */ false).build();
                 mMediaRouter2Fwk.registerRouteCallback(
                         mMr2CbExecutor, mMr2RouteCallbackFwk, preference);
+                mMediaRouter2Fwk.registerTransferCallback(mMr2CbExecutor, mMr2TransferCallbackFwk);
             } else {
                 mMediaRouter2Fwk.unregisterRouteCallback(mMr2RouteCallbackFwk);
+                mMediaRouter2Fwk.unregisterTransferCallback(mMr2TransferCallbackFwk);
             }
         }
 
@@ -2910,7 +2948,7 @@ public final class MediaRouter {
             }
 
             clearSelectedRoute(unselectReason);
-            setSelectedRouteWithController(route, preCreatedController);
+            setSelectedRouteWithController(route, unselectReason, preCreatedController);
         }
 
         void clearSelectedRoute(int unselectReason) {
@@ -2940,7 +2978,7 @@ public final class MediaRouter {
         }
 
         void setSelectedRouteWithController(@NonNull RouteInfo route,
-                @Nullable DynamicGroupRouteController preCreatedController) {
+                int unselectReason, @Nullable DynamicGroupRouteController preCreatedController) {
             RouteController newController;
 
             if (route.getProvider().supportsDynamicGroup()) {
@@ -2981,7 +3019,8 @@ public final class MediaRouter {
             if (DEBUG) {
                 Log.d(TAG, "Route selected: " + mSelectedRoute);
             }
-            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute);
+            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute,
+                    unselectReason);
 
             if (mSelectedRoute.isGroup()) {
                 List<RouteInfo> routes = mSelectedRoute.getMemberRoutes();
@@ -3163,6 +3202,33 @@ public final class MediaRouter {
                 }
 
                 setSelectedRouteInternal(route, UNSELECT_REASON_ROUTE_CHANGED, controller);
+            }
+        }
+
+        @RequiresApi(30)
+        private final class MR2TransferCallback extends MediaRouter2.TransferCallback {
+            @Override
+            public void onTransfer(@NonNull MediaRouter2.RoutingController oldController,
+                    @NonNull MediaRouter2.RoutingController newController) {
+                // Ignore other cases, since this callback is only used for checking
+                // Cast->Phone case.
+                if (newController == mMediaRouter2Fwk.getSystemController()) {
+                    selectFallbackRoute(UNSELECT_REASON_ROUTE_CHANGED);
+                }
+            }
+
+            @Override
+            public void onStop(@NonNull MediaRouter2.RoutingController controller) {
+                selectFallbackRoute(UNSELECT_REASON_STOPPED);
+            }
+
+            void selectFallbackRoute(int reason) {
+                RouteInfo fallbackRoute = chooseFallbackRoute();
+                if (getSelectedRoute() != fallbackRoute) {
+                    selectRoute(fallbackRoute, reason);
+                }
+                // Does nothing when the selected route is same with fallback route.
+                // This is the difference between this and unselect().
             }
         }
 
@@ -3386,7 +3452,7 @@ public final class MediaRouter {
                                 callback.onRoutePresentationDisplayChanged(router, route);
                                 break;
                             case MSG_ROUTE_SELECTED:
-                                callback.onRouteSelected(router, route);
+                                callback.onRouteSelected(router, route, arg);
                                 break;
                             case MSG_ROUTE_UNSELECTED:
                                 callback.onRouteUnselected(router, route, arg);
