@@ -89,19 +89,31 @@ public class BiometricFragment extends Fragment {
         }
     };
 
-    // Also created once and retained.
+    // Created once and retained.
     @VisibleForTesting
-    final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback
-            mAuthenticationCallback =
-            new android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
+    final AuthenticationCallbackProvider mCallbackProvider = new AuthenticationCallbackProvider(
+            new AuthenticationCallbackProvider.Listener() {
                 @Override
-                public void onAuthenticationError(final int errorCode,
-                                                  final CharSequence errString) {
+                public void onSuccess(@NonNull final BiometricPrompt.AuthenticationResult result) {
+                    mClientExecutor.execute(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    mClientAuthenticationCallback.onAuthenticationSucceeded(result);
+                                }
+                            });
+                    cleanup();
+                }
+
+                @Override
+                public void onError(
+                        final int errorCode,
+                        @Nullable final CharSequence errorMessage) {
                     if (!Utils.isConfirmingDeviceCredential()) {
                         mClientExecutor.execute(new Runnable() {
                             @Override
                             public void run() {
-                                CharSequence error = errString;
+                                CharSequence error = errorMessage;
                                 if (error == null) {
                                     error = mContext.getString(R.string.default_error_msg) + " "
                                             + errorCode;
@@ -116,37 +128,7 @@ public class BiometricFragment extends Fragment {
                 }
 
                 @Override
-                public void onAuthenticationHelp(final int helpCode,
-                        final CharSequence helpString) {
-                    // Don't forward the result to the client, since the dialog takes care of it.
-                }
-
-                @Override
-                public void onAuthenticationSucceeded(
-                        android.hardware.biometrics.BiometricPrompt.AuthenticationResult result) {
-
-                    // Create a dummy result if necessary, since the framework result isn't
-                    // guaranteed to be non-null.
-                    final BiometricPrompt.AuthenticationResult promptResult =
-                            result != null
-                                    ? new BiometricPrompt.AuthenticationResult(
-                                            CryptoObjectUtils.unwrapFromBiometricPrompt(
-                                                    result.getCryptoObject()))
-                                    : new BiometricPrompt.AuthenticationResult(null /* crypto */);
-
-                    mClientExecutor.execute(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    mClientAuthenticationCallback.onAuthenticationSucceeded(
-                                            promptResult);
-                                }
-                            });
-                    cleanup();
-                }
-
-                @Override
-                public void onAuthenticationFailed() {
+                public void onFailure() {
                     mClientExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
@@ -154,7 +136,7 @@ public class BiometricFragment extends Fragment {
                         }
                     });
                 }
-            };
+            });
 
     // Also created once and retained.
     private final DialogInterface.OnClickListener mNegativeButtonListener =
@@ -307,13 +289,13 @@ public class BiometricFragment extends Fragment {
             mCancellationSignal = new CancellationSignal();
             if (mCryptoObject == null) {
                 mBiometricPrompt.authenticate(mCancellationSignal, mExecutor,
-                        mAuthenticationCallback);
+                        mCallbackProvider.getBiometricCallback());
             } else {
                 android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCryptoObject =
                         Objects.requireNonNull(
                                 CryptoObjectUtils.wrapForBiometricPrompt(mCryptoObject));
                 mBiometricPrompt.authenticate(wrappedCryptoObject, mCancellationSignal,
-                        mExecutor, mAuthenticationCallback);
+                        mExecutor, mCallbackProvider.getBiometricCallback());
             }
         }
         mShowing = true;
