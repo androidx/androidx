@@ -410,10 +410,8 @@ public class FragmentActivity extends ComponentActivity implements
      */
     @Override
     public void onPanelClosed(int featureId, @NonNull Menu menu) {
-        switch (featureId) {
-            case Window.FEATURE_OPTIONS_PANEL:
-                mFragments.dispatchOptionsMenuClosed(menu);
-                break;
+        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
+            mFragments.dispatchOptionsMenuClosed(menu);
         }
         super.onPanelClosed(featureId, menu);
     }
@@ -907,6 +905,7 @@ public class FragmentActivity extends ComponentActivity implements
      * with the {@link StartIntentSenderForResult} contract. This method will still be called when
      * Fragments call the deprecated <code>startIntentSenderForResult()</code> method.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void startIntentSenderFromFragment(@NonNull Fragment fragment,
             @SuppressLint("UnknownNullness") IntentSender intent, int requestCode,

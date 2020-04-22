@@ -437,7 +437,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * through {@link FragmentManager#saveFragmentInstanceState(Fragment)
      * FragmentManager.saveFragmentInstanceState}.
      */
-    @SuppressLint("BanParcelableUsage")
+    @SuppressLint("BanParcelableUsage, ParcelClassLoader")
     public static class SavedState implements Parcelable {
         final Bundle mState;
 
@@ -605,6 +605,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     final void restoreViewState(Bundle savedInstanceState) {
         if (mSavedViewState != null) {
             mView.restoreHierarchyState(mSavedViewState);
@@ -816,6 +817,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link FragmentManager#setFragmentResultListener(String, LifecycleOwner,
      * FragmentResultListener)}.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Nullable
     @Deprecated
     final public Fragment getTargetFragment() {
@@ -1358,6 +1360,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
             int requestCode) {
@@ -1412,6 +1415,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * passing in a {@link StartIntentSenderForResult} object for the
      * {@link ActivityResultContract}.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
@@ -1442,6 +1446,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * with the appropriate {@link ActivityResultContract} and handling the result in the
      * {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
     }
@@ -1525,6 +1530,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
      * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     public final void requestPermissions(@NonNull String[] permissions, int requestCode) {
         if (mHost == null) {
@@ -1555,6 +1561,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
      * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
+    @SuppressWarnings({"DeprecatedIsStillUsed", "unused"})
     @Deprecated
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
@@ -1596,6 +1603,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * a previous saved state, this is the state.
      * @return The LayoutInflater used to inflate Views of this Fragment.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     public LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
         // TODO: move the implementation in getLayoutInflater to here
@@ -1631,8 +1639,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @NonNull
     LayoutInflater performGetLayoutInflater(@Nullable Bundle savedInstanceState) {
-        LayoutInflater layoutInflater = onGetLayoutInflater(savedInstanceState);
-        mLayoutInflater = layoutInflater;
+        mLayoutInflater = onGetLayoutInflater(savedInstanceState);
         return mLayoutInflater;
     }
 
@@ -1645,6 +1652,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @deprecated Override {@link #onGetLayoutInflater(Bundle)} or call
      * {@link #getLayoutInflater()} instead of this method.
      */
+    @SuppressWarnings({"DeprecatedIsStillUsed", "unused"})
     @Deprecated
     @NonNull
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -1699,6 +1707,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
+    @SuppressWarnings("deprecation")
     @UiThread
     @CallSuper
     public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs,
@@ -1717,6 +1726,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @deprecated See {@link #onInflate(Context, AttributeSet, Bundle)}.
      */
+    @SuppressWarnings({"DeprecatedIsStillUsed", "unused"})
     @Deprecated
     @UiThread
     @CallSuper
@@ -1734,6 +1744,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param childFragment child fragment being attached
      */
+    @SuppressWarnings("unused")
     @MainThread
     public void onAttachFragment(@NonNull Fragment childFragment) {
     }
@@ -1742,6 +1753,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Called when a fragment is first attached to its context.
      * {@link #onCreate(Bundle)} will be called after this.
      */
+    @SuppressWarnings("deprecation")
     @MainThread
     @CallSuper
     public void onAttach(@NonNull Context context) {
@@ -1759,6 +1771,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @deprecated See {@link #onAttach(Context)}.
      */
+    @SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
     @Deprecated
     @MainThread
     @CallSuper
@@ -1956,6 +1969,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link Lifecycle} in {@link #onAttach(Context)}, removing it when it receives the
      * {@link Lifecycle.State#CREATED} callback.
      */
+    @SuppressWarnings({"DeprecatedIsStillUsed", "unused"})
     @MainThread
     @CallSuper
     @Deprecated
@@ -2032,6 +2046,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param isInMultiWindowMode True if the activity is in multi-window mode.
      */
+    @SuppressWarnings("unused")
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
     }
 
@@ -2041,6 +2056,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param isInPictureInPictureMode True if the activity is in picture-in-picture mode.
      */
+    @SuppressWarnings("unused")
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
     }
 
@@ -2218,6 +2234,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @see #onCreateOptionsMenu
      */
+    @SuppressWarnings("unused")
     @MainThread
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return false;
@@ -2230,6 +2247,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param menu The options menu as last shown or first initialized by
      *             onCreateOptionsMenu().
      */
+    @SuppressWarnings("unused")
     @MainThread
     public void onOptionsMenuClosed(@NonNull Menu menu) {
     }
@@ -2300,6 +2318,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @return boolean Return false to allow normal context menu processing to
      *         proceed, true to consume it here.
      */
+    @SuppressWarnings("unused")
     @MainThread
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         return false;
@@ -2900,6 +2919,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.dispatchActivityCreated();
     }
 
+    @SuppressWarnings("ConstantConditions")
     void performStart() {
         mChildFragmentManager.noteStateNotSaved();
         mChildFragmentManager.execPendingActions(true);
@@ -2917,6 +2937,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.dispatchStart();
     }
 
+    @SuppressWarnings("ConstantConditions")
     void performResume() {
         mChildFragmentManager.noteStateNotSaved();
         mChildFragmentManager.execPendingActions(true);
@@ -3009,9 +3030,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     return true;
                 }
             }
-            if (mChildFragmentManager.dispatchOptionsItemSelected(item)) {
-                return true;
-            }
+            return mChildFragmentManager.dispatchOptionsItemSelected(item);
         }
         return false;
     }
@@ -3021,9 +3040,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             if (onContextItemSelected(item)) {
                 return true;
             }
-            if (mChildFragmentManager.dispatchContextItemSelected(item)) {
-                return true;
-            }
+            return mChildFragmentManager.dispatchContextItemSelected(item);
         }
         return false;
     }
@@ -3046,6 +3063,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     void performPause() {
         mChildFragmentManager.dispatchPause();
         if (mView != null) {
@@ -3061,6 +3079,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     void performStop() {
         mChildFragmentManager.dispatchStop();
         if (mView != null) {
@@ -3076,6 +3095,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     void performDestroyView() {
         mChildFragmentManager.dispatchDestroyView();
         if (mView != null) {
