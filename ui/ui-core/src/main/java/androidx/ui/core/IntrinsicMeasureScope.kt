@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,45 +16,45 @@
 
 package androidx.ui.core
 
+import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 
 /**
- * A part of the composition that can be measured. This represents a layout.
- * The instance should never be stored.
+ * The receiver scope of a layout's intrinsic measurements lambdas.
  */
-interface IntrinsicMeasurable {
+abstract class IntrinsicMeasureScope : Density {
     /**
-     * Data provided by the `ParentData`
+     * The [LayoutDirection] of the `Layout` or `LayoutModifier2` using the measure scope
+     * to measure their children.
      */
-    val parentData: Any?
+    // TODO(popam): Try to make this protected after the modules structure is updated.
+    abstract val layoutDirection: LayoutDirection
 
     /**
      * Calculates the minimum width that the layout can be such that
      * the content of the layout will be painted correctly.
      */
-    fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx
+    fun IntrinsicMeasurable.minIntrinsicWidth(height: IntPx) =
+        minIntrinsicWidth(height, layoutDirection)
 
     /**
      * Calculates the smallest width beyond which increasing the width never
      * decreases the height.
      */
-    fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx
+    fun IntrinsicMeasurable.maxIntrinsicWidth(height: IntPx) =
+        maxIntrinsicWidth(height, layoutDirection)
 
     /**
      * Calculates the minimum height that the layout can be such that
      * the content of the layout will be painted correctly.
      */
-    fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx
+    fun IntrinsicMeasurable.minIntrinsicHeight(width: IntPx) =
+        minIntrinsicHeight(width, layoutDirection)
 
     /**
      * Calculates the smallest height beyond which increasing the height never
      * decreases the width.
      */
-    fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx
+    fun IntrinsicMeasurable.maxIntrinsicHeight(width: IntPx) =
+        maxIntrinsicHeight(width, layoutDirection)
 }
-
-/**
- * A function for performing intrinsic measurement.
- */
-typealias IntrinsicMeasureBlock =
-        IntrinsicMeasureScope.(List<IntrinsicMeasurable>, IntPx, LayoutDirection) -> IntPx

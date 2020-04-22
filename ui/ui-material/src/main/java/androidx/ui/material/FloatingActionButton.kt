@@ -190,25 +190,25 @@ private object MinimumFabSizeModifier : LayoutModifier {
         measurable: Measurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = max(measurable.minIntrinsicWidth(height), FabSize.toIntPx())
+    ) = max(measurable.minIntrinsicWidth(height, layoutDirection), FabSize.toIntPx())
 
     override fun Density.minIntrinsicHeightOf(
         measurable: Measurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = max(measurable.minIntrinsicHeight(width), FabSize.toIntPx())
+    ) = max(measurable.minIntrinsicHeight(width, layoutDirection), FabSize.toIntPx())
 
     override fun Density.maxIntrinsicWidthOf(
         measurable: Measurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = max(measurable.maxIntrinsicWidth(height), FabSize.toIntPx())
+    ) = max(measurable.maxIntrinsicWidth(height, layoutDirection), FabSize.toIntPx())
 
     override fun Density.maxIntrinsicHeightOf(
         measurable: Measurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = max(measurable.maxIntrinsicHeight(width), FabSize.toIntPx())
+    ) = max(measurable.maxIntrinsicHeight(width, layoutDirection), FabSize.toIntPx())
 }
 
 private val FabSize = 56.dp

@@ -48,6 +48,8 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.vector.VectorPainter
+import androidx.ui.layout.ltr
+import androidx.ui.layout.rtl
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
@@ -704,8 +706,9 @@ class WithConstraintsTest {
             drawLatch.countDown()
         }
 
-    private fun layoutDirectionModifier(ld: LayoutDirection) = object : LayoutModifier {
-        override fun Density.modifyLayoutDirection(layoutDirection: LayoutDirection) = ld
+    private fun layoutDirectionModifier(ld: LayoutDirection) = when (ld) {
+        LayoutDirection.Ltr -> Modifier.ltr
+        LayoutDirection.Rtl -> Modifier.rtl
     }
 }
 

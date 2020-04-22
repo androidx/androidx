@@ -40,6 +40,13 @@ internal abstract class LayoutNodeWrapper(
     internal open val wrapped: LayoutNodeWrapper? = null
     internal var wrappedBy: LayoutNodeWrapper? = null
 
+    /**
+     * The scope used to measure the wrapped. InnerPlaceables are using the MeasureScope
+     * of the LayoutNode. ModifiedLayoutNode2s are using their own instances MeasureScopes.
+     * For fewer allocations, everything else is reusing the measure scope of their wrapped.
+     */
+    abstract val measureScope: MeasureScope
+
     // TODO(popam): avoid allocation here
     final override val measuredSize: IntPxSize
         get() = IntPxSize(measureResult.width, measureResult.height)
@@ -47,8 +54,6 @@ internal abstract class LayoutNodeWrapper(
     final override val size: IntPxSize get() = measuredSize
 
     final override var measurementConstraints = Constraints()
-
-    abstract val layoutDirection: LayoutDirection
 
     open val invalidateLayerOnBoundsChange = true
 
@@ -97,14 +102,20 @@ internal abstract class LayoutNodeWrapper(
     /**
      * Measures the modified child.
      */
-    abstract fun performMeasure(constraints: Constraints): Placeable
+    abstract fun performMeasure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable
 
     /**
      * Measures the modified child.
      */
-    final override fun measure(constraints: Constraints): Placeable {
+    final override fun measure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable {
         measurementConstraints = constraints
-        return performMeasure(constraints)
+        return performMeasure(constraints, layoutDirection)
     }
 
     /**

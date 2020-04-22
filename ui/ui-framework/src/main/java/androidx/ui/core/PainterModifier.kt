@@ -155,8 +155,10 @@ private data class PainterModifier(
         layoutDirection: LayoutDirection
     ): IntPx {
         val constraints = Constraints(maxHeight = height)
-        val layoutWidth =
-            measurable.minIntrinsicWidth(modifyConstraints(constraints, layoutDirection).maxHeight)
+        val layoutWidth = measurable.minIntrinsicWidth(
+            modifyConstraints(constraints, layoutDirection).maxHeight,
+            layoutDirection
+        )
         val painterIntrinsicWidth =
             painter.intrinsicSize.width.takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
@@ -170,8 +172,10 @@ private data class PainterModifier(
         layoutDirection: LayoutDirection
     ): IntPx {
         val constraints = Constraints(maxHeight = height)
-        val layoutWidth =
-            measurable.maxIntrinsicWidth(modifyConstraints(constraints, layoutDirection).maxHeight)
+        val layoutWidth = measurable.maxIntrinsicWidth(
+            modifyConstraints(constraints, layoutDirection).maxHeight,
+            layoutDirection
+        )
         val painterIntrinsicWidth =
             painter.intrinsicSize.width.takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
@@ -185,8 +189,10 @@ private data class PainterModifier(
         layoutDirection: LayoutDirection
     ): IntPx {
         val constraints = Constraints(maxWidth = width)
-        val layoutHeight =
-            measurable.minIntrinsicHeight(modifyConstraints(constraints, layoutDirection).maxWidth)
+        val layoutHeight = measurable.minIntrinsicHeight(
+            modifyConstraints(constraints, layoutDirection).maxWidth,
+            layoutDirection
+        )
         val painterIntrinsicHeight =
             painter.intrinsicSize.height.takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity
@@ -200,8 +206,10 @@ private data class PainterModifier(
         layoutDirection: LayoutDirection
     ): IntPx {
         val constraints = Constraints(maxWidth = width)
-        val layoutHeight =
-            measurable.maxIntrinsicHeight(modifyConstraints(constraints, layoutDirection).maxWidth)
+        val layoutHeight = measurable.maxIntrinsicHeight(
+            modifyConstraints(constraints, layoutDirection).maxWidth,
+            layoutDirection
+        )
         val painterIntrinsicHeight =
             painter.intrinsicSize.height.takeUnless {
                 !sizeToIntrinsics || it == Px.Infinity

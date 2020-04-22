@@ -54,8 +54,11 @@ internal class LayerWrapper(
     // TODO (njawad): This cache matrix is not thread safe
     private var inverseMatrixCache: Matrix? = null
 
-    override fun performMeasure(constraints: Constraints): Placeable {
-        val placeable = super.performMeasure(constraints)
+    override fun performMeasure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable {
+        val placeable = super.performMeasure(constraints, layoutDirection)
         layer.resize(measuredSize)
         return placeable
     }

@@ -323,14 +323,24 @@ package androidx.ui.core {
 
   public interface IntrinsicMeasurable {
     method public Object? getParentData();
-    method public int maxIntrinsicHeight-gshw56o(int width);
-    method public int maxIntrinsicWidth-gshw56o(int height);
-    method public int minIntrinsicHeight-gshw56o(int width);
-    method public int minIntrinsicWidth-gshw56o(int height);
+    method public int maxIntrinsicHeight-Ujlv2dA(int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public int maxIntrinsicWidth-Ujlv2dA(int height, androidx.ui.core.LayoutDirection layoutDirection);
+    method public int minIntrinsicHeight-Ujlv2dA(int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public int minIntrinsicWidth-Ujlv2dA(int height, androidx.ui.core.LayoutDirection layoutDirection);
     property public abstract Object? parentData;
   }
 
   public final class IntrinsicMeasurableKt {
+  }
+
+  public abstract class IntrinsicMeasureScope implements androidx.ui.unit.Density {
+    ctor public IntrinsicMeasureScope();
+    method public abstract androidx.ui.core.LayoutDirection getLayoutDirection();
+    method public final int maxIntrinsicHeight-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int width);
+    method public final int maxIntrinsicWidth-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int height);
+    method public final int minIntrinsicHeight-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int width);
+    method public final int minIntrinsicWidth-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int height);
+    property public abstract androidx.ui.core.LayoutDirection layoutDirection;
   }
 
   public interface LayoutCoordinates {
@@ -377,20 +387,21 @@ package androidx.ui.core {
   }
 
   public interface LayoutModifier2 extends androidx.ui.core.Modifier.Element {
-    method public default int maxIntrinsicHeight-1_Ebvac(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default int maxIntrinsicWidth-1_Ebvac(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default int maxIntrinsicHeight-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default int maxIntrinsicWidth-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.MeasureScope.MeasureResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default int minIntrinsicHeight-1_Ebvac(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
-    method public default int minIntrinsicWidth-1_Ebvac(androidx.ui.unit.Density, androidx.ui.core.IntrinsicMeasurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default int minIntrinsicHeight-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public default int minIntrinsicWidth-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
   }
 
   public interface Measurable extends androidx.ui.core.IntrinsicMeasurable {
-    method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints);
+    method public androidx.ui.core.Placeable measure(androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
   }
 
-  public abstract class MeasureScope implements androidx.ui.unit.Density {
+  public abstract class MeasureScope extends androidx.ui.core.IntrinsicMeasureScope {
     ctor public MeasureScope();
     method public final androidx.ui.core.MeasureScope.MeasureResult layout-Ocy6_kE(int width, int height, java.util.Map<androidx.ui.core.AlignmentLine,androidx.ui.unit.IntPx> alignmentLines = emptyMap(), kotlin.jvm.functions.Function1<? super androidx.ui.core.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+    method public final androidx.ui.core.Placeable measure(androidx.ui.core.Measurable, androidx.ui.core.Constraints constraints);
   }
 
   public static interface MeasureScope.MeasureResult {
@@ -467,18 +478,22 @@ package androidx.ui.core {
     property protected abstract androidx.ui.unit.IntPxSize measuredSize;
     property protected abstract androidx.ui.core.Constraints measurementConstraints;
     property public final int width;
-    field public static final androidx.ui.core.Placeable.PlacementScope! PlacementScope;
   }
 
-  public static final class Placeable.PlacementScope {
-    method public void place(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
-    method public void place(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
-    method public void place-Guq6mTs(androidx.ui.core.Placeable, float x, float y);
-    method public void place-sXe7h04(androidx.ui.core.Placeable, int x, int y);
-    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
-    method public void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
-    method public void placeAbsolute-Guq6mTs(androidx.ui.core.Placeable, float x, float y);
-    method public void placeAbsolute-sXe7h04(androidx.ui.core.Placeable, int x, int y);
+  public abstract static class Placeable.PlacementScope {
+    ctor public Placeable.PlacementScope();
+    method public abstract androidx.ui.core.LayoutDirection getParentLayoutDirection();
+    method public abstract int getParentWidth();
+    method public final void place(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
+    method public final void place(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
+    method public final void place-Guq6mTs(androidx.ui.core.Placeable, float x, float y);
+    method public final void place-sXe7h04(androidx.ui.core.Placeable, int x, int y);
+    method public final void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.PxPosition position);
+    method public final void placeAbsolute(androidx.ui.core.Placeable, androidx.ui.unit.IntPxPosition position);
+    method public final void placeAbsolute-Guq6mTs(androidx.ui.core.Placeable, float x, float y);
+    method public final void placeAbsolute-sXe7h04(androidx.ui.core.Placeable, int x, int y);
+    property public abstract androidx.ui.core.LayoutDirection parentLayoutDirection;
+    property public abstract int parentWidth;
   }
 
   public enum PointerEventPass {

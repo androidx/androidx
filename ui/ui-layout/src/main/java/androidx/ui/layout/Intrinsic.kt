@@ -19,6 +19,7 @@ package androidx.ui.layout
 import androidx.compose.Composable
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
+import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier2
@@ -26,7 +27,6 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.enforce
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.ipx
@@ -77,69 +77,77 @@ enum class IntrinsicSize { Min, Max }
 private object PreferredMinIntrinsicWidthModifier : PreferredIntrinsicSizeModifier {
     override fun calculateContentConstraints(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
     ): Constraints {
-        val width = measurable.minIntrinsicWidth(constraints.maxHeight)
+        val width = measurable.minIntrinsicWidth(constraints.maxHeight, layoutDirection)
         return Constraints.fixedWidth(width)
     }
 
-    override fun Density.maxIntrinsicWidth(
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.minIntrinsicWidth(height)
+    ) = measurable.minIntrinsicWidth(height, layoutDirection)
 }
 
 private object PreferredMinIntrinsicHeightModifier : PreferredIntrinsicSizeModifier {
     override fun calculateContentConstraints(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
     ): Constraints {
-        val height = measurable.minIntrinsicHeight(constraints.maxWidth)
+        val height = measurable.minIntrinsicHeight(constraints.maxWidth, layoutDirection)
         return Constraints.fixedHeight(height)
     }
 
-    override fun Density.maxIntrinsicHeight(
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.minIntrinsicHeight(width)
+    ) = measurable.minIntrinsicHeight(width, layoutDirection)
 }
 
 private object PreferredMaxIntrinsicWidthModifier : PreferredIntrinsicSizeModifier {
     override fun calculateContentConstraints(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
     ): Constraints {
-        val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
+        val width = measurable.maxIntrinsicWidth(constraints.maxHeight, layoutDirection)
         return Constraints.fixedWidth(width)
     }
 
-    override fun Density.minIntrinsicWidth(
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.maxIntrinsicWidth(height)
+    ) = measurable.maxIntrinsicWidth(height, layoutDirection)
 }
 
 private object PreferredMaxIntrinsicHeightModifier : PreferredIntrinsicSizeModifier {
     override fun calculateContentConstraints(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
     ): Constraints {
-        val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
+        val height = measurable.maxIntrinsicHeight(constraints.maxWidth, layoutDirection)
         return Constraints.fixedHeight(height)
     }
 
-    override fun Density.minIntrinsicHeight(
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.maxIntrinsicHeight(width)
+    ) = measurable.maxIntrinsicHeight(width, layoutDirection)
 }
 
 private interface PreferredIntrinsicSizeModifier : LayoutModifier2 {
-    fun calculateContentConstraints(measurable: Measurable, constraints: Constraints): Constraints
+    fun calculateContentConstraints(
+        measurable: Measurable,
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Constraints
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -147,36 +155,40 @@ private interface PreferredIntrinsicSizeModifier : LayoutModifier2 {
         layoutDirection: LayoutDirection
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(
-            calculateContentConstraints(measurable, constraints).enforce(constraints)
+            calculateContentConstraints(
+                measurable,
+                constraints,
+                layoutDirection
+            ).enforce(constraints)
         )
         return layout(placeable.width, placeable.height) {
             placeable.place(IntPxPosition.Origin)
         }
     }
 
-    override fun Density.minIntrinsicWidth(
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.minIntrinsicWidth(height)
+    ) = measurable.minIntrinsicWidth(height, layoutDirection)
 
-    override fun Density.minIntrinsicHeight(
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.minIntrinsicHeight(width)
+    ) = measurable.minIntrinsicHeight(width, layoutDirection)
 
-    override fun Density.maxIntrinsicWidth(
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.maxIntrinsicWidth(height)
+    ) = measurable.maxIntrinsicWidth(height, layoutDirection)
 
-    override fun Density.maxIntrinsicHeight(
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.maxIntrinsicHeight(width)
+    ) = measurable.maxIntrinsicHeight(width, layoutDirection)
 }
 
 /**
@@ -203,7 +215,7 @@ fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
         }
     ) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
-        val width = measurable?.minIntrinsicWidth(constraints.maxHeight) ?: 0.ipx
+        val width = measurable?.minIntrinsicWidth(constraints.maxHeight, layoutDirection) ?: 0.ipx
         val placeable = measurable?.measure(
             Constraints.fixedWidth(width).enforce(constraints)
         )
