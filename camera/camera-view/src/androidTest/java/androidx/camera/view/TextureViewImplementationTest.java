@@ -30,6 +30,7 @@ import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -209,6 +210,7 @@ public class TextureViewImplementationTest {
         assertThat(mImplementation.mSurfaceReleaseFuture).isNull();
     }
 
+    @FlakyTest
     @Test
     public void releaseSurface_whenSurfaceTextureDestroyed_andCameraSurfaceRequestIsCancelled() {
         mImplementation.getSurfaceProvider().onSurfaceRequested(getSurfaceRequest());
