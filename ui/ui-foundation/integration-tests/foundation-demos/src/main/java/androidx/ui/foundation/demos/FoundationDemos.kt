@@ -20,6 +20,7 @@ import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.foundation.samples.ControlledHorizontalScrollerSample
 import androidx.ui.foundation.samples.DialogSample
+import androidx.ui.foundation.samples.InteractionStateSample
 import androidx.ui.foundation.samples.TableWithBorders
 import androidx.ui.foundation.samples.VerticalScrollerSample
 
@@ -31,5 +32,6 @@ val FoundationDemos = DemoCategory("Foundation", listOf(
     ComposableDemo("Dialog") { DialogSample() },
     ComposableDemo("Draw Modifiers") { DrawModifiersDemo() },
     ComposableDemo("Boxes") { BoxDemo() },
-    DemoCategory("Lists", ListDemos)
+    DemoCategory("Lists", ListDemos),
+    ComposableDemo("InteractionState") { InteractionStateSample() }
 ))
