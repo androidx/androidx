@@ -612,6 +612,12 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
+    public ListenableFuture<SessionResult> setMediaUri(@NonNull Uri uri,
+            @Nullable Bundle extras) {
+        return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
+    }
+
+    @Override
     public ListenableFuture<SessionResult> updatePlaylistMetadata(
             @Nullable MediaMetadata metadata) {
         return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);

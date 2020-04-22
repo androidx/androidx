@@ -131,6 +131,7 @@ public final class SessionCommand implements VersionedParcelable {
             COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
             COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
             COMMAND_CODE_SESSION_PREPARE_FROM_URI,
+            COMMAND_CODE_SESSION_SET_MEDIA_URI,
             COMMAND_CODE_SESSION_SET_RATING,
             COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
             COMMAND_CODE_LIBRARY_SUBSCRIBE,
@@ -562,6 +563,13 @@ public final class SessionCommand implements VersionedParcelable {
      */
     public static final int COMMAND_CODE_SESSION_SET_RATING = 40010;
 
+    /**
+     * Command code for {@link MediaController#setMediaUri}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_2}.
+     */
+    public static final int COMMAND_CODE_SESSION_SET_MEDIA_URI = 40011;
+
     static {
         VERSION_SESSION_COMMANDS_MAP.put(COMMAND_VERSION_1,
                 Arrays.asList(COMMAND_CODE_SESSION_FAST_FORWARD,
@@ -569,6 +577,8 @@ public final class SessionCommand implements VersionedParcelable {
                         COMMAND_CODE_SESSION_SKIP_FORWARD,
                         COMMAND_CODE_SESSION_SKIP_BACKWARD,
                         COMMAND_CODE_SESSION_SET_RATING));
+        VERSION_SESSION_COMMANDS_MAP.put(COMMAND_VERSION_2,
+                Collections.singletonList(COMMAND_CODE_SESSION_SET_MEDIA_URI));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
