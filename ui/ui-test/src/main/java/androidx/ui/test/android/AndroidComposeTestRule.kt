@@ -134,16 +134,12 @@ class AndroidComposeTestRule<T : ComponentActivity>(
     }
 
     override fun forGivenContent(composable: @Composable() () -> Unit): ComposeTestCaseSetup {
-        val testCase = object : ComposeTestCase {
+        return forGivenTestCase(object : ComposeTestCase {
             @Composable
             override fun emitContent() {
                 composable()
             }
-        }
-        return AndroidComposeTestCaseSetup(
-            testCase,
-            activityTestRule.activity
-        )
+        })
     }
 
     override fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup {
