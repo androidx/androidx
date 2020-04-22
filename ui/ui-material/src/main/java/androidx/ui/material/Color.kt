@@ -51,9 +51,8 @@ interface ColorPalette {
      * The secondary color provides more ways to accent and distinguish your product.
      * Secondary colors are best for:
      * - Floating action buttons
-     * - Selection controls, like sliders and switches
+     * - Selection controls, like checkboxes and radio buttons
      * - Highlighting selected text
-     * - Progress bars
      * - Links and headlines
      */
     val secondary: Color
