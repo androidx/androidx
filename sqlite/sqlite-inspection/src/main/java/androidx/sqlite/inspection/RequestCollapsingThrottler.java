@@ -44,8 +44,8 @@ final class RequestCollapsingThrottler {
     @GuardedBy("mLock") private long mLastSubmitted = NEVER;
 
     RequestCollapsingThrottler(long minIntervalMs, Runnable action) {
-        // TODO: ensure Thread names meet Android Studio requirements
-        mExecutor = Executors.newSingleThreadScheduledExecutor();
+        mExecutor = Executors.newSingleThreadScheduledExecutor(
+                SqliteInspectionExecutors.threadFactory());
         mAction = action;
         mMinIntervalMs = minIntervalMs;
     }
