@@ -64,40 +64,56 @@ class FragmentReceiveResultTest {
     fun testStartActivityForResultOk() {
         startActivityForResult(10, Activity.RESULT_OK, "content 10")
 
-        assertWithMessage("Fragment should receive result").that(fragment.hasResult).isTrue()
-        assertThat(fragment.requestCode).isEqualTo(10)
-        assertThat(fragment.resultCode).isEqualTo(Activity.RESULT_OK)
-        assertThat(fragment.resultContent).isEqualTo("content 10")
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(10)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_OK)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 10")
+    }
+
+    @Test
+    fun testMultipleStartActivityForResultOk() {
+        startActivityForResult(10, Activity.RESULT_OK, "content 10")
+        startActivityForResult(20, Activity.RESULT_OK, "content 20")
+
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(10)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_OK)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 10")
+
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[1]).isTrue()
+        assertThat(fragment.requestCode[1]).isEqualTo(20)
+        assertThat(fragment.resultCode[1]).isEqualTo(Activity.RESULT_OK)
+        assertThat(fragment.resultContent[1]).isEqualTo("content 20")
     }
 
     @Test
     fun testStartActivityForResultCanceled() {
         startActivityForResult(20, Activity.RESULT_CANCELED, "content 20")
 
-        assertWithMessage("Fragment should receive result").that(fragment.hasResult).isTrue()
-        assertThat(fragment.requestCode).isEqualTo(20)
-        assertThat(fragment.resultCode).isEqualTo(Activity.RESULT_CANCELED)
-        assertThat(fragment.resultContent).isEqualTo("content 20")
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(20)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_CANCELED)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 20")
     }
 
     @Test
     fun testStartIntentSenderForResultOk() {
         startIntentSenderForResult(30, Activity.RESULT_OK, "content 30")
 
-        assertWithMessage("Fragment should receive result").that(fragment.hasResult).isTrue()
-        assertThat(fragment.requestCode).isEqualTo(30)
-        assertThat(fragment.resultCode).isEqualTo(Activity.RESULT_OK)
-        assertThat(fragment.resultContent).isEqualTo("content 30")
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(30)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_OK)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 30")
     }
 
     @Test
     fun testStartIntentSenderForResultCanceled() {
         startIntentSenderForResult(40, Activity.RESULT_CANCELED, "content 40")
 
-        assertWithMessage("Fragment should receive result").that(fragment.hasResult).isTrue()
-        assertThat(fragment.requestCode).isEqualTo(40)
-        assertThat(fragment.resultCode).isEqualTo(Activity.RESULT_CANCELED)
-        assertThat(fragment.resultContent).isEqualTo("content 40")
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(40)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_CANCELED)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 40")
     }
 
     @Test
@@ -145,7 +161,8 @@ class FragmentReceiveResultTest {
 
             fragment.startActivityForResult(intent, requestCode)
         }
-        assertThat(fragment.resultReceiveLatch.await(1, TimeUnit.SECONDS)).isTrue()
+        assertThat(fragment.resultReceiveLatch[fragment.onActivityResultCount]
+            .await(1, TimeUnit.SECONDS)).isTrue()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 
@@ -171,23 +188,25 @@ class FragmentReceiveResultTest {
                 fail("IntentSender failed")
             }
         }
-        assertThat(fragment.resultReceiveLatch.await(1, TimeUnit.SECONDS)).isTrue()
+        assertThat(fragment.resultReceiveLatch[0].await(1, TimeUnit.SECONDS)).isTrue()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 
     class TestFragment : Fragment() {
-        internal var hasResult = false
-        internal var requestCode = -1
-        internal var resultCode = 100
-        internal lateinit var resultContent: String
-        internal val resultReceiveLatch = CountDownLatch(1)
+        internal val hasResult = ArrayList<Boolean>()
+        internal val requestCode = ArrayList<Int>()
+        internal val resultCode = ArrayList<Int>()
+        internal val resultContent = ArrayList<String>()
+        internal val resultReceiveLatch = arrayListOf(CountDownLatch(1), CountDownLatch(1))
+        internal var onActivityResultCount = 0
 
         override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-            hasResult = true
-            this.requestCode = requestCode
-            this.resultCode = resultCode
-            resultContent = data!!.getStringExtra(FragmentResultActivity.EXTRA_RESULT_CONTENT)!!
-            resultReceiveLatch.countDown()
+            hasResult.add(true)
+            this.requestCode.add(requestCode)
+            this.resultCode.add(resultCode)
+            resultContent.add(data!!.getStringExtra(FragmentResultActivity.EXTRA_RESULT_CONTENT)!!)
+            resultReceiveLatch[onActivityResultCount].countDown()
+            onActivityResultCount++
         }
     }
 }
