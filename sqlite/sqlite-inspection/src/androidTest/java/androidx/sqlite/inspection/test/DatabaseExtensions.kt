@@ -25,6 +25,10 @@ import java.io.File
 
 fun SQLiteDatabase.addTable(table: Table) = execSQL(table.toCreateString())
 
+val SQLiteDatabase.displayName: String
+    get() = if (path != ":memory:") path else
+        ":memory: {hashcode=0x${String.format("%x", this.hashCode())}}"
+
 fun SQLiteDatabase.insertValues(table: Table, vararg values: String) {
     assertThat(values).isNotEmpty()
     assertThat(values).hasLength(table.columns.size)
