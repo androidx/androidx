@@ -22,6 +22,8 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Measured
 import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
+import androidx.ui.layout.ColumnScope.alignWithSiblings
+import androidx.ui.layout.RowScope.alignWithSiblings
 import androidx.ui.unit.IntPx
 
 /**
@@ -106,7 +108,16 @@ object ColumnScope {
 
     /**
      * Position the element horizontally such that its [alignmentLine] aligns with sibling elements
-     * also configured to [alignWithSiblings] with the same [alignmentLine].
+     * also configured to [alignWithSiblings]. [alignWithSiblings] is a form of [gravity],
+     * so both modifiers will not work together if specified for the same layout.
+     * Within a [Column], all components with [alignWithSiblings] will align horizontally using
+     * the specified [VerticalAlignmentLine]s or values provided using the other
+     * [alignWithSiblings] overload, forming a sibling group.
+     * At least one element of the sibling group will be placed as it had [Alignment.Start] gravity
+     * in [Column], and the alignment of the other siblings will be then determined such that
+     * the alignment lines coincide. Note that if only one element in a [Column] has the
+     * [alignWithSiblings] modifier specified the element will be positioned
+     * as if it had [Alignment.Start] gravity.
      *
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInColumn
@@ -132,7 +143,16 @@ object ColumnScope {
     /**
      * Position the element horizontally such that the alignment line for the content as
      * determined by [alignmentLineBlock] aligns with sibling elements also configured to
-     * [alignWithSiblings] with an [alignmentLineBlock].
+     * [alignWithSiblings]. [alignWithSiblings] is a form of [gravity], so both modifiers
+     * will not work together if specified for the same layout.
+     * Within a [Column], all components with [alignWithSiblings] will align horizontally using
+     * the specified [VerticalAlignmentLine]s or values obtained from [alignmentLineBlock],
+     * forming a sibling group.
+     * At least one element of the sibling group will be placed as it had [Alignment.Start] gravity
+     * in [Column], and the alignment of the other siblings will be then determined such that
+     * the alignment lines coincide. Note that if only one element in a [Column] has the
+     * [alignWithSiblings] modifier specified the element will be positioned
+     * as if it had [Alignment.Start] gravity.
      *
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings

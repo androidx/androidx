@@ -106,7 +106,18 @@ object RowScope {
 
     /**
      * Position the element vertically such that its [alignmentLine] aligns with sibling elements
-     * also configured to [alignWithSiblings] with the same [alignmentLine].
+     * also configured to [alignWithSiblings]. [alignWithSiblings] is a form of [gravity],
+     * so both modifiers will not work together if specified for the same layout.
+     * [alignWithSiblings] can be used to align two layouts by baseline inside a [Row],
+     * using `alignWithSiblings(FirstBaseline)`.
+     * Within a [Row], all components with [alignWithSiblings] will align vertically using
+     * the specified [HorizontalAlignmentLine]s or values provided using the other
+     * [alignWithSiblings] overload, forming a sibling group.
+     * At least one element of the sibling group will be placed as it had [Alignment.Top] gravity
+     * in [Row], and the alignment of the other siblings will be then determined such that
+     * the alignment lines coincide. Note that if only one element in a [Row] has the
+     * [alignWithSiblings] modifier specified the element will be positioned
+     * as if it had [Alignment.Top] gravity.
      *
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblingsInRow
@@ -130,7 +141,16 @@ object RowScope {
     /**
      * Position the element vertically such that the alignment line for the content as
      * determined by [alignmentLineBlock] aligns with sibling elements also configured to
-     * [alignWithSiblings] with an [alignmentLineBlock].
+     * [alignWithSiblings]. [alignWithSiblings] is a form of [gravity], so both modifiers
+     * will not work together if specified for the same layout.
+     * Within a [Row], all components with [alignWithSiblings] will align vertically using
+     * the specified [HorizontalAlignmentLine]s or values obtained from [alignmentLineBlock],
+     * forming a sibling group.
+     * At least one element of the sibling group will be placed as it had [Alignment.Top] gravity
+     * in [Row], and the alignment of the other siblings will be then determined such that
+     * the alignment lines coincide. Note that if only one element in a [Row] has the
+     * [alignWithSiblings] modifier specified the element will be positioned
+     * as if it had [Alignment.Top] gravity.
      *
      * Example usage:
      * @sample androidx.ui.layout.samples.SimpleRelativeToSiblings
