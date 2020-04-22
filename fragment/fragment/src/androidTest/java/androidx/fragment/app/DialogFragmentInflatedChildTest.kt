@@ -81,36 +81,54 @@ class DialogFragmentInflatedChildTest(
     @Test
     fun testInflatedChildDialogFragment() {
         with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
-            val dialogFragment = TestInflatedChildDialogFragment(
+            val dialogFragment = TestInflatedChildDialogFragment.newInstance(
                 false, inflatedView.getLayoutId(), inflateLocation is OnCreateDialog)
 
             withActivity {
                 supportFragmentManager.beginTransaction()
-                    .add(dialogFragment, null)
+                    .add(dialogFragment, "dialog")
                     .commitNow()
             }
 
             val child = inflatedView.getChildFragment(dialogFragment)
             assertWithMessage("Inflated child fragment should not be null")
                 .that(child).isNotNull()
+
+            recreate()
+
+            val recreatedDialogFragment = withActivity {
+                supportFragmentManager.findFragmentByTag("dialog") as DialogFragment
+            }
+            val recreatedChild = inflatedView.getChildFragment(recreatedDialogFragment)
+            assertWithMessage("Inflated child fragment should not be null")
+                .that(recreatedChild).isNotNull()
         }
     }
 
     @Test
     fun testInflatedChildAppCompatDialogFragment() {
         with(ActivityScenario.launch(TestAppCompatActivity::class.java)) {
-            val dialogFragment = TestInflatedChildDialogFragment(
+            val dialogFragment = TestInflatedChildDialogFragment.newInstance(
                 true, inflatedView.getLayoutId(), inflateLocation is OnCreateDialog)
 
             withActivity {
                 supportFragmentManager.beginTransaction()
-                    .add(dialogFragment, null)
+                    .add(dialogFragment, "dialog")
                     .commitNow()
             }
 
             val child = inflatedView.getChildFragment(dialogFragment)
             assertWithMessage("Inflated child fragment should not be null")
                 .that(child).isNotNull()
+
+            recreate()
+
+            val recreatedDialogFragment = withActivity {
+                supportFragmentManager.findFragmentByTag("dialog") as DialogFragment
+            }
+            val recreatedChild = inflatedView.getChildFragment(recreatedDialogFragment)
+            assertWithMessage("Inflated child fragment should not be null")
+                .that(recreatedChild).isNotNull()
         }
     }
 }
@@ -118,11 +136,29 @@ class DialogFragmentInflatedChildTest(
 // This Activity has an AppCompatTheme
 class TestAppCompatActivity : AppCompatActivity(R.layout.simple_container)
 
-class TestInflatedChildDialogFragment(
-    val useAppCompat: Boolean,
-    val layoutId: Int,
-    val onCreateDialog: Boolean
-) : DialogFragment() {
+class TestInflatedChildDialogFragment : DialogFragment() {
+
+    companion object {
+        private const val USE_APP_COMPAT_KEY = "USE_APP_COMPAT"
+        private const val LAYOUT_ID_KEY = "LAYOUT_ID"
+        private const val ON_CREATE_DIALOG_KEY = "ON_CREATE_DIALOG"
+
+        fun newInstance(
+            useAppCompat: Boolean,
+            layoutId: Int,
+            onCreateDialog: Boolean
+        ) = TestInflatedChildDialogFragment().apply {
+            arguments = Bundle().apply {
+                putBoolean(USE_APP_COMPAT_KEY, useAppCompat)
+                putInt(LAYOUT_ID_KEY, layoutId)
+                putBoolean(ON_CREATE_DIALOG_KEY, onCreateDialog)
+            }
+        }
+    }
+
+    private val useAppCompat get() = requireArguments().getBoolean(USE_APP_COMPAT_KEY)
+    private val layoutId get() = requireArguments().getInt(LAYOUT_ID_KEY, 0)
+    private val onCreateDialog get() = requireArguments().getBoolean(ON_CREATE_DIALOG_KEY)
 
     override fun onCreateView(
         inflater: LayoutInflater,

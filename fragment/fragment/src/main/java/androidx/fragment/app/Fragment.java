@@ -2782,8 +2782,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mChildFragmentManager.findFragmentByWho(who);
     }
 
-    void performAttach() {
-        mChildFragmentManager.attachController(mHost, new FragmentContainer() {
+    @NonNull
+    FragmentContainer createFragmentContainer() {
+        return new FragmentContainer() {
             @Override
             @Nullable
             public View onFindViewById(int id) {
@@ -2797,7 +2798,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             public boolean onHasView() {
                 return (mView != null);
             }
-        }, this);
+        };
+    }
+
+    void performAttach() {
+        mChildFragmentManager.attachController(mHost, createFragmentContainer(), this);
         mState = ATTACHED;
         mCalled = false;
         onAttach(mHost.getContext());
