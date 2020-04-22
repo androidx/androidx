@@ -299,8 +299,11 @@ abstract class AnimatedFloat(
         get() = velocityVector.value
 
     /**
-     * Sets up the bounds that the animation should be constrained to. Note that when the animation
-     * reaches the bounds it will stop right away, even when there is remaining velocity.
+     * Sets up the bounds that the animation should be constrained to. When the animation
+     * reaches the bounds it will stop right away, even when there is remaining velocity. Setting
+     * a range will immediately clamp the current value to the new range. Therefore it is not
+     * recommended to change bounds in a way that immediately changes current value **during** an
+     * animation, as it would result in a discontinuous animation.
      *
      * @param min Lower bound of the animation value. Defaults to [Float.NEGATIVE_INFINITY]
      * @param max Upper bound of the animation value. Defaults to [Float.POSITIVE_INFINITY]
@@ -311,6 +314,16 @@ abstract class AnimatedFloat(
         }
         this.min = min
         this.max = max
+        // Clamp to the range right away.
+        val clamped = value.coerceIn(min, max)
+        if (clamped != value) {
+            value = clamped
+            if (isRunning && clamped == targetValue.coerceIn(min, max) && clamped != targetValue) {
+                // Target is outside of bounds, animation value is snapped to the bound closer to
+                // the target.
+                endAnimation(BoundReached)
+            }
+        }
     }
 
     override fun snapTo(targetValue: Float) {
@@ -318,13 +331,14 @@ abstract class AnimatedFloat(
     }
 
     override fun checkFinished(playtime: Long) {
-        if (value < min) {
+        if (value < min && targetValue <= min) {
             value = min
             endAnimation(BoundReached)
-        } else if (value > max) {
+        } else if (value > max && targetValue >= max) {
             value = max
             endAnimation(BoundReached)
         } else {
+            value = value.coerceIn(min, max)
             super.checkFinished(playtime)
         }
     }
