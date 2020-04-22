@@ -42,7 +42,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class RoomInvalidationHookTest {
     private lateinit var db: TestDatabase
-    private val inspectionExecutor = Executors.newSingleThreadExecutor()
+    private val inspectionExecutors =
+        Pair(Executors.newSingleThreadExecutor(), Executors.newSingleThreadScheduledExecutor())
+
     @Before
     fun initDb() {
         db = Room.inMemoryDatabaseBuilder(
@@ -57,11 +59,14 @@ class RoomInvalidationHookTest {
 
     @After
     fun closeDb() {
-        inspectionExecutor.shutdown()
-        assertWithMessage("inspector should not have any leaking tasks")
-            .that(inspectionExecutor.awaitTermination(10, TimeUnit.SECONDS))
-            .isTrue()
-        db.close()
+        listOf(inspectionExecutors.first, inspectionExecutors.second)
+            .forEach { inspectionExecutor ->
+                inspectionExecutor.shutdown()
+                assertWithMessage("inspector should not have any leaking tasks")
+                    .that(inspectionExecutor.awaitTermination(10, TimeUnit.SECONDS))
+                    .isTrue()
+                db.close()
+            }
     }
 
     /**
@@ -85,7 +90,8 @@ class RoomInvalidationHookTest {
                     return SqliteInspector(
                         connection,
                         environment,
-                        inspectionExecutor
+                        inspectionExecutors.first,
+                        inspectionExecutors.second
                     )
                 }
             }
