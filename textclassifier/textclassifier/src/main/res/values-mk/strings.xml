@@ -16,17 +16,17 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="5568050657313893478">"Испрати е-пошта"</string>
-    <string name="email_desc" msgid="6941280589171810022">"Испрати е-порака до избраната адреса"</string>
-    <string name="dial" msgid="7317293545368448453">"Повикај"</string>
-    <string name="dial_desc" msgid="5129451396208040332">"Повикај го избраниот телефонски број"</string>
-    <string name="browse" msgid="3733970143542020945">"Отвори"</string>
-    <string name="browse_desc" msgid="3898254913938219011">"Отвори ја избраната URL-адреса"</string>
-    <string name="sms" msgid="5495416906312064886">"Испрати порака"</string>
-    <string name="sms_desc" msgid="8293660783374489324">"Испрати порака до избраниот телефонски број"</string>
-    <string name="add_contact" msgid="9005634177208282449">"Додај"</string>
-    <string name="add_contact_desc" msgid="2475604767309086575">"Додај во контакти"</string>
-    <string name="floating_toolbar_open_overflow_description" msgid="1187148927509077545">"Повеќе опции"</string>
-    <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"Затвори прелевање"</string>
-    <string name="abc_share" msgid="7091841667818715717">"Сподели"</string>
+    <string name="email" msgid="6099716515489216517">"Испрати е-пошта"</string>
+    <string name="email_desc" msgid="2189760120923982860">"Испрати е-порака до избраната адреса"</string>
+    <string name="dial" msgid="2101464860090311277">"Повикај"</string>
+    <string name="dial_desc" msgid="1195407206406821463">"Повикај го избраниот телефонски број"</string>
+    <string name="browse" msgid="4753676368851695348">"Отвори"</string>
+    <string name="browse_desc" msgid="728882176434276995">"Отвори ја избраната URL-адреса"</string>
+    <string name="sms" msgid="2214738262605167054">"Испрати порака"</string>
+    <string name="sms_desc" msgid="7733202356868441148">"Испрати порака до избраниот телефонски број"</string>
+    <string name="add_contact" msgid="386263007484061034">"Додај"</string>
+    <string name="add_contact_desc" msgid="1739272501140197425">"Додај во контакти"</string>
+    <string name="floating_toolbar_open_overflow_description" msgid="6778458701858708647">"Повеќе опции"</string>
+    <string name="floating_toolbar_close_overflow_description" msgid="3112942430227166657">"Затвори прелевање"</string>
+    <string name="abc_share" msgid="37557693057519685">"Сподели"</string>
 </resources>
