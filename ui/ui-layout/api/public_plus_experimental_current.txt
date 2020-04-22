@@ -424,14 +424,6 @@ package androidx.ui.layout {
     method public static androidx.ui.core.Modifier aspectRatio(androidx.ui.core.Modifier, @FloatRange(from=0.0, fromInclusive=false) float ratio);
   }
 
-  public final class LayoutDirectionModifier {
-    method @Deprecated public androidx.ui.core.LayoutModifier getLtr();
-    method @Deprecated public androidx.ui.core.LayoutModifier getRtl();
-    property @Deprecated public final androidx.ui.core.LayoutModifier Ltr;
-    property @Deprecated public final androidx.ui.core.LayoutModifier Rtl;
-    field public static final androidx.ui.layout.LayoutDirectionModifier! INSTANCE;
-  }
-
   public final class LayoutDirectionsKt {
     method public static androidx.ui.core.Modifier getLtr(androidx.ui.core.Modifier);
     method public static androidx.ui.core.Modifier getRtl(androidx.ui.core.Modifier);

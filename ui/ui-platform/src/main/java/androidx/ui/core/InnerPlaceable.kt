@@ -39,12 +39,18 @@ internal class InnerPlaceable(
     override val isAttached: Boolean
         get() = layoutNode.isAttached()
 
-    override fun performMeasure(constraints: Constraints): Placeable {
+    override val measureScope get() = layoutNode.measureScope
+
+    override fun performMeasure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable {
+        layoutNode.layoutDirection = layoutDirection
         val measureResult = layoutNode.measureBlocks.measure(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             constraints,
-            layoutNode.layoutDirection!!
+            measureScope.layoutDirection
         )
         layoutNode.handleMeasureResult(measureResult)
         return this
@@ -60,9 +66,6 @@ internal class InnerPlaceable(
                     .firstOrNull { it.layoutNodeWrapper.parentData != null }?.parentData
         }
 
-    override val layoutDirection: LayoutDirection
-        get() = layoutNode.layoutDirection!!
-
     override fun findFocusWrapperWrappingThisWrapper() =
         wrappedBy?.findFocusWrapperWrappingThisWrapper()
 
@@ -70,39 +73,39 @@ internal class InnerPlaceable(
 
     override fun findLastFocusWrapper(): ModifiedFocusNode? = findFocusWrapperWrappingThisWrapper()
 
-    override fun minIntrinsicWidth(height: IntPx): IntPx {
+    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.minIntrinsicWidth(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             height,
-            layoutNode.layoutDirection!!
+            layoutDirection
         )
     }
 
-    override fun minIntrinsicHeight(width: IntPx): IntPx {
+    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.minIntrinsicHeight(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             width,
-            layoutNode.layoutDirection!!
+            layoutDirection
         )
     }
 
-    override fun maxIntrinsicWidth(height: IntPx): IntPx {
+    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.maxIntrinsicWidth(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             height,
-            layoutNode.layoutDirection!!
+            layoutDirection
         )
     }
 
-    override fun maxIntrinsicHeight(width: IntPx): IntPx {
+    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
         return layoutNode.measureBlocks.maxIntrinsicHeight(
             layoutNode.measureScope,
             layoutNode.layoutChildren,
             width,
-            layoutNode.layoutDirection!!
+            layoutDirection
         )
     }
 

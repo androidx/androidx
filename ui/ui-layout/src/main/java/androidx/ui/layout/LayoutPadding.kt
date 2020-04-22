@@ -159,12 +159,7 @@ constructor(
         val height = (placeable.height + vertical)
             .coerceIn(constraints.minHeight, constraints.maxHeight)
         return layout(width, height) {
-            // TODO (b/153317665) use place() instead when bug is fixed
-            if (layoutDirection == LayoutDirection.Ltr) {
-                placeable.placeAbsolute(start.toIntPx(), top.toIntPx())
-            } else {
-                placeable.placeAbsolute(width - placeable.width - start.toIntPx(), top.toIntPx())
-            }
+            placeable.place(start.toIntPx(), top.toIntPx())
         }
     }
 }

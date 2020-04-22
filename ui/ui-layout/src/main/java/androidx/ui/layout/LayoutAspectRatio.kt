@@ -95,7 +95,7 @@ constructor(
         height: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx {
-        return if (height == IntPx.Infinity) measurable.minIntrinsicWidth(height)
+        return if (height == IntPx.Infinity) measurable.minIntrinsicWidth(height, layoutDirection)
         else height * aspectRatio
     }
 
@@ -104,7 +104,7 @@ constructor(
         height: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx {
-        return if (height == IntPx.Infinity) measurable.maxIntrinsicWidth(height)
+        return if (height == IntPx.Infinity) measurable.maxIntrinsicWidth(height, layoutDirection)
         else height * aspectRatio
     }
 
@@ -113,7 +113,7 @@ constructor(
         width: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx {
-        return if (width == IntPx.Infinity) measurable.minIntrinsicHeight(width)
+        return if (width == IntPx.Infinity) measurable.minIntrinsicHeight(width, layoutDirection)
         else width / aspectRatio
     }
 
@@ -122,7 +122,7 @@ constructor(
         width: IntPx,
         layoutDirection: LayoutDirection
     ): IntPx {
-        return if (width == IntPx.Infinity) measurable.maxIntrinsicHeight(width)
+        return if (width == IntPx.Infinity) measurable.maxIntrinsicHeight(width, layoutDirection)
         else width / aspectRatio
     }
 }

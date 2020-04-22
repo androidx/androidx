@@ -18,21 +18,37 @@ package androidx.ui.layout.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
-import androidx.ui.foundation.drawBorder
 import androidx.ui.graphics.Color
-import androidx.ui.layout.size
+import androidx.ui.layout.Stack
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.ltr
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.rtl
 import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 
 @Composable
 fun ComplexLayoutDemo() {
-    Box(
-        Modifier
-            .drawBackground(Color.Blue)
-            .size(100.dp, 100.dp)
-            .drawBorder(1.dp, Color.LightGray)
-            .size(50.dp, 50.dp),
-        backgroundColor = Color.Red
-    )
+    Stack(Modifier.rtl
+        .drawBackground(Color.Magenta)
+        .padding(start = 10.dp)
+        .ltr
+        .padding(start = 10.dp)
+        .preferredSize(150.dp)
+        .rtl
+        .drawBackground(Color.Gray)
+        .padding(start = 10.dp)
+        .ltr
+        .padding(start = 10.dp)
+        .drawBackground(Color.Blue)
+        .rtl
+    ) {
+        Stack(Modifier
+            .padding(start = 10.dp)
+            .ltr
+            .padding(start = 10.dp)
+            .fillMaxSize().drawBackground(Color.Green)) {}
+    }
 }

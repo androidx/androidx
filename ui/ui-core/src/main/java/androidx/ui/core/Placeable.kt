@@ -98,22 +98,21 @@ abstract class Placeable {
      * contexts using the [place] methods available in the scope. If the automatic mirroring is not
      * desired, [placeAbsolute] should be used instead.
      */
-    // TODO(b/150276678): this API is incomplete and should accept the parent width in constructor
-    //  to be used correctly outside the MeasureScope.layout() call.
-    companion object PlacementScope {
+    // TODO(b/150276678): using the PlacementScope to place outside the layout pass is not working.
+    abstract class PlacementScope {
         /**
          * Keeps the parent layout node's width to make the automatic mirroring of the position
          * in RTL environment. If the value is zero, than the [Placeable] will be be placed to
          * the original position (position will not be mirrored).
          */
-        internal var parentWidth = IntPx.Zero
+        abstract val parentWidth: IntPx
 
         /**
          * Keeps the layout direction of the parent of the placeable that is being places using
          * current [PlacementScope]. Used to support automatic position mirroring for convenient
          * RTL support in custom layouts.
          */
-        internal var parentLayoutDirection = LayoutDirection.Ltr
+        abstract val parentLayoutDirection: LayoutDirection
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.

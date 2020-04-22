@@ -163,13 +163,13 @@ open class LayoutTest {
                     minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },
                     maxIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
                     maxIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx }
-                ) { measurables, _, _ ->
+                ) { measurables, _, layoutDirection ->
                     val measurable = measurables.first()
                     test(
-                        { h -> measurable.minIntrinsicWidth(h) },
-                        { w -> measurable.minIntrinsicHeight(w) },
-                        { h -> measurable.maxIntrinsicWidth(h) },
-                        { w -> measurable.maxIntrinsicHeight(w) }
+                        { h -> measurable.minIntrinsicWidth(h, layoutDirection) },
+                        { w -> measurable.minIntrinsicHeight(w, layoutDirection) },
+                        { h -> measurable.maxIntrinsicWidth(h, layoutDirection) },
+                        { w -> measurable.maxIntrinsicHeight(w, layoutDirection) }
                     )
                     layoutLatch.countDown()
                     layout(0.ipx, 0.ipx) {}

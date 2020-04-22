@@ -685,7 +685,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth].
          */
         fun minIntrinsicWidth(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx,
             layoutDirection: LayoutDirection
@@ -695,7 +695,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight].
          */
         fun minIntrinsicHeight(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx,
             layoutDirection: LayoutDirection
@@ -705,7 +705,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth].
          */
         fun maxIntrinsicWidth(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx,
             layoutDirection: LayoutDirection
@@ -715,7 +715,7 @@ class LayoutNode : ComponentNode(), Measurable {
          * The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight].
          */
         fun maxIntrinsicHeight(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx,
             layoutDirection: LayoutDirection
@@ -724,37 +724,32 @@ class LayoutNode : ComponentNode(), Measurable {
 
     abstract class NoIntrinsicsMeasureBlocks(private val error: String) : MeasureBlocks {
         override fun minIntrinsicWidth(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx,
             layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun minIntrinsicHeight(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx,
             layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun maxIntrinsicWidth(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             h: IntPx,
             layoutDirection: LayoutDirection
         ) = error(error)
 
         override fun maxIntrinsicHeight(
-            density: Density,
+            intrinsicMeasureScope: IntrinsicMeasureScope,
             measurables: List<IntrinsicMeasurable>,
             w: IntPx,
             layoutDirection: LayoutDirection
         ) = error(error)
-    }
-
-    // TODO(popam): used for multi composable children. Consider removing if possible.
-    abstract class InnerMeasureScope : MeasureScope() {
-        abstract val layoutNode: LayoutNode
     }
 
     /**
@@ -771,14 +766,14 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The scope used to run the [MeasureBlocks.measure] [MeasureBlock].
      */
-    val measureScope: MeasureScope = object : InnerMeasureScope(), Density {
+    val measureScope: MeasureScope = object : MeasureScope(), Density {
         private val ownerDensity: Density
             get() = owner?.density ?: Density(1f)
         override val density: Float
             get() = ownerDensity.density
         override val fontScale: Float
             get() = ownerDensity.fontScale
-        override val layoutNode: LayoutNode = this@LayoutNode
+        override val layoutDirection: LayoutDirection get() = this@LayoutNode.layoutDirection
     }
 
     /**
@@ -789,14 +784,7 @@ class LayoutNode : ComponentNode(), Measurable {
     /**
      * The layout direction of the layout node.
      */
-    var layoutDirection: LayoutDirection? = null
-        get() {
-            if (field == null) {
-                // root node doesn't have a parent but its LD value is set during root creation
-                field = parentLayoutNode?.layoutDirection
-            }
-            return field
-        }
+    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     /**
      * Implementation oddity around composition; used to capture a reference to this
@@ -1128,7 +1116,7 @@ class LayoutNode : ComponentNode(), Measurable {
      */
     private val onChildPositionedCallbacks = mutableListOf<OnChildPositionedModifier>()
 
-    override fun measure(constraints: Constraints): Placeable {
+    override fun measure(constraints: Constraints, layoutDirection: LayoutDirection): Placeable {
         val owner = requireOwner()
         val iteration = owner.measureIteration
         @Suppress("Deprecation")
@@ -1151,28 +1139,32 @@ class LayoutNode : ComponentNode(), Measurable {
         dirtyAlignmentLines = true
         this.constraints = constraints
         owner.observeMeasureModelReads(this) {
-            layoutNodeWrapper.measure(constraints)
+            layoutNodeWrapper.measure(constraints, layoutDirection)
         }
         isMeasuring = false
         needsRelayout = true
         return layoutNodeWrapper
     }
 
-    override fun minIntrinsicWidth(height: IntPx): IntPx =
-        layoutNodeWrapper.minIntrinsicWidth(height)
+    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+        layoutNodeWrapper.minIntrinsicWidth(height, layoutDirection)
 
-    override fun maxIntrinsicWidth(height: IntPx): IntPx =
-        layoutNodeWrapper.maxIntrinsicWidth(height)
+    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+        layoutNodeWrapper.maxIntrinsicWidth(height, layoutDirection)
 
-    override fun minIntrinsicHeight(width: IntPx): IntPx =
-        layoutNodeWrapper.minIntrinsicHeight(width)
+    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+        layoutNodeWrapper.minIntrinsicHeight(width, layoutDirection)
 
-    override fun maxIntrinsicHeight(width: IntPx): IntPx =
-        layoutNodeWrapper.maxIntrinsicHeight(width)
+    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+        layoutNodeWrapper.maxIntrinsicHeight(width, layoutDirection)
 
     fun place(x: IntPx, y: IntPx) {
-        with(Placeable.PlacementScope) {
+        with(InnerPlacementScope) {
+            this.parentLayoutDirection = layoutDirection
+            val previousParentWidth = parentWidth
+            this.parentWidth = layoutNodeWrapper.size.width
             layoutNodeWrapper.place(x, y)
+            this.parentWidth = previousParentWidth
         }
     }
 
@@ -1249,7 +1241,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 positionedDuringMeasurePass = parentLayoutNode?.isMeasuring ?: false ||
                         parentLayoutNode?.positionedDuringMeasurePass ?: false
-                innerLayoutNodeWrapper.measureResult.placeChildren(layoutDirection!!)
+                innerLayoutNodeWrapper.measureResult.placeChildren(layoutDirection)
                 layoutChildren.forEach { child ->
                     child.alignmentLinesRead = child.alignmentLinesQueriedSinceLastLayout
                 }
