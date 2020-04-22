@@ -24,6 +24,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.dp
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,6 +81,7 @@ class ProgressIndicatorTest {
     }
 
     @Test
+    @Ignore("b/154757752")
     fun indeterminateLinearProgressIndicator_Size() {
         composeTestRule
             .setMaterialContentAndCollectSizes {
@@ -124,6 +126,7 @@ class ProgressIndicatorTest {
     }
 
     @Test
+    @Ignore("b/154757752")
     fun indeterminateCircularProgressIndicator_Size() {
         composeTestRule
             .setMaterialContentAndCollectSizes {
