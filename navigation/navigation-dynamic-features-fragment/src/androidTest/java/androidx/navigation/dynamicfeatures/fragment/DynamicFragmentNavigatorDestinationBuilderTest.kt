@@ -16,14 +16,15 @@
 
 package androidx.navigation.dynamicfeatures.fragment
 
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.navigation.contains
 import androidx.navigation.createGraph
+import androidx.navigation.get
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,6 +37,21 @@ class DynamicFragmentNavigatorDestinationBuilderTest {
     private val fragmentManager get() = activityRule.activity.supportFragmentManager
 
     @UiThreadTest
+    @Test fun reified() {
+        val navHostFragment = DynamicNavHostFragment()
+        fragmentManager.beginTransaction()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
+        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ID) {
+            fragment<TestFragment>(DESTINATION_ID)
+        }
+        val fragmentDestination = graph[DESTINATION_ID] as DynamicFragmentNavigator.Destination
+        assertWithMessage("Fragment class should be set")
+            .that(fragmentDestination.className)
+            .isEqualTo(TestFragment::class.java.name)
+    }
+
+    @UiThreadTest
     @Test fun moduleName() {
         val navHostFragment = DynamicNavHostFragment()
         fragmentManager.beginTransaction()
@@ -46,8 +62,13 @@ class DynamicFragmentNavigatorDestinationBuilderTest {
                 moduleName = MODULE_NAME
             }
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
+        val fragmentDestination = graph[DESTINATION_ID] as DynamicFragmentNavigator.Destination
+        assertWithMessage("Fragment class should be set")
+            .that(fragmentDestination.className)
+            .isEqualTo(FRAGMENT_CLASS_NAME)
+        assertWithMessage("Module name should be set")
+            .that(fragmentDestination.moduleName)
+            .isEqualTo(MODULE_NAME)
     }
 
     @UiThreadTest
@@ -59,8 +80,13 @@ class DynamicFragmentNavigatorDestinationBuilderTest {
         val graph = navHostFragment.createGraph(startDestination = DESTINATION_ID) {
             fragment(DESTINATION_ID, FRAGMENT_CLASS_NAME) {}
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
+        val fragmentDestination = graph[DESTINATION_ID] as DynamicFragmentNavigator.Destination
+        assertWithMessage("Fragment class should be set")
+            .that(fragmentDestination.className)
+            .isEqualTo(FRAGMENT_CLASS_NAME)
+        assertWithMessage("Module name should be null")
+            .that(fragmentDestination.moduleName)
+            .isNull()
     }
 }
 
@@ -69,3 +95,4 @@ private const val MODULE_NAME = "module"
 private const val FRAGMENT_CLASS_NAME = "androidx.navigation.dynamicfeatures.fragment.TestFragment"
 
 class TestActivity : FragmentActivity()
+class TestFragment : Fragment()
