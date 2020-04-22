@@ -1348,6 +1348,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Call {@link Activity#startActivityForResult(Intent, int)} from the fragment's
      * containing Activity.
      *
+     * @param intent The intent to start.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     *
      * @deprecated use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
@@ -1361,6 +1367,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Call {@link Activity#startActivityForResult(Intent, int, Bundle)} from the fragment's
      * containing Activity.
+     *
+     * @param intent The intent to start.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param options Additional options for how the Activity should be started. See
+     * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
+     *
      * @deprecated use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
@@ -1377,6 +1392,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Call {@link Activity#startIntentSenderForResult(IntentSender, int, Intent, int, int, int,
      * Bundle)} from the fragment's containing Activity.
+     *
+     * @param intent The IntentSender to launch.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param fillInIntent If non-null, this will be provided as the intent parameter to
+     * {@link IntentSender#sendIntent(Context, int, Intent, IntentSender.OnFinished, Handler)}.
+     *                     This value may be null.
+     * @param flagsMask Intent flags in the original IntentSender that you would like to change.
+     * @param flagsValues Desired values for any bits set in <code>flagsMask</code>.
+     * @param extraFlags Always set to 0.
+     * @param options Additional options for how the Activity should be started. See
+     * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
      *
      * @deprecated use
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
@@ -1484,8 +1513,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * </code></pre></p>
      *
      * @param permissions The requested permissions.
-     * @param requestCode Application specific request code to match with a result
-     *    reported to {@link #onRequestPermissionsResult(int, String[], int[])}.
+     * @param requestCode Application specific request code to match with a result reported to
+     * {@link #onRequestPermissionsResult(int, String[], int[])}. Must be between 0 and 65535 to
+     *                    be considered valid. If given requestCode is greater than 65535, an
+     *                    IllegalArgumentException would be thrown.
      *
      * @see #onRequestPermissionsResult(int, String[], int[])
      * @see android.content.Context#checkSelfPermission(String)

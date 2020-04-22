@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -661,6 +662,12 @@ public class FragmentActivity extends ComponentActivity implements
     /**
      * Modifies the standard behavior to allow results to be delivered to fragments.
      * This imposes a restriction that requestCode be <= 0xffff.
+     *
+     * @param intent The intent to start.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
      */
     @Override
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
@@ -675,6 +682,17 @@ public class FragmentActivity extends ComponentActivity implements
         super.startActivityForResult(intent, requestCode);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param intent The intent to start.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param options Additional options for how the Activity should be started. See
+     * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
+     */
     @Override
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
             int requestCode, @Nullable Bundle options) {
@@ -688,6 +706,22 @@ public class FragmentActivity extends ComponentActivity implements
         super.startActivityForResult(intent, requestCode, options);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param intent The IntentSender to launch.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param fillInIntent If non-null, this will be provided as the intent parameter to
+     * {@link IntentSender#sendIntent(Context, int, Intent, IntentSender.OnFinished, Handler)}.
+     *                     This value may be null.
+     * @param flagsMask Intent flags in the original IntentSender that you would like to change.
+     * @param flagsValues Desired values for any bits set in <code>flagsMask</code>.
+     * @param extraFlags Always set to 0.
+     * @throws IntentSender.SendIntentException if the call fails to execute.
+     */
     @Override
     public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask,
@@ -703,6 +737,24 @@ public class FragmentActivity extends ComponentActivity implements
                 extraFlags);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param intent The IntentSender to launch.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param fillInIntent If non-null, this will be provided as the intent parameter to
+     * {@link IntentSender#sendIntent(Context, int, Intent, IntentSender.OnFinished, Handler)}.
+     *                     This value may be null.
+     * @param flagsMask Intent flags in the original IntentSender that you would like to change.
+     * @param flagsValues Desired values for any bits set in <code>flagsMask</code>.
+     * @param extraFlags Always set to 0.
+     * @param options Additional options for how the Activity should be started. See
+     * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
+     * @throws IntentSender.SendIntentException if the call fails to execute.
+     */
     @Override
     public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
@@ -788,6 +840,13 @@ public class FragmentActivity extends ComponentActivity implements
 
     /**
      * Called by Fragment.startActivityForResult() to implement its behavior.
+     *
+     * @param fragment the Fragment to start the activity from.
+     * @param intent The intent to start.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
      */
     public void startActivityFromFragment(@NonNull Fragment fragment,
             @SuppressLint("UnknownNullness") Intent intent, int requestCode) {
@@ -796,6 +855,15 @@ public class FragmentActivity extends ComponentActivity implements
 
     /**
      * Called by Fragment.startActivityForResult() to implement its behavior.
+     *
+     * @param fragment the Fragment to start the activity from.
+     * @param intent The intent to start.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param options Additional options for how the Activity should be started. See
+     * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
      */
     public void startActivityFromFragment(@NonNull Fragment fragment,
             @SuppressLint("UnknownNullness") Intent intent, int requestCode,
@@ -817,6 +885,22 @@ public class FragmentActivity extends ComponentActivity implements
 
     /**
      * Called by Fragment.startIntentSenderForResult() to implement its behavior.
+     *
+     * @param fragment the Fragment to start the intent sender from.
+     * @param intent The IntentSender to launch.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param fillInIntent If non-null, this will be provided as the intent parameter to
+     * {@link IntentSender#sendIntent(Context, int, Intent, IntentSender.OnFinished, Handler)}.
+     *                     This value may be null.
+     * @param flagsMask Intent flags in the original IntentSender that you would like to change.
+     * @param flagsValues Desired values for any bits set in <code>flagsMask</code>.
+     * @param extraFlags Always set to 0.
+     * @param options Additional options for how the Activity should be started. See
+     * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
+     * @throws IntentSender.SendIntentException if the call fails to execute.
      *
      * @deprecated Fragments should use
      * {@link Fragment#registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
@@ -868,6 +952,13 @@ public class FragmentActivity extends ComponentActivity implements
 
     /**
      * Called by Fragment.requestPermissions() to implement its behavior.
+     *
+     * @param fragment the Fragment to request permissions from.
+     * @param permissions The requested permissions.
+     * @param requestCode Application specific request code to match with a result reported to
+     * {@link #onRequestPermissionsResult(int, String[], int[])}. Must be between 0 and 65535 to
+     *                    be considered valid. If given requestCode is greater than 65535, an
+     *                    IllegalArgumentException would be thrown.
      */
     void requestPermissionsFromFragment(@NonNull Fragment fragment, @NonNull String[] permissions,
             int requestCode) {
