@@ -20,7 +20,7 @@ import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
-import androidx.navigation.NavGraphBuilder
+import androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.fragment
 import androidx.navigation.get
@@ -29,7 +29,7 @@ import androidx.navigation.get
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param id Destination id.
  */
-inline fun <reified F : Fragment> NavGraphBuilder.fragment(
+inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
     @IdRes id: Int
 ) = fragment<F>(id) {}
 
@@ -37,7 +37,7 @@ inline fun <reified F : Fragment> NavGraphBuilder.fragment(
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param id Destination id.
  */
-inline fun <reified F : Fragment> NavGraphBuilder.fragment(
+inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
     @IdRes id: Int,
     builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
 ) = fragment(id, F::class.java.name, builder)
@@ -47,7 +47,7 @@ inline fun <reified F : Fragment> NavGraphBuilder.fragment(
  * @param id Destination id.
  * @param fragmentClassName Fully qualified class name of destination Fragment.
  */
-inline fun NavGraphBuilder.fragment(
+inline fun DynamicNavGraphBuilder.fragment(
     @IdRes id: Int,
     fragmentClassName: String,
     builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
