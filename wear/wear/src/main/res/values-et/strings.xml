@@ -16,6 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="ws_navigation_drawer_content_description" msgid="7216697245762194759">"Navigeerimissahtel"</string>
-    <string name="ws_action_drawer_content_description" msgid="1837365417701148489">"Toimingusahtel"</string>
+    <string name="ws_navigation_drawer_content_description" msgid="777117228299084604">"Navigeerimissahtel"</string>
+    <string name="ws_action_drawer_content_description" msgid="8863821639144537553">"Toimingusahtel"</string>
 </resources>
