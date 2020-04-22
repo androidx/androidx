@@ -129,11 +129,6 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             // understand this better, so we just check to see if the name looks like it is a node.
             if (parentExpression.isComponentNodeInvocation) return
 
-            val receiver = expression.receiver as UReferenceExpression
-
-            val isComposable = (receiver.resolveToUElement()!!
-                .sourcePsi as KtCallableDeclaration).isComposable
-
             // Find the index of the corresponding parameter in the source declaration, that
             // matches this lambda expression's invocation
             val parameterIndex = parentExpression.valueArguments.indexOf(node)
@@ -141,11 +136,16 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
             // If we cannot resolve the parent expression as a KtCallableDeclaration, it might be a
             // Java method / exist in bytecode or some other format, so just ignore it as we won't
             // be able to see @Composable there anyway.
-            val parentDeclaration = parentExpression.resolveToUElement()!!
-                .sourcePsi as? KtCallableDeclaration ?: return
+            val parentDeclaration = parentExpression.resolveToUElement()
+                ?.sourcePsi as? KtCallableDeclaration ?: return
 
             val expectedComposable =
                 parentDeclaration.valueParameters[parameterIndex]!!.isComposable
+
+            val receiver = (expression.receiver as? UReferenceExpression)
+                ?.resolveToUElement()?.sourcePsi as? KtCallableDeclaration ?: return
+
+            val isComposable = receiver.isComposable
 
             if (isComposable != expectedComposable) return
 
