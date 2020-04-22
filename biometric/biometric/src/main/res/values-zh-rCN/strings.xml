@@ -17,15 +17,15 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"请轻触指纹传感器"</string>
-    <string name="fingerprint_not_recognized" msgid="5491287833813257925">"无法识别"</string>
-    <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"帮助消息区域"</string>
-    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"指纹硬件无法使用。"</string>
-    <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"未注册任何指纹。"</string>
-    <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"此设备没有指纹传感器"</string>
-    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"用户取消了指纹操作。"</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"尝试次数过多，请稍后重试。"</string>
-    <string name="default_error_msg" msgid="7497355367608150274">"未知错误"</string>
-    <string name="generic_error_user_canceled" msgid="7474799539658018076">"用户已取消身份验证。"</string>
-    <string name="confirm_device_credential_password" msgid="4296851028928624518">"使用密码"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"请轻触指纹传感器"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"无法识别"</string>
+    <string name="accessibility_fingerprint_dialog_help_area" msgid="549244739212894678">"帮助消息区域"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"指纹硬件无法使用。"</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"未注册任何指纹。"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"此设备没有指纹传感器"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"用户取消了指纹操作。"</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"尝试次数过多，请稍后重试。"</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"未知错误"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"用户已取消身份验证。"</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"使用密码"</string>
 </resources>
