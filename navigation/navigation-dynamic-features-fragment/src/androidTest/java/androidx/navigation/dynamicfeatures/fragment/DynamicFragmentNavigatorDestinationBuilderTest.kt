@@ -18,7 +18,7 @@ package androidx.navigation.dynamicfeatures.fragment
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.navigation.createGraph
+import androidx.navigation.dynamicfeatures.createGraph
 import androidx.navigation.get
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
