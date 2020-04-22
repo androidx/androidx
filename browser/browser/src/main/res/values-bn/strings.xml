@@ -16,8 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fallback_menu_item_open_in_browser" msgid="8984733760067120953">"ব্রাউজারে খুলুন"</string>
-    <string name="fallback_menu_item_copy_link" msgid="2615365786337886368">"লিঙ্ক কপি করুন"</string>
-    <string name="fallback_menu_item_share_link" msgid="271185644269364308">"লিঙ্ক শেয়ার করুন"</string>
-    <string name="copy_toast_msg" msgid="8230469354668895088">"লিঙ্ক ক্লিপবোর্ডে কপি করা হয়েছে"</string>
+    <string name="fallback_menu_item_open_in_browser" msgid="3413186855122069269">"ব্রাউজারে খুলুন"</string>
+    <string name="fallback_menu_item_copy_link" msgid="4566929209979330987">"লিঙ্ক কপি করুন"</string>
+    <string name="fallback_menu_item_share_link" msgid="7145444925855055364">"লিঙ্ক শেয়ার করুন"</string>
+    <string name="copy_toast_msg" msgid="3260749812566568062">"লিঙ্ক ক্লিপবোর্ডে কপি করা হয়েছে"</string>
 </resources>

@@ -16,8 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fallback_menu_item_open_in_browser" msgid="8984733760067120953">"Åbn i browser"</string>
-    <string name="fallback_menu_item_copy_link" msgid="2615365786337886368">"Kopiér link"</string>
-    <string name="fallback_menu_item_share_link" msgid="271185644269364308">"Del link"</string>
-    <string name="copy_toast_msg" msgid="8230469354668895088">"Linket er kopieret til udklipsholderen"</string>
+    <string name="fallback_menu_item_open_in_browser" msgid="3413186855122069269">"Åbn i browser"</string>
+    <string name="fallback_menu_item_copy_link" msgid="4566929209979330987">"Kopiér link"</string>
+    <string name="fallback_menu_item_share_link" msgid="7145444925855055364">"Del link"</string>
+    <string name="copy_toast_msg" msgid="3260749812566568062">"Linket er kopieret til udklipsholderen"</string>
 </resources>
