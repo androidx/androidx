@@ -27,16 +27,22 @@ import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
 import androidx.ui.core.input.FocusNode
 import androidx.ui.core.input.FocusTransitionObserver
+import androidx.ui.core.onPositioned
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService
+import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidthIn
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextLayoutResult
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -122,7 +128,7 @@ class TextFieldTest {
             throw RuntimeException("Not implemented")
         }
 
-        override fun blur(client: FocusNode) { }
+        override fun blur(client: FocusNode) {}
     }
 
     @Test
@@ -335,6 +341,78 @@ class TextFieldTest {
 
             // Don't care about the intermediate state update. It should eventually be "123"
             assertThat(layoutCaptor.lastValue.layoutInput.text.text).isEqualTo("123")
+        }
+    }
+
+    @Test
+    fun textField_occupiesAllAvailableSpace() {
+        val parentSize = 300.dp
+        var size: IntPx? = null
+        composeTestRule.setContent {
+            Box(Modifier.preferredSize(parentSize)) {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {},
+                    modifier = Modifier.onPositioned {
+                        size = it.size.width
+                    }
+                )
+            }
+        }
+
+        with(composeTestRule.density) {
+            assertThat(size).isEqualTo(parentSize.toIntPx())
+        }
+    }
+
+    @Test
+    fun textField_respectsMaxWidthSetByModifier() {
+        val parentSize = 300.dp
+        val textFieldWidth = 100.dp
+        var size: IntPx? = null
+        composeTestRule.setContent {
+            Box(Modifier.preferredSize(parentSize)) {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {},
+                    modifier = Modifier
+                        .preferredWidthIn(maxWidth = textFieldWidth)
+                        .onPositioned {
+                            size = it.size.width
+                        }
+                )
+            }
+        }
+
+        with(composeTestRule.density) {
+            assertThat(size).isEqualTo(textFieldWidth.toIntPx())
+        }
+    }
+
+    @Test
+    fun textFieldInRow_fixedElementIsVisible() {
+        val parentSize = 300.dp
+        val boxSize = 50.dp
+        var size: IntPx? = null
+        composeTestRule.setContent {
+            Box(Modifier.preferredSize(parentSize)) {
+                Row {
+                    TextField(
+                        value = TextFieldValue(),
+                        onValueChange = {},
+                        modifier = Modifier
+                            .weight(1f)
+                            .onPositioned {
+                                size = it.size.width
+                            }
+                    )
+                    Box(Modifier.preferredSize(boxSize))
+                }
+            }
+        }
+
+        with(composeTestRule.density) {
+            assertThat(size).isEqualTo(parentSize.toIntPx() - boxSize.toIntPx())
         }
     }
 }
