@@ -89,8 +89,9 @@ final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker
                     Option<Object> typeErasedOption = (Option<Object>) option;
             @SuppressWarnings("unchecked")
             CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
-            configBuilder.setCaptureRequestOption(key,
-                    camera2Config.retrieveOption(typeErasedOption));
+            configBuilder.setCaptureRequestOptionWithPriority(key,
+                    camera2Config.retrieveOption(typeErasedOption),
+                    camera2Config.getOptionPriority(option));
         }
         builder.addImplementationOptions(configBuilder.build());
     }

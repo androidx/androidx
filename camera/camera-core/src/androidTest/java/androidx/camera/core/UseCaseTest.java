@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -28,7 +30,9 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -136,6 +140,18 @@ public class UseCaseTest {
 
         assertThat(originalRetrievedName).isEqualTo(originalName);
         assertThat(newRetrievedName).isEqualTo(newName);
+    }
+
+    @Test
+    public void useCaseConfig_keepOptionPriority() {
+        FakeUseCaseConfig.Builder builder =  new FakeUseCaseConfig.Builder();
+        Config.Option<Integer> opt = Config.Option.create("OPT1", Integer.class);
+        builder.getMutableConfig().insertOption(opt, ALWAYS_OVERRIDE, 1);
+
+        FakeUseCase fakeUseCase = builder.build();
+        UseCaseConfig<?> useCaseConfig = fakeUseCase.getUseCaseConfig();
+
+        assertThat(useCaseConfig.getOptionPriority(opt)).isEqualTo(ALWAYS_OVERRIDE);
     }
 
     static class TestUseCase extends FakeUseCase {

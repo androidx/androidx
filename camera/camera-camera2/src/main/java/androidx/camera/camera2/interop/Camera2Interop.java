@@ -58,10 +58,8 @@ public final class Camera2Interop {
         /**
          * Sets a {@link CaptureRequest.Key} and Value on the configuration.
          *
-         * <p>Any values which are in conflict with values already set by CameraX, such as by
-         * {@link androidx.camera.core.CameraControl}, will result in a thrown
-         * exception. The exception will typically be thrown on an internal thread which will
-         * lead to an uncaught exception.
+         * <p>The value will override any value set by CameraX internally with the risk of
+         * interfering with some CameraX CameraControl APIs as well as 3A behavior.
          *
          * @param key      The {@link CaptureRequest.Key} which will be set.
          * @param value    The value for the key.
@@ -73,7 +71,8 @@ public final class Camera2Interop {
                 @NonNull CaptureRequest.Key<ValueT> key, @NonNull ValueT value) {
             // Reify the type so we can obtain the class
             Config.Option<Object> opt = Camera2ImplConfig.createCaptureRequestOption(key);
-            mBaseBuilder.getMutableConfig().insertOption(opt, value);
+            mBaseBuilder.getMutableConfig().insertOption(opt,
+                    Config.OptionPriority.ALWAYS_OVERRIDE, value);
             return this;
         }
 
