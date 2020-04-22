@@ -39,8 +39,8 @@ import androidx.ui.unit.sp
 private val DefaultFontSize = 14.sp
 private val DefaultLetterSpacing = 0.sp
 private val DefaultBackgroundColor = Color.Transparent
-// FIXME: Introduce TextUnit.Original for representing "do not change the original result". Need to
-// distinguish from Inherit.
+// TODO(nona): Introduce TextUnit.Original for representing "do not change the original result".
+//  Need to distinguish from Inherit.
 private val DefaultLineHeight = TextUnit.Inherit
 private val DefaultColor = Color.Black
 
