@@ -713,7 +713,7 @@ class TextStyleTest {
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.1f)
 
-        assertThat(newStyle.background).isEqualTo(Color.Transparent)
+        assertThat(newStyle.background).isEqualTo(Color.Unset)
     }
 
     @Test
@@ -725,7 +725,7 @@ class TextStyleTest {
 
         val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newStyle.background).isEqualTo(lerp(Color.Transparent, color2, t))
+        assertThat(newStyle.background).isEqualTo(lerp(Color.Unset, color2, t))
     }
 
     @Test
@@ -737,7 +737,7 @@ class TextStyleTest {
 
         val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newStyle.background).isEqualTo(lerp(color1, Color.Transparent, t))
+        assertThat(newStyle.background).isEqualTo(lerp(color1, Color.Unset, t))
     }
 
     @Test
