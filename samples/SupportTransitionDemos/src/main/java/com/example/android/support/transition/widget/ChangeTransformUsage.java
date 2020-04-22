@@ -22,7 +22,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.transition.ArcMotion;
 import androidx.transition.ChangeTransform;
 import androidx.transition.TransitionManager;
