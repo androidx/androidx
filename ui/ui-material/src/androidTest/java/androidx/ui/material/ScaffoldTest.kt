@@ -20,6 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
+import androidx.ui.core.drawShadow
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInParent
 import androidx.ui.foundation.Box
@@ -28,11 +29,14 @@ import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.size
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.semantics.Semantics
+import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
@@ -358,5 +362,40 @@ class ScaffoldTest {
         }
         val expectedFabY = bottomBarPosition.y - fabSize.height / 2
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
+    }
+
+    @Test
+    fun scaffold_topAppBarIsDrawnOnTopOfContent() {
+        composeTestRule.setContent {
+            Stack(Modifier.size(10.dp, 20.dp)) {
+                TestTag(tag = "Scaffold") {
+                    Semantics(container = true, mergeAllDescendants = true) {
+                        Scaffold(
+                            topAppBar = {
+                                Box(
+                                    Modifier.size(10.dp)
+                                        .drawShadow(4.dp)
+                                        .drawBackground(Color.White)
+                                )
+                            }
+                        ) {
+                            Box(
+                                Modifier.size(10.dp)
+                                    .drawBackground(Color.White)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        findByTag("Scaffold")
+            .captureToBitmap().apply {
+                // asserts the appbar(top half part) has the shadow
+                val yPos = height / 2 + 2
+                assertThat(Color(getPixel(0, yPos))).isNotEqualTo(Color.White)
+                assertThat(Color(getPixel(width / 2, yPos))).isNotEqualTo(Color.White)
+                assertThat(Color(getPixel(width - 1, yPos))).isNotEqualTo(Color.White)
+            }
     }
 }

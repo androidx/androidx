@@ -25,6 +25,7 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.onPositioned
+import androidx.ui.core.zIndex
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
@@ -132,7 +133,9 @@ fun Scaffold(
     val child = @Composable {
         Surface(color = MaterialTheme.colors.background) {
             Column(Modifier.fillMaxSize()) {
-                if (topAppBar != null) ScaffoldSlot(content = topAppBar)
+                if (topAppBar != null) {
+                    ScaffoldSlot(Modifier.zIndex(TopAppBarZIndex), topAppBar)
+                }
                 Stack(Modifier.weight(1f, fill = true)) {
                     ScaffoldContent(Modifier.fillMaxSize(), scaffoldState, bodyContent)
                     ScaffoldBottom(
@@ -315,3 +318,4 @@ private fun ScaffoldSlot(modifier: Modifier = Modifier, content: @Composable() (
 
 private val FabSpacing = 16.dp
 private val DockedFabEndSpacing = 16.dp
+private const val TopAppBarZIndex = 1f
