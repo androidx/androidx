@@ -32,6 +32,12 @@ import javax.inject.Provider;
 
 /**
  * View Model Provider Factory for the Hilt Extension.
+ * <p>
+ * A provider for this factory will be installed in the
+ * {@link dagger.hilt.android.components.ActivityComponent} and
+ * {@link dagger.hilt.android.components.FragmentComponent}. An instance of this factory will also
+ * be the default factory by activities and fragments annotated with
+ * {@link dagger.hilt.android.AndroidEntryPoint}.
  */
 public final class HiltViewModelFactory extends AbstractSavedStateViewModelFactory {
 
