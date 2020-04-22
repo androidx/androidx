@@ -40,7 +40,7 @@ public final class SqliteInspectorFactory extends InspectorFactory<SqliteInspect
 
     @SuppressWarnings("unused") // called by ServiceLoader
     public SqliteInspectorFactory() {
-        this(Executors.newCachedThreadPool());
+        this(Executors.newCachedThreadPool(SqliteInspectionExecutors.threadFactory()));
     }
 
     @NonNull
