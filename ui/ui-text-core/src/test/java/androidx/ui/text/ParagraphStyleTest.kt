@@ -159,6 +159,25 @@ class ParagraphStyleTest {
     }
 
     @Test
+    fun `plus operator merges`() {
+        val style = ParagraphStyle(
+            textAlign = TextAlign.Center,
+            textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+        ) + ParagraphStyle(
+            textAlign = TextAlign.Justify,
+            lineHeight = 12.sp
+        )
+
+        assertThat(style).isEqualTo(
+            ParagraphStyle(
+                textAlign = TextAlign.Justify, // overridden by RHS
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl, // from LHS,
+                lineHeight = 12.sp // from RHS
+            )
+        )
+    }
+
+    @Test
     fun `lerp textAlign with a null, b not null and t is smaller than half`() {
         val style1 = ParagraphStyle(textAlign = null)
         val style2 = ParagraphStyle(textAlign = TextAlign.Right)

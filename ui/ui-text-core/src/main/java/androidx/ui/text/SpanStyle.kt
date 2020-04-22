@@ -19,8 +19,8 @@ package androidx.ui.text
 import androidx.compose.Immutable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
-import androidx.ui.graphics.useOrElse
 import androidx.ui.graphics.lerp
+import androidx.ui.graphics.useOrElse
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
@@ -115,7 +115,13 @@ data class SpanStyle(
             shadow = other.shadow ?: this.shadow
         )
     }
+
+    /**
+     * Plus operator overload that applies a [merge].
+     */
+    operator fun plus(other: SpanStyle): SpanStyle = this.merge(other)
 }
+
 /**
  * @param a An sp value. Maybe [TextUnit.Inherit]
  * @param b An sp value. Maybe [TextUnit.Inherit]

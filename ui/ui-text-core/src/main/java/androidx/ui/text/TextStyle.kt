@@ -151,6 +151,7 @@ data class TextStyle(
         lineHeight = lineHeight,
         textIndent = textIndent
     )
+
     /**
      * Returns a new text style that is a combination of this style and the given [other] style.
      *
@@ -168,6 +169,11 @@ data class TextStyle(
         )
     }
 
+    /**
+     * Returns a new text style that is a combination of this style and the given [other] style.
+     *
+     * @see merge
+     */
     fun merge(other: SpanStyle): TextStyle {
         return TextStyle(
             spanStyle = toSpanStyle().merge(other),
@@ -175,12 +181,32 @@ data class TextStyle(
         )
     }
 
+    /**
+     * Returns a new text style that is a combination of this style and the given [other] style.
+     *
+     * @see merge
+     */
     fun merge(other: ParagraphStyle): TextStyle {
         return TextStyle(
             spanStyle = toSpanStyle(),
             paragraphStyle = toParagraphStyle().merge(other)
         )
     }
+
+    /**
+     * Plus operator overload that applies a [merge].
+     */
+    operator fun plus(other: TextStyle): TextStyle = this.merge(other)
+
+    /**
+     * Plus operator overload that applies a [merge].
+     */
+    operator fun plus(other: ParagraphStyle): TextStyle = this.merge(other)
+
+    /**
+     * Plus operator overload that applies a [merge].
+     */
+    operator fun plus(other: SpanStyle): TextStyle = this.merge(other)
 
     companion object {
         /**
