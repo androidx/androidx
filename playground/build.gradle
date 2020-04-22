@@ -39,7 +39,9 @@ buildscript {
     }
 
     ext.supportRootFolder = project.projectDir.getParentFile()
-    apply from: '../buildSrc/repos.gradle'
+    // The docs-* tasks expect a property `repos` to be defined so we
+    // are just initializing it to an empty Map.
+    ext.repos = [:]
     apply from: '../buildSrc/build_dependencies.gradle'
     dependencies {
         classpath build_libs.agp
