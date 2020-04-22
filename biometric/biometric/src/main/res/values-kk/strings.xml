@@ -17,15 +17,15 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"Саусақ ізін оқу сканерін түртіңіз"</string>
-    <string name="fingerprint_not_recognized" msgid="5491287833813257925">"Танылмады"</string>
-    <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"Анықтама хабары аумағы"</string>
-    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Саусақ ізі жабдығы қолжетімді емес."</string>
-    <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Саусақ іздері тіркелмеген."</string>
-    <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Бұл құрылғыда саусақ ізін оқу сканері жоқ"</string>
-    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Пайдаланушы саусақ ізі операциясынан бас тартты."</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Тым көп әрекет жасалды. Кейінірек қайталап көріңіз."</string>
-    <string name="default_error_msg" msgid="7497355367608150274">"Белгісіз қате"</string>
-    <string name="generic_error_user_canceled" msgid="7474799539658018076">"Пайдаланушы аутентификациядан бас тартты."</string>
-    <string name="confirm_device_credential_password" msgid="4296851028928624518">"Құпия сөзді пайдалану"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Саусақ ізін оқу сканерін түртіңіз"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Танылмады"</string>
+    <string name="accessibility_fingerprint_dialog_help_area" msgid="549244739212894678">"Анықтама хабары аумағы"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Саусақ ізі жабдығы қолжетімді емес."</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"Саусақ іздері тіркелмеген."</string>
+    <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Бұл құрылғыда саусақ ізін оқу сканері жоқ"</string>
+    <string name="fingerprint_error_user_canceled" msgid="7627716295344353987">"Пайдаланушы саусақ ізі операциясынан бас тартты."</string>
+    <string name="fingerprint_error_lockout" msgid="7291787166416782245">"Тым көп әрекет жасалды. Кейінірек қайталап көріңіз."</string>
+    <string name="default_error_msg" msgid="4776854077120974966">"Белгісіз қате"</string>
+    <string name="generic_error_user_canceled" msgid="7309881387583143581">"Пайдаланушы аутентификациядан бас тартты."</string>
+    <string name="confirm_device_credential_password" msgid="5912733858573823945">"Құпия сөзді пайдалану"</string>
 </resources>
