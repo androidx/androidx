@@ -18,9 +18,12 @@ package androidx.sqlite.inspection;
 
 import androidx.annotation.NonNull;
 
+import java.util.Locale;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 class SqliteInspectionExecutors {
 
@@ -35,8 +38,31 @@ class SqliteInspectionExecutors {
         }
     }
 
+    private static final ThreadFactory sThreadFactory = new ThreadFactory() {
+        AtomicLong mNextId = new AtomicLong(0);
+
+        @Override
+        public Thread newThread(@NonNull Runnable target) {
+            Thread thread = new Thread(target, generateThreadName());
+            thread.setDaemon(true); // Don't prevent JVM from exiting
+            return thread;
+        }
+
+        private String generateThreadName() {
+            return String.format(Locale.ROOT, "Studio: SqliteInspector thread-%d",
+                    mNextId.getAndIncrement());
+        }
+    };
+
     static Executor directExecutor() {
         return DirectExecutor.INSTANCE;
+    }
+
+    /**
+     * Thread factory satisfying required thread naming conventions.
+     */
+    static ThreadFactory threadFactory() {
+        return sThreadFactory;
     }
 
     static Future<Void> submit(Executor executor, Runnable runnable) {
