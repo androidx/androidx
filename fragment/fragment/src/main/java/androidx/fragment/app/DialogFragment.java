@@ -477,6 +477,40 @@ public class DialogFragment extends Fragment
         }
     }
 
+    @NonNull
+    @Override
+    FragmentContainer createFragmentContainer() {
+        final FragmentContainer fragmentContainer = super.createFragmentContainer();
+        return new FragmentContainer() {
+            @Nullable
+            @Override
+            public View onFindViewById(int id) {
+                View dialogView = DialogFragment.this.onFindViewById(id);
+                if (dialogView != null) {
+                    return dialogView;
+                }
+                return fragmentContainer.onFindViewById(id);
+            }
+
+            @Override
+            public boolean onHasView() {
+                return DialogFragment.this.onHasView() || fragmentContainer.onHasView();
+            }
+        };
+    }
+
+    @Nullable
+    View onFindViewById(int id) {
+        if (mDialog != null) {
+            return mDialog.findViewById(id);
+        }
+        return null;
+    }
+
+    boolean onHasView() {
+        return mDialogCreated;
+    }
+
     /**
      * {@inheritDoc}
      *
