@@ -91,7 +91,8 @@ public class FingerprintDialogFragmentTest {
     public void testOnAuthenticationSucceeded_TriggersCallbackWithNullCrypto_WhenGivenNullResult() {
         mFragment.setCallback(EXECUTOR, mAuthenticationCallback);
 
-        mFragment.mAuthenticationCallback.onAuthenticationSucceeded(null /* result */);
+        mFragment.mCallbackProvider.getFingerprintCallback()
+                .onAuthenticationSucceeded(null /* result */);
 
         verify(mAuthenticationCallback).onAuthenticationSucceeded(mResultCaptor.capture());
         assertThat(mResultCaptor.getValue().getCryptoObject()).isNull();
@@ -103,7 +104,8 @@ public class FingerprintDialogFragmentTest {
 
         final int errMsgId = BiometricConstants.ERROR_HW_UNAVAILABLE;
         final String errString = "lorem ipsum";
-        mFragment.mAuthenticationCallback.onAuthenticationError(errMsgId, errString);
+        mFragment.mCallbackProvider.getFingerprintCallback()
+                .onAuthenticationError(errMsgId, errString);
 
         verify(mAuthenticationCallback).onAuthenticationError(errMsgId, errString);
         assertThat(mFragment.isVisible()).isFalse();

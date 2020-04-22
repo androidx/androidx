@@ -62,7 +62,8 @@ public class BiometricFragmentTest {
                 mock(BiometricPrompt.AuthenticationCallback.class);
         biometricFragment.setCallbacks(EXECUTOR, CLICK_LISTENER, callback);
 
-        biometricFragment.mAuthenticationCallback.onAuthenticationSucceeded(null /* result */);
+        biometricFragment.mCallbackProvider.getBiometricCallback()
+                .onAuthenticationSucceeded(null /* result */);
 
         final ArgumentCaptor<BiometricPrompt.AuthenticationResult> resultCaptor =
                 ArgumentCaptor.forClass(BiometricPrompt.AuthenticationResult.class);
