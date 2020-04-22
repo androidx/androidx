@@ -18,8 +18,6 @@ package androidx.transition;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -32,6 +30,8 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.animation.Animator;
+import androidx.core.animation.AnimatorListenerAdapter;
 import androidx.core.content.res.TypedArrayUtils;
 
 import java.lang.annotation.Retention;
@@ -474,7 +474,7 @@ public abstract class Visibility extends Transition {
                 DisappearListener disappearListener = new DisappearListener(viewToKeep,
                         endVisibility, true);
                 animator.addListener(disappearListener);
-                AnimatorUtils.addPauseListener(animator, disappearListener);
+                animator.addPauseListener(disappearListener);
                 addListener(disappearListener);
             } else {
                 ViewUtils.setTransitionVisibility(viewToKeep, originalVisibility);
@@ -525,7 +525,7 @@ public abstract class Visibility extends Transition {
     }
 
     private static class DisappearListener extends AnimatorListenerAdapter
-            implements TransitionListener, AnimatorUtils.AnimatorPauseListenerCompat {
+            implements TransitionListener {
 
         private final View mView;
         private final int mFinalVisibility;
@@ -547,7 +547,7 @@ public abstract class Visibility extends Transition {
         // This overrides both AnimatorListenerAdapter and
         // AnimatorUtilsApi14.AnimatorPauseListenerCompat
         @Override
-        public void onAnimationPause(Animator animation) {
+        public void onAnimationPause(@NonNull Animator animation) {
             if (!mCanceled) {
                 ViewUtils.setTransitionVisibility(mView, mFinalVisibility);
             }
@@ -556,27 +556,27 @@ public abstract class Visibility extends Transition {
         // This overrides both AnimatorListenerAdapter and
         // AnimatorUtilsApi14.AnimatorPauseListenerCompat
         @Override
-        public void onAnimationResume(Animator animation) {
+        public void onAnimationResume(@NonNull Animator animation) {
             if (!mCanceled) {
                 ViewUtils.setTransitionVisibility(mView, View.VISIBLE);
             }
         }
 
         @Override
-        public void onAnimationCancel(Animator animation) {
+        public void onAnimationCancel(@NonNull Animator animation) {
             mCanceled = true;
         }
 
         @Override
-        public void onAnimationRepeat(Animator animation) {
+        public void onAnimationRepeat(@NonNull Animator animation) {
         }
 
         @Override
-        public void onAnimationStart(Animator animation) {
+        public void onAnimationStart(@NonNull Animator animation) {
         }
 
         @Override
-        public void onAnimationEnd(Animator animation) {
+        public void onAnimationEnd(@NonNull Animator animation) {
             hideViewWhenNotCanceled();
         }
 

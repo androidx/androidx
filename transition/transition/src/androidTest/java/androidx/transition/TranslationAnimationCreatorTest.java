@@ -20,10 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import android.animation.Animator;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
 
+import androidx.core.animation.Animator;
+import androidx.core.animation.LinearInterpolator;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 
