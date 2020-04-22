@@ -31,12 +31,12 @@ import javax.inject.Provider;
 /**
  * Worker Factory for the Hilt Extension
  */
-public final class WorkerFactory extends androidx.work.WorkerFactory {
+public final class HiltWorkerFactory extends androidx.work.WorkerFactory {
 
     private final Map<String,
             Provider<WorkerAssistedFactory<? extends Worker>>> mWorkerFactories;
 
-    public WorkerFactory(@NonNull Map<String,
+    public HiltWorkerFactory(@NonNull Map<String,
             Provider<WorkerAssistedFactory<? extends Worker>>> workerFactories) {
         mWorkerFactories = workerFactories;
     }

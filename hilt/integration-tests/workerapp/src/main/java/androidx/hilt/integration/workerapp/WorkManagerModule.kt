@@ -17,7 +17,7 @@
 package androidx.hilt.integration.workerapp
 
 import android.content.Context
-import androidx.hilt.work.WorkerFactory
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import dagger.Module
@@ -34,7 +34,7 @@ object WorkManagerModule {
     @Singleton
     fun provideWorkManager(
         @ApplicationContext context: Context,
-        workerFactory: WorkerFactory
+        workerFactory: HiltWorkerFactory
     ): WorkManager {
         WorkManager.initialize(
             context,

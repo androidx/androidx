@@ -77,7 +77,7 @@ public final class ViewModelFactoryModules {
                     ? activity.getIntent().getExtras() : null;
             SavedStateViewModelFactory delegate =
                     new SavedStateViewModelFactory(application, owner, defaultArgs);
-            return new ViewModelFactory(owner, defaultArgs, delegate, viewModelFactories);
+            return new HiltViewModelFactory(owner, defaultArgs, delegate, viewModelFactories);
         }
     }
 
@@ -100,7 +100,7 @@ public final class ViewModelFactoryModules {
             Bundle defaultArgs = fragment.getArguments();
             SavedStateViewModelFactory delegate =
                     new SavedStateViewModelFactory(application, fragment, defaultArgs);
-            return new ViewModelFactory(fragment, defaultArgs, delegate, viewModelFactories);
+            return new HiltViewModelFactory(fragment, defaultArgs, delegate, viewModelFactories);
         }
 
         private FragmentModule() {
