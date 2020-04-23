@@ -129,10 +129,10 @@ fun hasNoScrollAction(): SemanticsMatcher =
  * @see SemanticsProperties.AccessibilityLabel
  */
 fun hasText(text: String, ignoreCase: Boolean = false): SemanticsMatcher {
-    return SemanticsMatcher.fromCondition(
+    return SemanticsMatcher(
         "${SemanticsProperties.AccessibilityLabel.name} = '$text' (ignoreCase: $ignoreCase)"
     ) {
-        config.getOrNull(SemanticsProperties.AccessibilityLabel).equals(text, ignoreCase)
+        it.config.getOrNull(SemanticsProperties.AccessibilityLabel).equals(text, ignoreCase)
     }
 }
 
@@ -147,10 +147,10 @@ fun hasText(text: String, ignoreCase: Boolean = false): SemanticsMatcher {
  */
 fun hasSubstring(substring: String, ignoreCase: Boolean = false):
         SemanticsMatcher {
-    return SemanticsMatcher.fromCondition(
+    return SemanticsMatcher(
         "${SemanticsProperties.AccessibilityLabel.name}.contains($substring, $ignoreCase)"
     ) {
-        config.getOrNull(SemanticsProperties.AccessibilityLabel)?.contains(substring, ignoreCase)
+        it.config.getOrNull(SemanticsProperties.AccessibilityLabel)?.contains(substring, ignoreCase)
             ?: false
     }
 }
@@ -223,8 +223,8 @@ fun isDialog(): SemanticsMatcher =
 fun hasParentThat(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the parent's node semantics
     //  in the error message or say that no parent was found.
-    return SemanticsMatcher.fromCondition("hasParentThat(${matcher.description})") {
-        parent?.run { matcher.matches(this) } ?: false
+    return SemanticsMatcher("hasParentThat(${matcher.description})") {
+        it.parent?.run { matcher.matches(this) } ?: false
     }
 }
 
@@ -234,8 +234,8 @@ fun hasParentThat(matcher: SemanticsMatcher): SemanticsMatcher {
 fun hasAnyChildThat(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the children nodes semantics
     //  in the error message or say that no children were found.
-    return SemanticsMatcher.fromCondition("hasAnyChildThat(${matcher.description})") {
-        matcher.matchesAny(this.children)
+    return SemanticsMatcher("hasAnyChildThat(${matcher.description})") {
+        matcher.matchesAny(it.children)
     }
 }
 
@@ -247,10 +247,11 @@ fun hasAnyChildThat(matcher: SemanticsMatcher): SemanticsMatcher {
 fun hasAnySiblingThat(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the sibling nodes semantics
     //  in the error message or say that no siblings were found.
-    return SemanticsMatcher.fromCondition("hasAnySiblingThat(${matcher.description})"
+    return SemanticsMatcher("hasAnySiblingThat(${matcher.description})"
     ) {
-        val node = this
-        parent?.run { matcher.match(this.children).any { it.id != node.id } } ?: false
+        val node = it
+        it.parent?.run { matcher.matchesAny(this.children.filter { child -> child.id != node.id }) }
+            ?: false
     }
 }
 
@@ -268,8 +269,8 @@ fun hasAnySiblingThat(matcher: SemanticsMatcher): SemanticsMatcher {
 fun hasAnyAncestorThat(matcher: SemanticsMatcher): SemanticsMatcher {
     // TODO(b/150292800): If this is used in assert we should print the ancestor nodes semantics
     //  in the error message or say that no ancestors were found.
-    return SemanticsMatcher.fromCondition("hasAnyAncestorThat(${matcher.description})") {
-        matcher.matchesAny(ancestors)
+    return SemanticsMatcher("hasAnyAncestorThat(${matcher.description})") {
+        matcher.matchesAny(it.ancestors)
     }
 }
 
@@ -295,8 +296,8 @@ fun hasAnyDescendantThat(matcher: SemanticsMatcher): SemanticsMatcher {
         return node.children.any { checkIfSubtreeMatches(matcher, it) }
     }
 
-    return SemanticsMatcher.fromCondition("hasAnyDescendantThat(${matcher.description})") {
-        checkIfSubtreeMatches(matcher, this)
+    return SemanticsMatcher("hasAnyDescendantThat(${matcher.description})") {
+        checkIfSubtreeMatches(matcher, it)
     }
 }
 

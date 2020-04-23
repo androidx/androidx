@@ -27,6 +27,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.find
 import androidx.ui.test.findAll
+import androidx.ui.test.first
 import androidx.ui.test.isInMutuallyExclusiveGroup
 import org.junit.Rule
 import org.junit.Test
