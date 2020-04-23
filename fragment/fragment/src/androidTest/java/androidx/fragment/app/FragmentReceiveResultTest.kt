@@ -116,6 +116,7 @@ class FragmentReceiveResultTest {
         assertThat(fragment.resultContent[0]).isEqualTo("content 40")
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testActivityResult_withDelegate() {
         val delegate = mock(ActivityCompat.PermissionCompatDelegate::class.java)
