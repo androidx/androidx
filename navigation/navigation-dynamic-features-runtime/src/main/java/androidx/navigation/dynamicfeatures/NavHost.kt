@@ -26,8 +26,5 @@ import androidx.navigation.NavHost
 inline fun NavHost.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
-    moduleName: String? = null,
-    progressDestination: Int = 0,
     builder: DynamicNavGraphBuilder.() -> Unit
-): NavGraph = navController.createGraph(id, startDestination, moduleName, progressDestination,
-    builder)
+): NavGraph = navController.createGraph(id, startDestination, builder)
