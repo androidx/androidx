@@ -16,6 +16,7 @@
 
 package androidx.ui.foundation
 
+import androidx.compose.Stable
 import androidx.compose.State
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
@@ -33,6 +34,7 @@ import androidx.compose.setValue
  *
  * @sample androidx.ui.foundation.samples.InteractionStateSample
  */
+@Stable
 class InteractionState : State<Set<Interaction>> {
     override var value: Set<Interaction> by mutableStateOf(emptySet())
         private set
