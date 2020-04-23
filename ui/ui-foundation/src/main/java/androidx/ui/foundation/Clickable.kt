@@ -17,6 +17,7 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.core.Modifier
@@ -83,8 +84,10 @@ fun Clickable(
         } else {
             Modifier
         }
-        onDispose {
-            interactionState?.removeInteraction(Interaction.Pressed)
+        onCommit(interactionState) {
+            onDispose {
+                interactionState?.removeInteraction(Interaction.Pressed)
+            }
         }
         @Suppress("DEPRECATION")
         PassThroughLayout(modifier + tap, children)

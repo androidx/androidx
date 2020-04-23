@@ -32,7 +32,7 @@ interface Interaction {
     /**
      * An interaction corresponding to a dragged state on a component.
      *
-     * See [androidx.ui.foundation.gestures.draggable]
+     * See [draggable][androidx.ui.foundation.gestures.draggable]
      */
     object Dragged : Interaction
 
