@@ -44,6 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -120,6 +121,7 @@ public class CameraXActivity extends AppCompatActivity
     @CameraSelector.LensFacing
     int mCurrentCameraLensFacing = CameraSelector.LENS_FACING_BACK;
     ProcessCameraProvider mCameraProvider;
+    private CameraXViewModel.CameraProviderResult mCameraProviderResult;
 
     // TODO: Move the analysis processing, capture processing to separate threads, so
     // there is smaller impact on the preview.
@@ -153,11 +155,11 @@ public class CameraXActivity extends AppCompatActivity
             new CountingIdlingResource("analysis");
     private final CountingIdlingResource mImageSavedIdlingResource =
             new CountingIdlingResource("imagesaved");
+    private final CountingIdlingResource mInitializationIdlingResource =
+            new CountingIdlingResource("initialization");
 
     /**
      * Retrieve idling resource that waits for image received by analyzer).
-     *
-     * @return idline resource for image capture
      */
     @VisibleForTesting
     @NonNull
@@ -167,8 +169,6 @@ public class CameraXActivity extends AppCompatActivity
 
     /**
      * Retrieve idling resource that waits view to get texture update.
-     *
-     * @return idline resource for image capture
      */
     @VisibleForTesting
     @NonNull
@@ -178,13 +178,35 @@ public class CameraXActivity extends AppCompatActivity
 
     /**
      * Retrieve idling resource that waits for capture to complete (save or error).
-     *
-     * @return idline resource for image capture
      */
     @VisibleForTesting
     @NonNull
     public IdlingResource getImageSavedIdlingResource() {
         return mImageSavedIdlingResource;
+    }
+
+    /**
+     * Retrieve idling resource that waits for initialization to finish.
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getInitializationIdlingResource() {
+        return mInitializationIdlingResource;
+    }
+
+    /**
+     * Returns the result of CameraX initialization.
+     *
+     * <p>This will only be set after initialization has finished, which will occur once
+     * {@link #getInitializationIdlingResource()} is idle.
+     *
+     * <p>Should only be called on the main thread.
+     */
+    @VisibleForTesting
+    @MainThread
+    @Nullable
+    public CameraXViewModel.CameraProviderResult getCameraProviderResult() {
+        return mCameraProviderResult;
     }
 
     /**
@@ -835,21 +857,30 @@ public class CameraXActivity extends AppCompatActivity
             }
         }
 
+        mInitializationIdlingResource.increment();
         CameraXViewModel viewModel = new ViewModelProvider(this).get(CameraXViewModel.class);
-        viewModel.getCameraProvider().observe(this, provider -> {
-            mCameraProvider = provider;
-            if (mPermissionsGranted) {
-                setupCamera();
+        viewModel.getCameraProvider().observe(this, cameraProviderResult -> {
+            mCameraProviderResult = cameraProviderResult;
+            mInitializationIdlingResource.decrement();
+            if (cameraProviderResult.hasProvider()) {
+                mCameraProvider = cameraProviderResult.getProvider();
+                if (mPermissionsGranted) {
+                    setupCamera();
+                }
+            } else {
+                Log.e(TAG, "Failed to retrieve ProcessCameraProvider, e");
+                Toast.makeText(getApplicationContext(), "Unable to initialize CameraX. See logs "
+                        + "for details.", Toast.LENGTH_LONG).show();
             }
         });
 
 
         Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
-                @Override
-                public void onSuccess(@Nullable Boolean permissionsGranted) {
-                    mPermissionsGranted = Preconditions.checkNotNull(permissionsGranted);
-                    if (mPermissionsGranted) {
-                        if (mCameraProvider != null) {
+            @Override
+            public void onSuccess(@Nullable Boolean permissionsGranted) {
+                mPermissionsGranted = Preconditions.checkNotNull(permissionsGranted);
+                if (mPermissionsGranted) {
+                    if (mCameraProvider != null) {
                             setupCamera();
                         }
                     } else {

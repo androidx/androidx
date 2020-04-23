@@ -19,12 +19,14 @@ package androidx.camera.integration.core;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.CancellationException;
@@ -33,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 /** View model providing access to the camera */
 public class CameraXViewModel extends AndroidViewModel {
 
-    private MutableLiveData<ProcessCameraProvider> mProcessCameraProviderLiveData;
+    private MutableLiveData<CameraProviderResult> mProcessCameraProviderLiveData;
 
     public CameraXViewModel(@NonNull Application application) {
         super(application);
@@ -43,26 +45,87 @@ public class CameraXViewModel extends AndroidViewModel {
      * Returns a {@link LiveData} containing CameraX's {@link ProcessCameraProvider} once it has
      * been initialized.
      */
-    LiveData<ProcessCameraProvider> getCameraProvider() {
+    LiveData<CameraProviderResult> getCameraProvider() {
         if (mProcessCameraProviderLiveData == null) {
             mProcessCameraProviderLiveData = new MutableLiveData<>();
-            ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
-                    ProcessCameraProvider.getInstance(getApplication());
+            try {
+                ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
+                        ProcessCameraProvider.getInstance(getApplication());
 
-            cameraProviderFuture.addListener(() -> {
-                try {
-                    ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                    mProcessCameraProviderLiveData.setValue(cameraProvider);
-                } catch (ExecutionException e) {
-                    if (!(e.getCause() instanceof CancellationException)) {
-                        throw new IllegalStateException("Error occurred while initializing "
-                                + "CameraX:", e.getCause());
+                cameraProviderFuture.addListener(() -> {
+                    try {
+                        ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                        mProcessCameraProviderLiveData.setValue(
+                                CameraProviderResult.fromProvider(cameraProvider));
+                    } catch (ExecutionException e) {
+                        Throwable cause = Preconditions.checkNotNull(e.getCause());
+                        if (!(cause instanceof CancellationException)) {
+                            mProcessCameraProviderLiveData.setValue(
+                                    CameraProviderResult.fromError(e.getCause()));
+                        }
+                    } catch (InterruptedException e) {
+                        throw new IllegalStateException("Unable to use CameraX", e);
                     }
-                } catch (InterruptedException e) {
-                    throw new IllegalStateException("Unable to use CameraX", e);
-                }
-            }, ContextCompat.getMainExecutor(getApplication()));
+                }, ContextCompat.getMainExecutor(getApplication()));
+            } catch (IllegalStateException e) {
+                // Failure during ProcessCameraProvider.getInstance()
+                mProcessCameraProviderLiveData.setValue(CameraProviderResult.fromError(e));
+            }
         }
         return mProcessCameraProviderLiveData;
+    }
+
+    /**
+     * Class for wrapping success/error of initializing the {@link ProcessCameraProvider}.
+     */
+    public static final class CameraProviderResult {
+
+        private final ProcessCameraProvider mProvider;
+        private final Throwable mError;
+
+        static CameraProviderResult fromProvider(@NonNull ProcessCameraProvider provider) {
+            return new CameraProviderResult(provider, /*error=*/null);
+        }
+
+        static CameraProviderResult fromError(@NonNull Throwable error) {
+            return new CameraProviderResult(/*provider=*/null, error);
+        }
+
+        private CameraProviderResult(@Nullable ProcessCameraProvider provider,
+                @Nullable Throwable error) {
+            mProvider = provider;
+            mError = error;
+        }
+
+        /**
+         * Returns {@code true} if this result contains a {@link ProcessCameraProvider}. Returns
+         * {@code false} if it contains an error.
+         */
+        public boolean hasProvider() {
+            return mProvider != null;
+        }
+
+        /**
+         * Returns a {@link ProcessCameraProvider} if the result does not contain an error,
+         * otherwise returns {@code null}.
+         *
+         * <p>Use {@link #hasProvider()} to check if this result contains a provider.
+         */
+        @Nullable
+        public ProcessCameraProvider getProvider() {
+            return mProvider;
+        }
+
+        /**
+         * Returns a {@link Throwable} containing the error that prevented the
+         * {@link ProcessCameraProvider} from being available. Returns {@code null} if no error
+         * occurred.
+         *
+         * <p>Use {@link #hasProvider()} to check if this result contains a provider.
+         */
+        @Nullable
+        public Throwable getError() {
+            return mError;
+        }
     }
 }
