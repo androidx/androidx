@@ -16,6 +16,10 @@
 
 package androidx.mediarouter.media;
 
+import static android.media.MediaRoute2Info.FEATURE_LIVE_AUDIO;
+import static android.media.MediaRoute2Info.FEATURE_LIVE_VIDEO;
+import static android.media.MediaRoute2Info.FEATURE_REMOTE_PLAYBACK;
+
 import android.annotation.SuppressLint;
 import android.content.IntentFilter;
 import android.media.MediaRoute2Info;
@@ -33,14 +37,13 @@ import java.util.Set;
 @RequiresApi(api = Build.VERSION_CODES.R)
 class MediaRouter2Utils {
     //TODO: Once the prebuilt is updated, use those in MediaRoute2Info.
-    static final String FEATURE_LIVE_AUDIO = "android.media.route.feature.LIVE_AUDIO";
-    static final String FEATURE_LIVE_VIDEO = "android.media.route.feature.LIVE_VIDEO";
-    static final String FEATURE_REMOTE_PLAYBACK = "android.media.route.feature.REMOTE_PLAYBACK";
+    static final String FEATURE_EMPTY = "android.media.route.feature.EMPTY";
 
     private MediaRouter2Utils() {}
 
     public static MediaRoute2Info toFwkMediaRoute2Info(MediaRouteDescriptor descriptor) {
-        return new MediaRoute2Info.Builder(descriptor.getId(), descriptor.getName())
+        MediaRoute2Info.Builder builder = new MediaRoute2Info.Builder(descriptor.getId(),
+                descriptor.getName())
                 .setDescription(descriptor.getDescription())
                 .setConnectionState(descriptor.getConnectionState())
                 .setVolumeHandling(descriptor.getVolumeHandling())
@@ -53,7 +56,14 @@ class MediaRouter2Utils {
                 //.setDeviceType(deviceType)
                 //TODO: set client package name
                 //.setClientPackageName(clientMap.get(device.getDeviceId()))
-                .build();
+                ;
+
+        // This is a workaround for preventing IllegalArgumentException in MediaRoute2Info.
+        if (descriptor.getControlFilters().isEmpty()) {
+            builder.addFeature(FEATURE_EMPTY);
+        }
+
+        return builder.build();
     }
 
     static Collection<String> getFeaturesFromIntentFilters(List<IntentFilter> controlFilters) {
