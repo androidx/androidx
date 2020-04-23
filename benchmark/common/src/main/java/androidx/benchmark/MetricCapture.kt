@@ -16,8 +16,9 @@
 
 package androidx.benchmark
 
-internal abstract class MetricCapture {
+import android.os.Debug
 
+internal abstract class MetricCapture {
     abstract val name: String
 
     /**
@@ -58,16 +59,14 @@ internal abstract class MetricCapture {
 }
 
 internal class TimeCapture : MetricCapture() {
-
+    override val name: String = "timeNs"
     private var currentStarted = 0L
     private var currentPausedStarted = 0L
     private var currentTotalPaused = 0L
 
-    override var name: String = "timeNs"
-
     override fun captureStart() {
-        currentStarted = System.nanoTime()
         currentTotalPaused = 0
+        currentStarted = System.nanoTime()
     }
 
     override fun captureStop(): Long {
@@ -80,5 +79,32 @@ internal class TimeCapture : MetricCapture() {
 
     override fun captureResumed() {
         currentTotalPaused += System.nanoTime() - currentPausedStarted
+    }
+}
+
+@Suppress("DEPRECATION")
+internal class AllocationCountCapture : MetricCapture() {
+    override val name = "allocationCount"
+    private var currentPausedStarted = 0
+    private var currentTotalPaused = 0
+
+    override fun captureStart() {
+        currentTotalPaused = 0
+        Debug.startAllocCounting()
+    }
+
+    override fun captureStop(): Long {
+        Debug.stopAllocCounting()
+        return (Debug.getGlobalAllocCount() - currentTotalPaused).toLong()
+    }
+
+    override fun capturePaused() {
+        // Note - can't start/stop allocation counting to pause/resume, since that would clear
+        // the current counter (and is likely more disruptive than just querying count)
+        currentPausedStarted = Debug.getGlobalAllocCount()
+    }
+
+    override fun captureResumed() {
+        currentTotalPaused += Debug.getGlobalAllocCount() - currentPausedStarted
     }
 }
