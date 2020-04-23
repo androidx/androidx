@@ -667,6 +667,7 @@ public class FragmentActivity extends ComponentActivity implements
      *                    between 0 and 65535 to be considered valid. If given requestCode is
      *                    greater than 65535, an IllegalArgumentException would be thrown.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
             int requestCode) {
@@ -691,6 +692,7 @@ public class FragmentActivity extends ComponentActivity implements
      * @param options Additional options for how the Activity should be started. See
      * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
             int requestCode, @Nullable Bundle options) {
@@ -720,6 +722,7 @@ public class FragmentActivity extends ComponentActivity implements
      * @param extraFlags Always set to 0.
      * @throws IntentSender.SendIntentException if the call fails to execute.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask,
@@ -753,6 +756,7 @@ public class FragmentActivity extends ComponentActivity implements
      * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
      * @throws IntentSender.SendIntentException if the call fails to execute.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
