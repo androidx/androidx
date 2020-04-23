@@ -73,35 +73,6 @@ class FocusManagerTest {
     }
 
     @Test
-    fun register_and_focusNodeById() {
-        val id = "Focus Node ID"
-        val node = mock<FocusNode>()
-        val observer = mock<FocusTransitionObserver>()
-
-        val fm = FocusManagerImpl()
-        fm.registerObserver(node, observer)
-        fm.registerFocusNode(id, node)
-        fm.requestFocusById(id)
-        verify(observer, times(1)).invoke(eq(null), eq(node))
-    }
-
-    @Test
-    fun unregister() {
-        val id = "Focus Node ID"
-        val node = mock<FocusNode>()
-        val observer = mock<FocusTransitionObserver>()
-
-        val fm = FocusManagerImpl()
-
-        fm.registerObserver(node, observer)
-        fm.registerFocusNode(id, node)
-
-        fm.unregisterFocusNode(id)
-        fm.requestFocusById(id)
-        verify(observer, never()).invoke(any(), any())
-    }
-
-    @Test
     fun blur() {
         val focusNode: FocusNode = mock()
         val observer = mock<FocusTransitionObserver>()
