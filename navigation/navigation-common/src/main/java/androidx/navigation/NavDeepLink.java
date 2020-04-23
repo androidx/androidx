@@ -102,7 +102,7 @@ public final class NavDeepLink {
         }
 
         if (mimeType != null) {
-            Pattern mimeTypePattern = Pattern.compile("^[-\\w*.]+/[-\\w+*.]+$");
+            Pattern mimeTypePattern = Pattern.compile("^[\\s\\S]+/[\\s\\S]+$");
             Matcher mimeTypeMatcher = mimeTypePattern.matcher(mimeType);
 
             if (!mimeTypeMatcher.matches()) {
@@ -118,7 +118,7 @@ public final class NavDeepLink {
                     "^(" + splitMimeType.mType + "|[*]+)/(" + splitMimeType.mSubType + "|[*]+)$";
 
             // if the deep link type or subtype is wildcard, allow anything
-            String finalRegex = mimeTypeRegex.replace("*|[*]", "[-\\w+*.]");
+            String finalRegex = mimeTypeRegex.replace("*|[*]", "[\\s\\S]");
             mMimeTypePattern = Pattern.compile(finalRegex);
         }
     }
