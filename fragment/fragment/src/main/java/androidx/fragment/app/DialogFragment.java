@@ -489,7 +489,10 @@ public class DialogFragment extends Fragment
                 if (dialogView != null) {
                     return dialogView;
                 }
-                return fragmentContainer.onFindViewById(id);
+                if (fragmentContainer.onHasView()) {
+                    return fragmentContainer.onFindViewById(id);
+                }
+                return null;
             }
 
             @Override

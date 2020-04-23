@@ -21,7 +21,9 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.test.EmptyFragmentTestActivity
@@ -101,6 +103,28 @@ class DialogFragmentTest {
 
         assertWithMessage("Dialog should have called setContentView by onStart")
             .that(fragment.parentSetInStart)
+            .isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentWithChild() {
+        val fragment = TestDialogFragmentWithChild(false)
+        fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+
+        assertWithMessage("Dialog was not being shown")
+            .that(fragment.dialog?.isShowing)
+            .isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentWithChildExecutePendingTransactions() {
+        val fragment = TestDialogFragmentWithChild(true)
+        fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+
+        assertWithMessage("Dialog was not being shown")
+            .that(fragment.dialog?.isShowing)
             .isTrue()
     }
 
@@ -327,6 +351,26 @@ class DialogFragmentTest {
         override fun onCancel(dialog: DialogInterface) {
             super.onCancel(dialog)
             onCancelCalled = true
+        }
+    }
+
+    class TestDialogFragmentWithChild(
+        val executePendingTransactions: Boolean = false
+    ) : DialogFragment() {
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            val view = inflater.inflate(R.layout.simple_container, container, false)
+            childFragmentManager.beginTransaction()
+                .add(R.id.fragmentContainer, StrictViewFragment())
+                .commit()
+            if (executePendingTransactions) {
+                childFragmentManager.executePendingTransactions()
+            }
+            return view
         }
     }
 
