@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.CameraX.getScaledRect;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.Assert.assertFalse;
@@ -27,6 +29,7 @@ import static org.mockito.Mockito.spy;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Rational;
 import android.util.Size;
 
@@ -80,6 +83,10 @@ public final class CameraXTest {
             new CameraSelector.Builder().requireLensFacing(CAMERA_LENS_FACING).build();
     private static final String CAMERA_ID = "0";
     private static final String CAMERA_ID_FRONT = "1";
+    // A container rect that is 4:3.
+    private static final RectF CONTAINER_RECT = new RectF(10, 10, 50, 40);
+    // 1:1 narrow aspect ratio
+    private static final Rational FIT_ASPECT_RATIO = new Rational(100, 100);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Context mContext;
@@ -121,12 +128,13 @@ public final class CameraXTest {
     }
 
     @Test
-    public void cropRect_twoSurfacesIntersectCropWide() {
+    public void viewPortRectWithTwoSurfacesIntersectWide() {
         assertThat(
-                getCropRects(
+                getViewPortRects(
                         new Size(800, 800),
-                        180,
                         new Rational(1, 2),
+                        180,
+                        ViewPort.FILL_CENTER,
                         new Size(400, 800),
                         new Size(800, 400)))
                 .isEqualTo(
@@ -137,12 +145,13 @@ public final class CameraXTest {
     }
 
     @Test
-    public void cropRect_twoSurfacesIntersectCropNarrow() {
+    public void viewPortRectWithTwoSurfacesIntersectNarrow() {
         assertThat(
-                getCropRects(
+                getViewPortRects(
                         new Size(800, 800),
-                        180,
                         new Rational(2, 1),
+                        180,
+                        ViewPort.FILL_CENTER,
                         new Size(400, 800),
                         new Size(800, 400)))
                 .isEqualTo(
@@ -153,24 +162,40 @@ public final class CameraXTest {
     }
 
     @Test
-    public void cropRectRotation90_landscapeCropForPortraitMode() {
+    public void viewPortRectLandscapeForPortraitModeAndRotate90Degrees() {
         assertThat(
-                getCropRects(
+                getViewPortRects(
                         new Size(800, 600),
-                        90,
                         new Rational(400, 300),
+                        90,
+                        ViewPort.FILL_CENTER,
                         new Size(400, 300)))
                 .isEqualTo(new Rect[]{
                         new Rect(88, 0, 313, 300)
                 });
     }
 
+    @Test
+    public void viewPortRectFitStart() {
+        assertThat(
+                getViewPortRects(
+                        new Size(800, 600),
+                        new Rational(1, 1),
+                        0,
+                        ViewPort.FIT_END,
+                        new Size(400, 300)))
+                .isEqualTo(new Rect[]{
+                        new Rect(0, -100, 400, 300)
+                });
+    }
+
     /**
-     * Calls {@link CameraX#calculateCropRects(Rect, Rational, int, Map)}.
+     * Calls {@link CameraX#calculateViewPortRects(Rect, Rational, int, int, Map)}.
      */
-    private Rect[] getCropRects(Size sensorSize,
-            @IntRange(from = 0, to = 359) int rotationDegree,
+    private Rect[] getViewPortRects(Size sensorSize,
             Rational aspectRatio,
+            @IntRange(from = 0, to = 359) int rotationDegree,
+            @ViewPort.ScaleType int scaleType,
             Size... sizes) {
         // Convert the sizes into a UseCase map.
         List<UseCase> orderedUseCases = new ArrayList<>();
@@ -184,10 +209,11 @@ public final class CameraXTest {
             }
         };
 
-        Map<UseCase, Rect> useCaseCropRects = CameraX.calculateCropRects(
+        Map<UseCase, Rect> useCaseCropRects = CameraX.calculateViewPortRects(
                 new Rect(0, 0, sensorSize.getWidth(), sensorSize.getHeight()),
                 aspectRatio,
                 rotationDegree,
+                scaleType,
                 useCaseSizeMap);
 
         // Converts the map back to sizes array.
@@ -197,6 +223,42 @@ public final class CameraXTest {
         }
 
         return orderedCropRects.toArray(new Rect[0]);
+    }
+
+    @Test
+    public void viewPortRectFillCenter() {
+        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_CENTER))
+                .isEqualTo(new RectF(15, 10, 45, 40));
+    }
+
+    @Test
+    public void getScaledRectFillStart() {
+        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_START))
+                .isEqualTo(new RectF(10, 10, 40, 40));
+    }
+
+    @Test
+    public void getScaledRectFillEnd() {
+        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_END))
+                .isEqualTo(new RectF(20, 10, 50, 40));
+    }
+
+    @Test
+    public void getScaledRectFitCenter() {
+        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_CENTER))
+                .isEqualTo(new RectF(10, 5, 50, 45));
+    }
+
+    @Test
+    public void getScaledRectFitStart() {
+        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_START))
+                .isEqualTo(new RectF(10, 10, 50, 50));
+    }
+
+    @Test
+    public void getScaledRectFitEnd() {
+        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_END))
+                .isEqualTo(new RectF(10, 0, 50, 40));
     }
 
     @Test
