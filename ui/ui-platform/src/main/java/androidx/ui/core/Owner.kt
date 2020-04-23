@@ -22,6 +22,7 @@ import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.semantics.SemanticsOwner
+import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.graphics.Canvas
 import androidx.ui.input.TextInputService
 import androidx.ui.savedinstancestate.UiSavedStateRegistry
@@ -59,6 +60,11 @@ interface Owner {
      * Provide clipboard manager to the user. Use the Android version of clipboard manager.
      */
     val clipboardManager: ClipboardManager
+
+    /**
+     * Provide toolbar for text-related actions, such as copy, paste, cut etc.
+     */
+    val textToolbar: TextToolbar
 
     /**
      *  A data structure used to store autofill information. It is used by components that want to

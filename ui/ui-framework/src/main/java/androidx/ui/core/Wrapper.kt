@@ -52,6 +52,7 @@ import androidx.ui.core.input.FocusManager
 import androidx.ui.core.input.FocusManagerImpl
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.framework.R
+import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.input.TextInputService
 import androidx.ui.node.UiComposer
 import androidx.ui.platform.AndroidUriHandler
@@ -351,6 +352,7 @@ private fun WrapWithAmbients(
         FontLoaderAmbient provides owner.fontLoader,
         HapticFeedBackAmbient provides owner.hapticFeedBack,
         ClipboardManagerAmbient provides owner.clipboardManager,
+        TextToolbarAmbient provides owner.textToolbar,
         AutofillTreeAmbient provides owner.autofillTree,
         AutofillAmbient provides owner.autofill,
         ConfigurationAmbient provides configuration,
@@ -454,6 +456,8 @@ val UriHandlerAmbient = staticAmbientOf<UriHandler>()
  * The ambient to provide communication with platform clipboard service.
  */
 val ClipboardManagerAmbient = staticAmbientOf<ClipboardManager>()
+
+val TextToolbarAmbient = staticAmbientOf<TextToolbar>()
 
 /**
  * The ambient to provide haptic feedback to the user.

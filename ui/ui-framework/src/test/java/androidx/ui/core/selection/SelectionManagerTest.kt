@@ -20,9 +20,10 @@ import androidx.compose.frames.commit
 import androidx.compose.frames.open
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
+import androidx.ui.core.texttoolbar.TextToolbar
+import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.style.TextDirection
@@ -76,7 +77,7 @@ class SelectionManagerTest {
         )
 
     private val hapticFeedback = mock<HapticFeedback>()
-    private val clipboardManager = mock<ClipboardManager>()
+    private val textToolbar = mock<TextToolbar>()
 
     @Before
     fun setup() {
@@ -84,7 +85,7 @@ class SelectionManagerTest {
         selectionRegistrar.subscribe(selectable)
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.hapticFeedBack = hapticFeedback
-        selectionManager.clipboardManager = clipboardManager
+        selectionManager.textToolbar = textToolbar
     }
 
     @After
@@ -320,16 +321,7 @@ class SelectionManagerTest {
     }
 
     @Test
-    fun copy_selection_null_not_trigger_clipboardmanager() {
-        selectionManager.selection = null
-
-        selectionManager.copy()
-
-        verify(clipboardManager, times(0)).setText(any())
-    }
-
-    @Test
-    fun copy_selection_not_null_trigger_clipboardmanager_setText() {
+    fun showSelectionToolbar_trigger_textToolbar_showCopyMenu() {
         val text = "Text Demo"
         val annotatedString = AnnotatedString(text = text)
         val startOffset = text.indexOf('m')
@@ -348,9 +340,10 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
 
-        selectionManager.copy()
+        selectionManager.showSelectionToolbar(Rect.zero)
 
-        verify(clipboardManager, times(1)).setText(
+        verify(textToolbar, times(1)).showCopyMenu(
+            Rect.zero,
             annotatedString.subSequence(
                 endOffset,
                 startOffset

@@ -20,6 +20,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.Selection
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
@@ -97,6 +98,16 @@ internal class TextSelectionDelegate(
     override fun getText(): AnnotatedString {
         val textLayoutResult = layoutResultCallback() ?: return AnnotatedString("")
         return textLayoutResult.layoutInput.text
+    }
+
+    override fun getBoundingBox(offset: Int): Rect {
+        val textLayoutResult = layoutResultCallback() ?: return Rect.zero
+        return textLayoutResult.getBoundingBox(
+            offset.coerceIn(
+                0,
+                textLayoutResult.layoutInput.text.text.length - 1
+            )
+        )
     }
 }
 
