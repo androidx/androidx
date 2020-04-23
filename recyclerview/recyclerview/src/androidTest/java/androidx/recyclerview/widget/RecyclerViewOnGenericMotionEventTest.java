@@ -114,10 +114,10 @@ public class RecyclerViewOnGenericMotionEventTest {
     }
 
     private static MotionEvent obtainScrollMotionEvent(int axis, int axisValue, int inputDevice) {
-        MotionEvent.PointerProperties[] pointerProperties = { new MotionEvent.PointerProperties() };
+        MotionEvent.PointerProperties[] pointerProperties = {new MotionEvent.PointerProperties()};
         MotionEvent.PointerCoords coords = new MotionEvent.PointerCoords();
         coords.setAxisValue(axis, axisValue);
-        MotionEvent.PointerCoords[] pointerCoords = { coords };
+        MotionEvent.PointerCoords[] pointerCoords = {coords};
         float xPrecision = 1;
         float yPrecision = 1;
         int deviceId = 0;
@@ -216,10 +216,10 @@ public class RecyclerViewOnGenericMotionEventTest {
             super(context);
         }
 
-        boolean scrollByInternal(int x, int y, MotionEvent ev) {
+        boolean scrollByInternal(int x, int y, MotionEvent ev, int type) {
             mTotalX += x;
             mTotalY += y;
-            return super.scrollByInternal(x, y, ev);
+            return super.scrollByInternal(x, y, ev, type);
         }
     }
 }

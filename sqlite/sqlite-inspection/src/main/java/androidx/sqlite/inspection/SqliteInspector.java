@@ -98,6 +98,12 @@ final class SqliteInspector extends Inspector {
             "executeInsert()J",
             "executeUpdateDelete()I");
 
+    private static final String sInMemoryDatabasePath = ":memory:";
+
+    /** Placeholder {@code %x} is for database's hashcode */
+    private static final String sInMemoryDatabaseNameFormat =
+            sInMemoryDatabasePath + " {hashcode=0x%x}";
+
     private static final int INVALIDATION_MIN_INTERVAL_MS = 1000;
 
     // Note: this only works on API26+ because of pragma_* functions
@@ -132,12 +138,11 @@ final class SqliteInspector extends Inspector {
             + "  )\n"
             + "    as tci  -- tableName|columnName|unique : unique=1 and countOfColumnsInIndex=1\n"
             + "  on tci.tableName = m.name and tci.columnName = ti.name\n"
-            + "where m.type in ('table')\n"
+            + "where m.type in ('table', 'view')\n"
             + "order by type, tableName, ti.cid  -- cid = columnId";
 
-    // TODO: decide if to expose the 'android_metadata' table
-    private static final Set<String> sHiddenTables = new HashSet<>(Collections.singletonList(
-            "android_metadata"));
+    private static final Set<String> sHiddenTables = new HashSet<>(Arrays.asList(
+            "android_metadata", "sqlite_sequence"));
 
     private final DatabaseRegistry mDatabaseRegistry = new DatabaseRegistry();
     private final InspectorEnvironment mEnvironment;
@@ -474,6 +479,7 @@ final class SqliteInspector extends Inspector {
             cursor = rawQuery(database, sQueryTableInfo, new String[0], null);
             GetSchemaResponse.Builder schemaBuilder = GetSchemaResponse.newBuilder();
 
+            int objectTypeIx = cursor.getColumnIndex("type"); // view or table
             int tableNameIx = cursor.getColumnIndex("tableName");
             int columnNameIx = cursor.getColumnIndex("columnName");
             int typeIx = cursor.getColumnIndex("columnType");
@@ -497,6 +503,7 @@ final class SqliteInspector extends Inspector {
                     }
                     tableBuilder = Table.newBuilder();
                     tableBuilder.setName(tableName);
+                    tableBuilder.setIsView("view".equalsIgnoreCase(cursor.getString(objectTypeIx)));
                 }
 
                 // append column information to the current table info
@@ -531,10 +538,19 @@ final class SqliteInspector extends Inspector {
         // TODO: replace with db open/closed tracking as this will keep the database open
         database.acquireReference();
 
-        String path = database.getPath();
-        response = createDatabaseOpenedEvent(id, path);
+        response = createDatabaseOpenedEvent(id, generateDatabaseName(database));
         mRoomInvalidationRegistry.invalidateCache();
         getConnection().sendEvent(response.toByteArray());
+    }
+
+    private static String generateDatabaseName(@NonNull SQLiteDatabase database) {
+        return isInMemoryDatabase(database)
+                ? String.format(sInMemoryDatabaseNameFormat, database.hashCode())
+                : database.getPath();
+    }
+
+    private static boolean isInMemoryDatabase(@NonNull SQLiteDatabase database) {
+        return Objects.equals(sInMemoryDatabasePath, database.getPath());
     }
 
     private Event createDatabaseOpenedEvent(int id, String path) {
@@ -600,7 +616,6 @@ final class SqliteInspector extends Inspector {
     }
 
     static class DatabaseRegistry {
-        private static final String IN_MEMORY_DB_PATH = ":memory:";
         static final int ALREADY_TRACKED = -1;
 
         private final Object mLock = new Object();
@@ -628,9 +643,8 @@ final class SqliteInspector extends Inspector {
                         return ALREADY_TRACKED;
                     }
                     // Path already tracked (and not an in-memory database)
-                    final String path = database.getPath();
-                    if (!Objects.equals(IN_MEMORY_DB_PATH, path)
-                            && Objects.equals(path, entry.getValue().getPath())) {
+                    if (!isInMemoryDatabase(database)
+                            && Objects.equals(database.getPath(), entry.getValue().getPath())) {
                         return ALREADY_TRACKED;
                     }
                 }

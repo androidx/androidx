@@ -204,12 +204,13 @@ public final class NavDeepLink {
     }
 
     /**
-     * Get the uri from the NavDeepLink.
+     * Get the uri pattern from the NavDeepLink.
      *
-     * @return the uri for the deep link.
+     * @return the uri pattern for the deep link.
+     * @see NavDeepLinkRequest#getUri()
      */
     @Nullable
-    public String getUri() {
+    public String getUriPattern() {
         return mUri;
     }
 
@@ -217,6 +218,7 @@ public final class NavDeepLink {
      * Get the action from the NavDeepLink.
      *
      * @return the action for the deep link.
+     * @see NavDeepLinkRequest#getAction()
      */
     @Nullable
     public String getAction() {
@@ -227,6 +229,7 @@ public final class NavDeepLink {
      * Get the mimeType from the NavDeepLink.
      *
      * @return the mimeType of the deep link.
+     * @see NavDeepLinkRequest#getMimeType()
      */
     @Nullable
     public String getMimeType() {
@@ -379,33 +382,39 @@ public final class NavDeepLink {
      * A builder for constructing {@link NavDeepLink} instances.
      */
     public static final class Builder {
-        private String mUri;
+        private String mUriPattern;
         private String mAction;
         private String mMimeType;
 
         Builder() {}
 
         /**
-         * Creates a {@link NavDeepLink.Builder} with a set uri.
+         * Creates a {@link NavDeepLink.Builder} with a set uri pattern.
          *
-         * @param uri The uri pattern to add to the NavDeepLink
+         * @param uriPattern The uri pattern to add to the NavDeepLink
          * @return a {@link Builder} instance
          */
         @NonNull
-        public static Builder fromUri(@NonNull String uri) {
+        public static Builder fromUriPattern(@NonNull String uriPattern) {
             Builder builder = new Builder();
-            builder.setUri(uri);
+            builder.setUriPattern(uriPattern);
             return builder;
         }
 
         /**
          * Creates a {@link NavDeepLink.Builder} with a set action.
          *
+         * @throws IllegalArgumentException if the action is empty.
+         *
          * @param action the intent action for the NavDeepLink
          * @return a {@link Builder} instance
          */
         @NonNull
         public static Builder fromAction(@NonNull String action) {
+            // if the action given at runtime is empty we should throw
+            if (action.isEmpty()) {
+                throw new IllegalArgumentException("The NavDeepLink cannot have an empty action.");
+            }
             Builder builder = new Builder();
             builder.setAction(action);
             return builder;
@@ -425,20 +434,22 @@ public final class NavDeepLink {
         }
 
         /**
-         * Set the uri for the {@link NavDeepLink}.
+         * Set the uri pattern for the {@link NavDeepLink}.
          *
-         * @param uri The uri pattern to add to the NavDeepLink
+         * @param uriPattern The uri pattern to add to the NavDeepLink
          *
          * @return This builder.
          */
         @NonNull
-        public Builder setUri(@NonNull String uri) {
-            mUri = uri;
+        public Builder setUriPattern(@NonNull String uriPattern) {
+            mUriPattern = uriPattern;
             return this;
         }
 
         /**
          * Set the action for the {@link NavDeepLink}.
+         *
+         * @throws IllegalArgumentException if the action is empty.
          *
          * @param action the intent action for the NavDeepLink
          *
@@ -446,6 +457,10 @@ public final class NavDeepLink {
          */
         @NonNull
         public Builder setAction(@NonNull String action) {
+            // if the action given at runtime is empty we should throw
+            if (action.isEmpty()) {
+                throw new IllegalArgumentException("The NavDeepLink cannot have an empty action.");
+            }
             mAction = action;
             return this;
         }
@@ -470,7 +485,7 @@ public final class NavDeepLink {
          */
         @NonNull
         public NavDeepLink build() {
-            return new NavDeepLink(mUri, mAction, mMimeType);
+            return new NavDeepLink(mUriPattern, mAction, mMimeType);
         }
     }
 }

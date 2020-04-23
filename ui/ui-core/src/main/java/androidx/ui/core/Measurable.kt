@@ -22,9 +22,9 @@ package androidx.ui.core
  */
 interface Measurable : IntrinsicMeasurable {
     /**
-     * Resizes the layout based on [constraints], returning a [Placeable]
-     * layout that has its new size. A `Measurable` can only be measured
-     * once inside a layout pass.
+     * Measures the layout with [constraints] and a [layoutDirection],
+     * returning a [Placeable] layout that has its new size. A [Measurable]
+     * can only be measured once inside a layout pass.
      */
-    fun measure(constraints: Constraints): Placeable
+    fun measure(constraints: Constraints, layoutDirection: LayoutDirection): Placeable
 }

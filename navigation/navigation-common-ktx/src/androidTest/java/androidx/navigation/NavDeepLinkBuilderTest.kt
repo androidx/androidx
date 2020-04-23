@@ -34,12 +34,12 @@ class NavDeepLinkBuilderTest {
         val expectedAction = "test.action"
         val expectedMimeType = "test/type"
         val navDeepLink = navDeepLink {
-            uri = expectedUri
+            uriPattern = expectedUri
             action = expectedAction
             mimeType = expectedMimeType
         }
-        assertWithMessage("NavDeepLink should have uri set")
-            .that(navDeepLink.uri)
+        assertWithMessage("NavDeepLink should have uri pattern set")
+            .that(navDeepLink.uriPattern)
             .isEqualTo(expectedUri)
         assertWithMessage("NavDeepLink should have action set")
             .that(navDeepLink.action)
@@ -60,5 +60,35 @@ class NavDeepLinkBuilderTest {
                     "The NavDeepLink must have an uri, action, and/or mimeType."
                 )
         }
+    }
+
+    @Test
+    fun buildDeepLinkEmptyAction() {
+        try {
+            navDeepLink { action = "" }
+            fail("NavDeepLink must throw when attempting to build with an empty action.")
+        } catch (e: IllegalArgumentException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "The NavDeepLink cannot have an empty action."
+                )
+        }
+    }
+
+    @Test
+    fun buildDeepLinkDoubleActionSetNull() {
+        val expectedUri = "www.example.com"
+        val navDeepLink = navDeepLink {
+            uriPattern = expectedUri
+            action = "blah"
+            action = null
+        }
+
+        assertWithMessage("NavDeepLink should have uri pattern set")
+            .that(navDeepLink.uriPattern)
+            .isEqualTo(expectedUri)
+        assertWithMessage("NavDeepLink should have action set")
+            .that(navDeepLink.action)
+            .isNull()
     }
 }

@@ -26,7 +26,7 @@
     <string name="MediaControlView_subtitle_track_number_text" msgid="7764843500931103738">"ትራክ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
     <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="4652664932814816449">"ትራክ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
     <string name="MediaControlView_audio_track_number_text" msgid="4764598467753473351">"ትራክ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
-    <string name="mcv2_non_music_title_unknown_text" msgid="5414417081368449210">"ያልታወቀ የቪዲዮ አርእስት"</string>
+    <string name="mcv2_non_music_title_unknown_text" msgid="5414417081368449210">"ያልታወቀ የቪዲዮ አርዕስት"</string>
     <string name="mcv2_music_title_unknown_text" msgid="6768779662371844918">"ያልታወቀ የዘፈን ርዕስ"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="1475333855817994058">"ያልታወቀ አርቲስት"</string>
     <string name="mcv2_playback_error_text" msgid="1201919666572302119">"የጠየቁትን ንጥል ማጫወት አልተቻለም"</string>

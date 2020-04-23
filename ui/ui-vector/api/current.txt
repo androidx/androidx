@@ -84,18 +84,17 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorComponent extends androidx.ui.graphics.vector.VNode {
-    ctor public VectorComponent(float viewportWidth, float viewportHeight, androidx.ui.unit.Px defaultWidth, androidx.ui.unit.Px defaultHeight, String name);
     method public void draw(androidx.ui.graphics.Canvas canvas, float alpha, androidx.ui.graphics.ColorFilter? colorFilter);
     method public void draw(androidx.ui.graphics.Canvas canvas);
-    method public androidx.ui.unit.Px getDefaultHeight();
-    method public androidx.ui.unit.Px getDefaultWidth();
+    method public float getDefaultHeight();
+    method public float getDefaultWidth();
     method public String getName();
     method public androidx.ui.graphics.vector.GroupComponent getRoot();
     method public int getSize();
     method public float getViewportHeight();
     method public float getViewportWidth();
-    method public void setDefaultHeight(androidx.ui.unit.Px p);
-    method public void setDefaultWidth(androidx.ui.unit.Px p);
+    method public void setDefaultHeight-NgWp0Z8(float p);
+    method public void setDefaultWidth-NgWp0Z8(float p);
     method public void setViewportHeight(float p);
     method public void setViewportWidth(float p);
     property public final androidx.ui.graphics.vector.GroupComponent root;
@@ -120,7 +119,7 @@ package androidx.ui.graphics.vector {
     method public static androidx.ui.graphics.StrokeCap getDefaultStrokeLineCap();
     method public static androidx.ui.graphics.StrokeJoin getDefaultStrokeLineJoin();
     method public static androidx.ui.graphics.BlendMode getDefaultTintBlendMode();
-    method public static androidx.ui.graphics.Color getDefaultTintColor();
+    method public static long getDefaultTintColor();
     method public static java.util.List<androidx.ui.graphics.vector.PathNode> getEmptyPath();
     field public static final float DefaultAlpha = 1.0f;
     field public static final String DefaultGroupName = "";

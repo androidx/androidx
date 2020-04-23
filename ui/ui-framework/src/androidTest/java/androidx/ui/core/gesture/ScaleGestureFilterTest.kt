@@ -51,8 +51,8 @@ class ScaleGestureFilterTest {
     @get:Rule
     val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var scaleObserver: ScaleObserver
-    private lateinit var touchSlop: Px
     private lateinit var view: View
+    private var touchSlop: Px = Px(Float.NEGATIVE_INFINITY)
 
     private val LayoutDimensionFactor = 7
     private val TinyNum = .01f

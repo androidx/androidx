@@ -45,6 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/media2_widget_settings_text_height"
             android:paddingStart="2dp"
+            android:paddingLeft="2dp"
             android:textColor="@color/media2_widget_white"
             android:textSize="@dimen/media2_widget_settings_main_text_size"/>
     </RelativeLayout>

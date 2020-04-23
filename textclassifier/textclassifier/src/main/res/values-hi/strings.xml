@@ -16,17 +16,17 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="5568050657313893478">"ईमेल करें"</string>
-    <string name="email_desc" msgid="6941280589171810022">"चुने गए पते पर ईमेल भेजें"</string>
-    <string name="dial" msgid="7317293545368448453">"कॉल करें"</string>
-    <string name="dial_desc" msgid="5129451396208040332">"चुने गए फ़ोन नंबर पर कॉल करें"</string>
-    <string name="browse" msgid="3733970143542020945">"खोलें"</string>
-    <string name="browse_desc" msgid="3898254913938219011">"चुना गया यूआरएल खोलें"</string>
-    <string name="sms" msgid="5495416906312064886">"मैसेज करें"</string>
-    <string name="sms_desc" msgid="8293660783374489324">"चुने गए फ़ोन नंबर को मैसेज करें"</string>
-    <string name="add_contact" msgid="9005634177208282449">"जोड़ें"</string>
-    <string name="add_contact_desc" msgid="2475604767309086575">"संपर्क सूची में जोड़ें"</string>
-    <string name="floating_toolbar_open_overflow_description" msgid="1187148927509077545">"ज़्यादा विकल्प"</string>
-    <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"ओवरफ़्लो बंद करें"</string>
-    <string name="abc_share" msgid="7091841667818715717">"शेयर करें"</string>
+    <string name="email" msgid="6099716515489216517">"ईमेल करें"</string>
+    <string name="email_desc" msgid="2189760120923982860">"चुने गए पते पर ईमेल भेजें"</string>
+    <string name="dial" msgid="2101464860090311277">"कॉल करें"</string>
+    <string name="dial_desc" msgid="1195407206406821463">"चुने गए फ़ोन नंबर पर कॉल करें"</string>
+    <string name="browse" msgid="4753676368851695348">"खोलें"</string>
+    <string name="browse_desc" msgid="728882176434276995">"चुना गया यूआरएल खोलें"</string>
+    <string name="sms" msgid="2214738262605167054">"मैसेज करें"</string>
+    <string name="sms_desc" msgid="7733202356868441148">"चुने गए फ़ोन नंबर को मैसेज करें"</string>
+    <string name="add_contact" msgid="386263007484061034">"जोड़ें"</string>
+    <string name="add_contact_desc" msgid="1739272501140197425">"संपर्क सूची में जोड़ें"</string>
+    <string name="floating_toolbar_open_overflow_description" msgid="6778458701858708647">"ज़्यादा विकल्प"</string>
+    <string name="floating_toolbar_close_overflow_description" msgid="3112942430227166657">"ओवरफ़्लो बंद करें"</string>
+    <string name="abc_share" msgid="37557693057519685">"शेयर करें"</string>
 </resources>

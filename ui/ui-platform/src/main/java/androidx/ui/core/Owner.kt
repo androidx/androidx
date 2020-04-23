@@ -127,18 +127,6 @@ interface Owner {
     fun onInvalidate(layoutNode: LayoutNode)
 
     /**
-     * Called by [LayoutNode] to indicate the new size of [layoutNode].
-     * The owner may need to track updated layouts.
-     */
-    fun onSizeChange(layoutNode: LayoutNode)
-
-    /**
-     * Called by [LayoutNode] to indicate the new position of [layoutNode].
-     * The owner may need to track updated layouts.
-     */
-    fun onPositionChange(layoutNode: LayoutNode)
-
-    /**
      * Called by [LayoutNode] to request the Owner a new measurement+layout.
      */
     fun onRequestMeasure(layoutNode: LayoutNode)

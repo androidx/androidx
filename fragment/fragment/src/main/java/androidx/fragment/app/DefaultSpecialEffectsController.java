@@ -157,7 +157,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         // Kick off the respective type of animation
         if (anim.animation != null) {
             final Animation animation = operation.getType() == Operation.Type.ADD
-                    ? anim.animation
+                    ? new FragmentAnim.EnterViewTransitionAnimation(anim.animation)
                     : new FragmentAnim.EndViewTransitionAnimation(anim.animation, container,
                             viewToAnimate);
             animation.setAnimationListener(new Animation.AnimationListener() {

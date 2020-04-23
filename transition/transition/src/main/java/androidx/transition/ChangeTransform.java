@@ -16,10 +16,6 @@
 
 package androidx.transition;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -34,6 +30,11 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.animation.Animator;
+import androidx.core.animation.AnimatorListenerAdapter;
+import androidx.core.animation.FloatArrayEvaluator;
+import androidx.core.animation.ObjectAnimator;
+import androidx.core.animation.PropertyValuesHolder;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.ViewCompat;
 
@@ -321,8 +322,8 @@ public class ChangeTransform extends Transition {
         Path path = getPathMotion().getPath(startMatrixValues[Matrix.MTRANS_X],
                 startMatrixValues[Matrix.MTRANS_Y], endMatrixValues[Matrix.MTRANS_X],
                 endMatrixValues[Matrix.MTRANS_Y]);
-        PropertyValuesHolder translationProperty = PropertyValuesHolderUtils.ofPointF(
-                TRANSLATIONS_PROPERTY, path);
+        PropertyValuesHolder translationProperty = PropertyValuesHolder.ofObject(
+                TRANSLATIONS_PROPERTY, null, path);
         ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(pathAnimatorMatrix,
                 valuesProperty, translationProperty);
 
@@ -333,12 +334,12 @@ public class ChangeTransform extends Transition {
             private Matrix mTempMatrix = new Matrix();
 
             @Override
-            public void onAnimationCancel(Animator animation) {
+            public void onAnimationCancel(@NonNull Animator animation) {
                 mIsCanceled = true;
             }
 
             @Override
-            public void onAnimationEnd(Animator animation) {
+            public void onAnimationEnd(@NonNull Animator animation) {
                 if (!mIsCanceled) {
                     if (handleParentChange && mUseOverlay) {
                         setCurrentMatrix(finalEndMatrix);
@@ -352,13 +353,13 @@ public class ChangeTransform extends Transition {
             }
 
             @Override
-            public void onAnimationPause(Animator animation) {
+            public void onAnimationPause(@NonNull Animator animation) {
                 Matrix currentMatrix = pathAnimatorMatrix.getMatrix();
                 setCurrentMatrix(currentMatrix);
             }
 
             @Override
-            public void onAnimationResume(Animator animation) {
+            public void onAnimationResume(@NonNull Animator animation) {
                 setIdentityTransforms(view);
             }
 
@@ -370,7 +371,7 @@ public class ChangeTransform extends Transition {
         };
 
         animator.addListener(listener);
-        AnimatorUtils.addPauseListener(animator, listener);
+        animator.addPauseListener(listener);
         return animator;
     }
 

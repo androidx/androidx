@@ -29,6 +29,7 @@ import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.core.ContentScale
+import androidx.ui.graphics.isUnset
 import androidx.ui.graphics.painter.ColorPainter
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
@@ -43,7 +44,13 @@ import androidx.ui.layout.preferredSize
  * background). Any unspecified dimension will leverage the [ImageAsset]'s size as a minimum
  * constraint.
  *
+ * The following sample shows basic usage of an Image composable to position and draw an
+ * [ImageAsset] on screen
  * @sample androidx.ui.foundation.samples.ImageSample
+ *
+ * For use cases that require drawing a rectangular subset of the [ImageAsset] consumers can use
+ * overload that consumes a [Painter] parameter shown in this sample
+ * @sample androidx.ui.foundation.samples.ImagePainterSubsectionSample
  *
  * @param asset The [ImageAsset] to draw.
  * @param modifier Modifier used to adjust the layout algorithm or draw decoration content (ex.
@@ -179,7 +186,7 @@ fun Image(
 @Composable
 fun SimpleImage(
     image: ImageAsset,
-    tint: Color? = null
+    tint: Color = Color.Unset
 ) {
     with(DensityAmbient.current) {
         Box(
@@ -188,7 +195,9 @@ fun SimpleImage(
                 .paint(
                     ImagePainter(image),
                     contentScale = ContentScale.Crop,
-                    colorFilter = tint?.let { ColorFilter(it, BlendMode.srcIn) }
+                    colorFilter = if (tint.isUnset) null else {
+                        ColorFilter(tint, BlendMode.srcIn)
+                    }
                 )
         )
     }

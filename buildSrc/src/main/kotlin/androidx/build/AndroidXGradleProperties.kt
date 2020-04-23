@@ -16,6 +16,8 @@
 
 package androidx.build
 
+import org.gradle.api.Project
+
 /**
  * Setting this property makes Test tasks succeed even if there
  * are some failing tests. Useful when running tests in CI where build
@@ -27,3 +29,13 @@ const val TEST_FAILURES_DO_NOT_FAIL_TEST_TASK = "androidx.ignoreTestFailures"
  * Setting this property turns javac and kotlinc warnings into errors that fail the build.
  */
 const val ALL_WARNINGS_AS_ERRORS = "androidx.allWarningsAsErrors"
+
+/**
+ * Returns whether the project should write versioned API files, e.g. `1.1.0-alpha01.txt`.
+ * <p>
+ * When set to `true`, the `updateApi` task will write the current API surface to both `current.txt`
+ * and `<version>.txt`. When set to `false`, only `current.txt` will be written. The default value
+ * is `true`.
+ */
+fun Project.isVersionedApiFileWritingEnabled(): Boolean =
+    (project.findProperty("androidx.writeVersionedApiFiles") as? String)?.toBoolean() ?: true

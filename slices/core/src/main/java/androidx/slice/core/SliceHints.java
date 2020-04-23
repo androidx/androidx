@@ -40,6 +40,16 @@ public class SliceHints {
     public static final String SUBTYPE_MIN = "min";
 
     /**
+     * Indicates that the content is the determinate mode for a range.
+     */
+    public static final int DETERMINATE_RANGE = 0;
+
+    /**
+     * Indicates that the content is the indeterminate mode for a range.
+     */
+    public static final int INDETERMINATE_RANGE = 1;
+
+    /**
      * The meta-data key that allows an activity to easily be linked directly to a slice.
      * <p>
      * An activity can be statically linked to a slice uri by including a meta-data item

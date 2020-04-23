@@ -109,7 +109,7 @@ suspend fun SqliteInspectorTestEnvironment.inspectDatabase(
 ): Int {
     registerAlreadyOpenDatabases(listOf(databaseInstance))
     sendCommand(MessageFactory.createTrackDatabasesCommand())
-    return awaitDatabaseOpenedEvent(databaseInstance.path).databaseId
+    return awaitDatabaseOpenedEvent(databaseInstance.displayName).databaseId
 }
 
 /**

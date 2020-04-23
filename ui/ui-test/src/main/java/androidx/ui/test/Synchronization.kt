@@ -30,7 +30,7 @@ import java.util.concurrent.FutureTask
  */
 @SuppressLint("DocumentExceptions")
 fun <T> runOnUiThread(action: () -> T): T {
-    if (Looper.myLooper() == Looper.getMainLooper()) {
+    if (isOnUiThread()) {
         return action()
     }
 
@@ -45,6 +45,13 @@ fun <T> runOnUiThread(action: () -> T): T {
 }
 
 /**
+ * Returns if the call is made on the main thread.
+ */
+internal fun isOnUiThread(): Boolean {
+    return Looper.myLooper() == Looper.getMainLooper()
+}
+
+/**
  * Executes the given action in the same way as [runOnUiThread] but also makes sure Compose
  * is idle before executing it. This is great place for doing your assertions on shared
  * variables.
@@ -53,7 +60,19 @@ fun <T> runOnUiThread(action: () -> T): T {
  */
 fun <T> runOnIdleCompose(action: () -> T): T {
     // Method below make sure that compose is idle.
-    SynchronizedTreeCollector.waitForIdle()
+    waitForIdle()
     // Execute the action on ui thread in a blocking way.
     return runOnUiThread(action)
+}
+
+/**
+ * Waits for compose to be idle.
+ *
+ * This is a blocking call. Returns only after compose is idle.
+ *
+ * Can crash in case Espresso hits time out. This is not supposed to be handled as it
+ * surfaces only in incorrect tests.
+ */
+fun waitForIdle() {
+    SynchronizedTreeCollector.waitForIdle()
 }

@@ -42,43 +42,95 @@ class QueryMethodProcessor(
     baseContext: Context,
     val containing: DeclaredType,
     val executableElement: ExecutableElement,
-    val queryInterpreter: QueryInterpreter,
     val dbVerifier: DatabaseVerifier? = null
 ) {
     val context = baseContext.fork(executableElement)
 
+    /**
+     * The processing of the method might happen in multiple steps if we decide to rewrite the
+     * query after the first processing. To allow it while respecting the Context, it is
+     * implemented as a sub procedure in [InternalQueryProcessor].
+     */
     fun process(): QueryMethod {
+        val annotation = executableElement.toAnnotationBox(Query::class)?.value
+        context.checker.check(
+            annotation != null, executableElement,
+            ProcessorErrors.MISSING_QUERY_ANNOTATION
+        )
+
+        /**
+         * Run the first process without reporting any errors / warnings as we might be able to
+         * fix them for the developer.
+         */
+        val (initialResult, logs) = context.collectLogs {
+            InternalQueryProcessor(
+                context = it,
+                executableElement = executableElement,
+                dbVerifier = dbVerifier,
+                containing = containing
+            ).processQuery(annotation?.value)
+        }
+        // check if want to swap the query for a better one
+        val finalResult = if (initialResult is ReadQueryMethod) {
+            val rowAdapter = initialResult.queryResultBinder.adapter?.rowAdapter
+            val originalQuery = initialResult.query
+            val finalQuery = rowAdapter?.let {
+                context.queryRewriter?.rewrite(originalQuery, rowAdapter)
+            } ?: originalQuery
+            if (finalQuery != originalQuery) {
+                // ok parse again
+                return InternalQueryProcessor(
+                    context = context,
+                    executableElement = executableElement,
+                    dbVerifier = dbVerifier,
+                    containing = containing
+                ).processQuery(finalQuery.original)
+            } else {
+                initialResult
+            }
+        } else {
+            initialResult
+        }
+        if (finalResult == initialResult) {
+            // if we didn't rewrite it, send all logs to the calling context.
+            logs.writeTo(context)
+        }
+        return finalResult
+    }
+}
+
+private class InternalQueryProcessor(
+    val context: Context,
+    val executableElement: ExecutableElement,
+    val containing: DeclaredType,
+    val dbVerifier: DatabaseVerifier? = null
+) {
+    fun processQuery(input: String?): QueryMethod {
         val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
         val returnType = delegate.extractReturnType()
 
-        val annotation = executableElement.toAnnotationBox(Query::class)?.value
-        context.checker.check(annotation != null, executableElement,
-                ProcessorErrors.MISSING_QUERY_ANNOTATION)
-
-        val skipQueryVerification = executableElement.hasAnnotation(SkipQueryVerification::class)
-        val query = if (annotation != null) {
-            val query = SqlParser.parse(annotation.value)
-            context.checker.check(query.errors.isEmpty(), executableElement,
-                    query.errors.joinToString("\n"))
-            if (!skipQueryVerification) {
-                query.resultInfo = dbVerifier?.analyze(query.original)
-            }
-            if (query.resultInfo?.error != null) {
-                context.logger.e(executableElement,
-                        DatabaseVerificationErrors.cannotVerifyQuery(query.resultInfo!!.error!!))
-            }
-
-            context.checker.check(returnType.kind != TypeKind.ERROR,
-                    executableElement, ProcessorErrors.CANNOT_RESOLVE_RETURN_TYPE,
-                    executableElement)
+        val query = if (input != null) {
+            val query = SqlParser.parse(input)
+            context.checker.check(
+                query.errors.isEmpty(), executableElement,
+                query.errors.joinToString("\n")
+            )
+            validateQuery(query)
+            context.checker.check(
+                returnType.kind != TypeKind.ERROR,
+                executableElement, ProcessorErrors.CANNOT_RESOLVE_RETURN_TYPE,
+                executableElement
+            )
             query
         } else {
             ParsedQuery.MISSING
         }
 
         val returnTypeName = returnType.typeName()
-        context.checker.notUnbound(returnTypeName, executableElement,
-                ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
+        context.checker.notUnbound(
+            returnTypeName, executableElement,
+            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS
+        )
 
         val isPreparedQuery = PREPARED_TYPES.contains(query.type)
         val queryMethod = if (isPreparedQuery) {
@@ -87,33 +139,18 @@ class QueryMethodProcessor(
             getQueryMethod(delegate, returnType, query)
         }
 
-        if (!skipQueryVerification && query.isTransformed()) {
-            // If the query was transformed we need to re-verify it.
-            query.resultInfo = dbVerifier?.analyze(query.transformed)
-            query.resultInfo?.error?.let { error ->
-                context.logger.e(
-                    executableElement,
-                    DatabaseVerificationErrors.cannotVerifyQuery(error)
-                )
-            }
-        }
+        return processQueryMethod(queryMethod)
+    }
 
-        query.resultInfo?.let { resultInfo ->
-            if (!isPreparedQuery) {
-                val readQueryMethod = queryMethod as ReadQueryMethod
-                val adapter = readQueryMethod.queryResultBinder.adapter?.rowAdapter
-                if (adapter is PojoRowAdapter) {
-                    adapter.verifyMapping(context, resultInfo)
-                }
-            }
-        }
-
+    private fun processQueryMethod(queryMethod: QueryMethod): QueryMethod {
         val missing = queryMethod.sectionToParamMapping
-                .filter { it.second == null }
-                .map { it.first.text }
+            .filter { it.second == null }
+            .map { it.first.text }
         if (missing.isNotEmpty()) {
-            context.logger.e(executableElement,
-                    ProcessorErrors.missingParameterForBindVariable(missing))
+            context.logger.e(
+                executableElement,
+                ProcessorErrors.missingParameterForBindVariable(missing)
+            )
         }
 
         val unused = queryMethod.parameters.filterNot { param ->
@@ -126,6 +163,20 @@ class QueryMethodProcessor(
         return queryMethod
     }
 
+    private fun validateQuery(query: ParsedQuery) {
+        val skipQueryVerification = executableElement.hasAnnotation(SkipQueryVerification::class)
+        if (skipQueryVerification) {
+            return
+        }
+        query.resultInfo = dbVerifier?.analyze(query.original)
+        if (query.resultInfo?.error != null) {
+            context.logger.e(
+                executableElement,
+                DatabaseVerificationErrors.cannotVerifyQuery(query.resultInfo!!.error!!)
+            )
+        }
+    }
+
     private fun getPreparedQueryMethod(
         delegate: MethodProcessorDelegate,
         returnType: TypeMirror,
@@ -135,19 +186,18 @@ class QueryMethodProcessor(
         context.checker.check(
             resultBinder.adapter != null,
             executableElement,
-            ProcessorErrors.cannotFindPreparedQueryResultAdapter(returnType.toString(), query.type))
+            ProcessorErrors.cannotFindPreparedQueryResultAdapter(returnType.toString(), query.type)
+        )
 
         val parameters = delegate.extractQueryParams()
-
-        query.transform(queryInterpreter, null)
-
         return WriteQueryMethod(
             element = executableElement,
             query = query,
             name = executableElement.simpleName.toString(),
             returnType = returnType,
             parameters = parameters,
-            preparedQueryResultBinder = resultBinder)
+            preparedQueryResultBinder = resultBinder
+        )
     }
 
     private fun getQueryMethod(
@@ -160,25 +210,21 @@ class QueryMethodProcessor(
         context.checker.check(
             resultBinder.adapter != null,
             executableElement,
-            ProcessorErrors.cannotFindQueryResultAdapter(returnType.toString()))
+            ProcessorErrors.cannotFindQueryResultAdapter(returnType.toString())
+        )
 
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         if (query.type == QueryType.SELECT && !inTransaction) {
             // put a warning if it is has relations and not annotated w/ transaction
             if (rowAdapter is PojoRowAdapter && rowAdapter.relationCollectors.isNotEmpty()) {
-                context.logger.w(Warning.RELATION_QUERY_WITHOUT_TRANSACTION,
-                    executableElement, ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
+                context.logger.w(
+                    Warning.RELATION_QUERY_WITHOUT_TRANSACTION,
+                    executableElement, ProcessorErrors.TRANSACTION_MISSING_ON_RELATION
+                )
             }
         }
 
         val parameters = delegate.extractQueryParams()
-
-        val pojo = if (rowAdapter is PojoRowAdapter) {
-            rowAdapter.pojo
-        } else {
-            null
-        }
-        query.transform(queryInterpreter, pojo)
 
         return ReadQueryMethod(
             element = executableElement,
@@ -187,7 +233,8 @@ class QueryMethodProcessor(
             returnType = returnType,
             parameters = parameters,
             inTransaction = inTransaction,
-            queryResultBinder = resultBinder)
+            queryResultBinder = resultBinder
+        )
     }
 
     companion object {

@@ -24,7 +24,6 @@ import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.lerp
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextAlign
@@ -47,13 +46,13 @@ class TextStyleTest {
     fun `constructor with default values`() {
         val style = TextStyle()
 
-        assertThat(style.color).isNull()
+        assertThat(style.color).isEqualTo(Color.Unset)
         assertThat(style.fontSize.isInherit).isTrue()
         assertThat(style.fontWeight).isNull()
         assertThat(style.fontStyle).isNull()
         assertThat(style.letterSpacing.isInherit).isTrue()
         assertThat(style.localeList).isNull()
-        assertThat(style.background).isNull()
+        assertThat(style.background).isEqualTo(Color.Unset)
         assertThat(style.textDecoration).isNull()
         assertThat(style.fontFamily).isNull()
     }
@@ -161,7 +160,7 @@ class TextStyleTest {
     fun `merge with other's color is null should use this' color`() {
         val style = TextStyle(color = Color.Red)
 
-        val newStyle = style.merge(TextStyle(color = null))
+        val newStyle = style.merge(TextStyle(color = Color.Unset))
 
         assertThat(newStyle.color).isEqualTo(style.color)
     }
@@ -332,7 +331,7 @@ class TextStyleTest {
     fun `merge with other's background is null should use this' background`() {
         val style = TextStyle(background = Color.Red)
 
-        val newStyle = style.merge(TextStyle(background = null))
+        val newStyle = style.merge(TextStyle(background = Color.Unset))
 
         assertThat(newStyle.background).isEqualTo(style.background)
     }
@@ -709,24 +708,24 @@ class TextStyleTest {
 
     @Test
     fun `lerp background with a and b are Null and t is smaller than half`() {
-        val style1 = TextStyle(background = null)
-        val style2 = TextStyle(background = null)
+        val style1 = TextStyle(background = Color.Unset)
+        val style2 = TextStyle(background = Color.Unset)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = 0.1f)
 
-        assertThat(newStyle.background).isEqualTo(Color.Transparent)
+        assertThat(newStyle.background).isEqualTo(Color.Unset)
     }
 
     @Test
     fun `lerp background with a is Null and b is not Null`() {
         val t = 0.1f
-        val style1 = TextStyle(background = null)
+        val style1 = TextStyle(background = Color.Unset)
         val color2 = Color.Red
         val style2 = TextStyle(background = color2)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newStyle.background).isEqualTo(lerp(Color.Transparent, color2, t))
+        assertThat(newStyle.background).isEqualTo(lerp(Color.Unset, color2, t))
     }
 
     @Test
@@ -734,11 +733,11 @@ class TextStyleTest {
         val t = 0.1f
         val color1 = Color.Red
         val style1 = TextStyle(background = color1)
-        val style2 = TextStyle(background = null)
+        val style2 = TextStyle(background = Color.Unset)
 
         val newStyle = lerp(start = style1, stop = style2, fraction = t)
 
-        assertThat(newStyle.background).isEqualTo(lerp(color1, Color.Transparent, t))
+        assertThat(newStyle.background).isEqualTo(lerp(color1, Color.Unset, t))
     }
 
     @Test

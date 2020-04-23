@@ -87,10 +87,12 @@ message GetSchemaResponse {
   repeated Table tables = 1;
 }
 
-// Schema information for a table.
+// Schema information for a table or a view.
 message Table {
   string name = 1;
-  repeated Column columns = 2;
+  // True for a view; false for a regular table.
+  bool is_view = 2;
+  repeated Column columns = 3;
 }
 
 // Schema information for a table column.

@@ -69,7 +69,7 @@ import java.util.concurrent.Executor;
 /**
  * A {@link View} that displays a preview of the camera with methods {@link
  * #takePicture(Executor, OnImageCapturedCallback)},
- * {@link #takePicture(File, Executor, OnImageSavedCallback)},
+ * {@link #takePicture(ImageCapture.OutputFileOptions, Executor, OnImageSavedCallback)},
  * {@link #startRecording(File, Executor, OnVideoSavedCallback)} and {@link #stopRecording()}.
  *
  * <p>Because the Camera is a limited resource and consumes a high amount of power, CameraView must
@@ -432,13 +432,14 @@ public final class CameraView extends FrameLayout {
      * Takes a picture and calls
      * {@link OnImageSavedCallback#onImageSaved(ImageCapture.OutputFileResults)} when done.
      *
-     * @param file     The destination.
-     * @param executor The executor in which the callback methods will be run.
-     * @param callback Callback which will receive success or failure.
+     * @param outputFileOptions Options to store the newly captured image.
+     * @param executor          The executor in which the callback methods will be run.
+     * @param callback          Callback which will receive success or failure.
      */
-    public void takePicture(@NonNull File file, @NonNull Executor executor,
+    public void takePicture(@NonNull ImageCapture.OutputFileOptions outputFileOptions,
+            @NonNull Executor executor,
             @NonNull OnImageSavedCallback callback) {
-        mCameraModule.takePicture(file, executor, callback);
+        mCameraModule.takePicture(outputFileOptions, executor, callback);
     }
 
     /**

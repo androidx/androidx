@@ -41,6 +41,7 @@ import androidx.ui.text.platform.style.ShadowSpan
 import androidx.ui.text.platform.style.SkewXSpan
 import androidx.ui.text.platform.style.TypefaceSpan
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.isSet
 import androidx.ui.unit.Density
 import androidx.ui.unit.TextUnit
 import androidx.ui.unit.TextUnitType
@@ -93,8 +94,8 @@ internal fun TextPaint.applySpanStyle(
         }
     }
 
-    style.color?.let {
-        color = it.toArgb()
+    if (style.color.isSet) {
+        color = style.color.toArgb()
     }
 
     when (style.letterSpacing.type) {
@@ -144,7 +145,7 @@ internal fun TextPaint.applySpanStyle(
             TextUnit.Inherit
         },
         background = if (style.background == Color.Transparent) {
-            null // No need to add transparent background for default text style.
+            Color.Unset // No need to add transparent background for default text style.
         } else {
             style.background
         },
@@ -237,9 +238,9 @@ internal fun createStyledText(
             )
         }
 
-        style.color?.let {
+        if (style.color.isSet) {
             spannableString.setSpan(
-                ForegroundColorSpan(it.toArgb()),
+                ForegroundColorSpan(style.color.toArgb()),
                 start,
                 end,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -352,9 +353,9 @@ internal fun createStyledText(
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
-        style.background?.let {
+        if (style.background.isSet) {
             spannableString.setSpan(
-                BackgroundColorSpan(it.toArgb()),
+                BackgroundColorSpan(style.background.toArgb()),
                 start,
                 end,
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

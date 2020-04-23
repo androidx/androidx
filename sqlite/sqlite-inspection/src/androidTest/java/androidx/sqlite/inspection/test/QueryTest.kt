@@ -542,7 +542,7 @@ class QueryTest {
             )
         )
         testEnvironment.sendCommand(createTrackDatabasesCommand())
-        return testEnvironment.awaitDatabaseOpenedEvent(databaseInstance.path).databaseId
+        return testEnvironment.awaitDatabaseOpenedEvent(databaseInstance.displayName).databaseId
     }
 
     private suspend fun issueQuery(

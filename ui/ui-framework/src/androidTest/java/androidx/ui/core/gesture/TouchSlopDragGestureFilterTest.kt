@@ -50,8 +50,8 @@ class TouchSlopDragGestureFilterTest {
     @get:Rule
     val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var dragObserver: DragObserver
-    private lateinit var touchSlop: Px
     private lateinit var view: View
+    private var touchSlop: Px = Px(Float.NEGATIVE_INFINITY)
 
     private val TinyNum = .01f
 

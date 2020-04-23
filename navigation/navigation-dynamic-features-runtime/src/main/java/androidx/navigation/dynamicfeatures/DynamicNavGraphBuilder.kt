@@ -24,6 +24,12 @@ import androidx.navigation.NavigatorProvider
 
 /**
  * Construct a new [DynamicGraphNavigator.DynamicNavGraph]
+ *
+ * @param id NavGraph id.
+ * @param startDestination Id start destination in the graph
+ * @param moduleName Dynamic feature module name as defined in the module's `AndroidManifest`.
+ * @param progressDestination Destination displayed during module installation.
+ * @param builder Another builder for chaining.
  */
 inline fun NavigatorProvider.navigation(
     @IdRes id: Int = 0,
@@ -41,6 +47,12 @@ inline fun NavigatorProvider.navigation(
 
 /**
  * Construct a nested [DynamicGraphNavigator.DynamicNavGraph]
+ *
+ * @param id NavGraph id.
+ * @param startDestination Id start destination in the graph
+ * @param moduleName Dynamic feature module name as defined in the module's `AndroidManifest`.
+ * @param progressDestination Destination displayed during module installation.
+ * @param builder Another builder for chaining.
  */
 inline fun DynamicNavGraphBuilder.navigation(
     @IdRes id: Int,
@@ -60,6 +72,12 @@ inline fun DynamicNavGraphBuilder.navigation(
 
 /**
  * DSL for constructing a new [DynamicGraphNavigator.DynamicNavGraph]
+ *
+ * @param provider [NavigatorProvider] to use.
+ * @param id NavGraph id.
+ * @param startDestination Id start destination in the graph
+ * @param moduleName Dynamic feature module name as defined in the module's `AndroidManifest`.
+ * @param progressDestination Destination displayed during module installation.
  */
 @NavDestinationDsl
 class DynamicNavGraphBuilder(

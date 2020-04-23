@@ -22,6 +22,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -73,6 +74,7 @@ import java.lang.annotation.Target;
  *   public static final String ACTION_CALL = "android.intent.action.CALL";
  * </code></pre>
  */
+@Documented
 @Retention(CLASS)
 @Target({ANNOTATION_TYPE, METHOD, CONSTRUCTOR, FIELD, PARAMETER})
 public @interface RequiresPermission {

@@ -55,6 +55,21 @@ class FirstDrawTest {
     }
 
     /**
+     * Tests that the compose tree has been drawn at least once when [onIdle] finishes.
+     */
+    @Test
+    fun waitsForFirstDraw_withoutOnIdle() {
+        var drawn = false
+        testRule.setContent {
+            Canvas(Modifier.fillMaxSize()) {
+                drawn = true
+            }
+        }
+        // onIdle() shouldn't be necessary
+        assertThat(drawn).isTrue()
+    }
+
+    /**
      * Tests that [onIdle] doesn't timeout when the compose tree is completely off-screen and
      * will hence not be drawn.
      */

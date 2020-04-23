@@ -207,13 +207,14 @@ fun DemoColorPalette.loadColorsFromSharedPreferences(context: Context) {
         PreferenceManager.getDefaultSharedPreferences(context)
 
     fun getColorsFromSharedPreferences(isLightTheme: Boolean): ColorPalette {
-        val function = if (isLightTheme) ::lightColorPalette else ::darkColorPalette
+        val function = if (isLightTheme) ::reflectLightColorPalette else ::reflectDarkColorPalette
         val parametersToSet = function.parameters.mapNotNull { parameter ->
             val savedValue = sharedPreferences.getString(parameter.name + isLightTheme, "")
             if (savedValue.isNullOrBlank()) {
                 null
             } else {
-                val parsedColor = Color(savedValue.toLong(16))
+                // TODO: should be a Color(savedValue.toLong(16)) when b/154329050 is fixed
+                val parsedColor = savedValue.toLong(16)
                 parameter to parsedColor
             }
         }.toMap()
@@ -223,3 +224,67 @@ fun DemoColorPalette.loadColorsFromSharedPreferences(context: Context) {
     lightColors = getColorsFromSharedPreferences(true)
     darkColors = getColorsFromSharedPreferences(false)
 }
+
+/**
+ * TODO: remove after b/154329050 is fixed
+ * Inline classes don't play well with reflection, so we want boxed classes for our
+ * call to [lightColorPalette].
+ */
+internal fun reflectLightColorPalette(
+    primary: Long = 0xFF6200EE,
+    primaryVariant: Long = 0xFF3700B3,
+    secondary: Long = 0xFF03DAC6,
+    secondaryVariant: Long = 0xFF018786,
+    background: Long = 0xFFFFFFFF,
+    surface: Long = 0xFFFFFFFF,
+    error: Long = 0xFFB00020,
+    onPrimary: Long = 0xFFFFFFFF,
+    onSecondary: Long = 0xFF000000,
+    onBackground: Long = 0xFF000000,
+    onSurface: Long = 0xFF000000,
+    onError: Long = 0xFFFFFFFF
+) = lightColorPalette(
+    primary = Color(primary),
+    primaryVariant = Color(primaryVariant),
+    secondary = Color(secondary),
+    secondaryVariant = Color(secondaryVariant),
+    background = Color(background),
+    surface = Color(surface),
+    error = Color(error),
+    onPrimary = Color(onPrimary),
+    onSecondary = Color(onSecondary),
+    onBackground = Color(onBackground),
+    onSurface = Color(onSurface),
+    onError = Color(onError)
+)
+
+/**
+ * TODO: remove after b/154329050 is fixed
+ * Inline classes don't play well with reflection, so we want boxed classes for our
+ * call to [darkColorPalette].
+ */
+internal fun reflectDarkColorPalette(
+    primary: Long = 0xFFBB86FC,
+    primaryVariant: Long = 0xFF3700B3,
+    secondary: Long = 0xFF03DAC6,
+    background: Long = 0xFF121212,
+    surface: Long = 0xFF121212,
+    error: Long = 0xFFCF6679,
+    onPrimary: Long = 0xFF000000,
+    onSecondary: Long = 0xFF000000,
+    onBackground: Long = 0xFFFFFFFF,
+    onSurface: Long = 0xFFFFFFFF,
+    onError: Long = 0xFF000000
+) = darkColorPalette(
+    primary = Color(primary),
+    primaryVariant = Color(primaryVariant),
+    secondary = Color(secondary),
+    background = Color(background),
+    surface = Color(surface),
+    error = Color(error),
+    onPrimary = Color(onPrimary),
+    onSecondary = Color(onSecondary),
+    onBackground = Color(onBackground),
+    onSurface = Color(onSurface),
+    onError = Color(onError)
+)

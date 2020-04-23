@@ -18,6 +18,7 @@ package androidx.navigation
 
 import android.net.Uri
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 
@@ -65,5 +66,29 @@ class NavDeepLinkActionTest {
         assertWithMessage("The actions should have not matched")
             .that(deepLink.matches(NavDeepLinkRequest(null, DEEP_LINK_ACTION, null)))
             .isFalse()
+    }
+
+    @Test
+    fun deepLinkEmptyFromAction() {
+        try {
+            NavDeepLink.Builder.fromAction("").build()
+        } catch (e: IllegalArgumentException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "The NavDeepLink cannot have an empty action."
+                )
+        }
+    }
+
+    @Test
+    fun deepLinkEmptySetAction() {
+        try {
+            NavDeepLink.Builder.fromUriPattern(DEEP_LINK_EXACT_HTTPS).setAction("").build()
+        } catch (e: IllegalArgumentException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "The NavDeepLink cannot have an empty action."
+                )
+        }
     }
 }

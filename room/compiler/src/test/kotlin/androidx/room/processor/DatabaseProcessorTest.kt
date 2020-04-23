@@ -897,37 +897,40 @@ class DatabaseProcessorTest {
         body: (List<DatabaseView>) -> Unit
     ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(listOf(DB3, BOOK))
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(androidx.room.Database::class)
-                        .nextRunHandler { invocation ->
-                            val database = invocation.roundEnv
-                                    .getElementsAnnotatedWith(
-                                            androidx.room.Database::class.java)
-                                    .first()
-                            val processor = DatabaseProcessor(invocation.context,
-                                    MoreElements.asType(database))
+            .that(listOf(DB3, BOOK))
+            .processedWith(TestProcessor.builder()
+                .forAnnotations(androidx.room.Database::class)
+                .nextRunHandler { invocation ->
+                    val database = invocation.roundEnv
+                        .getElementsAnnotatedWith(
+                            androidx.room.Database::class.java
+                        )
+                        .first()
+                    val processor = DatabaseProcessor(
+                        invocation.context,
+                        MoreElements.asType(database)
+                    )
 
-                            val list = views.map { (viewName, names) ->
-                                DatabaseView(
-                                        element = mock(TypeElement::class.java),
-                                        viewName = viewName,
-                                        query = ParsedQuery("", QueryType.SELECT, emptyList(),
-                                            emptyList(),
-                                            emptyList(),
-                                            names.map { Table(it, it) }.toSet(),
-                                            emptyList(), false),
-                                        type = mock(DeclaredType::class.java),
-                                        fields = emptyList(),
-                                        embeddedFields = emptyList(),
-                                        constructor = null
-                                )
-                            }
-                            val resolvedViews = processor.resolveDatabaseViews(list)
-                            body(resolvedViews)
-                            true
-                        }
-                        .build())
+                    val list = views.map { (viewName, names) ->
+                        DatabaseView(
+                            element = mock(TypeElement::class.java),
+                            viewName = viewName,
+                            query = ParsedQuery(
+                                "", QueryType.SELECT, emptyList(),
+                                names.map { Table(it, it) }.toSet(),
+                                emptyList(), false
+                            ),
+                            type = mock(DeclaredType::class.java),
+                            fields = emptyList(),
+                            embeddedFields = emptyList(),
+                            constructor = null
+                        )
+                    }
+                    val resolvedViews = processor.resolveDatabaseViews(list)
+                    body(resolvedViews)
+                    true
+                }
+                .build())
     }
 
     fun assertConstructor(dbs: List<JavaFileObject>, constructor: String): CompileTester {

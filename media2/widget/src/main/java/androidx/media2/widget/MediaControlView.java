@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -52,6 +51,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -346,7 +346,7 @@ public class MediaControlView extends MediaViewGroup {
         }
         mPlayer = new PlayerWrapper(controller, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (isAttachedToWindow()) {
+        if (ViewCompat.isAttachedToWindow(this)) {
             mPlayer.attachCallback();
         }
     }
@@ -383,7 +383,7 @@ public class MediaControlView extends MediaViewGroup {
         }
         mPlayer = new PlayerWrapper(player, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
-        if (isAttachedToWindow()) {
+        if (ViewCompat.isAttachedToWindow(this)) {
             mPlayer.attachCallback();
         }
     }
@@ -740,7 +740,7 @@ public class MediaControlView extends MediaViewGroup {
                 R.dimen.media2_widget_full_settings_width);
         mSettingsItemHeight = mResources.getDimensionPixelSize(
                 R.dimen.media2_widget_settings_height);
-        mSettingsWindowMargin = -1 * mResources.getDimensionPixelSize(
+        mSettingsWindowMargin = mResources.getDimensionPixelSize(
                 R.dimen.media2_widget_settings_offset);
         mSettingsWindow = new PopupWindow(mSettingsListView, mEmbeddedSettingsItemWidth,
                 LayoutParams.WRAP_CONTENT, true);
@@ -1285,15 +1285,15 @@ public class MediaControlView extends MediaViewGroup {
 
             final boolean isEnteringFullScreen = !mIsFullScreen;
             if (isEnteringFullScreen) {
-                mFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen_exit));
-                mMinimalFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen_exit));
+                mFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen_exit));
+                mMinimalFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen_exit));
             } else {
-                mFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen));
-                mMinimalFullScreenButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.media2_widget_ic_fullscreen));
+                mFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen));
+                mMinimalFullScreenButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                        R.drawable.media2_widget_ic_fullscreen));
             }
             mIsFullScreen = isEnteringFullScreen;
             mOnFullScreenListener.onFullScreen(MediaControlView.this,
@@ -1598,7 +1598,7 @@ public class MediaControlView extends MediaViewGroup {
         mSettingsWindow.setWidth(itemWidth);
 
         // Calculate height of window
-        int maxHeight = getMeasuredHeight() + mSettingsWindowMargin * 2;
+        int maxHeight = getHeight() - mSettingsWindowMargin * 2;
         int totalHeight = adapter.getCount() * mSettingsItemHeight;
         int height = (totalHeight < maxHeight) ? totalHeight : maxHeight;
         mSettingsWindow.setHeight(height);
@@ -1608,8 +1608,9 @@ public class MediaControlView extends MediaViewGroup {
         mSettingsWindow.dismiss();
         // Workaround for b/123271636.
         if (height > 0) {
-            mSettingsWindow.showAsDropDown(this, mSettingsWindowMargin,
-                    mSettingsWindowMargin - height, Gravity.BOTTOM | Gravity.RIGHT);
+            int xoff = getWidth() - mSettingsWindow.getWidth() - mSettingsWindowMargin;
+            int yoff = -mSettingsWindow.getHeight() - mSettingsWindowMargin;
+            mSettingsWindow.showAsDropDown(this, xoff, yoff);
             mNeedToHideBars = true;
         }
     }
@@ -1820,13 +1821,16 @@ public class MediaControlView extends MediaViewGroup {
         Drawable drawable;
         String description;
         if (type == PLAY_BUTTON_PAUSE) {
-            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_pause_circle_filled);
+            drawable = ContextCompat.getDrawable(getContext(),
+                    R.drawable.media2_widget_ic_pause_circle_filled);
             description = mResources.getString(R.string.mcv2_pause_button_desc);
         } else if (type == PLAY_BUTTON_PLAY) {
-            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_play_circle_filled);
+            drawable = ContextCompat.getDrawable(getContext(),
+                    R.drawable.media2_widget_ic_play_circle_filled);
             description = mResources.getString(R.string.mcv2_play_button_desc);
         } else if (type == PLAY_BUTTON_REPLAY) {
-            drawable = mResources.getDrawable(R.drawable.media2_widget_ic_replay_circle_filled);
+            drawable = ContextCompat.getDrawable(getContext(),
+                    R.drawable.media2_widget_ic_replay_circle_filled);
             description = mResources.getString(R.string.mcv2_replay_button_desc);
         } else {
             throw new IllegalArgumentException("unknown type " + type);
@@ -1982,7 +1986,8 @@ public class MediaControlView extends MediaViewGroup {
                 iconView.setVisibility(View.GONE);
             } else {
                 // Otherwise, set main icon.
-                iconView.setImageDrawable(mResources.getDrawable(mIconIds.get(position)));
+                iconView.setImageDrawable(
+                        ContextCompat.getDrawable(getContext(), mIconIds.get(position)));
             }
             return row;
         }
@@ -2254,8 +2259,8 @@ public class MediaControlView extends MediaViewGroup {
                         if (mSettingsMode == SETTINGS_MODE_SUBTITLE_TRACK) {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex + 1);
                         }
-                        mSubtitleButton.setImageDrawable(
-                                mResources.getDrawable(R.drawable.media2_widget_ic_subtitle_on));
+                        mSubtitleButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                                R.drawable.media2_widget_ic_subtitle_on));
                         mSubtitleButton.setContentDescription(
                                 mResources.getString(R.string.mcv2_cc_is_on));
                         break;
@@ -2289,8 +2294,8 @@ public class MediaControlView extends MediaViewGroup {
                         if (mSettingsMode == SETTINGS_MODE_SUBTITLE_TRACK) {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex + 1);
                         }
-                        mSubtitleButton.setImageDrawable(
-                                mResources.getDrawable(R.drawable.media2_widget_ic_subtitle_off));
+                        mSubtitleButton.setImageDrawable(ContextCompat.getDrawable(getContext(),
+                                R.drawable.media2_widget_ic_subtitle_off));
                         mSubtitleButton.setContentDescription(
                                 mResources.getString(R.string.mcv2_cc_is_off));
                         break;

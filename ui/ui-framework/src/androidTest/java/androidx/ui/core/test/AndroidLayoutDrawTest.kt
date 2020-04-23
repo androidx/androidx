@@ -38,9 +38,9 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
+import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
-import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
@@ -70,12 +70,14 @@ import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.ltr
+import androidx.ui.layout.padding
 import androidx.ui.layout.rtl
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxSize
+import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
@@ -1741,10 +1743,10 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 FixedSize(
                     50.ipx,
-                    Modifier.rtl.drawBehind {
+                    Modifier.rtl.ltr.drawBehind {
                         layoutDirection.value = this.layoutDirection
                         drawLatch.countDown()
-                    }.ltr
+                    }.padding(15.dp).rtl
                 )
             }
         }
@@ -2247,29 +2249,6 @@ class AndroidLayoutDrawTest {
         }
     }
 
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testInvalidateIntroducedLayer() {
-        val color = mutableStateOf(Color.Red)
-        activityTestRule.runOnUiThread {
-            activity.setContent {
-                FixedSize(size = 30.ipx) {
-                    FixedSize(
-                        10.ipx,
-                        PaddingModifier(10.ipx).drawLayer(elevation = 1f).background(Color.White)
-                    )
-                    FixedSize(30.ipx, Modifier.background(color.value).drawLatchModifier())
-                }
-            }
-        }
-        validateSquareColors(outerColor = Color.Red, innerColor = Color.White, size = 10)
-        drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            color.value = Color.Blue
-        }
-        validateSquareColors(outerColor = Color.Blue, innerColor = Color.White, size = 10)
-    }
-
     private fun composeSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
@@ -2770,33 +2749,37 @@ data class PaddingModifier(
         measurable: Measurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx =
-        measurable.minIntrinsicWidth((height - (top + bottom)).coerceAtLeast(0.ipx)) +
-                (left + right)
+    ): IntPx = measurable.minIntrinsicWidth(
+        (height - (top + bottom)).coerceAtLeast(0.ipx),
+        layoutDirection
+    ) + (left + right)
 
     override fun Density.maxIntrinsicWidthOf(
         measurable: Measurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx =
-        measurable.maxIntrinsicWidth((height - (top + bottom)).coerceAtLeast(0.ipx)) +
-                (left + right)
+    ): IntPx = measurable.maxIntrinsicWidth(
+        (height - (top + bottom)).coerceAtLeast(0.ipx),
+        layoutDirection
+    ) + (left + right)
 
     override fun Density.minIntrinsicHeightOf(
         measurable: Measurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx =
-        measurable.minIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
-                (top + bottom)
+    ): IntPx = measurable.minIntrinsicHeight(
+        (width - (left + right)).coerceAtLeast(0.ipx),
+        layoutDirection
+    ) + (top + bottom)
 
     override fun Density.maxIntrinsicHeightOf(
         measurable: Measurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ): IntPx =
-        measurable.maxIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
-                (top + bottom)
+    ): IntPx = measurable.maxIntrinsicHeight(
+        (width - (left + right)).coerceAtLeast(0.ipx),
+        layoutDirection
+    ) + (top + bottom)
 
     override fun Density.modifyConstraints(
         constraints: Constraints,

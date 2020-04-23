@@ -1,1 +1,35 @@
 // Signature format: 3.0
+package androidx.datastore.preferences {
+
+  public final class Preferences {
+    method public operator boolean contains(String key);
+    method public java.util.Map<java.lang.String,java.lang.Object> getAll();
+    method public boolean getBoolean(String key, boolean defaultValue);
+    method public float getFloat(String key, float defaultValue);
+    method public int getInt(String key, int defaultValue);
+    method public long getLong(String key, long defaultValue);
+    method public String getString(String key, String defaultValue);
+    method public java.util.Set<java.lang.String> getStringSet(String key, java.util.Set<java.lang.String> defaultValue);
+    method public androidx.datastore.preferences.Preferences.Builder toBuilder();
+    field public static final androidx.datastore.preferences.Preferences.Companion! Companion;
+  }
+
+  public static final class Preferences.Builder {
+    ctor public Preferences.Builder();
+    method public androidx.datastore.preferences.Preferences build();
+    method public androidx.datastore.preferences.Preferences.Builder clear();
+    method public androidx.datastore.preferences.Preferences.Builder remove(String key);
+    method public androidx.datastore.preferences.Preferences.Builder setBoolean(String key, boolean newValue);
+    method public androidx.datastore.preferences.Preferences.Builder setFloat(String key, float newValue);
+    method public androidx.datastore.preferences.Preferences.Builder setInt(String key, int newValue);
+    method public androidx.datastore.preferences.Preferences.Builder setLong(String key, long newValue);
+    method public androidx.datastore.preferences.Preferences.Builder setString(String key, String newValue);
+    method public androidx.datastore.preferences.Preferences.Builder setStringSet(String key, java.util.Set<java.lang.String> newValue);
+  }
+
+  public static final class Preferences.Companion {
+    method public androidx.datastore.preferences.Preferences empty();
+  }
+
+}
+

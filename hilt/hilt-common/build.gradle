@@ -32,7 +32,7 @@ dependencies {
 
 androidx {
     name = "AndroidX Hilt Extension Annotations"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.HILT
     mavenGroup = LibraryGroups.HILT
     inceptionYear = "2020"

@@ -60,3 +60,47 @@ package androidx.autofill {
 
 }
 
+package androidx.autofill.inline.common {
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class ImageViewStyle extends androidx.autofill.inline.common.ViewStyle {
+  }
+
+  public static final class ImageViewStyle.Builder {
+    ctor public ImageViewStyle.Builder();
+    method public androidx.autofill.inline.common.ImageViewStyle build();
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setBackground(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setBackgroundColor(int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setLayoutMargin(int, int, int, int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setPadding(int, int, int, int);
+    method public androidx.autofill.inline.common.ImageViewStyle.Builder setScaleType(android.widget.ImageView.ScaleType);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class TextViewStyle extends androidx.autofill.inline.common.ViewStyle {
+  }
+
+  public static final class TextViewStyle.Builder {
+    ctor public TextViewStyle.Builder();
+    method public androidx.autofill.inline.common.TextViewStyle build();
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setBackground(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setBackgroundColor(int);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setLayoutMargin(int, int, int, int);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setPadding(int, int, int, int);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setTextColor(@ColorInt int);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setTextSize(float);
+    method public androidx.autofill.inline.common.TextViewStyle.Builder setTypeface(String, int);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public class ViewStyle {
+  }
+
+  public static final class ViewStyle.Builder {
+    ctor public ViewStyle.Builder();
+    method public androidx.autofill.inline.common.ViewStyle build();
+    method public androidx.autofill.inline.common.ViewStyle.Builder setBackground(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.common.ViewStyle.Builder setBackgroundColor(int);
+    method public androidx.autofill.inline.common.ViewStyle.Builder setLayoutMargin(int, int, int, int);
+    method public androidx.autofill.inline.common.ViewStyle.Builder setPadding(int, int, int, int);
+  }
+
+}
+

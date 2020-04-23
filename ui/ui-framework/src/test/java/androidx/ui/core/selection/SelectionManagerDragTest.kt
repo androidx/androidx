@@ -16,6 +16,8 @@
 
 package androidx.ui.core.selection
 
+import androidx.compose.frames.commit
+import androidx.compose.frames.open
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.text.style.TextDirection
@@ -23,11 +25,13 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +44,9 @@ class SelectionManagerDragTest {
     private val selectable = mock<Selectable>()
     private val selectionManager = SelectionManager(selectionRegistrar)
 
-    private val containerLayoutCoordinates = mock<LayoutCoordinates>()
+    private val containerLayoutCoordinates = mock<LayoutCoordinates> {
+        on { isAttached } doReturn true
+    }
     private val childToLocal_result = PxPosition(300.px, 400.px)
 
     private val startSelectable = mock<Selectable>()
@@ -77,6 +83,8 @@ class SelectionManagerDragTest {
 
     @Before
     fun setup() {
+        open(false) // we open a Frame so @Model reads are allowed
+
         selectionRegistrar.subscribe(selectable)
 
         whenever(
@@ -107,6 +115,11 @@ class SelectionManagerDragTest {
         selectionManager.onSelectionChange = spyLambda
         selectionManager.selection = selection
         selectionManager.hapticFeedBack = mock()
+    }
+
+    @After
+    fun after() {
+        commit() // we close the Frame
     }
 
     @Test
@@ -152,7 +165,7 @@ class SelectionManagerDragTest {
             .getSelection(
                 startPosition = childToLocal_result + dragDistance,
                 endPosition = childToLocal_result,
-                containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
+                containerLayoutCoordinates = selectionManager.requireContainerCoordinates(),
                 longPress = false,
                 isStartHandle = true,
                 previousSelection = fakeInitialSelection
@@ -179,7 +192,7 @@ class SelectionManagerDragTest {
             .getSelection(
                 startPosition = childToLocal_result,
                 endPosition = childToLocal_result + dragDistance,
-                containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
+                containerLayoutCoordinates = selectionManager.requireContainerCoordinates(),
                 longPress = false,
                 isStartHandle = false,
                 previousSelection = fakeInitialSelection
@@ -211,7 +224,7 @@ class SelectionManagerDragTest {
             .getSelection(
                 startPosition = position,
                 endPosition = position,
-                containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
+                containerLayoutCoordinates = selectionManager.requireContainerCoordinates(),
                 longPress = true,
                 previousSelection = fakeInitialSelection
             )

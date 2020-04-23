@@ -378,11 +378,11 @@ open class Composer<N>(
         changesAppliedObservers.remove(l)
     }
 
-    private lateinit var reader: SlotReader
+    private var reader: SlotReader = slotTable.openReader().also { it.close() }
 
     private val insertTable = SlotTable()
     private var writer: SlotWriter = insertTable.openWriter().also { it.close() }
-    private lateinit var insertAnchor: Anchor
+    private var insertAnchor: Anchor = insertTable.anchor(0)
     private val insertFixups = mutableListOf<Change<N>>()
 
     protected fun composeRoot(block: () -> Unit) {
@@ -478,11 +478,9 @@ open class Composer<N>(
     ) {
         startGroup(key)
         if (this.invalid() || !skipping) {
-            startGroup(invocation)
             block()
-            endGroup()
         } else {
-            skipCurrentGroup()
+            skipToGroupEnd()
         }
         endGroup()
     }
@@ -1296,6 +1294,7 @@ open class Composer<N>(
      * correctly updated to reflect any groups skipped.
      */
     private fun skipToGroupContaining(location: Int) {
+        val reader = reader
         while (reader.current < location) {
             if (reader.isGroupEnd) return
             if (reader.isGroup) {
@@ -1312,6 +1311,7 @@ open class Composer<N>(
      * generated with no changes.
      */
     private fun enterGroups(location: Int, level: Int): Int {
+        val reader = reader
         var currentLevel = level
         while (true) {
             skipToGroupContaining(location)
@@ -1344,6 +1344,7 @@ open class Composer<N>(
      * Exit any groups that were entered until a sibling of maxLocation is reached.
      */
     private fun exitGroups(location: Int, level: Int): Int {
+        val reader = reader
         var currentProviderScope = providersStack.peek().first
         var currentLevel = level
         while (currentLevel > 0) {
@@ -1404,7 +1405,7 @@ open class Composer<N>(
             require(reader.parentLocation == previousParent) { "Group enter mismatch" }
         } else {
             // No recompositions were requested in the range, skip it.
-            skipGroup()
+            skipReaderToGroupEnd()
         }
         isComposing = wasComposing
     }
@@ -1430,7 +1431,8 @@ open class Composer<N>(
     }
 
     /**
-     * Skip a group. This is only valid to call if the composition is not inserting.
+     * Skip a group. Skips the group at the current location. This is only valid to call if the
+     * composition is not inserting.
      */
     fun skipCurrentGroup() {
         if (invalidations.isEmpty()) {
@@ -1439,6 +1441,24 @@ open class Composer<N>(
             val reader = reader
             val current = reader.current
             recomposeComponentRange(current, current + reader.groupSize)
+        }
+    }
+
+    private fun skipReaderToGroupEnd() {
+        groupNodeCount = reader.parentNodes
+        reader.skipToGroupEnd()
+    }
+
+    /**
+     * Skip to the end of the group opened by [startGroup].
+     */
+    fun skipToGroupEnd() {
+        require(groupNodeCount == 0) { "No nodes can be emitted before calling skipAndEndGroup" }
+        if (invalidations.isEmpty()) {
+            skipReaderToGroupEnd()
+        } else {
+            val parentLocation = reader.parentLocation
+            recomposeComponentRange(parentLocation, parentLocation + reader.parentSlots + 1)
         }
     }
 
@@ -1538,9 +1558,9 @@ open class Composer<N>(
      * node.
      */
     private fun recordApplierOperation(change: Change<N>) {
+        realizeInsertApplier()
         realizeUps()
         realizeDowns()
-        realizeInsertApplier()
         record(change)
     }
 
@@ -1612,6 +1632,7 @@ open class Composer<N>(
             val parentLocation = reader.parentLocation
             if (realizedDowns.peekOr(-1) == parentLocation) {
                 pendingUps++
+                realizedDowns.pop()
             }
         }
     }

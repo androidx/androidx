@@ -16,13 +16,19 @@
 
 package androidx.hilt.work
 
+import androidx.hilt.ClassNames
+import androidx.hilt.ext.hasAnnotation
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.MoreElements
 import com.google.common.collect.SetMultimap
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
+import javax.lang.model.element.NestingKind
 import javax.lang.model.element.TypeElement
+import javax.lang.model.util.ElementFilter
+import javax.tools.Diagnostic
 
 /**
  * Processing step that generates code enabling assisted injection of Workers using Hilt.
@@ -30,6 +36,10 @@ import javax.lang.model.element.TypeElement
 class WorkerInjectStep(
     private val processingEnv: ProcessingEnvironment
 ) : BasicAnnotationProcessor.ProcessingStep {
+
+    private val elements = processingEnv.elementUtils
+    private val types = processingEnv.typeUtils
+    private val messager = processingEnv.messager
 
     override fun annotations() = setOf(WorkerInject::class.java)
 
@@ -58,7 +68,47 @@ class WorkerInjectStep(
         typeElement: TypeElement,
         constructorElement: ExecutableElement
     ): WorkerInjectElements? {
-        // TODO(danysantiago): Validate Worker
+        var valid = true
+
+        if (elements.getTypeElement(ClassNames.WORKER_ASSISTED_FACTORY.toString()) == null) {
+            error("To use @WorkerInject you must add the 'work' artifact. " +
+                    "androidx.hilt:hilt-work:<version>")
+            valid = false
+        }
+
+        if (!types.isSubtype(typeElement.asType(),
+                elements.getTypeElement(ClassNames.WORKER.toString()).asType())) {
+            error("@WorkerInject is only supported on types that subclass " +
+                    "androidx.work.Worker.")
+            valid = false
+        }
+
+        ElementFilter.constructorsIn(typeElement.enclosedElements).filter {
+            it.hasAnnotation(WorkerInject::class)
+        }.let { constructors ->
+            if (constructors.size > 1) {
+                error("Multiple @WorkerInject annotated constructors found.", typeElement)
+                valid = false
+            }
+            constructors.filter { it.modifiers.contains(Modifier.PRIVATE) }.forEach {
+                error("@WorkerInject annotated constructors must not be private.", it)
+                valid = false
+            }
+        }
+
+        if (typeElement.nestingKind == NestingKind.MEMBER &&
+            !typeElement.modifiers.contains(Modifier.STATIC)) {
+            error("@WorkerInject may only be used on inner classes if they are static.",
+                typeElement)
+            valid = false
+        }
+
+        if (!valid) return null
+
         return WorkerInjectElements(typeElement, constructorElement)
+    }
+
+    private fun error(message: String, element: Element? = null) {
+        messager.printMessage(Diagnostic.Kind.ERROR, message, element)
     }
 }

@@ -17,10 +17,13 @@
 package androidx.appcompat.app;
 
 import static androidx.appcompat.testutils.TestUtilsActions.setSystemUiVisibility;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -76,6 +79,38 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     public void testActionBarExists() {
         assertNotNull("ActionBar is not null",
                 mActivityTestRule.getActivity().getSupportActionBar());
+    }
+
+    @Test
+    public void testActionBarOverflowVisibilityListener() {
+        ActionBar actionBar = mActivityTestRule.getActivity().getSupportActionBar();
+        final boolean[] madeVisible = new boolean[] {false};
+        actionBar.addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
+            @Override
+            public void onMenuVisibilityChanged(boolean isVisible) {
+                madeVisible[0] = isVisible;
+            }
+        });
+        openActionBarOverflowOrOptionsMenu(getApplicationContext());
+        assertTrue("OnMenuVisibilityListener should be called",
+                madeVisible[0]);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testActionBarShowHideNoOverflowVisibilityListener() {
+        ActionBar actionBar = mActivityTestRule.getActivity().getSupportActionBar();
+        final boolean[] receivedCallback = new boolean[] {false};
+        actionBar.addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
+            @Override
+            public void onMenuVisibilityChanged(boolean isVisible) {
+                receivedCallback[0] = true;
+            }
+        });
+        actionBar.openOptionsMenu();
+        actionBar.closeOptionsMenu();
+        assertFalse("OnMenuVisibilityListener should not be called",
+                receivedCallback[0]);
     }
 
     @Test

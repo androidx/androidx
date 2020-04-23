@@ -85,6 +85,22 @@ class AnimatedValueTest {
         clock.clockTimeMillis += 10000L
         assertEquals(-4f, animatedFloat.value)
         assertEquals(reason, AnimationEndReason.BoundReached)
+
+        // Change bounds, and check that value is clamped
+        val expected = 5f
+        animatedFloat.setBounds(expected, expected + 10f)
+        assertEquals(expected, animatedFloat.value)
+
+        // Start an animation and set bounds
+        reason = AnimationEndReason.TargetReached
+        animatedFloat.animateTo(expected + 10) { endReason: AnimationEndReason, _: Float ->
+            reason = endReason
+        }
+        clock.clockTimeMillis += 5L
+        assertTrue(animatedFloat.value > expected)
+        animatedFloat.setBounds(-expected, expected)
+        assertEquals(expected, animatedFloat.value)
+        assertEquals(AnimationEndReason.BoundReached, reason)
     }
 
     @Test

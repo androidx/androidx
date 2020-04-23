@@ -16,9 +16,6 @@
 
 package androidx.transition;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.TypeEvaluator;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -28,6 +25,11 @@ import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.core.animation.Animator;
+import androidx.core.animation.AnimatorSet;
+import androidx.core.animation.TypeEvaluator;
 
 class TransitionUtils {
 
@@ -160,8 +162,10 @@ class TransitionUtils {
 
         final Matrix mTempMatrix = new Matrix();
 
+        @NonNull
         @Override
-        public Matrix evaluate(float fraction, Matrix startValue, Matrix endValue) {
+        public Matrix evaluate(float fraction, @NonNull Matrix startValue,
+                @NonNull Matrix endValue) {
             startValue.getValues(mTempStartValues);
             endValue.getValues(mTempEndValues);
             for (int i = 0; i < 9; i++) {

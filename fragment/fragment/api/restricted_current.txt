@@ -82,7 +82,7 @@ package androidx.fragment.app {
     method public final boolean isStateSaved();
     method public final boolean isVisible();
     method @Deprecated @CallSuper @MainThread public void onActivityCreated(android.os.Bundle?);
-    method public void onActivityResult(int, int, android.content.Intent?);
+    method @Deprecated public void onActivityResult(int, int, android.content.Intent?);
     method @CallSuper @MainThread public void onAttach(android.content.Context);
     method @Deprecated @CallSuper @MainThread public void onAttach(android.app.Activity);
     method @MainThread public void onAttachFragment(androidx.fragment.app.Fragment);
@@ -110,7 +110,7 @@ package androidx.fragment.app {
     method public void onPictureInPictureModeChanged(boolean);
     method @MainThread public void onPrepareOptionsMenu(android.view.Menu);
     method @MainThread public void onPrimaryNavigationFragmentChanged(boolean);
-    method public void onRequestPermissionsResult(int, String![], int[]);
+    method @Deprecated public void onRequestPermissionsResult(int, String![], int[]);
     method @CallSuper @MainThread public void onResume();
     method @MainThread public void onSaveInstanceState(android.os.Bundle);
     method @CallSuper @MainThread public void onStart();
@@ -122,7 +122,7 @@ package androidx.fragment.app {
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public void registerForContextMenu(android.view.View);
-    method public final void requestPermissions(String![], int);
+    method @Deprecated public final void requestPermissions(String![], int);
     method public final androidx.fragment.app.FragmentActivity requireActivity();
     method public final android.os.Bundle requireArguments();
     method public final android.content.Context requireContext();
@@ -150,9 +150,9 @@ package androidx.fragment.app {
     method public boolean shouldShowRequestPermissionRationale(String);
     method public void startActivity(android.content.Intent!);
     method public void startActivity(android.content.Intent!, android.os.Bundle?);
-    method public void startActivityForResult(android.content.Intent!, int);
-    method public void startActivityForResult(android.content.Intent!, int, android.os.Bundle?);
-    method public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void startActivityForResult(android.content.Intent!, int);
+    method @Deprecated public void startActivityForResult(android.content.Intent!, int, android.os.Bundle?);
+    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
     method public void startPostponedEnterTransition();
     method public void unregisterForContextMenu(android.view.View);
   }
@@ -182,7 +182,7 @@ package androidx.fragment.app {
     method public void setExitSharedElementCallback(androidx.core.app.SharedElementCallback?);
     method public void startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int);
     method public void startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int, android.os.Bundle?);
-    method public void startIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void startIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
     method public void supportFinishAfterTransition();
     method @Deprecated public void supportInvalidateOptionsMenu();
     method public void supportPostponeEnterTransition();
@@ -263,12 +263,12 @@ package androidx.fragment.app {
     method public int onGetWindowAnimations();
     method public boolean onHasView();
     method public boolean onHasWindowAnimations();
-    method public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment, String![], int);
+    method @Deprecated public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment, String![], int);
     method public boolean onShouldSaveFragmentState(androidx.fragment.app.Fragment);
     method public boolean onShouldShowRequestPermissionRationale(String);
     method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int);
     method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int, android.os.Bundle?);
-    method public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender!, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
     method public void onSupportInvalidateOptionsMenu();
   }
 

@@ -16,6 +16,11 @@
 
 package androidx.ui.core.selection
 
+import androidx.compose.State
+import androidx.compose.StructurallyEqual
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.gesture.DragObserver
@@ -36,6 +41,10 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * The current selection.
      */
     var selection: Selection? = null
+        set(value) {
+            field = value
+            updateHandleOffsets()
+        }
 
     /**
      * The manager will invoke this every time it comes to the conclusion that the selection should
@@ -57,7 +66,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     /**
      * Layout Coordinates of the selection container.
      */
-    lateinit var containerLayoutCoordinates: LayoutCoordinates
+    var containerLayoutCoordinates: LayoutCoordinates? = null
+        set(value) {
+            field = value
+            updateHandleOffsets()
+        }
 
     /**
      * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
@@ -80,6 +93,69 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     private var draggingHandle = false
 
     /**
+     * The calculated position of the start handle in the [SelectionContainer] coordinates. It
+     * is null when handle shouldn't be displayed.
+     * It is a [State] so reading it during the composition will cause recomposition every time
+     * the position has been changed.
+     */
+    var startHandlePosition by mutableStateOf<PxPosition?>(null, areEquivalent = StructurallyEqual)
+        private set
+
+    /**
+     * The calculated position of the end handle in the [SelectionContainer] coordinates. It
+     * is null when handle shouldn't be displayed.
+     * It is a [State] so reading it during the composition will cause recomposition every time
+     * the position has been changed.
+     */
+    var endHandlePosition by mutableStateOf<PxPosition?>(null, areEquivalent = StructurallyEqual)
+        private set
+
+    init {
+        selectionRegistrar.onPositionChangeCallback = {
+            updateHandleOffsets()
+        }
+    }
+
+    private fun updateHandleOffsets() {
+        val selection = selection
+        val containerCoordinates = containerLayoutCoordinates
+        if (selection != null && containerCoordinates != null && containerCoordinates.isAttached) {
+            val startLayoutCoordinates = selection.start.selectable.getLayoutCoordinates()
+            val endLayoutCoordinates = selection.end.selectable.getLayoutCoordinates()
+
+            if (startLayoutCoordinates != null && endLayoutCoordinates != null) {
+                startHandlePosition = containerCoordinates.childToLocal(
+                    startLayoutCoordinates,
+                    selection.start.selectable.getHandlePosition(
+                        selection = selection,
+                        isStartHandle = true
+                    )
+                )
+                endHandlePosition = containerCoordinates.childToLocal(
+                    endLayoutCoordinates,
+                    selection.end.selectable.getHandlePosition(
+                        selection = selection,
+                        isStartHandle = false
+                    )
+                )
+                return
+            }
+        }
+        startHandlePosition = null
+        endHandlePosition = null
+    }
+
+    /**
+     * Returns non-nullable [containerLayoutCoordinates].
+     */
+    internal fun requireContainerCoordinates(): LayoutCoordinates {
+        val coordinates = containerLayoutCoordinates
+        require(coordinates != null)
+        require(coordinates.isAttached)
+        return coordinates
+    }
+
+    /**
      * Iterates over the handlers, gets the selection for each Composable, and merges all the
      * returned [Selection]s.
      *
@@ -100,7 +176,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         isStartHandle: Boolean = true
     ): Selection? {
 
-        val newSelection = selectionRegistrar.sort(containerLayoutCoordinates)
+        val newSelection = selectionRegistrar.sort(requireContainerCoordinates())
             .fold(null) { mergedSelection: Selection?,
                           handler: Selectable ->
                 merge(
@@ -108,7 +184,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                     handler.getSelection(
                         startPosition = startPosition,
                         endPosition = endPosition,
-                        containerLayoutCoordinates = containerLayoutCoordinates,
+                        containerLayoutCoordinates = requireContainerCoordinates(),
                         longPress = longPress,
                         previousSelection = previousSelection,
                         isStartHandle = isStartHandle
@@ -122,7 +198,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     }
 
     internal fun getSelectedText(): AnnotatedString? {
-        val selectables = selectionRegistrar.sort(containerLayoutCoordinates)
+        val selectables = selectionRegistrar.sort(requireContainerCoordinates())
         var selectedText: AnnotatedString? = null
 
         selection?.let {
@@ -167,6 +243,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     val longPressDragObserver = object : LongPressDragObserver {
         override fun onLongPress(pxPosition: PxPosition) {
             if (draggingHandle) return
+            val coordinates = containerLayoutCoordinates
+            if (coordinates == null || !coordinates.isAttached) return
             val newSelection = mergeSelections(
                 startPosition = pxPosition,
                 endPosition = pxPosition,
@@ -240,7 +318,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
 
                 // Convert the position where drag gesture begins from composable coordinates to
                 // selection container coordinates.
-                dragBeginPosition = containerLayoutCoordinates.childToLocal(
+                dragBeginPosition = requireContainerCoordinates().childToLocal(
                     beginLayoutCoordinates,
                     beginCoordinates
                 )
@@ -257,7 +335,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 val currentStart = if (isStartHandle) {
                     dragBeginPosition + dragTotalDistance
                 } else {
-                    containerLayoutCoordinates.childToLocal(
+                    requireContainerCoordinates().childToLocal(
                         selection.start.selectable.getLayoutCoordinates()!!,
                         getAdjustedCoordinates(
                             selection.start.selectable.getHandlePosition(
@@ -269,7 +347,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 }
 
                 val currentEnd = if (isStartHandle) {
-                    containerLayoutCoordinates.childToLocal(
+                    requireContainerCoordinates().childToLocal(
                         selection.end.selectable.getLayoutCoordinates()!!,
                         getAdjustedCoordinates(
                             selection.end.selectable.getHandlePosition(

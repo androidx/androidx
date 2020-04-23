@@ -26,6 +26,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -336,7 +337,21 @@ class FragmentStoreTest {
     }
 
     @Test
-    fun testFindFragmentUnder() {
+    fun testFindFragmentIndexInContainer() {
+        val container = FrameLayout(InstrumentationRegistry.getInstrumentation().context)
+        emptyFragment.mView = View(InstrumentationRegistry.getInstrumentation().context)
+        emptyFragment.mContainer = container
+        fragmentStore.makeActive(emptyStateManager)
+        fragmentStore.addFragment(emptyFragment)
+
+        val index = fragmentStore.findFragmentIndexInContainer(emptyFragment)
+        assertWithMessage("The first fragment in a container should be put at the end")
+            .that(index)
+            .isEqualTo(-1)
+    }
+
+    @Test
+    fun testFindFragmentIndexInContainerUnder() {
         val container = FrameLayout(InstrumentationRegistry.getInstrumentation().context)
         emptyFragment.mView = View(InstrumentationRegistry.getInstrumentation().context)
         emptyFragment.mContainer = container
@@ -349,13 +364,33 @@ class FragmentStoreTest {
         val onTopStateManager = FragmentStateManager(dispatcher, fragmentStore, onTopFragment)
         fragmentStore.makeActive(onTopStateManager)
         fragmentStore.addFragment(onTopFragment)
+        container.addView(onTopFragment.mView)
 
-        val underEmptyFragment = fragmentStore.findFragmentUnder(emptyFragment)
-        assertThat(underEmptyFragment)
-            .isNull()
+        val index = fragmentStore.findFragmentIndexInContainer(emptyFragment)
+        assertWithMessage("New fragment should be before on top fragment")
+            .that(index)
+            .isEqualTo(0)
+    }
 
-        val underOnTopFragment = fragmentStore.findFragmentUnder(onTopFragment)
-        assertThat(underOnTopFragment)
-            .isSameInstanceAs(emptyFragment)
+    @Test
+    fun testFindFragmentIndexInContainerOver() {
+        val container = FrameLayout(InstrumentationRegistry.getInstrumentation().context)
+        emptyFragment.mView = View(InstrumentationRegistry.getInstrumentation().context)
+        emptyFragment.mContainer = container
+        fragmentStore.makeActive(emptyStateManager)
+        fragmentStore.addFragment(emptyFragment)
+        container.addView(emptyFragment.mView)
+
+        val onTopFragment: Fragment = StrictFragment()
+        onTopFragment.mView = View(InstrumentationRegistry.getInstrumentation().context)
+        onTopFragment.mContainer = container
+        val onTopStateManager = FragmentStateManager(dispatcher, fragmentStore, onTopFragment)
+        fragmentStore.makeActive(onTopStateManager)
+        fragmentStore.addFragment(onTopFragment)
+
+        val index = fragmentStore.findFragmentIndexInContainer(onTopFragment)
+        assertWithMessage("New fragment should be after existing fragment")
+            .that(index)
+            .isEqualTo(1)
     }
 }

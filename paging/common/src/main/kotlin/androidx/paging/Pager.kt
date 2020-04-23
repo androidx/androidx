@@ -64,6 +64,7 @@ internal class Pager<Key : Any, Value : Any>(
     internal val pagingSource: PagingSource<Key, Value>,
     private val config: PagingConfig,
     private val retryFlow: Flow<Unit>,
+    private val triggerRemoteRefresh: Boolean = false,
     private val remoteMediatorAccessor: RemoteMediatorAccessor<Key, Value>? = null,
     private val invalidate: () -> Unit = {}
 ) {
@@ -104,39 +105,43 @@ internal class Pager<Key : Any, Value : Any>(
         launch {
             retryChannel.consumeAsFlow()
                 .collect {
-                    // Handle refresh failure. Re-attempt doInitialLoad if the last attempt failed,
-                    val refreshFailure = stateLock.withLock {
-                        state.failedHintsByLoadType.remove(REFRESH)
-                    }
-                    refreshFailure?.let {
-                        doInitialLoad(this, state)
+                    // Handle refresh failure.
+                    stateLock.withLock { state.failedHintsByLoadType.remove(REFRESH) }
+                        ?.let { refreshFailure ->
+                            retryLoadError(refreshFailure)
 
-                        val newRefreshFailure = stateLock.withLock {
-                            state.failedHintsByLoadType[REFRESH]
+                            val newRefreshFailure = stateLock.withLock {
+                                state.failedHintsByLoadType[REFRESH]
+                            }
+                            if (newRefreshFailure == null) {
+                                startConsumingHints()
+                            }
                         }
-                        if (newRefreshFailure == null) {
-                            startConsumingHints()
-                        }
-                    }
 
                     // Handle prepend / append failures.
-                    stateLock.withLock {
-                        state.failedHintsByLoadType[START]?.also { loadError ->
-                            // Reset load state to allow loads in this direction.
-                            state.failedHintsByLoadType.remove(START)
-                            handleLoadError(loadError)
-                        }
-                        state.failedHintsByLoadType[END]?.also { loadError ->
-                            // Reset load state to allow loads in this direction.
-                            state.failedHintsByLoadType.remove(END)
-                            handleLoadError(loadError)
-                        }
-                    }
+
+                    // Reset load state to allow loads in this direction.
+                    stateLock.withLock { state.failedHintsByLoadType.remove(START) }
+                        ?.also { loadError -> retryLoadError(loadError) }
+
+                    // Reset load state to allow loads in this direction.
+                    stateLock.withLock { state.failedHintsByLoadType.remove(END) }
+                        ?.also { loadError -> retryLoadError(loadError) }
                 }
         }
 
-        // Setup finished, we can now start the initial load.
-        doInitialLoad(this, state)
+        // Trigger RemoteMediator initialization blockingly.
+        if (triggerRemoteRefresh) {
+            remoteMediatorAccessor?.run {
+                val pagingState = stateLock.withLock { state.currentPagingState(null) }
+                doBoundaryCall(this@cancelableChannelFlow, REFRESH, pagingState)
+            }
+        }
+
+        // Setup finished, we can start the initial load if RemoteMediator didn't throw an error.
+        if (stateLock.withLock { state.failedHintsByLoadType[REFRESH] } == null) {
+            doInitialLoad(this, state)
+        }
 
         // Only start collection on ViewportHints if the initial load succeeded.
         if (stateLock.withLock { state.failedHintsByLoadType[REFRESH] } == null) {
@@ -144,13 +149,25 @@ internal class Pager<Key : Any, Value : Any>(
         }
     }
 
-    private suspend fun CoroutineScope.handleLoadError(failure: LoadError<Key, Value>) {
-        when (failure) {
-            is LoadError.Hint<Key, Value> -> {
+    @Suppress("SuspendFunctionOnCoroutineScope")
+    private suspend fun CoroutineScope.retryLoadError(failure: LoadError<Key, Value>) {
+        when {
+            failure is LoadError.Hint<Key, Value> && failure.loadType == REFRESH -> {
+                doInitialLoad(this, state)
+            }
+            failure is LoadError.Hint<Key, Value> -> {
                 @OptIn(ExperimentalCoroutinesApi::class)
                 hintChannel.offer(failure.viewportHint)
             }
-            is LoadError.Mediator<Key, Value> -> {
+            failure is LoadError.Mediator<Key, Value> && failure.loadType == REFRESH -> {
+                remoteMediatorAccessor?.run {
+                    val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
+                    launch {
+                        doBoundaryCall(this@retryLoadError, REFRESH, pagingState)
+                    }
+                }
+            }
+            failure is LoadError.Mediator<Key, Value> -> {
                 remoteMediatorAccessor?.load(this, failure.loadType, failure.state)
             }
         }
@@ -276,48 +293,48 @@ internal class Pager<Key : Any, Value : Any>(
         stateLock.withLock { state.setLoading(REFRESH) }
 
         val params = loadParams(REFRESH, initialKey)
-        val result = pagingSource.load(params)
+        when (val result = pagingSource.load(params)) {
+            is Page<Key, Value> -> {
+                val insertApplied = stateLock.withLock { state.insert(0, REFRESH, result) }
 
-        stateLock.withLock {
-            when (result) {
-                is Page<Key, Value> -> {
-                    val insertApplied = state.insert(0, REFRESH, result)
-
-                    // If remoteMediator is set, we allow its result to dictate LoadState, otherwise
-                    // we simply rely on the load result.
-                    if (remoteMediatorAccessor == null) {
+                // If remoteMediator is set, we allow its result to dictate LoadState, otherwise
+                // we simply rely on the load result.
+                if (remoteMediatorAccessor == null) {
+                    stateLock.withLock {
                         // Update loadStates which are sent along with this load's Insert PageEvent.
                         state.loadStates[REFRESH] = Idle
                         if (result.prevKey == null) state.loadStates[START] = Done
                         if (result.nextKey == null) state.loadStates[END] = Done
-                    } else {
-                        state.loadStates[REFRESH] = Idle
-                        if (result.prevKey == null || result.nextKey == null) {
-                            val pagingState = state.currentPagingState(lastHint)
+                    }
+                } else {
+                    stateLock.withLock { state.loadStates[REFRESH] = Idle }
+                    if (result.prevKey == null || result.nextKey == null) {
+                        val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
 
-                            if (result.prevKey == null) {
-                                state.setLoading(START)
-                                remoteMediatorAccessor.launchBoundaryCall(scope, START, pagingState)
-                            }
+                        if (result.prevKey == null) {
+                            remoteMediatorAccessor.doBoundaryCall(scope, START, pagingState)
+                        }
 
-                            if (result.nextKey == null) {
-                                state.setLoading(END)
-                                remoteMediatorAccessor.launchBoundaryCall(scope, END, pagingState)
-                            }
+                        if (result.nextKey == null) {
+                            remoteMediatorAccessor.doBoundaryCall(scope, END, pagingState)
                         }
                     }
+                }
 
-                    // Send insert event after load state updates, so that Done / Idle is
-                    // correctly reflected in the insert event. Note that we only send the event
-                    // if the insert was successfully applied in the case of cancellation due to
-                    // page dropping.
-                    if (insertApplied) {
+                // Send insert event after load state updates, so that Done / Idle is
+                // correctly reflected in the insert event. Note that we only send the event
+                // if the insert was successfully applied in the case of cancellation due to
+                // page dropping.
+                if (insertApplied) {
+                    stateLock.withLock {
                         with(state) {
                             pageEventCh.send(result.toPageEvent(REFRESH, config.enablePlaceholders))
                         }
                     }
                 }
-                is LoadResult.Error -> state.setHintError(
+            }
+            is LoadResult.Error -> stateLock.withLock {
+                state.setHintError(
                     REFRESH,
                     Error(result.throwable),
                     ViewportHint.DUMMY_VALUE
@@ -379,12 +396,12 @@ internal class Pager<Key : Any, Value : Any>(
                 }
             }
 
-            stateLock.withLock {
-                val dropType = when (loadType) {
-                    START -> END
-                    else -> START
-                }
+            val dropType = when (loadType) {
+                START -> END
+                else -> START
+            }
 
+            stateLock.withLock {
                 state.dropInfo(dropType, generationalHint.hint, config.prefetchDistance)
                     ?.let { info ->
                         state.drop(dropType, info.pageCount, info.placeholdersRemaining)
@@ -403,28 +420,30 @@ internal class Pager<Key : Any, Value : Any>(
                             )
                         }
                 }
+            }
 
-                if (remoteMediatorAccessor == null) {
+            if (remoteMediatorAccessor == null) {
+                stateLock.withLock {
                     // Update load state to success if this is the final load result for this
                     // load hint, and only if we didn't error out.
                     if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
                         state.loadStates[loadType] = if (updateLoadStateToDone) Done else Idle
                     }
-                } else {
-                    val pagingState = state.currentPagingState(lastHint)
+                }
+            } else {
+                val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
 
-                    if (params.loadType == START && result.prevKey == null) {
-                        state.setLoading(START)
-                        remoteMediatorAccessor.launchBoundaryCall(scope, START, pagingState)
-                    }
-
-                    if (params.loadType == END && result.nextKey == null) {
-                        state.setLoading(END)
-                        remoteMediatorAccessor.launchBoundaryCall(scope, END, pagingState)
-                    }
+                if (params.loadType == START && result.prevKey == null) {
+                    remoteMediatorAccessor.doBoundaryCall(scope, START, pagingState)
                 }
 
-                // Send page event for successful insert, now that PagerState has been updated.
+                if (params.loadType == END && result.nextKey == null) {
+                    remoteMediatorAccessor.doBoundaryCall(scope, END, pagingState)
+                }
+            }
+
+            // Send page event for successful insert, now that PagerState has been updated.
+            stateLock.withLock {
                 val pageEvent = with(state) {
                     result.toPageEvent(loadType, config.enablePlaceholders)
                 }
@@ -433,25 +452,29 @@ internal class Pager<Key : Any, Value : Any>(
         }
     }
 
-    private fun RemoteMediatorAccessor<Key, Value>.launchBoundaryCall(
+    private suspend fun RemoteMediatorAccessor<Key, Value>.doBoundaryCall(
         coroutineScope: CoroutineScope,
         loadType: LoadType,
         pagingState: PagingState<Key, Value>
     ) {
-        coroutineScope.launch {
-            when (val boundaryResult = load(coroutineScope, loadType, pagingState)) {
-                is RemoteMediator.MediatorResult.Error -> {
+        stateLock.withLock { state.setLoading(loadType) }
+        when (val boundaryResult = load(coroutineScope, loadType, pagingState)) {
+            is RemoteMediator.MediatorResult.Error -> {
+                stateLock.withLock {
                     this@Pager.state.setBoundaryError(
                         loadType,
                         Error(boundaryResult.throwable),
                         this@Pager.lastHint
                     )
                 }
-                is RemoteMediator.MediatorResult.Success -> {
-                    this@Pager.state.loadStates[loadType] = if (boundaryResult.canRequestMoreData) {
-                        Idle
-                    } else {
-                        Done
+            }
+            is RemoteMediator.MediatorResult.Success -> {
+                if (loadType != REFRESH) {
+                    stateLock.withLock {
+                        this@Pager.state.loadStates[loadType] = when {
+                            boundaryResult.canRequestMoreData -> Idle
+                            else -> Done
+                        }
                     }
                 }
             }
@@ -476,7 +499,7 @@ internal class Pager<Key : Any, Value : Any>(
         }
 
         // Save the hint for retry on incoming retry signal, typically sent from user interaction.
-        failedHintsByLoadType[loadType] = LoadError.Hint(hint)
+        failedHintsByLoadType[loadType] = LoadError.Hint(loadType, hint)
     }
 
     // TODO: We need a map of desired behaviors:

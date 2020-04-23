@@ -22,6 +22,7 @@ import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -56,6 +57,35 @@ class FragmentArchLifecycleTest {
                 it.onSaveInstanceState(Bundle())
             }
             assertThat(first.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+            assertThat(second.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+            assertThat(activityLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        }
+    }
+
+    @Test
+    fun testFragmentAdditionDuringOnStopViewLifecycle() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+            val activityLifecycle = withActivity { lifecycle }
+
+            val first = StrictViewFragment()
+            val second = StrictFragment()
+            fm.beginTransaction().add(android.R.id.content, first).commit()
+            executePendingTransactions()
+            first.viewLifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
+                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        fm.beginTransaction().add(second, "second").commitNow()
+                        first.viewLifecycleOwner.lifecycle.removeObserver(this)
+                    }
+                }
+            })
+            onActivity {
+                it.onSaveInstanceState(Bundle())
+            }
+            assertThat(first.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+            assertThat(first.viewLifecycleOwner.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.CREATED)
             assertThat(second.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
             assertThat(activityLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
         }
@@ -158,6 +188,19 @@ class FragmentArchLifecycleTest {
                 .inOrder()
         }
     }
+
+    @Test
+    fun testOverriddenLifecycleFragment() {
+        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+
+            val fragment = OverriddenLifecycleFragment()
+            fm.beginTransaction().add(fragment, "lifecycle").commit()
+            executePendingTransactions()
+            // This should not crash or hang
+            moveToState(Lifecycle.State.DESTROYED)
+        }
+    }
 }
 
 class FragmentArchLifecycleActivity : FragmentActivity(R.layout.activity_content) {
@@ -229,5 +272,44 @@ class NestedLifecycleFragmentParent : StrictFragment() {
         childFragment.lifecycle.addObserver(LifecycleEventObserver { _, event ->
             archLifecycleActivity.collectedEvents.add("child" to event)
         })
+    }
+}
+
+class OverriddenLifecycleFragment : Fragment() {
+
+    private val lifecycleRegistry = LifecycleRegistry(this)
+
+    override fun getLifecycle(): Lifecycle {
+        return lifecycleRegistry
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    }
+
+    override fun onPause() {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        super.onPause()
+    }
+
+    override fun onStop() {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        super.onDestroy()
     }
 }

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import androidx.build.AndroidXExtension
 import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -40,9 +38,9 @@ dependencies {
     api(KOTLIN_COROUTINES_ANDROID)
     implementation(project(":core:core-ktx"))
 
-    androidTestImplementation(project(":paging:paging-testutils"))
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(project(":internal-testutils-ktx"))
+    androidTestImplementation(project(":internal-testutils-paging"))
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -51,12 +49,6 @@ dependencies {
     androidTestImplementation(KOTLIN_TEST)
     androidTestImplementation(KOTLIN_COROUTINES_TEST)
     androidTestImplementation(JUNIT)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(MOCKITO_KOTLIN, {
-        exclude group: "org.mockito" // to keep control on the mockito version
-        exclude group: "net.bytebuddy"
-    })
 }
 
 androidx {

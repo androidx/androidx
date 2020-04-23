@@ -18,9 +18,6 @@ package androidx.transition;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.TimeInterpolator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -36,7 +33,6 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.Spinner;
 
@@ -47,6 +43,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
+import androidx.core.animation.Animator;
+import androidx.core.animation.AnimatorInflater;
+import androidx.core.animation.AnimatorListenerAdapter;
+import androidx.core.animation.Interpolator;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.ViewCompat;
 
@@ -182,7 +182,7 @@ public abstract class Transition implements Cloneable {
 
     private long mStartDelay = -1;
     long mDuration = -1;
-    private TimeInterpolator mInterpolator = null;
+    private Interpolator mInterpolator = null;
     ArrayList<Integer> mTargetIds = new ArrayList<>();
     ArrayList<View> mTargets = new ArrayList<>();
     private ArrayList<String> mTargetNames = null;
@@ -287,7 +287,7 @@ public abstract class Transition implements Cloneable {
         final int resId = TypedArrayUtils.getNamedResourceId(a, parser, "interpolator",
                 Styleable.Transition.INTERPOLATOR, 0);
         if (resId > 0) {
-            setInterpolator(AnimationUtils.loadInterpolator(context, resId));
+            setInterpolator(AnimatorInflater.loadInterpolator(context, resId));
         }
         String matchOrder = TypedArrayUtils.getNamedString(a, parser, "matchOrder",
                 Styleable.Transition.MATCH_ORDER);
@@ -391,7 +391,7 @@ public abstract class Transition implements Cloneable {
      * @return This transition object.
      */
     @NonNull
-    public Transition setInterpolator(@Nullable TimeInterpolator interpolator) {
+    public Transition setInterpolator(@Nullable Interpolator interpolator) {
         mInterpolator = interpolator;
         return this;
     }
@@ -405,7 +405,7 @@ public abstract class Transition implements Cloneable {
      * returns null.
      */
     @Nullable
-    public TimeInterpolator getInterpolator() {
+    public Interpolator getInterpolator() {
         return mInterpolator;
     }
 
@@ -894,12 +894,12 @@ public abstract class Transition implements Cloneable {
             // TODO: could be a single listener instance for all of them since it uses the param
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
-                public void onAnimationStart(Animator animation) {
+                public void onAnimationStart(@NonNull Animator animation) {
                     mCurrentAnimators.add(animation);
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd(@NonNull Animator animation) {
                     runningAnimators.remove(animation);
                     mCurrentAnimators.remove(animation);
                 }
@@ -1721,7 +1721,7 @@ public abstract class Transition implements Cloneable {
                 AnimationInfo info = runningAnimators.valueAt(i);
                 if (info.mView != null && windowId.equals(info.mWindowId)) {
                     Animator anim = runningAnimators.keyAt(i);
-                    AnimatorUtils.pause(anim);
+                    anim.pause();
                 }
             }
             if (mListeners != null && mListeners.size() > 0) {
@@ -1754,7 +1754,7 @@ public abstract class Transition implements Cloneable {
                     AnimationInfo info = runningAnimators.valueAt(i);
                     if (info.mView != null && windowId.equals(info.mWindowId)) {
                         Animator anim = runningAnimators.keyAt(i);
-                        AnimatorUtils.resume(anim);
+                        anim.resume();
                     }
                 }
                 if (mListeners != null && mListeners.size() > 0) {
@@ -1907,7 +1907,7 @@ public abstract class Transition implements Cloneable {
             }
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd(@NonNull Animator animation) {
                     end();
                     animation.removeListener(this);
                 }
@@ -2205,11 +2205,13 @@ public abstract class Transition implements Cloneable {
         mCanRemoveViews = canRemoveViews;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return toString("");
     }
 
+    @NonNull
     @Override
     public Transition clone() {
         try {
@@ -2221,7 +2223,7 @@ public abstract class Transition implements Cloneable {
             clone.mEndValuesList = null;
             return clone;
         } catch (CloneNotSupportedException e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 

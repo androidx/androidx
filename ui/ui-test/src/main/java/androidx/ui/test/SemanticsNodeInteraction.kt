@@ -22,9 +22,16 @@ import androidx.ui.test.android.AndroidInputDispatcher
 
 internal fun SemanticsNodeInteraction(
     node: SemanticsNode,
-    selector: SemanticsPredicate
+    selector: SemanticsMatcher
 ): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(listOf(node), selector)
+}
+
+internal fun SemanticsNodeInteraction(
+    selector: SemanticsMatcher
+): SemanticsNodeInteraction {
+    val matchedNodes = selector.match(getAllSemanticsNodes()).toList()
+    return SemanticsNodeInteraction(matchedNodes, selector)
 }
 
 /**
@@ -38,7 +45,7 @@ internal fun SemanticsNodeInteraction(
  */
 class SemanticsNodeInteraction internal constructor(
     nodes: List<SemanticsNode>,
-    internal val selector: SemanticsPredicate
+    internal val selector: SemanticsMatcher
 ) {
     private val nodeIds: List<Int> = nodes.map { it.id }.toList()
 

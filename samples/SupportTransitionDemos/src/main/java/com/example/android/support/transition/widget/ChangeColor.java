@@ -16,9 +16,6 @@
 
 package com.example.android.support.transition.widget;
 
-import android.animation.Animator;
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -26,6 +23,9 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.animation.Animator;
+import androidx.core.animation.ArgbEvaluator;
+import androidx.core.animation.ValueAnimator;
 import androidx.transition.Transition;
 import androidx.transition.TransitionValues;
 
@@ -64,8 +64,8 @@ public class ChangeColor extends Transition {
     @Nullable
     @Override
     public Animator createAnimator(@NonNull ViewGroup sceneRoot,
-                                   @Nullable TransitionValues startValues,
-                                   @Nullable TransitionValues endValues) {
+            @Nullable TransitionValues startValues,
+            @Nullable TransitionValues endValues) {
         // This transition can only be applied to views that are on both starting and ending scenes.
         if (null == startValues || null == endValues) {
             return null;
@@ -91,13 +91,13 @@ public class ChangeColor extends Transition {
                 // animation runs on the UI thread. The Evaluator controls what type of
                 // interpolation is done. In this case, an ArgbEvaluator interpolates between two
                 // #argb values, which are specified as the 2nd and 3rd input arguments.
-                ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(),
+                ValueAnimator animator = ValueAnimator.ofObject(ArgbEvaluator.getInstance(),
                         startColor.getColor(), endColor.getColor());
                 // Add an update listener to the Animator object.
                 animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        Object value = animation.getAnimatedValue();
+                    public void onAnimationUpdate(@NonNull Animator animation) {
+                        Object value = ((ValueAnimator) animation).getAnimatedValue();
                         // Each time the ValueAnimator produces a new frame in the animation, change
                         // the background color of the target. Ensure that the value isn't null.
                         if (null != value) {

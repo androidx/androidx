@@ -38,6 +38,52 @@ import java.net.URLClassLoader
 class KtxCrossModuleTests : AbstractCodegenTest() {
 
     @Test
+    fun testAccessibilityBridgeGeneration(): Unit = ensureSetup {
+        compile(
+            mapOf("library module" to mapOf(
+                    "x/I.kt" to """
+                      package x
+
+                      import androidx.compose.Composable
+
+                      @Composable fun bar(arg: @Composable () -> Unit) {
+                          arg()
+                      }
+                  """.trimIndent()
+                ),
+                "Main" to mapOf(
+                    "y/User.kt" to """
+                      package y
+
+                      import x.bar
+                      import androidx.compose.Composable
+
+                      @Composable fun baz() {
+                          bar {
+                            foo()
+                          }
+                      }
+                      @Composable private fun foo() { }
+                  """.trimIndent()
+                )
+            )
+        ) {
+            // Check that there is only one method declaration for access$foo.
+            // We used to introduce more symbols for the same function leading
+            // to multiple identical methods in the output.
+            // In the dump, $ is mapped to %.
+            val declaration = "synthetic access%foo"
+            val occurrences = it.windowed(declaration.length) { candidate ->
+                if (candidate.equals(declaration))
+                    1
+                else
+                    0
+            }.sum()
+            assert(occurrences == 1)
+        }
+    }
+
+    @Test
     fun testInlineClassCrossModule(): Unit = ensureSetup {
         compile(
             mapOf(
@@ -70,6 +116,47 @@ class KtxCrossModuleTests : AbstractCodegenTest() {
             assert(it.contains("INVOKESTATIC y/J.constructor-impl (I)I"))
             // Check that the inline class prop getter is correctly mangled.
             assert(it.contains("INVOKESTATIC x/I.getProp-impl (I)I"))
+        }
+    }
+
+    @Test
+    fun testInlineClassOverloading(): Unit = ensureSetup {
+        compile(
+            mapOf(
+                "library module" to mapOf(
+                    "x/A.kt" to """
+                        package x
+
+                        import androidx.compose.Composable
+
+                        inline class I(val i: Int)
+                        inline class J(val j: Int)
+
+                        @Composable fun foo(i: I) { }
+                        @Composable fun foo(j: J) { }
+                    """.trimIndent()
+                ),
+                "Main" to mapOf(
+                    "y/B.kt" to """
+                        package y
+
+                        import androidx.compose.Composable
+                        import x.*
+
+                        @Composable fun bar(k: Int) {
+                            foo(I(k))
+                            foo(J(k))
+                        }
+                    """
+                )
+            )
+        ) {
+            // Check that the composable functions were properly mangled
+            assert(it.contains("public final static foo-M7K8KNI(ILandroidx/compose/Composer;)V"))
+            assert(it.contains("public final static foo-fpD6Y9w(ILandroidx/compose/Composer;)V"))
+            // Check that we didn't leave any references to the original name, which probably
+            // leads to a compile error.
+            assert(!it.contains("foo("))
         }
     }
 

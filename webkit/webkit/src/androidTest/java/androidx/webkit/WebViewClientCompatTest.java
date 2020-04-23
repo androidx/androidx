@@ -498,8 +498,11 @@ public class WebViewClientCompatTest {
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            Assert.assertTrue(mOnPageStartedCalled);
-            Assert.assertTrue(mOnLoadResourceCalled);
+            Assert.assertTrue("Expected onPageStarted to be called before onPageFinished",
+                    mOnPageStartedCalled);
+            Assert.assertTrue(
+                    "Expected onLoadResource or onReceivedError to be called before onPageFinished",
+                    mOnLoadResourceCalled || mOnReceivedResourceError != null);
             mOnPageFinishedCalled = true;
         }
 

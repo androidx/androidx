@@ -21,22 +21,22 @@ import androidx.ui.core.LayoutNodeWrapper
 
 internal class SemanticsWrapper(
     wrapped: LayoutNodeWrapper,
-    val semanticsModifier: SemanticsModifier
-) : DelegatingLayoutNodeWrapper(wrapped) {
+    semanticsModifier: SemanticsModifier
+) : DelegatingLayoutNodeWrapper<SemanticsModifier>(wrapped, semanticsModifier) {
     fun semanticsNode(): SemanticsNode {
-        return SemanticsNode(semanticsModifier.id,
+        return SemanticsNode(modifier.id,
             collapsedSemanticsConfiguration(),
             layoutNode)
     }
 
     fun collapsedSemanticsConfiguration(): SemanticsConfiguration {
-        var config = semanticsModifier.semanticsConfiguration.copy()
+        var config = modifier.semanticsConfiguration.copy()
         findOneImmediateChild()?.collapseChainedSemanticsIntoTopConfig(config, this)
         return config
     }
 
     override fun toString(): String {
-        return "${super.toString()} localConfig: ${semanticsModifier.semanticsConfiguration}"
+        return "${super.toString()} localConfig: ${modifier.semanticsConfiguration}"
     }
 
     /**
@@ -50,7 +50,7 @@ internal class SemanticsWrapper(
         parentConfig: SemanticsConfiguration,
         topNodeOfConfig: SemanticsWrapper
     ) {
-        parentConfig.absorb(semanticsModifier.semanticsConfiguration, ignoreAlreadySet = true)
+        parentConfig.absorb(modifier.semanticsConfiguration, ignoreAlreadySet = true)
 
         // Recursively collapse the chain, if we have an immediate child
         findOneImmediateChild()?.collapseChainedSemanticsIntoTopConfig(

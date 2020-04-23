@@ -48,6 +48,7 @@ import androidx.room.vo.WriteQueryMethod
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertAbout
+import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
@@ -56,7 +57,6 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeVariableName
-import createInterpreterFromEntitiesAndViews
 import createVerifierFromEntitiesAndViews
 import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
@@ -650,13 +650,11 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 @Query("SELECT uid from User")
                 abstract public int[] foo();
                 """) { method, invocation ->
-            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
             assertThat(
                 QueryMethodProcessor(
                     baseContext = invocation.context,
                     containing = Mockito.mock(DeclaredType::class.java),
                     executableElement = method.element,
-                    queryInterpreter = queryInterpreter,
                     dbVerifier = null
                 ).context.logger.suppressedWarnings,
                 `is`(setOf(Warning.CURSOR_MISMATCH))
@@ -876,8 +874,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             options = listOf("-Aroom.expandProjection=true")
         ) { adapter, _, _ ->
             adapter!!
-            assertThat(adapter.mapping.unusedColumns.size, `is`(0))
-            assertThat(adapter.mapping.unusedFields.size, `is`(0))
+            assertThat(adapter.mapping.unusedColumns).isEmpty()
+            assertThat(adapter.mapping.unusedFields).isEmpty()
         }!!.compilesWithoutWarnings()
     }
 
@@ -952,16 +950,16 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                             )
                         }.first { it.second.isNotEmpty() }
                     val verifier = if (enableVerification) {
-                        createVerifierFromEntitiesAndViews(invocation)
+                        createVerifierFromEntitiesAndViews(invocation).also(
+                            invocation.context::attachDatabaseVerifier
+                        )
                     } else {
                         null
                     }
-                    val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
                     val parser = QueryMethodProcessor(
                         baseContext = invocation.context,
                         containing = MoreTypes.asDeclared(owner.asType()),
                         executableElement = MoreElements.asExecutable(methods.first()),
-                        queryInterpreter = queryInterpreter,
                         dbVerifier = verifier
                     )
                     val parsedQuery = parser.process()

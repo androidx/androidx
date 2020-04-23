@@ -46,8 +46,8 @@ public abstract class WorkerFactoryModule {
 
     @NonNull
     @Provides
-    static WorkerFactory provideFactory(@NonNull Map<String,
+    static HiltWorkerFactory provideFactory(@NonNull Map<String,
             Provider<WorkerAssistedFactory<? extends Worker>>> workerFactories) {
-        return new WorkerFactory(workerFactories);
+        return new HiltWorkerFactory(workerFactories);
     }
 }

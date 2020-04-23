@@ -23,7 +23,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.ProvideTextStyle
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
@@ -31,6 +30,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.PathOperation
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
 import androidx.ui.layout.AlignmentLineOffset

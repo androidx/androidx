@@ -22,7 +22,6 @@
     <!--Fragment titles-->
     <string name="preferences">Preferences</string>
     <string name="leanback_preferences">Leanback Preferences</string>
-    <string name="car_preferences">Car Preferences</string>
 
     <!--This section is for basic attributes -->
     <string name="basic_preferences">Basic attributes</string>
