@@ -534,7 +534,7 @@ public class ListBuilder extends TemplateSliceBuilder {
         private SliceAction mPrimaryAction;
         private CharSequence mContentDescription;
         private int mLayoutDirection = -1;
-        private int mMode = 0;
+        private int mMode = RANGE_MODE_DETERMINATE;
         private IconCompat mTitleIcon;
         private int mTitleImageMode;
         private boolean mTitleItemLoading;
@@ -542,7 +542,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * Builder to construct a range row which can be added to a {@link ListBuilder}.
          * <p>
-         * A range row supports displaying a horizontal progress indicator.
+         * A range row supports displaying a horizontal progress indicator. It supports two modes
+         * to represent progress: determinate and indeterminate, see {@link #setMode(int)}.
+         * Determinate mode is the default for progress indicator.
          *
          * @see ListBuilder#addRange(RangeBuilder)
          */
