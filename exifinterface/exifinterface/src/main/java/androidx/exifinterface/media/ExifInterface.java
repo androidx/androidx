@@ -5096,7 +5096,8 @@ public class ExifInterface {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public long getDateTime() {
         return parseDateTime(getAttribute(TAG_DATETIME),
-                getAttribute(TAG_SUBSEC_TIME));
+                getAttribute(TAG_SUBSEC_TIME),
+                getAttribute(TAG_OFFSET_TIME));
     }
 
     /**
@@ -5110,7 +5111,8 @@ public class ExifInterface {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public long getDateTimeDigitized() {
         return parseDateTime(getAttribute(TAG_DATETIME_DIGITIZED),
-                getAttribute(TAG_SUBSEC_TIME_DIGITIZED));
+                getAttribute(TAG_SUBSEC_TIME_DIGITIZED),
+                getAttribute(TAG_OFFSET_TIME_DIGITIZED));
     }
 
     /**
@@ -5124,10 +5126,12 @@ public class ExifInterface {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public long getDateTimeOriginal() {
         return parseDateTime(getAttribute(TAG_DATETIME_ORIGINAL),
-                getAttribute(TAG_SUBSEC_TIME_ORIGINAL));
+                getAttribute(TAG_SUBSEC_TIME_ORIGINAL),
+                getAttribute(TAG_OFFSET_TIME_ORIGINAL));
     }
 
-    private static long parseDateTime(@Nullable String dateTimeString, @Nullable String subSecs) {
+    private static long parseDateTime(@Nullable String dateTimeString, @Nullable String subSecs,
+            @Nullable String offsetString) {
         if (dateTimeString == null
                 || !sNonZeroTimePattern.matcher(dateTimeString).matches()) return INVALID_DATE_TIME;
 
@@ -5138,6 +5142,16 @@ public class ExifInterface {
             Date datetime = sFormatter.parse(dateTimeString, pos);
             if (datetime == null) return INVALID_DATE_TIME;
             long msecs = datetime.getTime();
+            if (offsetString != null) {
+                String sign = offsetString.substring(0, 1);
+                int hour = Integer.parseInt(offsetString.substring(1, 3));
+                int min = Integer.parseInt(offsetString.substring(4, 6));
+                if (("+".equals(sign) || "-".equals(sign))
+                        && ":".equals(offsetString.substring(3, 4))
+                        && hour <= 14 /* max UTC hour value */) {
+                    msecs += (hour * 60 + min) * 60 * 1000 * ("-".equals(sign) ? 1 : -1);
+                }
+            }
 
             if (subSecs != null) {
                 try {
