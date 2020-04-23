@@ -36,6 +36,9 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Unit tests for {@link ForwardingImageProxy}.
+ */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ForwardingImageProxyTest {
@@ -129,6 +132,16 @@ public final class ForwardingImageProxyTest {
     @UseExperimental(markerClass = ExperimentalGetImage.class)
     public void getImage_returnsImageForWrappedImage() {
         assertThat(mImageProxy.getImage()).isEqualTo(mBaseImageProxy.getImage());
+    }
+
+    @Test
+    public void getViewPortRect_returnsViewPortRectForWrappedImage() {
+        // Arrange.
+        Rect rect = new Rect();
+        when(mBaseImageProxy.getViewPortRect()).thenReturn(rect);
+
+        // Assert.
+        assertThat(mImageProxy.getViewPortRect()).isEqualTo(rect);
     }
 
     private static final class ConcreteImageProxy extends ForwardingImageProxy {

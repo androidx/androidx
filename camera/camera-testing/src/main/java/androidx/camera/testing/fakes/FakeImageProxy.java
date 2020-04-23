@@ -39,6 +39,7 @@ public final class FakeImageProxy implements ImageProxy {
     private int mHeight = 0;
     private int mWidth = 0;
     private PlaneProxy[] mPlaneProxy = new PlaneProxy[0];
+    private Rect mViewPortRect;
 
     @NonNull
     private ImageInfo mImageInfo;
@@ -75,6 +76,17 @@ public final class FakeImageProxy implements ImageProxy {
     @Override
     public void setCropRect(@Nullable Rect rect) {
         mCropRect = rect != null ? rect : new Rect();
+    }
+
+    @NonNull
+    @Override
+    public Rect getViewPortRect() {
+        return mViewPortRect != null ? mViewPortRect : getCropRect();
+    }
+
+    @Override
+    public void setViewPortRect(@Nullable Rect viewPortRect) {
+        mViewPortRect = viewPortRect;
     }
 
     @Override
