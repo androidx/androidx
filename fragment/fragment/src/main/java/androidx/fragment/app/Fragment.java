@@ -2839,7 +2839,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @Nullable
             public View onFindViewById(int id) {
                 if (mView == null) {
-                    throw new IllegalStateException("Fragment " + this + " does not have a view");
+                    throw new IllegalStateException("Fragment " + Fragment.this
+                            + " does not have a view");
                 }
                 return mView.findViewById(id);
             }
