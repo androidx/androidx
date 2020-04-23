@@ -67,7 +67,7 @@ fun ScrollerPosition(
  * allows the developer to change the scroll position by calling methods on this object.
  *
  * @param flingConfig configuration that specifies fling logic when scrolling ends with velocity
- * @param initial initial scroller position to start with
+ * @param initial initial scroller position in pixels to start with
  * @param animationClock clock observable to run animation on. Consider querying
  * [AnimationClockAmbient] to get current composition value
  */
@@ -97,7 +97,7 @@ class ScrollerPosition(
         ScrollableState(consumeDelta, flingConfig, animationClock)
 
     /**
-     * current scroller position value
+     * current scroller position value in pixels
      */
     var value by mutableStateOf(initial, StructurallyEqual)
         private set
@@ -109,7 +109,7 @@ class ScrollerPosition(
         get() = scrollableState.isAnimating
 
     /**
-     * maxPosition this scroller that consume this ScrollerPosition can reach, or
+     * maxPosition this scroller that consume this ScrollerPosition can reach in pixels, or
      * [Float.POSITIVE_INFINITY] if still unknown
      */
     var maxPosition by mutableStateOf(Float.POSITIVE_INFINITY, StructurallyEqual)
@@ -118,7 +118,8 @@ class ScrollerPosition(
     /**
      * Smooth scroll to position in pixels
      *
-     * @param value target value to smooth scroll to, value will be coerced to 0..maxPosition
+     * @param value target value in pixels to smooth scroll to, value will be coerced to
+     * 0..maxPosition
      */
     // TODO (malkov/tianliu) : think about allowing to scroll with custom animation timings/curves
     fun smoothScrollTo(
@@ -131,7 +132,7 @@ class ScrollerPosition(
     /**
      * Smooth scroll by some amount of pixels
      *
-     * @param value delta to scroll by, total value will be coerced to 0..maxPosition
+     * @param value delta in pixels to scroll by, total value will be coerced to 0..maxPosition
      */
     fun smoothScrollBy(
         value: Float,
@@ -143,7 +144,7 @@ class ScrollerPosition(
     /**
      * Instantly jump to position in pixels
      *
-     * @param value target value to jump to, value will be coerced to 0..maxPosition
+     * @param value target value in pixels to jump to, value will be coerced to 0..maxPosition
      */
     fun scrollTo(value: Float) {
         this.value = value.coerceIn(0f, maxPosition)
@@ -152,7 +153,7 @@ class ScrollerPosition(
     /**
      * Instantly jump by some amount of pixels
      *
-     * @param value delta to jump by, total value will be coerced to 0..maxPosition
+     * @param value delta in pixels to jump by, total value will be coerced to 0..maxPosition
      */
     fun scrollBy(value: Float) {
         scrollTo(this.value + value)
