@@ -33,7 +33,7 @@ import java.util.Map;
 /** A CameraDeviceSurfaceManager which has no supported SurfaceConfigs. */
 public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurfaceManager {
 
-    private static final Size MAX_OUTPUT_SIZE = new Size(4032, 3024); // 12.2 MP
+    public static final Size MAX_OUTPUT_SIZE = new Size(4032, 3024); // 12.2 MP
     private static final Size PREVIEW_SIZE = new Size(1920, 1080);
 
     private Map<String, Map<Class<? extends UseCaseConfig<?>>, Size>> mDefinedResolutions =
