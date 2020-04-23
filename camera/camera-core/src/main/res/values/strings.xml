@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <string name="androidx_camera_default_config_provider" />
+    <string name="androidx_camera_default_config_provider" translatable="false" />
 </resources>

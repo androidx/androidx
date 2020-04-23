@@ -44,6 +44,7 @@ android {
     buildTypes {
         debug {
             testCoverageEnabled true
+            pseudoLocalesEnabled true
         }
 
         release {
@@ -66,22 +67,28 @@ dependencies {
     api(CONSTRAINT_LAYOUT, { transitive = true })
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(GUAVA_ANDROID)
+    implementation(ESPRESSO_IDLING_RESOURCE)
 
     // 3P library
     debugImplementation(LEAKCANARY)
 
     // Testing framework
-    androidTestImplementation(LEAKCANARY)
-    androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(ESPRESSO_IDLING_RESOURCE)
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(KOTLIN_COROUTINES_ANDROID)
+    androidTestImplementation(LEAKCANARY)
+    androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
+    androidTestImplementation(TRUTH)
     androidTestImplementation(project(":camera:camera-testing"))
-    implementation(ESPRESSO_IDLING_RESOURCE)
+    androidTestImplementation(project(":concurrent:concurrent-futures"))
+    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
+    androidTestImplementation(project(':internal-testutils-runtime'))
+
 }
 
