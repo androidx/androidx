@@ -17,7 +17,6 @@ package androidx.ui.text.platform
 
 import android.graphics.Canvas
 import android.graphics.Path
-import android.os.Build
 import android.text.Layout
 import android.text.Spanned
 import android.text.TextDirectionHeuristic
@@ -177,21 +176,37 @@ class TextLayout constructor(
             )
         }
 
-        didExceedMaxLines = if (Build.VERSION.SDK_INT <= 25) {
-            /* Before API 25, the layout.lineCount will be set to maxLines when there are more
-               actual text lines in the layout.
-               So in those versions, we first check if maxLines equals layout.lineCount. If true,
-               we check whether the offset of the last character in Layout is the last character
-               in string. */
-            if (maxLines != layout.lineCount) {
+        /* When ellipsis is false:
+          1. Before API 25(include 25), if the number of the actual text lines in the layout is
+          greater than the maxLines, layout.lineCount will be set to the maxLines.
+          2. After API 25(exclude 25), the layout.lineCount will be the actual number of the text
+          lines in the layout even if layout.lineCount > maxLines.
+          When ellipsis is true:
+          If the number of the actual text lines in the layout is greater than maxLines,
+          layout.lineCount will be set to the maxLines.
+          To unify the behavior of lineCount, no matter ellipsis is on or off, when the number of
+          the actual text lines in the layout is greater than the maxLines, the maxLines is
+          always returned.
+         */
+        lineCount = min(layout.lineCount, maxLines)
+        didExceedMaxLines =
+            /* When lineCount is less than maxLines, actual line count is guaranteed not to exceed
+            the maxLines.
+            But when lineCount == maxLines, the actual line count may exceeds the maxLines in the
+            following two scenarios:
+            1. Ellipsis is on and the actual line count exceeds maxLines.
+            2. It's under API 25(include 25), ellipsis is off and the actual line count exceeds
+            the maxLines.
+            */
+            if (lineCount < maxLines) {
                 false
             } else {
-                layout.getLineEnd(layout.lineCount - 1) != charSequence.length
+                if (ellipsize != null) {
+                    layout.getEllipsisCount(lineCount - 1) > 0
+                } else {
+                    layout.getLineEnd(lineCount - 1) != charSequence.length
+                }
             }
-        } else {
-            layout.lineCount > maxLines
-        }
-        lineCount = min(layout.lineCount, maxLines)
     }
 
     val text: CharSequence
