@@ -25,6 +25,7 @@ import argparse
 import subprocess
 import json
 import datetime
+from shutil import rmtree
 
 # This script is meant as a drop in replacement until we have git tags implemented in androidx
 # See b/147606199
@@ -119,15 +120,6 @@ def generate_release_json_file(date, include_all_commits, jetpad_release_info):
 		output_json_filepath = os.path.abspath(f.name)
 	return output_json_filepath
 
-def run_release_notes_command(output_json_filepath):
-	try:
-		subprocess.check_call('cd ../.. && ./gradlew generateReleaseNotes -PartifactToCommitMap=%s' % output_json_filepath, shell=True)
-	except subprocess.CalledProcessError:
-		print_e('FAIL: Failed to run the gradle task generateReleaseNotes for file %s' %  output_json_filepath)
-		return False
-	print("Success! Release notes have been generated at ../../../../out/dist/release-notes/androidx_aggregate_release_notes.txt \n")
-	return True
-
 
 def isExcludedAuthorEmail(authorEmail):
 	""" Check if an email address is a robot
@@ -179,14 +171,14 @@ def commonPathPrefix(pathA, pathB):
 			lastCommonIndex = i
 	return "/".join(pathAList[:lastCommonIndex + 1])
 
-def writeArtifactIdReleaseNotesToFile(groupId, artifactId, version, releaseNotesString):
+def writeArtifactIdReleaseNotesToFile(groupId, artifactId, version, releaseNotesString, outputDir):
 	releaseNotesFileName = "%s_%s_%s_release_notes.txt" % (groupId, artifactId, version)
-	groupIdDir = "./out/%s" % groupId
+	groupIdDir = "%s/%s" % (outputDir, groupId)
 	writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesString)
 
-def writeGroupIdReleaseNotesToFile(groupId, releaseNotesString):
+def writeGroupIdReleaseNotesToFile(groupId, releaseNotesString, outputDir):
 	releaseNotesFileName = "%s_release_notes.txt" % (groupId)
-	groupIdDir = "./out/%s" % groupId
+	groupIdDir = "%s/%s" % (outputDir, groupId)
 	writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesString)
 
 def writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesString):
@@ -196,7 +188,7 @@ def writeReleaseNotesToNewFile(groupIdDir, releaseNotesFileName, releaseNotesStr
 	with open(fullReleaseNotesFilePath, 'w') as f:
 		f.write(releaseNotesString)
 
-def generateAllReleaseNotes(releaseDate, include_all_commits, jetpad_release_info):
+def generateAllReleaseNotes(releaseDate, include_all_commits, jetpad_release_info, outputDir):
 	""" Creates all the release notes.  Creates each individual artifactId release notes, each
 		individual groupId release notes, then creates an aggregrate release notes file that
 		contains all of the groupId release Notes
@@ -209,10 +201,10 @@ def generateAllReleaseNotes(releaseDate, include_all_commits, jetpad_release_inf
 	releaseJsonObject = get_release_note_object(releaseDate, include_all_commits, jetpad_release_info)
 	allReleaseNotes = ""
 	for groupId in releaseJsonObject["modules"]:
-		allReleaseNotes += "\n\n" + generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId)
-	writeReleaseNotesToNewFile("./out", "all_androidx_release_notes.txt", allReleaseNotes)
+		allReleaseNotes += "\n\n" + generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir)
+	writeReleaseNotesToNewFile(outputDir, "all_androidx_release_notes.txt", allReleaseNotes)
 
-def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId):
+def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir):
 	""" Creates the groupId release notes using the list of artifactId LibraryReleaseNotes
 		Groups artifactIds of the same version.
 
@@ -236,7 +228,7 @@ def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId):
 		for artifact in versionRNList:
 			versionArtifactIds.append(artifact["artifactId"])
 			## Get and merge commits lists
-			artifactIdReleaseNotes = generateArtifactIdReleaseNotes(gitClient, artifact, releaseJsonObject["releaseDate"], releaseJsonObject["includeAllCommits"])
+			artifactIdReleaseNotes = generateArtifactIdReleaseNotes(gitClient, artifact, releaseJsonObject["releaseDate"], releaseJsonObject["includeAllCommits"], outputDir)
 			mergeCommitListBIntoCommitListA(
 				versionGroupCommitList,
 				artifactIdReleaseNotes.commitList
@@ -266,12 +258,13 @@ def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId):
 	completeGroupIdReleaseNotes = "\n\n".join((groupReleaseNotesStringList))
 	writeGroupIdReleaseNotesToFile(
 		groupId,
-		completeGroupIdReleaseNotes
+		completeGroupIdReleaseNotes,
+		outputDir
 	)
 	return completeGroupIdReleaseNotes
 
 
-def generateArtifactIdReleaseNotes(gitClient, artifact, releaseDate, includeAllCommits):
+def generateArtifactIdReleaseNotes(gitClient, artifact, releaseDate, includeAllCommits, outputDir):
 	# If there are is no fromCommit specified for this artifact, then simply return because
 	# we don't know how far back to query the commit log
 	fromSHA = artifact["fromSHA"]
@@ -315,7 +308,8 @@ def generateArtifactIdReleaseNotes(gitClient, artifact, releaseDate, includeAllC
 		artifact["groupId"],
 		artifact["artifactId"],
 		artifact["version"],
-		str(artifactIdReleaseNotes)
+		str(artifactIdReleaseNotes),
+		outputDir
 	)
 	return artifactIdReleaseNotes
 
@@ -331,9 +325,12 @@ def main(args):
 		exit(1)
 	print("Successful")
 	print("Creating release notes...")
-	generateAllReleaseNotes(args.date, args.include_all_commits, jetpad_release_info)
+	outputDir = "./out"
+	# Remove the local output dir so that leftover release notes from the previous run are removed
+	rm(outputDir)
+	generateAllReleaseNotes(args.date, args.include_all_commits, jetpad_release_info, outputDir)
 	print("Successful.")
-	print("Release notes have been written to ./out")
+	print("Release notes have been written to %s" % outputDir)
 
 if __name__ == '__main__':
 	main(sys.argv)
