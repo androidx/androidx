@@ -380,6 +380,25 @@ class SpanStyleTest {
     }
 
     @Test
+    fun `plus operator merges`() {
+        val style = SpanStyle(
+            color = Color.Red,
+            fontWeight = FontWeight.Bold
+        ) + SpanStyle(
+            color = Color.Green,
+            fontFamily = FontFamily.Cursive
+        )
+
+        assertThat(style).isEqualTo(
+            SpanStyle(
+                color = Color.Green, // overridden by RHS
+                fontWeight = FontWeight.Bold, // from LHS,
+                fontFamily = FontFamily.Cursive // from RHS
+            )
+        )
+    }
+
+    @Test
     fun `lerp color with a and b are not Null`() {
         val color1 = Color.Red
         val color2 = Color.Green

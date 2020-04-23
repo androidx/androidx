@@ -426,6 +426,7 @@ package androidx.ui.text {
     method public androidx.ui.text.style.TextDirectionAlgorithm? getTextDirectionAlgorithm();
     method public androidx.ui.text.style.TextIndent? getTextIndent();
     method public androidx.ui.text.ParagraphStyle merge(androidx.ui.text.ParagraphStyle? other = null);
+    method public operator androidx.ui.text.ParagraphStyle plus(androidx.ui.text.ParagraphStyle other);
   }
 
   public final class ParagraphStyleKt {
@@ -483,6 +484,7 @@ package androidx.ui.text {
     method public androidx.ui.text.style.TextDecoration? getTextDecoration();
     method public androidx.ui.text.style.TextGeometricTransform? getTextGeometricTransform();
     method public androidx.ui.text.SpanStyle merge(androidx.ui.text.SpanStyle? other = null);
+    method public operator androidx.ui.text.SpanStyle plus(androidx.ui.text.SpanStyle other);
   }
 
   public final class SpanStyleKt {
@@ -631,6 +633,9 @@ package androidx.ui.text {
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.TextStyle? other = null);
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.SpanStyle other);
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.ParagraphStyle other);
+    method public operator androidx.ui.text.TextStyle plus(androidx.ui.text.TextStyle other);
+    method public operator androidx.ui.text.TextStyle plus(androidx.ui.text.ParagraphStyle other);
+    method public operator androidx.ui.text.TextStyle plus(androidx.ui.text.SpanStyle other);
     method public androidx.ui.text.ParagraphStyle toParagraphStyle();
     method public androidx.ui.text.SpanStyle toSpanStyle();
     field public static final androidx.ui.text.TextStyle.Companion! Companion;

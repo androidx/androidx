@@ -80,6 +80,11 @@ data class ParagraphStyle constructor(
             textDirectionAlgorithm = other.textDirectionAlgorithm ?: this.textDirectionAlgorithm
         )
     }
+
+    /**
+     * Plus operator overload that applies a [merge].
+     */
+    operator fun plus(other: ParagraphStyle): ParagraphStyle = this.merge(other)
 }
 
 /**
