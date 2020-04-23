@@ -16,7 +16,6 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
@@ -26,6 +25,7 @@ import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.gesture.util.VelocityTracker
@@ -122,15 +122,14 @@ interface DragObserver {
 
 // TODO(b/129784010): Consider also allowing onStart, onDrag, and onStop to be set individually (instead of all being
 //  set via DragObserver).
-@Composable
 fun Modifier.rawDragGestureFilter(
     dragObserver: DragObserver,
     canStartDragging: (() -> Boolean)? = null
-): Modifier {
+): Modifier = composed {
     val filter = remember { RawDragGestureFilter() }
     filter.dragObserver = dragObserver
     filter.canStartDragging = canStartDragging
-    return this + PointerInputModifierImpl(filter)
+    PointerInputModifierImpl(filter)
 }
 
 internal class RawDragGestureFilter : PointerInputFilter() {

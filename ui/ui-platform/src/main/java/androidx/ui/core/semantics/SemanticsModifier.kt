@@ -16,9 +16,9 @@
 
 package androidx.ui.core.semantics
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
 import androidx.ui.semantics.SemanticsPropertyReceiver
 
 /**
@@ -60,13 +60,12 @@ internal class SemanticsModifierCore(
 
 @Deprecated("This modifier is for use in the initial stages of the semantics modifier transition." +
     " It should not be used directly.")
-@Composable
 fun Modifier.semanticsCore(
     container: Boolean = false,
     mergeAllDescendants: Boolean = false,
     properties: (SemanticsPropertyReceiver.() -> Unit)? = null
-): SemanticsModifier {
+): Modifier = composed {
     val id = remember { SemanticsNode.generateNewId() }
 
-    return SemanticsModifierCore(id, container, mergeAllDescendants, properties)
+    SemanticsModifierCore(id, container, mergeAllDescendants, properties)
 }

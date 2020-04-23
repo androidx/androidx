@@ -418,7 +418,7 @@ package androidx.ui.core.semantics {
   }
 
   public final class SemanticsModifierKt {
-    method @Deprecated public static androidx.ui.core.semantics.SemanticsModifier semanticsCore(androidx.ui.core.Modifier, boolean container = false, boolean mergeAllDescendants = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null);
+    method @Deprecated public static androidx.ui.core.Modifier semanticsCore(androidx.ui.core.Modifier, boolean container = false, boolean mergeAllDescendants = false, kotlin.jvm.functions.Function1<? super androidx.ui.semantics.SemanticsPropertyReceiver,kotlin.Unit>? properties = null);
   }
 
   public final class SemanticsNode {

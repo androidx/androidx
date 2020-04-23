@@ -208,10 +208,9 @@ class AndroidPointerInputTest {
     }
 }
 
-@Composable
-fun Modifier.consumeMovementGestureFilter(consumeMovement: Boolean = false): Modifier {
+fun Modifier.consumeMovementGestureFilter(consumeMovement: Boolean = false): Modifier = composed {
     val filter = remember { ConsumeMovementGestureFilter(consumeMovement) }
-    return this + PointerInputModifierImpl(filter)
+    PointerInputModifierImpl(filter)
 }
 
 private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :

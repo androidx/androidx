@@ -16,13 +16,13 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
@@ -117,14 +117,13 @@ interface LongPressDragObserver {
  * @param longPressDragObserver The callback interface to report all events.
  * @see LongPressDragObserver
  */
-@Composable
 fun Modifier.longPressDragGestureFilter(
     longPressDragObserver: LongPressDragObserver
-): Modifier {
+): Modifier = composed {
     val glue = remember { LongPressDragGestureDetectorGlue() }
     glue.longPressDragObserver = longPressDragObserver
 
-    return rawDragGestureFilter(glue.dragObserver, glue::dragEnabled)
+    rawDragGestureFilter(glue.dragObserver, glue::dragEnabled)
         .plus(PointerInputModifierImpl(glue))
         .longPressGestureFilter(glue.onLongPress)
 }

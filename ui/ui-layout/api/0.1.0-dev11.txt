@@ -435,6 +435,8 @@ package androidx.ui.layout {
 
   public final class LayoutHeight implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutHeight(androidx.ui.unit.Dp height);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.layout.LayoutHeight copy(androidx.ui.unit.Dp height);
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
@@ -449,6 +451,8 @@ package androidx.ui.layout {
 
   public static final class LayoutHeight.Constrain implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutHeight.Constrain(androidx.ui.unit.Dp minHeight, androidx.ui.unit.Dp maxHeight);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.unit.Dp component2();
     method public androidx.ui.layout.LayoutHeight.Constrain copy(androidx.ui.unit.Dp minHeight, androidx.ui.unit.Dp maxHeight);
@@ -470,6 +474,8 @@ package androidx.ui.layout {
 
   public static final class LayoutHeight.Max implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutHeight.Max(androidx.ui.unit.Dp maxHeight);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.layout.LayoutHeight.Max copy(androidx.ui.unit.Dp maxHeight);
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
@@ -484,6 +490,8 @@ package androidx.ui.layout {
 
   public static final class LayoutHeight.Min implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutHeight.Min(androidx.ui.unit.Dp minHeight);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.layout.LayoutHeight.Min copy(androidx.ui.unit.Dp minHeight);
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
@@ -553,6 +561,8 @@ package androidx.ui.layout {
   public final class LayoutSize implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutSize(androidx.ui.unit.Dp width, androidx.ui.unit.Dp height);
     ctor @Deprecated public LayoutSize(androidx.ui.unit.Dp size);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.unit.Dp component2();
     method public androidx.ui.layout.LayoutSize copy(androidx.ui.unit.Dp width, androidx.ui.unit.Dp height);
@@ -570,6 +580,8 @@ package androidx.ui.layout {
   public static final class LayoutSize.Constrain implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutSize.Constrain(androidx.ui.unit.Dp minWidth, androidx.ui.unit.Dp minHeight, androidx.ui.unit.Dp maxWidth, androidx.ui.unit.Dp maxHeight);
     ctor @Deprecated public LayoutSize.Constrain(androidx.ui.unit.Dp minSize, androidx.ui.unit.Dp maxSize);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.unit.Dp component2();
     method public androidx.ui.unit.Dp component3();
@@ -596,6 +608,8 @@ package androidx.ui.layout {
   public static final class LayoutSize.Max implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutSize.Max(androidx.ui.unit.Dp maxWidth, androidx.ui.unit.Dp maxHeight);
     ctor @Deprecated public LayoutSize.Max(androidx.ui.unit.Dp maxSize);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.unit.Dp component2();
     method public androidx.ui.layout.LayoutSize.Max copy(androidx.ui.unit.Dp maxWidth, androidx.ui.unit.Dp maxHeight);
@@ -613,6 +627,8 @@ package androidx.ui.layout {
   public static final class LayoutSize.Min implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutSize.Min(androidx.ui.unit.Dp minWidth, androidx.ui.unit.Dp minHeight);
     ctor @Deprecated public LayoutSize.Min(androidx.ui.unit.Dp minSize);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.unit.Dp component2();
     method public androidx.ui.layout.LayoutSize.Min copy(androidx.ui.unit.Dp minWidth, androidx.ui.unit.Dp minHeight);
@@ -656,6 +672,8 @@ package androidx.ui.layout {
 
   public final class LayoutWidth implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutWidth(androidx.ui.unit.Dp width);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.layout.LayoutWidth copy(androidx.ui.unit.Dp width);
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
@@ -670,6 +688,8 @@ package androidx.ui.layout {
 
   public static final class LayoutWidth.Constrain implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutWidth.Constrain(androidx.ui.unit.Dp minWidth, androidx.ui.unit.Dp maxWidth);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.unit.Dp component2();
     method public androidx.ui.layout.LayoutWidth.Constrain copy(androidx.ui.unit.Dp minWidth, androidx.ui.unit.Dp maxWidth);
@@ -691,6 +711,8 @@ package androidx.ui.layout {
 
   public static final class LayoutWidth.Max implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutWidth.Max(androidx.ui.unit.Dp maxWidth);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.layout.LayoutWidth.Max copy(androidx.ui.unit.Dp maxWidth);
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
@@ -705,6 +727,8 @@ package androidx.ui.layout {
 
   public static final class LayoutWidth.Min implements androidx.ui.core.LayoutModifier {
     ctor @Deprecated public LayoutWidth.Min(androidx.ui.unit.Dp minWidth);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public androidx.ui.unit.Dp component1();
     method public androidx.ui.layout.LayoutWidth.Min copy(androidx.ui.unit.Dp minWidth);
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
