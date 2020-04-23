@@ -38,7 +38,7 @@ package androidx.navigation.dynamicfeatures {
   }
 
   public final class DynamicActivityNavigatorDestinationBuilderKt {
-    method public static inline void activity(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline void activity(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
   }
 
   public final class DynamicExtras implements androidx.navigation.Navigator.Extras {
@@ -93,8 +93,8 @@ package androidx.navigation.dynamicfeatures {
   }
 
   public final class DynamicIncludeNavGraphBuilderKt {
-    method public static inline void includeDynamic(androidx.navigation.NavGraphBuilder, @IdRes int id, String moduleName, String graphResourceName);
-    method public static inline void includeDynamic(androidx.navigation.NavGraphBuilder, @IdRes int id, String moduleName, String graphResourceName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit> builder);
+    method public static inline void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, String moduleName, String graphResourceName);
+    method public static inline void includeDynamic(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, String moduleName, String graphResourceName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicIncludeNavGraphBuilder,kotlin.Unit> builder);
   }
 
   public class DynamicInstallManager {

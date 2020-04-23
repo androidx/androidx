@@ -24,14 +24,13 @@ import androidx.annotation.IdRes
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.get
 
 /**
  * Construct a new [DynamicActivityNavigator.Destination]
  * @param id Destination id.
  */
-inline fun NavGraphBuilder.activity(
+inline fun DynamicNavGraphBuilder.activity(
     @IdRes id: Int,
     builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit
 ) = destination(

@@ -21,7 +21,6 @@ package androidx.navigation.dynamicfeatures
 import androidx.annotation.IdRes
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
 import androidx.navigation.get
 
@@ -34,7 +33,7 @@ import androidx.navigation.get
  * @param graphResourceName Graph's resource name without the `navigation` qualifier. This
  * must not be an empty string.
  */
-inline fun NavGraphBuilder.includeDynamic(
+inline fun DynamicNavGraphBuilder.includeDynamic(
     @IdRes id: Int,
     moduleName: String,
     graphResourceName: String
@@ -50,7 +49,7 @@ inline fun NavGraphBuilder.includeDynamic(
  * must not be an empty string.
  * @param builder Another builder for chaining.
  */
-inline fun NavGraphBuilder.includeDynamic(
+inline fun DynamicNavGraphBuilder.includeDynamic(
     @IdRes id: Int,
     moduleName: String,
     graphResourceName: String,
