@@ -25,11 +25,13 @@ import androidx.compose.Composable
 import androidx.compose.Composition
 import androidx.compose.Recomposer
 import androidx.compose.currentComposer
-import androidx.compose.remember
 import androidx.compose.onActive
 import androidx.compose.onCommit
+import androidx.compose.remember
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.setContent
+import androidx.ui.foundation.semantics.dialog
+import androidx.ui.semantics.Semantics
 
 /**
  * Opens a dialog with the given content.
@@ -64,7 +66,9 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
     }
 
     onCommit {
-        dialog.setContent(children)
+        dialog.setContent {
+            Semantics(container = true, properties = { this.dialog = true }, children = children)
+        }
     }
 }
 
