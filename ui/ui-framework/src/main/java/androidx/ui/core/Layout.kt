@@ -157,7 +157,7 @@ import androidx.ui.unit.min
     measureBlocks: LayoutNode.MeasureBlocks,
     modifier: Modifier
 ) {
-    LayoutNode(modifier = modifier, measureBlocks = measureBlocks) {
+    LayoutNode(modifier = currentComposer.materialize(modifier), measureBlocks = measureBlocks) {
         children()
     }
 }
@@ -171,7 +171,12 @@ fun MultiMeasureLayout(
     measureBlock: MeasureBlock
 ) {
     val measureBlocks = remember(measureBlock) { MeasuringIntrinsicsMeasureBlocks(measureBlock) }
-    LayoutNode(modifier = modifier, measureBlocks = measureBlocks, canMultiMeasure = true) {
+    LayoutNode(
+        modifier = currentComposer.materialize(modifier),
+        measureBlocks = measureBlocks,
+        canMultiMeasure =
+        true
+    ) {
         children()
     }
 }
@@ -194,7 +199,12 @@ fun PassThroughLayout(
         }
         MeasuringIntrinsicsMeasureBlocks(measureBlock)
     }
-    LayoutNode(modifier = modifier, measureBlocks = measureBlocks, handlesParentData = false) {
+    LayoutNode(
+        modifier = currentComposer.materialize(modifier),
+        measureBlocks = measureBlocks,
+        handlesParentData =
+        false
+    ) {
         children()
     }
 }
@@ -451,7 +461,11 @@ fun WithConstraints(
     // if this code was executed subcomposition must be triggered as well
     state.forceRecompose = true
 
-    LayoutNode(modifier = modifier, ref = state.nodeRef, measureBlocks = state.measureBlocks)
+    LayoutNode(
+        modifier = currentComposer.materialize(modifier),
+        ref = state.nodeRef,
+        measureBlocks = state.measureBlocks
+    )
 
     // if LayoutNode scheduled the remeasuring no further steps are needed - subcomposition
     // will happen later on the measuring stage. otherwise we can assume the LayoutNode
