@@ -132,7 +132,7 @@ class LibraryReleaseNotes:
 		self.groupId = groupId
 		self.artifactIds = artifactIds
 		self.version = version
-		self.releaseDate = releaseDate
+		self.releaseDate = MarkdownDate(releaseDate)
 		self.fromSHA = fromSHA
 		self.untilSHA = untilSHA
 		self.projectDir = projectDir
