@@ -395,7 +395,7 @@ public class WebSettingsCompat {
      *
      * @see #setForceDarkStrategy
      */
-    public static final int USER_AGENT_DARKENING_ONLY =
+    public static final int DARK_STRATEGY_USER_AGENT_DARKENING_ONLY =
             WebSettingsBoundaryInterface.ForceDarkBehavior.FORCE_DARK_ONLY;
 
     /**
@@ -405,7 +405,7 @@ public class WebSettingsCompat {
      *
      * @see #setForceDarkStrategy
      */
-    public static final int WEB_THEME_DARKENING_ONLY =
+    public static final int DARK_STRATEGY_WEB_THEME_DARKENING_ONLY =
             WebSettingsBoundaryInterface.ForceDarkBehavior.MEDIA_QUERY_ONLY;
 
     /**
@@ -414,7 +414,7 @@ public class WebSettingsCompat {
      *
      * @see #setForceDarkStrategy
      */
-    public static final int PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING =
+    public static final int DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING =
             WebSettingsBoundaryInterface.ForceDarkBehavior.PREFER_MEDIA_QUERY_OVER_FORCE_DARK;
 
     /**
@@ -422,9 +422,9 @@ public class WebSettingsCompat {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
-            USER_AGENT_DARKENING_ONLY,
-            WEB_THEME_DARKENING_ONLY,
-            PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING,
+            DARK_STRATEGY_USER_AGENT_DARKENING_ONLY,
+            DARK_STRATEGY_WEB_THEME_DARKENING_ONLY,
+            DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -463,7 +463,8 @@ public class WebSettingsCompat {
      * Get how content is darkened for this WebView.
      *
      * <p>
-     * The default force dark mode is {@link #PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING}
+     * The default force dark strategy is
+     * {@link #DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING}
      *
      * <p>
      * This method should only be called if

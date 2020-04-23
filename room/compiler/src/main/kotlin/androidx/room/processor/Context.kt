@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.log.RLog
+import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.preconditions.Checks
 import androidx.room.processor.cache.Cache
 import androidx.room.solver.TypeAdapterStore
@@ -48,6 +49,10 @@ class Context private constructor(
 
     // set when database and its entities are processed.
     var databaseVerifier: DatabaseVerifier? = null
+        private set
+    // set when database and its entities are processed.
+    var queryRewriter: QueryRewriter? = null
+        private set
 
     companion object {
         val ARG_OPTIONS by lazy {
@@ -56,8 +61,18 @@ class Context private constructor(
         }
     }
 
-    val expandProjection by lazy {
-        BooleanProcessorOptions.EXPAND_PROJECTION.getValue(processingEnv)
+    fun attachDatabaseVerifier(databaseVerifier: DatabaseVerifier) {
+        check(this.databaseVerifier == null) {
+            "database verifier is already set"
+        }
+        this.databaseVerifier = databaseVerifier
+        queryRewriter = if (BooleanProcessorOptions.EXPAND_PROJECTION.getValue(processingEnv)) {
+            ProjectionExpander(
+                tables = databaseVerifier.entitiesAndViews
+            )
+        } else {
+            QueryRewriter.NoOpRewriter
+        }
     }
 
     constructor(processingEnv: ProcessingEnvironment) : this(
@@ -120,6 +135,7 @@ class Context private constructor(
                 inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
                 cache = subCache)
         subContext.databaseVerifier = databaseVerifier
+        subContext.queryRewriter = queryRewriter
         return subContext
     }
 

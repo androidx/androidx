@@ -89,10 +89,8 @@ fun animate(
     animBuilder: AnimationBuilder<Color> = remember { PhysicsBuilder() },
     endListener: ((Color) -> Unit)? = null
 ): Color {
-    return animate(
-        target, ColorToVectorConverter(target.colorSpace),
-        animBuilder, endListener
-    )
+    val converter = remember(target.colorSpace) { ColorToVectorConverter(target.colorSpace) }
+    return animate(target, converter, animBuilder, endListener)
 }
 
 /**

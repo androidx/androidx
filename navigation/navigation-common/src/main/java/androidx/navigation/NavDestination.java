@@ -404,7 +404,7 @@ public class NavDestination {
      * @see #addDeepLink(NavDeepLink)
      */
     public final void addDeepLink(@NonNull String uriPattern) {
-        addDeepLink(new NavDeepLink.Builder().setUri(uriPattern).build());
+        addDeepLink(new NavDeepLink.Builder().setUriPattern(uriPattern).build());
     }
 
     /**

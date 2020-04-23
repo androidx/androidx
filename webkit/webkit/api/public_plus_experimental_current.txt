@@ -136,12 +136,12 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.FORCE_DARK_STRATEGY, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setForceDarkStrategy(android.webkit.WebSettings, int);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setOffscreenPreRaster(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingEnabled(android.webkit.WebSettings, boolean);
+    field public static final int DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING = 2; // 0x2
+    field public static final int DARK_STRATEGY_USER_AGENT_DARKENING_ONLY = 0; // 0x0
+    field public static final int DARK_STRATEGY_WEB_THEME_DARKENING_ONLY = 1; // 0x1
     field public static final int FORCE_DARK_AUTO = 1; // 0x1
     field public static final int FORCE_DARK_OFF = 0; // 0x0
     field public static final int FORCE_DARK_ON = 2; // 0x2
-    field public static final int PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING = 2; // 0x2
-    field public static final int USER_AGENT_DARKENING_ONLY = 0; // 0x0
-    field public static final int WEB_THEME_DARKENING_ONLY = 1; // 0x1
   }
 
   public final class WebViewAssetLoader {

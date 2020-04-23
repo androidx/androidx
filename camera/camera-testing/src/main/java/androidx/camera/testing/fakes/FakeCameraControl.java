@@ -117,13 +117,17 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public void triggerAf() {
+    @NonNull
+    public ListenableFuture<CameraCaptureResult> triggerAf() {
         Log.d(TAG, "triggerAf()");
+        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
     }
 
     @Override
-    public void triggerAePrecapture() {
+    @NonNull
+    public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
         Log.d(TAG, "triggerAePrecapture()");
+        return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
     }
 
     @Override

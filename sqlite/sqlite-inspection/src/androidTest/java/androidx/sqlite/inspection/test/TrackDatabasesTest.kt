@@ -72,7 +72,7 @@ class TrackDatabasesTest {
             testEnvironment.assertNoQueuedEvents()
             assertThat(actual.map { it.databaseId }.distinct()).hasSize(expected.size)
             expected.forEachIndexed { ix, _ ->
-                assertThat(actual[ix].path).isEqualTo(expected[ix].path)
+                assertThat(actual[ix].path).isEqualTo(expected[ix].displayName)
             }
         }
 
@@ -95,7 +95,7 @@ class TrackDatabasesTest {
                 val database = Database("db3_$ix").createInstance(temporaryFolder)
                 assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
                 testEnvironment.receiveEvent().let { event ->
-                    assertThat(event.databaseOpened.path).isEqualTo(database.path)
+                    assertThat(event.databaseOpened.path).isEqualTo(database.displayName)
                 }
             }
 
@@ -117,7 +117,7 @@ class TrackDatabasesTest {
             assertThat(event.hasDatabaseOpened()).isEqualTo(true)
             val isNewId = seenDbIds.add(event.databaseOpened.databaseId)
             assertThat(isNewId).isEqualTo(true)
-            assertThat(event.databaseOpened.path).isEqualTo(database.path)
+            assertThat(event.databaseOpened.path).isEqualTo(database.displayName)
         }
 
         // file based db: first open

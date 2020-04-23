@@ -12,14 +12,14 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
-    implementation(project(":ui:ui-android-view:integration-tests:ui-android-view-demos"))
-    implementation(project(":ui:ui-animation:integration-tests:ui-animation-demos"))
-    implementation(project(":ui:ui-foundation:integration-tests:ui-foundation-demos"))
-    implementation(project(":ui:ui-framework:integration-tests:ui-framework-demos"))
-    implementation(project(":ui:ui-layout:integration-tests:ui-layout-demos"))
-    implementation(project(":ui:ui-material:integration-tests:ui-material-demos"))
-    implementation(project(":ui:ui-material:integration-tests:ui-material-studies"))
-    implementation(project(":ui:ui-text:integration-tests:ui-text-compose-demos"))
+    implementation project(":ui:ui-android-view:integration-tests:ui-android-view-demos")
+    implementation project(":ui:ui-animation:integration-tests:ui-animation-demos")
+    implementation project(":ui:ui-foundation:integration-tests:ui-foundation-demos")
+    implementation project(":ui:ui-framework:integration-tests:ui-framework-demos")
+    implementation project(":ui:ui-layout:integration-tests:ui-layout-demos")
+    implementation project(":ui:ui-material:integration-tests:ui-material-demos")
+    implementation project(":ui:ui-material:integration-tests:ui-material-studies")
+    implementation project(":ui:ui-text:integration-tests:ui-text-compose-demos")
 
     implementation(KOTLIN_REFLECT)
     implementation(KOTLIN_STDLIB)
@@ -36,15 +36,43 @@ dependencies {
     implementation project(":ui:integration-tests:demos:common")
 
     implementation "androidx.preference:preference-ktx:1.1.0"
+
+    androidTestImplementation project(":ui:ui-test")
+
+    // TODO: presumably shouldn't need to specify these again? figure out why this is needed.
+    androidTestImplementation project(":ui:ui-android-view:integration-tests:ui-android-view-demos")
+    androidTestImplementation project(":ui:ui-animation:integration-tests:ui-animation-demos")
+    androidTestImplementation project(":ui:ui-foundation:integration-tests:ui-foundation-demos")
+    androidTestImplementation project(":ui:ui-framework:integration-tests:ui-framework-demos")
+    androidTestImplementation project(":ui:ui-layout:integration-tests:ui-layout-demos")
+    androidTestImplementation project(":ui:ui-material:integration-tests:ui-material-demos")
+    androidTestImplementation project(":ui:ui-material:integration-tests:ui-material-studies")
+    androidTestImplementation project(":ui:ui-text:integration-tests:ui-text-compose-demos")
+
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(TRUTH)
 }
 
 android {
     defaultConfig {
         minSdkVersion 21
+        // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
+        // part of CI.
+        archivesBaseName = "compose-demos-testapp"
     }
-    // Kotlin generates kotlin_module files based off the gradle *sub*module name, ignoring the
-    // parent project - this means that we generate multiple of these files for any project with a
-    // :samples subproject
+    /*
+    Kotlin generates kotlin_module files based off the gradle *sub*module name, ignoring the
+    parent project - this means that we generate multiple of these files for any project with a
+    :samples subproject.
+
+    Ideally each sample module should set:
+    compileOptions {
+        kotlinOptions.freeCompilerArgs += ['-module-name', "$PUBLISH_GROUP_ID.$PUBLISH_ARTIFACT_ID"]
+    }
+    However, given that we aren't shipping these demos, we can just exclude all of these.
+    */
     packagingOptions {
         exclude 'META-INF/samples_debug.kotlin_module'
     }

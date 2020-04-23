@@ -1,7 +1,7 @@
 // Signature format: 3.0
 package androidx.activity {
 
-  public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+  public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int);
     method public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
@@ -77,6 +77,10 @@ package androidx.activity.result {
     method public final void onSaveInstanceState(android.os.Bundle);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+  }
+
+  public interface ActivityResultRegistryOwner {
+    method public androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
   }
 
   public final class IntentSenderRequest {

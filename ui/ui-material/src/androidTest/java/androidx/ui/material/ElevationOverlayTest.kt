@@ -41,26 +41,27 @@ import org.junit.runners.Parameterized
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(Parameterized::class)
-class ElevationOverlayTest(private val elevation: Dp, private val expectedOverlayColor: Color) {
+class ElevationOverlayTest(private val elevation: Dp, overlayColor: Color?) {
 
     private val Tag = "Surface"
     private val SurfaceSize = IntPxSize(10.ipx, 10.ipx)
+    private val expectedOverlayColor = overlayColor!!
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         // Mappings for elevation -> expected overlay color in dark theme
         fun initElevation(): Array<Any> = arrayOf(
-            arrayOf(0.dp, Color(0xFF121212)),
-            arrayOf(1.dp, Color(0xFF1E1E1E)),
-            arrayOf(2.dp, Color(0xFF232323)),
-            arrayOf(3.dp, Color(0xFF262626)),
-            arrayOf(4.dp, Color(0xFF282828)),
-            arrayOf(6.dp, Color(0xFF2B2B2B)),
-            arrayOf(8.dp, Color(0xFF2E2E2E)),
-            arrayOf(12.dp, Color(0xFF333333)),
-            arrayOf(16.dp, Color(0xFF353535)),
-            arrayOf(24.dp, Color(0xFF393939))
+            arrayOf(0.dp, Color(0xFF121212), null),
+            arrayOf(1.dp, Color(0xFF1E1E1E), null),
+            arrayOf(2.dp, Color(0xFF232323), null),
+            arrayOf(3.dp, Color(0xFF262626), null),
+            arrayOf(4.dp, Color(0xFF282828), null),
+            arrayOf(6.dp, Color(0xFF2B2B2B), null),
+            arrayOf(8.dp, Color(0xFF2E2E2E), null),
+            arrayOf(12.dp, Color(0xFF333333), null),
+            arrayOf(16.dp, Color(0xFF353535), null),
+            arrayOf(24.dp, Color(0xFF393939), null)
         )
     }
 

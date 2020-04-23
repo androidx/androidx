@@ -18,7 +18,6 @@ package androidx.navigation.dynamicfeatures
 import android.content.ComponentName
 import android.content.Context
 import androidx.navigation.NavController
-import androidx.navigation.createGraph
 import androidx.navigation.plusAssign
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4

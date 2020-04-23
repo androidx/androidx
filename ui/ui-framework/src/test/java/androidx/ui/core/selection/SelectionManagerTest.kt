@@ -16,11 +16,13 @@
 
 package androidx.ui.core.selection
 
+import androidx.compose.frames.commit
+import androidx.compose.frames.open
 import androidx.test.filters.SmallTest
-import androidx.ui.core.hapticfeedback.HapticFeedback
-import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.clipboard.ClipboardManager
+import androidx.ui.core.hapticfeedback.HapticFeedback
+import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.style.TextDirection
@@ -29,11 +31,13 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +50,9 @@ class SelectionManagerTest {
     private val selectable = mock<Selectable>()
     private val selectionManager = SelectionManager(selectionRegistrar)
 
-    private val containerLayoutCoordinates = mock<LayoutCoordinates>()
+    private val containerLayoutCoordinates = mock<LayoutCoordinates> {
+        on { isAttached } doReturn true
+    }
     private val startSelectable = mock<Selectable>()
     private val endSelectable = mock<Selectable>()
     private val middleSelectable = mock<Selectable>()
@@ -74,10 +80,16 @@ class SelectionManagerTest {
 
     @Before
     fun setup() {
+        open(false) // we open a Frame so @Model reads are allowed
         selectionRegistrar.subscribe(selectable)
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.hapticFeedBack = hapticFeedback
         selectionManager.clipboardManager = clipboardManager
+    }
+
+    @After
+    fun after() {
+        commit() // we close the Frame
     }
 
     @Test
@@ -110,7 +122,7 @@ class SelectionManagerTest {
             .getSelection(
                 startPosition = startCoordinates,
                 endPosition = endCoordinates,
-                containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
+                containerLayoutCoordinates = selectionManager.requireContainerCoordinates(),
                 longPress = false,
                 previousSelection = fakeSelection
             )
@@ -137,7 +149,7 @@ class SelectionManagerTest {
             .getSelection(
                 startPosition = startCoordinates,
                 endPosition = endCoordinates,
-                containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
+                containerLayoutCoordinates = selectionManager.requireContainerCoordinates(),
                 longPress = false,
                 previousSelection = fakeSelection
             )
@@ -145,7 +157,7 @@ class SelectionManagerTest {
             .getSelection(
                 startPosition = startCoordinates,
                 endPosition = endCoordinates,
-                containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
+                containerLayoutCoordinates = selectionManager.requireContainerCoordinates(),
                 longPress = false,
                 previousSelection = fakeSelection
             )
@@ -373,7 +385,7 @@ class SelectionManagerTest {
             .getSelection(
                 startPosition = PxPosition((-1).px, (-1).px),
                 endPosition = PxPosition((-1).px, (-1).px),
-                containerLayoutCoordinates = selectionManager.containerLayoutCoordinates,
+                containerLayoutCoordinates = selectionManager.requireContainerCoordinates(),
                 longPress = false,
                 previousSelection = fakeSelection
             )

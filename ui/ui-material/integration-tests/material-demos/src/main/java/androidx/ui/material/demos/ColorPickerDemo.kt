@@ -50,6 +50,7 @@ import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Shader
 import androidx.ui.graphics.SolidColor
+import androidx.ui.graphics.isSet
 import androidx.ui.graphics.toArgb
 import androidx.ui.graphics.toPixelMap
 import androidx.ui.layout.Column
@@ -106,7 +107,7 @@ private fun ColorPicker(onColorChange: (Color) -> Unit) {
                 // Work out if the new position is inside the circle we are drawing, and has a
                 // valid color associated to it. If not, keep the current position
                 val newColor = colorWheel.colorForPosition(newPosition)
-                if (newColor != null) {
+                if (newColor.isSet) {
                     position = newPosition
                     onColorChange(newColor)
                 }
@@ -117,7 +118,7 @@ private fun ColorPicker(onColorChange: (Color) -> Unit) {
         Stack(Modifier.fillMaxSize()) {
             Image(modifier = inputModifier, asset = colorWheel.image)
             val color = colorWheel.colorForPosition(position)
-            if (color != null) {
+            if (color.isSet) {
                 Magnifier(visible = isDragging, position = position, color = color)
             }
         }
@@ -339,11 +340,11 @@ private class ColorWheel(diameter: Int) {
  * @return the matching color for [position] inside [ColorWheel], or `null` if there is no color
  * or the color is partially transparent.
  */
-private fun ColorWheel.colorForPosition(position: PxPosition): Color? {
+private fun ColorWheel.colorForPosition(position: PxPosition): Color {
     val x = position.x.value.toInt().coerceAtLeast(0)
     val y = position.y.value.toInt().coerceAtLeast(0)
     with(image.toPixelMap()) {
-        if (x >= width || y >= height) return null
-        return this[x, y].takeIf { it.alpha == 1f }
+        if (x >= width || y >= height) return Color.Unset
+        return this[x, y].takeIf { it.alpha == 1f } ?: Color.Unset
     }
 }

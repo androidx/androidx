@@ -2288,6 +2288,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     private ViewGroup getFragmentContainer(@NonNull Fragment f) {
+        // If there's already a container, just return it
+        if (f.mContainer != null) {
+            return f.mContainer;
+        }
         // If the fragment has no containerId we should return null immediately.
         if (f.mContainerId <= 0) {
             return null;

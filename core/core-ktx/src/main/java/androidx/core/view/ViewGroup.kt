@@ -71,10 +71,34 @@ operator fun ViewGroup.iterator() = object : MutableIterator<View> {
     override fun remove() = removeViewAt(--index)
 }
 
-/** Returns a [Sequence] over the child views in this view group. */
+/**
+ * Returns a [Sequence] over the immediate child views in this view group.
+ *
+ * @see View.allViews
+ * @see ViewGroup.descendants
+ */
 val ViewGroup.children: Sequence<View>
     get() = object : Sequence<View> {
         override fun iterator() = this@children.iterator()
+    }
+
+/**
+ * Returns a [Sequence] over the child views in this view group recursively.
+ * This performs a depth-first traversal.
+ * A view with no children will return a zero-element sequence.
+ *
+ * @see View.allViews
+ * @see ViewGroup.children
+ * @see View.ancestors
+ */
+val ViewGroup.descendants: Sequence<View>
+    get() = sequence {
+        forEach { child ->
+            yield(child)
+            if (child is ViewGroup) {
+                yieldAll(child.descendants)
+            }
+        }
     }
 
 /**

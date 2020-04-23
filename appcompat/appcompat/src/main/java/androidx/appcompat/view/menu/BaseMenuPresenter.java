@@ -218,7 +218,8 @@ public abstract class BaseMenuPresenter implements MenuPresenter {
     @Override
     public boolean onSubMenuSelected(SubMenuBuilder menu) {
         if (mCallback != null) {
-            return mCallback.onOpenSubMenu(menu);
+            // Use the root menu if we were passed a null subMenu
+            return mCallback.onOpenSubMenu(menu != null ? menu : mMenu);
         }
         return false;
     }

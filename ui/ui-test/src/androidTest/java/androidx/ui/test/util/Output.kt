@@ -16,6 +16,8 @@
 
 package androidx.ui.test.util
 
+import com.google.common.truth.Truth
+
 internal fun obfuscateNodesInfo(message: String): String {
     var result = message.trim()
     // Semantics uses a static object to generate ids. This object lives between tests. So the order
@@ -24,4 +26,28 @@ internal fun obfuscateNodesInfo(message: String): String {
     // We also obfuscate pixel values just to reduce dependency on layout changes.
     result = result.replace("[0-9]+\\.[0-9]+\\.px".toRegex(), "X.px")
     return result
+}
+
+internal fun expectErrorMessage(expectedErrorMessage: String, block: () -> Unit) {
+    try {
+        block()
+    } catch (e: AssertionError) {
+        val received = obfuscateNodesInfo(e.localizedMessage!!)
+        Truth.assertThat(received).isEqualTo(expectedErrorMessage.trim())
+        return
+    }
+
+    throw AssertionError("No AssertionError thrown!")
+}
+
+internal fun expectErrorMessageStartsWith(expectedErrorMessage: String, block: () -> Unit) {
+    try {
+        block()
+    } catch (e: AssertionError) {
+        val received = obfuscateNodesInfo(e.localizedMessage!!)
+        Truth.assertThat(received).startsWith(expectedErrorMessage.trim())
+        return
+    }
+
+    throw AssertionError("No AssertionError thrown!")
 }

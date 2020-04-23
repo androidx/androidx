@@ -39,10 +39,14 @@ internal abstract class LayoutNodeWrapper(
 ) : Placeable(), Measurable, LayoutCoordinates {
     internal open val wrapped: LayoutNodeWrapper? = null
     internal var wrappedBy: LayoutNodeWrapper? = null
-    var position = IntPxPosition.Origin
 
-    protected var dirtySize: Boolean = false
-    fun hasDirtySize(): Boolean = dirtySize || (wrapped?.hasDirtySize() ?: false)
+    /**
+     * The scope used to measure the wrapped. InnerPlaceables are using the MeasureScope
+     * of the LayoutNode. ModifiedLayoutNode2s are using their own instances MeasureScopes.
+     * For fewer allocations, everything else is reusing the measure scope of their wrapped.
+     */
+    abstract val measureScope: MeasureScope
+
     // TODO(popam): avoid allocation here
     final override val measuredSize: IntPxSize
         get() = IntPxSize(measureResult.width, measureResult.height)
@@ -51,16 +55,25 @@ internal abstract class LayoutNodeWrapper(
 
     final override var measurementConstraints = Constraints()
 
-    abstract val layoutDirection: LayoutDirection
+    open val invalidateLayerOnBoundsChange = true
 
     private var _measureResult: MeasureScope.MeasureResult? = null
     var measureResult: MeasureScope.MeasureResult
         get() = _measureResult ?: error(UnmeasuredError)
         internal set(value) {
-            if (value.width != _measureResult?.width || value.height != _measureResult?.height) {
-                dirtySize = true
+            if (invalidateLayerOnBoundsChange &&
+                (value.width != _measureResult?.width || value.height != _measureResult?.height)) {
+                findLayer()?.invalidate()
             }
             _measureResult = value
+        }
+
+    var position: IntPxPosition = IntPxPosition.Origin
+        internal set(value) {
+            if (invalidateLayerOnBoundsChange && value != field) {
+                findLayer()?.invalidate()
+            }
+            field = value
         }
 
     override val parentCoordinates: LayoutCoordinates?
@@ -89,28 +102,26 @@ internal abstract class LayoutNodeWrapper(
     /**
      * Measures the modified child.
      */
-    abstract fun performMeasure(constraints: Constraints): Placeable
+    abstract fun performMeasure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable
 
     /**
      * Measures the modified child.
      */
-    final override fun measure(constraints: Constraints): Placeable {
+    final override fun measure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable {
         measurementConstraints = constraints
-        return performMeasure(constraints)
+        return performMeasure(constraints, layoutDirection)
     }
 
     /**
      * Places the modified child.
      */
-    abstract fun place(position: IntPxPosition)
-
-    /**
-     * Places the modified child.
-     */
-    final override fun performPlace(position: IntPxPosition) {
-        place(position)
-        dirtySize = false
-    }
+    abstract override fun place(position: IntPxPosition)
 
     /**
      * Draws the content of the LayoutNode
@@ -258,7 +269,7 @@ internal abstract class LayoutNodeWrapper(
     /**
      * Returns the layer that this wrapper will draw into.
      */
-    abstract fun findLayer(): OwnedLayer?
+    open fun findLayer(): OwnedLayer? = wrappedBy?.findLayer()
 
     /**
      * Returns the first [ModifiedFocusNode] in the wrapper list that wraps this

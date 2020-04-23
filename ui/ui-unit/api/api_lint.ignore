@@ -9,6 +9,12 @@ AcronymName: androidx.ui.unit.DpKt#times-DdskrAE(int, long):
     Acronyms should not be capitalized in method names: was `times-DdskrAE`, should this be `times-DdskrAe`?
 AcronymName: androidx.ui.unit.DpKt#toBounds-kAYDl8w(long):
     Acronyms should not be capitalized in method names: was `toBounds-kAYDl8w`, should this be `toBounds-kAyDl8w`?
+AcronymName: androidx.ui.unit.IntPxBounds#copy-Q13GOEE(int, int, int, int):
+    Acronyms should not be capitalized in method names: was `copy-Q13GOEE`, should this be `copy-Q13Goee`?
+AcronymName: androidx.ui.unit.IntPxKt#times--Vi_IPY(float, int):
+    Acronyms should not be capitalized in method names: was `times--Vi_IPY`, should this be `times--Vi_Ipy`?
+AcronymName: androidx.ui.unit.IntPxKt#times-tHVXE4c(double, int):
+    Acronyms should not be capitalized in method names: was `times-tHVXE4c`, should this be `times-tHvxE4c`?
 AcronymName: androidx.ui.unit.PxInverse#compareTo-KGV0gLo(float):
     Acronyms should not be capitalized in method names: was `compareTo-KGV0gLo`, should this be `compareTo-KgV0gLo`?
 AcronymName: androidx.ui.unit.PxInverse#compareTo-KGV0gLo(float, float):
@@ -17,11 +23,21 @@ AcronymName: androidx.ui.unit.PxInverse#minus-KGV0gLo(float, float):
     Acronyms should not be capitalized in method names: was `minus-KGV0gLo`, should this be `minus-KgV0gLo`?
 AcronymName: androidx.ui.unit.PxInverse#plus-KGV0gLo(float, float):
     Acronyms should not be capitalized in method names: was `plus-KGV0gLo`, should this be `plus-KgV0gLo`?
+AcronymName: androidx.ui.unit.PxKt#coerceAtLeast-qHcltEY(float, float):
+    Acronyms should not be capitalized in method names: was `coerceAtLeast-qHcltEY`, should this be `coerceAtLeast-qHcltEy`?
+AcronymName: androidx.ui.unit.PxKt#coerceAtMost-qHcltEY(float, float):
+    Acronyms should not be capitalized in method names: was `coerceAtMost-qHcltEY`, should this be `coerceAtMost-qHcltEy`?
+AcronymName: androidx.ui.unit.PxKt#div-78fIwVY(double, float):
+    Acronyms should not be capitalized in method names: was `div-78fIwVY`, should this be `div-78fIwVy`?
+AcronymName: androidx.ui.unit.PxKt#max-qHcltEY(float, float):
+    Acronyms should not be capitalized in method names: was `max-qHcltEY`, should this be `max-qHcltEy`?
+AcronymName: androidx.ui.unit.PxKt#min-qHcltEY(float, float):
+    Acronyms should not be capitalized in method names: was `min-qHcltEY`, should this be `min-qHcltEy`?
+AcronymName: androidx.ui.unit.PxKt#times-78fIwVY(double, float):
+    Acronyms should not be capitalized in method names: was `times-78fIwVY`, should this be `times-78fIwVy`?
+AcronymName: androidx.ui.unit.TextUnitKt#times-MVx5XBU(float, long):
+    Acronyms should not be capitalized in method names: was `times-MVx5XBU`, should this be `times-MVx5Xbu`?
 
 
 MethodNameUnits: androidx.ui.unit.Durations#inSeconds(androidx.ui.unit.Duration):
     Returned time values must be in milliseconds, was `inSeconds`
-
-
-MissingNullability: androidx.ui.unit.PxKt#getMinDimension(androidx.ui.unit.PxSize):
-    Missing nullability on method `getMinDimension` return

@@ -47,6 +47,10 @@ class FragmentViewLifecycleOwner implements LifecycleOwner {
         return mLifecycleRegistry;
     }
 
+    void setCurrentState(@NonNull Lifecycle.State state) {
+        mLifecycleRegistry.setCurrentState(state);
+    }
+
     void handleLifecycleEvent(@NonNull Lifecycle.Event event) {
         mLifecycleRegistry.handleLifecycleEvent(event);
     }

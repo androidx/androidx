@@ -42,6 +42,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.ActivityResultRegistryOwner;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
@@ -84,6 +85,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         HasDefaultViewModelProviderFactory,
         SavedStateRegistryOwner,
         OnBackPressedDispatcherOwner,
+        ActivityResultRegistryOwner,
         ActivityResultCaller {
 
     static final class NonConfigurationInstances {
@@ -531,6 +533,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * @return the {@link ActivityResultRegistry}
      */
     @NonNull
+    @Override
     public final ActivityResultRegistry getActivityResultRegistry() {
         return mActivityResultRegistry;
     }

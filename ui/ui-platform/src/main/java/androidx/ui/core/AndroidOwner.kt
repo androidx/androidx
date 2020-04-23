@@ -256,20 +256,6 @@ internal class AndroidComposeView constructor(
         }
     }
 
-    override fun onSizeChange(layoutNode: LayoutNode) {
-        // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-        // ownerScope.launch {
-        onInvalidate(layoutNode)
-        // }
-    }
-
-    override fun onPositionChange(layoutNode: LayoutNode) {
-        // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-        // ownerScope.launch {
-        onInvalidate(layoutNode)
-        // }
-    }
-
     override fun onRequestMeasure(layoutNode: LayoutNode) {
         trace("AndroidOwner:onRequestMeasure") {
             layoutNode.requireOwner()
@@ -286,6 +272,14 @@ internal class AndroidComposeView constructor(
                 // requestMeasure has already been called for this node
                 return
             }
+            if (layoutNode.isLayingOut) {
+                // requestMeasure is currently laying out and it is incorrect to request remeasure
+                // now, let's postpone it.
+                layoutNode.markRemeasureRequested()
+                postponedMeasureRequests.add(layoutNode)
+                consistencyChecker?.assertConsistent()
+                return
+            }
 
             // find root of layout request:
             var layout = layoutNode
@@ -293,7 +287,7 @@ internal class AndroidComposeView constructor(
                 val parent = layout.parentLayoutNode!!
                 if (parent.isMeasuring || parent.isLayingOut) {
                     if (!layout.needsRemeasure) {
-                        layout.needsRemeasure = true
+                        layout.markRemeasureRequested()
                         // parent is currently measuring and we set needsRemeasure to true so if
                         // the parent didn't yet try to measure the node it will remeasure it.
                         // if the parent didn't plan to measure during this pass then needsRemeasure
@@ -322,10 +316,10 @@ internal class AndroidComposeView constructor(
 
     private fun requestRelayout(layoutNode: LayoutNode) {
         if (layoutNode.needsRelayout || (layoutNode.needsRemeasure && layoutNode !== root) ||
-            layoutNode.isLayingOut
+            layoutNode.isLayingOut || layoutNode.isMeasuring
         ) {
             // don't need to do anything else since the parent is already scheduled
-            // for a relayout (measure pass includes relayout), or is laying out right now
+            // for a relayout (measure will trigger relayout), or is laying out right now
             consistencyChecker?.assertConsistent()
             return
         }
@@ -346,7 +340,8 @@ internal class AndroidComposeView constructor(
             var layout = layoutNode
             while (layout != layoutNode.alignmentLinesQueryOwner &&
                 // and relayout or remeasure(includes relayout) is not scheduled already
-                !(layout.needsRelayout || layout.needsRemeasure)
+                !(layout.needsRelayout || layout.needsRemeasure || layoutNode.isLayingOut ||
+                        layoutNode.isMeasuring)
             ) {
                 layout.markRelayoutRequested()
                 layout.dirtyAlignmentLines = true
@@ -426,7 +421,7 @@ internal class AndroidComposeView constructor(
                     if (layoutNode === root) {
                         // it is the root node - the only top node from relayoutNodes
                         // which needs to be remeasured.
-                        layoutNode.measure(constraints)
+                        layoutNode.measure(constraints, layoutNode.layoutDirection)
                     }
                     require(!layoutNode.needsRemeasure) {
                         "$layoutNode shouldn't require remeasure. relayoutNodes " +
@@ -799,13 +794,15 @@ internal class AndroidComposeView constructor(
                 return when {
                     measurables.isEmpty() -> measureScope.layout(IntPx.Zero, IntPx.Zero) {}
                     measurables.size == 1 -> {
-                        val placeable = measurables[0].measure(constraints)
+                        val placeable = measurables[0].measure(constraints, layoutDirection)
                         measureScope.layout(placeable.width, placeable.height) {
                             placeable.place(IntPx.Zero, IntPx.Zero)
                         }
                     }
                     else -> {
-                        val placeables = measurables.map { it.measure(constraints) }
+                        val placeables = measurables.map {
+                            it.measure(constraints, layoutDirection)
+                        }
                         var maxWidth = IntPx.Zero
                         var maxHeight = IntPx.Zero
                         placeables.forEach { placeable ->
@@ -822,28 +819,28 @@ internal class AndroidComposeView constructor(
             }
 
             override fun minIntrinsicWidth(
-                density: Density,
+                intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
                 h: IntPx,
                 layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
 
             override fun minIntrinsicHeight(
-                density: Density,
+                intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
                 w: IntPx,
                 layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicWidth(
-                density: Density,
+                intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
                 h: IntPx,
                 layoutDirection: LayoutDirection
             ) = error("Undefined intrinsics block and it is required")
 
             override fun maxIntrinsicHeight(
-                density: Density,
+                intrinsicMeasureScope: IntrinsicMeasureScope,
                 measurables: List<IntrinsicMeasurable>,
                 w: IntPx,
                 layoutDirection: LayoutDirection

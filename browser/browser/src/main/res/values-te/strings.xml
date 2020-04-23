@@ -16,8 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fallback_menu_item_open_in_browser" msgid="8984733760067120953">"బ్రౌజర్‌లో తెరువు"</string>
-    <string name="fallback_menu_item_copy_link" msgid="2615365786337886368">"లింక్‌ను కాపీ చేయి"</string>
-    <string name="fallback_menu_item_share_link" msgid="271185644269364308">"లింక్‌ను షేర్ చేయి"</string>
-    <string name="copy_toast_msg" msgid="8230469354668895088">"క్లిప్‌బోర్డ్‌కు లింక్ కాపీ చేయబడింది"</string>
+    <string name="fallback_menu_item_open_in_browser" msgid="3413186855122069269">"బ్రౌజర్‌లో తెరువు"</string>
+    <string name="fallback_menu_item_copy_link" msgid="4566929209979330987">"లింక్‌ను కాపీ చేయి"</string>
+    <string name="fallback_menu_item_share_link" msgid="7145444925855055364">"లింక్‌ను షేర్ చేయి"</string>
+    <string name="copy_toast_msg" msgid="3260749812566568062">"క్లిప్‌బోర్డ్‌కు లింక్ కాపీ చేయబడింది"</string>
 </resources>

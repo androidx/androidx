@@ -143,7 +143,7 @@ public class WebSettingsCompatForceDarkTest {
         WebSettingsCompat.setForceDark(
                 mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
         WebSettingsCompat.setForceDarkStrategy(mWebViewOnUiThread.getSettings(),
-                WebSettingsCompat.USER_AGENT_DARKENING_ONLY);
+                WebSettingsCompat.DARK_STRATEGY_USER_AGENT_DARKENING_ONLY);
 
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
@@ -171,7 +171,7 @@ public class WebSettingsCompatForceDarkTest {
         WebSettingsCompat.setForceDark(
                 mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
         WebSettingsCompat.setForceDarkStrategy(mWebViewOnUiThread.getSettings(),
-                WebSettingsCompat.WEB_THEME_DARKENING_ONLY);
+                WebSettingsCompat.DARK_STRATEGY_WEB_THEME_DARKENING_ONLY);
 
         // Loading a page without dark-theme support should result in a light background as web
         // page is not darken by a user agent
@@ -203,7 +203,7 @@ public class WebSettingsCompatForceDarkTest {
         WebSettingsCompat.setForceDark(
                 mWebViewOnUiThread.getSettings(), WebSettingsCompat.FORCE_DARK_ON);
         WebSettingsCompat.setForceDarkStrategy(mWebViewOnUiThread.getSettings(),
-                WebSettingsCompat.PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING);
+                WebSettingsCompat.DARK_STRATEGY_PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING);
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         // Loading a page without dark-theme support should result in a dark background as

@@ -30,9 +30,9 @@ import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Popup
 import androidx.ui.core.enforce
+import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.longPressDragGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
 import androidx.ui.core.onPositioned
@@ -43,8 +43,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 import androidx.ui.unit.max
-import kotlin.math.ceil
-import kotlin.math.roundToInt
+import androidx.ui.unit.round
 
 /**
  * Default SelectionContainer to be used in order to make composables selectable by default.
@@ -83,93 +82,61 @@ fun SelectionContainer(
 
     val gestureModifiers =
         Modifier
-            .tapGestureFilter({ manager.onRelease() })
+            .tapGestureFilter { manager.onRelease() }
             .longPressDragGestureFilter(manager.longPressDragObserver)
+
+    val modifier = remember {
+        // Get the layout coordinates of the selection container. This is for hit test of
+        // cross-composable selection.
+        gestureModifiers.onPositioned { manager.containerLayoutCoordinates = it }
+    }
 
     Providers(SelectionRegistrarAmbient provides registrarImpl) {
         // Get the layout coordinates of the selection container. This is for hit test of
         // cross-composable selection.
-        Wrap(gestureModifiers.onPositioned { manager.containerLayoutCoordinates = it }) {
+        Wrap(modifier) {
             children()
-            addHandles(
-                manager = manager,
-                selection = selection,
-                startHandle = { StartSelectionHandle(selection = selection) },
-                endHandle = { EndSelectionHandle(selection = selection) })
+            addHandle(manager, isStartHandle = true) {
+                StartSelectionHandle(selection = selection)
+            }
+            addHandle(manager, isStartHandle = false) {
+                EndSelectionHandle(selection = selection)
+            }
         }
     }
 }
 
 @Composable
-private fun addHandles(
+private fun addHandle(
     manager: SelectionManager,
-    selection: Selection?,
-    startHandle: @Composable() () -> Unit,
-    endHandle: @Composable() () -> Unit
+    isStartHandle: Boolean,
+    handle: @Composable() () -> Unit
 ) {
-    if (selection == null) return
-    selection.let {
-        val startLayoutCoordinates = it.start.selectable.getLayoutCoordinates() ?: return
-        val endLayoutCoordinates = it.end.selectable.getLayoutCoordinates() ?: return
-
-        val startOffset = manager.containerLayoutCoordinates.childToLocal(
-            startLayoutCoordinates,
-            selection.start.selectable.getHandlePosition(
-                selection = selection,
-                isStartHandle = true
-            )
-        )
-        val endOffset = manager.containerLayoutCoordinates.childToLocal(
-            endLayoutCoordinates,
-            selection.end.selectable.getHandlePosition(
-                selection = selection,
-                isStartHandle = false
-            )
-        )
-
+    val offset = if (isStartHandle) manager.startHandlePosition else manager.endHandlePosition
+    val selection = manager.selection
+    if (offset != null && selection != null) {
         Wrap {
+            val anchorInfo = if (isStartHandle) selection.start else selection.end
             Popup(
                 alignment =
-                if (isHandleLtrDirection(selection.start.direction, selection.handlesCrossed)) {
-                    Alignment.TopEnd
+                if (isHandleLtrDirection(anchorInfo.direction, selection.handlesCrossed)) {
+                    if (isStartHandle) Alignment.TopEnd else Alignment.TopStart
                 } else {
-                    Alignment.TopStart
+                    if (isStartHandle) Alignment.TopStart else Alignment.TopEnd
                 },
-                offset = IntPxPosition(startOffset.x.value.toIntPx(), startOffset.y.value.toIntPx())
+                offset = IntPxPosition(offset.x.round(), offset.y.round())
             ) {
                 val drag = Modifier.dragGestureFilter(
-                    dragObserver = manager.handleDragObserver(isStartHandle = true)
+                    dragObserver = manager.handleDragObserver(isStartHandle = isStartHandle)
                 )
                 // TODO(b/150706555): This layout is temporary and should be removed once Semantics
                 //  is implemented with modifiers.
                 @Suppress("DEPRECATION")
-                PassThroughLayout(drag, startHandle)
-            }
-        }
-
-        Wrap {
-            Popup(
-                alignment =
-                if (isHandleLtrDirection(selection.end.direction, selection.handlesCrossed)) {
-                    Alignment.TopStart
-                } else {
-                    Alignment.TopEnd
-                },
-                offset = IntPxPosition(endOffset.x.value.toIntPx(), endOffset.y.value.toIntPx())
-            ) {
-                val drag = Modifier.dragGestureFilter(
-                    dragObserver = manager.handleDragObserver(isStartHandle = false)
-                )
-                // TODO(b/150706555): This layout is temporary and should be removed once Semantics
-                //  is implemented with modifiers.
-                @Suppress("DEPRECATION")
-                PassThroughLayout(drag, endHandle)
+                PassThroughLayout(drag, handle)
             }
         }
     }
 }
-
-private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
 
 /**
  * Selection is transparent in terms of measurement and layout and passes the same constraints to

@@ -148,13 +148,18 @@ internal class AndroidParagraph constructor(
     override val lineCount: Int
         get() = layout.lineCount
 
-    override val placeholderRects: List<Rect> =
+    override val placeholderRects: List<Rect?> =
         with(paragraphIntrinsics.charSequence) {
             if (this !is Spanned) return@with listOf()
             getSpans(0, length, PlaceholderSpan::class.java).map { span ->
                 val start = getSpanStart(span)
                 val end = getSpanEnd(span)
                 val line = layout.getLineForOffset(start)
+                // This Placeholder is ellipsized, return null instead.
+                if (layout.getLineEllipsisCount(line) > 0 &&
+                    end > layout.getLineEllipsisOffset(line)) {
+                    return@map null
+                }
 
                 val left = getHorizontalPosition(start, true)
                 val right = getHorizontalPosition(end, true)
@@ -293,6 +298,7 @@ internal class AndroidParagraph constructor(
     /**
      * @return true if the given line is ellipsized, else false.
      */
+    @VisibleForTesting
     internal fun isEllipsisApplied(lineIndex: Int): Boolean =
         layout.isEllipsisApplied(lineIndex)
 

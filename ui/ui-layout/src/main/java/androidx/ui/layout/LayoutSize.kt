@@ -378,7 +378,7 @@ private data class SizeModifier(
         measurable: Measurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.minIntrinsicWidth(height).let {
+    ) = measurable.minIntrinsicWidth(height, layoutDirection).let {
         val constraints = Constraints(targetConstraints)
         it.coerceIn(constraints.minWidth, constraints.maxWidth)
     }
@@ -387,7 +387,7 @@ private data class SizeModifier(
         measurable: Measurable,
         height: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.maxIntrinsicWidth(height).let {
+    ) = measurable.maxIntrinsicWidth(height, layoutDirection).let {
         val constraints = Constraints(targetConstraints)
         it.coerceIn(constraints.minWidth, constraints.maxWidth)
     }
@@ -396,7 +396,7 @@ private data class SizeModifier(
         measurable: Measurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.minIntrinsicHeight(width).let {
+    ) = measurable.minIntrinsicHeight(width, layoutDirection).let {
         val constraints = Constraints(targetConstraints)
         it.coerceIn(constraints.minHeight, constraints.maxHeight)
     }
@@ -405,7 +405,7 @@ private data class SizeModifier(
         measurable: Measurable,
         width: IntPx,
         layoutDirection: LayoutDirection
-    ) = measurable.maxIntrinsicHeight(width).let {
+    ) = measurable.maxIntrinsicHeight(width, layoutDirection).let {
         val constraints = Constraints(targetConstraints)
         it.coerceIn(constraints.minHeight, constraints.maxHeight)
     }

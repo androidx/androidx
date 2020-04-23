@@ -360,31 +360,6 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun countChange() {
-        val (node, _, _) = createSimpleLayout()
-        val owner = mock(Owner::class.java)
-        node.attach(owner)
-        verify(owner, times(0)).onSizeChange(node)
-        node.handleMeasureResult(object : MeasureScope.MeasureResult {
-            override val width: IntPx = 10.ipx
-            override val height: IntPx = 10.ipx
-            override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
-            override fun placeChildren(layoutDirection: LayoutDirection) {}
-        })
-        verify(owner, times(1)).onSizeChange(node)
-    }
-
-    @Test
-    fun place() {
-        val (node, _, _) = createSimpleLayout()
-        val owner = mock(Owner::class.java)
-        node.attach(owner)
-        verify(owner, times(0)).onPositionChange(node)
-        node.place(10.ipx, 10.ipx)
-        verify(owner, times(1)).onPositionChange(node)
-    }
-
-    @Test
     fun testLayoutNodeAdd() {
         val (layout, child1, child2) = createSimpleLayout()
         val inserted = DrawNode()

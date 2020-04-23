@@ -154,7 +154,7 @@ class DrawShadowTest {
                 AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
                     AtLeastSize(
                         size = 10.ipx,
-                        modifier = Modifier.drawShadow(rectShape, 4.dp, opacity = 0.5f)
+                        modifier = Modifier.drawShadow(4.dp, rectShape, opacity = 0.5f)
                     ) {
                     }
                 }
@@ -181,7 +181,7 @@ class DrawShadowTest {
             activity.setContent {
                 AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
                     val shadow = if (model.value) {
-                        Modifier.drawShadow(rectShape, 8.dp)
+                        Modifier.drawShadow(8.dp, rectShape)
                     } else {
                         Modifier
                     }
@@ -210,7 +210,7 @@ class DrawShadowTest {
         AtLeastSize(size = 12.ipx, modifier = modifier + background(Color.White)) {
             AtLeastSize(
                 size = 10.ipx,
-                modifier = Modifier.drawShadow(shape = rectShape, elevation = elevation.value)
+                modifier = Modifier.drawShadow(elevation = elevation.value, shape = rectShape)
             ) {
             }
         }

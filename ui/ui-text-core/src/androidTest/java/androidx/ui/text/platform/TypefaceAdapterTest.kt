@@ -39,16 +39,16 @@ import androidx.ui.text.FontTestData.Companion.FONT_800_REGULAR
 import androidx.ui.text.FontTestData.Companion.FONT_900_ITALIC
 import androidx.ui.text.FontTestData.Companion.FONT_900_REGULAR
 import androidx.ui.text.TestFontResourceLoader
+import androidx.ui.text.core.test.R
 import androidx.ui.text.font.FontFamily
-import androidx.ui.text.font.font
-import androidx.ui.text.font.fontFamily
 import androidx.ui.text.font.FontMatcher
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
+import androidx.ui.text.font.font
+import androidx.ui.text.font.fontFamily
 import androidx.ui.text.matchers.assertThat
-import androidx.ui.text.core.test.R
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -469,7 +469,7 @@ class TypefaceAdapterTest {
     }
 
     @Test
-    fun fontSynthesisAll_doesNotSynthesizeIfFontIsTheSame_beforeApi28() {
+    fun fontSynthesisAll_doesNotSynthesizeIfFontIsTheSame() {
         val fontFamily = FONT_700_ITALIC.asFontFamily()
 
         val typeface = TypefaceAdapter().create(
@@ -480,13 +480,10 @@ class TypefaceAdapterTest {
         )
         assertThat(typeface.isItalic).isFalse()
 
-        if (Build.VERSION.SDK_INT < 23) {
-            assertThat(typeface.isBold).isFalse()
-        } else if (Build.VERSION.SDK_INT < 28) {
-            assertThat(typeface.isBold).isTrue()
-        } else {
-            assertThat(typeface.isBold).isTrue()
-            assertThat(typeface.weight).isEqualTo(700)
+        when {
+            Build.VERSION.SDK_INT < 23 -> assertThat(typeface.isBold).isFalse()
+            Build.VERSION.SDK_INT <= 28 -> assertThat(typeface.isBold).isTrue()
+            else -> assertThat(typeface.isBold).isFalse()
         }
     }
 

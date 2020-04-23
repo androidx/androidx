@@ -30,7 +30,7 @@ import androidx.ui.geometry.Offset
 /**
  * Inline class used to represent primitives used to render gradients or to tile an [ImageAsset]
  */
-/* inline */ class Shader(val nativeShader: NativeShader)
+inline class Shader(val nativeShader: NativeShader)
 
 /**
  * Creates a linear gradient from `from` to `to`.

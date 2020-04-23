@@ -54,7 +54,11 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.ActivityResultRegistryOwner;
 import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
+import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -433,7 +437,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * through {@link FragmentManager#saveFragmentInstanceState(Fragment)
      * FragmentManager.saveFragmentInstanceState}.
      */
-    @SuppressLint("BanParcelableUsage")
+    @SuppressLint("BanParcelableUsage, ParcelClassLoader")
     public static class SavedState implements Parcelable {
         final Bundle mState;
 
@@ -601,6 +605,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     final void restoreViewState(Bundle savedInstanceState) {
         if (mSavedViewState != null) {
             mView.restoreHierarchyState(mSavedViewState);
@@ -812,6 +817,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link FragmentManager#setFragmentResultListener(String, LifecycleOwner,
      * FragmentResultListener)}.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Nullable
     @Deprecated
     final public Fragment getTargetFragment() {
@@ -1343,7 +1349,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Call {@link Activity#startActivityForResult(Intent, int)} from the fragment's
      * containing Activity.
+     *
+     * @param intent The intent to start.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
             int requestCode) {
         startActivityForResult(intent, requestCode, null);
@@ -1352,7 +1370,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Call {@link Activity#startActivityForResult(Intent, int, Bundle)} from the fragment's
      * containing Activity.
+     *
+     * @param intent The intent to start.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param options Additional options for how the Activity should be started. See
+     * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
+    @Deprecated
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
             int requestCode, @Nullable Bundle options) {
         if (mHost == null) {
@@ -1364,7 +1395,28 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Call {@link Activity#startIntentSenderForResult(IntentSender, int, Intent, int, int, int,
      * Bundle)} from the fragment's containing Activity.
+     *
+     * @param intent The IntentSender to launch.
+     * @param requestCode The request code to be returned in
+     * {@link Fragment#onActivityResult(int, int, Intent)} when the activity exits. Must be
+     *                    between 0 and 65535 to be considered valid. If given requestCode is
+     *                    greater than 65535, an IllegalArgumentException would be thrown.
+     * @param fillInIntent If non-null, this will be provided as the intent parameter to
+     * {@link IntentSender#sendIntent(Context, int, Intent, IntentSender.OnFinished, Handler)}.
+     *                     This value may be null.
+     * @param flagsMask Intent flags in the original IntentSender that you would like to change.
+     * @param flagsValues Desired values for any bits set in <code>flagsMask</code>.
+     * @param extraFlags Always set to 0.
+     * @param options Additional options for how the Activity should be started. See
+     * {@link Context#startActivity(Intent, Bundle)} for more details. This value may be null.
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartIntentSenderForResult} object for the
+     * {@link ActivityResultContract}.
      */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
@@ -1388,7 +1440,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                   through its setResult().
      * @param data An Intent, which can return result data to the caller
      *               (various data can be attached to Intent "extras").
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * with the appropriate {@link ActivityResultContract} and handling the result in the
+     * {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
     }
 
@@ -1459,12 +1518,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * </code></pre></p>
      *
      * @param permissions The requested permissions.
-     * @param requestCode Application specific request code to match with a result
-     *    reported to {@link #onRequestPermissionsResult(int, String[], int[])}.
+     * @param requestCode Application specific request code to match with a result reported to
+     * {@link #onRequestPermissionsResult(int, String[], int[])}. Must be between 0 and 65535 to
+     *                    be considered valid. If given requestCode is greater than 65535, an
+     *                    IllegalArgumentException would be thrown.
      *
      * @see #onRequestPermissionsResult(int, String[], int[])
      * @see android.content.Context#checkSelfPermission(String)
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing
+     * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
+     * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     public final void requestPermissions(@NonNull String[] permissions, int requestCode) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
@@ -1488,7 +1555,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
      *
      * @see #requestPermissions(String[], int)
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing
+     * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
+     * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
+    @SuppressWarnings({"DeprecatedIsStillUsed", "unused"})
+    @Deprecated
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
         /* callback - do nothing */
@@ -1529,6 +1603,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * a previous saved state, this is the state.
      * @return The LayoutInflater used to inflate Views of this Fragment.
      */
+    @SuppressWarnings("deprecation")
     @NonNull
     public LayoutInflater onGetLayoutInflater(@Nullable Bundle savedInstanceState) {
         // TODO: move the implementation in getLayoutInflater to here
@@ -1564,8 +1639,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @NonNull
     LayoutInflater performGetLayoutInflater(@Nullable Bundle savedInstanceState) {
-        LayoutInflater layoutInflater = onGetLayoutInflater(savedInstanceState);
-        mLayoutInflater = layoutInflater;
+        mLayoutInflater = onGetLayoutInflater(savedInstanceState);
         return mLayoutInflater;
     }
 
@@ -1578,6 +1652,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @deprecated Override {@link #onGetLayoutInflater(Bundle)} or call
      * {@link #getLayoutInflater()} instead of this method.
      */
+    @SuppressWarnings({"DeprecatedIsStillUsed", "unused"})
     @Deprecated
     @NonNull
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -1632,6 +1707,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
+    @SuppressWarnings("deprecation")
     @UiThread
     @CallSuper
     public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs,
@@ -1650,6 +1726,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @deprecated See {@link #onInflate(Context, AttributeSet, Bundle)}.
      */
+    @SuppressWarnings({"DeprecatedIsStillUsed", "unused"})
     @Deprecated
     @UiThread
     @CallSuper
@@ -1667,6 +1744,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param childFragment child fragment being attached
      */
+    @SuppressWarnings("unused")
     @MainThread
     public void onAttachFragment(@NonNull Fragment childFragment) {
     }
@@ -1675,6 +1753,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Called when a fragment is first attached to its context.
      * {@link #onCreate(Bundle)} will be called after this.
      */
+    @SuppressWarnings("deprecation")
     @MainThread
     @CallSuper
     public void onAttach(@NonNull Context context) {
@@ -1692,6 +1771,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @deprecated See {@link #onAttach(Context)}.
      */
+    @SuppressWarnings({"unused", "DeprecatedIsStillUsed"})
     @Deprecated
     @MainThread
     @CallSuper
@@ -1889,6 +1969,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link Lifecycle} in {@link #onAttach(Context)}, removing it when it receives the
      * {@link Lifecycle.State#CREATED} callback.
      */
+    @SuppressWarnings({"DeprecatedIsStillUsed", "unused"})
     @MainThread
     @CallSuper
     @Deprecated
@@ -1965,6 +2046,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param isInMultiWindowMode True if the activity is in multi-window mode.
      */
+    @SuppressWarnings("unused")
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
     }
 
@@ -1974,6 +2056,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param isInPictureInPictureMode True if the activity is in picture-in-picture mode.
      */
+    @SuppressWarnings("unused")
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
     }
 
@@ -2151,6 +2234,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @see #onCreateOptionsMenu
      */
+    @SuppressWarnings("unused")
     @MainThread
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return false;
@@ -2163,6 +2247,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param menu The options menu as last shown or first initialized by
      *             onCreateOptionsMenu().
      */
+    @SuppressWarnings("unused")
     @MainThread
     public void onOptionsMenuClosed(@NonNull Menu menu) {
     }
@@ -2233,6 +2318,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @return boolean Return false to allow normal context menu processing to
      *         proceed, true to consume it here.
      */
+    @SuppressWarnings("unused")
     @MainThread
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         return false;
@@ -2746,8 +2832,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mChildFragmentManager.findFragmentByWho(who);
     }
 
-    void performAttach() {
-        mChildFragmentManager.attachController(mHost, new FragmentContainer() {
+    @NonNull
+    FragmentContainer createFragmentContainer() {
+        return new FragmentContainer() {
             @Override
             @Nullable
             public View onFindViewById(int id) {
@@ -2761,7 +2848,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             public boolean onHasView() {
                 return (mView != null);
             }
-        }, this);
+        };
+    }
+
+    void performAttach() {
+        mChildFragmentManager.attachController(mHost, createFragmentContainer(), this);
         mState = ATTACHED;
         mCalled = false;
         onAttach(mHost.getContext());
@@ -2828,6 +2919,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.dispatchActivityCreated();
     }
 
+    @SuppressWarnings("ConstantConditions")
     void performStart() {
         mChildFragmentManager.noteStateNotSaved();
         mChildFragmentManager.execPendingActions(true);
@@ -2845,6 +2937,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.dispatchStart();
     }
 
+    @SuppressWarnings("ConstantConditions")
     void performResume() {
         mChildFragmentManager.noteStateNotSaved();
         mChildFragmentManager.execPendingActions(true);
@@ -2937,9 +3030,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                     return true;
                 }
             }
-            if (mChildFragmentManager.dispatchOptionsItemSelected(item)) {
-                return true;
-            }
+            return mChildFragmentManager.dispatchOptionsItemSelected(item);
         }
         return false;
     }
@@ -2949,9 +3040,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             if (onContextItemSelected(item)) {
                 return true;
             }
-            if (mChildFragmentManager.dispatchContextItemSelected(item)) {
-                return true;
-            }
+            return mChildFragmentManager.dispatchContextItemSelected(item);
         }
         return false;
     }
@@ -2974,6 +3063,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     void performPause() {
         mChildFragmentManager.dispatchPause();
         if (mView != null) {
@@ -2989,6 +3079,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     void performStop() {
         mChildFragmentManager.dispatchStop();
         if (mView != null) {
@@ -3004,6 +3095,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     void performDestroyView() {
         mChildFragmentManager.dispatchDestroyView();
         if (mView != null) {
@@ -3163,6 +3255,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         ensureAnimationInfo().mIsHideReplaced = replaced;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * If the host of this fragment is an {@link ActivityResultRegistryOwner} the
+     * {@link ActivityResultRegistry} of the host will be used. Otherwise, this will use the
+     * registry of the Fragment's Activity.
+     */
     @NonNull
     @Override
     public final <I, O> ActivityResultLauncher<I> registerForActivityResult(
@@ -3171,6 +3271,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return prepareCallInternal(contract, new Function<Void, ActivityResultRegistry>() {
             @Override
             public ActivityResultRegistry apply(Void input) {
+                if (mHost instanceof ActivityResultRegistryOwner) {
+                    return ((ActivityResultRegistryOwner) mHost).getActivityResultRegistry();
+                }
                 return requireActivity().getActivityResultRegistry();
             }
         }, callback);

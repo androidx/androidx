@@ -21,6 +21,7 @@ import androidx.compose.Immutable
 import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
+import androidx.ui.graphics.useOrElse
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
@@ -38,8 +39,8 @@ import androidx.ui.unit.sp
 private val DefaultFontSize = 14.sp
 private val DefaultLetterSpacing = 0.sp
 private val DefaultBackgroundColor = Color.Transparent
-// FIXME: Introduce TextUnit.Original for representing "do not change the original result". Need to
-// distinguish from Inherit.
+// TODO(nona): Introduce TextUnit.Original for representing "do not change the original result".
+//  Need to distinguish from Inherit.
 private val DefaultLineHeight = TextUnit.Inherit
 private val DefaultColor = Color.Black
 
@@ -78,7 +79,7 @@ private val DefaultColor = Color.Black
  */
 @Immutable
 data class TextStyle(
-    val color: Color? = null,
+    val color: Color = Color.Unset,
     val fontSize: TextUnit = TextUnit.Inherit,
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
@@ -89,7 +90,7 @@ data class TextStyle(
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
     val localeList: LocaleList? = null,
-    val background: Color? = null,
+    val background: Color = Color.Unset,
     val textDecoration: TextDecoration? = null,
     val shadow: Shadow? = null,
     val textAlign: TextAlign? = null,
@@ -218,7 +219,7 @@ fun lerp(start: TextStyle, stop: TextStyle, fraction: Float): TextStyle {
  * @return resolved text style.
  */
 fun resolveDefaults(style: TextStyle, direction: LayoutDirection) = TextStyle(
-    color = style.color ?: DefaultColor,
+    color = style.color.useOrElse { DefaultColor },
     fontSize = if (style.fontSize == TextUnit.Inherit) DefaultFontSize else style.fontSize,
     fontWeight = style.fontWeight ?: FontWeight.Normal,
     fontStyle = style.fontStyle ?: FontStyle.Normal,
@@ -233,7 +234,7 @@ fun resolveDefaults(style: TextStyle, direction: LayoutDirection) = TextStyle(
     baselineShift = style.baselineShift ?: BaselineShift.None,
     textGeometricTransform = style.textGeometricTransform ?: TextGeometricTransform.None,
     localeList = style.localeList ?: LocaleList.current,
-    background = style.background ?: DefaultBackgroundColor,
+    background = style.background.useOrElse { DefaultBackgroundColor },
     textDecoration = style.textDecoration ?: TextDecoration.None,
     shadow = style.shadow ?: Shadow.None,
     textAlign = style.textAlign ?: TextAlign.Start,

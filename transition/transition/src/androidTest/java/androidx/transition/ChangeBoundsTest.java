@@ -24,10 +24,10 @@ import static org.junit.Assert.assertThat;
 import android.content.Context;
 import android.os.Build;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.core.animation.LinearInterpolator;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.transition.test.R;

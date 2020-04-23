@@ -23,7 +23,6 @@ import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.SparseArray
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
@@ -36,12 +35,12 @@ import androidx.ui.test.AnimationClockTestRule
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
+import androidx.ui.test.isOnUiThread
 import androidx.ui.test.runOnUiThread
+import androidx.ui.test.waitForIdle
 import androidx.ui.unit.Density
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 /**
  * Factory method to provide implementation of [AndroidComposeTestRule].
@@ -103,47 +102,36 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             "Cannot call setContent twice per test!"
         }
 
-        val drawLatch = CountDownLatch(1)
-        val listener = object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                drawLatch.countDown()
-                val contentViewGroup =
-                    activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
-                contentViewGroup.viewTreeObserver.removeOnGlobalLayoutListener(this)
+        runOnUiThread {
+            val composition = activityTestRule.activity.setContent(
+                recomposer ?: Recomposer.current(),
+                composable
+            )
+            val contentViewGroup =
+                activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
+            // AndroidComposeView is postponing the composition till the saved state is restored.
+            // We will emulate the restoration of the empty state to trigger the real composition.
+            contentViewGroup.getChildAt(0).restoreHierarchyState(SparseArray())
+            disposeContentHook = {
+                composition.dispose()
             }
         }
-        val runnable: Runnable = object : Runnable {
-            override fun run() {
-                val composition = activityTestRule.activity.setContent(
-                    recomposer ?: Recomposer.current(),
-                    composable
-                )
-                val contentViewGroup =
-                    activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
-                // AndroidComposeView is postponing the composition till the saved state will be restored.
-                // We will emulate the restoration of the empty state to trigger the real composition.
-                contentViewGroup.getChildAt(0).restoreHierarchyState(SparseArray())
-                contentViewGroup.viewTreeObserver.addOnGlobalLayoutListener(listener)
-                disposeContentHook = {
-                    composition.dispose()
-                }
-            }
+
+        if (!isOnUiThread()) {
+            // Only wait for idleness if not on the UI thread. If we are on the UI thread, the
+            // caller clearly wants to keep tight control over execution order, so don't go
+            // executing future tasks on the main thread.
+            waitForIdle()
         }
-        activityTestRule.runOnUiThread(runnable)
-        drawLatch.await(1, TimeUnit.SECONDS)
     }
 
     override fun forGivenContent(composable: @Composable() () -> Unit): ComposeTestCaseSetup {
-        val testCase = object : ComposeTestCase {
+        return forGivenTestCase(object : ComposeTestCase {
             @Composable
             override fun emitContent() {
                 composable()
             }
-        }
-        return AndroidComposeTestCaseSetup(
-            testCase,
-            activityTestRule.activity
-        )
+        })
     }
 
     override fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup {
@@ -155,7 +143,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun captureScreenOnIdle(): Bitmap {
-        SynchronizedTreeCollector.waitForIdle()
+        waitForIdle()
         val contentView = activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
 
         val screenRect = Rect.fromLTWH(

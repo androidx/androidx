@@ -54,6 +54,9 @@ internal class RenderNodeLayer(
         setHasOverlappingRendering(true)
     }
 
+    override val layerId: Long
+        get() = renderNode.uniqueId
+
     override fun updateLayerProperties() {
         transformOrigin = drawLayerModifier.transformOrigin
         val wasClippingManually = renderNode.clipToOutline && outlineResolver.clipPath != null
@@ -62,7 +65,7 @@ internal class RenderNodeLayer(
         renderNode.alpha = drawLayerModifier.alpha
         renderNode.translationX = drawLayerModifier.translationX
         renderNode.translationY = drawLayerModifier.translationY
-        renderNode.elevation = drawLayerModifier.elevation
+        renderNode.elevation = drawLayerModifier.shadowElevation
         renderNode.rotationZ = drawLayerModifier.rotationZ
         renderNode.rotationX = drawLayerModifier.rotationX
         renderNode.rotationY = drawLayerModifier.rotationY

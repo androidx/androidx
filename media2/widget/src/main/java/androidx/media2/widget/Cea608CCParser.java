@@ -24,7 +24,6 @@ import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.text.style.UpdateAppearance;
 import android.util.Log;
-import android.view.accessibility.CaptioningManager.CaptionStyle;
 
 import androidx.annotation.NonNull;
 

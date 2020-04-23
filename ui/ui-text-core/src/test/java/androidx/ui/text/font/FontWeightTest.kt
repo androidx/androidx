@@ -23,6 +23,26 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class FontWeightTest {
     @Test
+    fun `constructor accept 1000`() {
+        assertThat(FontWeight(1000).weight).isEqualTo(1000)
+    }
+
+    @Test
+    fun `constructor accept 1`() {
+        assertThat(FontWeight(1).weight).isEqualTo(1)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `constructor does not accept greater than 1000`() {
+        FontWeight(1001)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `constructor does not accept less than 1`() {
+        FontWeight(0)
+    }
+
+    @Test
     fun `lerp at start returns start value`() {
         assertThat(
             lerp(
@@ -31,6 +51,12 @@ class FontWeightTest {
                 0.0f
             )
         ).isEqualTo(FontWeight.W200)
+    }
+
+    @Test
+    fun `lerp at start returns font weight 1`() {
+        val start = FontWeight(1)
+        assertThat(lerp(start, FontWeight.W400, 0.0f)).isEqualTo(start)
     }
 
     @Test
@@ -57,19 +83,15 @@ class FontWeightTest {
 
     @Test
     fun `lerp in the mid-time with odd distance should be rounded to up`() {
+        val start = FontWeight.W200
+        val stop = FontWeight.W900
         assertThat(
             lerp(
-                FontWeight.W200,
-                FontWeight.W900,
+                start,
+                stop,
                 0.5f
             )
-        ).isEqualTo(FontWeight.W600)
-    }
-
-    @Test
-    fun `toString return FontsWeight`() {
-        assertThat(FontWeight.W100.toString()).isEqualTo("FontWeight.W100")
-        assertThat(FontWeight.W900.toString()).isEqualTo("FontWeight.W900")
+        ).isEqualTo(FontWeight(((stop.weight + start.weight) * 0.5).toInt()))
     }
 
     @Test

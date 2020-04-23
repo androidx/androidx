@@ -43,8 +43,7 @@ class DaoProcessor(
     baseContext: Context,
     val element: TypeElement,
     val dbType: DeclaredType,
-    val dbVerifier: DatabaseVerifier?,
-    val queryInterpreter: QueryInterpreter
+    val dbVerifier: DatabaseVerifier?
 ) {
     val context = baseContext.fork(element)
 
@@ -96,7 +95,6 @@ class DaoProcessor(
                     baseContext = context,
                     containing = declaredType,
                     executableElement = it,
-                    queryInterpreter = queryInterpreter,
                     dbVerifier = processorVerifier).process()
         } ?: emptyList()
 

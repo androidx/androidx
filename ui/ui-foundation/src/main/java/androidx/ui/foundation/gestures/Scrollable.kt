@@ -20,6 +20,7 @@ import androidx.animation.AnimatedFloat
 import androidx.animation.AnimationClockObservable
 import androidx.animation.AnimationClockObserver
 import androidx.animation.AnimationEndReason
+import androidx.animation.Spring
 import androidx.compose.Composable
 import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
@@ -210,7 +211,7 @@ private class DeltaAnimatedFloat(
     initial: Float,
     clock: AnimationClockObservable,
     private val onDelta: (Float) -> Float
-) : AnimatedFloat(clock) {
+) : AnimatedFloat(clock, Spring.DefaultDisplacementThreshold) {
 
     override var value = initial
         set(value) {

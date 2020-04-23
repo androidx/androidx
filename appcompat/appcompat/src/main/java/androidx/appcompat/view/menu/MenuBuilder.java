@@ -201,14 +201,14 @@ public class MenuBuilder implements SupportMenu {
          * @param item The menu item that is selected
          * @return whether the menu item selection was handled
          */
-        boolean onMenuItemSelected(MenuBuilder menu, MenuItem item);
+        boolean onMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item);
 
         /**
          * Called when the mode of the menu changes (for example, from icon to expanded).
          *
          * @param menu the menu that has changed modes
          */
-        void onMenuModeChange(MenuBuilder menu);
+        void onMenuModeChange(@NonNull MenuBuilder menu);
     }
 
     /**
@@ -830,7 +830,7 @@ public class MenuBuilder implements SupportMenu {
         return mContext;
     }
 
-    boolean dispatchMenuItemSelected(MenuBuilder menu, MenuItem item) {
+    boolean dispatchMenuItemSelected(@NonNull MenuBuilder menu, @NonNull MenuItem item) {
         return mCallback != null && mCallback.onMenuItemSelected(menu, item);
     }
 

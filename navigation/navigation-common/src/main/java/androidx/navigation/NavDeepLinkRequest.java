@@ -51,6 +51,7 @@ public class NavDeepLinkRequest {
      * Get the uri from the NavDeepLinkRequest.
      *
      * @return the uri for the request.
+     * @see NavDeepLink#getUriPattern()
      */
     @Nullable
     public Uri getUri() {
@@ -61,6 +62,7 @@ public class NavDeepLinkRequest {
      * Get the action from the NavDeepLinkRequest.
      *
      * @return the action for the request.
+     * @see NavDeepLink#getAction()
      */
     @Nullable
     public String getAction() {
@@ -71,6 +73,7 @@ public class NavDeepLinkRequest {
      * Get the mimeType from the NavDeepLinkRequest.
      *
      * @return the mimeType of the request.
+     * @see NavDeepLink#getMimeType()
      */
     @Nullable
     public String getMimeType() {
@@ -115,7 +118,7 @@ public class NavDeepLinkRequest {
         /**
          * Creates a {@link NavDeepLinkRequest.Builder} with a set uri.
          *
-         * @param uri The uri pattern to add to the NavDeepLinkRequest
+         * @param uri The uri to add to the NavDeepLinkRequest
          * @return a {@link Builder} instance
          */
         @NonNull
@@ -128,11 +131,17 @@ public class NavDeepLinkRequest {
         /**
          * Creates a {@link NavDeepLinkRequest.Builder} with a set action.
          *
+         * @throws IllegalArgumentException if the action is empty.
+         *
          * @param action the intent action for the NavDeepLinkRequest
          * @return a {@link Builder} instance
          */
         @NonNull
         public static Builder fromAction(@NonNull String action) {
+            if (action.isEmpty()) {
+                throw new IllegalArgumentException("The NavDeepLinkRequest cannot have an empty "
+                        + "action.");
+            }
             Builder builder = new Builder();
             builder.setAction(action);
             return builder;
@@ -154,7 +163,7 @@ public class NavDeepLinkRequest {
         /**
          * Set the uri for the {@link NavDeepLinkRequest}.
          *
-         * @param uri The uri pattern to add to the NavDeepLinkRequest
+         * @param uri The uri to add to the NavDeepLinkRequest
          *
          * @return This builder.
          */
@@ -167,12 +176,18 @@ public class NavDeepLinkRequest {
         /**
          * Set the action for the {@link NavDeepLinkRequest}.
          *
+         * @throws IllegalArgumentException if the action is empty.
+         *
          * @param action the intent action for the NavDeepLinkRequest
          *
          * @return This builder.
          */
         @NonNull
         public Builder setAction(@NonNull String action) {
+            if (action.isEmpty()) {
+                throw new IllegalArgumentException("The NavDeepLinkRequest cannot have an empty "
+                        + "action.");
+            }
             mAction = action;
             return this;
         }

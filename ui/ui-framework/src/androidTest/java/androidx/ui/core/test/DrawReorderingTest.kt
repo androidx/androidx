@@ -31,9 +31,11 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
+import androidx.ui.core.ZIndexModifier
 import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
 import androidx.ui.core.setContent
+import androidx.ui.core.zIndex
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
@@ -80,7 +82,7 @@ class DrawReorderingTest {
                 ) {
                     FixedSize(
                         10.ipx, PaddingModifier(10.ipx)
-                            .drawLayer(elevation = 1f)
+                            .zIndex(1f)
                             .background(Color.White)
                     )
                     FixedSize(
@@ -109,7 +111,7 @@ class DrawReorderingTest {
                 ) {
                     FixedSize(
                         10.ipx, PaddingModifier(10.ipx)
-                            .drawLayer(elevation = 1f)
+                            .zIndex(1f)
                             .background(Color.White)
                     )
                     FixedSize(
@@ -138,7 +140,7 @@ class DrawReorderingTest {
                     FixedSize(10.ipx, PaddingModifier(10.ipx)) {
                         FixedSize(
                             10.ipx,
-                            Modifier.drawLayer(elevation = 1f)
+                            Modifier.zIndex(1f)
                                 .background(Color.Green)
                         )
                     }
@@ -172,7 +174,7 @@ class DrawReorderingTest {
                     FixedSize(10.ipx, PaddingModifier(10.ipx)) {
                         FixedSize(
                             10.ipx,
-                            Modifier.drawLayer(elevation = 1f)
+                            Modifier.zIndex(1f)
                                 .background(Color.Green)
                         )
                     }
@@ -204,7 +206,7 @@ class DrawReorderingTest {
                 ) {
                     FixedSize(
                         10.ipx, PaddingModifier(10.ipx)
-                            .drawLayer(elevation = state.value)
+                            .zIndex(state.value)
                             .background(Color.Black)
                     )
                     FixedSize(
@@ -263,12 +265,12 @@ class DrawReorderingTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testChangingZOrderReusingModifiers() {
         val state = mutableStateOf(0f)
-        val elevation = object : DrawLayerModifier {
-            override val elevation: Float
+        val zIndex = object : ZIndexModifier {
+            override val zIndex: Float
                 get() = state.value
         }
         val modifier1 = PaddingModifier(10.ipx)
-            .plus(elevation)
+            .plus(zIndex)
             .background(Color.White)
         val modifier2 = Modifier.background(Color.Red)
             .drawLatchModifier()
@@ -327,7 +329,7 @@ class DrawReorderingTest {
     fun testChangingZOrderUncle() {
         val state = mutableStateOf(0f)
         val elevation = object : DrawLayerModifier {
-            override val elevation: Float
+            override val shadowElevation: Float
                 get() = state.value
         }
         val view = View(activity)
@@ -396,7 +398,7 @@ class DrawReorderingTest {
                     FixedSize(
                         size,
                         PaddingModifier(10.ipx)
-                            .drawLayer(elevation = 1f)
+                            .zIndex(1f)
                             .background(Color.White)
                     )
                     FixedSize(
@@ -444,7 +446,9 @@ class DrawReorderingTest {
                 FixedSize(size = 30.ipx) {
                     FixedSize(
                         10.ipx,
-                        PaddingModifier(10.ipx).drawLayer(elevation = 1f).background(Color.White)
+                        PaddingModifier(10.ipx)
+                            .zIndex(1f)
+                            .background(Color.White)
                     )
                     FixedSize(
                         30.ipx,
@@ -482,12 +486,12 @@ class DrawReorderingTest {
                 ) {
                     FixedSize(
                         10.ipx, PaddingModifier(10.ipx)
-                            .drawLayer(elevation = 3f)
-                            .drawLayer(elevation = 1f)
+                            .zIndex(3f)
+                            .zIndex(1f)
                             .background(Color.White)
                     )
                     FixedSize(
-                        30.ipx, Modifier.drawLayer(elevation = 2f)
+                        30.ipx, Modifier.zIndex(2f)
                             .background(Color.Red)
                             .drawLatchModifier()
                     )
@@ -511,7 +515,7 @@ class DrawReorderingTest {
             .background(underColor)
             .drawLatchModifier()
             .plus(object : DrawLayerModifier {
-                override val elevation: Float
+                override val shadowElevation: Float
                     get() {
                         return elevation.value
                     }
@@ -571,6 +575,70 @@ class DrawReorderingTest {
             elevation.value = 1f
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testInvalidateParentOfReorderedChild() {
+        val color = mutableStateOf(Color.Red)
+        rule.runOnUiThread {
+            activity.setContent {
+                FixedSize(size = 30.ipx) {
+                    FixedSize(
+                        10.ipx,
+                        PaddingModifier(10.ipx)
+                            .zIndex(1f)
+                            .background(Color.White)
+                    )
+                    FixedSize(30.ipx, Modifier.background(color.value).drawLatchModifier())
+                }
+            }
+        }
+        rule.validateSquareColors(
+            outerColor = Color.Red,
+            innerColor = Color.White,
+            size = 10,
+            drawLatch = drawLatch
+        )
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThread {
+            color.value = Color.Blue
+        }
+        rule.validateSquareColors(
+            outerColor = Color.Blue,
+            innerColor = Color.White,
+            size = 10,
+            drawLatch = drawLatch
+        )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun testShadowSizeIsNotCausingReorder() {
+        rule.runOnUiThread {
+            activity.setContent {
+                FixedSize(
+                    size = 30.ipx
+                ) {
+                    FixedSize(
+                        10.ipx, PaddingModifier(10.ipx)
+                            .drawLayer(shadowElevation = 1f)
+                            .background(Color.White)
+                    )
+                    FixedSize(
+                        30.ipx, Modifier.drawLayer()
+                            .background(Color.Red)
+                            .drawLatchModifier()
+                    )
+                }
+            }
+        }
+        rule.validateSquareColors(
+            outerColor = Color.Red,
+            innerColor = Color.Red,
+            size = 10,
+            drawLatch = drawLatch
+        )
     }
 
     fun Modifier.drawLatchModifier() = drawBehind { drawLatch.countDown() }

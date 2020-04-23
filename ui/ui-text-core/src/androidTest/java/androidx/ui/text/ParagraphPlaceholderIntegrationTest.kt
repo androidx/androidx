@@ -46,7 +46,7 @@ class ParagraphPlaceholderIntegrationTest {
         // Height won't be increased. Notice: in fontFamilyMeasureFont lineHeight = 1.2 * fontSize
         assertThat(paragraph.getLineHeight(0)).isEqualTo(fontSize * 1.2f)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         assertThat(bound.bottom).isEqualTo(paragraph.firstBaseline)
         assertThat(bound.top).isEqualTo(paragraph.firstBaseline - height.value * fontSize)
         // There is one character to the left of this placeholder.
@@ -77,7 +77,7 @@ class ParagraphPlaceholderIntegrationTest {
         assertThat(paragraph.getLineHeight(0))
             .isEqualTo(0.2f * fontSize + fontSize * height.value)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         assertThat(bound.bottom).isEqualTo(paragraph.firstBaseline)
         assertThat(bound.top).isEqualTo(paragraph.firstBaseline - height.value * fontSize)
         // There is one character to the left of this placeholder.
@@ -104,7 +104,7 @@ class ParagraphPlaceholderIntegrationTest {
 
         assertThat(paragraph.getLineHeight(0)).isEqualTo(1.2f * fontSize)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         assertThat(bound.bottom).isEqualTo(paragraph.getLineBottom(0))
         assertThat(bound.top)
             .isEqualTo(paragraph.getLineBottom(0) - height.value * fontSize)
@@ -132,7 +132,7 @@ class ParagraphPlaceholderIntegrationTest {
 
         assertThat(paragraph.getLineHeight(0)).isEqualTo(height.value * fontSize)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         assertThat(bound.bottom).isEqualTo(paragraph.getLineBottom(0))
         assertThat(bound.top)
             .isEqualTo(paragraph.getLineBottom(0) - height.value * fontSize)
@@ -160,7 +160,7 @@ class ParagraphPlaceholderIntegrationTest {
 
         assertThat(paragraph.getLineHeight(0)).isEqualTo(1.2f * fontSize)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         // TODO(haoyuchang): use getLineTop instead
         assertThat(bound.top).isEqualTo(paragraph.getLineBottom(-1))
         assertThat(bound.bottom)
@@ -189,7 +189,7 @@ class ParagraphPlaceholderIntegrationTest {
 
         assertThat(paragraph.getLineHeight(0)).isEqualTo(height.value * fontSize)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         // TODO(haoyuchang): use getLineTop instead
         assertThat(bound.top).isEqualTo(paragraph.getLineBottom(-1))
         assertThat(bound.bottom)
@@ -218,7 +218,7 @@ class ParagraphPlaceholderIntegrationTest {
 
         assertThat(paragraph.getLineHeight(0)).isEqualTo(fontSize * 1.2f)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         // TODO(haoyuchang): We need getLineTop(0).
         val lineCenter = (paragraph.getLineBottom(-1) + paragraph.getLineBottom(0)) / 2
 
@@ -249,7 +249,7 @@ class ParagraphPlaceholderIntegrationTest {
 
         assertThat(paragraph.getLineHeight(0)).isEqualTo(fontSize * height.value)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         // TODO(haoyuchang): We need getLineTop(0).
         val lineCenter = (paragraph.getLineBottom(-1) + paragraph.getLineBottom(0)) / 2
 
@@ -282,7 +282,7 @@ class ParagraphPlaceholderIntegrationTest {
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         // TextTop aligns the inline element to top of the proceeding text.
         // In the measurement font, the top equals to fontSize pixels above baseline.
         val expectedTop = paragraph.firstBaseline - fontSize
@@ -314,7 +314,7 @@ class ParagraphPlaceholderIntegrationTest {
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         // TextBottom aligns the inline element to bottom of the proceeding text.
         // In the measurement font, the bottom equals to fontSize * 0.2 pixels below baseline.
         val expectedBottom = paragraph.firstBaseline + fontSize * 0.2f
@@ -346,7 +346,7 @@ class ParagraphPlaceholderIntegrationTest {
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(1)
 
-        val bound = placeholderRects[0]
+        val bound = placeholderRects[0]!!
         // TextCenter aligns the inline element to center of the proceeding text.
         // In the measurement font, the center equals to fontSize * 0.3 pixels above baseline.
         val expectedCenter = paragraph.firstBaseline - fontSize * 0.4f
@@ -358,6 +358,31 @@ class ParagraphPlaceholderIntegrationTest {
         assertThat(bound.right).isEqualTo(fontSize + fontSize * width.value)
     }
 
+    @Test
+    fun placeHolderRects_ellipsized() {
+        val text = "ABC"
+        val fontSize = 20f
+
+        val placeholder = Placeholder(1.em, 1.em, PlaceholderVerticalAlign.TextCenter)
+        val placeholders = listOf(
+            AnnotatedString.Item(placeholder, 0, 1),
+            AnnotatedString.Item(placeholder, 2, 3)
+        )
+        val paragraph = simpleParagraph(
+            text = text,
+            placeholders = placeholders,
+            fontSize = fontSize.sp,
+            width = 2 * fontSize,
+            maxLines = 1,
+            ellipsis = true
+        )
+        val placeholderRects = paragraph.placeholderRects
+        assertThat(placeholderRects.size).isEqualTo(placeholders.size)
+        assertThat(placeholderRects[0]).isNotNull()
+        // The second placeholder should be ellipsized.
+        assertThat(placeholderRects[1]).isNull()
+    }
+
     private val fontFamilyMeasureFont = FontTestData.BASIC_MEASURE_FONT.asFontFamily()
     private val defaultDensity = Density(density = 1f, fontScale = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
@@ -367,7 +392,9 @@ class ParagraphPlaceholderIntegrationTest {
         fontSize: TextUnit = TextUnit.Inherit,
         spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
         placeholders: List<AnnotatedString.Item<Placeholder>> = listOf(),
-        width: Float = Float.MAX_VALUE
+        width: Float = Float.MAX_VALUE,
+        maxLines: Int = Int.MAX_VALUE,
+        ellipsis: Boolean = false
     ): Paragraph {
         return Paragraph(
             text = text,
@@ -378,7 +405,8 @@ class ParagraphPlaceholderIntegrationTest {
             ),
             spanStyles = spanStyles,
             placeholders = placeholders,
-            maxLines = Int.MAX_VALUE,
+            maxLines = maxLines,
+            ellipsis = ellipsis,
             constraints = ParagraphConstraints(width = width),
             density = defaultDensity,
             resourceLoader = TestFontResourceLoader(context)

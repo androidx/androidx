@@ -7,22 +7,22 @@ package androidx.ui.layout {
   }
 
   public interface Arrangement {
-    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public java.util.List<androidx.ui.unit.IntPx> arrange-SVHdN54(int totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
     field @Deprecated public static final androidx.ui.layout.Arrangement.Companion! Companion;
   }
 
   public static final class Arrangement.Bottom implements androidx.ui.layout.Arrangement.Vertical {
-    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public java.util.List<androidx.ui.unit.IntPx> arrange-SVHdN54(int totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
     field public static final androidx.ui.layout.Arrangement.Bottom! INSTANCE;
   }
 
   public static final class Arrangement.Center implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
-    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public java.util.List<androidx.ui.unit.IntPx> arrange-SVHdN54(int totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
     field public static final androidx.ui.layout.Arrangement.Center! INSTANCE;
   }
 
   public static final class Arrangement.End implements androidx.ui.layout.Arrangement.Horizontal {
-    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public java.util.List<androidx.ui.unit.IntPx> arrange-SVHdN54(int totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
     field public static final androidx.ui.layout.Arrangement.End! INSTANCE;
   }
 
@@ -30,27 +30,27 @@ package androidx.ui.layout {
   }
 
   public static final class Arrangement.SpaceAround implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
-    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public java.util.List<androidx.ui.unit.IntPx> arrange-SVHdN54(int totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
     field public static final androidx.ui.layout.Arrangement.SpaceAround! INSTANCE;
   }
 
   public static final class Arrangement.SpaceBetween implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
-    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public java.util.List<androidx.ui.unit.IntPx> arrange-SVHdN54(int totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
     field public static final androidx.ui.layout.Arrangement.SpaceBetween! INSTANCE;
   }
 
   public static final class Arrangement.SpaceEvenly implements androidx.ui.layout.Arrangement.Horizontal androidx.ui.layout.Arrangement.Vertical {
-    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public java.util.List<androidx.ui.unit.IntPx> arrange-SVHdN54(int totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
     field public static final androidx.ui.layout.Arrangement.SpaceEvenly! INSTANCE;
   }
 
   public static final class Arrangement.Start implements androidx.ui.layout.Arrangement.Horizontal {
-    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public java.util.List<androidx.ui.unit.IntPx> arrange-SVHdN54(int totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
     field public static final androidx.ui.layout.Arrangement.Start! INSTANCE;
   }
 
   public static final class Arrangement.Top implements androidx.ui.layout.Arrangement.Vertical {
-    method public java.util.List<androidx.ui.unit.IntPx> arrange(androidx.ui.unit.IntPx totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
+    method public java.util.List<androidx.ui.unit.IntPx> arrange-SVHdN54(int totalSize, java.util.List<androidx.ui.unit.IntPx> size, androidx.ui.core.LayoutDirection layoutDirection);
     field public static final androidx.ui.layout.Arrangement.Top! INSTANCE;
   }
 
@@ -413,23 +413,15 @@ package androidx.ui.layout {
     method public float component1();
     method public androidx.ui.layout.LayoutAspectRatio copy(float aspectRatio);
     method public float getAspectRatio();
-    method public androidx.ui.unit.IntPx maxIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
-    method public androidx.ui.unit.IntPx maxIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
-    method public androidx.ui.unit.IntPx minIntrinsicHeightOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx width, androidx.ui.core.LayoutDirection layoutDirection);
-    method public androidx.ui.unit.IntPx minIntrinsicWidthOf(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, androidx.ui.unit.IntPx height, androidx.ui.core.LayoutDirection layoutDirection);
+    method public int maxIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public int maxIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
+    method public int minIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
+    method public int minIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
   }
 
   public final class LayoutAspectRatioKt {
     method public static androidx.ui.core.Modifier aspectRatio(androidx.ui.core.Modifier, @FloatRange(from=0.0, fromInclusive=false) float ratio);
-  }
-
-  public final class LayoutDirectionModifier {
-    method @Deprecated public androidx.ui.core.LayoutModifier getLtr();
-    method @Deprecated public androidx.ui.core.LayoutModifier getRtl();
-    property @Deprecated public final androidx.ui.core.LayoutModifier Ltr;
-    property @Deprecated public final androidx.ui.core.LayoutModifier Rtl;
-    field public static final androidx.ui.layout.LayoutDirectionModifier! INSTANCE;
   }
 
   public final class LayoutDirectionsKt {
@@ -448,7 +440,7 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getHeight();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -464,7 +456,7 @@ package androidx.ui.layout {
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMaxHeight();
     method public androidx.ui.unit.Dp getMinHeight();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -483,7 +475,7 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMaxHeight();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -497,7 +489,7 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMinHeight();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -568,7 +560,7 @@ package androidx.ui.layout {
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getHeight();
     method public androidx.ui.unit.Dp getWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -589,7 +581,7 @@ package androidx.ui.layout {
     method public androidx.ui.unit.Dp getMaxWidth();
     method public androidx.ui.unit.Dp getMinHeight();
     method public androidx.ui.unit.Dp getMinWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -611,7 +603,7 @@ package androidx.ui.layout {
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMaxHeight();
     method public androidx.ui.unit.Dp getMaxWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -628,7 +620,7 @@ package androidx.ui.layout {
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMinHeight();
     method public androidx.ui.unit.Dp getMinWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -669,7 +661,7 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -685,7 +677,7 @@ package androidx.ui.layout {
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMaxWidth();
     method public androidx.ui.unit.Dp getMinWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -704,7 +696,7 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMaxWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -718,7 +710,7 @@ package androidx.ui.layout {
     method public <R> R! foldIn(R! initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R! initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public androidx.ui.unit.Dp getMinWidth();
-    method public androidx.ui.unit.IntPx? modifyAlignmentLine(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
+    method public androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
@@ -782,27 +774,27 @@ package androidx.ui.layout {
   }
 
   public abstract class TableColumnWidth {
-    method public androidx.ui.unit.IntPx maxIntrinsicWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density, androidx.ui.unit.IntPx availableHeight);
-    method public androidx.ui.unit.IntPx minIntrinsicWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density, androidx.ui.unit.IntPx availableHeight);
-    method public abstract androidx.ui.unit.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density);
+    method public int maxIntrinsicWidth-17UHc7E(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density, int availableHeight);
+    method public int minIntrinsicWidth-17UHc7E(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density, int availableHeight);
+    method public abstract int preferredWidth-IoUeifE(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density);
   }
 
   public static final class TableColumnWidth.Fixed extends androidx.ui.layout.TableColumnWidth.Inflexible {
     ctor public TableColumnWidth.Fixed(androidx.ui.unit.Dp width);
     method public androidx.ui.layout.TableColumnWidth.Fixed copy(androidx.ui.unit.Dp width);
-    method public androidx.ui.unit.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density);
+    method public int preferredWidth-IoUeifE(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density);
   }
 
   public static final class TableColumnWidth.Flex extends androidx.ui.layout.TableColumnWidth {
     ctor public TableColumnWidth.Flex(@FloatRange(from=null) float flex);
     method public androidx.ui.layout.TableColumnWidth.Flex copy(float flex);
-    method public androidx.ui.unit.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density);
+    method public int preferredWidth-IoUeifE(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density);
   }
 
   public static final class TableColumnWidth.Fraction extends androidx.ui.layout.TableColumnWidth.Inflexible {
     ctor public TableColumnWidth.Fraction(@FloatRange(from=null, to=null) float fraction);
     method public androidx.ui.layout.TableColumnWidth.Fraction copy(float fraction);
-    method public androidx.ui.unit.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density);
+    method public int preferredWidth-IoUeifE(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density);
   }
 
   public abstract static class TableColumnWidth.Inflexible extends androidx.ui.layout.TableColumnWidth {
@@ -813,27 +805,27 @@ package androidx.ui.layout {
   public static final class TableColumnWidth.Max extends androidx.ui.layout.TableColumnWidth.Inflexible {
     ctor public TableColumnWidth.Max(androidx.ui.layout.TableColumnWidth.Inflexible a, androidx.ui.layout.TableColumnWidth.Inflexible b);
     method public androidx.ui.layout.TableColumnWidth.Max copy(androidx.ui.layout.TableColumnWidth.Inflexible a, androidx.ui.layout.TableColumnWidth.Inflexible b);
-    method public androidx.ui.unit.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density);
+    method public int preferredWidth-IoUeifE(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density);
   }
 
   public static final class TableColumnWidth.MaxIntrinsic extends androidx.ui.layout.TableColumnWidth.Inflexible {
-    method public androidx.ui.unit.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density);
+    method public int preferredWidth-IoUeifE(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density);
     field public static final androidx.ui.layout.TableColumnWidth.MaxIntrinsic! INSTANCE;
   }
 
   public static final class TableColumnWidth.Min extends androidx.ui.layout.TableColumnWidth.Inflexible {
     ctor public TableColumnWidth.Min(androidx.ui.layout.TableColumnWidth.Inflexible a, androidx.ui.layout.TableColumnWidth.Inflexible b);
     method public androidx.ui.layout.TableColumnWidth.Min copy(androidx.ui.layout.TableColumnWidth.Inflexible a, androidx.ui.layout.TableColumnWidth.Inflexible b);
-    method public androidx.ui.unit.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density);
+    method public int preferredWidth-IoUeifE(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density);
   }
 
   public static final class TableColumnWidth.MinIntrinsic extends androidx.ui.layout.TableColumnWidth.Inflexible {
-    method public androidx.ui.unit.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density);
+    method public int preferredWidth-IoUeifE(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density);
     field public static final androidx.ui.layout.TableColumnWidth.MinIntrinsic! INSTANCE;
   }
 
   public static final class TableColumnWidth.Wrap extends androidx.ui.layout.TableColumnWidth.Inflexible {
-    method public androidx.ui.unit.IntPx preferredWidth(java.util.List<androidx.ui.layout.TableMeasurable> cells, androidx.ui.unit.IntPx containerWidth, androidx.ui.unit.Density density);
+    method public int preferredWidth-IoUeifE(java.util.List<androidx.ui.layout.TableMeasurable> cells, int containerWidth, androidx.ui.unit.Density density);
     field public static final androidx.ui.layout.TableColumnWidth.Wrap! INSTANCE;
   }
 

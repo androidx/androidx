@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+
+import androidx.build.LibraryVersions
+
 import static androidx.build.dependencies.DependenciesKt.*
 
 import androidx.build.CompilationTarget
@@ -34,7 +37,8 @@ dependencies {
 
 androidx {
     name = "AndroidX Serialization - Annotation"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.SERIALIZATION
     compilationTarget = CompilationTarget.HOST
     mavenGroup = LibraryGroups.SERIALIZATION
     inceptionYear = "2020"

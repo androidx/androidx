@@ -35,7 +35,7 @@ class PhysicsAnimationTest {
         val playTime = 150L
 
         val velocity = animation.getVelocity(playTime, start, end, 0f)
-        val (_, expectedVelocity) = builder.toSpring(end).updateValues(start, 0f, playTime)
+        val expectedVelocity = builder.toSpring(end).updateValues(start, 0f, playTime).velocity
         assertThat(velocity).isEqualTo(expectedVelocity)
     }
 
@@ -50,8 +50,8 @@ class PhysicsAnimationTest {
 
         val velocity = animation.getVelocity(playTime, start, end, 0f)
 
-        val (_, expectedVelocity) = builder.toSpring(end)
-            .updateValues(start.toFloat(), 0f, playTime)
+        val expectedVelocity = builder.toSpring(end)
+            .updateValues(start.toFloat(), 0f, playTime).velocity
         assertThat(velocity).isEqualTo(expectedVelocity)
     }
 
@@ -79,11 +79,13 @@ class PhysicsAnimationTest {
         val resultValue = animation.getValue(playTime, start2, end2, startVelocity2)
         val resultVelocity = animation.getVelocity(playTime, start2, end2, startVelocity2)
 
-        val (expectedValue, expectedVelocity) = builder.toSpring(end2).updateValues(
+        val motion = builder.toSpring(end2).updateValues(
             start2,
             interruptionVelocity,
             playTime
         )
+        val expectedValue = motion.value
+        val expectedVelocity = motion.velocity
 
         assertThat(resultValue).isEqualTo(expectedValue)
         assertThat(resultVelocity).isEqualTo(expectedVelocity)
@@ -150,6 +152,7 @@ class PhysicsAnimationTest {
             overWrapper.durationMillis
         )
     }
+
     @Test
     fun testUnderdampedDuration() {
         val startValue = 100f
@@ -159,7 +162,7 @@ class PhysicsAnimationTest {
         val delta = 1.0
 
         val underBuilder = PhysicsBuilder<Float>(
-            dampingRatio = .5f,
+            dampingRatio = 0.5f,
             stiffness = stiffness,
             displacementThreshold = 1f
         )
@@ -185,6 +188,95 @@ class PhysicsAnimationTest {
         PhysicsBuilder<Float>().build().toWrapper(0f, 0f, 100f).also { animation ->
             assertEquals(0f, animation.getVelocity(animation.durationMillis).value)
             assertEquals(100f, animation.getValue(animation.durationMillis))
+        }
+    }
+
+    @Test
+    fun testSpringVectorAnimationDuration() {
+        data class ClassToAnimate(var one: Float, var two: Float, var three: Float)
+        val springVectorAnimation = PhysicsBuilder(
+            displacementThreshold = ClassToAnimate(1f, 2f, 3f)
+        ).build(
+            TwoWayConverter<ClassToAnimate, AnimationVector3D>(
+                convertToVector = { it ->
+                    AnimationVector(it.one, it.two, it.three)
+                },
+                convertFromVector = { it ->
+                    ClassToAnimate(it.v1, it.v2, it.v3)
+                }
+            )
+        )
+        val floatAnimation = PhysicsBuilder<Float>(displacementThreshold = 1f).build()
+
+        val springVectorDuration = springVectorAnimation.getDurationMillis(
+            AnimationVector(100f, 100f, 100f),
+            AnimationVector(0f, 0f, 0f),
+            AnimationVector(0f, 0f, 0f)
+        )
+        val floatAnimationDuration = floatAnimation.getDurationMillis(
+            AnimationVector(100f),
+            AnimationVector(0f),
+            AnimationVector(0f)
+        )
+
+        // Vector duration should be the longest of all the sub animations
+        // In this case it should be the one with the lowest threshold.
+        assertEquals(springVectorDuration, floatAnimationDuration)
+    }
+
+    @Test
+    fun testSpringVectorAnimationValues() {
+        data class ClassToAnimate(var one: Float, var two: Float, var three: Float)
+        val springVectorAnimation = PhysicsBuilder(
+            displacementThreshold = ClassToAnimate(1f, 2f, 3f)
+        ).build(
+                TwoWayConverter<ClassToAnimate, AnimationVector3D>(
+                    convertToVector = { it ->
+                        AnimationVector(it.one, it.two, it.three)
+                    },
+                    convertFromVector = { it ->
+                        ClassToAnimate(it.v1, it.v2, it.v3)
+                    }
+                )
+            )
+        val floatAnimation1 = PhysicsBuilder<Float>(displacementThreshold = 1f).build()
+        val floatAnimation2 = PhysicsBuilder<Float>(displacementThreshold = 2f).build()
+        val floatAnimation3 = PhysicsBuilder<Float>(displacementThreshold = 3f).build()
+
+        val duration = springVectorAnimation.getDurationMillis(
+            AnimationVector(100f, 100f, 100f),
+            AnimationVector(0f, 0f, 0f),
+            AnimationVector(0f, 0f, 0f)
+        )
+
+        for (time in 0L until duration) {
+            val springVector = springVectorAnimation.getValue(
+                time,
+                AnimationVector(100f, 100f, 100f),
+                AnimationVector(0f, 0f, 0f),
+                AnimationVector(0f, 0f, 0f)
+            )
+            val float1 = floatAnimation1.getValue(
+                time,
+                AnimationVector(100f),
+                AnimationVector(0f),
+                AnimationVector(0f)
+            )
+            val float2 = floatAnimation2.getValue(
+                time,
+                AnimationVector(100f),
+                AnimationVector(0f),
+                AnimationVector(0f)
+            )
+            val float3 = floatAnimation3.getValue(
+                time,
+                AnimationVector(100f),
+                AnimationVector(0f),
+                AnimationVector(0f)
+            )
+            assertEquals(float1.value, springVector.v1, epsilon)
+            assertEquals(float2.value, springVector.v2, epsilon)
+            assertEquals(float3.value, springVector.v3, epsilon)
         }
     }
 

@@ -16,6 +16,8 @@
 
 package androidx.interpolator.view.animation;
 
+import android.view.animation.Interpolator;
+
 /**
  * Interpolator corresponding to {@link android.R.interpolator#fast_out_linear_in}.
  *
@@ -25,7 +27,7 @@ package androidx.interpolator.view.animation;
  * P2 (1.0, 1.0)
  * P3 (1.0, 1.0)
  */
-public class FastOutLinearInInterpolator extends LookupTableInterpolator {
+public class FastOutLinearInInterpolator implements Interpolator {
 
     /**
      * Lookup table values sampled with x at regular intervals between 0 and 1 for a total of
@@ -62,8 +64,10 @@ public class FastOutLinearInInterpolator extends LookupTableInterpolator {
             0.9124f, 0.9201f, 0.9280f, 0.9358f, 0.9437f, 0.9516f, 0.9595f,
             0.9675f, 0.9755f, 0.9836f, 0.9918f, 1.0000f
     };
+    private static final float STEP = 1f / (VALUES.length - 1);
 
-    public FastOutLinearInInterpolator() {
-        super(VALUES);
+    @Override
+    public float getInterpolation(float input) {
+        return LookupTableInterpolator.interpolate(VALUES, STEP, input);
     }
 }

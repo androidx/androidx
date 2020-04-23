@@ -25,6 +25,10 @@ import java.io.File
 
 fun SQLiteDatabase.addTable(table: Table) = execSQL(table.toCreateString())
 
+val SQLiteDatabase.displayName: String
+    get() = if (path != ":memory:") path else
+        ":memory: {hashcode=0x${String.format("%x", this.hashCode())}}"
+
 fun SQLiteDatabase.insertValues(table: Table, vararg values: String) {
     assertThat(values).isNotEmpty()
     assertThat(values).hasLength(table.columns.size)
@@ -59,11 +63,11 @@ fun Table.toCreateString(): String {
             .joinToString(prefix = ",PRIMARY KEY(", postfix = ")") { it.name }
 
     return columns.joinToString(
-        prefix = "CREATE TABLE $name (",
-        postfix = "$primaryKeyPart );"
+        prefix = "CREATE ${if (isView) "VIEW" else "TABLE"} $name (",
+        postfix = "$primaryKeyPart )${if (isView) " AS $viewQuery" else ""};"
     ) {
-        "${it.name} " +
-                "${it.type} " +
+        it.name +
+                "${if (isView) "" else " ${it.type}"} " +
                 (if (it.isNotNull) "NOT NULL " else "") +
                 (if (it.isUnique) "UNIQUE " else "")
     }

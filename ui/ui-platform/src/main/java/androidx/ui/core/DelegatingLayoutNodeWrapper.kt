@@ -22,14 +22,16 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.ipx
 import androidx.ui.unit.round
 import androidx.ui.unit.toPx
 
 /**
  * [LayoutNodeWrapper] with default implementations for methods.
  */
-internal open class DelegatingLayoutNodeWrapper(
-    override val wrapped: LayoutNodeWrapper
+internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
+    override val wrapped: LayoutNodeWrapper,
+    val modifier: T
 ) : LayoutNodeWrapper(wrapped.layoutNode) {
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = wrapped.providedAlignmentLines
@@ -38,8 +40,7 @@ internal open class DelegatingLayoutNodeWrapper(
     override val isAttached: Boolean
         get() = _isAttached && layoutNode.isAttached()
 
-    override val layoutDirection: LayoutDirection
-        get() = wrapped.layoutDirection
+    override val measureScope: MeasureScope get() = wrapped.measureScope
 
     init {
         wrapped.wrappedBy = this
@@ -72,24 +73,31 @@ internal open class DelegatingLayoutNodeWrapper(
 
     override fun place(position: IntPxPosition) {
         this.position = position
-        measureResult.placeChildren(layoutNode.layoutDirection!!)
+        with(InnerPlacementScope) {
+            this.parentLayoutDirection = measureScope.layoutDirection
+            val previousParentWidth = parentWidth
+            parentWidth = measuredSize.width
+            measureResult.placeChildren(measureScope.layoutDirection)
+            parentWidth = previousParentWidth
+        }
     }
 
-    override fun performMeasure(constraints: Constraints): Placeable {
-        val placeable = wrapped.measure(constraints)
+    override fun performMeasure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable {
+        val placeable = wrapped.measure(constraints, layoutDirection)
         measureResult = object : MeasureScope.MeasureResult {
             override val width: IntPx = wrapped.measureResult.width
             override val height: IntPx = wrapped.measureResult.height
             override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
             override fun placeChildren(layoutDirection: LayoutDirection) {
-                placeable.placeAbsolute(-apparentToRealOffset)
+                with(InnerPlacementScope) {
+                    placeable.placeAbsolute(-apparentToRealOffset)
+                }
             }
         }
         return this
-    }
-
-    override fun findLayer(): OwnedLayer? {
-        return wrappedBy?.findLayer()
     }
 
     override fun findFocusWrapperWrappingThisWrapper() =
@@ -110,14 +118,23 @@ internal open class DelegatingLayoutNodeWrapper(
         return lastFocusWrapper
     }
 
-    override fun minIntrinsicWidth(height: IntPx) = wrapped.minIntrinsicWidth(height)
-    override fun maxIntrinsicWidth(height: IntPx) = wrapped.maxIntrinsicWidth(height)
-    override fun minIntrinsicHeight(width: IntPx) = wrapped.minIntrinsicHeight(width)
-    override fun maxIntrinsicHeight(width: IntPx) = wrapped.maxIntrinsicHeight(width)
+    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection) =
+        wrapped.minIntrinsicWidth(height, layoutDirection)
+    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection) =
+        wrapped.maxIntrinsicWidth(height, layoutDirection)
+    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection) =
+        wrapped.minIntrinsicHeight(width, layoutDirection)
+    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection) =
+        wrapped.maxIntrinsicHeight(width, layoutDirection)
     override val parentData: Any? get() = wrapped.parentData
 
     override fun detach() {
         _isAttached = false
         wrapped.detach()
     }
+}
+
+internal object InnerPlacementScope : Placeable.PlacementScope() {
+    override var parentWidth = 0.ipx
+    override var parentLayoutDirection = LayoutDirection.Ltr
 }

@@ -30,8 +30,10 @@ import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.Slice.EXTRA_SELECTION;
+import static androidx.slice.Slice.SUBTYPE_RANGE_MODE;
 import static androidx.slice.core.SliceHints.HINT_RAW;
 import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION;
+import static androidx.slice.core.SliceHints.INDETERMINATE_RANGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_VALUE;
@@ -693,16 +695,38 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             mHandler = new Handler();
         }
 
+        SliceItem style = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_RANGE_MODE);
+        final boolean isIndeterminate = style != null && style.getInt() == INDETERMINATE_RANGE;
         final boolean isSeekBar = FORMAT_ACTION.equals(mRangeItem.getFormat());
         final boolean renderInNewLine = mStartItem == null;
-        final ProgressBar progressBar = isSeekBar ? (renderInNewLine ? new SeekBar(getContext()) :
-                (SeekBar) LayoutInflater.from(getContext()).inflate(R.layout.abc_slice_seekbar_view,
-                        this, false)) :
-                new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
-        Drawable progressDrawable = DrawableCompat.wrap(progressBar.getProgressDrawable());
+        final ProgressBar progressBar;
+        if (isSeekBar) {
+            if (renderInNewLine) {
+                progressBar = new SeekBar(getContext());
+            } else {
+                progressBar = (SeekBar) LayoutInflater.from(getContext()).inflate(
+                        R.layout.abc_slice_seekbar_view, this, false);
+            }
+        } else {
+            if (renderInNewLine) {
+                progressBar = new ProgressBar(getContext(), null,
+                        android.R.attr.progressBarStyleHorizontal);
+            } else {
+                progressBar = (ProgressBar) LayoutInflater.from(getContext()).inflate(
+                        R.layout.abc_slice_progress_inline_view, this, false);
+            }
+        }
+        Drawable progressDrawable = isIndeterminate ? DrawableCompat.wrap(
+                progressBar.getIndeterminateDrawable()) :
+                DrawableCompat.wrap(progressBar.getProgressDrawable());
         if (mTintColor != -1 && progressDrawable != null) {
             DrawableCompat.setTint(progressDrawable, mTintColor);
-            progressBar.setProgressDrawable(progressDrawable);
+            if (isIndeterminate) {
+                progressBar.setIndeterminate(true);
+                progressBar.setIndeterminateDrawable(progressDrawable);
+            } else {
+                progressBar.setProgressDrawable(progressDrawable);
+            }
         }
         // N.B. We don't use progressBar.setMin because it doesn't work properly in backcompat
         //      and/or sliders.
@@ -710,7 +734,8 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         progressBar.setProgress(mRangeValue);
         progressBar.setVisibility(View.VISIBLE);
         if (mStartItem == null) {
-            addView(progressBar);
+            addView(progressBar,
+                    new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         } else {
             mSubContent.setVisibility(GONE);
             mContent.addView(progressBar, 1);

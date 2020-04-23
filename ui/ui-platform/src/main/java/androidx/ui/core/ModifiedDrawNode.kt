@@ -35,26 +35,17 @@ import androidx.ui.unit.toPxSize
 
 internal class ModifiedDrawNode(
     wrapped: LayoutNodeWrapper,
-    private val drawModifier: DrawModifier
-) : DelegatingLayoutNodeWrapper(wrapped) {
+    drawModifier: DrawModifier
+) : DelegatingLayoutNodeWrapper<DrawModifier>(wrapped, drawModifier) {
     private val drawScope = DrawScopeImpl()
     private var canvas: Canvas? = null
-
-    override fun performMeasure(constraints: Constraints): Placeable {
-        val thisPlaceable = super.performMeasure(constraints)
-        if (dirtySize) {
-            // In case there is a layer between this modifier and the layout node.
-            findLayer()?.invalidate()
-        }
-        return thisPlaceable
-    }
 
     // This is not thread safe
     override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {
             this.canvas = canvas
             with(drawScope) {
-                with(drawModifier) { draw() }
+                with(modifier) { draw() }
             }
             this.canvas = null
         }
@@ -78,7 +69,7 @@ internal class ModifiedDrawNode(
             get() = canvas!!.nativeCanvas
 
         override val layoutDirection: LayoutDirection
-            get() = this@ModifiedDrawNode.layoutDirection
+            get() = this@ModifiedDrawNode.measureScope.layoutDirection
 
         override fun save() = canvas!!.save()
 
@@ -135,7 +126,7 @@ internal class ModifiedDrawNode(
         override fun drawImage(image: ImageAsset, topLeftOffset: Offset, paint: Paint) =
             canvas!!.drawImage(image, topLeftOffset, paint)
 
-        override fun drawImageRect(image: ImageAsset, src: Rect, dst: Rect, paint: Paint) =
+        override fun drawImageRect(image: ImageAsset, src: Rect?, dst: Rect, paint: Paint) =
             canvas!!.drawImageRect(image, src, dst, paint)
 
         override fun drawPicture(picture: Picture) = canvas!!.drawPicture(picture)

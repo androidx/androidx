@@ -16,14 +16,12 @@
 
 package androidx.ui.rxjava2
 
-import android.os.Looper
 import androidx.compose.Composable
 import androidx.compose.CompositionLifecycleObserver
+import androidx.compose.FrameManager
 import androidx.compose.State
-import androidx.compose.frames.inFrame
 import androidx.compose.mutableStateOf
 import androidx.compose.remember
-import androidx.core.os.HandlerCompat
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -231,14 +229,7 @@ private class DisposableConsumer<T, F>(
     private var disposable: Disposable? = null
 
     override fun accept(t: T) {
-        // TODO: Once we fix b/153355487 it should be just:
-        //  FrameManager.framed { state.value = t }
-        //  but for now we have to manually switch the thread.
-        if (inFrame) {
-            state.value = t
-        } else {
-            MainThreadHandler.post { state.value = t }
-        }
+        FrameManager.framed { state.value = t }
     }
 
     var source: F? = null
@@ -260,5 +251,3 @@ private class DisposableConsumer<T, F>(
         // do nothing
     }
 }
-
-private val MainThreadHandler = HandlerCompat.createAsync(Looper.getMainLooper())

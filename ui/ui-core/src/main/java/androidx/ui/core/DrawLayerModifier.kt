@@ -102,11 +102,11 @@ interface DrawLayerModifier : Modifier.Element {
     val translationY: Float get() = 0f
 
     /**
-     * Sets the Z coordinate of the layer in pixels. With [outlineShape] set, this will cause
-     * a shadow. Varying the [elevation] can also change the order in which layers are drawn.
+     * Sets the elevation for the shadow in pixels. With the [shadowElevation] > 0f and
+     * [outlineShape] set, a shadow is produced.
      */
     @get:FloatRange(from = 0.0)
-    val elevation: Float get() = 0f
+    val shadowElevation: Float get() = 0f
 
     /**
      * The rotation of the contents around the horizontal axis in degrees.
@@ -134,7 +134,7 @@ interface DrawLayerModifier : Modifier.Element {
     val transformOrigin: TransformOrigin get() = TransformOrigin.Center
 
     /**
-     * The [Shape] of the layer. When [elevation] is non-zero and [outlineShape] is non-null,
+     * The [Shape] of the layer. When [shadowElevation] is non-zero and [outlineShape] is non-null,
      * a shadow is produced. When [clipToOutline] is `true` and [outlineShape] is non-null, the
      * contents will be clipped to the outline.
      */
@@ -164,7 +164,7 @@ private data class SimpleDrawLayerModifier(
     override val alpha: Float,
     override val translationX: Float,
     override val translationY: Float,
-    override val elevation: Float,
+    override val shadowElevation: Float,
     override val rotationX: Float,
     override val rotationY: Float,
     override val rotationZ: Float,
@@ -184,7 +184,7 @@ private data class SimpleDrawLayerModifier(
  * @param alpha [DrawLayerModifier.alpha]
  * @param translationX [DrawLayerModifier.translationX]
  * @param translationY [DrawLayerModifier.translationY]
- * @param elevation [DrawLayerModifier.elevation]
+ * @param elevation [DrawLayerModifier.shadowElevation]
  * @param rotationX [DrawLayerModifier.rotationX]
  * @param rotationY [DrawLayerModifier.rotationY]
  * @param rotationZ [DrawLayerModifier.rotationZ]
@@ -222,7 +222,7 @@ fun drawLayer(
     alpha = alpha,
     translationX = translationX,
     translationY = translationY,
-    elevation = elevation,
+    shadowElevation = elevation,
     rotationX = rotationX,
     rotationY = rotationY,
     rotationZ = rotationZ,
@@ -240,7 +240,7 @@ fun drawLayer(
  * @param scaleX [DrawLayerModifier.scaleX]
  * @param scaleY [DrawLayerModifier.scaleY]
  * @param alpha [DrawLayerModifier.alpha]
- * @param elevation [DrawLayerModifier.elevation]
+ * @param shadowElevation [DrawLayerModifier.shadowElevation]
  * @param rotationX [DrawLayerModifier.rotationX]
  * @param rotationY [DrawLayerModifier.rotationY]
  * @param rotationZ [DrawLayerModifier.rotationZ]
@@ -254,7 +254,7 @@ fun Modifier.drawLayer(
     alpha: Float = 1f,
     translationX: Float = 0f,
     translationY: Float = 0f,
-    elevation: Float = 0f,
+    shadowElevation: Float = 0f,
     rotationX: Float = 0f,
     rotationY: Float = 0f,
     rotationZ: Float = 0f,
@@ -268,7 +268,7 @@ fun Modifier.drawLayer(
     alpha = alpha,
     translationX = translationX,
     translationY = translationY,
-    elevation = elevation,
+    shadowElevation = shadowElevation,
     rotationX = rotationX,
     rotationY = rotationY,
     rotationZ = rotationZ,

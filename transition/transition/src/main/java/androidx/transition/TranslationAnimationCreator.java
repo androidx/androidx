@@ -16,15 +16,15 @@
 
 package androidx.transition;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
-import android.animation.TimeInterpolator;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.animation.Animator;
+import androidx.core.animation.AnimatorListenerAdapter;
+import androidx.core.animation.Interpolator;
+import androidx.core.animation.ObjectAnimator;
+import androidx.core.animation.PropertyValuesHolder;
 
 /**
  * This class is used by Slide and Explode to create an animator that goes from the start
@@ -52,7 +52,7 @@ class TranslationAnimationCreator {
     @Nullable
     static Animator createAnimation(@NonNull View view, @NonNull TransitionValues values,
             int viewPosX, int viewPosY, float startX, float startY, float endX, float endY,
-            @Nullable TimeInterpolator interpolator, @NonNull Transition transition) {
+            @Nullable Interpolator interpolator, @NonNull Transition transition) {
         float terminalX = view.getTranslationX();
         float terminalY = view.getTranslationY();
         int[] startPosition = (int[]) values.view.getTag(R.id.transition_position);
@@ -77,7 +77,7 @@ class TranslationAnimationCreator {
                 startPosX, startPosY, terminalX, terminalY);
         transition.addListener(listener);
         anim.addListener(listener);
-        AnimatorUtils.addPauseListener(anim, listener);
+        anim.addPauseListener(listener);
         anim.setInterpolator(interpolator);
         return anim;
     }
@@ -110,7 +110,7 @@ class TranslationAnimationCreator {
         }
 
         @Override
-        public void onAnimationCancel(Animator animation) {
+        public void onAnimationCancel(@NonNull Animator animation) {
             if (mTransitionPosition == null) {
                 mTransitionPosition = new int[2];
             }
@@ -120,7 +120,7 @@ class TranslationAnimationCreator {
         }
 
         @Override
-        public void onAnimationPause(Animator animator) {
+        public void onAnimationPause(@NonNull Animator animator) {
             mPausedX = mMovingView.getTranslationX();
             mPausedY = mMovingView.getTranslationY();
             mMovingView.setTranslationX(mTerminalX);
@@ -128,7 +128,7 @@ class TranslationAnimationCreator {
         }
 
         @Override
-        public void onAnimationResume(Animator animator) {
+        public void onAnimationResume(@NonNull Animator animator) {
             mMovingView.setTranslationX(mPausedX);
             mMovingView.setTranslationY(mPausedY);
         }

@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static junit.framework.TestCase.fail;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -498,25 +499,25 @@ public class FocusMeteringControlTest {
                 FLAG_AF | FLAG_AE | FLAG_AWB).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
 
-        verify(mFocusMeteringControl).triggerAf();
+        verify(mFocusMeteringControl).triggerAf(any());
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 new FocusMeteringAction.Builder(mPoint1, FLAG_AF).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
-        verify(mFocusMeteringControl).triggerAf();
+        verify(mFocusMeteringControl).triggerAf(any());
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 new FocusMeteringAction.Builder(mPoint1, FLAG_AF | FLAG_AE).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
-        verify(mFocusMeteringControl).triggerAf();
+        verify(mFocusMeteringControl).triggerAf(any());
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 new FocusMeteringAction.Builder(mPoint1, FLAG_AF | FLAG_AWB).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
-        verify(mFocusMeteringControl).triggerAf();
+        verify(mFocusMeteringControl).triggerAf(any());
         Mockito.reset(mFocusMeteringControl);
     }
 
@@ -525,26 +526,26 @@ public class FocusMeteringControlTest {
         mFocusMeteringControl.startFocusAndMetering(
                 new FocusMeteringAction.Builder(mPoint1, FLAG_AE).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
-        verify(mFocusMeteringControl, never()).triggerAf();
+        verify(mFocusMeteringControl, never()).triggerAf(any());
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 new FocusMeteringAction.Builder(mPoint1, FLAG_AWB).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
-        verify(mFocusMeteringControl, never()).triggerAf();
+        verify(mFocusMeteringControl, never()).triggerAf(any());
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 new FocusMeteringAction.Builder(mPoint1, FLAG_AE).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
-        verify(mFocusMeteringControl, never()).triggerAf();
+        verify(mFocusMeteringControl, never()).triggerAf(any());
         Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 new FocusMeteringAction.Builder(mPoint1,
                         FLAG_AE | FLAG_AWB).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
-        verify(mFocusMeteringControl, never()).triggerAf();
+        verify(mFocusMeteringControl, never()).triggerAf(any());
         Mockito.reset(mFocusMeteringControl);
     }
 

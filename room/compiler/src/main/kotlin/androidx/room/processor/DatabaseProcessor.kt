@@ -75,15 +75,14 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
 
         val views = resolveDatabaseViews(viewsMap.values.toList())
-        val queryInterpreter = QueryInterpreter(context, entities + views)
         val dbVerifier = if (element.hasAnnotation(SkipQueryVerification::class)) {
             null
         } else {
             DatabaseVerifier.create(context, element, entities, views)
         }
-        context.databaseVerifier = dbVerifier
 
         if (dbVerifier != null) {
+            context.attachDatabaseVerifier(dbVerifier)
             verifyDatabaseViews(viewsMap, dbVerifier)
         }
         validateUniqueTableAndViewNames(element, entities, views)
@@ -101,7 +100,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
             val daoType = executable.returnType.asTypeElement()
-            val dao = DaoProcessor(context, daoType, declaredType, dbVerifier, queryInterpreter)
+            val dao = DaoProcessor(context, daoType, declaredType, dbVerifier)
                 .process()
             DaoMethod(executable, executable.simpleName.toString(), dao)
         }

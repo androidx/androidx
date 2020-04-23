@@ -25,10 +25,13 @@ import androidx.ui.unit.px
 
 internal class LayerWrapper(
     wrapped: LayoutNodeWrapper,
-    val drawLayerModifier: DrawLayerModifier
-) : DelegatingLayoutNodeWrapper(wrapped) {
+    modifier: DrawLayerModifier
+) : DelegatingLayoutNodeWrapper<DrawLayerModifier>(wrapped, modifier) {
     private var _layer: OwnedLayer? = null
     private var layerDestroyed = false
+
+    // Do not invalidate itself on position change.
+    override val invalidateLayerOnBoundsChange get() = false
 
     private val invalidateParentLayer: () -> Unit = {
         wrappedBy?.findLayer()?.invalidate()
@@ -37,7 +40,7 @@ internal class LayerWrapper(
     val layer: OwnedLayer
         get() {
             return _layer ?: layoutNode.requireOwner().createLayer(
-                drawLayerModifier,
+                modifier,
                 wrapped::draw,
                 invalidateParentLayer
             ).also {
@@ -51,8 +54,11 @@ internal class LayerWrapper(
     // TODO (njawad): This cache matrix is not thread safe
     private var inverseMatrixCache: Matrix? = null
 
-    override fun performMeasure(constraints: Constraints): Placeable {
-        val placeable = super.performMeasure(constraints)
+    override fun performMeasure(
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): Placeable {
+        val placeable = super.performMeasure(constraints, layoutDirection)
         layer.resize(measuredSize)
         return placeable
     }
@@ -119,8 +125,8 @@ internal class LayerWrapper(
     }
 
     override fun rectInParent(bounds: RectF) {
-        if ((drawLayerModifier.clipToBounds ||
-                    (drawLayerModifier.clipToOutline && drawLayerModifier.outlineShape != null)) &&
+        if ((modifier.clipToBounds ||
+                    (modifier.clipToOutline && modifier.outlineShape != null)) &&
             !bounds.intersect(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
         ) {
             bounds.setEmpty()
