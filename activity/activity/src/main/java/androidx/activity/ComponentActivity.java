@@ -18,9 +18,12 @@ package androidx.activity;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions.ACTION_REQUEST_PERMISSIONS;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions.EXTRA_PERMISSIONS;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions.EXTRA_PERMISSION_GRANT_RESULTS;
+import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION;
 
@@ -486,16 +489,97 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         return mSavedStateRegistryController.getSavedStateRegistry();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
+     */
+    @Override
+    @Deprecated
+    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+            int requestCode) {
+        super.startActivityForResult(intent, requestCode);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
+     */
+    @Override
+    @Deprecated
+    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+            int requestCode, @Nullable Bundle options) {
+        super.startActivityForResult(intent, requestCode, options);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartIntentSenderForResult} object for the
+     * {@link ActivityResultContract}.
+     */
+    @Override
+    @Deprecated
+    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+            int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
+            int extraFlags)
+            throws IntentSender.SendIntentException {
+        super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
+                extraFlags);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartIntentSenderForResult} object for the
+     * {@link ActivityResultContract}.
+     */
+    @Override
+    @Deprecated
+    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+            int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
+            int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
+        super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
+                extraFlags, options);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * with the appropriate {@link ActivityResultContract} and handling the result in the
+     * {@link ActivityResultCallback#onActivityResult(Object) callback}.
+     */
     @CallSuper
     @Override
+    @Deprecated
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (!mActivityResultRegistry.dispatchResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing
+     * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
+     * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
+     */
     @CallSuper
     @Override
+    @Deprecated
     public void onRequestPermissionsResult(
             int requestCode,
             @NonNull String[] permissions,
