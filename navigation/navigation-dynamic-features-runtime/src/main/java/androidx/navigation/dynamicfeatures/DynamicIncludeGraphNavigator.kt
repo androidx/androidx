@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.AttributeSet
+import androidx.annotation.RestrictTo
 import androidx.core.content.withStyledAttributes
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph
@@ -42,6 +43,12 @@ class DynamicIncludeGraphNavigator(
     private val navInflater: NavInflater,
     private val installManager: DynamicInstallManager
 ) : Navigator<DynamicIncludeGraphNavigator.DynamicIncludeNavGraph>() {
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    val packageName: String = context.packageName
 
     private val createdDestinations = mutableListOf<DynamicIncludeNavGraph>()
 
