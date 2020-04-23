@@ -27,6 +27,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.EditorValue
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -69,6 +70,10 @@ data class TextFieldValue(
  * the input service update the text, selection or cursor, this callback is called with the updated
  * [TextFieldValue]. If you want to observe the composition text, use [TextField] with
  * compositionRange instead.
+ * @param modifier optional [Modifier] for this text field.
+ * By default, text field will occupy all available space granted to it. You can use
+ * [androidx.ui.layout.preferredWidthIn] or [androidx.ui.layout.preferredWidth] modifiers to
+ * constrain the horizontal space occupied by the text field.
  * @param textColor [Color] to apply to the text. If [Color.Unset], and [textStyle] has no color
  * set, this will be [contentColor].
  * @param textStyle Style configuration that applies at character level such as color, font etc.
@@ -98,8 +103,8 @@ data class TextFieldValue(
 @Composable
 fun TextField(
     value: TextFieldValue,
-    modifier: Modifier = Modifier,
     onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
     textColor: Color = Color.Unset,
     textStyle: TextStyle = currentTextStyle(),
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -127,7 +132,7 @@ fun TextField(
 
     CoreTextField(
         value = fullModel.value,
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         onValueChange = {
             val prevState = fullModel.value
             fullModel.value = it
