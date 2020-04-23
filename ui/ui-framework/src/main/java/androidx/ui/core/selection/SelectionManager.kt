@@ -27,6 +27,8 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
+import androidx.ui.core.texttoolbar.TextToolbar
+import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.subSequence
@@ -62,6 +64,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
      * [ClipboardManager] to perform clipboard features.
      */
     var clipboardManager: ClipboardManager? = null
+
+    /**
+     * [TextToolbar] to show floating toolbar(post-M) or primary toolbar(pre-M).
+     */
+    var textToolbar: TextToolbar? = null
 
     /**
      * Layout Coordinates of the selection container.
@@ -223,9 +230,20 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         return selectedText
     }
 
-    internal fun copy() {
+    /**
+     * This function collects the selected text and the selected region as a Rectangle region,
+     * and pass these information to [TextToolbar] to make the FloatingToolbar show up in the
+     * proper place, and copy the text to the [ClipboardManager].
+     *
+     * @param selectedRegion selected region as [Rect]. The top is the top of the first selected
+     * line, and the bottom is the bottom of the last selected line. The left is the leftmost
+     * handle's horizontal coordinates, and the right is the rightmost handle's coordinates.
+     */
+    internal fun showSelectionToolbar(selectedRegion: Rect) {
         val selectedText = getSelectedText()
-        selectedText?.let { clipboardManager?.setText(it) }
+        selectedText?.let {
+            textToolbar?.showCopyMenu(selectedRegion, it)
+        }
     }
 
     // This is for PressGestureDetector to cancel the selection.
