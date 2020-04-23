@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -36,6 +38,8 @@ import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.google.common.collect.Iterables;
 
 import org.junit.After;
 import org.junit.Before;
@@ -70,10 +74,8 @@ public class ImageAnalysisTest {
     private Handler mCallbackHandler;
     private Handler mBackgroundHandler;
     private Executor mBackgroundExecutor;
-    private List<Image> mImagesReceived;
+    private List<ImageProxy> mImageProxiesReceived;
     private ImageAnalysis mImageAnalysis;
-
-    private HandlerThread mBackgroundThread;
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
@@ -81,12 +83,12 @@ public class ImageAnalysisTest {
         callbackThread.start();
         mCallbackHandler = new Handler(callbackThread.getLooper());
 
-        mBackgroundThread = new HandlerThread("Background");
-        mBackgroundThread.start();
-        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+        HandlerThread backgroundThread = new HandlerThread("Background");
+        backgroundThread.start();
+        mBackgroundHandler = new Handler(backgroundThread.getLooper());
         mBackgroundExecutor = CameraXExecutors.newHandlerExecutor(mBackgroundHandler);
 
-        mImagesReceived = new ArrayList<>();
+        mImageProxiesReceived = new ArrayList<>();
 
         ShadowImageReader.clear();
 
@@ -107,8 +109,25 @@ public class ImageAnalysisTest {
     @After
     public void tearDown() throws ExecutionException, InterruptedException {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(CameraX::unbindAll);
-        mImagesReceived.clear();
+        mImageProxiesReceived.clear();
         CameraX.shutdown().get();
+    }
+
+    @Test
+    public void resultSize_isEqualToSurfaceSize() {
+        // Arrange.
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
+
+        // Act.
+        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_1);
+        flushHandler(mBackgroundHandler);
+        flushHandler(mCallbackHandler);
+
+        // Assert.
+        assertThat(Iterables.getOnlyElement(mImageProxiesReceived).getHeight()).isEqualTo(
+                MAX_OUTPUT_SIZE.getHeight());
+        assertThat(Iterables.getOnlyElement(mImageProxiesReceived).getWidth()).isEqualTo(
+                MAX_OUTPUT_SIZE.getWidth());
     }
 
     @Test
@@ -118,25 +137,25 @@ public class ImageAnalysisTest {
 
         // Act.
         // Receive images from camera feed.
-        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_1);
+        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_1);
         flushHandler(mBackgroundHandler);
-        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_2);
+        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_2);
         flushHandler(mBackgroundHandler);
 
         // Assert.
         // No image is received because callback handler is blocked.
-        assertThat(mImagesReceived).isEmpty();
+        assertThat(mImageProxiesReceived).isEmpty();
 
         // Flush callback handler and image1 is received.
         flushHandler(mCallbackHandler);
-        assertThat(mImagesReceived).containsExactly(MOCK_IMAGE_1);
+        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1);
 
         // Clear ImageAnalysis and flush both handlers. No more image should be received because
         // it's closed.
         mImageAnalysis.clear();
         flushHandler(mBackgroundHandler);
         flushHandler(mCallbackHandler);
-        assertThat(mImagesReceived).containsExactly(MOCK_IMAGE_1);
+        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1);
     }
 
     @Test
@@ -146,17 +165,17 @@ public class ImageAnalysisTest {
 
         // Act.
         // Receive images from camera feed.
-        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_1);
+        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_1);
         flushHandler(mBackgroundHandler);
 
         // Assert.
         // No image is received because callback handler is blocked.
-        assertThat(mImagesReceived).isEmpty();
+        assertThat(mImageProxiesReceived).isEmpty();
 
         // Flush callback handler and it's still empty because it's close.
         mImageAnalysis.clear();
         flushHandler(mCallbackHandler);
-        assertThat(mImagesReceived).isEmpty();
+        assertThat(mImageProxiesReceived).isEmpty();
     }
 
     @Test
@@ -166,31 +185,31 @@ public class ImageAnalysisTest {
 
         // Act.
         // Receive images from camera feed.
-        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_1);
+        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_1);
         flushHandler(mBackgroundHandler);
-        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_2);
+        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_2);
         flushHandler(mBackgroundHandler);
-        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_3);
+        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_3);
         flushHandler(mBackgroundHandler);
 
         // Assert.
         // No image is received because callback handler is blocked.
-        assertThat(mImagesReceived).isEmpty();
+        assertThat(mImageProxiesReceived).isEmpty();
 
         // Flush callback handler and image1 is received.
         flushHandler(mCallbackHandler);
-        assertThat(mImagesReceived).containsExactly(MOCK_IMAGE_1);
+        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1);
 
         // Flush both handlers and the previous cached image3 is received (image2 was dropped). The
         // code alternates the 2 threads so they have to be both flushed to proceed.
         flushHandler(mBackgroundHandler);
         flushHandler(mCallbackHandler);
-        assertThat(mImagesReceived).containsExactly(MOCK_IMAGE_1, MOCK_IMAGE_3);
+        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1, MOCK_IMAGE_3);
 
         // Flush both handlers and no more frame.
         flushHandler(mBackgroundHandler);
         flushHandler(mCallbackHandler);
-        assertThat(mImagesReceived).containsExactly(MOCK_IMAGE_1, MOCK_IMAGE_3);
+        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1, MOCK_IMAGE_3);
     }
 
     @Test
@@ -200,20 +219,20 @@ public class ImageAnalysisTest {
 
         // Act.
         // Receive images from camera feed.
-        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_1);
+        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_1);
         flushHandler(mBackgroundHandler);
-        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_2);
+        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_2);
         flushHandler(mBackgroundHandler);
-        ShadowImageReader.triggerCallbackWithImage(MOCK_IMAGE_3);
+        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_3);
         flushHandler(mBackgroundHandler);
 
         // Assert.
         // No image is received because callback handler is blocked.
-        assertThat(mImagesReceived).isEmpty();
+        assertThat(mImageProxiesReceived).isEmpty();
 
         // Flush callback handler and 3 frames received.
         flushHandler(mCallbackHandler);
-        assertThat(mImagesReceived).containsExactly(MOCK_IMAGE_1, MOCK_IMAGE_2, MOCK_IMAGE_3);
+        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1, MOCK_IMAGE_2, MOCK_IMAGE_3);
     }
 
     private void setUpImageAnalysisWithStrategy(
@@ -226,7 +245,7 @@ public class ImageAnalysisTest {
 
         mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),
                 (image) -> {
-                    mImagesReceived.add(image.getImage());
+                    mImageProxiesReceived.add(image);
                     image.close();
                 }
         );
@@ -237,6 +256,14 @@ public class ImageAnalysisTest {
                     mImageAnalysis);
             lifecycleOwner.startAndResume();
         });
+    }
+
+    private List<Image> getImagesReceived() {
+        List<Image> imagesReceived = new ArrayList<>();
+        for (ImageProxy imageProxy : mImageProxiesReceived) {
+            imagesReceived.add(imageProxy.getImage());
+        }
+        return imagesReceived;
     }
 
     /**

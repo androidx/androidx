@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import static org.mockito.Mockito.when;
+
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Build;
@@ -23,6 +25,7 @@ import android.os.Handler;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
 
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
@@ -43,12 +46,31 @@ public class ShadowImageReader {
     private static ImageReader sImageReader;
     private static ShadowImageReader sShadowImageReader;
 
+    private static int sWidth;
+    private static int sHeight;
+    private static int sMaxImages;
+
+    /**
+     * Shadow of {@link ImageReader#newInstance(int, int, int, int, long)}.
+     */
+    @Implementation
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static ImageReader newInstance(int width, int height, int format, int maxImages,
+            long usage) {
+        throw new UnsupportedOperationException("Shadow method not implemented.");
+    }
+
     /**
      * Shadow of {@link ImageReader#newInstance(int, int, int, int)}.
      */
     @Implementation
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static ImageReader newInstance(int width, int height, int format, int maxImages) {
+        Preconditions.checkState(sImageReader == null,
+                "Only support one shadow ImageReader instance");
+        sMaxImages = maxImages;
+        sWidth = width;
+        sHeight = height;
         sImageReader = Shadow.newInstanceOf(ImageReader.class);
         sShadowImageReader = Shadow.extract(sImageReader);
         return sImageReader;
@@ -58,7 +80,9 @@ public class ShadowImageReader {
      * Sets the incoming image and triggers
      * {@link ImageReader.OnImageAvailableListener#onImageAvailable(ImageReader)}.
      */
-    public static void triggerCallbackWithImage(Image mockImage) {
+    public static void triggerCallbackWithMockImage(Image mockImage) {
+        when(mockImage.getWidth()).thenReturn(sWidth);
+        when(mockImage.getHeight()).thenReturn(sHeight);
         sIncomingImage = mockImage;
         sShadowImageReader.getListener().onImageAvailable(sImageReader);
     }
@@ -66,6 +90,11 @@ public class ShadowImageReader {
     @Implementation
     public void close() {
         // no-op.
+    }
+
+    @Implementation
+    public int getMaxImages() {
+        return sMaxImages;
     }
 
     /**
