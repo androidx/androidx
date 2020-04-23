@@ -38,7 +38,7 @@ dependencies {
 
 androidx {
     name = "Jetpack WindowManager library Extensions"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    publish = Publish.NONE
     mavenGroup = LibraryGroups.WINDOW
     mavenVersion = LibraryVersions.WINDOW
     inceptionYear = "2020"
