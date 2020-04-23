@@ -34,6 +34,8 @@ import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.toArgb
+import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.offset
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -63,10 +65,6 @@ class LayerTouchTransformTest {
 
     @Test
     fun testTransformTouchEventConsumed() {
-        // Touch position outside the bounds of the target composable
-        // however, after transformations, this point will be within
-        // its bounds
-        val mappedPosition = PxPosition(Px(72.0f), Px(48.0f))
         val testTag = "transformedComposable"
         var latch: CountDownLatch? = null
         rule.setContent {
@@ -101,37 +99,49 @@ class LayerTouchTransformTest {
 
             val containerDp = (200.0f / DensityAmbient.current.density).dp
             val boxDp = (50.0f / DensityAmbient.current.density).dp
+
+            val offsetX = (270.0f / DensityAmbient.current.density).dp
+            val offsetY = (120.0f / DensityAmbient.current.density).dp
             TestTag(testTag) {
-                SimpleLayout(modifier = background + Modifier.preferredSize(containerDp)) {
-                    SimpleLayout(modifier =
-                        Modifier.drawLayer(
-                            translationX = 50.0f,
-                            translationY = 30.0f,
-                            rotationZ = 45.0f,
-                            scaleX = 2.0f,
-                            scaleY = 0.5f,
-                            transformOrigin =
-                                TransformOrigin(1.0f, 1.0f)
-                        ).drawBehind {
-                            val paint = Paint().apply { this.color = color }
-                            drawRect(
-                                Rect.fromLTWH(
-                                    0.0f,
-                                    0.0f,
-                                    size.width.value,
-                                    size.height.value
-                                ),
-                                paint
+                SimpleLayout(
+                    modifier = Modifier.fillMaxSize().offset(offsetX, offsetY)
+                ) {
+                    SimpleLayout(modifier = background + Modifier.preferredSize(containerDp)) {
+                        SimpleLayout(modifier =
+                            Modifier.drawLayer(
+                                translationX = 50.0f,
+                                translationY = 30.0f,
+                                rotationZ = 45.0f,
+                                scaleX = 2.0f,
+                                scaleY = 0.5f,
+                                transformOrigin =
+                                    TransformOrigin(1.0f, 1.0f)
+                            ).drawBehind {
+                                val paint = Paint().apply { this.color = color }
+                                drawRect(
+                                    Rect.fromLTWH(
+                                        0.0f,
+                                        0.0f,
+                                        size.width.value,
+                                        size.height.value
+                                    ),
+                                    paint
+                                )
+                            }
+                                .plus(latchDrawModifier)
+                                .preferredSize(boxDp)
+                                .pressIndicatorGestureFilter(onStart, onStop, onStop)
                             )
-                        }
-                        .plus(latchDrawModifier)
-                        .preferredSize(boxDp)
-                        .pressIndicatorGestureFilter(onStart, onStop, onStop)
-                    )
+                    }
                 }
             }
         }
 
+        // Touch position outside the bounds of the target composable
+        // however, after transformations, this point will be within
+        // its bounds
+
+        val mappedPosition = PxPosition(Px(342.0f), Px(168.0f))
         val node = findByTag(testTag).doGesture { sendTouchDown(mappedPosition) }
 
         latch = CountDownLatch(1).apply {

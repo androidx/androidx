@@ -126,7 +126,7 @@ fun GestureScope.sendClick(position: PxPosition) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun GestureScope.sendTouchDown(position: PxPosition) {
     semanticsNodeInteraction.sendInput {
-        it.sendTouchDown(position)
+        it.sendTouchDown(localToGlobal(position))
     }
 }
 
