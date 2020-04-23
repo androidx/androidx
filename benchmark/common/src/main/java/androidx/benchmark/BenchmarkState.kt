@@ -18,7 +18,6 @@ package androidx.benchmark
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Instrumentation
 import android.os.Build
 import android.os.Bundle
 import android.os.Debug
@@ -500,20 +499,9 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         return status
     }
 
-    private fun Instrumentation.addResultsCompat(bundle: Bundle) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            addResults(bundle)
-        } else {
-            // Before addResults() was added in the platform, we use sendStatus(). The constant '2'
-            // comes from IInstrumentationResultParser.StatusCodes.IN_PROGRESS, and signals the
-            // test infra that this is an "additional result" bundle, equivalent to addResults()
-            sendStatus(/* resultCode = */ 2, /* results = */ bundle)
-        }
-    }
-
-    private fun reportResultBundle(testName: String) {
+    private fun sendStatus(testName: String) {
         val bundle = getFullStatusReport(key = testName, includeStats = Arguments.outputEnable)
-        InstrumentationRegistry.getInstrumentation().addResultsCompat(bundle)
+        InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
     }
 
     private fun sleepIfThermalThrottled(sleepSeconds: Long) = when {
@@ -539,7 +527,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     ) {
         checkState() // this method is triggered externally
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
-        reportResultBundle(fullTestName)
+        sendStatus(fullTestName)
 
         ResultWriter.appendReport(
             getReport(
