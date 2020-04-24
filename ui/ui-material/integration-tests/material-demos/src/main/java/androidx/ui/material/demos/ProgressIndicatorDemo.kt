@@ -18,10 +18,13 @@ package androidx.ui.material.demos
 
 import android.os.Handler
 import androidx.compose.Composable
-import androidx.compose.Model
+import androidx.compose.Stable
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
 import androidx.compose.onActive
 import androidx.compose.onDispose
 import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.graphics.Color
@@ -52,12 +55,12 @@ fun ProgressIndicatorDemo() {
             // Fancy colours!
             LinearProgressIndicator(
                 progress = (state.progress),
-                color = state.generateColor(),
+                color = state.color,
                 modifier = Modifier.gravity(Alignment.CenterVertically)
             )
             CircularProgressIndicator(
                 progress = (state.progress),
-                color = state.generateColor(),
+                color = state.color,
                 modifier = Modifier.gravity(Alignment.CenterVertically)
             )
         }
@@ -69,20 +72,10 @@ fun ProgressIndicatorDemo() {
     }
 }
 
-@Model
+@Stable
 private class ProgressState {
-    var progress = 0f
-    var cycle = 1
-
-    fun generateColor(): Color {
-        return when (cycle) {
-            1 -> Color.Red
-            2 -> Color.Green
-            3 -> Color.Blue
-            // unused
-            else -> Color.Black
-        }
-    }
+    var progress by mutableStateOf(0f)
+    var color by mutableStateOf(Color.Red)
 
     fun start() {
         handler.postDelayed(updateProgress, 400)
@@ -92,13 +85,14 @@ private class ProgressState {
         handler.removeCallbacks(updateProgress)
     }
 
-    val handler = Handler()
-    val updateProgress: Runnable = object : Runnable {
+    private val handler = Handler()
+    private val updateProgress: Runnable = object : Runnable {
         override fun run() {
             if (progress == 1f) {
-                cycle++
-                if (cycle > 3) {
-                    cycle = 1
+                color = when (color) {
+                    Color.Red -> Color.Green
+                    Color.Green -> Color.Blue
+                    else -> Color.Red
                 }
                 progress = 0f
             } else {

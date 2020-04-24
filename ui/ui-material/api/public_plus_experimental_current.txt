@@ -154,9 +154,15 @@ package androidx.ui.material {
     method public static void MaterialTheme(androidx.ui.material.ColorPalette colors = MaterialTheme.colors, androidx.ui.material.Typography typography = MaterialTheme.typography, androidx.ui.material.Shapes shapes = MaterialTheme.shapes, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
+  public final class ProgressIndicatorConstants {
+    method public float getDefaultStrokeWidth();
+    property public final float DefaultStrokeWidth;
+    field public static final androidx.ui.material.ProgressIndicatorConstants! INSTANCE;
+  }
+
   public final class ProgressIndicatorKt {
-    method public static void CircularProgressIndicator-e8O-MNM(androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.primary);
-    method public static void CircularProgressIndicator-kB8eKMs(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.primary);
+    method public static void CircularProgressIndicator-EMuwvL0(androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.primary, float strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth);
+    method public static void CircularProgressIndicator-it0oM4E(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.primary, float strokeWidth = ProgressIndicatorConstants.DefaultStrokeWidth);
     method public static void LinearProgressIndicator-e8O-MNM(androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.primary);
     method public static void LinearProgressIndicator-kB8eKMs(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.core.Modifier modifier = Modifier, long color = MaterialTheme.colors.primary);
   }
