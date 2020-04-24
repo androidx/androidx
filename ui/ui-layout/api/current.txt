@@ -653,14 +653,14 @@ package androidx.ui.layout {
     method public static androidx.ui.core.Modifier preferredHeightIn(androidx.ui.core.Modifier, androidx.ui.unit.Dp minHeight = Dp.Unspecified, androidx.ui.unit.Dp maxHeight = Dp.Unspecified);
     method public static androidx.ui.core.Modifier preferredSize(androidx.ui.core.Modifier, androidx.ui.unit.Dp size);
     method public static androidx.ui.core.Modifier preferredSize(androidx.ui.core.Modifier, androidx.ui.unit.Dp width, androidx.ui.unit.Dp height);
-    method public static androidx.ui.core.Modifier preferredSizeIn(androidx.ui.core.Modifier, androidx.ui.unit.Dp minWidth = Dp.Unspecified, androidx.ui.unit.Dp minHeight = Dp.Unspecified, androidx.ui.unit.Dp maxWidth = Dp.Unspecified, androidx.ui.unit.Dp maxHeight = Dp.Unspecified);
     method public static androidx.ui.core.Modifier preferredSizeIn(androidx.ui.core.Modifier, androidx.ui.layout.DpConstraints constraints);
+    method public static androidx.ui.core.Modifier preferredSizeIn(androidx.ui.core.Modifier, androidx.ui.unit.Dp minWidth = Dp.Unspecified, androidx.ui.unit.Dp minHeight = Dp.Unspecified, androidx.ui.unit.Dp maxWidth = Dp.Unspecified, androidx.ui.unit.Dp maxHeight = Dp.Unspecified);
     method public static androidx.ui.core.Modifier preferredWidth(androidx.ui.core.Modifier, androidx.ui.unit.Dp width);
     method public static androidx.ui.core.Modifier preferredWidthIn(androidx.ui.core.Modifier, androidx.ui.unit.Dp minWidth = Dp.Unspecified, androidx.ui.unit.Dp maxWidth = Dp.Unspecified);
     method public static androidx.ui.core.Modifier size(androidx.ui.core.Modifier, androidx.ui.unit.Dp size);
     method public static androidx.ui.core.Modifier size(androidx.ui.core.Modifier, androidx.ui.unit.Dp width, androidx.ui.unit.Dp height);
-    method public static androidx.ui.core.Modifier sizeIn(androidx.ui.core.Modifier, androidx.ui.unit.Dp minWidth = Dp.Unspecified, androidx.ui.unit.Dp minHeight = Dp.Unspecified, androidx.ui.unit.Dp maxWidth = Dp.Unspecified, androidx.ui.unit.Dp maxHeight = Dp.Unspecified);
     method public static androidx.ui.core.Modifier sizeIn(androidx.ui.core.Modifier, androidx.ui.layout.DpConstraints constraints);
+    method public static androidx.ui.core.Modifier sizeIn(androidx.ui.core.Modifier, androidx.ui.unit.Dp minWidth = Dp.Unspecified, androidx.ui.unit.Dp minHeight = Dp.Unspecified, androidx.ui.unit.Dp maxWidth = Dp.Unspecified, androidx.ui.unit.Dp maxHeight = Dp.Unspecified);
     method public static androidx.ui.core.Modifier width(androidx.ui.core.Modifier, androidx.ui.unit.Dp width);
     method public static androidx.ui.core.Modifier widthIn(androidx.ui.core.Modifier, androidx.ui.unit.Dp minWidth = Dp.Unspecified, androidx.ui.unit.Dp maxWidth = Dp.Unspecified);
     method @Deprecated public static androidx.ui.core.Modifier wrapContentHeight(androidx.ui.core.Modifier, androidx.ui.core.Alignment align = Alignment.Center);
