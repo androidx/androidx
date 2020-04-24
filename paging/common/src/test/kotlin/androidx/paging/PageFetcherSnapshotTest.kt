@@ -53,7 +53,7 @@ import kotlin.test.fail
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @RunWith(JUnit4::class)
-class PagerTest {
+class PageFetcherSnapshotTest {
     private val testScope = TestCoroutineScope()
     private val retryCh = ConflatedBroadcastChannel<Unit>()
     private val pagingSourceFactory = { TestPagingSource() }
@@ -602,7 +602,7 @@ class PagerTest {
                 fail("Should never get here")
             }
         }
-        val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
+        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
 
         collectPagerData(pager) { _, job ->
 
@@ -621,7 +621,7 @@ class PagerTest {
     fun retry() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
@@ -649,7 +649,7 @@ class PagerTest {
     fun retryNothing() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
@@ -674,7 +674,7 @@ class PagerTest {
     fun retryTwice() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
@@ -704,7 +704,7 @@ class PagerTest {
     fun retryBothDirections() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
@@ -745,7 +745,7 @@ class PagerTest {
     fun retryRefresh() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
 
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
@@ -769,7 +769,7 @@ class PagerTest {
     fun retryRefreshWithBufferedHint() = testScope.runBlockingTest {
         pauseDispatcher {
             val pageSource = pagingSourceFactory()
-            val pager = Pager(50, pageSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pageSource, config, retryFlow = retryCh.asFlow())
             collectPagerData(pager) { pageEvents, _ ->
                 val expected = listOf<PageEvent<Int>>(
                     LoadStateUpdate(REFRESH, Loading),
@@ -899,7 +899,7 @@ class PagerTest {
     @Test
     fun refreshKeyInfo_nullHint() = testScope.runBlockingTest {
         val pagingSource = pagingSourceFactory()
-        val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
+        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
         assertNull(pager.refreshKeyInfo())
     }
 
@@ -907,7 +907,7 @@ class PagerTest {
     fun refreshKeyInfo_pagesEmpty() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
             pager.addHint(ViewportHint(0, 0))
             assertNull(pager.refreshKeyInfo())
         }
@@ -917,7 +917,7 @@ class PagerTest {
     fun refreshKeyInfo_loadedIndex() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
 
             collectPagerData(pager) { _, _ ->
                 advanceUntilIdle()
@@ -959,7 +959,7 @@ class PagerTest {
     fun refreshKeyInfo_placeholdersStart() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
-            val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
+            val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
 
             collectPagerData(pager) { _, _ ->
                 advanceUntilIdle()
@@ -1011,7 +1011,7 @@ class PagerTest {
     @Test
     fun retry_ignoresNewSignalsWhileProcessing() = testScope.runBlockingTest {
         val pagingSource = pagingSourceFactory()
-        val pager = Pager(50, pagingSource, config, retryFlow = retryCh.asFlow())
+        val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
         collectPagerData(pager) { pageEvents, _ ->
             pagingSource.errorNextLoad = true
             advanceUntilIdle()
@@ -1045,7 +1045,7 @@ class PagerTest {
             }
         }
 
-        val pager = Pager(
+        val pager = PageFetcherSnapshot(
             initialKey = 0,
             pagingSource = pagingSourceFactory(),
             config = PagingConfig(1),
@@ -1077,7 +1077,7 @@ class PagerTest {
             initialLoadSize = 1,
             maxSize = 5
         )
-        val pager = Pager(
+        val pager = PageFetcherSnapshot(
             initialKey = 0,
             pagingSource = pagingSourceFactory(),
             config = config,
@@ -1104,7 +1104,7 @@ class PagerTest {
             initialLoadSize = 1,
             maxSize = 5
         )
-        val pager = Pager(
+        val pager = PageFetcherSnapshot(
             initialKey = 99,
             pagingSource = pagingSourceFactory(),
             config = config,
@@ -1140,7 +1140,7 @@ class PagerTest {
             initialLoadSize = 1,
             maxSize = 5
         )
-        val pager = Pager(
+        val pager = PageFetcherSnapshot(
             initialKey = 99,
             pagingSource = pagingSourceFactory(),
             config = config,
@@ -1197,7 +1197,7 @@ class PagerTest {
             initialLoadSize = 1,
             maxSize = 5
         )
-        val pager = Pager(
+        val pager = PageFetcherSnapshot(
             initialKey = 99,
             pagingSource = pagingSourceFactory(),
             config = config,
@@ -1247,7 +1247,11 @@ class PagerTest {
                 jumpThreshold = 10
             )
             var didJump = false
-            val pager = Pager(50, pagingSourceFactory(), config, retryFlow = retryCh.asFlow()) {
+            val pager = PageFetcherSnapshot(
+                initialKey = 50,
+                pagingSource = pagingSourceFactory(),
+                config = config, retryFlow = retryCh.asFlow()
+            ) {
                 didJump = true
             }
             // Trigger collection on flow to init jump detection job.
@@ -1267,7 +1271,7 @@ class PagerTest {
     @Test
     fun jump_requiresPagingSourceOptIn() {
         assertFailsWith<IllegalArgumentException> {
-            Pager(
+            PageFetcherSnapshot(
                 initialKey = 50,
                 pagingSource = TestPagingSource(jumpingSupported = false),
                 config = PagingConfig(pageSize = 1, prefetchDistance = 1, jumpThreshold = 1),
@@ -1279,11 +1283,11 @@ class PagerTest {
 
 @Suppress("SuspendFunctionOnCoroutineScope")
 internal suspend fun <T : Any> CoroutineScope.collectPagerData(
-    pager: Pager<*, T>,
+    pageFetcherSnapshot: PageFetcherSnapshot<*, T>,
     block: suspend (pageEvents: ArrayList<PageEvent<T>>, job: Job) -> Unit
 ) {
     val pageEvents = ArrayList<PageEvent<T>>()
-    val job: Job = launch { pager.pageEventFlow.collect { pageEvents.add(it) } }
+    val job: Job = launch { pageFetcherSnapshot.pageEventFlow.collect { pageEvents.add(it) } }
     block(pageEvents, job)
     job.cancel()
 }

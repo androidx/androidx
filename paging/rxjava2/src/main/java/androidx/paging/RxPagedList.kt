@@ -78,7 +78,7 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
-        """PagingDataObservable(
+        """Pager(
             PagingConfig(
                 config.pageSize,
                 config.prefetchDistance,
@@ -88,9 +88,10 @@ private fun <Key : Any, Value : Any> createRxPagedListBuilder(
             ),
             initialLoadKey,
             this.asPagingSourceFactory(fetchScheduler?.asCoroutineDispatcher() ?: Dispatchers.IO)
-        )""",
-        "androidx.paging.PagingDataObservable",
+        ).observable""",
+        "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
+        "androidx.paging.observable",
         "kotlinx.coroutines.rx2.asCoroutineDispatcher",
         "kotlinx.coroutines.Dispatchers"
     )
@@ -135,13 +136,14 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
-        """PagingDataObservable(
+        """Pager(
             PagingConfig(pageSize),
             initialLoadKey,
             this.asPagingSourceFactory(fetchScheduler?.asCoroutineDispatcher() ?: Dispatchers.IO)
-        )""",
-        "androidx.paging.PagingDataObservable",
+        ).observable""",
+        "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
+        "androidx.paging.observable",
         "kotlinx.coroutines.rx2.asCoroutineDispatcher",
         "kotlinx.coroutines.Dispatchers"
     )
@@ -187,7 +189,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
-        """PagingDataFlowable(
+        """Pager(
             PagingConfig(
                 config.pageSize,
                 config.prefetchDistance,
@@ -197,9 +199,10 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
             ),
             initialLoadKey,
             this.asPagingSourceFactory(fetchScheduler?.asCoroutineDispatcher() ?: Dispatchers.IO)
-        )""",
-        "androidx.paging.PagingDataFlowable",
+        ).flowable""",
+        "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
+        "androidx.paging.flowable",
         "kotlinx.coroutines.rx2.asCoroutineDispatcher",
         "kotlinx.coroutines.Dispatchers"
     )
@@ -246,13 +249,14 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
-        """PagingDataFlowable(
+        """Pager(
             PagingConfig(pageSize),
             initialLoadKey,
             this.asPagingSourceFactory(fetchScheduler?.asCoroutineDispatcher() ?: Dispatchers.IO)
-        )""",
-        "androidx.paging.PagingDataFlowable",
+        ).flowable""",
+        "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
+        "androidx.paging.flowable",
         "kotlinx.coroutines.rx2.asCoroutineDispatcher",
         "kotlinx.coroutines.Dispatchers"
     )
@@ -298,7 +302,7 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
-        """PagingDataObservable(
+        """Pager(
             PagingConfig(
                 config.pageSize,
                 config.prefetchDistance,
@@ -308,9 +312,10 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
             ),
             initialLoadKey,
             this.asPagingSourceFactory(fetchScheduler?.asCoroutineDispatcher() ?: Dispatchers.IO)
-        )""",
-        "androidx.paging.PagingDataObservable",
+        ).observable""",
+        "androidx.paging.Pager",
         "androidx.paging.PagingConfig",
+        "androidx.paging.observable",
         "kotlinx.coroutines.rx2.asCoroutineDispatcher",
         "kotlinx.coroutines.Dispatchers"
     )
@@ -355,13 +360,14 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
-        """PagingDataObservable(
+        """Pager(
             PagingConfig(pageSize),
             initialLoadKey,
             this
-        )""",
-        "androidx.paging.PagingDataObservable",
-        "androidx.paging.PagingConfig"
+        ).observable""",
+        "androidx.paging.Pager",
+        "androidx.paging.PagingConfig",
+        "androidx.paging.observable"
     )
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
@@ -405,7 +411,7 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
-        """PagingDataFlowable(
+        """Pager(
             PagingConfig(
                 config.pageSize,
                 config.prefetchDistance,
@@ -415,9 +421,10 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toObservable(
             ),
             initialLoadKey,
             this
-        )""",
-        "androidx.paging.PagingDataFlowable",
-        "androidx.paging.PagingConfig"
+        ).flowable""",
+        "androidx.paging.Pager",
+        "androidx.paging.PagingConfig",
+        "androidx.paging.flowable"
     )
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
@@ -462,13 +469,14 @@ fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(
 @Deprecated(
     message = "PagedList is deprecated and has been replaced by PagingData",
     replaceWith = ReplaceWith(
-        """PagingDataFlowable(
+        """Pager(
             PagingConfig(pageSize),
             initialLoadKey,
             this
-        )""",
-        "androidx.paging.PagingDataFlowable",
-        "androidx.paging.PagingConfig"
+        ).flowable""",
+        "androidx.paging.Pager",
+        "androidx.paging.PagingConfig",
+        "androidx.paging.flowable"
     )
 )
 fun <Key : Any, Value : Any> (() -> PagingSource<Key, Value>).toFlowable(

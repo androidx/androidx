@@ -18,12 +18,12 @@ package androidx.paging.samples
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.LivePagingData
+import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingDataFlow
-import androidx.paging.PagingDataFlowable
 import androidx.paging.PagingSource
 import androidx.paging.cachedIn
+import androidx.paging.flowable
+import androidx.paging.liveData
 
 /**
  * No-op ViewModel base class to be used by sample code that doesn't show ViewModel impl
@@ -31,18 +31,14 @@ import androidx.paging.cachedIn
 open class BaseViewModel<T : Any> : ViewModel() {
     private lateinit var pagingSourceFactory: () -> PagingSource<String, T>
 
-    val pagingFlow = PagingDataFlow(
-        config = PagingConfig(pageSize = 40),
-        pagingSourceFactory = pagingSourceFactory
-    ).cachedIn(viewModelScope)
-
-    val pagingFlowable = PagingDataFlowable(
+    private val pager = Pager(
         config = PagingConfig(pageSize = 40),
         pagingSourceFactory = pagingSourceFactory
     )
 
-    val pagingLiveData = LivePagingData(
-        config = PagingConfig(pageSize = 40),
-        pagingSourceFactory = pagingSourceFactory
-    )
+    val pagingFlow = pager.flow.cachedIn(viewModelScope)
+
+    val pagingFlowable = pager.flowable.cachedIn(viewModelScope)
+
+    val pagingLiveData = pager.liveData.cachedIn(viewModelScope)
 }

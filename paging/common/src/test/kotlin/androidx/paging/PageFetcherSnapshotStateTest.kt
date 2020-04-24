@@ -30,7 +30,7 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
-class PagerStateTest {
+class PageFetcherSnapshotStateTest {
     private val testScope = TestCoroutineScope()
 
     @Test

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("LivePagingData")
+@file:JvmName("PagingLiveData")
 
 package androidx.paging
 
@@ -32,16 +32,9 @@ import kotlinx.coroutines.CoroutineScope
  * paginated data. These objects can be transformed to alter data as it loads, and presented in a
  * [RecyclerView][androidx.recyclerview.widget.RecyclerView].
  */
-@Suppress("FunctionName", "unused")
-@JvmOverloads
-@JvmName("create")
-fun <Key : Any, Value : Any> LivePagingData(
-    config: PagingConfig,
-    initialKey: Key? = null,
-    remoteMediator: RemoteMediator<Key, Value>? = null,
-    pagingSourceFactory: () -> PagingSource<Key, Value>
-): LiveData<PagingData<Value>> =
-    PagingDataFlow(config, initialKey, remoteMediator, pagingSourceFactory).asLiveData()
+@Suppress("unused")
+val <Key : Any, Value : Any> Pager<Key, Value>.liveData: LiveData<PagingData<Value>>
+    get() = flow.asLiveData()
 
 /**
  * Operator which caches a stream of [PagingData] within the scope of a [Lifecycle].

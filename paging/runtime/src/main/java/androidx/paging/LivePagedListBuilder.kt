@@ -56,7 +56,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
         replaceWith = ReplaceWith(
-            """LivePagingData(
+            """Pager(
                 PagingConfig(
                     config.pageSize,
                     config.prefetchDistance,
@@ -66,9 +66,10 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
                 ),
                 initialLoadKey,
                 dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
-            )""",
-            "androidx.paging.LivePagingData",
+            ).liveData""",
+            "androidx.paging.Pager",
             "androidx.paging.PagingConfig",
+            "androidx.paging.liveData",
             "kotlinx.coroutines.Dispatchers"
         )
     )
@@ -98,13 +99,14 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
         replaceWith = ReplaceWith(
-            """LivePagingData(
+            """Pager(
                 PagingConfig(pageSize),
                 initialLoadKey,
                 dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
-            )""",
-            "androidx.paging.LivePagingData",
+            ).liveData""",
+            "androidx.paging.Pager",
             "androidx.paging.PagingConfig",
+            "androidx.paging.liveData",
             "kotlinx.coroutines.Dispatchers"
         )
     )
@@ -130,7 +132,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
         replaceWith = ReplaceWith(
-            """LivePagingData(
+            """Pager(
                 PagingConfig(
                     config.pageSize,
                     config.prefetchDistance,
@@ -140,9 +142,10 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
                 ),
                 initialLoadKey,
                 this
-            )""",
-            "androidx.paging.LivePagingData",
-            "androidx.paging.PagingConfig"
+            ).liveData""",
+            "androidx.paging.Pager",
+            "androidx.paging.PagingConfig",
+            "androidx.paging.liveData"
         )
     )
     constructor(
@@ -179,13 +182,14 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
         replaceWith = ReplaceWith(
-            """LivePagingData(
+            """Pager(
                 PagingConfig(pageSize),
                 initialLoadKey,
                 this
-            )""",
-            "androidx.paging.LivePagingData",
-            "androidx.paging.PagingConfig"
+            ).liveData""",
+            "androidx.paging.Pager",
+            "androidx.paging.PagingConfig",
+            "androidx.paging.liveData"
         )
     )
     constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, pageSize: Int) : this(
