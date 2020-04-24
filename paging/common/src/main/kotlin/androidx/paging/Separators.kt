@@ -227,15 +227,14 @@ private class SeparatorState<R : Any, T : R>(
         if (loadType == END) {
             startTerminalSeparatorDeferred
         } else {
-            loadStates[START] == LoadState.Done
+            loadStates[START] == LoadState.NotLoading(endOfPaginationReached = true)
         }
 
-    internal fun <T : Any> Insert<T>.terminatesEnd(): Boolean =
-        if (loadType == START) {
-            endTerminalSeparatorDeferred
-        } else {
-            loadStates[END] == LoadState.Done
-        }
+    internal fun <T : Any> Insert<T>.terminatesEnd(): Boolean = if (loadType == START) {
+        endTerminalSeparatorDeferred
+    } else {
+        loadStates[END] == LoadState.NotLoading(endOfPaginationReached = true)
+    }
 
     fun onInsert(event: Insert<T>): Insert<R> {
         val eventTerminatesStart = event.terminatesStart()

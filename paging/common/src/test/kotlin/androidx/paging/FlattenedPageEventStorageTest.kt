@@ -16,8 +16,8 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -237,7 +237,7 @@ class FlattenedPageEventStorageTest {
                 placeholdersStart = 3,
                 placeholdersEnd = 5,
                 loadStates = mapOf(
-                    REFRESH to Idle,
+                    REFRESH to NotLoading.Idle,
                     START to Loading,
                     END to error
                 )
@@ -248,7 +248,7 @@ class FlattenedPageEventStorageTest {
                 items = listOf("a", "b", "c", "d", "e"),
                 placeholdersStart = 3,
                 placeholdersEnd = 5,
-                refreshState = Idle,
+                refreshState = NotLoading.Idle,
                 startState = Loading,
                 endState = error
             )
@@ -266,9 +266,9 @@ class FlattenedPageEventStorageTest {
                         items = snapshot.items + event.pages.flatMap { it.data },
                         placeholdersStart = event.placeholdersStart,
                         placeholdersEnd = event.placeholdersEnd,
-                        refreshState = event.loadStates[REFRESH] ?: Idle,
-                        startState = event.loadStates[START] ?: Idle,
-                        endState = event.loadStates[END] ?: Idle
+                        refreshState = event.loadStates[REFRESH] ?: NotLoading.Idle,
+                        startState = event.loadStates[START] ?: NotLoading.Idle,
+                        endState = event.loadStates[END] ?: NotLoading.Idle
                     )
                 }
                 is Drop -> {
@@ -287,9 +287,9 @@ class FlattenedPageEventStorageTest {
 
     data class Snapshot<T>(
         val items: List<T> = emptyList(),
-        val refreshState: LoadState = Idle,
-        val startState: LoadState = Idle,
-        val endState: LoadState = Idle,
+        val refreshState: LoadState = NotLoading.Idle,
+        val startState: LoadState = NotLoading.Idle,
+        val endState: LoadState = NotLoading.Idle,
         val placeholdersStart: Int = 0,
         val placeholdersEnd: Int = 0
     )

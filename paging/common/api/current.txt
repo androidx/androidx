@@ -73,10 +73,7 @@ package androidx.paging {
   }
 
   public abstract sealed class LoadState {
-  }
-
-  public static final class LoadState.Done extends androidx.paging.LoadState {
-    field public static final androidx.paging.LoadState.Done! INSTANCE;
+    method public final boolean getEndOfPaginationReached();
   }
 
   public static final class LoadState.Error extends androidx.paging.LoadState {
@@ -86,12 +83,12 @@ package androidx.paging {
     method public Throwable getError();
   }
 
-  public static final class LoadState.Idle extends androidx.paging.LoadState {
-    field public static final androidx.paging.LoadState.Idle! INSTANCE;
-  }
-
   public static final class LoadState.Loading extends androidx.paging.LoadState {
     field public static final androidx.paging.LoadState.Loading! INSTANCE;
+  }
+
+  public static final class LoadState.NotLoading extends androidx.paging.LoadState {
+    ctor public LoadState.NotLoading(boolean endOfPaginationReached);
   }
 
   public enum LoadType {

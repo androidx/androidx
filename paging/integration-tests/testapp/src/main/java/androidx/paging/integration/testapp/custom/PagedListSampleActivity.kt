@@ -22,9 +22,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.paging.LoadState
-import androidx.paging.LoadState.Done
 import androidx.paging.LoadState.Error
-import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType
 import androidx.paging.PagedList
@@ -74,16 +73,12 @@ class PagedListSampleActivity : AppCompatActivity() {
             if (type != LoadType.REFRESH) return@addLoadStateListener
 
             when (state) {
-                is Idle -> {
-                    button.text = "Refresh"
-                    button.isEnabled = true
+                is NotLoading -> {
+                    button.text = if (state.endOfPaginationReached) "Refresh" else "Done"
+                    button.isEnabled = state.endOfPaginationReached
                 }
                 is Loading -> {
                     button.text = "Loading"
-                    button.isEnabled = false
-                }
-                is Done -> {
-                    button.text = "Done"
                     button.isEnabled = false
                 }
                 is Error -> {

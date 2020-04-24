@@ -46,7 +46,7 @@ abstract class LoadStateAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Ada
      * Changing this property will immediately notify the Adapter to change the item it's
      * presenting.
      */
-    var loadState: LoadState = LoadState.Idle
+    var loadState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
         set(loadState) {
             if (field != loadState) {
                 val oldItem = displayLoadStateAsItem(field)

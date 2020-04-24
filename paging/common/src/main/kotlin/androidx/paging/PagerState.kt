@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -54,9 +54,9 @@ internal class PagerState<Key : Any, Value : Any>(
 
     internal val failedHintsByLoadType = mutableMapOf<LoadType, LoadError<Key, Value>>()
     internal val loadStates = mutableMapOf<LoadType, LoadState>(
-        REFRESH to Idle,
-        START to Idle,
-        END to Idle
+        REFRESH to NotLoading.Idle,
+        START to NotLoading.Idle,
+        END to NotLoading.Idle
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -166,7 +166,7 @@ internal class PagerState<Key : Any, Value : Any>(
             "invalid drop count. have ${pages.size} but wanted to drop $pageCount"
         }
 
-        loadStates[loadType] = Idle
+        loadStates[loadType] = NotLoading.Idle
 
         when (loadType) {
             START -> {
