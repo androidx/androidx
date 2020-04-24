@@ -25,7 +25,7 @@
 
         <activity
             android:name=".DemoActivity"
-            android:configChanges="orientation|screenSize|uiMode"
+            android:configChanges="uiMode"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
