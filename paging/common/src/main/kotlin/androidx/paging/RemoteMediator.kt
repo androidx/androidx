@@ -87,15 +87,15 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
 
         /**
          * Success signaling that [LoadState] should be set to [LoadState.NotLoading] if
-         * [canRequestMoreData] is `false`, otherwise [LoadState] is kept at [LoadState.Loading] to
-         * await invalidation.
+         * [endOfPaginationReached] is `true`, otherwise [LoadState] is kept at [LoadState.Loading]
+         * to await invalidation.
          *
          * NOTE: It is the responsibility of [load] to update the backing dataset and trigger
          * [PagingSource.invalidate] to allow [androidx.paging.PagingDataAdapter] to pick up new
          * items found by [load].
          */
         class Success(
-            @get:JvmName("canRequestMoreData") val canRequestMoreData: Boolean
+            @get:JvmName("endOfPaginationReached") val endOfPaginationReached: Boolean
         ) : MediatorResult()
     }
 

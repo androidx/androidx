@@ -326,7 +326,7 @@ internal class Pager<Key : Any, Value : Any>(
                     }
                 }
 
-                // Send insert event after load state updates, so that canRequestMoreData is
+                // Send insert event after load state updates, so that endOfPaginationReached is
                 // correctly reflected in the insert event. Note that we only send the event if the
                 // insert was successfully applied in the case of cancellation due to page dropping.
                 if (insertApplied) {
@@ -370,9 +370,9 @@ internal class Pager<Key : Any, Value : Any>(
             }
         }
 
-        // Keep track of whether the LoadState.Idle canRequestMoreData when this load loop
-        // terminates due to fulfilling prefetchDistance.
-        var updateLoadStateToDone = false
+        // Keep track of whether endOfPaginationReached so we can update LoadState accordingly when
+        // this load loop terminates due to fulfilling prefetchDistance.
+        var endOfPaginationReached = false
         loop@ while (loadKey != null) {
             val params = loadParams(loadType, loadKey)
             val result: LoadResult<Key, Value> = pagingSource.load(params)
@@ -385,11 +385,12 @@ internal class Pager<Key : Any, Value : Any>(
                     // Break if insert was skipped due to cancellation
                     if (!insertApplied) break@loop
 
-                    // Set canRequestMoreData to false if no more data to load in current direction.
+                    // Set endOfPaginationReached to false if no more data to load in current
+                    // direction.
                     if ((loadType == START && result.prevKey == null) ||
                         (loadType == END && result.nextKey == null)
                     ) {
-                        updateLoadStateToDone = true
+                        endOfPaginationReached = true
                     }
                 }
                 is LoadResult.Error -> {
@@ -431,7 +432,7 @@ internal class Pager<Key : Any, Value : Any>(
                     // Update load state to success if this is the final load result for this
                     // load hint, and only if we didn't error out.
                     if (loadKey == null && state.failedHintsByLoadType[loadType] == null) {
-                        state.loadStates[loadType] = if (updateLoadStateToDone) {
+                        state.loadStates[loadType] = if (endOfPaginationReached) {
                             NotLoading.Done
                         } else {
                             NotLoading.Idle
@@ -480,7 +481,7 @@ internal class Pager<Key : Any, Value : Any>(
                 if (loadType != REFRESH) {
                     stateLock.withLock {
                         this@Pager.state.loadStates[loadType] =
-                            if (!boundaryResult.canRequestMoreData) {
+                            if (boundaryResult.endOfPaginationReached) {
                                 NotLoading.Done
                             } else {
                                 NotLoading.Idle

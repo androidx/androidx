@@ -1122,14 +1122,14 @@ class PagerTest {
     }
 
     @Test
-    fun remoteMediator_canRequestMoreDataLoadStateIdle() = testScope.runBlockingTest {
+    fun remoteMediator_endOfPaginationNotReachedLoadState() = testScope.runBlockingTest {
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
                 state: PagingState<Int, Int>
             ): MediatorResult {
                 super.load(loadType, state)
-                return MediatorResult.Success(canRequestMoreData = true)
+                return MediatorResult.Success(endOfPaginationReached = false)
             }
         }
 
@@ -1179,14 +1179,14 @@ class PagerTest {
     }
 
     @Test
-    fun remoteMediator_canRequestMoreDataLoadStateDone() = testScope.runBlockingTest {
+    fun remoteMediator_endOfPaginationReachedLoadState() = testScope.runBlockingTest {
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
                 state: PagingState<Int, Int>
             ): MediatorResult {
                 super.load(loadType, state)
-                return MediatorResult.Success(canRequestMoreData = false)
+                return MediatorResult.Success(endOfPaginationReached = true)
             }
         }
 
