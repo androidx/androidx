@@ -105,7 +105,7 @@ fun TriStateToggleable(
         this.enabled = enabled
 
         if (enabled) {
-            onClick(action = onClick, label = "Toggle")
+            onClick(action = { onClick(); return@onClick true }, label = "Toggle")
         }
     }) {
         // TODO(b/150706555): This layout is temporary and should be removed once Semantics

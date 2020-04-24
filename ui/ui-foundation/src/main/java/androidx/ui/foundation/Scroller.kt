@@ -260,6 +260,7 @@ private fun Scroller(
                 } else {
                     scrollerPosition.scrollBy(x.value)
                 }
+                return@ScrollTo true
             })
         }
     }) {

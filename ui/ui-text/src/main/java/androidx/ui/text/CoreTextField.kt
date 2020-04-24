@@ -296,7 +296,7 @@ private fun TextInputEventObserver(
         container = true,
         mergeAllDescendants = true,
         properties = {
-            onClick(action = doFocusIn)
+            onClick(action = { doFocusIn(); return@onClick true })
         }
     ) {
         val drag = Modifier.dragPositionGestureFilter(
