@@ -17,30 +17,29 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
+import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.text.CoreTextField
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.drawBehind
-import androidx.ui.core.input.FocusManager
-import androidx.ui.core.input.FocusNode
+import androidx.ui.focus.FocusModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.useOrElse
-import androidx.ui.input.ImeAction
 import androidx.ui.input.EditorValue
+import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.listSaver
+import androidx.ui.text.CoreTextField
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextFieldDelegate
 import androidx.ui.text.TextLayoutResult
@@ -103,9 +102,8 @@ data class TextFieldValue(
  * @param modifier optional [Modifier] for this text field.
  * By default, text field will occupy all available space granted to it. You can use
  * [androidx.ui.layout.preferredWidthIn] or [androidx.ui.layout.preferredWidth] modifiers to
- * constrain the horizontal space occupied by the text field.
- * @param focusNode The focus node to be used for this TextField. Do not share this node with
- * other TextField.
+ * constrain the horizontal space occupied by the text field. Do not pass [FocusModifier] to this
+ * argument. Pass it to focusModifier argument instead.
  * @param textColor [Color] to apply to the text. If [Color.Unset], and [textStyle] has no color
  * set, this will be [contentColor].
  * @param textStyle Style configuration that applies at character level such as color, font etc.
@@ -117,9 +115,8 @@ data class TextFieldValue(
  * Then, when user tap that key, the [onImeActionPerformed] callback is called with specified
  * ImeAction.
  * @param onFocusChange Called with true value when the input field gains focus and with false
- * value when the input field loses focus.
- * [FocusManager.requestFocus] to this value to move focus to this TextField. This identifier
- * must be unique in your app. If you have duplicated identifiers, the behavior is undefined.
+ * value when the input field loses focus. Use [FocusModifier.requestFocus] to obtain text input
+ * focus to this TextField.
  * @param onImeActionPerformed Called when the input service requested an IME action. When the
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
@@ -141,7 +138,6 @@ fun TextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
-    focusNode: FocusNode? = null,
     textColor: Color = Color.Unset,
     textStyle: TextStyle = currentTextStyle(),
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -201,7 +197,6 @@ fun TextField(
             cursorState.focused = it
             onFocusChange(it)
         },
-        focusNode = focusNode ?: remember { FocusNode() },
         onImeActionPerformed = onImeActionPerformed,
         visualTransformation = visualTransformation,
         onTextLayout = {

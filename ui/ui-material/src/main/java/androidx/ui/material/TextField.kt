@@ -32,7 +32,6 @@ import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
-import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
@@ -41,9 +40,9 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.drawBehind
-import androidx.ui.core.input.FocusNode
 import androidx.ui.core.offset
 import androidx.ui.core.tag
+import androidx.ui.focus.FocusModifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentColorAmbient
@@ -329,7 +328,7 @@ private fun FilledTextFieldImpl(
     backgroundColor: Color,
     shape: Shape
 ) {
-    val focusNode = remember { FocusNode() }
+    val focusModifier = FocusModifier()
     var shouldFocus by state { false }
     var focused by state { false }
     val inputState = stateFor(value.text, focused) {
@@ -360,14 +359,13 @@ private fun FilledTextFieldImpl(
         ) {
             TextField(
                 value = value,
-                modifier = tagModifier,
+                modifier = tagModifier + focusModifier,
                 textStyle = textStyle,
                 onValueChange = onValueChange,
                 onFocusChange = {
                     focused = it
                     onFocusChange(it)
                 },
-                focusNode = focusNode,
                 cursorColor = if (isErrorValue) errorColor else MaterialTheme.colors.primary,
                 visualTransformation = visualTransformation,
                 keyboardType = keyboardType,
@@ -390,7 +388,7 @@ private fun FilledTextFieldImpl(
         ) {
             Clickable(onClick = { shouldFocus = true }, modifier = Modifier.ripple(false)) {
                 if (shouldFocus) {
-                    FocusManagerAmbient.current.requestFocus(focusNode)
+                    focusModifier.requestFocus()
                     shouldFocus = false
                 }
 

@@ -24,7 +24,6 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
@@ -35,8 +34,10 @@ import androidx.ui.core.drawBehind
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.core.input.FocusNode
 import androidx.ui.core.onPositioned
+import androidx.ui.focus.FocusModifier
+import androidx.ui.focus.FocusState
+import androidx.ui.focus.focusState
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorValue
 import androidx.ui.input.ImeAction
@@ -56,7 +57,6 @@ fun CoreTextField(
     value: EditorValue,
     modifier: Modifier,
     onValueChange: (EditorValue) -> Unit,
-    focusNode: FocusNode,
     textStyle: TextStyle = TextStyle.Default,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
@@ -105,9 +105,24 @@ fun CoreTextField(
             resourceLoader = resourceLoader
         )
 
+        // TODO: Stop lookup FocusModifier from modifier chain. (b/155434146)
+        var focusModifier: FocusModifier? = null
+        modifier.foldIn(Unit) { _, element ->
+            if (element is FocusModifier) {
+                focusModifier = element
+                return@foldIn
+            }
+        }
+
+        val updatedModifier = if (focusModifier == null) {
+            modifier + FocusModifier().also { focusModifier = it }
+        } else {
+            modifier
+        }
+
         state.processor.onNewState(value, textInputService, state.inputSession)
         TextInputEventObserver(
-            focusNode = focusNode,
+            focusModifier = focusModifier!!,
             onPress = { },
             onFocus = {
                 state.hasFocus = true
@@ -174,7 +189,7 @@ fun CoreTextField(
         ) {
             Layout(
                 emptyContent(),
-                modifier.drawBehind {
+                updatedModifier.drawBehind {
                     state.layoutResult?.let { layoutResult ->
                         TextFieldDelegate.draw(
                             this,
@@ -251,32 +266,30 @@ private fun TextInputEventObserver(
     onRelease: (PxPosition) -> Unit,
     onFocus: () -> Unit,
     onBlur: (hasNextClient: Boolean) -> Unit,
-    focusNode: FocusNode,
+    focusModifier: FocusModifier,
     children: @Composable() () -> Unit
 ) {
-    val focused = state { false }
-    val focusManager = FocusManagerAmbient.current
+    val prevState = state { FocusState.NotFocused }
+    if (focusModifier.focusState == FocusState.Focused &&
+        prevState.value == FocusState.NotFocused) {
+        onFocus()
+    }
 
-    focusManager.registerObserver(focusNode) { fromNode, toNode ->
-        if (fromNode == focusNode) { // Focus lost
-            onBlur(toNode != null)
-            focused.value = false
-        } else { // Focus gain
-            onFocus()
-            focused.value = true
+    if (focusModifier.focusState == FocusState.NotFocused &&
+        prevState.value == FocusState.Focused) {
+        onBlur(false) // TODO: Need to know if there is next focus element
+    }
+
+    prevState.value = focusModifier.focusState
+
+    val doFocusIn = {
+        if (focusModifier.focusState == FocusState.NotFocused) {
+            focusModifier.requestFocus()
         }
     }
 
     onDispose {
-        if (focused.value) {
-            focusManager.blur(focusNode)
-        }
-    }
-
-    val doFocusIn = {
-        if (!focused.value) {
-            focusManager.requestFocus(focusNode)
-        }
+        onBlur(false)
     }
 
     Semantics(
@@ -288,7 +301,7 @@ private fun TextInputEventObserver(
     ) {
         val drag = Modifier.dragPositionGestureFilter(
             onPress = {
-                if (focused.value) {
+                if (focusModifier.focusState == FocusState.Focused) {
                     onPress(it)
                 } else {
                     doFocusIn()

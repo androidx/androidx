@@ -48,7 +48,6 @@ class SoftwareKeyboardTest {
 
     @Test
     fun textField_onTextLayoutCallback() {
-        val focusManager = TextFieldTest.FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
@@ -58,7 +57,6 @@ class SoftwareKeyboardTest {
         val onTextInputStarted: (SoftwareKeyboardController) -> Unit = mock()
         composeTestRule.setContent {
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {
