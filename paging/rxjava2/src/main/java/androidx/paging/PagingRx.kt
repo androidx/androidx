@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmMultifileClass
-@file:JvmName("RxPaging")
+@file:JvmName("PagingRx")
 
 package androidx.paging
 
@@ -26,9 +25,40 @@ import io.reactivex.Observable
 import io.reactivex.ObservableConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.rx2.asFlowable
 import kotlinx.coroutines.rx2.asObservable
+
+/**
+ * Construct the primary RxJava Paging reactive stream: `Observable<PagingData<T>>`.
+ *
+ * Creates a stream of [PagingData] objects, each of which represents a single generation of
+ * paginated data. These objects can be transformed to alter data as it loads, and presented in a
+ * `RecyclerView`.
+ *
+ * @see Pager
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData<Value>>
+    get() = flow
+        .conflate()
+        .asObservable()
+
+/**
+ * Construct the primary RxJava Paging reactive stream: `Flowable<PagingData<T>>`.
+ *
+ * Creates a stream of [PagingData] objects, each of which represents a single generation of
+ * paginated data. These objects can be transformed to alter data as it loads, and presented in a
+ * `RecyclerView`.
+ *
+ * @see Pager
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Value>>
+    get() = flow
+        .conflate()
+        .asFlowable()
 
 /**
  * This converter caches a stream of [PagingData] within a [CoroutineScope].

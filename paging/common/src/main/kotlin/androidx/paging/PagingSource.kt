@@ -205,8 +205,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
      *
      * Note: This method is guaranteed to only be called if the initial load succeeds and the
      * list of loaded pages is not empty. In the case where a refresh is triggered before the
-     * initial load succeeds or it errors out, the initial key passed into the creation of the
-     * [PagingData] stream (typically from [PagingDataFlow]) will be used.
+     * initial load succeeds or it errors out, the initial key passed to [Pager] will be used.
      */
     open fun getRefreshKey(state: PagingState<Key, Value>): Key? = null
 

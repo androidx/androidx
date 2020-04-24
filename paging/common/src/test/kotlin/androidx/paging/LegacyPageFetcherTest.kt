@@ -34,7 +34,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class LegacyPagerTest {
+class LegacyPageFetcherTest {
     private val testDispatcher = TestDispatcher()
     private val data = List(9) { "$it" }
 
@@ -77,7 +77,7 @@ class LegacyPagerTest {
         val pageResult: LoadResult<*, String>
     )
 
-    private class MockConsumer : LegacyPager.PageConsumer<String> {
+    private class MockConsumer : LegacyPageFetcher.PageConsumer<String> {
         private val results: MutableList<Result> = arrayListOf()
         private val stateChanges: MutableList<StateChange> = arrayListOf()
 
@@ -115,7 +115,7 @@ class LegacyPagerTest {
         consumer: MockConsumer,
         start: Int = 0,
         end: Int = 10
-    ): LegacyPager<Int, String> {
+    ): LegacyPageFetcher<Int, String> {
         val config = Config(2, 2, true, 10, Config.MAX_SIZE_UNBOUNDED)
         val pagingSource = ImmediateListDataSource(data)
 
@@ -140,14 +140,14 @@ class LegacyPagerTest {
         consumer.storage = storage
 
         @Suppress("UNCHECKED_CAST")
-        return LegacyPager(
+        return LegacyPageFetcher(
             GlobalScope,
             config,
             pagingSource,
             DirectDispatcher,
             testDispatcher,
             consumer,
-            storage as LegacyPager.KeyProvider<Int>
+            storage as LegacyPageFetcher.KeyProvider<Int>
         )
     }
 

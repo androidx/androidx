@@ -26,8 +26,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingDataFlow
 import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,16 +38,17 @@ import kotlinx.coroutines.launch
 private class UiModel(@Suppress("UNUSED_PARAMETER") string: String)
 private class MyPagingAdapter : BasePagingAdapter<UiModel>()
 private class MyViewModel : BaseViewModel<UiModel>()
+
 private lateinit var pagingSourceFactory: () -> PagingSource<String, String>
 
 @Sampled
 @SuppressLint("SyntheticAccessor")
 fun cachedInSample() {
     class MyViewModel : ViewModel() {
-        val flow = PagingDataFlow(
+        val flow = Pager(
             config = PagingConfig(pageSize = 40),
             pagingSourceFactory = pagingSourceFactory
-        )
+        ).flow
             // Loads and transformations before the cachedIn operation will be cached, so that
             // multiple observers get the same data. This is true either for simultaneous
             // observers, or e.g. an Activity re-subscribing after being recreated

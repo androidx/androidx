@@ -113,7 +113,7 @@ class AsyncPagingDataDifferTest {
             loadEvents.add(LoadEvent(loadType, loadState))
         }
 
-        val pagingDataFlow = PagingDataFlow(
+        val pager = Pager(
             config = PagingConfig(
                 pageSize = 2,
                 prefetchDistance = 1,
@@ -126,7 +126,7 @@ class AsyncPagingDataDifferTest {
         }
 
         val job = launch {
-            pagingDataFlow.collect {
+            pager.flow.collect {
                 differ.presentData(it)
             }
         }
@@ -169,7 +169,7 @@ class AsyncPagingDataDifferTest {
         //  to directly construct a flow of PagedData.
         pauseDispatcher {
             var currentPagedSource: TestPagingSource? = null
-            val pagedDataFlow = PagingDataFlow(
+            val pager = Pager(
                 config = PagingConfig(
                     pageSize = 1,
                     prefetchDistance = 1,
@@ -182,7 +182,7 @@ class AsyncPagingDataDifferTest {
                 currentPagedSource!!
             }
 
-            val job = launch { pagedDataFlow.collectLatest { differ.presentData(it) } }
+            val job = launch { pager.flow.collectLatest { differ.presentData(it) } }
 
             // Load REFRESH [50, 51]
             advanceUntilIdle()
@@ -215,11 +215,11 @@ class AsyncPagingDataDifferTest {
     @Test
     fun presentData_cancelsLastSubmit() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pagedDataFlow = PagingDataFlow(
+            val pager = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
             ) { TestPagingSource() }
-            val pagedDataFlow2 = PagingDataFlow(
+            val pager2 = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
             ) { TestPagingSource() }
@@ -227,7 +227,7 @@ class AsyncPagingDataDifferTest {
             val lifecycle = TestLifecycleOwner()
             var jobSubmitted = false
             val job = launch {
-                pagedDataFlow.collectLatest {
+                pager.flow.collectLatest {
                     differ.submitData(lifecycle.lifecycle, it)
                     jobSubmitted = true
                 }
@@ -236,7 +236,7 @@ class AsyncPagingDataDifferTest {
             advanceUntilIdle()
 
             val job2 = launch {
-                pagedDataFlow2.collectLatest {
+                pager2.flow.collectLatest {
                     differ.presentData(it)
                 }
             }
@@ -253,11 +253,11 @@ class AsyncPagingDataDifferTest {
     @Test
     fun submitData_cancelsLast() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pagedDataFlow = PagingDataFlow(
+            val pager = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
             ) { TestPagingSource() }
-            val pagedDataFlow2 = PagingDataFlow(
+            val pager2 = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
             ) { TestPagingSource() }
@@ -265,7 +265,7 @@ class AsyncPagingDataDifferTest {
             val lifecycle = TestLifecycleOwner()
             var jobSubmitted = false
             val job = launch {
-                pagedDataFlow.collectLatest {
+                pager.flow.collectLatest {
                     differ.submitData(lifecycle.lifecycle, it)
                     jobSubmitted = true
                 }
@@ -275,7 +275,7 @@ class AsyncPagingDataDifferTest {
 
             var job2Submitted = false
             val job2 = launch {
-                pagedDataFlow2.collectLatest {
+                pager2.flow.collectLatest {
                     differ.submitData(lifecycle.lifecycle, it)
                     job2Submitted = true
                 }

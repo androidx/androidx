@@ -51,8 +51,9 @@ internal class PageFetcher<Key : Any, Value : Any>(
     private val remoteMediatorAccessor = remoteMediator?.let { RemoteMediatorAccessor(it) }
 
     /**
-     * Channel of refresh signals that would trigger a new instance of [Pager]. Signals sent to this
-     * channel should be `true` if a remote REFRESH load should be triggered, `false` otherwise.
+     * Channel of refresh signals that would trigger a new instance of [PageFetcherSnapshot].
+     * Signals sent to this channel should be `true` if a remote REFRESH load should be triggered,
+     * `false` otherwise.
      *
      * NOTE: This channel is conflated, which means it has a buffer size of 1, and will always
      *  broadcast the latest value received.
@@ -68,7 +69,8 @@ internal class PageFetcher<Key : Any, Value : Any>(
             .onStart {
                 emit(remoteMediatorAccessor?.onInitialize() == LAUNCH_INITIAL_REFRESH)
             }
-            .scan(null) { previousGeneration: Pager<Key, Value>?, triggerRemoteRefresh ->
+            .scan(null) { previousGeneration: PageFetcherSnapshot<Key, Value>?,
+                          triggerRemoteRefresh ->
                 val pagingSource = pagingSourceFactory()
                 val initialKey = previousGeneration?.refreshKeyInfo()
                     ?.let { pagingSource.getRefreshKey(it) }
@@ -80,7 +82,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
                 previousGeneration?.pagingSource?.invalidate() // Note: Invalidate is idempotent.
                 previousGeneration?.close()
 
-                Pager(
+                PageFetcherSnapshot(
                     initialKey = initialKey,
                     pagingSource = pagingSource,
                     config = config,
@@ -108,10 +110,10 @@ internal class PageFetcher<Key : Any, Value : Any>(
     }
 
     inner class PagerUiReceiver<Key : Any, Value : Any> constructor(
-        private val pager: Pager<Key, Value>,
+        private val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
         private val retryChannel: SendChannel<Unit>
     ) : UiReceiver {
-        override fun addHint(hint: ViewportHint) = pager.addHint(hint)
+        override fun addHint(hint: ViewportHint) = pageFetcherSnapshot.addHint(hint)
 
         override fun retry() {
             retryChannel.offer(Unit)
@@ -122,8 +124,8 @@ internal class PageFetcher<Key : Any, Value : Any>(
 }
 
 /**
- * Usage of [RemoteMediator] within [PageFetcher] and [Pager] should always be accessed behind
- * this class, which handles state tracking of active remote jobs.
+ * Usage of [RemoteMediator] within [PageFetcher] and [PageFetcherSnapshot] should always be
+ * accessed behind this class, which handles state tracking of active remote jobs.
  */
 internal class RemoteMediatorAccessor<Key : Any, Value : Any>(
     private val remoteMediator: RemoteMediator<Key, Value>
