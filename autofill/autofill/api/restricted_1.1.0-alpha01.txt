@@ -60,6 +60,37 @@ package androidx.autofill {
 
 }
 
+package androidx.autofill.inline {
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class Renderer {
+    method public static android.app.PendingIntent? getAttribution(android.app.slice.Slice);
+    method public static android.os.Bundle getSupportedInlineUiVersionsAsBundle();
+    method public static android.view.View? render(android.content.Context, android.app.slice.Slice, android.os.Bundle);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class UiVersions {
+    method public static java.util.List<java.lang.String!> getVersions(android.os.Bundle);
+    method public static androidx.autofill.inline.UiVersions.StylesBuilder newStylesBuilder();
+    field public static final String INLINE_UI_VERSION_1 = "androidx.autofill.inline.ui.version:v1";
+  }
+
+  public static interface UiVersions.Content {
+    method public android.app.slice.Slice getSlice();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @StringDef({androidx.autofill.inline.UiVersions.INLINE_UI_VERSION_1}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface UiVersions.InlineUiVersion {
+  }
+
+  public static interface UiVersions.Style {
+  }
+
+  public static final class UiVersions.StylesBuilder {
+    method public void addStyle(androidx.autofill.inline.UiVersions.Style);
+    method public android.os.Bundle build();
+  }
+
+}
+
 package androidx.autofill.inline.common {
 
   @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class ImageViewStyle extends androidx.autofill.inline.common.ViewStyle {
@@ -100,6 +131,54 @@ package androidx.autofill.inline.common {
     method public androidx.autofill.inline.common.ViewStyle.Builder setBackgroundColor(int);
     method public androidx.autofill.inline.common.ViewStyle.Builder setLayoutMargin(int, int, int, int);
     method public androidx.autofill.inline.common.ViewStyle.Builder setPadding(int, int, int, int);
+  }
+
+}
+
+package androidx.autofill.inline.v1 {
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class InlineSuggestionUi {
+    method public static androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder newContentBuilder();
+    method public static androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder newStyleBuilder();
+  }
+
+  public static final class InlineSuggestionUi.Content implements androidx.autofill.inline.UiVersions.Content {
+    method public android.app.PendingIntent? getAttribution();
+    method public CharSequence? getContentDescription();
+    method public android.graphics.drawable.Icon? getEndIcon();
+    method public final android.app.slice.Slice getSlice();
+    method public android.graphics.drawable.Icon? getStartIcon();
+    method public String? getSubtitle();
+    method public String? getTitle();
+  }
+
+  public static final class InlineSuggestionUi.Content.Builder {
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content build();
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setAttribution(android.app.PendingIntent);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setContentDescription(CharSequence);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setEndIcon(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setStartIcon(android.graphics.drawable.Icon);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setSubtitle(String);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder setTitle(String);
+  }
+
+  public static final class InlineSuggestionUi.Style implements androidx.autofill.inline.UiVersions.Style {
+    method public androidx.autofill.inline.common.ViewStyle? getChipStyle();
+    method public androidx.autofill.inline.common.ImageViewStyle? getEndIconStyle();
+    method public androidx.autofill.inline.common.ViewStyle? getSingleIconChipStyle();
+    method public androidx.autofill.inline.common.ImageViewStyle? getStartIconStyle();
+    method public androidx.autofill.inline.common.TextViewStyle? getSubtitleStyle();
+    method public androidx.autofill.inline.common.TextViewStyle? getTitleStyle();
+  }
+
+  public static final class InlineSuggestionUi.Style.Builder {
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style build();
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setChipStyle(androidx.autofill.inline.common.ViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setEndIconStyle(androidx.autofill.inline.common.ImageViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSingleIconChipStyle(androidx.autofill.inline.common.ViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setStartIconStyle(androidx.autofill.inline.common.ImageViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSubtitleStyle(androidx.autofill.inline.common.TextViewStyle);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setTitleStyle(androidx.autofill.inline.common.TextViewStyle);
   }
 
 }
