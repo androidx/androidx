@@ -23,6 +23,7 @@ import androidx.compose.setValue
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.core.TestTag
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.Demo
@@ -153,10 +154,16 @@ private fun DemoAppBar(
         )
     } else {
         TopAppBar(
-            title = { Text(title) },
+            title = {
+                TestTag(Tags.AppBarTitle) {
+                    Text(title)
+                }
+            },
             navigationIcon = navigationIcon,
             actions = {
-                AppBarIcons.Filter(onClick = onStartFiltering)
+                TestTag(Tags.FilterButton) {
+                    AppBarIcons.Filter(onClick = onStartFiltering)
+                }
                 AppBarIcons.Settings(onClick = launchSettings)
             }
         )
