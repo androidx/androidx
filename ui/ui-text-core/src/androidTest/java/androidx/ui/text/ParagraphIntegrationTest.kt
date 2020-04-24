@@ -1888,6 +1888,98 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun didExceedMaxLines_ellipsis_withMaxLinesSmallerThanTextLines_returnsTrue() {
+        val text = "aaa\naa"
+        val maxLines = text.lines().size - 1
+        val paragraph = simpleParagraph(
+            text = text,
+            maxLines = maxLines,
+            ellipsis = true
+        )
+
+        assertThat(paragraph.didExceedMaxLines).isTrue()
+    }
+
+    @Test
+    fun didExceedMaxLines_ellipsis_withMaxLinesEqualToTextLines_returnsFalse() {
+        val text = "aaa\naa"
+        val maxLines = text.lines().size
+        val paragraph = simpleParagraph(
+            text = text,
+            maxLines = maxLines,
+            ellipsis = true
+        )
+
+        assertThat(paragraph.didExceedMaxLines).isFalse()
+    }
+
+    @Test
+    fun didExceedMaxLines_ellipsis_withMaxLinesGreaterThanTextLines_returnsFalse() {
+        val text = "aaa\naa"
+        val maxLines = text.lines().size + 1
+        val paragraph = simpleParagraph(
+            text = text,
+            maxLines = maxLines,
+            ellipsis = true
+        )
+
+        assertThat(paragraph.didExceedMaxLines).isFalse()
+    }
+
+    @Test
+    fun didExceedMaxLines_ellipsis_withMaxLinesSmallerThanTextLines_withLineWrap_returnsTrue() {
+        with(defaultDensity) {
+            val text = "aa"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val maxLines = 1
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                maxLines = maxLines,
+                ellipsis = true,
+                // One line can only contain 1 character
+                constraints = ParagraphConstraints(width = fontSizeInPx)
+            )
+
+            assertThat(paragraph.didExceedMaxLines).isTrue()
+        }
+    }
+
+    @Test
+    fun didExceedMaxLines_ellipsis_withMaxLinesEqualToTextLines_withLineWrap_returnsFalse() {
+        val text = "a"
+        val maxLines = text.lines().size
+        val paragraph = simpleParagraph(
+            text = text,
+            maxLines = maxLines,
+            ellipsis = true
+        )
+
+        assertThat(paragraph.didExceedMaxLines).isFalse()
+    }
+
+    @Test
+    fun didExceedMaxLines_ellipsis_withMaxLinesGreaterThanTextLines_withLineWrap_returnsFalse() {
+        with(defaultDensity) {
+            val text = "aa"
+            val maxLines = 3
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize),
+                maxLines = maxLines,
+                ellipsis = true,
+                        // One line can only contain 1 character
+                constraints = ParagraphConstraints(width = fontSizeInPx)
+            )
+
+            assertThat(paragraph.didExceedMaxLines).isFalse()
+        }
+    }
+
+    @Test
     fun textAlign_defaultValue_alignsStart() {
         with(defaultDensity) {
             val textLTR = "aa"
