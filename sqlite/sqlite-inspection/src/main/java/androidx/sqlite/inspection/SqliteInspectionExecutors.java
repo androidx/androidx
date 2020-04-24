@@ -20,22 +20,15 @@ import androidx.annotation.NonNull;
 
 import java.util.Locale;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 class SqliteInspectionExecutors {
-
-    private SqliteInspectionExecutors() {}
-
-    private enum DirectExecutor implements Executor {
-        INSTANCE;
-
-        @Override
-        public void execute(@NonNull Runnable command) {
-            command.run();
-        }
+    private SqliteInspectionExecutors() {
     }
 
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
@@ -54,15 +47,34 @@ class SqliteInspectionExecutors {
         }
     };
 
+    private static final Executor sDirectExecutor = new Executor() {
+        @Override
+        public void execute(@NonNull Runnable command) {
+            command.run();
+        }
+    };
+
+    private static final Executor sIOExecutor = Executors.newCachedThreadPool(sThreadFactory);
+
+    private static final ScheduledExecutorService sScheduledExecutorService =
+            Executors.newSingleThreadScheduledExecutor(sThreadFactory);
+
     static Executor directExecutor() {
-        return DirectExecutor.INSTANCE;
+        return sDirectExecutor;
+    }
+
+    static Executor ioExecutor() {
+        return sIOExecutor;
     }
 
     /**
-     * Thread factory satisfying required thread naming conventions.
+     * Single threaded ScheduledExecutor.
+     * <p>
+     * Since single threaded, only use for short tasks, e.g.
+     * scheduling tasks to be executed on another thread.
      */
-    static ThreadFactory threadFactory() {
-        return sThreadFactory;
+    static ScheduledExecutorService scheduledExecutor() {
+        return sScheduledExecutorService;
     }
 
     static Future<Void> submit(Executor executor, Runnable runnable) {

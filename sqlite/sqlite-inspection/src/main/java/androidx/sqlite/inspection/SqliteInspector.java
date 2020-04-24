@@ -71,6 +71,8 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Inspector to work with SQLite databases
@@ -147,16 +149,18 @@ final class SqliteInspector extends Inspector {
     private final DatabaseRegistry mDatabaseRegistry = new DatabaseRegistry();
     private final InspectorEnvironment mEnvironment;
     private final Executor mIOExecutor;
+    private final ScheduledExecutorService mScheduledExecutor;
     /**
      * Utility instance that handles communication with Room's InvalidationTracker instances.
      */
     private final RoomInvalidationRegistry mRoomInvalidationRegistry;
 
     SqliteInspector(@NonNull Connection connection, InspectorEnvironment environment,
-            Executor ioExecutor) {
+            Executor ioExecutor, ScheduledExecutorService scheduledExecutor) {
         super(connection);
         mEnvironment = environment;
         mIOExecutor = ioExecutor;
+        mScheduledExecutor = scheduledExecutor;
         mRoomInvalidationRegistry = new RoomInvalidationRegistry(mEnvironment);
     }
 
@@ -229,6 +233,22 @@ final class SqliteInspector extends Inspector {
     }
 
     private void registerInvalidationHooks() {
+        /**
+         * Schedules a task using {@link mScheduledExecutor} and executes it on {@link mIOExecutor}.
+         **/
+        final RequestCollapsingThrottler.DeferredExecutor deferredExecutor =
+                new RequestCollapsingThrottler.DeferredExecutor() {
+                    @Override
+                    @SuppressWarnings("FutureReturnValueIgnored") // TODO: handle errors from Future
+                    public void schedule(final Runnable command, final long delayMs) {
+                        mScheduledExecutor.schedule(new Runnable() {
+                            @Override
+                            public void run() {
+                                mIOExecutor.execute(command);
+                            }
+                        }, delayMs, TimeUnit.MILLISECONDS);
+                    }
+                };
         final RequestCollapsingThrottler throttler = new RequestCollapsingThrottler(
                 INVALIDATION_MIN_INTERVAL_MS,
                 new Runnable() {
@@ -237,7 +257,7 @@ final class SqliteInspector extends Inspector {
                         // TODO: wrap in a try/catch block
                         sendDatabasePossiblyChangedEvent();
                     }
-                });
+                }, deferredExecutor);
 
         registerInvalidationHooksSqliteStatement(throttler);
         registerInvalidationHooksSQLiteCursor(throttler);
