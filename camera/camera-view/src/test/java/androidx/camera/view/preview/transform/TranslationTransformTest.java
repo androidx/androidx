@@ -16,6 +16,9 @@
 
 package androidx.camera.view.preview.transform;
 
+import static android.view.View.LAYOUT_DIRECTION_LTR;
+import static android.view.View.LAYOUT_DIRECTION_RTL;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -89,6 +92,16 @@ public class TranslationTransformTest {
     }
 
     @Test
+    public void start_rtlLayout() {
+        final View view = setUpView(Surface.ROTATION_0, LAYOUT_DIRECTION_RTL);
+        final Pair<Float, Float> scaleXY = new Pair<>(2F, 0.5F);
+        final TranslationTransformation transformation = TranslationTransform.start(view, scaleXY);
+
+        assertThat(transformation.getTransX()).isEqualTo(-100);
+        assertThat(transformation.getTransY()).isEqualTo(-75);
+    }
+
+    @Test
     public void center_viewNotScaled_rotation0() {
         final View container = setUpContainer();
         final View view = setUpView(Surface.ROTATION_0);
@@ -133,6 +146,18 @@ public class TranslationTransformTest {
                 view);
 
         assertThat(transformation.getTransX()).isEqualTo(150);
+        assertThat(transformation.getTransY()).isEqualTo(250);
+    }
+
+    @Test
+    public void center_rtlLayout() {
+        final View container = setUpContainer();
+        final View view = setUpView(Surface.ROTATION_0, LAYOUT_DIRECTION_RTL);
+        final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
+        final TranslationTransformation transformation = TranslationTransform.center(container,
+                view);
+
+        assertThat(transformation.getTransX()).isEqualTo(-150);
         assertThat(transformation.getTransY()).isEqualTo(250);
     }
 
@@ -184,11 +209,29 @@ public class TranslationTransformTest {
         assertThat(transformation.getTransY()).isEqualTo(450);
     }
 
+    @Test
+    public void end_rtlLayout() {
+        final View container = setUpContainer();
+        final View view = setUpView(Surface.ROTATION_0, LAYOUT_DIRECTION_RTL);
+        final Pair<Float, Float> scaleXY = new Pair<>(1F, 1F);
+        final TranslationTransformation transformation = TranslationTransform.end(container, view,
+                scaleXY);
+
+        assertThat(transformation.getTransX()).isEqualTo(-300);
+        assertThat(transformation.getTransY()).isEqualTo(500);
+    }
+
     @NonNull
     private View setUpView(final int rotation) {
+        return setUpView(rotation, LAYOUT_DIRECTION_LTR);
+    }
+
+    @NonNull
+    private View setUpView(final int rotation, final int layoutDirection) {
         final View view = mock(View.class);
         when(view.getWidth()).thenReturn(VIEW_WIDTH);
         when(view.getHeight()).thenReturn(VIEW_HEIGHT);
+        when(view.getLayoutDirection()).thenReturn(layoutDirection);
 
         final Display display = mock(Display.class);
         when(view.getDisplay()).thenReturn(display);
