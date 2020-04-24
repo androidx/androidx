@@ -715,6 +715,9 @@ public class RowView extends SliceChildView implements View.OnClickListener,
                 progressBar = (ProgressBar) LayoutInflater.from(getContext()).inflate(
                         R.layout.abc_slice_progress_inline_view, this, false);
             }
+            if (isIndeterminate) {
+                progressBar.setIndeterminate(true);
+            }
         }
         Drawable progressDrawable = isIndeterminate ? DrawableCompat.wrap(
                 progressBar.getIndeterminateDrawable()) :
@@ -722,7 +725,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         if (mTintColor != -1 && progressDrawable != null) {
             DrawableCompat.setTint(progressDrawable, mTintColor);
             if (isIndeterminate) {
-                progressBar.setIndeterminate(true);
                 progressBar.setIndeterminateDrawable(progressDrawable);
             } else {
                 progressBar.setProgressDrawable(progressDrawable);
