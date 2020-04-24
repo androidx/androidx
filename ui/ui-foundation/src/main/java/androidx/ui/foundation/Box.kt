@@ -20,12 +20,18 @@ import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.core.offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
+import androidx.ui.layout.Arrangement
+import androidx.ui.layout.Column
+import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -80,52 +86,66 @@ fun Box(
     val borderModifier =
         if (border != null) Modifier.drawBorder(border, shape) else Modifier
     val backgroundModifier =
-        if (backgroundColor == Color.Transparent) {
-            Modifier
-        } else {
+        if (backgroundColor != Color.Transparent) {
             Modifier.drawBackground(backgroundColor, shape)
+        } else {
+            Modifier
+        }
+    val paddingModifier =
+        if (needsPadding(padding, paddingStart, paddingTop, paddingEnd, paddingBottom)) {
+            Modifier.padding(
+                if (paddingStart != Dp.Unspecified) paddingStart else padding,
+                if (paddingTop != Dp.Unspecified) paddingTop else padding,
+                if (paddingEnd != Dp.Unspecified) paddingEnd else padding,
+                if (paddingBottom != Dp.Unspecified) paddingBottom else padding
+            )
+        } else {
+            Modifier
         }
     // TODO(malkov): support ContentColor prorogation (b/148129218)
-    // TODO(popam): there should be no custom layout, use Column instead (b/148809177)
-    Layout(
-        children,
-        modifier + backgroundModifier + borderModifier
-    ) { measurables, constraints, _ ->
-        val startPadding = if (paddingStart != Dp.Unspecified) paddingStart else padding
-        val topPadding = if (paddingTop != Dp.Unspecified) paddingTop else padding
-        val endPadding = if (paddingEnd != Dp.Unspecified) paddingEnd else padding
-        val bottomPadding = if (paddingBottom != Dp.Unspecified) paddingBottom else padding
-        val totalHorizontal = startPadding.toIntPx() + endPadding.toIntPx()
-        val totalVertical = topPadding.toIntPx() + bottomPadding.toIntPx()
 
-        val childConstraints = constraints
-            .offset(-totalHorizontal, -totalVertical)
-            .copy(minWidth = 0.ipx, minHeight = 0.ipx)
-
-        val placeables = measurables.map { it.measure(childConstraints) }
-        var containerWidth = constraints.minWidth
-        var containerHeight = constraints.minHeight
-        placeables.forEach {
-            containerWidth = max(containerWidth, it.width + totalHorizontal)
-            containerHeight = max(containerHeight, it.height + totalVertical)
-        }
-
-        layout(containerWidth, containerHeight) {
-            placeables.forEach {
-                val position = gravity.align(
-                    IntPxSize(
-                        containerWidth - it.width - totalHorizontal,
-                        containerHeight - it.height - totalVertical
-                    )
-                )
-                it.place(
-                    startPadding.toIntPx() + position.x,
-                    topPadding.toIntPx() + position.y
-                )
-            }
-        }
+    val columnArrangement = gravity.toColumnArrangement()
+    val columnGravity = gravity.toColumnGravity()
+    Column(
+        modifier = modifier + backgroundModifier + borderModifier + paddingModifier,
+        verticalArrangement = columnArrangement,
+        horizontalGravity = columnGravity
+    ) {
+        children()
     }
 }
 
 // TODO(popam/148014745): add a Gravity class consistent with cross axis alignment for Row/Column
 typealias ContentGravity = Alignment
+
+private fun needsPadding(
+    padding: Dp,
+    paddingStart: Dp,
+    paddingTop: Dp,
+    paddingEnd: Dp,
+    paddingBottom: Dp
+) = (padding != Dp.Unspecified && padding != 0.dp) ||
+        (paddingStart != Dp.Unspecified && paddingStart != 0.dp) ||
+        (paddingTop != Dp.Unspecified && paddingTop != 0.dp) ||
+        (paddingEnd != Dp.Unspecified && paddingEnd != 0.dp) ||
+        (paddingBottom != Dp.Unspecified && paddingBottom != 0.dp)
+
+private fun Alignment.toColumnArrangement() = object : Arrangement.Vertical {
+    override fun arrange(
+        totalSize: IntPx,
+        size: List<IntPx>,
+        layoutDirection: LayoutDirection
+    ): List<IntPx> {
+        val usedSize = size.fold(0.ipx) { sum, current -> sum + current }
+        var y = align(IntPxSize(0.ipx, totalSize - usedSize), layoutDirection).y
+
+        val positions = mutableListOf<IntPx>()
+        for (childSize in size) {
+            positions += y
+            y += childSize
+        }
+        return positions
+    }
+}
+
+private fun Alignment.toColumnGravity() = Alignment.Horizontal(horizontalBias)
