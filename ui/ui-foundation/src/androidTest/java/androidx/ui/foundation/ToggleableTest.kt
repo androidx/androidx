@@ -21,13 +21,18 @@ import androidx.ui.core.TestTag
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable
+import androidx.ui.foundation.semantics.FoundationSemanticsProperties
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
+import androidx.ui.test.SemanticsMatcher
+import androidx.ui.test.assert
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
-import androidx.ui.test.assertSemanticsIsEqualTo
+import androidx.ui.test.assertIsEnabled
+import androidx.ui.test.assertIsNotEnabled
+import androidx.ui.test.assertIsOff
+import androidx.ui.test.assertIsOn
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
@@ -66,29 +71,20 @@ class ToggleableTest {
             }
         }
 
+        fun hasIndeterminateState(): SemanticsMatcher = SemanticsMatcher.expectValue(
+            FoundationSemanticsProperties.ToggleableState, ToggleableState.Indeterminate)
+
         findByTag("checkedToggleable")
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = true,
-                    toggleableState = ToggleableState.On
-                )
-            )
+            .assertIsEnabled()
+            .assertIsOn()
             .assertHasClickAction()
         findByTag("unCheckedToggleable")
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = true,
-                    toggleableState = ToggleableState.Off
-                )
-            )
+            .assertIsEnabled()
+            .assertIsOff()
             .assertHasClickAction()
         findByTag("indeterminateToggleable")
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = true,
-                    toggleableState = ToggleableState.Indeterminate
-                )
-            )
+            .assertIsEnabled()
+            .assert(hasIndeterminateState())
             .assertHasClickAction()
     }
 
@@ -110,20 +106,12 @@ class ToggleableTest {
         }
 
         findByTag("checkedToggleable")
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = true,
-                    toggleableState = ToggleableState.On
-                )
-            )
+            .assertIsEnabled()
+            .assertIsOn()
             .assertHasClickAction()
         findByTag("unCheckedToggleable")
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = true,
-                    toggleableState = ToggleableState.Off
-                )
-            )
+            .assertIsEnabled()
+            .assertIsOff()
             .assertHasClickAction()
     }
 
@@ -140,11 +128,7 @@ class ToggleableTest {
         }
 
         findByTag("myToggleable")
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = false
-                )
-            )
+            .assertIsNotEnabled()
             .assertHasNoClickAction()
     }
 

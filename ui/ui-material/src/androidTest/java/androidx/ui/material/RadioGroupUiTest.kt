@@ -22,14 +22,12 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Strings
 import androidx.ui.layout.Column
-import androidx.ui.semantics.accessibilityValue
+import androidx.ui.test.SemanticsNodeInteraction
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected
-import androidx.ui.test.assertSemanticsIsEqualTo
-import androidx.ui.test.copyWith
+import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.unit.dp
@@ -52,13 +50,16 @@ class RadioGroupUiTest {
     private val itemTwo = "Foo"
     private val itemThree = "Sap"
 
-    private val unselectedRadioGroupItemSemantics = createFullSemantics(
-        value = Strings.NotSelected
-    )
+    private fun SemanticsNodeInteraction.assertHasSelectedSemantics(): SemanticsNodeInteraction =
+        assertIsInMutuallyExclusiveGroup()
+            .assertIsSelected()
+            .assertValueEquals(Strings.Selected)
 
-    private val selectedRadioGroupItemSemantics = unselectedRadioGroupItemSemantics.copyWith {
-        accessibilityValue = Strings.Selected
-    }
+    private fun SemanticsNodeInteraction.assertHasUnSelectedSemantics(): SemanticsNodeInteraction =
+        assertIsInMutuallyExclusiveGroup()
+            .assertIsUnselected()
+            .assertValueEquals(Strings.NotSelected)
+
     private val options = listOf(itemOne, itemTwo, itemThree)
 
     @Composable
@@ -87,19 +88,9 @@ class RadioGroupUiTest {
             }
         }
 
-        findByTag(itemOne).assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
-        findByTag(itemTwo).assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
-        findByTag(itemThree).assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
-
-        findByTag(itemOne)
-            .assertIsInMutuallyExclusiveGroup()
-            .assertIsSelected()
-        findByTag(itemTwo)
-            .assertIsInMutuallyExclusiveGroup()
-            .assertIsUnselected()
-        findByTag(itemThree)
-            .assertIsInMutuallyExclusiveGroup()
-            .assertIsUnselected()
+        findByTag(itemOne).assertHasSelectedSemantics()
+        findByTag(itemTwo).assertHasUnSelectedSemantics()
+        findByTag(itemThree).assertHasUnSelectedSemantics()
     }
 
     @Test
@@ -120,15 +111,15 @@ class RadioGroupUiTest {
         }
 
         findByTag(itemOne)
-            .assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
+            .assertHasSelectedSemantics()
             .doClick()
-            .assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
+            .assertHasSelectedSemantics()
 
         findByTag(itemTwo)
-            .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+            .assertHasUnSelectedSemantics()
 
         findByTag(itemThree)
-            .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+            .assertHasUnSelectedSemantics()
     }
 
     @Test
@@ -147,15 +138,15 @@ class RadioGroupUiTest {
             }
         }
         findByTag(itemTwo)
-            .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+            .assertHasUnSelectedSemantics()
             .doClick()
-            .assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
+            .assertHasSelectedSemantics()
 
         findByTag(itemOne)
-            .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+            .assertHasUnSelectedSemantics()
 
         findByTag(itemThree)
-            .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+            .assertHasUnSelectedSemantics()
     }
 
     @Test
@@ -176,23 +167,23 @@ class RadioGroupUiTest {
         }
 
         findByTag(itemTwo)
-            .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+            .assertHasUnSelectedSemantics()
             .doClick()
-            .assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
+            .assertHasSelectedSemantics()
 
         findByTag(itemOne)
-            .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+            .assertHasUnSelectedSemantics()
 
         findByTag(itemThree)
-            .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+            .assertHasUnSelectedSemantics()
             .doClick()
-            .assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
+            .assertHasSelectedSemantics()
 
         findByTag(itemOne)
-            .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+            .assertHasUnSelectedSemantics()
 
         findByTag(itemTwo)
-            .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+            .assertHasUnSelectedSemantics()
     }
 
     @Test
