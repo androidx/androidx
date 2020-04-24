@@ -2750,6 +2750,7 @@ package androidx.core.view.accessibility {
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_EXPAND;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_FOCUS;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_HIDE_TOOLTIP;
+    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_IME_ENTER;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_LONG_CLICK;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_MOVE_WINDOW;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_NEXT_AT_MOVEMENT_GRANULARITY;
