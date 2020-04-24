@@ -23,7 +23,6 @@ import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.ui.text.AnnotatedString
 
 @TargetApi(Build.VERSION_CODES.M)
 internal class FloatingTextActionModeCallback(
@@ -58,10 +57,6 @@ internal class FloatingTextActionModeCallback(
             rect.right.toInt(),
             rect.bottom.toInt()
         )
-    }
-
-    internal fun setText(text: AnnotatedString) {
-        callback.setText(text)
     }
 
     internal fun setRect(regionOfInterest: androidx.ui.geometry.Rect) {

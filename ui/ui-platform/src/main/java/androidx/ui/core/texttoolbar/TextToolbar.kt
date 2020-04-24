@@ -17,7 +17,6 @@
 package androidx.ui.core.texttoolbar
 
 import androidx.ui.geometry.Rect
-import androidx.ui.text.AnnotatedString
 
 /**
  * Interface for text-related toolbar.
@@ -28,8 +27,24 @@ interface TextToolbar {
      *
      * @param rect region of interest. The selected region around which the floating toolbar
      * should show.
-     * @param text selected text. For copying to the clipboard manager.
      * @param onDeselectRequested callback to deselect after the floating toolbar is clicked.
+     * @param onCopyRequested callback to copy text into ClipBoardManager.
      */
-    fun showCopyMenu(rect: Rect, text: AnnotatedString, onDeselectRequested: () -> Unit)
+    fun showCopyMenu(
+        rect: Rect,
+        onDeselectRequested: () -> Unit,
+        onCopyRequested: () -> Unit
+    )
+
+    /**
+     * Hide the floating toolbar(post-M) or primary toolbar(pre-M).
+     */
+    fun hide()
+
+    /**
+     * Return the [TextToolbarStatus] to check if the toolbar is shown or hidden.
+     *
+     * @return [TextToolbarStatus] of [TextToolbar].
+     */
+    val status: TextToolbarStatus
 }
