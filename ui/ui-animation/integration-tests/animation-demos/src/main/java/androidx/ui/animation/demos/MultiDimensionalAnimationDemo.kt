@@ -18,6 +18,7 @@ package androidx.ui.animation.demos
 
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
+import androidx.compose.StructurallyEqual
 import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
@@ -43,8 +44,8 @@ fun MultiDimensionalAnimationDemo() {
         }
     }
     Clickable(onClick) {
-        val width = state { 0f }
-        val height = state { 0f }
+        val width = state(areEquivalent = StructurallyEqual) { 0f }
+        val height = state(areEquivalent = StructurallyEqual) { 0f }
         Transition(
             definition = remember(width.value, height.value) {
                 createTransDef(width.value, height.value)

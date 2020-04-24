@@ -280,6 +280,8 @@ private fun TextInputEventObserver(
     }
 
     Semantics(
+        container = true,
+        mergeAllDescendants = true,
         properties = {
             onClick(action = doFocusIn)
         }
