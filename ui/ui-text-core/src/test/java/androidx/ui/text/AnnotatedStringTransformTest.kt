@@ -62,6 +62,25 @@ class AnnotatedStringTransformTest {
     }
 
     @Test
+    fun `English uppercase plaintext`() {
+        val input = AnnotatedString("aaa bbb ccc")
+
+        val uppercase = input.toUpperCase()
+
+        assertEquals(input.text.toUpperCase(), uppercase.text)
+    }
+
+    @Test
+    fun `English uppercase sparse`() {
+        val input = AnnotatedString("aaa bbb ccc",
+            listOf(makeItem(spanStyle1, "aaa (bbb) ccc")))
+
+        val uppercase = input.toUpperCase()
+
+        assertEquals(input.text.toUpperCase(), uppercase.text)
+    }
+
+    @Test
     fun `English uppercase`() {
         val input = AnnotatedString("aaa bbb ccc",
             listOf(
