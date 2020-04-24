@@ -23,7 +23,7 @@ import androidx.inspection.InspectorEnvironment;
 import androidx.inspection.InspectorFactory;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Factory for SqliteInspector
@@ -31,22 +31,25 @@ import java.util.concurrent.Executors;
 public final class SqliteInspectorFactory extends InspectorFactory<SqliteInspector> {
     private static final String SQLITE_INSPECTOR_ID = "androidx.sqlite.inspection";
     private final Executor mIOExecutor;
+    private final ScheduledExecutorService mScheduledExecutorService;
 
     @VisibleForTesting
-    public SqliteInspectorFactory(@NonNull Executor ioExecutor) {
+    public SqliteInspectorFactory(@NonNull Executor ioExecutor,
+            @NonNull ScheduledExecutorService scheduledExecutorService) {
         super(SQLITE_INSPECTOR_ID);
         mIOExecutor = ioExecutor;
+        mScheduledExecutorService = scheduledExecutorService;
     }
 
     @SuppressWarnings("unused") // called by ServiceLoader
     public SqliteInspectorFactory() {
-        this(Executors.newCachedThreadPool(SqliteInspectionExecutors.threadFactory()));
+        this(SqliteInspectionExecutors.ioExecutor(), SqliteInspectionExecutors.scheduledExecutor());
     }
 
     @NonNull
     @Override
     public SqliteInspector createInspector(@NonNull Connection connection,
             @NonNull InspectorEnvironment environment) {
-        return new SqliteInspector(connection, environment, mIOExecutor);
+        return new SqliteInspector(connection, environment, mIOExecutor, mScheduledExecutorService);
     }
 }

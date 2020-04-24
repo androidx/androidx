@@ -20,10 +20,6 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.GuardedBy;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 /**
  * Throttler implementation ensuring that events are run not more frequently that specified
  * interval. Events submitted during the interval period are collapsed into one (i.e. only one is
@@ -37,15 +33,14 @@ final class RequestCollapsingThrottler {
 
     private final Runnable mAction;
     private final long mMinIntervalMs;
-    private final ScheduledExecutorService mExecutor;
+    private final DeferredExecutor mExecutor;
     private final Object mLock = new Object();
 
     @GuardedBy("mLock") private boolean mPendingDispatch = false;
     @GuardedBy("mLock") private long mLastSubmitted = NEVER;
 
-    RequestCollapsingThrottler(long minIntervalMs, Runnable action) {
-        mExecutor = Executors.newSingleThreadScheduledExecutor(
-                SqliteInspectionExecutors.threadFactory());
+    RequestCollapsingThrottler(long minIntervalMs, Runnable action, DeferredExecutor executor) {
+        mExecutor = executor;
         mAction = action;
         mMinIntervalMs = minIntervalMs;
     }
@@ -58,23 +53,26 @@ final class RequestCollapsingThrottler {
                 mPendingDispatch = true; // about to schedule
             }
         }
-        long delay = mMinIntervalMs - sinceLast(); // delay < 0 is OK
-        scheduleDispatch(delay);
+        long delayMs = mMinIntervalMs - sinceLast(); // delayMs < 0 is OK
+        scheduleDispatch(delayMs);
     }
 
     // TODO: switch to ListenableFuture to react on failures
     @SuppressWarnings("FutureReturnValueIgnored")
-    private void scheduleDispatch(long delay) {
+    private void scheduleDispatch(long delayMs) {
         mExecutor.schedule(new Runnable() {
             @Override
             public void run() {
-                mAction.run();
-                synchronized (mLock) {
-                    mLastSubmitted = now();
-                    mPendingDispatch = false;
+                try {
+                    mAction.run();
+                } finally {
+                    synchronized (mLock) {
+                        mLastSubmitted = now();
+                        mPendingDispatch = false;
+                    }
                 }
             }
-        }, delay, TimeUnit.MILLISECONDS);
+        }, delayMs);
     }
 
     private static long now() {
@@ -88,5 +86,9 @@ final class RequestCollapsingThrottler {
                     ? (mMinIntervalMs + 1) // more than mMinIntervalMs
                     : (now() - lastSubmitted);
         }
+    }
+
+    interface DeferredExecutor {
+        void schedule(Runnable command, long delayMs);
     }
 }
