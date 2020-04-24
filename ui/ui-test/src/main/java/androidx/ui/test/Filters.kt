@@ -189,6 +189,17 @@ fun isNotHidden(): SemanticsMatcher =
     SemanticsMatcher.expectValue(SemanticsProperties.Hidden, false)
 
 /**
+ * Returns whether the component is a dialog.
+ *
+ * This only checks if the component itself is a dialog, not if it is _part of_ a dialog. Use
+ * `hasAnyAncestorThat(isDialog())` for that.
+ *
+ * @see FoundationSemanticsProperties.IsDialog
+ */
+fun isDialog(): SemanticsMatcher =
+    SemanticsMatcher.keyIsDefined(FoundationSemanticsProperties.IsDialog)
+
+/**
  * Returns whether the component's parent satisfies the given matcher.
  *
  * Returns false if no parent exists.
