@@ -1,4 +1,79 @@
 // Signature format: 3.0
+package androidx.ui.core {
+
+  public final class Constraints {
+    method public int component1();
+    method public int component2();
+    method public int component3();
+    method public int component4();
+    method public androidx.ui.core.Constraints copy-Q13GOEE(int minWidth, int maxWidth, int minHeight, int maxHeight);
+    method public int getMaxHeight();
+    method public int getMaxWidth();
+    method public int getMinHeight();
+    method public int getMinWidth();
+    field public static final androidx.ui.core.Constraints.Companion! Companion;
+  }
+
+  public static final class Constraints.Companion {
+    method public androidx.ui.core.Constraints fixed-rRMsBxU(int width, int height);
+    method public androidx.ui.core.Constraints fixedHeight-gshw56o(int height);
+    method public androidx.ui.core.Constraints fixedWidth-gshw56o(int width);
+  }
+
+  public final inline class Constraints2 {
+    ctor public Constraints2();
+    method public static long constructor-impl(internal long value);
+    method public static long copy-impl(long $this, int minWidth = this.minWidth, int maxWidth = this.maxWidth, int minHeight = this.minHeight, int maxHeight = this.maxHeight);
+    method public static boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public static boolean getHasBoundedHeight-impl(long $this);
+    method public static boolean getHasBoundedWidth-impl(long $this);
+    method public static int getMaxHeight-impl(long $this);
+    method public static int getMaxWidth-impl(long $this);
+    method public static int getMinHeight-impl(long $this);
+    method public static int getMinWidth-impl(long $this);
+    method public static int hashCode-impl(long p);
+    method public static String toString-impl(long p);
+    field public static final androidx.ui.core.Constraints2.Companion! Companion;
+    field public static final int Infinity = -1073741824; // 0xc0000000
+  }
+
+  public static final class Constraints2.Companion {
+    method public long fixed(int width, int height);
+    method public long fixedHeight(int height);
+    method public long fixedWidth(int width);
+  }
+
+  public final class Constraints2Kt {
+    method public static long Constraints2(@IntRange(from=0) int minWidth = 0, int maxWidth = -1073741824, @IntRange(from=0) int minHeight = 0, int maxHeight = -1073741824);
+    method public static long constrain-M1ogGms(long, long size);
+    method public static long enforce-uQjoOwo(long, long otherConstraints);
+    method public static boolean getHasFixedHeight-ybNdgAI(long);
+    method public static boolean getHasFixedWidth-ybNdgAI(long);
+    method public static boolean isZero-ybNdgAI(long);
+    method public static long offset-xOKVbDg(long, int horizontal = 0, int vertical = 0);
+    method public static boolean satisfiedBy-M1ogGms(long, long size);
+  }
+
+  public final class ConstraintsKt {
+    method public static androidx.ui.unit.IntPxSize constrain(androidx.ui.core.Constraints, androidx.ui.unit.IntPxSize size);
+    method public static androidx.ui.core.Constraints enforce(androidx.ui.core.Constraints, androidx.ui.core.Constraints otherConstraints);
+    method public static boolean getHasBoundedHeight(androidx.ui.core.Constraints);
+    method public static boolean getHasBoundedWidth(androidx.ui.core.Constraints);
+    method public static boolean getHasFixedHeight(androidx.ui.core.Constraints);
+    method public static boolean getHasFixedWidth(androidx.ui.core.Constraints);
+    method public static boolean isZero(androidx.ui.core.Constraints);
+    method public static androidx.ui.core.Constraints offset-3L2DHGc(androidx.ui.core.Constraints, int horizontal = 0.ipx, int vertical = 0.ipx);
+    method public static boolean satisfiedBy(androidx.ui.core.Constraints, androidx.ui.unit.IntPxSize size);
+  }
+
+  public enum LayoutDirection {
+    enum_constant public static final androidx.ui.core.LayoutDirection Ltr;
+    enum_constant public static final androidx.ui.core.LayoutDirection Rtl;
+  }
+
+}
+
 package androidx.ui.unit {
 
   public final class Bounds {

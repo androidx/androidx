@@ -35,7 +35,7 @@ dependencies {
 
     api project(":compose:compose-runtime")
     api "androidx.lifecycle:lifecycle-livedata:2.2.0"
-    implementation project(":ui:ui-framework")
+    implementation project(":ui:ui-core")
 
     androidTestImplementation project(':ui:ui-test')
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
