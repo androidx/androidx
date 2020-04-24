@@ -46,4 +46,7 @@
     <public type="attr" name="bottomDividerStartPadding" />
     <public type="attr" name="bottomDividerEndPadding" />
     <public type="attr" name="actionDividerHeight" />
+    <public type="attr" name="rowMaxHeight" />
+    <public type="attr" name="rowRangeHeight" />
+    <public type="attr" name="rowRangeSingleTextHeight" />
 </resources>
