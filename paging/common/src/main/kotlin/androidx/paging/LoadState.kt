@@ -23,6 +23,11 @@ package androidx.paging
  * [androidx.paging.PagingDataAdapter.addLoadStateListener] or
  * [androidx.paging.AsyncPagingDataDiffer.addLoadStateListener]
  *
+ * @param endOfPaginationReached `false` if there is more data to load in the [LoadType] this
+ * [LoadState] is associated with, `true` otherwise. This parameter informs [Pager] if it
+ * should continue to make requests for additional data in this direction or if it should
+ * halt as the end of the dataset has been reached.
+ *
  * @see LoadType
  */
 sealed class LoadState(val endOfPaginationReached: Boolean) {
