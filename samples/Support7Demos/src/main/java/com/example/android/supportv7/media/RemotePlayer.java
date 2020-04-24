@@ -44,7 +44,6 @@ import java.util.List;
 public class RemotePlayer extends Player {
     private static final String TAG = "RemotePlayer";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-    private Context mContext;
     private RouteInfo mRoute;
     private boolean mEnqueuePending;
     private Bitmap mSnapshot;
