@@ -157,6 +157,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsMatcher hasTestTag(String testTag);
     method public static androidx.ui.test.SemanticsMatcher hasText(String text, boolean ignoreCase = false);
     method public static androidx.ui.test.SemanticsMatcher hasValue(String value);
+    method public static androidx.ui.test.SemanticsMatcher isDialog();
     method public static androidx.ui.test.SemanticsMatcher isHidden();
     method public static androidx.ui.test.SemanticsMatcher isInMutuallyExclusiveGroup();
     method public static androidx.ui.test.SemanticsMatcher isNotHidden();

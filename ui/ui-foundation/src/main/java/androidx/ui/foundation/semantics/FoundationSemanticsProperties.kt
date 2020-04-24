@@ -48,6 +48,12 @@ object FoundationSemanticsProperties {
      * @see SemanticsPropertyReceiver.toggleableState
      */
     val ToggleableState = SemanticsPropertyKey<ToggleableState>("ToggleableState")
+
+    /**
+     * Whether this element is a Dialog. Not to be confused with if this element is _part of_ a
+     * Dialog.
+     */
+    val IsDialog = SemanticsPropertyKey<Boolean>("IsDialog")
 }
 
 /**
@@ -75,3 +81,8 @@ var SemanticsPropertyReceiver.selected by FoundationSemanticsProperties.Selected
  */
 var SemanticsPropertyReceiver.toggleableState
         by FoundationSemanticsProperties.ToggleableState
+
+/**
+ * Whether this element is a Dialog. Not to be confused with if this element is _part of_ a Dialog.
+ */
+var SemanticsPropertyReceiver.dialog by FoundationSemanticsProperties.IsDialog
