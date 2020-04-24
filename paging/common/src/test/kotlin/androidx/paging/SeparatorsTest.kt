@@ -418,7 +418,7 @@ class SeparatorsTest {
     fun refreshEmptyNoop() = runBlockingTest {
         assertInsertData(
             listOf(
-                // should only get one item when initial page is canRequestMoreData is false on
+                // should only get one item when initial page is endOfPaginationReached is false on
                 // both sides.
                 refresh(pages = listOf<String>())
             ),
