@@ -72,6 +72,16 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         return mSurfaceView;
     }
 
+    @Override
+    void onAttachedToWindow() {
+        // Do nothing currently.
+    }
+
+    @Override
+    void onDetachedFromWindow() {
+        // Do nothing currently.
+    }
+
     /**
      * {@inheritDoc}
      */
