@@ -105,12 +105,18 @@ public class PreviewView extends FrameLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         addOnLayoutChangeListener(mOnLayoutChangeListener);
+        if (mImplementation != null) {
+            mImplementation.onAttachedToWindow();
+        }
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         removeOnLayoutChangeListener(mOnLayoutChangeListener);
+        if (mImplementation != null) {
+            mImplementation.onDetachedFromWindow();
+        }
     }
 
     /**

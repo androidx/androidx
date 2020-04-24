@@ -88,4 +88,11 @@ abstract class PreviewViewImplementation {
             mPreviewTransform.applyCurrentScaleType(mParent, preview, mResolution);
         }
     }
+
+    /** Invoked when onAttachedToWindow happens in the PreviewView. */
+    abstract void onAttachedToWindow();
+
+    /** Invoked when onDetachedFromWindow happens in the PreviewView */
+    abstract void onDetachedFromWindow();
+
 }

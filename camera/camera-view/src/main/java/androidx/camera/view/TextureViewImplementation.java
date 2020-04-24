@@ -49,11 +49,23 @@ final class TextureViewImplementation extends PreviewViewImplementation {
     SurfaceTexture mSurfaceTexture;
     ListenableFuture<Result> mSurfaceReleaseFuture;
     SurfaceRequest mSurfaceRequest;
+    boolean mIsSurfaceTextureDetachedFromView = false;
+    SurfaceTexture mDetachedSurfaceTexture;
 
     @Nullable
     @Override
     View getPreview() {
         return mTextureView;
+    }
+
+    @Override
+    void onAttachedToWindow() {
+        reattachSurfaceTexture();
+    }
+
+    @Override
+    void onDetachedFromWindow() {
+        mIsSurfaceTextureDetachedFromView = true;
     }
 
     @NonNull
@@ -126,6 +138,9 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                                             "Unexpected result from SurfaceRequest. Surface was "
                                                     + "provided twice.");
                                     surfaceTexture.release();
+                                    if (mDetachedSurfaceTexture != null) {
+                                        mDetachedSurfaceTexture = null;
+                                    }
                                 }
 
                                 @Override
@@ -134,6 +149,8 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                                             + "complete nicely.", t);
                                 }
                             }, ContextCompat.getMainExecutor(mTextureView.getContext()));
+
+                    mDetachedSurfaceTexture = surfaceTexture;
                     return false;
                 } else {
                     return true;
@@ -179,4 +196,15 @@ final class TextureViewImplementation extends PreviewViewImplementation {
         mSurfaceRequest = null;
         onSurfaceProvided();
     }
+
+    private void reattachSurfaceTexture() {
+        if (mIsSurfaceTextureDetachedFromView
+                && mDetachedSurfaceTexture != null
+                && mTextureView.getSurfaceTexture() != mDetachedSurfaceTexture) {
+            mTextureView.setSurfaceTexture(mDetachedSurfaceTexture);
+            mDetachedSurfaceTexture = null;
+            mIsSurfaceTextureDetachedFromView = false;
+        }
+    }
+
 }
