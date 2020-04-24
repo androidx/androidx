@@ -662,12 +662,12 @@ package androidx.ui.focus {
 package androidx.ui.semantics {
 
   public final class AccessibilityAction<T extends kotlin.Function<? extends kotlin.Unit>> {
-    ctor public AccessibilityAction(String? label, T action);
-    method public String? component1();
+    ctor public AccessibilityAction(CharSequence? label, T action);
+    method public CharSequence? component1();
     method public T component2();
-    method public androidx.ui.semantics.AccessibilityAction<T> copy(String? label, T action);
+    method public androidx.ui.semantics.AccessibilityAction<T> copy(CharSequence? label, T action);
     method public T getAction();
-    method public String? getLabel();
+    method public CharSequence? getLabel();
   }
 
   public final class AccessibilityRangeInfo {
@@ -679,16 +679,25 @@ package androidx.ui.semantics {
     method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getRange();
   }
 
+  public final class CustomAccessibilityAction {
+    ctor public CustomAccessibilityAction(CharSequence label, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
+    method public CharSequence component1();
+    method public kotlin.jvm.functions.Function0<java.lang.Boolean> component2();
+    method public androidx.ui.semantics.CustomAccessibilityAction copy(CharSequence label, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
+    method public kotlin.jvm.functions.Function0<java.lang.Boolean> getAction();
+    method public CharSequence getLabel();
+  }
+
   public final class SemanticsActions {
     ctor public SemanticsActions();
     field public static final androidx.ui.semantics.SemanticsActions.Companion! Companion;
   }
 
   public static final class SemanticsActions.Companion {
-    method public androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>>> getCustomActions();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.CustomAccessibilityAction>> getCustomActions();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> getOnClick();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>>> getScrollTo();
-    property public final androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>>> CustomActions;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.CustomAccessibilityAction>> CustomActions;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> OnClick;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>>> ScrollTo;
   }
