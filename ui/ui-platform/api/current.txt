@@ -455,7 +455,7 @@ package androidx.ui.core.semantics {
 package androidx.ui.core.texttoolbar {
 
   public interface TextToolbar {
-    method public void showCopyMenu(androidx.ui.geometry.Rect rect, androidx.ui.text.AnnotatedString text);
+    method public void showCopyMenu(androidx.ui.geometry.Rect rect, androidx.ui.text.AnnotatedString text, kotlin.jvm.functions.Function0<kotlin.Unit> onDeselectRequested);
   }
 
 }

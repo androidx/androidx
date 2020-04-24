@@ -33,6 +33,7 @@ import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
@@ -343,11 +344,12 @@ class SelectionManagerTest {
         selectionManager.showSelectionToolbar(Rect.zero)
 
         verify(textToolbar, times(1)).showCopyMenu(
-            Rect.zero,
-            annotatedString.subSequence(
+            rect = eq(Rect.zero),
+            text = eq(annotatedString.subSequence(
                 endOffset,
                 startOffset
-            )
+            )),
+            onDeselectRequested = any()
         )
     }
 

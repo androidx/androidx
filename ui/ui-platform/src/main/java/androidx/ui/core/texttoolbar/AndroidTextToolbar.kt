@@ -29,11 +29,15 @@ import androidx.ui.text.AnnotatedString
  * Android implementation for [TextToolbar].
  */
 internal class AndroidTextToolbar(private val view: View) : TextToolbar {
-    override fun showCopyMenu(rect: Rect, text: AnnotatedString) {
+    override fun showCopyMenu(
+        rect: Rect,
+        text: AnnotatedString,
+        onDeselectRequested: () -> Unit
+    ) {
         if (Build.VERSION.SDK_INT >= 23) {
             val actionModeCallback =
                 FloatingTextActionModeCallback(
-                    TextActionModeCallback(view)
+                    TextActionModeCallback(view, onDeselectRequested)
                 )
             actionModeCallback.setRect(rect)
             actionModeCallback.setText(text)
@@ -44,7 +48,7 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
         } else {
             val actionModeCallback =
                 PrimaryTextActionModeCallback(
-                    TextActionModeCallback(view)
+                    TextActionModeCallback(view, onDeselectRequested)
                 )
             actionModeCallback.setText(text)
             view.startActionMode(actionModeCallback)

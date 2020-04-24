@@ -242,7 +242,11 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     internal fun showSelectionToolbar(selectedRegion: Rect) {
         val selectedText = getSelectedText()
         selectedText?.let {
-            textToolbar?.showCopyMenu(selectedRegion, it)
+            textToolbar?.showCopyMenu(
+                rect = selectedRegion,
+                text = it,
+                onDeselectRequested = { onRelease() }
+            )
         }
     }
 

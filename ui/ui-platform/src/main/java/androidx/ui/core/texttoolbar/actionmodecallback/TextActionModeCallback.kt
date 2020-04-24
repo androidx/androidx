@@ -26,10 +26,10 @@ import androidx.ui.text.AnnotatedString
 internal const val MENU_ITEM_COPY = 0
 
 internal class TextActionModeCallback(
-    private val view: View
+    private val view: View,
+    private val onDeselectRequested: () -> Unit
 ) : ActionMode.Callback {
     private var text: AnnotatedString = AnnotatedString {}
-
     val clipboardManager = AndroidClipboardManager(view.context)
 
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
@@ -48,6 +48,7 @@ internal class TextActionModeCallback(
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         if (item!!.itemId == MENU_ITEM_COPY) {
             clipboardManager.setText(text)
+            onDeselectRequested()
             mode?.finish()
             return true
         }
