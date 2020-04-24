@@ -128,6 +128,11 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         wrapped.maxIntrinsicHeight(width, layoutDirection)
     override val parentData: Any? get() = wrapped.parentData
 
+    override fun attach() {
+        wrapped.attach()
+        _isAttached = true
+    }
+
     override fun detach() {
         _isAttached = false
         wrapped.detach()
