@@ -270,7 +270,7 @@ private fun VariousEditLine(
         onValueChange = {
             state.value = TextFieldValue(
                 onValueChange(state.value.text, it.text),
-                state.value.selection
+                it.selection
             )
         },
         textStyle = TextStyle(fontSize = fontSize8)
