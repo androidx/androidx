@@ -20,12 +20,13 @@ import android.content.res.Resources
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Alignment
+import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.onPositioned
-import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
@@ -34,6 +35,8 @@ import androidx.ui.layout.aspectRatio
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.height
+import androidx.ui.layout.heightIn
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredHeightIn
 import androidx.ui.layout.preferredSize
@@ -41,6 +44,9 @@ import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.preferredWidthIn
 import androidx.ui.layout.size
+import androidx.ui.layout.sizeIn
+import androidx.ui.layout.width
+import androidx.ui.layout.widthIn
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -415,6 +421,153 @@ class LayoutSizeTest : LayoutTest() {
     }
 
     @Test
+    fun testMeasurementConstraints_preferredSatisfiable() = with(density) {
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredWidth(20.dp),
+            Constraints(20.dp.toIntPx(), 20.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredHeight(20.dp),
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 20.dp.toIntPx(), 20.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredSize(20.dp),
+            Constraints(20.dp.toIntPx(), 20.dp.toIntPx(), 20.dp.toIntPx(), 20.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredWidthIn(20.dp, 25.dp),
+            Constraints(20.dp.toIntPx(), 25.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredHeightIn(20.dp, 25.dp),
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 20.dp.toIntPx(), 25.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredSizeIn(20.dp, 20.dp, 25.dp, 25.dp),
+            Constraints(20.dp.toIntPx(), 25.dp.toIntPx(), 20.dp.toIntPx(), 25.dp.toIntPx())
+        )
+    }
+
+    @Test
+    fun testMeasurementConstraints_preferredUnsatisfiable() = with(density) {
+        assertConstraints(
+            Constraints(20.dp.toIntPx(), 40.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredWidth(15.dp),
+            Constraints(20.dp.toIntPx(), 20.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredHeight(10.dp),
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 15.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredSize(40.dp),
+            Constraints(30.dp.toIntPx(), 30.dp.toIntPx(), 35.dp.toIntPx(), 35.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(20.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredWidthIn(10.dp, 15.dp),
+            Constraints(20.dp.toIntPx(), 20.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredHeightIn(5.dp, 10.dp),
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 15.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.preferredSizeIn(40.dp, 50.dp, 45.dp, 55.dp),
+            Constraints(30.dp.toIntPx(), 30.dp.toIntPx(), 35.dp.toIntPx(), 35.dp.toIntPx())
+        )
+    }
+
+    @Test
+    fun testMeasurementConstraints_compulsorySatisfiable() = with(density) {
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.width(20.dp),
+            Constraints(20.dp.toIntPx(), 20.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.height(20.dp),
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 20.dp.toIntPx(), 20.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.size(20.dp),
+            Constraints(20.dp.toIntPx(), 20.dp.toIntPx(), 20.dp.toIntPx(), 20.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.widthIn(20.dp, 25.dp),
+            Constraints(20.dp.toIntPx(), 25.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.heightIn(20.dp, 25.dp),
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 20.dp.toIntPx(), 25.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.sizeIn(20.dp, 20.dp, 25.dp, 25.dp),
+            Constraints(20.dp.toIntPx(), 25.dp.toIntPx(), 20.dp.toIntPx(), 25.dp.toIntPx())
+        )
+    }
+
+    @Test
+    fun testMeasurementConstraints_compulsoryUnsatisfiable() = with(density) {
+        assertConstraints(
+            Constraints(20.dp.toIntPx(), 40.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.width(15.dp),
+            Constraints(15.dp.toIntPx(), 15.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.height(10.dp),
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 10.dp.toIntPx(), 10.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.size(40.dp),
+            Constraints(40.dp.toIntPx(), 40.dp.toIntPx(), 40.dp.toIntPx(), 40.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(20.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.widthIn(10.dp, 15.dp),
+            Constraints(10.dp.toIntPx(), 15.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.heightIn(5.dp, 10.dp),
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 5.dp.toIntPx(), 10.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 30.dp.toIntPx(), 15.dp.toIntPx(), 35.dp.toIntPx()),
+            Modifier.sizeIn(40.dp, 50.dp, 45.dp, 55.dp),
+            Constraints(40.dp.toIntPx(), 45.dp.toIntPx(), 50.dp.toIntPx(), 55.dp.toIntPx())
+        )
+        // When one dimension is unspecified and the other contradicts the incoming constraint.
+        assertConstraints(
+            Constraints(10.dp.toIntPx(), 10.dp.toIntPx(), 10.dp.toIntPx(), 10.dp.toIntPx()),
+            Modifier.sizeIn(20.dp, 30.dp, Dp.Unspecified, Dp.Unspecified),
+            Constraints(20.dp.toIntPx(), 20.dp.toIntPx(), 30.dp.toIntPx(), 30.dp.toIntPx())
+        )
+        assertConstraints(
+            Constraints(40.dp.toIntPx(), 40.dp.toIntPx(), 40.dp.toIntPx(), 40.dp.toIntPx()),
+            Modifier.sizeIn(Dp.Unspecified, Dp.Unspecified, 20.dp, 30.dp),
+            Constraints(20.dp.toIntPx(), 20.dp.toIntPx(), 30.dp.toIntPx(), 30.dp.toIntPx())
+        )
+    }
+
+    @Test
     fun testMinWidthModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(Modifier.preferredWidthIn(minWidth = 10.dp)) {
@@ -771,6 +924,26 @@ class LayoutSizeTest : LayoutTest() {
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
         return size.value!!
+    }
+
+    private fun assertConstraints(
+        incomingConstraints: Constraints,
+        modifier: Modifier,
+        expectedConstraints: Constraints
+    ) {
+        val latch = CountDownLatch(1)
+        show {
+            Layout({
+                WithConstraints(modifier) { constraints, _ ->
+                    assertEquals(expectedConstraints, constraints)
+                    latch.countDown()
+                }
+            }) { measurables, _, _ ->
+                measurables[0].measure(incomingConstraints)
+                layout(0.ipx, 0.ipx) { }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
     private fun verifyIntrinsicMeasurements(expandedModifier: Modifier) = with(density) {
