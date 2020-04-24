@@ -24,13 +24,17 @@ import android.view.View
 import android.view.ViewParent
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
+import androidx.collection.SparseArrayCompat
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.findChildById
+import androidx.ui.core.semantics.getOrNull
+import androidx.ui.semantics.CustomAccessibilityAction
 import androidx.ui.semantics.SemanticsActions
+import androidx.ui.semantics.SemanticsActions.Companion.CustomActions
 import androidx.ui.semantics.SemanticsProperties
 
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
@@ -39,6 +43,40 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         /** Virtual node identifier value for invalid nodes. */
         const val InvalidId = Integer.MIN_VALUE
         const val ClassName = "android.view.View"
+        private val AccessibilityActionsResourceIds = intArrayOf(
+            androidx.ui.platform.R.id.accessibility_custom_action_0,
+            androidx.ui.platform.R.id.accessibility_custom_action_1,
+            androidx.ui.platform.R.id.accessibility_custom_action_2,
+            androidx.ui.platform.R.id.accessibility_custom_action_3,
+            androidx.ui.platform.R.id.accessibility_custom_action_4,
+            androidx.ui.platform.R.id.accessibility_custom_action_5,
+            androidx.ui.platform.R.id.accessibility_custom_action_6,
+            androidx.ui.platform.R.id.accessibility_custom_action_7,
+            androidx.ui.platform.R.id.accessibility_custom_action_8,
+            androidx.ui.platform.R.id.accessibility_custom_action_9,
+            androidx.ui.platform.R.id.accessibility_custom_action_10,
+            androidx.ui.platform.R.id.accessibility_custom_action_11,
+            androidx.ui.platform.R.id.accessibility_custom_action_12,
+            androidx.ui.platform.R.id.accessibility_custom_action_13,
+            androidx.ui.platform.R.id.accessibility_custom_action_14,
+            androidx.ui.platform.R.id.accessibility_custom_action_15,
+            androidx.ui.platform.R.id.accessibility_custom_action_16,
+            androidx.ui.platform.R.id.accessibility_custom_action_17,
+            androidx.ui.platform.R.id.accessibility_custom_action_18,
+            androidx.ui.platform.R.id.accessibility_custom_action_19,
+            androidx.ui.platform.R.id.accessibility_custom_action_20,
+            androidx.ui.platform.R.id.accessibility_custom_action_21,
+            androidx.ui.platform.R.id.accessibility_custom_action_22,
+            androidx.ui.platform.R.id.accessibility_custom_action_23,
+            androidx.ui.platform.R.id.accessibility_custom_action_24,
+            androidx.ui.platform.R.id.accessibility_custom_action_25,
+            androidx.ui.platform.R.id.accessibility_custom_action_26,
+            androidx.ui.platform.R.id.accessibility_custom_action_27,
+            androidx.ui.platform.R.id.accessibility_custom_action_28,
+            androidx.ui.platform.R.id.accessibility_custom_action_29,
+            androidx.ui.platform.R.id.accessibility_custom_action_30,
+            androidx.ui.platform.R.id.accessibility_custom_action_31
+        )
     }
     /** Virtual view id for the currently hovered logical item. */
     private var hoveredVirtualViewId = InvalidId
@@ -47,6 +85,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 AccessibilityManager
     private var nodeProvider: AccessibilityNodeProviderCompat = MyNodeProvider()
     private var focusedVirtualViewId = InvalidId
+    // For actionIdToId and labelToActionId, the keys are the virtualViewIds. The value of
+    // actionIdToLabel holds assigned custom action id to custom action label mapping. The
+    // value of labelToActionId holds custom action label to assigned custom action id mapping.
+    private var actionIdToLabel = SparseArrayCompat<SparseArrayCompat<CharSequence>>()
+    private var labelToActionId = SparseArrayCompat<Map<CharSequence, Int>>()
 
     fun createNodeInfo(virtualViewId: Int):
             AccessibilityNodeInfoCompat {
@@ -133,6 +176,53 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 AccessibilityNodeInfoCompat
                     .AccessibilityActionCompat.ACTION_CLICK
             )
+        }
+        if (semanticsNode.config.contains(CustomActions)) {
+            var customActions = semanticsNode.config[CustomActions]
+            if (customActions.size >= AccessibilityActionsResourceIds.size) {
+                throw IllegalStateException("Can't have more than " +
+                        "${AccessibilityActionsResourceIds.size} custom actions for one widget")
+            }
+            var currentActionIdToLabel = SparseArrayCompat<CharSequence>()
+            var currentLabelToActionId = mutableMapOf<CharSequence, Int>()
+            // If this virtual node had custom action id assignment before, we try to keep the id
+            // unchanged for the same action (identified by action label). This way, we can
+            // minimize the influence of custom action change between custom actions are
+            // presented to the user and actually performed.
+            if (labelToActionId.containsKey(virtualViewId)) {
+                var oldLabelToActionId = labelToActionId[virtualViewId]
+                var availableIds = AccessibilityActionsResourceIds.toMutableList()
+                var unassignedActions = mutableListOf<CustomAccessibilityAction>()
+                for (action in customActions) {
+                    if (oldLabelToActionId!!.contains(action.label)) {
+                        var actionId = oldLabelToActionId[action.label]
+                        currentActionIdToLabel.put(actionId!!, action.label)
+                        currentLabelToActionId[action.label] = actionId
+                        availableIds.remove(actionId)
+                        info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
+                            actionId, action.label))
+                    } else {
+                        unassignedActions.add(action)
+                    }
+                }
+                for ((index, action) in unassignedActions.withIndex()) {
+                    var actionId = availableIds[index]
+                    currentActionIdToLabel.put(actionId, action.label)
+                    currentLabelToActionId[action.label] = actionId
+                    info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
+                        actionId, action.label))
+                }
+            } else {
+                for ((index, action) in customActions.withIndex()) {
+                    var actionId = AccessibilityActionsResourceIds[index]
+                    currentActionIdToLabel.put(actionId, action.label)
+                    currentLabelToActionId[action.label] = actionId
+                    info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
+                        actionId, action.label))
+                }
+            }
+            actionIdToLabel.put(virtualViewId, currentActionIdToLabel)
+            labelToActionId.put(virtualViewId, currentLabelToActionId)
         }
 
         return info
@@ -282,8 +372,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     return false
                 }
             }
+            // TODO: handling for other system actions
             else -> {
-                // TODO: handling for other system and custom events
+                var label = actionIdToLabel[virtualViewId]?.get(action) ?: return false
+                var customActions = node.config.getOrNull(CustomActions) ?: return false
+                for (customAction in customActions) {
+                    if (customAction.label == label) {
+                        return customAction.action()
+                    }
+                }
                 return false
             }
         }
@@ -388,6 +485,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     override fun getAccessibilityNodeProvider(host: View?): AccessibilityNodeProviderCompat {
         return nodeProvider
     }
+
+    // TODO (in a separate cl): Called when the SemanticsNode with id semanticsNodeId disappears.
+    // fun clearNode(semanticsNodeId: Int) { // clear the actionIdToId and labelToActionId nodes }
 
     inner class MyNodeProvider() : AccessibilityNodeProviderCompat() {
         override fun createAccessibilityNodeInfo(virtualViewId: Int):
