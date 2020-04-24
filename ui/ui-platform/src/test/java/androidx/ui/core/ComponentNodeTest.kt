@@ -19,18 +19,19 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.pointerinput.resize
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -1612,6 +1613,22 @@ class ComponentNodeTest {
         assertFalse(node2.isAttached())
         verify(owner, times(0)).onRequestMeasure(node1)
         verify(owner, times(0)).onRequestMeasure(node2)
+    }
+
+    @Test
+    fun updatingModifierToTheEmptyOneClearsReferenceToThePreviousModifier() {
+        val root = LayoutNode()
+        root.attach(mock {
+            on { createLayer(anyOrNull(), anyOrNull(), anyOrNull()) } doReturn mock()
+        })
+
+        root.modifier = Modifier.drawLayer()
+
+        assertNotNull(root.innerLayoutNodeWrapper.findLayer())
+
+        root.modifier = Modifier
+
+        assertNull(root.innerLayoutNodeWrapper.findLayer())
     }
 
     private fun createSimpleLayout(): Triple<LayoutNode, ComponentNode, ComponentNode> {
