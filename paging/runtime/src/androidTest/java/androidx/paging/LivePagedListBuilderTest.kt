@@ -21,8 +21,8 @@ import androidx.arch.core.executor.TaskExecutor
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadState.Error
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.REFRESH
 import androidx.test.filters.SmallTest
@@ -205,7 +205,7 @@ class LivePagedListBuilderTest {
         // TODO: Investigate removing initial IDLE state from callback updates.
         assertEquals(
             listOf(
-                LoadStateEvent(REFRESH, Idle),
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION))
             ), loadStates
@@ -222,7 +222,7 @@ class LivePagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(REFRESH, Idle),
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
                 LoadStateEvent(REFRESH, Loading)
@@ -234,11 +234,11 @@ class LivePagedListBuilderTest {
         pagedListHolder[0]!!.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
-                LoadStateEvent(REFRESH, Idle),
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
                 LoadStateEvent(REFRESH, Loading),
-                LoadStateEvent(REFRESH, Idle)
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false))
             ),
             loadStates
         )

@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.PagingSource.LoadParams
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -75,11 +76,10 @@ internal class LegacyPager<K : Any, V : Any>(
                 else -> throw IllegalStateException("Can only fetch more during append/prepend")
             }
         } else {
-            if (value.data.isEmpty()) {
-                loadStateManager.setState(type, LoadState.Done)
-            } else {
-                loadStateManager.setState(type, LoadState.Idle)
-            }
+            loadStateManager.setState(
+                type,
+                if (value.data.isEmpty()) NotLoading.Done else NotLoading.Idle
+            )
         }
     }
 
@@ -91,11 +91,17 @@ internal class LegacyPager<K : Any, V : Any>(
     }
 
     fun trySchedulePrepend() {
-        if (loadStateManager.startState is LoadState.Idle) schedulePrepend()
+        val startState = loadStateManager.startState
+        if (startState is NotLoading && !startState.endOfPaginationReached) {
+            schedulePrepend()
+        }
     }
 
     fun tryScheduleAppend() {
-        if (loadStateManager.endState is LoadState.Idle) scheduleAppend()
+        val endState = loadStateManager.endState
+        if (endState is NotLoading && !endState.endOfPaginationReached) {
+            scheduleAppend()
+        }
     }
 
     private fun schedulePrepend() {

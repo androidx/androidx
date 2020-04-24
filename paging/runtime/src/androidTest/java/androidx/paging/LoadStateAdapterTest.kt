@@ -18,6 +18,9 @@ package androidx.paging
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadState.Error
+import androidx.paging.LoadState.Loading
 import androidx.paging.LoadStateAdapterTest.AdapterEventRecorder.Event.CHANGE
 import androidx.paging.LoadStateAdapterTest.AdapterEventRecorder.Event.INSERT
 import androidx.paging.LoadStateAdapterTest.AdapterEventRecorder.Event.REMOVED
@@ -87,7 +90,7 @@ class LoadStateAdapterTest {
             parent: ViewGroup,
             loadState: LoadState
         ): RecyclerView.ViewHolder {
-            return object : RecyclerView.ViewHolder(View(parent.context)) { }
+            return object : RecyclerView.ViewHolder(View(parent.context)) {}
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, loadState: LoadState) {
@@ -98,21 +101,21 @@ class LoadStateAdapterTest {
     fun init() {
         val adapter = SimpleLoadStateAdapter()
         assertEquals(0, adapter.itemCount)
-        assertFalse(adapter.displayLoadStateAsItem(LoadState.Idle))
-        assertFalse(adapter.displayLoadStateAsItem(LoadState.Done))
-        assertTrue(adapter.displayLoadStateAsItem(LoadState.Error(Throwable())))
-        assertTrue(adapter.displayLoadStateAsItem(LoadState.Loading))
+        assertFalse(adapter.displayLoadStateAsItem(NotLoading(endOfPaginationReached = false)))
+        assertFalse(adapter.displayLoadStateAsItem(NotLoading(endOfPaginationReached = true)))
+        assertTrue(adapter.displayLoadStateAsItem(Error(Throwable())))
+        assertTrue(adapter.displayLoadStateAsItem(Loading))
     }
 
     @Test
     fun notifyEquality() {
         val adapter = SimpleLoadStateAdapter()
-        adapter.loadState = LoadState.Loading
+        adapter.loadState = Loading
 
         val eventRecorder = AdapterEventRecorder()
         adapter.registerAdapterDataObserver(eventRecorder)
 
-        adapter.loadState = LoadState.Loading
+        adapter.loadState = Loading
         assertTrue(eventRecorder.getClearEvents().isEmpty())
     }
 
@@ -123,12 +126,12 @@ class LoadStateAdapterTest {
         assertFalse("sanity check", throwable1 == throwable2)
 
         val adapter = SimpleLoadStateAdapter()
-        adapter.loadState = LoadState.Error(throwable1)
+        adapter.loadState = Error(throwable1)
 
         val eventRecorder = AdapterEventRecorder()
         adapter.registerAdapterDataObserver(eventRecorder)
 
-        adapter.loadState = LoadState.Error(throwable2)
+        adapter.loadState = Error(throwable2)
         assertEquals(listOf(CHANGE), eventRecorder.getClearEvents())
     }
 
@@ -140,25 +143,25 @@ class LoadStateAdapterTest {
         adapter.registerAdapterDataObserver(eventRecorder)
 
         // idle, done, nothing should happen
-        adapter.loadState = LoadState.Idle
+        adapter.loadState = NotLoading(endOfPaginationReached = false)
         assertTrue(eventRecorder.getClearEvents().isEmpty())
-        adapter.loadState = LoadState.Done
+        adapter.loadState = NotLoading(endOfPaginationReached = true)
         assertTrue(eventRecorder.getClearEvents().isEmpty())
 
         // insert item
-        adapter.loadState = LoadState.Loading
+        adapter.loadState = Loading
         assertEquals(listOf(INSERT), eventRecorder.getClearEvents())
 
         // change to error
-        adapter.loadState = LoadState.Error(Throwable())
+        adapter.loadState = Error(Throwable())
         assertEquals(listOf(CHANGE), eventRecorder.getClearEvents())
 
         // change to different error
-        adapter.loadState = LoadState.Error(Throwable())
+        adapter.loadState = Error(Throwable())
         assertEquals(listOf(CHANGE), eventRecorder.getClearEvents())
 
         // remove
-        adapter.loadState = LoadState.Done
+        adapter.loadState = NotLoading(endOfPaginationReached = true)
         assertEquals(listOf(REMOVED), eventRecorder.getClearEvents())
     }
 }

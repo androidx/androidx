@@ -17,8 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
-import androidx.paging.LoadState.Done
-import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -233,7 +232,7 @@ internal class PagePresenter<T : Any>(
             }
 
             // dropping from start implies start is idle
-            callback.onStateUpdate(START, Idle)
+            callback.onStateUpdate(START, NotLoading.Idle)
         } else {
             val removeCount = pages.takeLast(drop.count).fullCount()
 
@@ -261,13 +260,22 @@ internal class PagePresenter<T : Any>(
             }
 
             // dropping from end implies end is idle
-            callback.onStateUpdate(END, Idle)
+            callback.onStateUpdate(END, NotLoading.Idle)
         }
     }
 
     internal companion object {
         private val INITIAL = PagePresenter<Any>(
-            Refresh(listOf(), 0, 0, mapOf(REFRESH to Idle, START to Done, END to Done))
+            Refresh(
+                pages = listOf(),
+                placeholdersStart = 0,
+                placeholdersEnd = 0,
+                loadStates = mapOf(
+                    REFRESH to NotLoading.Idle,
+                    START to NotLoading.Done,
+                    END to NotLoading.Done
+                )
+            )
         )
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")

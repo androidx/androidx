@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Idle
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -33,9 +33,9 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 
 private val LoadStatesIdle = mapOf(
-    REFRESH to Idle,
-    START to Idle,
-    END to Idle
+    REFRESH to NotLoading.Idle,
+    START to NotLoading.Idle,
+    END to NotLoading.Idle
 )
 
 internal fun <T : Any> adjacentInsertEvent(
@@ -203,9 +203,9 @@ class PageEventTest {
             pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
             placeholdersEnd = 4,
             loadStates = mapOf(
-                REFRESH to Idle,
-                START to Idle,
-                END to Idle
+                REFRESH to NotLoading.Idle,
+                START to NotLoading.Idle,
+                END to NotLoading.Idle
             )
         )
 

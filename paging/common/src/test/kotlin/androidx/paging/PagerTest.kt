@@ -17,10 +17,9 @@
 package androidx.paging
 
 import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
-import androidx.paging.LoadState.Done
 import androidx.paging.LoadState.Error
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.END
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.START
@@ -79,7 +78,11 @@ class PagerTest {
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(1..2),
             LoadStateUpdate(START, Loading),
-            createPrepend(pageOffset = -1, range = 0..0, startState = Done)
+            createPrepend(
+                pageOffset = -1,
+                range = 0..0,
+                startState = NotLoading.Done
+            )
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -101,10 +104,19 @@ class PagerTest {
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(1..2),
             LoadStateUpdate(START, Loading),
-            createPrepend(pageOffset = -1, range = 0..0, startState = Done),
+            createPrepend(
+                pageOffset = -1,
+                range = 0..0,
+                startState = NotLoading.Done
+            ),
             LoadStateUpdate(END, Loading),
             Drop(START, 1, 1),
-            createAppend(pageOffset = 1, range = 3..3, startState = Idle, endState = Idle)
+            createAppend(
+                pageOffset = 1,
+                range = 3..3,
+                startState = NotLoading.Idle,
+                endState = NotLoading.Idle
+            )
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -124,7 +136,7 @@ class PagerTest {
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 97..98),
             LoadStateUpdate(END, Loading),
-            createAppend(pageOffset = 1, range = 99..99, endState = Done)
+            createAppend(pageOffset = 1, range = 99..99, endState = NotLoading.Done)
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -146,10 +158,20 @@ class PagerTest {
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 97..98),
             LoadStateUpdate(END, Loading),
-            createAppend(pageOffset = 1, range = 99..99, startState = Idle, endState = Done),
+            createAppend(
+                pageOffset = 1,
+                range = 99..99,
+                startState = NotLoading.Idle,
+                endState = NotLoading.Done
+            ),
             LoadStateUpdate(START, Loading),
             Drop(END, 1, 1),
-            createPrepend(pageOffset = -1, range = 96..96, startState = Idle, endState = Idle)
+            createPrepend(
+                pageOffset = -1,
+                range = 96..96,
+                startState = NotLoading.Idle,
+                endState = NotLoading.Idle
+            )
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -165,7 +187,7 @@ class PagerTest {
 
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
-            createRefresh(range = 0..1, startState = Done, endState = Idle)
+            createRefresh(range = 0..1, startState = NotLoading.Done, endState = NotLoading.Idle)
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -181,7 +203,11 @@ class PagerTest {
 
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
-            createRefresh(range = 98..99, startState = Idle, endState = Done)
+            createRefresh(
+                range = 98..99,
+                startState = NotLoading.Idle,
+                endState = NotLoading.Done
+            )
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -402,7 +428,12 @@ class PagerTest {
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(50..52),
             LoadStateUpdate(END, Loading),
-            createAppend(1, 53..53, startState = Idle, endState = Loading),
+            createAppend(
+                pageOffset = 1,
+                range = 53..53,
+                startState = NotLoading.Idle,
+                endState = Loading
+            ),
             createAppend(2, 54..54)
         )
 
@@ -491,7 +522,12 @@ class PagerTest {
                 LoadStateUpdate(END, Loading),
                 LoadStateUpdate(START, Loading),
                 Drop(START, 1, 52),
-                createAppend(pageOffset = 2, range = 53..53, startState = Idle, endState = Idle)
+                createAppend(
+                    pageOffset = 2,
+                    range = 53..53,
+                    startState = NotLoading.Idle,
+                    endState = NotLoading.Idle
+                )
             )
 
             assertEvents(expected, fetcherState.pageEventLists[0])
@@ -681,7 +717,10 @@ class PagerTest {
                     LoadStateUpdate(START, Loading),
                     LoadStateUpdate(END, Loading),
                     createPrepend(
-                        pageOffset = -1, range = 49..49, startState = Idle, endState = Loading
+                        pageOffset = -1,
+                        range = 49..49,
+                        startState = NotLoading.Idle,
+                        endState = Loading
                     ),
                     Drop(START, 1, 50),
                     createAppend(1, 52..52)
@@ -1127,7 +1166,11 @@ class PagerTest {
                         ),
                         placeholdersStart = 99,
                         placeholdersEnd = 0,
-                        loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+                        loadStates = mapOf(
+                            REFRESH to NotLoading.Idle,
+                            START to NotLoading.Idle,
+                            END to NotLoading.Idle
+                        )
                     )
                 ),
                 pageEvents
@@ -1180,7 +1223,11 @@ class PagerTest {
                         ),
                         placeholdersStart = 99,
                         placeholdersEnd = 0,
-                        loadStates = mapOf(REFRESH to Idle, START to Idle, END to Done)
+                        loadStates = mapOf(
+                            REFRESH to NotLoading.Idle,
+                            START to NotLoading.Idle,
+                            END to NotLoading.Done
+                        )
                     )
                 ),
                 pageEvents

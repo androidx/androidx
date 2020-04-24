@@ -18,6 +18,9 @@
 
 package androidx.paging
 
+import androidx.paging.LoadType.END
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.LoadType.START
 import androidx.paging.PagedList.Config
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
@@ -40,15 +43,15 @@ class LegacyPagerTest {
             val key = params.key ?: 0
 
             val start = when (params.loadType) {
-                LoadType.REFRESH -> key
-                LoadType.START -> key - params.loadSize
-                LoadType.END -> key
+                REFRESH -> key
+                START -> key - params.loadSize
+                END -> key
             }.coerceAtLeast(0)
 
             val end = when (params.loadType) {
-                LoadType.REFRESH -> key + params.loadSize
-                LoadType.START -> key
-                LoadType.END -> key + params.loadSize
+                REFRESH -> key + params.loadSize
+                START -> key
+                END -> key + params.loadSize
             }.coerceAtMost(data.size)
 
             return Page(
@@ -95,8 +98,8 @@ class LegacyPagerTest {
         override fun onPageResult(type: LoadType, page: Page<*, String>): Boolean {
             @Suppress("NON_EXHAUSTIVE_WHEN")
             when (type) {
-                LoadType.START -> storage?.prependPage(page)
-                LoadType.END -> storage?.appendPage(page)
+                START -> storage?.prependPage(page)
+                END -> storage?.appendPage(page)
             }
 
             results.add(Result(type, page))
@@ -119,7 +122,7 @@ class LegacyPagerTest {
         val initialResult = runBlocking {
             pagingSource.load(
                 PagingSource.LoadParams(
-                    loadType = LoadType.REFRESH,
+                    loadType = REFRESH,
                     key = start,
                     loadSize = end - start,
                     placeholdersEnabled = config.enablePlaceholders,
@@ -160,15 +163,15 @@ class LegacyPagerTest {
 
         assertTrue(consumer.takeResults().isEmpty())
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Loading)),
+            listOf(StateChange(END, LoadState.Loading)),
             consumer.takeStateChanges()
         )
 
         testDispatcher.executeAll()
 
-        assertEquals(listOf(Result(LoadType.END, rangeResult(6, 8))), consumer.takeResults())
+        assertEquals(listOf(Result(END, rangeResult(6, 8))), consumer.takeResults())
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Idle)),
+            listOf(StateChange(END, LoadState.NotLoading(endOfPaginationReached = false))),
             consumer.takeStateChanges()
         )
     }
@@ -182,18 +185,18 @@ class LegacyPagerTest {
 
         assertTrue(consumer.takeResults().isEmpty())
         assertEquals(
-            listOf(StateChange(LoadType.START, LoadState.Loading)),
+            listOf(StateChange(START, LoadState.Loading)),
             consumer.takeStateChanges()
         )
 
         testDispatcher.executeAll()
 
         assertEquals(
-            listOf(Result(LoadType.START, rangeResult(2, 4))),
+            listOf(Result(START, rangeResult(2, 4))),
             consumer.takeResults()
         )
         assertEquals(
-            listOf(StateChange(LoadType.START, LoadState.Idle)),
+            listOf(StateChange(START, LoadState.NotLoading(endOfPaginationReached = false))),
             consumer.takeStateChanges()
         )
     }
@@ -210,16 +213,16 @@ class LegacyPagerTest {
 
         assertEquals(
             listOf(
-                Result(LoadType.END, rangeResult(6, 8)),
-                Result(LoadType.END, rangeResult(8, 9))
+                Result(END, rangeResult(6, 8)),
+                Result(END, rangeResult(8, 9))
             ), consumer.takeResults()
         )
         assertEquals(
             listOf(
-                StateChange(LoadType.END, LoadState.Loading),
-                StateChange(LoadType.END, LoadState.Idle),
-                StateChange(LoadType.END, LoadState.Loading),
-                StateChange(LoadType.END, LoadState.Idle)
+                StateChange(END, LoadState.Loading),
+                StateChange(END, LoadState.NotLoading(endOfPaginationReached = false)),
+                StateChange(END, LoadState.Loading),
+                StateChange(END, LoadState.NotLoading(endOfPaginationReached = false))
             ),
             consumer.takeStateChanges()
         )
@@ -237,16 +240,16 @@ class LegacyPagerTest {
 
         assertEquals(
             listOf(
-                Result(LoadType.START, rangeResult(2, 4)),
-                Result(LoadType.START, rangeResult(0, 2))
+                Result(START, rangeResult(2, 4)),
+                Result(START, rangeResult(0, 2))
             ), consumer.takeResults()
         )
         assertEquals(
             listOf(
-                StateChange(LoadType.START, LoadState.Loading),
-                StateChange(LoadType.START, LoadState.Idle),
-                StateChange(LoadType.START, LoadState.Loading),
-                StateChange(LoadType.START, LoadState.Idle)
+                StateChange(START, LoadState.Loading),
+                StateChange(START, LoadState.NotLoading(endOfPaginationReached = false)),
+                StateChange(START, LoadState.Loading),
+                StateChange(START, LoadState.NotLoading(endOfPaginationReached = false))
             ),
             consumer.takeStateChanges()
         )
@@ -261,11 +264,11 @@ class LegacyPagerTest {
 
         // Pager triggers an immediate empty response here, so we don't need to flush the executor
         assertEquals(
-            listOf(Result(LoadType.END, Page.empty<Int, String>())),
+            listOf(Result(END, Page.empty<Int, String>())),
             consumer.takeResults()
         )
         assertEquals(
-            listOf(StateChange(LoadType.END, LoadState.Done)),
+            listOf(StateChange(END, LoadState.NotLoading(endOfPaginationReached = true))),
             consumer.takeStateChanges()
         )
     }
@@ -279,11 +282,11 @@ class LegacyPagerTest {
 
         // Pager triggers an immediate empty response here, so we don't need to flush the executor
         assertEquals(
-            listOf(Result(LoadType.START, Page.empty<Int, String>())),
+            listOf(Result(START, Page.empty<Int, String>())),
             consumer.takeResults()
         )
         assertEquals(
-            listOf(StateChange(LoadType.START, LoadState.Done)),
+            listOf(StateChange(START, LoadState.NotLoading(endOfPaginationReached = true))),
             consumer.takeStateChanges()
         )
     }

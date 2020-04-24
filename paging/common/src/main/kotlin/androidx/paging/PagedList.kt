@@ -861,9 +861,9 @@ abstract class PagedList<T : Any> internal constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     abstract class LoadStateManager {
-        var refreshState: LoadState = LoadState.Idle
-        var startState: LoadState = LoadState.Idle
-        var endState: LoadState = LoadState.Idle
+        var refreshState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
+        var startState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
+        var endState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
 
         fun setState(type: LoadType, state: LoadState) {
             // deduplicate signals
