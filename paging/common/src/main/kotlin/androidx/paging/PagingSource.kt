@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
+import androidx.paging.LoadType.REFRESH
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -28,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.LoadParams<Key> =
     PagingSource.LoadParams(
-        LoadType.REFRESH,
+        REFRESH,
         key,
         initialLoadSizeHint,
         enablePlaceholders,
@@ -192,7 +193,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
      * present loaded data from this [PagingSource].
      *
      * The [Key] returned by this method is used to populate the [LoadParams.key] for load requests
-     * of type [LoadType.REFRESH].
+     * of type [REFRESH].
      *
      * For example, if items are loaded based on position, and keys are positions, [getRefreshKey]
      * should return the position of the item.
