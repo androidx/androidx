@@ -274,19 +274,27 @@ package androidx.paging {
     property public boolean jumpingSupported;
   }
 
-  public static final class PagingSource.LoadParams<Key> {
-    ctor public PagingSource.LoadParams(androidx.paging.LoadType loadType, Key? key, int loadSize, boolean placeholdersEnabled, int pageSize);
-    method public androidx.paging.LoadType component1();
-    method public Key? component2();
-    method public int component3();
-    method public boolean component4();
-    method public int component5();
-    method public androidx.paging.PagingSource.LoadParams<Key> copy(androidx.paging.LoadType loadType, Key? key, int loadSize, boolean placeholdersEnabled, int pageSize);
+  public abstract static sealed class PagingSource.LoadParams<Key> {
+    method public abstract Key? getKey();
+    method public final int getLoadSize();
+    method public final int getPageSize();
+    method public final boolean getPlaceholdersEnabled();
+    property public abstract Key? key;
+  }
+
+  public static final class PagingSource.LoadParams.Append<Key> extends androidx.paging.PagingSource.LoadParams<Key> {
+    ctor public PagingSource.LoadParams.Append(Key key, int loadSize, boolean placeholdersEnabled, int pageSize);
+    method public Key getKey();
+  }
+
+  public static final class PagingSource.LoadParams.Prepend<Key> extends androidx.paging.PagingSource.LoadParams<Key> {
+    ctor public PagingSource.LoadParams.Prepend(Key key, int loadSize, boolean placeholdersEnabled, int pageSize);
+    method public Key getKey();
+  }
+
+  public static final class PagingSource.LoadParams.Refresh<Key> extends androidx.paging.PagingSource.LoadParams<Key> {
+    ctor public PagingSource.LoadParams.Refresh(Key? key, int loadSize, boolean placeholdersEnabled, int pageSize);
     method public Key? getKey();
-    method public int getLoadSize();
-    method public androidx.paging.LoadType getLoadType();
-    method public int getPageSize();
-    method public boolean getPlaceholdersEnabled();
   }
 
   public abstract static sealed class PagingSource.LoadResult<Key, Value> {

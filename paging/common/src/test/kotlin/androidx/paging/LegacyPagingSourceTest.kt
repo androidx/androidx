@@ -222,7 +222,7 @@ class LegacyPagingSourceTest {
 
         // Trigger lazy-initialization dispatch.
         val job = GlobalScope.launch {
-            pagingSource.load(PagingSource.LoadParams(REFRESH, 0, 1, false, 1))
+            pagingSource.load(PagingSource.LoadParams.Refresh(0, 1, false, 1))
         }
 
         // Assert that initialization has been scheduled on manualDispatcher, which has not been

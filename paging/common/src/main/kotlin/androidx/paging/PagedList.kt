@@ -173,8 +173,7 @@ abstract class PagedList<T : Any> internal constructor(
                 null -> {
                     // Compatibility codepath - perform the initial load immediately, since caller
                     // hasn't done it. We block in this case, but it's only used in the legacy path.
-                    val params = PagingSource.LoadParams(
-                        LoadType.REFRESH,
+                    val params = PagingSource.LoadParams.Refresh(
                         key,
                         config.initialLoadSizeHint,
                         config.enablePlaceholders,

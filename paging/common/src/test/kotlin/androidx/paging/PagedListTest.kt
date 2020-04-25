@@ -36,8 +36,8 @@ class PagedListTest {
 
         private val pagingSource = object : PagingSource<Int, String>() {
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
-                when (params.loadType) {
-                    REFRESH -> LoadResult.Page(
+                when (params) {
+                    is LoadParams.Refresh -> LoadResult.Page(
                         data = listOf("a"),
                         prevKey = null,
                         nextKey = null
@@ -115,8 +115,7 @@ class PagedListTest {
     @Test
     fun defaults() = runBlocking {
         val initialPage = pagingSource.load(
-            PagingSource.LoadParams(
-                REFRESH,
+            PagingSource.LoadParams.Refresh(
                 key = null,
                 loadSize = 10,
                 placeholdersEnabled = false,

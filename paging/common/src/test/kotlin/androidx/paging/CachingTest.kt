@@ -371,24 +371,24 @@ class CachingTest {
         private var generation = -1
 
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
-            when (params.loadType) {
-                LoadType.REFRESH -> {
+            when (params) {
+                is LoadParams.Refresh -> {
                     generation++
                     return doLoad(
                         position = params.key ?: 0,
                         size = params.loadSize
                     )
                 }
-                LoadType.PREPEND -> {
-                    val loadSize = minOf(params.key!!, params.pageSize)
+                is LoadParams.Prepend -> {
+                    val loadSize = minOf(params.key, params.pageSize)
                     return doLoad(
-                        position = params.key!! - params.loadSize,
+                        position = params.key - params.loadSize,
                         size = loadSize
                     )
                 }
-                LoadType.APPEND -> {
+                is LoadParams.Append -> {
                     return doLoad(
-                        position = params.key!!,
+                        position = params.key,
                         size = params.loadSize
                     )
                 }

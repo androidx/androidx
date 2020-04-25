@@ -38,20 +38,22 @@ internal class V3RemoteMediator(
 
         // TODO: Move this to be a more fully featured sample which demonstrated key translation
         //  between two types of PagingSources where the keys do not map 1:1.
-        val key = when (loadType) {
-            LoadType.REFRESH -> 0
-            LoadType.PREPEND -> throw IllegalStateException()
-            LoadType.APPEND -> state.pages.lastOrNull()?.nextKey ?: 0
-        }
-        val result = networkSource.load(
-            PagingSource.LoadParams(
-                loadType = loadType,
-                key = key,
+        val loadParams = when (loadType) {
+            LoadType.REFRESH -> PagingSource.LoadParams.Refresh(
+                key = 0,
                 loadSize = 10,
                 placeholdersEnabled = false,
                 pageSize = 10
             )
-        )
+            LoadType.PREPEND -> throw IllegalStateException()
+            LoadType.APPEND -> PagingSource.LoadParams.Append(
+                key = state.pages.lastOrNull()?.nextKey ?: 0,
+                loadSize = 10,
+                placeholdersEnabled = false,
+                pageSize = 10
+            )
+        }
+        val result = networkSource.load(loadParams)
 
         return when (result) {
             is PagingSource.LoadResult.Page -> {

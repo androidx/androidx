@@ -37,22 +37,22 @@ internal class ItemPagingSource : PagingSource<Int, Item>() {
     override fun getRefreshKey(state: PagingState<Int, Item>): Int? = state.anchorPosition
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> =
-        when (params.loadType) {
-            LoadType.REFRESH ->
+        when (params) {
+            is LoadParams.Refresh ->
                 loadInternal(
                     position = ((params.key ?: 0) - params.loadSize / 2).coerceAtLeast(0),
                     loadSize = params.loadSize
                 )
-            LoadType.PREPEND -> {
-                val loadSize = minOf(params.key!!, params.pageSize)
+            is LoadParams.Prepend -> {
+                val loadSize = minOf(params.key, params.pageSize)
                 loadInternal(
-                    position = params.key!! - loadSize,
+                    position = params.key - loadSize,
                     loadSize = loadSize
                 )
             }
-            LoadType.APPEND ->
+            is LoadParams.Append ->
                 loadInternal(
-                    position = params.key!!,
+                    position = params.key,
                     loadSize = params.loadSize
                 )
         }

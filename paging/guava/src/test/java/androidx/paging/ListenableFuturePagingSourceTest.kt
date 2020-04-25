@@ -60,14 +60,14 @@ class ListenableFuturePagingSourceTest {
 
     @Test
     fun basic() = runBlocking {
-        val params = LoadParams(LoadType.REFRESH, 0, 2, false, 2)
+        val params = LoadParams.Refresh(0, 2, false, 2)
         assertEquals(pagingSource.load(params), listenableFuturePagingSource.load(params))
     }
 
     @Test
     fun error() {
         runBlocking {
-            val params = LoadParams<Int>(LoadType.REFRESH, null, 2, false, 2)
+            val params = LoadParams.Refresh<Int>(null, 2, false, 2)
             assertFailsWith<NullPointerException> { pagingSource.load(params) }
             assertFailsWith<NullPointerException> { listenableFuturePagingSource.load(params) }
         }
@@ -76,7 +76,7 @@ class ListenableFuturePagingSourceTest {
     @Test
     fun errorWrapped() {
         runBlocking {
-            val params = LoadParams(LoadType.REFRESH, -1, 2, false, 2)
+            val params = LoadParams.Refresh(-1, 2, false, 2)
             assertFailsWith<IllegalArgumentException> { pagingSource.load(params) }
             assertFailsWith<IllegalArgumentException> { listenableFuturePagingSource.load(params) }
         }
