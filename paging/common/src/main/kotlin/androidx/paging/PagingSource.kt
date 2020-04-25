@@ -164,7 +164,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
                 const val COUNT_UNDEFINED = Int.MIN_VALUE
 
                 @Suppress("MemberVisibilityCanBePrivate") // Prevent synthetic accessor generation.
-                private val EMPTY = Page(emptyList(), null, null, 0, 0)
+                internal val EMPTY = Page(emptyList(), null, null, 0, 0)
 
                 @Suppress("UNCHECKED_CAST") // Can safely ignore, since the list is empty.
                 internal fun <Key : Any, Value : Any> empty() = EMPTY as Page<Key, Value>
