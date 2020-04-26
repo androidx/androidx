@@ -66,6 +66,7 @@ public class SliceStyle {
     private int mRowSelectionHeight;
     private int mRowTextWithSelectionHeight;
     private int mRowSingleTextWithSelectionHeight;
+    private int mRowInlineRangeHeight;
 
     private int mGridBigPicMinHeight;
     private int mGridBigPicMaxHeight;
@@ -147,6 +148,7 @@ public class SliceStyle {
                 R.dimen.abc_slice_row_selection_multi_text_height);
         mRowSingleTextWithSelectionHeight = r.getDimensionPixelSize(
                 R.dimen.abc_slice_row_selection_single_text_height);
+        mRowInlineRangeHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_range_inline_height);
 
         mGridBigPicMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_big_pic_min_height);
         mGridBigPicMaxHeight = r.getDimensionPixelSize(R.dimen.abc_slice_big_pic_max_height);
@@ -243,13 +245,19 @@ public class SliceStyle {
             return maxHeight;
         }
 
-        // If no StartItem, keep to use original layout.
-        if (row.getRange() != null && row.getStartItem() == null) {
-            // Range element always has set height and then the height of the text
-            // area on the row will vary depending on if 1 or 2 lines of text.
-            int textAreaHeight = row.getLineCount() > 1 ? mRowTextWithRangeHeight
-                    : mRowSingleTextWithRangeHeight;
-            return textAreaHeight + mRowRangeHeight;
+        if (row.getRange() != null) {
+            // If no StartItem, keep to use original layout.
+            if (row.getStartItem() == null) {
+                // Range element always has set height and then the height of the text
+                // area on the row will vary depending on if 1 or 2 lines of text.
+                int textAreaHeight = row.getLineCount() > 1 ? mRowTextWithRangeHeight
+                        : mRowSingleTextWithRangeHeight;
+                return textAreaHeight + mRowRangeHeight;
+            } else {
+                // If has StartItem then Range element is inline, the row height should be more to
+                // fit thumb ripple.
+                return mRowInlineRangeHeight;
+            }
         }
 
         if (row.getSelection() != null) {
