@@ -49,4 +49,5 @@
     <public type="attr" name="rowMaxHeight" />
     <public type="attr" name="rowRangeHeight" />
     <public type="attr" name="rowRangeSingleTextHeight" />
+    <public type="attr" name="seekBarInlineWidth" />
 </resources>
