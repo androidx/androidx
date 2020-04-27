@@ -41,7 +41,7 @@ class BoundsTest : ToolingTest() {
             Inspectable {
                 Box {
                     Column(Modifier.padding(10.dp)) {
-                        Text("Hello", Modifier.padding(5.dp)) {}
+                        Text("Hello", Modifier.padding(5.dp))
                     }
                 }
             }
