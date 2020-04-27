@@ -30,7 +30,6 @@ import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -210,9 +209,10 @@ public class TextureViewImplementationTest {
         assertThat(mImplementation.mSurfaceReleaseFuture).isNull();
     }
 
-    @FlakyTest
     @Test
-    public void releaseSurface_whenSurfaceTextureDestroyed_andCameraSurfaceRequestIsCancelled() {
+    @LargeTest
+    public void releaseSurface_whenSurfaceTextureDestroyed_andCameraSurfaceRequestIsCancelled()
+            throws Exception {
         mImplementation.getSurfaceProvider().onSurfaceRequested(getSurfaceRequest());
         // Cancel the request from the client side
         mSurfaceRequest.willNotProvideSurface();
@@ -220,6 +220,8 @@ public class TextureViewImplementationTest {
         final TextureView.SurfaceTextureListener surfaceTextureListener =
                 mImplementation.mTextureView.getSurfaceTextureListener();
         surfaceTextureListener.onSurfaceTextureAvailable(mSurfaceTexture, ANY_WIDTH, ANY_HEIGHT);
+        // Wait enough time for surfaceReleaseFuture's listener to be called.
+        Thread.sleep(1_000);
 
         assertThat(surfaceTextureListener.onSurfaceTextureDestroyed(mSurfaceTexture)).isTrue();
         assertThat(mImplementation.mSurfaceTexture).isNull();
