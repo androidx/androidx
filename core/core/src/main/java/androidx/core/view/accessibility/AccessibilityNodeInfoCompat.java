@@ -576,6 +576,19 @@ public class AccessibilityNodeInfoCompat {
                         ? AccessibilityNodeInfo.AccessibilityAction.ACTION_PRESS_AND_HOLD : null,
                         android.R.id.accessibilityActionPressAndHold, null, null, null);
 
+        /**
+         * Action to send an ime actionId which is from
+         * {@link android.view.inputmethod.EditorInfo#actionId}. This ime actionId sets by
+         * {@link android.widget.TextView#setImeActionLabel(CharSequence, int)}, or it would be
+         * {@link android.view.inputmethod.EditorInfo#IME_ACTION_UNSPECIFIED} if no specific
+         * actionId has set. A node should expose this action only for views that are currently
+         * with input focus and editable.
+         */
+        @NonNull public static final AccessibilityActionCompat ACTION_IME_ENTER =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 30
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_IME_ENTER : null,
+                        android.R.id.accessibilityActionImeEnter, null, null, null);
+
         final Object mAction;
         private final int mId;
         private final Class<? extends CommandArguments> mViewCommandArgumentClass;
@@ -4244,6 +4257,8 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_HIDE_TOOLTIP";
             case android.R.id.accessibilityActionPressAndHold:
                 return "ACTION_PRESS_AND_HOLD";
+            case android.R.id.accessibilityActionImeEnter:
+                return "ACTION_IME_ENTER";
             default:
                 return"ACTION_UNKNOWN";
         }
