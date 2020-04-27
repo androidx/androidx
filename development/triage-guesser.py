@@ -177,7 +177,8 @@ class Triager(object):
       "harfbuzz": ["android-text", "nona", "junkshik"],
       "slice": ["madym"],
       "checkApi": ["jeffrygaston", "aurimas"],
-      "compose": ["chuckj", "jsproch", "lelandr"]
+      "compose": ["chuckj", "jsproch", "lelandr"],
+      "jetifier": ["pavlis", "jeffrygaston"]
     })
     self.recommenderRules.append(OwnersRule(fileFinder))
     self.recommenderRules.append(LastTouchedBy_Rule(fileFinder))
