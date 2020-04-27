@@ -55,8 +55,8 @@ class RoomInvalidationRegistryWithoutRoomTest {
             }
         }
         val tracker = RoomInvalidationRegistry(env)
-        tracker.triggerInvalidationChecks()
+        tracker.triggerInvalidations()
         tracker.invalidateCache()
-        tracker.triggerInvalidationChecks()
+        tracker.triggerInvalidations()
     }
 }
