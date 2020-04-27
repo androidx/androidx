@@ -218,7 +218,7 @@ class Triager(object):
 
     lines = [line.strip() for line in lines]
     fields = [line for line in lines if line != ""]
-    linesPerIssue = 4
+    linesPerIssue = 5
     if len(fields) % linesPerIssue != 0:
       raise Exception("Parse error, number of lines must be divisible by " + str(linesPerIssue) + ", not " + str(len(fields)) + ". Last line: " + fields[-1])
     issues = []
@@ -227,15 +227,20 @@ class Triager(object):
       issueType = fields[1]
 
       middle = fields[2].split("\t")
-      expectedNumTabComponents = 5
+      expectedNumTabComponents = 3
       if len(middle) != expectedNumTabComponents:
         raise Exception("Parse error: wrong number of tabs in " + str(middle) + ", got " + str(len(middle) - 1) + ", expected " + str(expectedNumTabComponents - 1))
       description = middle[0]
       currentAssignee = middle[1]
       status = middle[2]
-      issueId = middle[4]
 
-      when = fields[3]
+      bottom = fields[4]
+      bottomSplit = bottom.split("\t")
+      expectedNumTabComponents = 2
+      if len(bottomSplit) != expectedNumTabComponents:
+        raise Exception("Parse error: wrong number of tabs in " + str(bottomSplit) + ", got " + str(len(bottomSplit)) + ", expected " + str(expectedNumTabComponents - 1))
+      issueId = bottomSplit[0]
+      when = bottomSplit[1]
 
       issues.append(Issue(issueId, description))
       fields = fields[linesPerIssue:]
