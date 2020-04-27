@@ -33,22 +33,30 @@ import androidx.annotation.Nullable;
  * method for a single value of that type, this may result in an incorrect ordering in the
  * encoded message. Collections and scalar arrays should be encoded using the appropriate encode
  * method for the field type, such as
- * {@link #encodeMessageCollection(int, SerializerV1, Iterable)} for embedded messages.
+ * {@link #encodeRepeatedMessage(int, SerializerV1, Iterable)} for embedded messages.
  * <p>
  * Encoding for embedded messages, such as {@link #encodeMessage(int, SerializerV1, Object)}, is
  * likewise implemented in a unit of a whole field. This gives implementations flexibility in how
  * they invoke the serializer. The API is designed such that an implementation may store some
  * state on the stack and pass itself to the serializer, or at the implementor's discretion, it
  * could instantiate and pass a new encoder to the serializer.
+ * <p>
+ * Encoders include distinct methods for all Protocol Buffers integer types. This makes for
+ * clearer serializer code and enables code shrinking tools such as R8 to more effectively remove
+ * unused integer encodings. The int32 and int64 encodings are the default and the most common
+ * integer types, and backends without multiple integer representations, such as the Parcel
+ * backend may wish to implement {@link #encodeInt32(int, int)} and
+ * {@link #encodeInt64(int, long)} and delegate the other int and long encoding methods to those
+ * implementations.
  */
 public interface EncoderV1 {
     /**
      * Encode an embedded message field.
      *
-     * @param fieldId    ID of the field.
-     * @param serializer A serializer for the message class.
-     * @param message    An instance of the message class or null to omit the field.
-     * @param <T>        The message class.
+     * @param fieldId    the ID of the field.
+     * @param serializer the serializer for the message class.
+     * @param message    a message or null to omit the field.
+     * @param <T>        the message class.
      */
     <T> void encodeMessage(
             int fieldId,
@@ -59,12 +67,12 @@ public interface EncoderV1 {
     /**
      * Encode a repeated embedded message field.
      *
-     * @param fieldId    ID of the field.
-     * @param serializer A serializer for the message class.
-     * @param messages   An iterable of message class instances or null to omit the field.
-     * @param <T>        The message class.
+     * @param fieldId    the ID of the field.
+     * @param serializer the serializer for the message class.
+     * @param messages   messages or null to omit the field.
+     * @param <T>        the message class.
      */
-    <T> void encodeMessageCollection(
+    <T> void encodeRepeatedMessage(
             int fieldId,
             @NonNull SerializerV1<T> serializer,
             @Nullable Iterable<T> messages
@@ -73,10 +81,10 @@ public interface EncoderV1 {
     /**
      * Encode an enum field.
      *
-     * @param fieldId    ID of the field.
-     * @param serializer A serializer for the enum class.
-     * @param value      An enum value or null to omit the field.
-     * @param <T>        The enum class.
+     * @param fieldId    the ID of the field.
+     * @param serializer the serializer for the enum class.
+     * @param value      an enum value or null to omit the field.
+     * @param <T>        the enum class.
      */
     <T extends Enum<T>> void encodeEnum(
             int fieldId,
@@ -87,188 +95,450 @@ public interface EncoderV1 {
     /**
      * Encode a repeated enum field.
      *
-     * @param fieldId    ID of the field.
-     * @param serializer A serializer for the enum class.
-     * @param values     Enum values or null to omit the field.
-     * @param <T>        The enum class.
+     * @param fieldId    the ID of the field.
+     * @param serializer the serializer for the enum class.
+     * @param values     enum values or null to omit the field.
+     * @param <T>        the enum class.
      */
-    <T extends Enum<T>> void encodeEnumCollection(
+    <T extends Enum<T>> void encodeRepeatedEnum(
             int fieldId,
             @NonNull EnumSerializerV1<T> serializer,
             @Nullable Iterable<T> values
     );
 
     /**
-     * Encode a boolean field.
+     * Encode a bool scalar field.
      *
-     * @param fieldId ID of the field.
-     * @param value   Boolean field value.
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
      */
-    void encodeBoolean(int fieldId, boolean value);
+    void encodeBool(int fieldId, boolean value);
 
     /**
-     * Encode a repeated boolean field.
+     * Encode a repeated bool scalar field.
      *
-     * @param fieldId ID of the field.
-     * @param values  Boolean field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeBooleanArray(int fieldId, @Nullable boolean[] values);
+    void encodeRepeatedBool(int fieldId, @Nullable boolean[] values);
 
     /**
-     * Encode a repeated boolean field.
+     * Encode a repeated bool scalar field.
      *
-     * @param fieldId ID of the field.
-     * @param values  Boolean field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeBooleanCollection(int fieldId, @Nullable Iterable<Boolean> values);
+    void encodeRepeatedBool(int fieldId, @Nullable Iterable<Boolean> values);
 
     /**
-     * Encode a binary field.
+     * Encode a bytes scalar field.
      *
-     * @param fieldId ID of the field.
-     * @param value   Binary field value or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param value   a field value or null to omit the field.
      */
-    void encodeByteArray(int fieldId, @Nullable byte[] value);
+    void encodeBytes(int fieldId, @Nullable byte[] value);
 
     /**
-     * Encode a repeated binary field.
+     * Encode a repeated bytes scalar field.
      *
-     * @param fieldId ID of the field.
-     * @param values  Binary field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeByteArrayCollection(int fieldId, @Nullable Iterable<byte[]> values);
+    void encodeRepeatedBytes(int fieldId, @Nullable Iterable<byte[]> values);
 
     /**
-     * Encode a double field.
+     * Encode a double scalar field.
      *
-     * @param fieldId ID of the field.
-     * @param value   Double field value.
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
      */
     void encodeDouble(int fieldId, double value);
 
     /**
-     * Encode a repeated double field.
+     * Encode a repeated double scalar field.
      *
-     * @param fieldId ID of the field
-     * @param values  Double field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeDoubleArray(int fieldId, @Nullable double[] values);
+    void encodeRepeatedDouble(int fieldId, @Nullable double[] values);
 
     /**
-     * Encode a repeated double field.
+     * Encode a repeated double scalar field.
      *
-     * @param fieldId ID of the field
-     * @param values  Double field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeDoubleCollection(int fieldId, @Nullable Iterable<Double> values);
+    void encodeRepeatedDouble(int fieldId, @Nullable Iterable<Double> values);
 
     /**
-     * Encode a float field.
+     * Encode a float scalar field.
      *
-     * @param fieldId ID of the field.
-     * @param value   Float field value.
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
      */
     void encodeFloat(int fieldId, float value);
 
     /**
-     * Encode a repeated float field.
+     * Encode a repeated float scalar field.
      *
-     * @param fieldId ID of the field.
-     * @param values  Float field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeFloatArray(int fieldId, @Nullable float[] values);
+    void encodeRepeatedFloat(int fieldId, @Nullable float[] values);
 
     /**
-     * Encode a repeated float field.
+     * Encode a repeated float scalar field.
      *
-     * @param fieldId ID of the field.
-     * @param values  Float field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeFloatCollection(int fieldId, @Nullable Iterable<Float> values);
+    void encodeRepeatedFloat(int fieldId, @Nullable Iterable<Float> values);
 
     /**
-     * Encode an integer field.
+     * Encode an int32 scalar field.
+     * <p>
+     * With proto-based backends, int32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
      *
-     * @param fieldId  ID of the field.
-     * @param encoding Encoding of the proto representation of the field.
-     * @param value    Integer field value.
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
      */
-    void encodeInt(int fieldId, @IntEncoding int encoding, int value);
+    void encodeInt32(int fieldId, int value);
 
     /**
-     * Encode a repeated integer field.
+     * Encode a repeated int32 scalar field.
+     * <p>
+     * With proto-based backends, int32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
      *
-     * @param fieldId  ID of the field.
-     * @param encoding Encoding of the proto representation of the field.
-     * @param values   Integer field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeIntArray(int fieldId, @IntEncoding int encoding, @Nullable int[] values);
+    void encodeRepeatedInt32(int fieldId, @Nullable int[] values);
 
     /**
-     * Encode a repeated integer field.
+     * Encode a repeated int32 scalar field.
+     * <p>
+     * With proto-based backends, int32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
      *
-     * @param fieldId  ID of the field.
-     * @param encoding Encoding of the proto representation of the field.
-     * @param values   Integer field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeIntCollection(
-            int fieldId,
-            @IntEncoding int encoding,
-            @Nullable Iterable<Integer> values
-    );
+    void encodeRepeatedInt32(int fieldId, @Nullable Iterable<Integer> values);
 
     /**
-     * Encode a long field.
+     * Encode a sint32 scalar field.
+     * <p>
+     * With proto-based backends, sint32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of values with small absolute values.
      *
-     * @param fieldId  ID of the field.
-     * @param encoding Encoding of the proto representation of the field.
-     * @param value    Long field value.
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
      */
-    void encodeLong(int fieldId, @IntEncoding int encoding, long value);
+    void encodeSInt32(int fieldId, int value);
 
     /**
-     * Encode a repeated long field.
+     * Encode a repeated sint32 scalar field.
+     * <p>
+     * With proto-based backends, sint32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of values with small absolute values.
      *
-     * @param fieldId  ID of the field.
-     * @param encoding Encoding of the proto representation of the field.
-     * @param values   Long field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeLongArray(int fieldId, @IntEncoding int encoding, @Nullable long[] values);
+    void encodeRepeatedSInt32(int fieldId, @Nullable int[] values);
 
     /**
-     * Encode a repeated long field.
+     * Encode a repeated sint32 scalar field.
+     * <p>
+     * With proto-based backends, sint32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of values with small absolute values.
      *
-     * @param fieldId  ID of the field.
-     * @param encoding Encoding of the proto representation of the field.
-     * @param values   Long field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeLongCollection(
-            int fieldId,
-            @IntEncoding int encoding,
-            @Nullable Iterable<Long> values
-    );
+    void encodeRepeatedSInt32(int fieldId, @Nullable Iterable<Integer> values);
 
     /**
-     * Encode a string field.
+     * Encode a uint32 scalar field.
+     * <p>
+     * With proto-based backends, uint32 fields store 32-bit unsigned integers using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java ints with MSB in the sign bit. This means unsigned
+     * values greater than 2<sup>31</sup> are represented as negative signed values with the same
+     * binary representation as the unsigned values.
      *
-     * @param fieldId ID of the field.
-     * @param value   String field value or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
+     */
+    void encodeUInt32(int fieldId, int value);
+
+    /**
+     * Encode a repeated uint32 scalar field.
+     * <p>
+     * With proto-based backends, uint32 fields store 32-bit unsigned integers using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java ints with MSB in the sign bit. This means unsigned
+     * values greater than 2<sup>31</sup> are represented as negative signed values with the same
+     * binary representation as the unsigned values.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedUInt32(int fieldId, @Nullable int[] values);
+
+    /**
+     * Encode a repeated uint32 scalar field.
+     * <p>
+     * With proto-based backends, uint32 fields store 32-bit unsigned integers using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java ints with MSB in the sign bit. This means unsigned
+     * values greater than 2<sup>31</sup> are represented as negative signed values with the same
+     * binary representation as the unsigned values.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedUInt32(int fieldId, @Nullable Iterable<Integer> values);
+
+    /**
+     * Encode a fixed32 or sfixed32 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed32 and the signed sfixed32 store 32-bit
+     * integers as 4 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java ints with MSB in the sign bit. This means unsigned
+     * values greater than 2<sup>31</sup> are represented as negative signed values with the same
+     * binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed32 and the unsigned fixed32.
+     *
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
+     */
+    void encodeFixed32(int fieldId, int value);
+
+    /**
+     * Encode a repeated fixed32 or sfixed32 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed32 and the signed sfixed32 store 32-bit
+     * integers as 4 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java ints with MSB in the sign bit. This means unsigned
+     * values greater than 2<sup>31</sup> are represented as negative signed values with the same
+     * binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed32 and the unsigned fixed32.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedFixed32(int fieldId, @Nullable int[] values);
+
+    /**
+     * Encode a repeated fixed32 or sfixed32 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed32 and the signed sfixed32 store 32-bit
+     * integers as 4 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java ints with MSB in the sign bit. This means unsigned
+     * values greater than 2<sup>31</sup> are represented as negative signed values with the same
+     * binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed32 and the unsigned fixed32.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedFixed32(int fieldId, @Nullable Iterable<Integer> values);
+
+    /**
+     * Encode an int64 scalar field.
+     * <p>
+     * With proto-based backends, int64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
+     *
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
+     */
+    void encodeInt64(int fieldId, long value);
+
+    /**
+     * Encode a repeated int64 scalar field.
+     * <p>
+     * With proto-based backends, int64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedInt64(int fieldId, @Nullable long[] values);
+
+    /**
+     * Encode a repeated int64 scalar field.
+     * <p>
+     * With proto-based backends, int64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedInt64(int fieldId, @Nullable Iterable<Long> values);
+
+    /**
+     * Encode a sint64 scalar field.
+     * <p>
+     * With proto-based backends, sint64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of values with small absolute values.
+     *
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
+     */
+    void encodeSInt64(int fieldId, long value);
+
+    /**
+     * Encode a repeated sint64 scalar field.
+     * <p>
+     * With proto-based backends, sint64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of values with small absolute values.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedSInt64(int fieldId, @Nullable long[] values);
+
+    /**
+     * Encode a repeated sint64 scalar field.
+     * <p>
+     * With proto-based backends, sint64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of values with small absolute values.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedSInt64(int fieldId, @Nullable Iterable<Long> values);
+
+    /**
+     * Encode a uint64 scalar field.
+     * <p>
+     * With proto-based backends, uint64 fields store 64-bit unsigned longs using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java longs with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values.
+     *
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
+     */
+    void encodeUInt64(int fieldId, long value);
+
+    /**
+     * Encode a repeated uint64 scalar field.
+     * <p>
+     * With proto-based backends, uint64 fields store 64-bit unsigned longs using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java longs with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedUInt64(int fieldId, @Nullable long[] values);
+
+    /**
+     * Encode a repeated uint64 scalar field.
+     * <p>
+     * With proto-based backends, uint64 fields store 64-bit unsigned longs using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java longs with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedUInt64(int fieldId, @Nullable Iterable<Long> values);
+
+    /**
+     * Encode a fixed64 or sfixed64 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed64 and the signed sfixed64 store 64-bit
+     * integers as 8 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed64 and the unsigned fixed64.
+     *
+     * @param fieldId the ID of the field.
+     * @param value   a field value.
+     */
+    void encodeFixed64(int fieldId, long value);
+
+    /**
+     * Encode a repeated fixed64 or sfixed64 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed64 and the signed sfixed64 store 64-bit
+     * integers as 8 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed64 and the unsigned fixed64.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedFixed64(int fieldId, @Nullable long[] values);
+
+    /**
+     * Encode a repeated fixed64 or sfixed64 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed64 and the signed sfixed64 store 64-bit
+     * integers as 8 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed64 and the unsigned fixed64.
+     *
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
+     */
+    void encodeRepeatedFixed64(int fieldId, @Nullable Iterable<Long> values);
+
+    /**
+     * Encode a string scalar field.
+     *
+     * @param fieldId the ID of the field.
+     * @param value   a field value or null to omit the field.
      */
     void encodeString(int fieldId, @Nullable String value);
 
     /**
      * Encode a repeated string field.
      *
-     * @param fieldId ID of the field.
-     * @param values  String field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeStringArray(int fieldId, @Nullable String[] values);
+    void encodeRepeatedString(int fieldId, @Nullable String[] values);
 
     /**
-     * Encode a repeated string field.
+     * Encode a repeated string scalar field.
      *
-     * @param fieldId ID of the field.
-     * @param values  String field values or null to omit the field.
+     * @param fieldId the ID of the field.
+     * @param values  field values or null to omit the field.
      */
-    void encodeStringCollection(int fieldId, @Nullable Iterable<String> values);
+    void encodeRepeatedString(int fieldId, @Nullable Iterable<String> values);
 }
