@@ -54,7 +54,7 @@ private fun ListDemo() {
             "these", "are", "offscreen"
         ) + (1..100).map { "$it" }
     ) {
-        Text(text = it, style = TextStyle(fontSize = 80.sp))
+        Text(text = it, fontSize = 80.sp)
 
         if (it.contains("works")) {
             Text("You can even emit multiple components per item.")

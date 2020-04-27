@@ -101,7 +101,7 @@ fun PopupDemo() {
 
                 Text(
                     text = description,
-                    style = TextStyle(textAlign = TextAlign.Center)
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -145,7 +145,7 @@ private fun ColumnScope.PopupToggle() {
                     ) {
                         Text(
                             text = "This is a popup!",
-                            style = TextStyle(textAlign = TextAlign.Center)
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

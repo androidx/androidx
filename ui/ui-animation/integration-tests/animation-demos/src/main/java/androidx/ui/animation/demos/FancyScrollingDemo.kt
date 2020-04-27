@@ -49,7 +49,7 @@ fun FancyScrollingDemo() {
     Column {
         Text(
             "<== Scroll horizontally ==>",
-            style = TextStyle(fontSize = 20.sp),
+            fontSize = 20.sp,
             modifier = Modifier.padding(40.dp)
         )
         val animScroll = animatedFloat(0f)

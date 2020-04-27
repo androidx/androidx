@@ -237,7 +237,7 @@ class ButtonTest {
             Button(onClick = {}) {
                 Text(
                     text = "Test button",
-                    style = TextStyle(fontSize = 50.sp)
+                    fontSize = 50.sp
                 )
             }
         }

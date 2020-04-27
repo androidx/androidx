@@ -35,9 +35,7 @@ fun FontResourcesFontFamily() {
     ).resource.resource?.let {
         Text(
             text = "Hello, World",
-            style = TextStyle(
-                fontFamily = LoadedFontFamily(it)
-            )
+            fontFamily = LoadedFontFamily(it)
         )
     }
 }
@@ -52,9 +50,7 @@ fun FontResourcesTypeface() {
     ).resource.resource?.let {
         Text(
             text = "Hello, World",
-            style = TextStyle(
-                fontFamily = LoadedFontFamily(it)
-            )
+            fontFamily = LoadedFontFamily(it)
         )
     }
 }
