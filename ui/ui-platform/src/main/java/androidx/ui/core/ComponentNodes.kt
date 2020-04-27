@@ -765,6 +765,7 @@ class LayoutNode : ComponentNode(), Measurable {
             if (oldPlaceable != layoutNodeWrapper) {
                 oldPlaceable.detach()
                 requestRemeasure()
+                layoutNodeWrapper.attach()
             } else if (!needsRemeasure && !needsRelayout && addedCallback) {
                 // We need to notify the callbacks of a change in position since there's
                 // a new one.
@@ -795,6 +796,7 @@ class LayoutNode : ComponentNode(), Measurable {
         requestRemeasure()
         parentDataDirty = true
         parentLayoutNode?.layoutChildrenDirty = true
+        layoutNodeWrapper.attach()
         onAttach?.invoke(owner)
     }
 
