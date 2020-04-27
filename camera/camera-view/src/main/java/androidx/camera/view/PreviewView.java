@@ -261,28 +261,38 @@ public class PreviewView extends FrameLayout {
     public enum ScaleType {
         /**
          * Scale the preview, maintaining the source aspect ratio, so it fills the entire
-         * {@link PreviewView}, and align it to the top left corner of the view.
+         * {@link PreviewView}, and align it to the start of the view, which is the top left
+         * corner in a left-to-right (LTR) layout, or the top right corner in a right-to-left
+         * (RTL) layout.
+         * <p>
          * This may cause the preview to be cropped if the camera preview aspect ratio does not
          * match that of its container {@link PreviewView}.
          */
         FILL_START(0),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it fills the entire
-         * {@link PreviewView}, and center it inside the view.
+         * {@link PreviewView}, and center it in the view.
+         * <p>
          * This may cause the preview to be cropped if the camera preview aspect ratio does not
          * match that of its container {@link PreviewView}.
          */
         FILL_CENTER(1),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it fills the entire
-         * {@link PreviewView}, and align it to the bottom right corner of the view.
+         * {@link PreviewView}, and align it to the end of the view, which is the bottom right
+         * corner in a left-to-right (LTR) layout, or the bottom left corner in a right-to-left
+         * (RTL) layout.
+         * <p>
          * This may cause the preview to be cropped if the camera preview aspect ratio does not
          * match that of its container {@link PreviewView}.
          */
         FILL_END(2),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
-         * within the {@link PreviewView}, and align it to the top left corner of the view.
+         * within the {@link PreviewView}, and align it to the start of the view, which is the
+         * top left corner in a left-to-right (LTR) layout, or the top right corner in a
+         * right-to-left (RTL) layout.
+         * <p>
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
          */
@@ -290,13 +300,17 @@ public class PreviewView extends FrameLayout {
         /**
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
          * within the {@link PreviewView}, and center it inside the view.
+         * <p>
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
          */
         FIT_CENTER(4),
         /**
          * Scale the preview, maintaining the source aspect ratio, so it is entirely contained
-         * within the {@link PreviewView}, and align it to the bottom right corner of the view.
+         * within the {@link PreviewView}, and align it to the end of the view, which is the
+         * bottom right corner in a left-to-right (LTR) layout, or the bottom left corner in a
+         * right-to-left (RTL) layout.
+         * <p>
          * Both dimensions of the preview will be equal or less than the corresponding dimensions
          * of its container {@link PreviewView}.
          */
