@@ -268,6 +268,14 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
+    private void setViewWidth(View v, int width) {
+        if (v != null && width >= 0) {
+            final ViewGroup.LayoutParams params = v.getLayoutParams();
+            params.width = width;
+            v.setLayoutParams(params);
+        }
+    }
+
     @Override
     public void setInsets(int l, int t, int r, int b) {
         super.setInsets(l, t, r, b);
@@ -706,6 +714,9 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             } else {
                 progressBar = (SeekBar) LayoutInflater.from(getContext()).inflate(
                         R.layout.abc_slice_seekbar_view, this, false);
+                if (mSliceStyle != null && mSliceStyle.getRowStyle() != null) {
+                    setViewWidth(progressBar, mSliceStyle.getRowStyle().getSeekBarInlineWidth());
+                }
             }
         } else {
             if (renderInNewLine) {
