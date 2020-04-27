@@ -18,16 +18,18 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.state
+import androidx.compose.getValue
+import androidx.compose.setValue
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.TextFieldValue
+import androidx.ui.savedinstancestate.savedInstanceState
 
 @Sampled
 @Composable
 fun TextFieldSample() {
-    val state = state { TextFieldValue() }
+    var value by savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     TextField(
-        value = state.value,
-        onValueChange = { state.value = it }
+        value = value,
+        onValueChange = { value = it }
     )
 }

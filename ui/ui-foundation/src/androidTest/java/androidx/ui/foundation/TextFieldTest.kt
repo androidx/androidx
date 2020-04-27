@@ -17,6 +17,7 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.MutableState
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
@@ -36,11 +37,14 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidthIn
+import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextLayoutResult
+import androidx.ui.text.TextRange
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -401,6 +405,29 @@ class TextFieldTest {
 
         with(composeTestRule.density) {
             assertThat(size).isEqualTo(parentSize.toIntPx() - boxSize.toIntPx())
+        }
+    }
+
+    @Test
+    fun textFieldValue_saverRestoresState() {
+        var state: MutableState<TextFieldValue>? = null
+
+        val restorationTester = StateRestorationTester(composeTestRule)
+        restorationTester.setContent {
+            state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+        }
+
+        runOnIdleCompose {
+            state!!.value = TextFieldValue("test", TextRange(1, 2))
+
+            // we null it to ensure recomposition happened
+            state = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        runOnIdleCompose {
+            assertThat(state!!.value).isEqualTo(TextFieldValue("test", TextRange(1, 2)))
         }
     }
 }
