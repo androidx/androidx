@@ -38,33 +38,6 @@ typealias FocusTransitionObserver = (FocusNode?, FocusNode?) -> Unit
  */
 interface FocusManager {
     /**
-     * Request the focus assiciated with the identifier.
-     *
-     * Do nothing if there is no focusable node assciated with given identifier.
-     *
-     * @param identifier The focusable node identifier.
-     */
-    fun requestFocusById(identifier: String)
-
-    /**
-     * Register the focusable node with identifier.
-     *
-     * The caller must unregister when the focusable node is disposed.
-     * This function overwrites if the focusable node is already registered.
-     *
-     * @param identifier focusable client identifier
-     * @param node focusable client.
-     */
-    fun registerFocusNode(identifier: String, node: FocusNode)
-
-    /**
-     * Unregister the focusable node associated with given identifier.
-     *
-     * @param identifier focusable client identifier
-     */
-    fun unregisterFocusNode(identifier: String)
-
-    /**
      * Request the input focus
      *
      * @param client A focusable client.
@@ -97,24 +70,6 @@ internal class FocusManagerImpl : FocusManager {
     private var focusedClient: FocusNode? = null
 
     private val observerMap = mutableMapOf<FocusNode, MutableList<FocusTransitionObserver>>()
-
-    /**
-     * The identifier to focusable node map.
-     */
-    private val focusMap = mutableMapOf<String, FocusNode>()
-
-    override fun requestFocusById(identifier: String) {
-        // TODO(nona): Good to defer the task for avoiding possible infinity loop.
-        focusMap[identifier]?.let { requestFocus(it) }
-    }
-
-    override fun registerFocusNode(identifier: String, node: FocusNode) {
-        focusMap[identifier] = node
-    }
-
-    override fun unregisterFocusNode(identifier: String) {
-        focusMap.remove(identifier)
-    }
 
     override fun requestFocus(client: FocusNode) {
         val currentFocus = focusedClient

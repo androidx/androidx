@@ -116,18 +116,6 @@ class TextFieldTest {
             observer?.invoke(null, client)
         }
 
-        override fun requestFocusById(identifier: String) {
-            throw RuntimeException("Not implemented")
-        }
-
-        override fun registerFocusNode(identifier: String, node: FocusNode) {
-            throw RuntimeException("Not implemented")
-        }
-
-        override fun unregisterFocusNode(identifier: String) {
-            throw RuntimeException("Not implemented")
-        }
-
         override fun blur(client: FocusNode) {}
     }
 

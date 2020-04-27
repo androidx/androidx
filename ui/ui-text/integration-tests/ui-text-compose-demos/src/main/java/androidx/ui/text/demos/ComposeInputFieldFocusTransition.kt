@@ -19,6 +19,7 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.ui.core.FocusManagerAmbient
+import androidx.ui.core.input.FocusNode
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
@@ -28,22 +29,24 @@ import androidx.ui.foundation.TextFieldValue
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
 
+val FOCUS_NODES = List(6) { FocusNode() }
+
 @Composable
 fun TextFieldFocusTransition() {
     VerticalScroller {
         Column {
-            TextFieldWithFocusId("Focus 1", "Focus 2")
-            TextFieldWithFocusId("Focus 2", "Focus 3")
-            TextFieldWithFocusId("Focus 3", "Focus 4")
-            TextFieldWithFocusId("Focus 4", "Focus 5")
-            TextFieldWithFocusId("Focus 5", "Focus 6")
-            TextFieldWithFocusId("Focus 6", "Focus 1")
+            TextFieldWithFocusId(0, 1)
+            TextFieldWithFocusId(1, 2)
+            TextFieldWithFocusId(2, 3)
+            TextFieldWithFocusId(3, 4)
+            TextFieldWithFocusId(4, 5)
+            TextFieldWithFocusId(5, 0)
         }
     }
 }
 
 @Composable
-private fun TextFieldWithFocusId(focusID: String, nextFocus: String) {
+private fun TextFieldWithFocusId(focusID: Int, nextFocus: Int) {
     val focusManager = FocusManagerAmbient.current
     val state = state { TextFieldValue("Focus ID: $focusID") }
     val focused = state { false }
@@ -61,10 +64,10 @@ private fun TextFieldWithFocusId(focusID: String, nextFocus: String) {
         },
         onFocusChange = { focused.value = it },
         imeAction = ImeAction.Next,
-        focusIdentifier = focusID,
+        focusNode = FOCUS_NODES[focusID],
         onImeActionPerformed = {
             if (it == ImeAction.Next)
-                focusManager.requestFocusById(nextFocus)
+                focusManager.requestFocus(FOCUS_NODES[nextFocus])
         }
     )
 }

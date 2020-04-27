@@ -17,10 +17,12 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.text.CoreTextField
 import androidx.ui.core.Modifier
 import androidx.ui.core.input.FocusManager
+import androidx.ui.core.input.FocusNode
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
 import androidx.ui.input.ImeAction
@@ -74,6 +76,8 @@ data class TextFieldValue(
  * By default, text field will occupy all available space granted to it. You can use
  * [androidx.ui.layout.preferredWidthIn] or [androidx.ui.layout.preferredWidth] modifiers to
  * constrain the horizontal space occupied by the text field.
+ * @param focusNode The focus node to be used for this TextField. Do not share this node with
+ * other TextField.
  * @param textColor [Color] to apply to the text. If [Color.Unset], and [textStyle] has no color
  * set, this will be [contentColor].
  * @param textStyle Style configuration that applies at character level such as color, font etc.
@@ -86,7 +90,6 @@ data class TextFieldValue(
  * ImeAction.
  * @param onFocusChange Called with true value when the input field gains focus and with false
  * value when the input field loses focus.
- * @param focusIdentifier Optional value to identify focus identifier. You can pass
  * [FocusManager.requestFocus] to this value to move focus to this TextField. This identifier
  * must be unique in your app. If you have duplicated identifiers, the behavior is undefined.
  * @param onImeActionPerformed Called when the input service requested an IME action. When the
@@ -105,12 +108,12 @@ fun TextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier,
+    focusNode: FocusNode? = null,
     textColor: Color = Color.Unset,
     textStyle: TextStyle = currentTextStyle(),
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocusChange: (Boolean) -> Unit = {},
-    focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null,
     onTextLayout: (TextLayoutResult) -> Unit = {}
@@ -149,7 +152,7 @@ fun TextField(
         keyboardType = keyboardType,
         imeAction = imeAction,
         onFocusChange = onFocusChange,
-        focusIdentifier = focusIdentifier,
+        focusNode = focusNode ?: remember { FocusNode() },
         onImeActionPerformed = onImeActionPerformed,
         visualTransformation = visualTransformation,
         onTextLayout = onTextLayout
