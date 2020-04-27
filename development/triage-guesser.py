@@ -163,6 +163,7 @@ class Triager(object):
       "android.support.design": ["dcarlsson"],
       "RenderThread": ["jreck"],
       "VectorDrawable": ["tianliu"],
+      "Vector Drawable": ["tianliu"],
       "drawable": ["alanv"],
       "colorstatelist": ["alanv"],
       "multilocale": ["nona", "mnita"],
