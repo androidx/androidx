@@ -6,23 +6,22 @@ package androidx.ui.foundation {
   }
 
   public final class Border {
-    ctor public Border(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush);
-    method public androidx.ui.unit.Dp component1();
+    method public float component1();
     method public androidx.ui.graphics.Brush component2();
-    method public androidx.ui.foundation.Border copy(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush);
+    method public androidx.ui.foundation.Border copy-HIF-_f0(float size, androidx.ui.graphics.Brush brush);
     method public androidx.ui.graphics.Brush getBrush();
-    method public androidx.ui.unit.Dp getSize();
+    method public float getSize();
   }
 
   public final class BorderKt {
-    method public static androidx.ui.foundation.Border Border-YSZAjy0(androidx.ui.unit.Dp size, long color);
+    method public static androidx.ui.foundation.Border Border-YSZAjy0(float size, long color);
   }
 
   public final class BoxKt {
-    method public static void Box-TInkGdk(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = RectangleShape, long backgroundColor = Color.Transparent, androidx.ui.foundation.Border? border = null, androidx.ui.unit.Dp padding = elvis {
+    method public static void Box-TInkGdk(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = RectangleShape, long backgroundColor = Color.Transparent, androidx.ui.foundation.Border? border = null, float padding = elvis {
     @null var var411925d7: androidx.ui.unit.Dp = border?.size
     if (var411925d7 != null) var411925d7 else 0.dp
-}, androidx.ui.unit.Dp paddingStart = Dp.Unspecified, androidx.ui.unit.Dp paddingTop = Dp.Unspecified, androidx.ui.unit.Dp paddingEnd = Dp.Unspecified, androidx.ui.unit.Dp paddingBottom = Dp.Unspecified, androidx.ui.core.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = emptyContent());
+}, float paddingStart = Dp.Unspecified, float paddingTop = Dp.Unspecified, float paddingEnd = Dp.Unspecified, float paddingBottom = Dp.Unspecified, androidx.ui.core.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = emptyContent());
   }
 
   public final class CanvasKt {
@@ -38,7 +37,7 @@ package androidx.ui.foundation {
   }
 
   public final class ColoredRectKt {
-    method @Deprecated public static void ColoredRect(androidx.ui.graphics.Brush brush, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
+    method @Deprecated public static void ColoredRect-HawTZqg(androidx.ui.graphics.Brush brush, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
     method @Deprecated public static void ColoredRect-rR94L9Y(long color, androidx.ui.core.Modifier modifier = Modifier, androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null);
   }
 
@@ -78,11 +77,11 @@ package androidx.ui.foundation {
 
   public final class DrawBorderKt {
     method @Deprecated public static androidx.ui.core.Modifier DrawBorder(androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = RectangleShape);
-    method @Deprecated public static androidx.ui.foundation.DrawBorder DrawBorder(androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
-    method @Deprecated public static androidx.ui.core.Modifier DrawBorder-Wounw_8(androidx.ui.unit.Dp size, long color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method @Deprecated public static androidx.ui.foundation.DrawBorder DrawBorder-3vYgddY(float size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
+    method @Deprecated public static androidx.ui.core.Modifier DrawBorder-Wounw_8(float size, long color, androidx.ui.graphics.Shape shape = RectangleShape);
     method public static androidx.ui.core.Modifier drawBorder(androidx.ui.core.Modifier, androidx.ui.foundation.Border border, androidx.ui.graphics.Shape shape = RectangleShape);
-    method public static androidx.ui.core.Modifier drawBorder(androidx.ui.core.Modifier, androidx.ui.unit.Dp size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
-    method public static androidx.ui.core.Modifier drawBorder-ik3FbJE(androidx.ui.core.Modifier, androidx.ui.unit.Dp size, long color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method public static androidx.ui.core.Modifier drawBorder-ik3FbJE(androidx.ui.core.Modifier, float size, long color, androidx.ui.graphics.Shape shape = RectangleShape);
+    method public static androidx.ui.core.Modifier drawBorder-vGsXmEw(androidx.ui.core.Modifier, float size, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape);
   }
 
   public final class DrawBordersReceiver {
@@ -381,10 +380,10 @@ package androidx.ui.foundation.shape.corner {
   }
 
   public final class CornerSizeKt {
-    method public static androidx.ui.foundation.shape.corner.CornerSize CornerSize(androidx.ui.unit.Dp size);
     method public static androidx.ui.foundation.shape.corner.CornerSize CornerSize(@IntRange(from=0, to=50) int percent);
     method public static androidx.ui.foundation.shape.corner.CornerSize CornerSize(@FloatRange(from=0.0, to=50.0) float percent);
     method public static androidx.ui.foundation.shape.corner.CornerSize CornerSize-NgWp0Z8(float size);
+    method public static androidx.ui.foundation.shape.corner.CornerSize CornerSize-ipo6vVg(float size);
     method public static androidx.ui.foundation.shape.corner.CornerSize getZeroCornerSize();
   }
 
@@ -396,11 +395,11 @@ package androidx.ui.foundation.shape.corner {
 
   public final class CutCornerShapeKt {
     method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape(androidx.ui.foundation.shape.corner.CornerSize corner);
-    method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape(androidx.ui.unit.Dp size);
     method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape(int percent);
-    method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape(androidx.ui.unit.Dp topLeft = 0.dp, androidx.ui.unit.Dp topRight = 0.dp, androidx.ui.unit.Dp bottomRight = 0.dp, androidx.ui.unit.Dp bottomLeft = 0.dp);
     method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape(@IntRange(from=0, to=50) int topLeftPercent = 0, @IntRange(from=0, to=50) int topRightPercent = 0, @IntRange(from=0, to=50) int bottomRightPercent = 0, @IntRange(from=0, to=50) int bottomLeftPercent = 0);
     method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape-NgWp0Z8(float size);
+    method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape-ipo6vVg(float size);
+    method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape-rIHlIKc(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
     method public static androidx.ui.foundation.shape.corner.CutCornerShape CutCornerShape-wHlpFhg(float topLeft = 0.px, float topRight = 0.px, float bottomRight = 0.px, float bottomLeft = 0.px);
   }
 
@@ -412,11 +411,11 @@ package androidx.ui.foundation.shape.corner {
 
   public final class RoundedCornerShapeKt {
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(androidx.ui.foundation.shape.corner.CornerSize corner);
-    method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(androidx.ui.unit.Dp size);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(int percent);
-    method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(androidx.ui.unit.Dp topLeft = 0.dp, androidx.ui.unit.Dp topRight = 0.dp, androidx.ui.unit.Dp bottomRight = 0.dp, androidx.ui.unit.Dp bottomLeft = 0.dp);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape(@IntRange(from=0, to=50) int topLeftPercent = 0, @IntRange(from=0, to=50) int topRightPercent = 0, @IntRange(from=0, to=50) int bottomRightPercent = 0, @IntRange(from=0, to=50) int bottomLeftPercent = 0);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-NgWp0Z8(float size);
+    method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-ipo6vVg(float size);
+    method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-rIHlIKc(float topLeft = 0.dp, float topRight = 0.dp, float bottomRight = 0.dp, float bottomLeft = 0.dp);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape RoundedCornerShape-wHlpFhg(float topLeft = 0.px, float topRight = 0.px, float bottomRight = 0.px, float bottomLeft = 0.px);
     method public static androidx.ui.foundation.shape.corner.RoundedCornerShape getCircleShape();
   }

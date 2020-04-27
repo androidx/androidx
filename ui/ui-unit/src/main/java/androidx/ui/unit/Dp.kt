@@ -42,7 +42,7 @@ import kotlin.math.sqrt
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-data /*inline*/ class Dp(val value: Float) : Comparable<Dp> {
+inline class Dp(val value: Float) : Comparable<Dp> {
     /**
      * Add two [Dp]s together.
      */
