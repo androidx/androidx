@@ -19,7 +19,6 @@ import androidx.test.filters.SmallTest
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.pointerinput.resize
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
@@ -765,20 +764,23 @@ class ComponentNodeTest {
         assertFalse(layoutNode.coordinates.isAttached)
     }
 
-    // The LayoutNodeWrapper should be detached when it has been replaced
+    // The LayoutNodeWrapper should be detached when it has been replaced.
     @Test
     fun layoutNodeWrapperAttachedWhenLayoutNodeAttached() {
         val layoutNode = LayoutNode()
         val drawModifier = Modifier.drawBehind { }
+
         layoutNode.modifier = drawModifier
-        val layoutNodeWrapper = layoutNode.layoutNodeWrapper
-        assertFalse(layoutNodeWrapper.isAttached)
+        val oldLayoutNodeWrapper = layoutNode.layoutNodeWrapper
+        assertFalse(oldLayoutNodeWrapper.isAttached)
+
         layoutNode.attach(mockOwner())
-        assertTrue(layoutNodeWrapper.isAttached)
+        assertTrue(oldLayoutNodeWrapper.isAttached)
+
         layoutNode.modifier = Modifier.drawBehind { }
-        assertFalse(layoutNodeWrapper.isAttached)
-        assertTrue(layoutNode.coordinates.isAttached)
-        assertTrue(layoutNode.coordinates.isAttached)
+        val newLayoutNodeWrapper = layoutNode.layoutNodeWrapper
+        assertTrue(newLayoutNodeWrapper.isAttached)
+        assertFalse(oldLayoutNodeWrapper.isAttached)
     }
 
     @Test
