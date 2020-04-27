@@ -49,11 +49,12 @@ class TextLayoutDirectionModifierTest : LayoutTest() {
                 value = EditorValue("..."),
                 modifier = Modifier.rtl,
                 onValueChange = {},
-                focusNode = focusNode
-            ) { result ->
-                layoutDirection = result.layoutInput.layoutDirection
-                latch.countDown()
-            }
+                focusNode = focusNode,
+                onTextLayout = { result ->
+                    layoutDirection = result.layoutInput.layoutDirection
+                    latch.countDown()
+                }
+            )
         }
 
         assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
