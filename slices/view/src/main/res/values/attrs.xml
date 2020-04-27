@@ -104,5 +104,8 @@
 
         <!-- Height to use for action divider in the row. -->
         <attr name="actionDividerHeight" format="dimension"/>
+
+        <!-- Width to use for inline SeekBar in the row. -->
+        <attr name="seekBarInlineWidth" format="dimension"/>
     </declare-styleable>
 </resources>
