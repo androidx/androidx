@@ -397,8 +397,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! addExtras(android.os.Bundle!);
     method @RequiresApi(21) public androidx.core.app.NotificationCompat.Builder! addInvisibleAction(int, CharSequence!, android.app.PendingIntent!);
     method @RequiresApi(21) public androidx.core.app.NotificationCompat.Builder! addInvisibleAction(androidx.core.app.NotificationCompat.Action!);
-    method @Deprecated public androidx.core.app.NotificationCompat.Builder! addPerson(String!);
-    method public androidx.core.app.NotificationCompat.Builder addPerson(androidx.core.app.Person);
+    method public androidx.core.app.NotificationCompat.Builder! addPerson(String!);
     method public android.app.Notification! build();
     method public androidx.core.app.NotificationCompat.Builder! extend(androidx.core.app.NotificationCompat.Extender!);
     method public android.os.Bundle! getExtras();
@@ -442,7 +441,6 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! setRemoteInputHistory(CharSequence![]!);
     method public androidx.core.app.NotificationCompat.Builder! setShortcutId(String!);
     method public androidx.core.app.NotificationCompat.Builder! setShowWhen(boolean);
-    method @RequiresApi(23) public androidx.core.app.NotificationCompat.Builder setSmallIcon(android.graphics.drawable.Icon?);
     method public androidx.core.app.NotificationCompat.Builder! setSmallIcon(int);
     method public androidx.core.app.NotificationCompat.Builder! setSmallIcon(int, int);
     method public androidx.core.app.NotificationCompat.Builder! setSortKey(String!);
@@ -876,9 +874,7 @@ package androidx.core.content {
 
   public final class IntentCompat {
     method public static android.content.Intent makeMainSelectorActivity(String, String);
-    field public static final String ACTION_CREATE_REMINDER = "android.intent.action.CREATE_REMINDER";
     field public static final String CATEGORY_LEANBACK_LAUNCHER = "android.intent.category.LEANBACK_LAUNCHER";
-    field public static final String EXTRA_EPOCH_TIME = "android.intent.extra.EPOCH_TIME";
     field public static final String EXTRA_HTML_TEXT = "android.intent.extra.HTML_TEXT";
     field public static final String EXTRA_START_PLAYBACK = "android.intent.extra.START_PLAYBACK";
   }
@@ -936,25 +932,13 @@ package androidx.core.content.pm {
     method public android.content.ComponentName? getActivity();
     method public java.util.Set<java.lang.String!>? getCategories();
     method public CharSequence? getDisabledMessage();
-    method public int getDisabledReason();
-    method public android.os.PersistableBundle? getExtras();
     method public String getId();
     method public android.content.Intent getIntent();
     method public android.content.Intent![] getIntents();
-    method public long getLastChangedTimestamp();
     method public androidx.core.content.LocusIdCompat? getLocusId();
     method public CharSequence? getLongLabel();
-    method public String getPackage();
     method public int getRank();
     method public CharSequence getShortLabel();
-    method public android.os.UserHandle? getUserHandle();
-    method public boolean hasKeyFieldsOnly();
-    method public boolean isCached();
-    method public boolean isDeclaredInManifest();
-    method public boolean isDynamic();
-    method public boolean isEnabled();
-    method public boolean isImmutable();
-    method public boolean isPinned();
     method @RequiresApi(25) public android.content.pm.ShortcutInfo! toShortcutInfo();
   }
 
@@ -965,7 +949,6 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setCategories(java.util.Set<java.lang.String!>);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(CharSequence);
-    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setExtras(android.os.PersistableBundle);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIcon(androidx.core.graphics.drawable.IconCompat!);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent![]);
@@ -982,27 +965,14 @@ package androidx.core.content.pm {
   public class ShortcutManagerCompat {
     method public static boolean addDynamicShortcuts(android.content.Context, java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
     method public static android.content.Intent createShortcutResultIntent(android.content.Context, androidx.core.content.pm.ShortcutInfoCompat);
-    method public static void disableShortcuts(android.content.Context, java.util.List<java.lang.String!>, CharSequence?);
-    method public static void enableShortcuts(android.content.Context, java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
     method public static java.util.List<androidx.core.content.pm.ShortcutInfoCompat!> getDynamicShortcuts(android.content.Context);
-    method public static int getIconMaxHeight(android.content.Context);
-    method public static int getIconMaxWidth(android.content.Context);
     method public static int getMaxShortcutCountPerActivity(android.content.Context);
-    method public static java.util.List<androidx.core.content.pm.ShortcutInfoCompat!> getShortcuts(android.content.Context, int);
-    method public static boolean isRateLimitingActive(android.content.Context);
     method public static boolean isRequestPinShortcutSupported(android.content.Context);
     method public static void removeAllDynamicShortcuts(android.content.Context);
     method public static void removeDynamicShortcuts(android.content.Context, java.util.List<java.lang.String!>);
-    method public static void removeLongLivedShortcuts(android.content.Context, java.util.List<java.lang.String!>);
-    method public static void reportShortcutUsed(android.content.Context, String);
     method public static boolean requestPinShortcut(android.content.Context, androidx.core.content.pm.ShortcutInfoCompat, android.content.IntentSender?);
-    method public static boolean setDynamicShortcuts(android.content.Context, java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
     method public static boolean updateShortcuts(android.content.Context, java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
     field public static final String EXTRA_SHORTCUT_ID = "android.intent.extra.shortcut.ID";
-    field public static final int FLAG_MATCH_CACHED = 8; // 0x8
-    field public static final int FLAG_MATCH_DYNAMIC = 2; // 0x2
-    field public static final int FLAG_MATCH_MANIFEST = 1; // 0x1
-    field public static final int FLAG_MATCH_PINNED = 4; // 0x4
   }
 
 }
@@ -1295,43 +1265,8 @@ package androidx.core.hardware.fingerprint {
 
 package androidx.core.location {
 
-  public abstract class GnssStatusCompat {
-    method @FloatRange(from=0, to=360) public abstract float getAzimuthDegrees(@IntRange(from=0) int);
-    method @FloatRange(from=0) public abstract float getCarrierFrequencyHz(@IntRange(from=0) int);
-    method @FloatRange(from=0, to=63) public abstract float getCn0DbHz(@IntRange(from=0) int);
-    method public abstract int getConstellationType(@IntRange(from=0) int);
-    method @FloatRange(from=0xffffffa6, to=90) public abstract float getElevationDegrees(@IntRange(from=0) int);
-    method @IntRange(from=0) public abstract int getSatelliteCount();
-    method @IntRange(from=1, to=200) public abstract int getSvid(@IntRange(from=0) int);
-    method public abstract boolean hasAlmanacData(@IntRange(from=0) int);
-    method public abstract boolean hasCarrierFrequencyHz(@IntRange(from=0) int);
-    method public abstract boolean hasEphemerisData(@IntRange(from=0) int);
-    method public abstract boolean usedInFix(@IntRange(from=0) int);
-    method @RequiresApi(android.os.Build.VERSION_CODES.N) public static androidx.core.location.GnssStatusCompat wrap(android.location.GnssStatus);
-    method public static androidx.core.location.GnssStatusCompat wrap(android.location.GpsStatus);
-    field public static final int CONSTELLATION_BEIDOU = 5; // 0x5
-    field public static final int CONSTELLATION_GALILEO = 6; // 0x6
-    field public static final int CONSTELLATION_GLONASS = 3; // 0x3
-    field public static final int CONSTELLATION_GPS = 1; // 0x1
-    field public static final int CONSTELLATION_IRNSS = 7; // 0x7
-    field public static final int CONSTELLATION_QZSS = 4; // 0x4
-    field public static final int CONSTELLATION_SBAS = 2; // 0x2
-    field public static final int CONSTELLATION_UNKNOWN = 0; // 0x0
-  }
-
-  public abstract static class GnssStatusCompat.Callback {
-    ctor public GnssStatusCompat.Callback();
-    method public void onFirstFix(@IntRange(from=0) int);
-    method public void onSatelliteStatusChanged(androidx.core.location.GnssStatusCompat);
-    method public void onStarted();
-    method public void onStopped();
-  }
-
   public final class LocationManagerCompat {
     method public static boolean isLocationEnabled(android.location.LocationManager);
-    method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
-    method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
-    method public static void unregisterGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback);
   }
 
 }
@@ -1414,11 +1349,6 @@ package androidx.core.os {
     method public static android.os.Handler createAsync(android.os.Looper);
     method public static android.os.Handler createAsync(android.os.Looper, android.os.Handler.Callback);
     method public static boolean postDelayed(android.os.Handler, Runnable, Object?, long);
-  }
-
-  public class HandlerExecutor implements java.util.concurrent.Executor {
-    ctor public HandlerExecutor(android.os.Handler);
-    method public void execute(Runnable);
   }
 
   public final class LocaleListCompat {
@@ -1784,13 +1714,11 @@ package androidx.core.view {
 
   public final class DisplayCutoutCompat {
     ctor public DisplayCutoutCompat(android.graphics.Rect!, java.util.List<android.graphics.Rect!>!);
-    ctor public DisplayCutoutCompat(androidx.core.graphics.Insets, android.graphics.Rect?, android.graphics.Rect?, android.graphics.Rect?, android.graphics.Rect?, androidx.core.graphics.Insets);
     method public java.util.List<android.graphics.Rect!>! getBoundingRects();
     method public int getSafeInsetBottom();
     method public int getSafeInsetLeft();
     method public int getSafeInsetRight();
     method public int getSafeInsetTop();
-    method public androidx.core.graphics.Insets? getWaterfallInsets();
   }
 
   public final class DragAndDropPermissionsCompat {
@@ -2191,7 +2119,6 @@ package androidx.core.view {
     method @Deprecated public static float getScaleX(android.view.View!);
     method @Deprecated public static float getScaleY(android.view.View!);
     method public static int getScrollIndicators(android.view.View);
-    method @UiThread public static final CharSequence? getStateDescription(android.view.View);
     method public static java.util.List<android.graphics.Rect!> getSystemGestureExclusionRects(android.view.View);
     method public static String? getTransitionName(android.view.View);
     method @Deprecated public static float getTranslationX(android.view.View!);
@@ -2282,7 +2209,6 @@ package androidx.core.view {
     method @UiThread public static void setScreenReaderFocusable(android.view.View!, boolean);
     method public static void setScrollIndicators(android.view.View, int);
     method public static void setScrollIndicators(android.view.View, int, int);
-    method @UiThread public static void setStateDescription(android.view.View, CharSequence?);
     method public static void setSystemGestureExclusionRects(android.view.View, java.util.List<android.graphics.Rect!>);
     method public static void setTooltipText(android.view.View, CharSequence?);
     method public static void setTransitionName(android.view.View, String!);
@@ -2506,7 +2432,6 @@ package androidx.core.view.accessibility {
     field public static final int CONTENT_CHANGE_TYPE_PANE_APPEARED = 16; // 0x10
     field public static final int CONTENT_CHANGE_TYPE_PANE_DISAPPEARED = 32; // 0x20
     field public static final int CONTENT_CHANGE_TYPE_PANE_TITLE = 8; // 0x8
-    field public static final int CONTENT_CHANGE_TYPE_STATE_DESCRIPTION = 64; // 0x40
     field public static final int CONTENT_CHANGE_TYPE_SUBTREE = 1; // 0x1
     field public static final int CONTENT_CHANGE_TYPE_TEXT = 2; // 0x2
     field public static final int CONTENT_CHANGE_TYPE_UNDEFINED = 0; // 0x0
@@ -2590,7 +2515,6 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getParent();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat! getRangeInfo();
     method public CharSequence? getRoleDescription();
-    method public CharSequence? getStateDescription();
     method public CharSequence! getText();
     method public int getTextSelectionEnd();
     method public int getTextSelectionStart();
@@ -2680,7 +2604,6 @@ package androidx.core.view.accessibility {
     method public void setShowingHintText(boolean);
     method public void setSource(android.view.View!);
     method public void setSource(android.view.View!, int);
-    method public void setStateDescription(CharSequence?);
     method public void setText(CharSequence!);
     method public void setTextEntryKey(boolean);
     method public void setTextSelection(int, int);
@@ -2701,7 +2624,6 @@ package androidx.core.view.accessibility {
     field public static final String ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT = "ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT";
     field public static final String ACTION_ARGUMENT_MOVE_WINDOW_X = "ACTION_ARGUMENT_MOVE_WINDOW_X";
     field public static final String ACTION_ARGUMENT_MOVE_WINDOW_Y = "ACTION_ARGUMENT_MOVE_WINDOW_Y";
-    field public static final String ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT = "android.view.accessibility.action.ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT";
     field public static final String ACTION_ARGUMENT_PROGRESS_VALUE = "android.view.accessibility.action.ARGUMENT_PROGRESS_VALUE";
     field public static final String ACTION_ARGUMENT_ROW_INT = "android.view.accessibility.action.ARGUMENT_ROW_INT";
     field public static final String ACTION_ARGUMENT_SELECTION_END_INT = "ACTION_ARGUMENT_SELECTION_END_INT";
@@ -2764,7 +2686,6 @@ package androidx.core.view.accessibility {
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PAGE_RIGHT;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PAGE_UP;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_PASTE;
-    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PRESS_AND_HOLD;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_PREVIOUS_HTML_ELEMENT;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_SCROLL_BACKWARD;
