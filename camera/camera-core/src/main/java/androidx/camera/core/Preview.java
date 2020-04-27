@@ -187,7 +187,8 @@ public final class Preview extends UseCase {
             mSessionDeferrableSurface.close();
         }
 
-        final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution);
+        final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution,
+                getBoundCamera().getCameraInfo());
         setUpSurfaceProviderWrap(surfaceRequest);
 
         if (captureProcessor != null) {

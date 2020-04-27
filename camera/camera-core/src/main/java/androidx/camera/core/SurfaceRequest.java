@@ -55,6 +55,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class SurfaceRequest {
 
     private final Size mResolution;
+    private final CameraInfo mCameraInfo;
 
     // For the camera to retrieve the surface from the user
     @SuppressWarnings("WeakerAccess") /*synthetic accessor */
@@ -72,14 +73,15 @@ public final class SurfaceRequest {
     private DeferrableSurface mInternalDeferrableSurface;
 
     /**
-     * Creates a new surface request with the given resolution.
+     * Creates a new surface request with the given resolution and cameraInfo.
      *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public SurfaceRequest(@NonNull Size resolution) {
+    public SurfaceRequest(@NonNull Size resolution, @NonNull CameraInfo cameraInfo) {
         super();
         mResolution = resolution;
+        mCameraInfo = cameraInfo;
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
         // triggered externally by the top-level completer (mSurfaceCompleter). The other future
@@ -219,6 +221,17 @@ public final class SurfaceRequest {
     @NonNull
     public Size getResolution() {
         return mResolution;
+    }
+
+    /**
+     * Returns the {@link CameraInfo} of the camera which is requesting a {@link Surface}.
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public CameraInfo getCameraInfo() {
+        return mCameraInfo;
     }
 
 
