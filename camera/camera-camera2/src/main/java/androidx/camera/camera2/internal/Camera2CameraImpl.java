@@ -555,7 +555,7 @@ final class Camera2CameraImpl implements CameraInternal {
                 mUseCaseAttachState.updateUseCase(useCase);
                 updateCaptureSessionConfig();
             } catch (NullPointerException e) {
-                Log.e(TAG, "Failed to set already detached use case active");
+                debugLog("Failed to set already detached use case active");
             }
         });
     }
