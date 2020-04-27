@@ -15,6 +15,17 @@ class Issue(object):
     self.issueId = issueId
     self.description = description
 
+class IssueComponent(object):
+  def __init__(self, name):
+    self.name = name
+  def __str__(self):
+    return "Component: '" + self.name + "'"
+  def __repr__(self):
+    return str(self)
+
+components = {}
+components["navigation"] = IssueComponent("Navigation")
+
 class AssigneeRecommendation(object):
   def __init__(self, usernames, justification):
     self.usernames = usernames
@@ -161,6 +172,7 @@ class Triager(object):
       "AppCompat": ["kirillg"],
       "Design Library": ["material-android-firehose"],
       "android.support.design": ["material-android-firehose"],
+      "NavigationView": ["material-android-firehose"], # not to be confused with Navigation
       "RenderThread": ["jreck"],
       "VectorDrawable": ["tianliu"],
       "Vector Drawable": ["tianliu"],
@@ -179,7 +191,8 @@ class Triager(object):
       "slice": ["madym"],
       "checkApi": ["jeffrygaston", "aurimas"],
       "compose": ["chuckj", "jsproch", "lelandr"],
-      "jetifier": ["pavlis", "jeffrygaston"]
+      "jetifier": ["pavlis", "jeffrygaston"],
+      "navigat": [components["navigation"]] # "navigation", "navigate", etc
     })
     self.recommenderRules.append(OwnersRule(fileFinder))
     self.recommenderRules.append(LastTouchedBy_Rule(fileFinder))
