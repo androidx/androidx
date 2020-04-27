@@ -1835,6 +1835,21 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * @see androidx.core.view.NestedScrollingChild
      */
     public void nestedScrollBy(int x, int y) {
+        nestedScrollByInternal(x, y, null, TYPE_NON_TOUCH);
+    }
+
+    /**
+     * Similar to {@link RecyclerView#scrollByInternal(int, int, MotionEvent, int)}, but fully
+     * participates in nested scrolling "end to end", meaning that it will start nested scrolling,
+     * participate in nested scrolling, and then end nested scrolling all within one call.
+     * @param x The amount of horizontal scroll requested.
+     * @param y The amount of vertical scroll requested.
+     * @param motionEvent The originating MotionEvent if any.
+     * @param type The type of nested scrolling to engage in (TYPE_TOUCH or TYPE_NON_TOUCH).
+     */
+    @SuppressWarnings("SameParameterValue")
+    private void nestedScrollByInternal(int x, int y, @Nullable MotionEvent motionEvent, int type) {
+
         if (mLayout == null) {
             Log.e(TAG, "Cannot scroll without a LayoutManager set. "
                     + "Call setLayoutManager with a non-null argument.");
@@ -1855,11 +1870,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (canScrollVertical) {
             nestedScrollAxis |= ViewCompat.SCROLL_AXIS_VERTICAL;
         }
-        startNestedScroll(nestedScrollAxis, TYPE_NON_TOUCH);
+        startNestedScroll(nestedScrollAxis, type);
         if (dispatchNestedPreScroll(
                 canScrollHorizontal ? x : 0,
                 canScrollVertical ? y : 0,
-                mReusableIntPair, mScrollOffset, TYPE_NON_TOUCH
+                mReusableIntPair, mScrollOffset, type
         )) {
             x -= mReusableIntPair[0];
             y -= mReusableIntPair[1];
@@ -1868,11 +1883,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         scrollByInternal(
                 canScrollHorizontal ? x : 0,
                 canScrollVertical ? y : 0,
-                null, TYPE_NON_TOUCH);
+                motionEvent, type);
         if (mGapWorker != null && (x != 0 || y != 0)) {
             mGapWorker.postFromTraversal(this, x, y);
         }
-        stopNestedScroll(TYPE_NON_TOUCH);
+        stopNestedScroll(type);
     }
 
     /**
@@ -3573,8 +3588,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             }
 
             if (vScroll != 0 || hScroll != 0) {
-                scrollByInternal((int) (hScroll * mScaledHorizontalScrollFactor),
-                        (int) (vScroll * mScaledVerticalScrollFactor), event, TYPE_TOUCH);
+                nestedScrollByInternal((int) (hScroll * mScaledHorizontalScrollFactor),
+                        (int) (vScroll * mScaledVerticalScrollFactor), event, TYPE_NON_TOUCH);
             }
         }
         return false;
