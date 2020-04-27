@@ -193,7 +193,8 @@ class Triager(object):
 
   def process(self, lines):
     issues = self.parseIssues(lines)
-    outputs = []
+    recognizedTriages = []
+    unrecognizedTriages = []
     print("Analyzing " + str(len(issues)) + " issues")
     for issue in issues:
       print(".")
@@ -204,11 +205,14 @@ class Triager(object):
         if len(usernames) > 2:
           usernames = usernames[:2]
         recommendationText = str(usernames) + " (" + assigneeRecommendation.justification + ")"
-      outputs.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
+        recognizedTriages.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
+      else:
+        unrecognizedTriages.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
     maxColumnWidth = 0
-    for item in outputs:
+    allTriages = recognizedTriages + unrecognizedTriages
+    for item in allTriages:
       maxColumnWidth = max(maxColumnWidth, len(item[0]))
-    for item in outputs:
+    for item in allTriages:
       print(str(item[0]) + (" " * (maxColumnWidth - len(item[0]))) + " -> " + str(item[1]))
 
   def parseIssues(self, lines):
