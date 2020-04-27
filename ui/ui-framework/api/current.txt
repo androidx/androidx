@@ -22,8 +22,8 @@ package androidx.ui.core {
   }
 
   public final class DrawShadowKt {
-    method @Deprecated public static androidx.ui.core.Modifier drawShadow(androidx.ui.graphics.Shape shape, androidx.ui.unit.Dp elevation, boolean clipToOutline = true, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
-    method public static androidx.ui.core.Modifier drawShadow(androidx.ui.core.Modifier, androidx.ui.unit.Dp elevation, androidx.ui.graphics.Shape shape = RectangleShape, boolean clipToOutline = elevation > 0.dp, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
+    method @Deprecated public static androidx.ui.core.Modifier drawShadow-IFvMOQI(androidx.ui.graphics.Shape shape, float elevation, boolean clipToOutline = true, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
+    method public static androidx.ui.core.Modifier drawShadow-xWKVMPI(androidx.ui.core.Modifier, float elevation, androidx.ui.graphics.Shape shape = RectangleShape, boolean clipToOutline = elevation > 0.dp, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
   }
 
   public enum DropDownAlignment {
@@ -127,21 +127,21 @@ package androidx.ui.core.gesture {
 
   public final class ConstantsKt {
     method public static androidx.ui.unit.Duration getDoubleTapMinTime();
-    method public static androidx.ui.unit.Dp getDoubleTapSlop();
+    method public static float getDoubleTapSlop();
     method public static androidx.ui.unit.Duration getDoubleTapTimeout();
-    method public static androidx.ui.unit.Dp getDoubleTapTouchSlop();
-    method public static androidx.ui.unit.Dp getHoverTapSlop();
+    method public static float getDoubleTapTouchSlop();
+    method public static float getHoverTapSlop();
     method public static androidx.ui.unit.Duration getHoverTapTimeout();
     method public static androidx.ui.unit.Duration getJumpTapTimeout();
     method public static androidx.ui.unit.Duration getLongPressTimeout();
-    method public static androidx.ui.unit.Dp getMaxFlingVelocity();
-    method public static androidx.ui.unit.Dp getMinFlingVelocity();
+    method public static float getMaxFlingVelocity();
+    method public static float getMinFlingVelocity();
     method public static float getPagingTouchSlop();
     method public static float getPanSlop();
     method public static androidx.ui.unit.Duration getPressTimeout();
-    method public static androidx.ui.unit.Dp getScaleSlop();
-    method public static androidx.ui.unit.Dp getTouchSlop();
-    method public static androidx.ui.unit.Dp getWindowTouchSlop();
+    method public static float getScaleSlop();
+    method public static float getTouchSlop();
+    method public static float getWindowTouchSlop();
     method public static androidx.ui.unit.Duration getZoomControlsTimeout();
   }
 
@@ -349,14 +349,14 @@ package androidx.ui.graphics.vector {
 
   public final class VectorAsset {
     method public String component1();
-    method public androidx.ui.unit.Dp component2();
-    method public androidx.ui.unit.Dp component3();
+    method public float component2();
+    method public float component3();
     method public float component4();
     method public float component5();
     method public androidx.ui.graphics.vector.VectorGroup component6();
-    method public androidx.ui.graphics.vector.VectorAsset copy(String name, androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth, float viewportHeight, androidx.ui.graphics.vector.VectorGroup root);
-    method public androidx.ui.unit.Dp getDefaultHeight();
-    method public androidx.ui.unit.Dp getDefaultWidth();
+    method public androidx.ui.graphics.vector.VectorAsset copy-rmhd70c(String name, float defaultWidth, float defaultHeight, float viewportWidth, float viewportHeight, androidx.ui.graphics.vector.VectorGroup root);
+    method public float getDefaultHeight();
+    method public float getDefaultWidth();
     method public String getName();
     method public androidx.ui.graphics.vector.VectorGroup getRoot();
     method public float getViewportHeight();
@@ -364,11 +364,10 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorAssetBuilder {
-    ctor public VectorAssetBuilder(String name, androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth, float viewportHeight);
     method public androidx.ui.graphics.vector.VectorAssetBuilder addPath(java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
     method public androidx.ui.graphics.vector.VectorAsset build();
-    method public androidx.ui.unit.Dp getDefaultHeight();
-    method public androidx.ui.unit.Dp getDefaultWidth();
+    method public float getDefaultHeight();
+    method public float getDefaultWidth();
     method public String getName();
     method public float getViewportHeight();
     method public float getViewportWidth();
@@ -390,7 +389,7 @@ package androidx.ui.graphics.vector {
     method public static void Path(androidx.ui.graphics.vector.VectorScope, java.util.List<? extends androidx.ui.graphics.vector.PathNode> pathData, String name = "", androidx.ui.graphics.Brush? fill = null, float fillAlpha = 1.0f, androidx.ui.graphics.Brush? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.graphics.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.graphics.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
     method public static androidx.ui.core.Modifier drawVector-DGWccOo(androidx.ui.core.Modifier, float defaultWidth, float defaultHeight, float viewportWidth = defaultWidth.value, float viewportHeight = defaultHeight.value, long tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
     method @Deprecated public static androidx.ui.core.Modifier drawVector-coNG3w0(float defaultWidth, float defaultHeight, float viewportWidth = defaultWidth.value, float viewportHeight = defaultHeight.value, long tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
-    method @Deprecated public static androidx.ui.core.Modifier drawVector-ekZRHcQ(androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth = -1.0f, float viewportHeight = -1.0f, long tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
+    method @Deprecated public static androidx.ui.core.Modifier drawVector-ekZRHcQ(float defaultWidth, float defaultHeight, float viewportWidth = -1.0f, float viewportHeight = -1.0f, long tintColor = DefaultTintColor, androidx.ui.graphics.BlendMode tintBlendMode = DefaultTintBlendMode, androidx.ui.core.Alignment alignment = androidx.ui.graphics.vector.VectorComposeKt.DefaultAlignment, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, String name = "", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
   }
 
   public final class VectorGroup extends androidx.ui.graphics.vector.VectorNode implements java.lang.Iterable<androidx.ui.graphics.vector.VectorNode> kotlin.jvm.internal.markers.KMappedMarker {
@@ -421,8 +420,8 @@ package androidx.ui.graphics.vector {
   }
 
   public final class VectorPainterKt {
-    method public static androidx.ui.graphics.vector.VectorPainter VectorPainter(androidx.ui.unit.Dp defaultWidth, androidx.ui.unit.Dp defaultHeight, float viewportWidth = Float.NaN, float viewportHeight = Float.NaN, String name = "VectorRootGroup", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
     method public static androidx.ui.graphics.vector.VectorPainter VectorPainter(androidx.ui.graphics.vector.VectorAsset asset);
+    method public static androidx.ui.graphics.vector.VectorPainter VectorPainter-uAXuNKI(float defaultWidth, float defaultHeight, float viewportWidth = Float.NaN, float viewportHeight = Float.NaN, String name = "VectorRootGroup", kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit> children);
     field public static final String RootGroupName = "VectorRootGroup";
   }
 
@@ -517,7 +516,7 @@ package androidx.ui.res {
 
   public final class PrimitiveResourcesKt {
     method public static boolean booleanResource(@BoolRes int id);
-    method public static androidx.ui.unit.Dp dimensionResource(@DimenRes int id);
+    method public static float dimensionResource(@DimenRes int id);
     method public static int[] integerArrayResource(@ArrayRes int id);
     method public static int integerResource(@IntegerRes int id);
   }

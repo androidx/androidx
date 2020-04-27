@@ -41,7 +41,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(Parameterized::class)
-class ElevationOverlayTest(private val elevation: Dp, overlayColor: Color?) {
+class ElevationOverlayTest(private val elevation: Dp?, overlayColor: Color?) {
 
     private val Tag = "Surface"
     private val SurfaceSize = IntPxSize(10.ipx, 10.ipx)
@@ -70,7 +70,7 @@ class ElevationOverlayTest(private val elevation: Dp, overlayColor: Color?) {
 
     @Test
     fun correctElevationOverlayInDarkTheme() {
-        setupSurfaceForTesting(elevation, darkColorPalette())
+        setupSurfaceForTesting(elevation!!, darkColorPalette())
 
         findByTag(Tag)
             .captureToBitmap()
@@ -81,7 +81,7 @@ class ElevationOverlayTest(private val elevation: Dp, overlayColor: Color?) {
 
     @Test
     fun noChangesInLightTheme() {
-        setupSurfaceForTesting(elevation, lightColorPalette())
+        setupSurfaceForTesting(elevation!!, lightColorPalette())
 
         // No overlay should be applied in light theme
         val expectedSurfaceColor = Color.White

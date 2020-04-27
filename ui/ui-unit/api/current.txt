@@ -2,37 +2,36 @@
 package androidx.ui.unit {
 
   public final class Bounds {
-    ctor public Bounds(androidx.ui.unit.Dp left, androidx.ui.unit.Dp top, androidx.ui.unit.Dp right, androidx.ui.unit.Dp bottom);
-    method public androidx.ui.unit.Dp component1();
-    method public androidx.ui.unit.Dp component2();
-    method public androidx.ui.unit.Dp component3();
-    method public androidx.ui.unit.Dp component4();
-    method public androidx.ui.unit.Bounds copy(androidx.ui.unit.Dp left, androidx.ui.unit.Dp top, androidx.ui.unit.Dp right, androidx.ui.unit.Dp bottom);
-    method public androidx.ui.unit.Dp getBottom();
-    method public androidx.ui.unit.Dp getLeft();
-    method public androidx.ui.unit.Dp getRight();
-    method public androidx.ui.unit.Dp getTop();
+    method public float component1();
+    method public float component2();
+    method public float component3();
+    method public float component4();
+    method public androidx.ui.unit.Bounds copy-rIHlIKc(float left, float top, float right, float bottom);
+    method public float getBottom();
+    method public float getLeft();
+    method public float getRight();
+    method public float getTop();
   }
 
   public interface Density {
     method public float getDensity();
     method public float getFontScale();
-    method public default androidx.ui.unit.Dp toDp(float);
-    method public default androidx.ui.unit.Dp toDp(int);
-    method public default androidx.ui.unit.Dp toDp-NgWp0Z8(float);
-    method public default androidx.ui.unit.Dp toDp-gshw56o(int);
-    method public default androidx.ui.unit.Dp toDp-vVlMl6k(long);
-    method public default int toIntPx(androidx.ui.unit.Dp);
+    method public default float toDp(float);
+    method public default float toDp(int);
+    method public default float toDp-NgWp0Z8(float);
+    method public default float toDp-gshw56o(int);
+    method public default float toDp-vVlMl6k(long);
+    method public default int toIntPx-ipo6vVg(float);
     method public default int toIntPx-vVlMl6k(long);
-    method public default float toPx(androidx.ui.unit.Dp);
+    method public default float toPx-ipo6vVg(float);
     method public default androidx.ui.unit.PxSize toPx-kAYDl8w(long);
     method public default float toPx-vVlMl6k(long);
     method public default androidx.ui.geometry.Rect toRect(androidx.ui.unit.Bounds);
-    method public default long toSp(androidx.ui.unit.Dp);
     method public default long toSp(float);
     method public default long toSp(int);
     method public default long toSp-NgWp0Z8(float);
     method public default long toSp-gshw56o(int);
+    method public default long toSp-ipo6vVg(float);
     property public abstract float density;
     property public abstract float fontScale;
   }
@@ -42,33 +41,37 @@ package androidx.ui.unit {
     method public static androidx.ui.unit.Density Density(float density, float fontScale = 1f);
   }
 
-  public final class Dp implements java.lang.Comparable<androidx.ui.unit.Dp> {
-    ctor public Dp(float value);
-    method public operator int compareTo(androidx.ui.unit.Dp other);
-    method public float component1();
-    method public androidx.ui.unit.Dp copy(float value);
-    method public inline operator androidx.ui.unit.Dp div(float other);
-    method public inline operator androidx.ui.unit.Dp div(int other);
-    method public inline operator float div(androidx.ui.unit.Dp other);
-    method public inline operator float div-x8crYZs(float other);
+  public final inline class Dp implements java.lang.Comparable<androidx.ui.unit.Dp> {
+    ctor public Dp();
+    method public operator int compareTo-ipo6vVg(float p);
+    method public static operator int compareTo-ipo6vVg(float $this, float other);
+    method public static float constructor-impl(float value);
+    method public static inline operator float div-impl(float $this, float other);
+    method public static inline operator float div-impl(float $this, int other);
+    method public static inline operator float div-ipo6vVg(float $this, float other);
+    method public static inline operator float div-x8crYZs(float $this, float other);
+    method public static boolean equals-impl(float p, Object? p1);
+    method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public inline operator androidx.ui.unit.Dp minus(androidx.ui.unit.Dp other);
-    method public inline operator androidx.ui.unit.Dp plus(androidx.ui.unit.Dp other);
-    method public inline operator androidx.ui.unit.Dp times(float other);
-    method public inline operator androidx.ui.unit.Dp times(int other);
-    method public inline operator float times(androidx.ui.unit.Dp other);
-    method public inline operator float times-x8crYZs(float other);
-    method public inline operator androidx.ui.unit.Dp unaryMinus();
+    method public static int hashCode-impl(float p);
+    method public static inline operator float minus-ipo6vVg(float $this, float other);
+    method public static inline operator float plus-ipo6vVg(float $this, float other);
+    method public static inline operator float times-impl(float $this, float other);
+    method public static inline operator float times-impl(float $this, int other);
+    method public static inline operator float times-ipo6vVg(float $this, float other);
+    method public static inline operator float times-x8crYZs(float $this, float other);
+    method public static String toString-impl(float $this);
+    method public static inline operator float unaryMinus-impl(float $this);
     field public static final androidx.ui.unit.Dp.Companion! Companion;
   }
 
   public static final class Dp.Companion {
-    method public androidx.ui.unit.Dp getHairline();
-    method public androidx.ui.unit.Dp getInfinity();
-    method public androidx.ui.unit.Dp getUnspecified();
-    property public final androidx.ui.unit.Dp Hairline;
-    property public final androidx.ui.unit.Dp Infinity;
-    property public final androidx.ui.unit.Dp Unspecified;
+    method public float getHairline();
+    method public float getInfinity();
+    method public float getUnspecified();
+    property public final float Hairline;
+    property public final float Infinity;
+    property public final float Unspecified;
   }
 
   public final inline class DpCubed implements java.lang.Comparable<androidx.ui.unit.DpCubed> {
@@ -78,8 +81,8 @@ package androidx.ui.unit {
     method public static float constructor-impl(float value);
     method public static inline operator float div-JDqhs2g(float $this, float other);
     method public static inline operator float div-impl(float $this, float other);
-    method public static inline operator float div-impl(float $this, androidx.ui.unit.Dp other);
-    method public static inline operator androidx.ui.unit.Dp div-x8crYZs(float $this, float other);
+    method public static inline operator float div-ipo6vVg(float $this, float other);
+    method public static inline operator float div-x8crYZs(float $this, float other);
     method public static boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
@@ -104,37 +107,37 @@ package androidx.ui.unit {
     method public static inline operator float plus-_K2iRR8(float $this, float dimension);
     method public static inline operator float times-JDqhs2g(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
-    method public static inline operator float times-impl(float $this, androidx.ui.unit.Dp other);
-    method public static inline operator androidx.ui.unit.Dp times-x8crYZs(float $this, float other);
+    method public static inline operator float times-ipo6vVg(float $this, float other);
+    method public static inline operator float times-x8crYZs(float $this, float other);
     method public static String toString-impl(float $this);
   }
 
   public final class DpKt {
-    method public static inline long Position(androidx.ui.unit.Dp x, androidx.ui.unit.Dp y);
-    method public static inline long Size(androidx.ui.unit.Dp width, androidx.ui.unit.Dp height);
+    method public static inline long Position-98Cn76g(float x, float y);
+    method public static inline long Size-98Cn76g(float width, float height);
     method public static long center-kAYDl8w(long);
-    method public static inline androidx.ui.unit.Dp coerceAtLeast(androidx.ui.unit.Dp, androidx.ui.unit.Dp minimumValue);
-    method public static inline androidx.ui.unit.Dp coerceAtMost(androidx.ui.unit.Dp, androidx.ui.unit.Dp maximumValue);
-    method public static inline androidx.ui.unit.Dp coerceIn(androidx.ui.unit.Dp, androidx.ui.unit.Dp minimumValue, androidx.ui.unit.Dp maximumValue);
-    method public static inline operator float div(float, androidx.ui.unit.Dp other);
-    method public static inline operator float div(double, androidx.ui.unit.Dp other);
-    method public static inline operator float div(int, androidx.ui.unit.Dp other);
-    method public static androidx.ui.unit.Dp getDistance-T8eBu-w(long);
-    method public static inline androidx.ui.unit.Dp getDp(int);
-    method public static inline androidx.ui.unit.Dp getDp(double);
-    method public static inline androidx.ui.unit.Dp getDp(float);
-    method public static inline androidx.ui.unit.Dp getHeight(androidx.ui.unit.Bounds);
-    method public static inline androidx.ui.unit.Dp getWidth(androidx.ui.unit.Bounds);
-    method public static inline boolean isFinite(androidx.ui.unit.Dp);
-    method public static androidx.ui.unit.Dp lerp(androidx.ui.unit.Dp start, androidx.ui.unit.Dp stop, float fraction);
+    method public static inline float coerceAtLeast-98Cn76g(float, float minimumValue);
+    method public static inline float coerceAtMost-98Cn76g(float, float maximumValue);
+    method public static inline float coerceIn-x40Cv7w(float, float minimumValue, float maximumValue);
+    method public static inline operator float div-H0Zl2lQ(float, float other);
+    method public static inline operator float div-Y_YOLaE(double, float other);
+    method public static inline operator float div-hZ6b2Ic(int, float other);
+    method public static float getDistance-T8eBu-w(long);
+    method public static inline float getDp(int);
+    method public static inline float getDp(double);
+    method public static inline float getDp(float);
+    method public static inline float getHeight(androidx.ui.unit.Bounds);
+    method public static inline float getWidth(androidx.ui.unit.Bounds);
+    method public static inline boolean isFinite-ipo6vVg(float);
+    method public static float lerp-3WSoJcA(float start, float stop, float fraction);
     method public static long lerp-d5NHFfI(long start, long stop, float fraction);
-    method public static inline androidx.ui.unit.Dp max(androidx.ui.unit.Dp a, androidx.ui.unit.Dp b);
-    method public static inline androidx.ui.unit.Dp min(androidx.ui.unit.Dp a, androidx.ui.unit.Dp b);
-    method public static inline operator androidx.ui.unit.Dp times(float, androidx.ui.unit.Dp other);
-    method public static inline operator androidx.ui.unit.Dp times(double, androidx.ui.unit.Dp other);
-    method public static inline operator androidx.ui.unit.Dp times(int, androidx.ui.unit.Dp other);
+    method public static inline float max-98Cn76g(float a, float b);
+    method public static inline float min-98Cn76g(float a, float b);
     method public static inline operator long times--D0i1nw(float, long size);
     method public static inline operator long times-DdskrAE(int, long size);
+    method public static inline operator float times-H0Zl2lQ(float, float other);
+    method public static inline operator float times-Y_YOLaE(double, float other);
+    method public static inline operator float times-hZ6b2Ic(int, float other);
     method public static inline operator long times-l9Tz9ww(double, long size);
     method public static androidx.ui.unit.Bounds toBounds-kAYDl8w(long);
     method public static inline long toSize(androidx.ui.unit.Bounds);
@@ -147,7 +150,7 @@ package androidx.ui.unit {
     method public static float constructor-impl(float value);
     method public static inline operator float div-JDqhs2g(float $this, float other);
     method public static inline operator float div-impl(float $this, float other);
-    method public static inline operator androidx.ui.unit.Dp div-impl(float $this, androidx.ui.unit.Dp other);
+    method public static inline operator float div-ipo6vVg(float $this, float other);
     method public static inline operator float div-x8crYZs(float $this, float other);
     method public static boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
@@ -156,7 +159,7 @@ package androidx.ui.unit {
     method public static inline operator float minus-x8crYZs(float $this, float other);
     method public static inline operator float plus-x8crYZs(float $this, float other);
     method public static inline operator float times-impl(float $this, float other);
-    method public static inline operator float times-impl(float $this, androidx.ui.unit.Dp other);
+    method public static inline operator float times-ipo6vVg(float $this, float other);
     method public static String toString-impl(float $this);
   }
 
@@ -338,8 +341,8 @@ package androidx.ui.unit {
     method public static long constructor-impl(internal long value);
     method public static boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
-    method public static androidx.ui.unit.Dp getX-impl(long $this);
-    method public static androidx.ui.unit.Dp getY-impl(long $this);
+    method public static float getX-impl(long $this);
+    method public static float getY-impl(long $this);
     method public static int hashCode-impl(long p);
     method public static inline operator long minus-T8eBu-w(long $this, long other);
     method public static inline operator long plus-T8eBu-w(long $this, long other);
@@ -537,8 +540,8 @@ package androidx.ui.unit {
     method public static inline operator long div-impl(long $this, double other);
     method public static boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
-    method public static androidx.ui.unit.Dp getHeight-impl(long $this);
-    method public static androidx.ui.unit.Dp getWidth-impl(long $this);
+    method public static float getHeight-impl(long $this);
+    method public static float getWidth-impl(long $this);
     method public static int hashCode-impl(long p);
     method public static inline operator long times-impl(long $this, int other);
     method public static inline operator long times-impl(long $this, float other);
