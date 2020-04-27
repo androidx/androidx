@@ -256,11 +256,8 @@ package androidx.ui.core.input {
 
   public interface FocusManager {
     method public void blur(androidx.ui.core.input.FocusNode client);
-    method public void registerFocusNode(String identifier, androidx.ui.core.input.FocusNode node);
     method public void registerObserver(androidx.ui.core.input.FocusNode node, kotlin.jvm.functions.Function2<? super androidx.ui.core.input.FocusNode,? super androidx.ui.core.input.FocusNode,kotlin.Unit> observer);
     method public void requestFocus(androidx.ui.core.input.FocusNode client);
-    method public void requestFocusById(String identifier);
-    method public void unregisterFocusNode(String identifier);
   }
 
   public final class FocusManagerKt {

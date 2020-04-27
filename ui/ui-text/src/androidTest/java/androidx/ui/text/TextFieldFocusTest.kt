@@ -25,6 +25,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.input.FocusManager
+import androidx.ui.core.input.FocusNode
 import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService
 import androidx.ui.test.createComposeRule
@@ -45,7 +46,7 @@ class TextFieldFocusTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    data class FocusTestData(val id: String, var focused: Boolean = false)
+    data class FocusTestData(val id: FocusNode = FocusNode(), var focused: Boolean = false)
 
     @Composable
     private fun TextFieldApp(dataList: List<FocusTestData>) {
@@ -57,7 +58,7 @@ class TextFieldFocusTest {
                 onValueChange = {
                     editor.value = it
                 },
-                focusIdentifier = data.id,
+                focusNode = data.id,
                 onFocusChange = { data.focused = it }
             )
         }
@@ -71,9 +72,9 @@ class TextFieldFocusTest {
             .thenReturn(inputSessionToken)
 
         val testDataList = listOf(
-            FocusTestData("ID1"),
-            FocusTestData("ID2"),
-            FocusTestData("ID3")
+            FocusTestData(),
+            FocusTestData(),
+            FocusTestData()
         )
 
         lateinit var focusManager: FocusManager
@@ -88,21 +89,21 @@ class TextFieldFocusTest {
             }
         }
 
-        runOnUiThread { focusManager.requestFocusById(testDataList[0].id) }
+        runOnUiThread { focusManager.requestFocus(testDataList[0].id) }
         runOnIdleCompose {
             assertThat(testDataList[0].focused).isTrue()
             assertThat(testDataList[1].focused).isFalse()
             assertThat(testDataList[2].focused).isFalse()
         }
 
-        runOnUiThread { focusManager.requestFocusById(testDataList[1].id) }
+        runOnUiThread { focusManager.requestFocus(testDataList[1].id) }
         runOnIdleCompose {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isTrue()
             assertThat(testDataList[2].focused).isFalse()
         }
 
-        runOnUiThread { focusManager.requestFocusById(testDataList[2].id) }
+        runOnUiThread { focusManager.requestFocus(testDataList[2].id) }
         runOnIdleCompose {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isFalse()

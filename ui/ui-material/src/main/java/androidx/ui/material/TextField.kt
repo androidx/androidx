@@ -33,8 +33,6 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Constraints
 import androidx.ui.core.FocusManagerAmbient
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier2
@@ -43,6 +41,7 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.drawBehind
+import androidx.ui.core.input.FocusNode
 import androidx.ui.core.offset
 import androidx.ui.core.tag
 import androidx.ui.foundation.Box
@@ -62,6 +61,8 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.lerp
@@ -71,7 +72,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
-import java.util.UUID
 
 /**
  * Material Design implementation of the
@@ -276,7 +276,7 @@ private fun FilledTextFieldImpl(
     backgroundColor: Color,
     shape: Shape
 ) {
-    val focusIdentifier = remember { UUID.randomUUID().toString() }
+    val focusNode = remember { FocusNode() }
     var shouldFocus by state { false }
     var focused by state { false }
     val inputState = stateFor(value.text, focused) {
@@ -314,7 +314,7 @@ private fun FilledTextFieldImpl(
                     focused = it
                     onFocusChange(it)
                 },
-                focusIdentifier = focusIdentifier
+                focusNode = focusNode
             )
         }
     }
@@ -332,7 +332,7 @@ private fun FilledTextFieldImpl(
         ) {
             Clickable(onClick = { shouldFocus = true }, modifier = Modifier.ripple(false)) {
                 if (shouldFocus) {
-                    FocusManagerAmbient.current.requestFocusById(focusIdentifier)
+                    FocusManagerAmbient.current.requestFocus(focusNode)
                     shouldFocus = false
                 }
 

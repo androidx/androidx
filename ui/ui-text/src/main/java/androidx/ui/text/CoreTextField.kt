@@ -56,11 +56,11 @@ fun CoreTextField(
     value: EditorValue,
     modifier: Modifier,
     onValueChange: (EditorValue) -> Unit,
+    focusNode: FocusNode,
     textStyle: TextStyle = TextStyle.Default,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocusChange: (Boolean) -> Unit = {},
-    focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null,
     onTextLayout: (TextLayoutResult) -> Unit = {}
@@ -106,7 +106,7 @@ fun CoreTextField(
 
         state.processor.onNewState(value, textInputService, state.inputSession)
         TextInputEventObserver(
-            focusIdentifier = focusIdentifier,
+            focusNode = focusNode,
             onPress = { },
             onFocus = {
                 state.hasFocus = true
@@ -243,25 +243,19 @@ private fun TextInputEventObserver(
     onRelease: (PxPosition) -> Unit,
     onFocus: () -> Unit,
     onBlur: (hasNextClient: Boolean) -> Unit,
-    focusIdentifier: String?,
+    focusNode: FocusNode,
     children: @Composable() () -> Unit
 ) {
     val focused = state { false }
     val focusManager = FocusManagerAmbient.current
 
-    val focusNode = remember {
-        FocusNode().also {
-            focusManager.registerObserver(it) { fromNode, toNode ->
-                if (fromNode == it) { // Focus lost
-                    onBlur(toNode != null)
-                    focused.value = false
-                } else { // Focus gain
-                    onFocus()
-                    focused.value = true
-                }
-            }
-            if (focusIdentifier != null)
-                focusManager.registerFocusNode(focusIdentifier, it)
+    focusManager.registerObserver(focusNode) { fromNode, toNode ->
+        if (fromNode == focusNode) { // Focus lost
+            onBlur(toNode != null)
+            focused.value = false
+        } else { // Focus gain
+            onFocus()
+            focused.value = true
         }
     }
 
@@ -269,8 +263,6 @@ private fun TextInputEventObserver(
         if (focused.value) {
             focusManager.blur(focusNode)
         }
-        if (focusIdentifier != null)
-            focusManager.unregisterFocusNode(focusIdentifier)
     }
 
     val doFocusIn = {
