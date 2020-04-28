@@ -155,11 +155,13 @@ class ViewModelInjectStepTest {
 
         import androidx.lifecycle.ViewModel;
         import androidx.lifecycle.SavedStateHandle;
+        import androidx.hilt.Assisted;
         import androidx.hilt.lifecycle.ViewModelInject;
 
         class MyViewModel extends ViewModel {
             @ViewModelInject
-            MyViewModel(SavedStateHandle savedState1, SavedStateHandle savedState2) { }
+            MyViewModel(@Assisted SavedStateHandle savedState1,
+                    @Assisted SavedStateHandle savedState2) { }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
 
@@ -173,6 +175,33 @@ class ViewModelInjectStepTest {
             hadErrorCount(1)
             hadErrorContainingMatch("Expected zero or one constructor argument of type " +
                         "androidx.lifecycle.SavedStateHandle, found 2")
+        }
+    }
+
+    @Test
+    fun verifySavedStateHandleArgIsAnnotated() {
+        val myViewModel = """
+        package androidx.hilt.lifecycle.test;
+
+        import androidx.lifecycle.ViewModel;
+        import androidx.lifecycle.SavedStateHandle;
+        import androidx.hilt.lifecycle.ViewModelInject;
+
+        class MyViewModel extends ViewModel {
+            @ViewModelInject
+            MyViewModel(SavedStateHandle savedState) { }
+        }
+        """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
+
+        val compilation = compiler()
+            .compile(myViewModel,
+                Sources.VIEW_MODEL,
+                Sources.SAVED_STATE_HANDLE
+            )
+        assertThat(compilation).apply {
+            failed()
+            hadErrorCount(1)
+            hadErrorContainingMatch("Missing @Assisted annotation in param 'savedState'")
         }
     }
 }

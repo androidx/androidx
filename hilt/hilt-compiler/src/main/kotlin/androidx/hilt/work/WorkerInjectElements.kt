@@ -46,8 +46,6 @@ internal data class WorkerInjectElements(
         "${className.simpleNames().joinToString("_")}_HiltModule")
 
     val dependencyRequests = constructorElement.parameters.map { constructorArg ->
-        constructorArg.toDependencyRequest { paramTypeName ->
-            listOf(ClassNames.CONTEXT, ClassNames.WORKER_PARAMETERS).any { paramTypeName == it }
-        }
+        constructorArg.toDependencyRequest()
     }
 }

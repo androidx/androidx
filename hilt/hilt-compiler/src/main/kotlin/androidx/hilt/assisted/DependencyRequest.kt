@@ -16,6 +16,7 @@
 
 package androidx.hilt.assisted
 
+import androidx.hilt.Assisted
 import androidx.hilt.ClassNames
 import androidx.hilt.ext.hasAnnotation
 import com.squareup.javapoet.AnnotationSpec
@@ -51,9 +52,7 @@ internal data class DependencyRequest(
     }
 }
 
-internal fun VariableElement.toDependencyRequest(
-    isAssistedPredicate: (TypeName) -> Boolean
-): DependencyRequest {
+internal fun VariableElement.toDependencyRequest(): DependencyRequest {
     val qualifier = annotationMirrors.find {
         it.annotationType.asElement().hasAnnotation("javax.inject.Qualifier")
     }?.let { AnnotationSpec.get(it) }
@@ -61,7 +60,7 @@ internal fun VariableElement.toDependencyRequest(
     return DependencyRequest(
         name = simpleName.toString(),
         type = type,
-        isAssisted = isAssistedPredicate(type) && qualifier == null,
+        isAssisted = hasAnnotation(Assisted::class) && qualifier == null,
         qualifier = qualifier
     )
 }

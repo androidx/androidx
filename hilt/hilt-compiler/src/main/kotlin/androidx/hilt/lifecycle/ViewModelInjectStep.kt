@@ -16,6 +16,7 @@
 
 package androidx.hilt.lifecycle
 
+import androidx.hilt.Assisted
 import androidx.hilt.ClassNames
 import androidx.hilt.ext.hasAnnotation
 import com.google.auto.common.BasicAnnotationProcessor
@@ -78,7 +79,7 @@ class ViewModelInjectStep(
         if (!types.isSubtype(typeElement.asType(),
                 elements.getTypeElement(ClassNames.VIEW_MODEL.toString()).asType())) {
             error("@ViewModelInject is only supported on types that subclass " +
-                    "androidx.lifecycle.ViewModel.")
+                    "${ClassNames.VIEW_MODEL}.")
             valid = false
         }
 
@@ -103,13 +104,20 @@ class ViewModelInjectStep(
         }
 
         // Validate there is at most one SavedStateHandle constructor arg.
-        val savedStateArgs = constructorElement.parameters
-            .map { TypeName.get(it.asType()) }
-            .count { it == ClassNames.SAVED_STATE_HANDLE }
-        if (savedStateArgs > 1) {
-            error("Expected zero or one constructor argument of type androidx.lifecycle" +
-                    ".SavedStateHandle, found $savedStateArgs", constructorElement)
-            valid = false
+        constructorElement.parameters.filter {
+            TypeName.get(it.asType()) == ClassNames.SAVED_STATE_HANDLE
+        }.apply {
+            if (size > 1) {
+                error("Expected zero or one constructor argument of type " +
+                        "${ClassNames.SAVED_STATE_HANDLE}, found $size", constructorElement)
+                valid = false
+            }
+            firstOrNull()?.let {
+                if (!it.hasAnnotation(Assisted::class)) {
+                    error("Missing @Assisted annotation in param '${it.simpleName}'.", it)
+                    valid = false
+                }
+            }
         }
 
         if (!valid) return null
