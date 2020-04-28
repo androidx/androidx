@@ -181,7 +181,6 @@ fun CoreTextField(
                             value,
                             offsetMap,
                             layoutResult,
-                            state.hasFocus,
                             DefaultSelectionColor
                         )
                     }

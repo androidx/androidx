@@ -82,7 +82,7 @@ private fun computeLineHeightForEmptyText(
 
 private fun Float.toIntPx(): IntPx = ceil(this).roundToInt().ipx
 
-internal class TextFieldDelegate {
+class TextFieldDelegate {
     companion object {
         /**
          * Process text layout with given constraint.
@@ -121,7 +121,6 @@ internal class TextFieldDelegate {
          * @param canvas The target canvas.
          * @param value The editor state
          * @param offsetMap The offset map
-         * @param hasFocus true if this composable is focused, otherwise false
          * @param selectionColor The selection color
          */
         @JvmStatic
@@ -130,16 +129,9 @@ internal class TextFieldDelegate {
             value: EditorValue,
             offsetMap: OffsetMap,
             textLayoutResult: TextLayoutResult,
-            hasFocus: Boolean,
             selectionColor: Color
         ) {
-            if (value.selection.collapsed) {
-                if (hasFocus) {
-                    val cursorRect = textLayoutResult.getCursorRect(
-                        offsetMap.originalToTransformed(value.selection.min))
-                    canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })
-                }
-            } else {
+            if (!value.selection.collapsed) {
                 val start = offsetMap.originalToTransformed(value.selection.min)
                 val end = offsetMap.originalToTransformed(value.selection.max)
                 if (start != end) {

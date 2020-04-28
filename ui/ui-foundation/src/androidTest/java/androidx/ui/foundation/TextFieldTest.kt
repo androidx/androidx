@@ -16,10 +16,12 @@
 
 package androidx.ui.foundation
 
+import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.Providers
 import androidx.compose.state
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Modifier
@@ -29,6 +31,8 @@ import androidx.ui.core.input.FocusManager
 import androidx.ui.core.input.FocusNode
 import androidx.ui.core.input.FocusTransitionObserver
 import androidx.ui.core.onPositioned
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorValue
@@ -39,14 +43,21 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidthIn
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.test.StateRestorationTester
+import androidx.ui.test.assertPixels
+import androidx.ui.test.assertShape
+import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
+import androidx.ui.text.TextStyle
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -60,6 +71,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -429,5 +442,75 @@ class TextFieldTest {
         runOnIdleCompose {
             assertThat(state!!.value).isEqualTo(TextFieldValue("test", TextRange(1, 2)))
         }
+    }
+
+    @Test
+    fun textFieldNotFocused_cursorNotRendered() {
+        composeTestRule.setContent {
+            TestTag("textField") {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {},
+                    textColor = Color.White,
+                    modifier = Modifier.preferredSize(10.dp, 20.dp).drawBackground(Color.White),
+                    cursorColor = Color.Blue
+                )
+            }
+        }
+
+        findByTag("textField")
+            .captureToBitmap()
+            .assertShape(
+                density = composeTestRule.density,
+                shape = RectangleShape,
+                shapeColor = Color.White,
+                backgroundColor = Color.White,
+                shapeOverlapPixelCount = 0.px
+            )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textFieldFocused_cursorRendered() = with(composeTestRule.density) {
+        val width = 10.dp
+        val height = 20.dp
+        val halfCursorWidth = 2.dp.toIntPx() / 2f
+        val latch = CountDownLatch(1)
+        composeTestRule.setContent {
+            TestTag("textField") {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {},
+                    textStyle = TextStyle(color = Color.White, background = Color.White),
+                    modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
+                    cursorColor = Color.Red,
+                    onFocusChange = { focused ->
+                        if (focused) latch.countDown()
+                    }
+                )
+            }
+        }
+        findByTag("textField").doClick()
+        assert(latch.await(1, TimeUnit.SECONDS))
+
+        findByTag("textField")
+            .captureToBitmap()
+            .assertPixels(
+                IntPxSize(width.toIntPx(), height.toIntPx())
+            ) { position ->
+                if (position.x >= halfCursorWidth - 1.ipx && position.x < halfCursorWidth + 1.ipx) {
+                    // skip some pixels around cursor
+                    null
+                } else if (position.y < 5.ipx || position.y > height.toIntPx() - 5.ipx) {
+                    // skip some pixels vertically
+                    null
+                } else if (position.x in 0.ipx..halfCursorWidth) {
+                    // cursor
+                    Color.Red
+                } else {
+                    // text field background
+                    Color.White
+                }
+            }
     }
 }
