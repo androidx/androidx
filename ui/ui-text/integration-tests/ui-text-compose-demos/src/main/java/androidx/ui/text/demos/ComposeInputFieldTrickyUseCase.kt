@@ -23,6 +23,7 @@ import androidx.ui.foundation.VerticalScroller
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
 import androidx.ui.foundation.TextFieldValue
+import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
 
@@ -41,7 +42,7 @@ fun InputFieldTrickyUseCase() {
 
 @Composable
 private fun RejectNonDigits() {
-    val state = state { TextFieldValue() }
+    val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     TextField(
         value = state.value,
         textStyle = TextStyle(fontSize = 32.sp),
@@ -56,7 +57,7 @@ private fun RejectNonDigits() {
 
 @Composable
 private fun RejectComposition() {
-    val state = state { TextFieldValue() }
+    val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     TextField(
         value = state.value,
         textStyle = TextStyle(fontSize = 32.sp),

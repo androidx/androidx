@@ -180,6 +180,12 @@ package androidx.ui.foundation {
     method public androidx.ui.foundation.TextFieldValue copy(String text, androidx.ui.text.TextRange selection);
     method public androidx.ui.text.TextRange getSelection();
     method public String getText();
+    field public static final androidx.ui.foundation.TextFieldValue.Companion! Companion;
+  }
+
+  public static final class TextFieldValue.Companion {
+    method public androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.TextFieldValue,java.lang.Object> getSaver();
+    property public final androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.TextFieldValue,java.lang.Object> Saver;
   }
 
   public final class TextKt {
