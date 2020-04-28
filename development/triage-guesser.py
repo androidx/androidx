@@ -192,7 +192,8 @@ class Triager(object):
       "checkApi": ["jeffrygaston", "aurimas"],
       "compose": ["chuckj", "jsproch", "lelandr"],
       "jetifier": ["pavlis", "jeffrygaston"],
-      "navigat": [components["navigation"]] # "navigation", "navigate", etc
+      "navigat": [components["navigation"]], # "navigation", "navigate", etc,
+      "room": ["danysantiago", "sergeyv", "yboyar"]
     })
     self.recommenderRules.append(OwnersRule(fileFinder))
     self.recommenderRules.append(LastTouchedBy_Rule(fileFinder))
