@@ -28,8 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Suppress("DEPRECATION")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <Key : Any> PagedList.Config.toRefreshLoadParams(key: Key?): PagingSource.LoadParams<Key> =
-    PagingSource.LoadParams(
-        REFRESH,
+    PagingSource.LoadParams.Refresh(
         key,
         initialLoadSizeHint,
         enablePlaceholders,
@@ -78,20 +77,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
     /**
      * Params for a load request on a [PagingSource] from [PagingSource.load].
      */
-    data class LoadParams<Key : Any>(
-        /**
-         * [LoadType] of this load request.
-         *
-         * May be one of the following values:
-         * * [LoadType.REFRESH] - initial load or a refresh triggered by [invalidate].
-         * * [LoadType.PREPEND] - load a page of data to be prepended to the start of the list.
-         * * [LoadType.APPEND] - load a page of data to be appended to the end of the list.
-         */
-        val loadType: LoadType,
-        /**
-         * Key for the page to be loaded.
-         */
-        val key: Key?,
+    sealed class LoadParams<Key : Any>(
         /**
          * Requested number of items to load.
          *
@@ -109,7 +95,134 @@ abstract class PagingSource<Key : Any, Value : Any> {
          * From [PagingConfig.pageSize], the configured page size.
          */
         val pageSize: Int
-    )
+    ) {
+        /**
+         * Key for the page to be loaded.
+         */
+        abstract val key: Key?
+
+        class Refresh<Key : Any>(
+            /**
+             * Key for the page to be loaded.
+             *
+             * This value might be `null` if this is the initial load and no `initialKey` is
+             * provided to the [Pager]. If this [PagingSource] was created as a replacement for
+             * a previous [PagingSource] due to refresh, this `key` is the `key` returned via
+             * [PagingSource.getRefreshKey].
+             */
+            override val key: Key?,
+            /**
+             * Requested number of items to load.
+             *
+             * Note: It is valid for [PagingSource.load] to return a [LoadResult] that has a
+             * different number of items than the requested load size.
+             */
+            loadSize: Int,
+            /**
+             * From [PagingConfig.enablePlaceholders], true if placeholders are enabled and the load
+             * request for this [LoadParams] should populate [LoadResult.Page.itemsBefore] and
+             * [LoadResult.Page.itemsAfter] if possible.
+             */
+            placeholdersEnabled: Boolean,
+            /**
+             * From [PagingConfig.pageSize], the configured page size.
+             */
+            pageSize: Int
+        ) : LoadParams<Key>(
+            loadSize = loadSize,
+            placeholdersEnabled = placeholdersEnabled,
+            pageSize = pageSize
+        )
+
+        class Append<Key : Any>(
+            /**
+             * Key for the page to be loaded.
+             */
+            override val key: Key,
+            /**
+             * Requested number of items to load.
+             *
+             * Note: It is valid for [PagingSource.load] to return a [LoadResult] that has a
+             * different number of items than the requested load size.
+             */
+            loadSize: Int,
+            /**
+             * From [PagingConfig.enablePlaceholders], true if placeholders are enabled and the load
+             * request for this [LoadParams] should populate [LoadResult.Page.itemsBefore] and
+             * [LoadResult.Page.itemsAfter] if possible.
+             */
+            placeholdersEnabled: Boolean,
+            /**
+             * From [PagingConfig.pageSize], the configured page size.
+             */
+            pageSize: Int
+        ) : LoadParams<Key>(
+            loadSize = loadSize,
+            placeholdersEnabled = placeholdersEnabled,
+            pageSize = pageSize
+        )
+
+        class Prepend<Key : Any>(
+            /**
+             * Key for the page to be loaded.
+             */
+            override val key: Key,
+            /**
+             * Requested number of items to load.
+             *
+             * Note: It is valid for [PagingSource.load] to return a [LoadResult] that has a
+             * different number of items than the requested load size.
+             */
+            loadSize: Int,
+            /**
+             * From [PagingConfig.enablePlaceholders], true if placeholders are enabled and the load
+             * request for this [LoadParams] should populate [LoadResult.Page.itemsBefore] and
+             * [LoadResult.Page.itemsAfter] if possible.
+             */
+            placeholdersEnabled: Boolean,
+            /**
+             * From [PagingConfig.pageSize], the configured page size.
+             */
+            pageSize: Int
+        ) : LoadParams<Key>(
+            loadSize = loadSize,
+            placeholdersEnabled = placeholdersEnabled,
+            pageSize = pageSize
+        )
+
+        internal companion object {
+            fun <Key : Any> create(
+                loadType: LoadType,
+                key: Key?,
+                loadSize: Int,
+                placeholdersEnabled: Boolean,
+                pageSize: Int
+            ): LoadParams<Key> = when (loadType) {
+                LoadType.REFRESH -> Refresh(
+                    key = key,
+                    loadSize = loadSize,
+                    placeholdersEnabled = placeholdersEnabled,
+                    pageSize = pageSize
+                )
+                LoadType.PREPEND -> Prepend(
+                    loadSize = loadSize,
+                    key = requireNotNull(key) {
+                        "key cannot be null for prepend"
+                    },
+                    placeholdersEnabled = placeholdersEnabled,
+                    pageSize = pageSize
+                )
+                LoadType.APPEND -> Append(
+                    loadSize = loadSize,
+                    key = requireNotNull(key) {
+                        "key cannot be null for append"
+                    },
+                    placeholdersEnabled = placeholdersEnabled,
+                    pageSize = pageSize
+                )
+            }
+        }
+    }
 
     /**
      * Result of a load request from [PagingSource.load].

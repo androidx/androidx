@@ -28,7 +28,7 @@ private class FakeSource<Value : Any>(
     private val data: List<Value>
 ) : PagingSource<Any, Value>() {
     override suspend fun load(params: LoadParams<Any>): LoadResult<Any, Value> {
-        if (params.loadType == LoadType.REFRESH) {
+        if (params is LoadParams.Refresh) {
             return Page(
                 data = data,
                 prevKey = null,

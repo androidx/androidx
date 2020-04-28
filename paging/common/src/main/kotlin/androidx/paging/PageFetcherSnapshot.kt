@@ -279,7 +279,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
     }
 
-    private fun loadParams(loadType: LoadType, key: Key?) = LoadParams(
+    private fun loadParams(loadType: LoadType, key: Key?) = LoadParams.create(
         loadType = loadType,
         key = key,
         loadSize = if (loadType == REFRESH) config.initialLoadSize else config.pageSize,
@@ -441,11 +441,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             } else {
                 val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
 
-                if (params.loadType == PREPEND && result.prevKey == null) {
+                if (params is LoadParams.Prepend && result.prevKey == null) {
                     remoteMediatorAccessor.doBoundaryCall(scope, PREPEND, pagingState)
                 }
 
-                if (params.loadType == APPEND && result.nextKey == null) {
+                if (params is LoadParams.Append && result.nextKey == null) {
                     remoteMediatorAccessor.doBoundaryCall(scope, APPEND, pagingState)
                 }
             }

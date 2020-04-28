@@ -97,8 +97,8 @@ class LivePagedListBuilderTest {
         }
 
         private inner class MockPagingSource : PagingSource<Int, String>() {
-            override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
-                REFRESH -> loadInitial(params)
+            override suspend fun load(params: LoadParams<Int>) = when (params) {
+                is LoadParams.Refresh -> loadInitial(params)
                 else -> loadRange()
             }
 
