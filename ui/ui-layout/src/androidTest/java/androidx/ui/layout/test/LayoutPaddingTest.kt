@@ -28,9 +28,9 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInRoot
 import androidx.ui.layout.Column
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.LayoutPadding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.absolutePadding
 import androidx.ui.layout.aspectRatio
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.ltr
@@ -93,7 +93,7 @@ class LayoutPaddingTest : LayoutTest() {
     }
 
     /**
-     * Tests that the [LayoutPadding]-all and [LayoutPadding] factories return equivalent modifiers.
+     * Tests that the [padding]-all and [padding] factories return equivalent modifiers.
      */
     @Test
     fun allEqualToAbsoluteWithExplicitSides() {
@@ -104,7 +104,18 @@ class LayoutPaddingTest : LayoutTest() {
     }
 
     /**
-     * Tests the top-level [LayoutPadding] modifier factory with a single "all sides" argument,
+     * Tests that the symmetrical-[padding] and [padding] factories return equivalent modifiers.
+     */
+    @Test
+    fun symmetricEqualToAbsoluteWithExplicitSides() {
+        Assert.assertEquals(
+            Modifier.padding(10.dp, 20.dp, 10.dp, 20.dp),
+            Modifier.padding(10.dp, 20.dp)
+        )
+    }
+
+    /**
+     * Tests the top-level [padding] modifier factory with a single "all sides" argument,
      * checking that a uniform padding of all sides is applied to a child when plenty of space is
      * available for both content and padding.
      */
@@ -117,7 +128,7 @@ class LayoutPaddingTest : LayoutTest() {
     }
 
     /**
-     * Tests the top-level [LayoutPadding] modifier factory with different values for left, top,
+     * Tests the top-level [absolutePadding] modifier factory with different values for left, top,
      * right and bottom paddings, checking that this padding is applied as expected when plenty of
      * space is available for both the content and padding.
      */
@@ -127,7 +138,7 @@ class LayoutPaddingTest : LayoutTest() {
         val paddingTop = 15.dp
         val paddingRight = 20.dp
         val paddingBottom = 30.dp
-        val padding = Modifier.padding(paddingLeft, paddingTop, paddingRight, paddingBottom)
+        val padding = Modifier.absolutePadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
         testPaddingWithDifferentInsetsImplementation(
             paddingLeft,
             paddingTop,
@@ -139,7 +150,7 @@ class LayoutPaddingTest : LayoutTest() {
     }
 
     /**
-     * Tests the result of the [LayoutPadding] modifier factory when not enough space is
+     * Tests the result of the [padding] modifier factory when not enough space is
      * available to accommodate both the padding and the content. In this case, the padding
      * should still be applied, modifying the final position of the content by its left and top
      * paddings even if it would result in constraints that the child content is unable or

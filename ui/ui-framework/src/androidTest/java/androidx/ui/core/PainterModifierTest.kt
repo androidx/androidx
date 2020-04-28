@@ -39,9 +39,7 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.toArgb
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
@@ -463,23 +461,23 @@ class PainterModifierTest {
         }
     }
 
-    @Suppress("Deprecation")
     class FixedSizeModifier(val width: IntPx, val height: IntPx = width) : LayoutModifier {
-        override fun Density.modifySize(
-            constraints: Constraints,
-            layoutDirection: LayoutDirection,
-            childSize: IntPxSize
-        ): IntPxSize = IntPxSize(width, height)
-
-        override fun Density.modifyConstraints(
+        override fun MeasureScope.measure(
+            measurable: Measurable,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): Constraints =
-            Constraints(
-                minWidth = width,
-                minHeight = height,
-                maxWidth = width,
-                maxHeight = height
+        ): MeasureScope.MeasureResult {
+            val placeable = measurable.measure(
+                Constraints(
+                    minWidth = width,
+                    minHeight = height,
+                    maxWidth = width,
+                    maxHeight = height
+                )
             )
+            return layout(width, height) {
+                placeable.place(IntPx.Zero, IntPx.Zero)
+            }
+        }
     }
 }

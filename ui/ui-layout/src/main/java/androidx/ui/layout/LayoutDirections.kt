@@ -20,7 +20,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.IntrinsicMeasurable
 import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -43,7 +43,7 @@ private val RtlModifier = LayoutDirectionModifier(LayoutDirection.Rtl)
 
 private data class LayoutDirectionModifier(
     val prescribedLayoutDirection: LayoutDirection
-) : LayoutModifier2 {
+) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,

@@ -35,7 +35,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier2
+import androidx.ui.core.LayoutModifier
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
@@ -560,7 +560,7 @@ private fun IconsTextFieldLayout(
 }
 
 private fun Modifier.iconPadding(start: Dp = 0.dp, end: Dp = 0.dp) =
-    this + object : LayoutModifier2 {
+    this + object : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
             constraints: Constraints,
