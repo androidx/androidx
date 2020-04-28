@@ -71,14 +71,23 @@ class BenchmarkPlugin : Plugin<Project> {
 
     private fun configureWithAndroidExtension(project: Project, extension: TestedExtension) {
         val defaultConfig = extension.defaultConfig
+        val testBuildType = "release"
         val testInstrumentationArgs = defaultConfig.testInstrumentationRunnerArguments
 
         defaultConfig.testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
 
-        // Disable overhead from test coverage by default, even if we use a debug variant.
-        extension.buildTypes.configureEach { it.isTestCoverageEnabled = false }
+        extension.buildTypes.configureEach {
+            // Disable overhead from test coverage by default, even if we use a debug variant.
+            it.isTestCoverageEnabled = false
 
-        extension.configureTestBuildType("release")
+            // Reduce setup friction by setting signingConfig to debug for buildType benchmarks
+            // will run in.
+            if (it.name == testBuildType) {
+                it.signingConfig = extension.signingConfigs.getByName("debug")
+            }
+        }
+
+        extension.configureTestBuildType(testBuildType)
 
         // Registering this block as a configureEach callback is only necessary because Studio skips
         // Gradle if there are no changes, which stops this plugin from being re-applied.
