@@ -18,8 +18,6 @@ package androidx.ui.material.demos
 
 import androidx.compose.Composable
 import androidx.compose.getValue
-import androidx.compose.mutableStateOf
-import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
@@ -53,6 +51,7 @@ import androidx.ui.material.samples.FilledTextFieldWithIcons
 import androidx.ui.material.samples.FilledTextFieldWithPlaceholder
 import androidx.ui.material.samples.SimpleFilledTextFieldSample
 import androidx.ui.material.samples.TextFieldWithHelperMessage
+import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
@@ -83,27 +82,31 @@ fun TextFieldsDemo() {
 @Composable
 fun FilledTextFieldDemo() {
     Column(Modifier.padding(10.dp)) {
-        var state = remember { TextFieldState() }
+        var text by savedInstanceState { "" }
+        var leadingChecked by savedInstanceState { false }
+        var trailingChecked by savedInstanceState { false }
+        val characterCounterChecked by savedInstanceState { false }
+        var selectedOption by savedInstanceState { Option.None }
 
         val textField = @Composable() {
             FilledTextField(
-                value = state.text,
-                onValueChange = { state.text = it },
+                value = text,
+                onValueChange = { text = it },
                 label = {
-                    val label = "Label" + if (state.selectedOption == Option.Error) "*" else ""
+                    val label = "Label" + if (selectedOption == Option.Error) "*" else ""
                     Text(text = label, style = currentTextStyle())
                 },
-                leadingIcon = { if (state.leadingChecked) Icon(Icons.Filled.Favorite) },
-                trailingIcon = { if (state.trailingChecked) Icon(Icons.Filled.Info) },
-                isErrorValue = state.selectedOption == Option.Error
+                leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
+                trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
+                isErrorValue = selectedOption == Option.Error
             )
         }
 
         Box(Modifier.preferredHeight(150.dp).gravity(Alignment.CenterHorizontally)) {
-            if (state.selectedOption == Option.None) {
+            if (selectedOption == Option.None) {
                 textField()
             } else {
-                TextFieldWithMessage(textField, state.selectedOption)
+                TextFieldWithMessage(textField, selectedOption)
             }
         }
 
@@ -111,17 +114,17 @@ fun FilledTextFieldDemo() {
             Title("Options")
             OptionRow(
                 title = "Leading icon",
-                checked = state.leadingChecked,
-                onCheckedChange = { state.leadingChecked = it }
+                checked = leadingChecked,
+                onCheckedChange = { leadingChecked = it }
             )
             OptionRow(
                 title = "Trailing icon",
-                checked = state.trailingChecked,
-                onCheckedChange = { state.trailingChecked = it }
+                checked = trailingChecked,
+                onCheckedChange = { trailingChecked = it }
             )
             OptionRow(
                 title = "Character counter",
-                checked = state.characterCounterChecked,
+                checked = characterCounterChecked,
                 onCheckedChange = { /* TODO */ }
             )
 
@@ -130,8 +133,8 @@ fun FilledTextFieldDemo() {
             Title("Assistive text")
             RadioGroup(
                 options = Option.values().map { it.name },
-                selectedOption = state.selectedOption.name,
-                onSelectedChange = { state.selectedOption = Option.valueOf(it) }
+                selectedOption = selectedOption.name,
+                onSelectedChange = { selectedOption = Option.valueOf(it) }
             )
         }
     }
@@ -183,14 +186,6 @@ private fun OptionRow(
         Spacer(Modifier.preferredWidth(20.dp))
         Text(text = title, style = MaterialTheme.typography.body1)
     }
-}
-
-private class TextFieldState {
-    var text by mutableStateOf("")
-    var leadingChecked by mutableStateOf(false)
-    var trailingChecked by mutableStateOf(false)
-    var characterCounterChecked by mutableStateOf(false)
-    var selectedOption by mutableStateOf(Option.None)
 }
 
 /**

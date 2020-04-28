@@ -44,6 +44,7 @@ import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.ArrowBack
 import androidx.ui.material.icons.filled.Search
 import androidx.ui.material.icons.filled.Settings
+import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.unit.dp
 
 @Composable
@@ -64,7 +65,7 @@ fun DemoApp(
         }
     }).takeIf { canNavigateUp }
 
-    var filterText by mutableStateOf(TextFieldValue())
+    var filterText by savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
 
     Scaffold(topAppBar = {
         DemoAppBar(

@@ -20,7 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
-import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
@@ -34,6 +33,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
 import androidx.ui.material.icons.filled.Info
+import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextRange
 import androidx.ui.unit.dp
 
@@ -41,7 +41,7 @@ import androidx.ui.unit.dp
 @Sampled
 @Composable
 fun SimpleFilledTextFieldSample() {
-    var text by state { "" }
+    var text by savedInstanceState { "" }
 
     FilledTextField(
         value = text,
@@ -53,7 +53,7 @@ fun SimpleFilledTextFieldSample() {
 @Sampled
 @Composable
 fun FilledTextFieldWithIcons() {
-    var text by state { "" }
+    var text by savedInstanceState { "" }
 
     FilledTextField(
         value = text,
@@ -67,7 +67,7 @@ fun FilledTextFieldWithIcons() {
 @Sampled
 @Composable
 fun FilledTextFieldWithPlaceholder() {
-    var text by state { "" }
+    var text by savedInstanceState { "" }
 
     FilledTextField(
         value = text,
@@ -80,8 +80,8 @@ fun FilledTextFieldWithPlaceholder() {
 @Sampled
 @Composable
 fun FilledTextFieldWithErrorState() {
-    var text by state { "" }
-    var isValid = text.count() > 5 && '@' in text
+    var text by savedInstanceState { "" }
+    val isValid = text.count() > 5 && '@' in text
 
     FilledTextField(
         value = text,
@@ -97,8 +97,8 @@ fun FilledTextFieldWithErrorState() {
 @Sampled
 @Composable
 fun TextFieldWithHelperMessage() {
-    var text by state { "" }
-    var invalidInput = text.count() < 5 || '@' !in text
+    var text by savedInstanceState { "" }
+    val invalidInput = text.count() < 5 || '@' !in text
 
     Column {
         FilledTextField(
@@ -126,7 +126,9 @@ fun TextFieldWithHelperMessage() {
 @Sampled
 @Composable
 fun FilledTextFieldSample() {
-    var text by state { TextFieldValue("example", TextRange(0, 7)) }
+    var text by savedInstanceState(saver = TextFieldValue.Saver) {
+        TextFieldValue("example", TextRange(0, 7))
+    }
 
     FilledTextField(
         value = text,

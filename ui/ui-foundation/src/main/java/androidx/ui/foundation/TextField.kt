@@ -30,6 +30,8 @@ import androidx.ui.input.EditorValue
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.fillMaxWidth
+import androidx.ui.savedinstancestate.Saver
+import androidx.ui.savedinstancestate.listSaver
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -47,7 +49,21 @@ import androidx.ui.text.TextStyle
 data class TextFieldValue(
     val text: String = "",
     val selection: TextRange = TextRange(0, 0)
-)
+) {
+    companion object {
+        /**
+         * The default [Saver] implementation for [TextFieldValue].
+         */
+        val Saver = listSaver<TextFieldValue, Any>(
+            save = {
+                listOf(it.text, it.selection.start, it.selection.end)
+            },
+            restore = {
+                TextFieldValue(it[0] as String, TextRange(it[1] as Int, it[2] as Int))
+            }
+        )
+    }
+}
 
 /**
  * A user interface element for entering and modifying text.
