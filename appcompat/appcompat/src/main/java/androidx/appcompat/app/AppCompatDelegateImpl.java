@@ -2387,6 +2387,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @Override
+    @RequiresApi(17)
     public void setLocalNightMode(@NightMode int mode) {
         if (DEBUG) {
             Log.d(TAG, String.format("setLocalNightMode. New: %d, Current: %d",
