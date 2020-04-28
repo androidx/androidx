@@ -759,6 +759,7 @@ class LayoutNode : ComponentNode(), Measurable {
                 }
                 wrapper
             }
+            layoutNodeWrapper.wrappedBy = parentLayoutNode?.innerLayoutNodeWrapper
             // Optimize the case where the layout itself is not modified. A common reason for
             // this is if no wrapping actually occurs above because no LayoutModifiers are
             // present in the modifier chain.
@@ -770,10 +771,6 @@ class LayoutNode : ComponentNode(), Measurable {
                 // We need to notify the callbacks of a change in position since there's
                 // a new one.
                 requestRemeasure()
-            }
-            val containing = parentLayoutNode
-            if (containing != null) {
-                layoutNodeWrapper.wrappedBy = containing.innerLayoutNodeWrapper
             }
             owner?.onInvalidate(this)
         }
