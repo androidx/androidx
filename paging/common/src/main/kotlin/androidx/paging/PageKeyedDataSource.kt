@@ -188,8 +188,8 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
             )
         )
         params.key == null -> BaseResult.empty()
-        params.type == LoadType.START -> loadBefore(LoadParams(params.key, params.pageSize))
-        params.type == LoadType.END -> loadAfter(LoadParams(params.key, params.pageSize))
+        params.type == LoadType.PREPEND -> loadBefore(LoadParams(params.key, params.pageSize))
+        params.type == LoadType.APPEND -> loadAfter(LoadParams(params.key, params.pageSize))
         else -> throw IllegalArgumentException("Unsupported type " + params.type.toString())
     }
 

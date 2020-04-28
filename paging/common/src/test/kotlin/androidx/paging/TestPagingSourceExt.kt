@@ -24,12 +24,12 @@ internal fun createRefresh(
     endState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
 ) = PageEvent.Insert.Refresh(
     pages = pages(0, range),
-    placeholdersStart = range.first.coerceAtLeast(0),
-    placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0),
+    placeholdersBefore = range.first.coerceAtLeast(0),
+    placeholdersAfter = (items.size - range.last - 1).coerceAtLeast(0),
     loadStates = mapOf(
         LoadType.REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
-        LoadType.START to startState,
-        LoadType.END to endState
+        LoadType.PREPEND to startState,
+        LoadType.APPEND to endState
     )
 )
 
@@ -38,13 +38,13 @@ internal fun createPrepend(
     range: IntRange,
     startState: LoadState = LoadState.NotLoading(endOfPaginationReached = false),
     endState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
-) = PageEvent.Insert.Start(
+) = PageEvent.Insert.Prepend(
     pages = pages(pageOffset, range),
-    placeholdersStart = range.first.coerceAtLeast(0),
+    placeholdersBefore = range.first.coerceAtLeast(0),
     loadStates = mapOf(
         LoadType.REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
-        LoadType.START to startState,
-        LoadType.END to endState
+        LoadType.PREPEND to startState,
+        LoadType.APPEND to endState
     )
 )
 
@@ -53,13 +53,13 @@ internal fun createAppend(
     range: IntRange,
     startState: LoadState = LoadState.NotLoading(endOfPaginationReached = false),
     endState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
-) = PageEvent.Insert.End(
+) = PageEvent.Insert.Append(
     pages = pages(pageOffset, range),
-    placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0),
+    placeholdersAfter = (items.size - range.last - 1).coerceAtLeast(0),
     loadStates = mapOf(
         LoadType.REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
-        LoadType.START to startState,
-        LoadType.END to endState
+        LoadType.PREPEND to startState,
+        LoadType.APPEND to endState
     )
 )
 

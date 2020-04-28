@@ -16,9 +16,9 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.paging.RemoteMediator.InitializeAction
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.MediatorResult
@@ -151,7 +151,10 @@ internal class RemoteMediatorAccessor<Key : Any, Value : Any>(
             if (jobsByLoadType[loadType]?.isActive != true) {
                 // List of RemoteMediator.load jobs that were registered prior to this one.
                 val existingJobs = jobsByLoadType.values.toList() // Immutable copy.
-                val existingBoundaryJobs = listOfNotNull(jobsByLoadType[START], jobsByLoadType[END])
+                val existingBoundaryJobs = listOfNotNull(
+                    jobsByLoadType[PREPEND],
+                    jobsByLoadType[APPEND]
+                )
 
                 jobsByLoadType[loadType] = scope.async {
                     if (loadType == REFRESH) {

@@ -17,9 +17,9 @@
 package androidx.paging
 
 import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,12 +44,12 @@ internal fun <T : Any> PagePresenter(
                 originalIndices = null
             )
         },
-        placeholdersStart = leadingNullCount,
-        placeholdersEnd = trailingNullCount,
+        placeholdersBefore = leadingNullCount,
+        placeholdersAfter = trailingNullCount,
         loadStates = mapOf(
             REFRESH to NotLoading.Idle,
-            START to NotLoading.Idle,
-            END to NotLoading.Idle
+            PREPEND to NotLoading.Idle,
+            APPEND to NotLoading.Idle
         )
     )
 )
@@ -76,7 +76,7 @@ internal fun <T : Any> PagePresenter<T>.dropPages(
     callback: PresenterCallback
 ) = processEvent(
     PageEvent.Drop(
-        loadType = if (isPrepend) START else END,
+        loadType = if (isPrepend) PREPEND else APPEND,
         count = pagesToDrop,
         placeholdersRemaining = placeholdersRemaining
     ),
@@ -315,7 +315,7 @@ class PagePresenterTest {
         data.dropPages(false, pagesToDrop, newNulls, callback)
 
         assertEquals(
-            events + listOf(StateEvent(END, NotLoading.Idle)),
+            events + listOf(StateEvent(APPEND, NotLoading.Idle)),
             callback.getAllAndClear()
         )
 
@@ -351,7 +351,7 @@ class PagePresenterTest {
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
         assertEvents(
-            events + listOf(StateEvent(START, NotLoading.Idle)),
+            events + listOf(StateEvent(PREPEND, NotLoading.Idle)),
             callback.getAllAndClear()
         )
 
@@ -558,8 +558,8 @@ class PagePresenterTest {
     companion object {
         val IDLE_EVENTS = listOf<PresenterEvent>(
             StateEvent(REFRESH, NotLoading.Idle),
-            StateEvent(START, NotLoading.Idle),
-            StateEvent(END, NotLoading.Idle)
+            StateEvent(PREPEND, NotLoading.Idle),
+            StateEvent(APPEND, NotLoading.Idle)
         )
     }
 }

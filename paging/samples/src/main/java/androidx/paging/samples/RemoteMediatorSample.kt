@@ -60,8 +60,8 @@ fun remoteMediatorSample() {
             // pages from DB.
             val anchorItem = when (loadType) {
                 LoadType.REFRESH -> state.anchorPosition?.let { state.closestItemToPosition(it) }
-                LoadType.START -> return MediatorResult.Success(endOfPaginationReached = true)
-                LoadType.END -> state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.last()
+                LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
+                LoadType.APPEND -> state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.last()
             }
 
             return try {

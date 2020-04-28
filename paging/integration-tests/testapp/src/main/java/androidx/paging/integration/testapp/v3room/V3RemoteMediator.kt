@@ -34,14 +34,14 @@ internal class V3RemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, Customer>
     ): MediatorResult {
-        if (loadType == LoadType.START) return MediatorResult.Success(false)
+        if (loadType == LoadType.PREPEND) return MediatorResult.Success(false)
 
         // TODO: Move this to be a more fully featured sample which demonstrated key translation
         //  between two types of PagingSources where the keys do not map 1:1.
         val key = when (loadType) {
             LoadType.REFRESH -> 0
-            LoadType.START -> throw IllegalStateException()
-            LoadType.END -> state.pages.lastOrNull()?.nextKey ?: 0
+            LoadType.PREPEND -> throw IllegalStateException()
+            LoadType.APPEND -> state.pages.lastOrNull()?.nextKey ?: 0
         }
         val result = networkSource.load(
             PagingSource.LoadParams(

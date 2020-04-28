@@ -872,11 +872,11 @@ abstract class PagedList<T : Any> internal constructor(
                     if (refreshState == state) return
                     refreshState = state
                 }
-                LoadType.START -> {
+                LoadType.PREPEND -> {
                     if (startState == state) return
                     startState = state
                 }
-                LoadType.END -> {
+                LoadType.APPEND -> {
                     if (endState == state) return
                     endState = state
                 }
@@ -893,8 +893,8 @@ abstract class PagedList<T : Any> internal constructor(
 
         fun dispatchCurrentLoadState(callback: (LoadType, LoadState) -> Unit) {
             callback(LoadType.REFRESH, refreshState)
-            callback(LoadType.START, startState)
-            callback(LoadType.END, endState)
+            callback(LoadType.PREPEND, startState)
+            callback(LoadType.APPEND, endState)
         }
     }
 

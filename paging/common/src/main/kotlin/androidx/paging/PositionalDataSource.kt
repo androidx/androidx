@@ -328,7 +328,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
         } else {
             var startIndex = params.key!!
             var loadSize = params.pageSize
-            if (params.type == LoadType.START) {
+            if (params.type == LoadType.PREPEND) {
                 // clamp load size to positive indices only, and shift start index by load size
                 loadSize = minOf(loadSize, startIndex)
                 startIndex -= loadSize
