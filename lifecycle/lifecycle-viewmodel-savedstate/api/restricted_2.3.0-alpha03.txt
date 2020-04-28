@@ -18,6 +18,7 @@ package androidx.lifecycle {
     method @MainThread public java.util.Set<java.lang.String!> keys();
     method @MainThread public <T> T? remove(String);
     method @MainThread public <T> void set(String, T?);
+    method @MainThread public void setSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider?);
   }
 
   public final class SavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
