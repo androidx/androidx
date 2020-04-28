@@ -303,6 +303,26 @@ public final class ImageCaptureTest {
     }
 
     @Test
+    public void canCaptureMultipleImagesWithMaxQualityNoRepeating() {
+        ImageCapture useCase = new ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .build();
+        mInstrumentation.runOnMainSync(
+                () -> {
+                    CameraX.bindToLifecycle(mLifecycleOwner, BACK_SELECTOR, useCase);
+                    mLifecycleOwner.startAndResume();
+                });
+
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
+        int numImages = 5;
+        for (int i = 0; i < numImages; ++i) {
+            useCase.takePicture(mMainExecutor, callback);
+        }
+
+        verify(callback, timeout(10000).times(numImages)).onCaptureSuccess(any(ImageProxy.class));
+    }
+
+    @Test
     public void saveCanSucceed() throws IOException {
         ImageCapture useCase = mDefaultBuilder.build();
         mInstrumentation.runOnMainSync(
