@@ -627,4 +627,39 @@ public final class Camera2ImplCameraXTest {
         assertThat(((CameraInternal) camera).getCameraInfoInternal().getCameraId()).isEqualTo(
                 CameraUtil.getCameraIdWithLensFacing(DEFAULT_LENS_FACING));
     }
+
+    @Test
+    public void sequentialBindUnbindUseCases_closeCamera() throws InterruptedException {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+
+        ImageCapture.Builder builder1 = new ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY);
+        new Camera2Interop.Extender<>(builder1).setDeviceStateCallback(mDeviceStateCallback);
+        ImageCapture imageCapture = builder1.build();
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mLifecycle.startAndResume();
+                // Bind ImageCapture only
+                CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, imageCapture);
+
+                // Then bind another ImageAnalysis
+                CameraX.bindToLifecycle(mLifecycle, DEFAULT_SELECTOR, imageAnalysis);
+            }
+        });
+
+        verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbind(imageCapture);
+                CameraX.unbind(imageAnalysis);
+            }
+        });
+
+        verify(mDeviceStateCallback, timeout(3000)).onClosed(any(CameraDevice.class));
+    }
+
 }
