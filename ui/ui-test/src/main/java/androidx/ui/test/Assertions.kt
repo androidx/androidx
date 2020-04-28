@@ -18,7 +18,6 @@ package androidx.ui.test
 
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.findClosestParentNode
-import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.semantics.SemanticsProperties
@@ -83,6 +82,20 @@ fun SemanticsNodeInteraction.assertIsNotDisplayed(): SemanticsNodeInteraction {
     }
     return this
 }
+
+/**
+ * Asserts that the current component is enabled.
+ *
+ * Throws [AssertionError] if the component is not enabled or does not define the property at all.
+ */
+fun SemanticsNodeInteraction.assertIsEnabled(): SemanticsNodeInteraction = assert(isEnabled())
+
+/**
+ * Asserts that the current component is not enabled.
+ *
+ * Throws [AssertionError] if the component is enabled or does not defined the property at all.
+ */
+fun SemanticsNodeInteraction.assertIsNotEnabled(): SemanticsNodeInteraction = assert(isNotEnabled())
 
 /**
  * Asserts that the current component is checked.
@@ -153,17 +166,6 @@ fun SemanticsNodeInteraction.assertLabelEquals(value: String): SemanticsNodeInte
 fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction =
     assert(hasValue(value))
 
-/**
- * Asserts that the semantics of the component are the same as the given semantics.
- * For further details please check [SemanticsConfiguration.assertEquals].
- */
-fun SemanticsNodeInteraction.assertSemanticsIsEqualTo(
-    expectedProperties: SemanticsConfiguration
-): SemanticsNodeInteraction {
-    val errorMessageOnFail = "Failed to assert semantics is equal"
-    fetchSemanticsNode(errorMessageOnFail).config.assertEquals(expectedProperties)
-    return this
-}
 /**
  * Asserts that the current component has a click action.
  *

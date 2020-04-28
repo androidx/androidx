@@ -27,9 +27,11 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasClickAction(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasNoClickAction(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsDisplayed(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsEnabled(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsHidden(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsInMutuallyExclusiveGroup(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotDisplayed(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotEnabled(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotHidden(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsOff(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsOn(androidx.ui.test.SemanticsNodeInteraction);
@@ -38,7 +40,6 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsToggleable(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsUnselected(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertLabelEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
-    method public static androidx.ui.test.SemanticsNodeInteraction assertSemanticsIsEqualTo(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.core.semantics.SemanticsConfiguration expectedProperties);
     method public static androidx.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
   }
 
@@ -158,8 +159,10 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsMatcher hasText(String text, boolean ignoreCase = false);
     method public static androidx.ui.test.SemanticsMatcher hasValue(String value);
     method public static androidx.ui.test.SemanticsMatcher isDialog();
+    method public static androidx.ui.test.SemanticsMatcher isEnabled();
     method public static androidx.ui.test.SemanticsMatcher isHidden();
     method public static androidx.ui.test.SemanticsMatcher isInMutuallyExclusiveGroup();
+    method public static androidx.ui.test.SemanticsMatcher isNotEnabled();
     method public static androidx.ui.test.SemanticsMatcher isNotHidden();
     method public static androidx.ui.test.SemanticsMatcher isOff();
     method public static androidx.ui.test.SemanticsMatcher isOn();
@@ -199,12 +202,6 @@ package androidx.ui.test {
     method public static void sendSwipeRight(androidx.ui.test.GestureScope);
     method public static void sendSwipeUp(androidx.ui.test.GestureScope);
     method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, @FloatRange(from=0.0) float endVelocity, androidx.ui.unit.Duration duration = 200.milliseconds);
-  }
-
-  public final class GoldenSemanticsKt {
-    method public static void assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration expected);
-    method public static androidx.ui.core.semantics.SemanticsConfiguration copyWith(androidx.ui.core.semantics.SemanticsConfiguration, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,kotlin.Unit> diff);
-    method public static androidx.ui.core.semantics.SemanticsConfiguration createFullSemantics(Boolean? isEnabled = null, String? value = null, androidx.ui.foundation.selection.ToggleableState? toggleableState = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? isSelected = null);
   }
 
   public final class OutputKt {
