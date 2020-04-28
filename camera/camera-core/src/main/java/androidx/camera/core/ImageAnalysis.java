@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_BACKPRESSURE_STRATEGY;
 import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_QUEUE_DEPTH;
+import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_READER_PROXY_PROVIDER;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
@@ -182,13 +183,18 @@ public final class ImageAnalysis extends UseCase {
         int imageQueueDepth =
                 config.getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER
                         ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
-
-        ImageReaderProxy imageReaderProxy =
-                ImageReaderProxys.createIsolatedReader(
-                        resolution.getWidth(),
-                        resolution.getHeight(),
-                        getImageFormat(),
-                        imageQueueDepth);
+        ImageReaderProxy imageReaderProxy;
+        if (config.getImageReaderProxyProvider() != null) {
+            imageReaderProxy = config.getImageReaderProxyProvider().newInstance(
+                    resolution.getWidth(), resolution.getHeight(), getImageFormat(),
+                    imageQueueDepth, 0);
+        } else {
+            imageReaderProxy = ImageReaderProxys.createIsolatedReader(
+                    resolution.getWidth(),
+                    resolution.getHeight(),
+                    getImageFormat(),
+                    imageQueueDepth);
+        }
 
         tryUpdateRelativeRotation();
 
@@ -1007,6 +1013,16 @@ public final class ImageAnalysis extends UseCase {
         public Builder setUseCaseEventCallback(
                 @NonNull UseCase.EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
+        }
+
+        /** @hide */
+        @NonNull
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setImageReaderProxyProvider(
+                @NonNull ImageReaderProxyProvider imageReaderProxyProvider) {
+            getMutableConfig().insertOption(OPTION_IMAGE_READER_PROXY_PROVIDER,
+                    imageReaderProxyProvider);
             return this;
         }
     }
