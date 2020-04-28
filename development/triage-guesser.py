@@ -180,7 +180,7 @@ class Triager(object):
       "preferences": ["pavlis", "lpf"],
       "ViewPager": ["jgielzak", "jellefresen"],
       "DrawerLayout": ["sjgilbert"],
-      "RecyclerView": ["shepshapard", "yboyar"],
+      "RecyclerView": ["shepshapard", "ryanmentley"],
       "Loaders": ["ilake"],
       "VectorDrawableCompat": ["tianliu"],
       "AppCompat": ["kirillg"],
