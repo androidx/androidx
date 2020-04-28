@@ -78,7 +78,22 @@ class FileFinder(object):
       self.resultsCache[name] = filePaths
     return self.resultsCache[name]
 
-class InterestingFileFinder(object):
+  def tryToIdentifyFile(self, nameComponent):
+    if len(nameComponent) < 1:
+      return []
+    queries = [nameComponent + ".*", "nameComponent*"]
+    if len(nameComponent) >= 10:
+      # For a sufficiently specific query, allow it to match the middle of a filename too
+      queries.append("*" + nameComponent + ".*")
+    for query in queries:
+      matches = self.findIname(query)
+      if len(matches) > 0 and len(matches) <= 4:
+        # We found a small enough number of matches to have
+        # reasonable confidence in having found the right file
+        return matches
+    return []
+
+class InterestingWordChooser(object):
   def __init__(self):
     return
 
@@ -87,7 +102,7 @@ class InterestingFileFinder(object):
     words = [word for word in words if len(word) >= 4]
     words.sort(key=len, reverse=True)
     return words
-interestingFileFinder = InterestingFileFinder()
+interestingWordChooser = InterestingWordChooser()
 
 class GitLogger(object):
   def __init__(self):
@@ -104,18 +119,17 @@ class LastTouchedBy_Rule(RecommenderRule):
     self.fileFinder = fileFinder
 
   def recommend(self, bug):
-    interestingWords = interestingFileFinder.findInterestingWords(bug.description)
+    interestingWords = interestingWordChooser.findInterestingWords(bug.description)
     for word in interestingWords:
-      for queryString in [word + "*", word + ".*"]:
-        filePaths = self.fileFinder.findIname(queryString)
-        if len(filePaths) > 0 and len(filePaths) <= 4:
-          candidateAuthors = []
-          for path in filePaths:
-            thisAuthor = gitLogger.gitLog1Author(path)
-            if len(candidateAuthors) == 0 or thisAuthor != candidateAuthors[-1]:
-              candidateAuthors.append(thisAuthor)
-          if len(candidateAuthors) == 1:
-             return AssigneeRecommendation(candidateAuthors, "last touched " + os.path.basename(filePaths[0]))
+      filePaths = self.fileFinder.tryToIdentifyFile(word)
+      if len(filePaths) > 0:
+        candidateAuthors = []
+        for path in filePaths:
+          thisAuthor = gitLogger.gitLog1Author(path)
+          if len(candidateAuthors) == 0 or thisAuthor != candidateAuthors[-1]:
+            candidateAuthors.append(thisAuthor)
+        if len(candidateAuthors) == 1:
+           return AssigneeRecommendation(candidateAuthors, "last touched " + os.path.basename(filePaths[0]))
     return None
 
 class OwnersRule(RecommenderRule):
@@ -124,10 +138,10 @@ class OwnersRule(RecommenderRule):
     self.fileFinder = fileFinder
 
   def recommend(self, bug):
-    interestingWords = interestingFileFinder.findInterestingWords(bug.description)
+    interestingWords = interestingWordChooser.findInterestingWords(bug.description)
     for word in interestingWords:
-      for queryString in [word + "*", word + ".*"]:
-        filePaths = self.fileFinder.findIname(queryString)
+      filePaths = self.fileFinder.tryToIdentifyFile(word)
+      if len(filePaths) > 0:
         commonPrefix = os.path.commonprefix(filePaths)
         dirToCheck = commonPrefix
         if len(dirToCheck) < 1:
