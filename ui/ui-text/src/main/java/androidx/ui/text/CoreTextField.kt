@@ -63,7 +63,8 @@ fun CoreTextField(
     onFocusChange: (Boolean) -> Unit = {},
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null,
-    onTextLayout: (TextLayoutResult) -> Unit = {}
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
 ) {
     // If developer doesn't pass new value to TextField, recompose won't happen but internal state
     // and IME may think it is updated. To fix this inconsistent state, enforce recompose by
@@ -119,6 +120,14 @@ fun CoreTextField(
                     onValueChangeWrapper,
                     onImeActionPerformed
                 )
+                if (state.inputSession != NO_SESSION && textInputService != null) {
+                    onTextInputStarted(
+                        SoftwareKeyboardController(
+                            textInputService,
+                            state.inputSession
+                        )
+                    )
+                }
                 state.layoutCoordinates?.let { coords ->
                     textInputService?.let { textInputService ->
                         state.layoutResult?.let { layoutResult ->

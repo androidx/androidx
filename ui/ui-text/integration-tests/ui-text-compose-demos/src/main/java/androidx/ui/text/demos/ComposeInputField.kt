@@ -18,6 +18,7 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.key
+import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.VerticalScroller
@@ -27,6 +28,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextStyle
 
 private val KEYBOARD_TYPES = listOf(
@@ -83,12 +85,17 @@ private fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified
 ) {
+    val controller = state<SoftwareKeyboardController?> { null }
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     TextField(
         value = state.value,
         keyboardType = keyboardType,
         imeAction = imeAction,
         onValueChange = { state.value = it },
-        textStyle = TextStyle(fontSize = fontSize8)
+        textStyle = TextStyle(fontSize = fontSize8),
+        onTextInputStarted = { controller.value = it },
+        onImeActionPerformed = {
+            controller.value?.hideSoftwareKeyboard()
+        }
     )
 }
