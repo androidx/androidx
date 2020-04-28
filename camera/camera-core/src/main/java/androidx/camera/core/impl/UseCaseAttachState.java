@@ -34,8 +34,8 @@ import java.util.Map.Entry;
  * Collection of use cases which are attached to a specific camera.
  *
  * <p>This class tracks the current state of activity for each use case. There are two states that
- * the use case can be in: online and active. Online means the use case is currently ready for the
- * camera capture, but not currently capturing. Active means the use case is either currently
+ * the use case can be in: attached and active. Attached means the use case is currently ready for
+ * the camera capture, but not currently capturing. Active means the use case is either currently
  * issuing a capture request or one has already been issued.
  */
 
@@ -73,67 +73,67 @@ public final class UseCaseAttachState {
 
         UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
         useCaseAttachInfo.setActive(false);
-        if (!useCaseAttachInfo.getOnline()) {
+        if (!useCaseAttachInfo.getAttached()) {
             mAttachedUseCasesToInfoMap.remove(useCase);
         }
     }
 
     /**
-     * Sets the use case to an online state.
+     * Sets the use case to an attached state.
      *
      * <p>Adds the use case to the collection if not already in it.
      */
-    public void setUseCaseOnline(@NonNull UseCase useCase) {
+    public void setUseCaseAttached(@NonNull UseCase useCase) {
         UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCase);
-        useCaseAttachInfo.setOnline(true);
+        useCaseAttachInfo.setAttached(true);
     }
 
     /**
-     * Sets the use case to an offline state.
+     * Sets the use case to an detached state.
      *
      * <p>Removes the use case from the collection if also inactive.
      */
-    public void setUseCaseOffline(@NonNull UseCase useCase) {
+    public void setUseCaseDetached(@NonNull UseCase useCase) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
             return;
         }
         UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
-        useCaseAttachInfo.setOnline(false);
+        useCaseAttachInfo.setAttached(false);
         if (!useCaseAttachInfo.getActive()) {
             mAttachedUseCasesToInfoMap.remove(useCase);
         }
     }
 
-    /** Returns if the use case is online or not. */
-    public boolean isUseCaseOnline(@NonNull UseCase useCase) {
+    /** Returns if the use case is attached or not. */
+    public boolean isUseCaseAttached(@NonNull UseCase useCase) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
             return false;
         }
 
         UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
-        return useCaseAttachInfo.getOnline();
+        return useCaseAttachInfo.getAttached();
     }
 
     @NonNull
-    public Collection<UseCase> getOnlineUseCases() {
+    public Collection<UseCase> getAttachedUseCases() {
         return Collections.unmodifiableCollection(
                 getUseCases(new AttachStateFilter() {
                     @Override
                     public boolean filter(UseCaseAttachInfo useCaseAttachInfo) {
-                        return useCaseAttachInfo.getOnline();
+                        return useCaseAttachInfo.getAttached();
                     }
                 }));
     }
 
     @NonNull
-    public Collection<UseCase> getActiveAndOnlineUseCases() {
+    public Collection<UseCase> getActiveAndAttachedUseCases() {
         return Collections.unmodifiableCollection(
                 getUseCases(
                         new AttachStateFilter() {
                             @Override
                             public boolean filter(UseCaseAttachInfo useCaseAttachInfo) {
                                 return useCaseAttachInfo.getActive()
-                                        && useCaseAttachInfo.getOnline();
+                                        && useCaseAttachInfo.getAttached();
                             }
                         }));
     }
@@ -152,41 +152,41 @@ public final class UseCaseAttachState {
         UseCaseAttachInfo newUseCaseAttachInfo =
                 new UseCaseAttachInfo(useCase.getSessionConfig());
 
-        // Retain the online and active flags.
+        // Retain the attached and active flags.
         UseCaseAttachInfo oldUseCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
-        newUseCaseAttachInfo.setOnline(oldUseCaseAttachInfo.getOnline());
+        newUseCaseAttachInfo.setAttached(oldUseCaseAttachInfo.getAttached());
         newUseCaseAttachInfo.setActive(oldUseCaseAttachInfo.getActive());
         mAttachedUseCasesToInfoMap.put(useCase, newUseCaseAttachInfo);
     }
 
-    /** Returns a session configuration builder for use cases which are both active and online. */
+    /** Returns a session configuration builder for use cases which are both active and attached. */
     @NonNull
-    public SessionConfig.ValidatingBuilder getActiveAndOnlineBuilder() {
+    public SessionConfig.ValidatingBuilder getActiveAndAttachedBuilder() {
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
 
         List<String> list = new ArrayList<>();
         for (Entry<UseCase, UseCaseAttachInfo> attachedUseCase :
                 mAttachedUseCasesToInfoMap.entrySet()) {
             UseCaseAttachInfo useCaseAttachInfo = attachedUseCase.getValue();
-            if (useCaseAttachInfo.getActive() && useCaseAttachInfo.getOnline()) {
+            if (useCaseAttachInfo.getActive() && useCaseAttachInfo.getAttached()) {
                 UseCase useCase = attachedUseCase.getKey();
                 validatingBuilder.add(useCaseAttachInfo.getSessionConfig());
                 list.add(useCase.getName());
             }
         }
-        Log.d(TAG, "Active and online use case: " + list + " for camera: " + mCameraId);
+        Log.d(TAG, "Active and attached use case: " + list + " for camera: " + mCameraId);
         return validatingBuilder;
     }
 
-    /** Returns a session configuration builder for use cases which are online. */
+    /** Returns a session configuration builder for use cases which are attached. */
     @NonNull
-    public SessionConfig.ValidatingBuilder getOnlineBuilder() {
+    public SessionConfig.ValidatingBuilder getAttachedBuilder() {
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         List<String> list = new ArrayList<>();
         for (Entry<UseCase, UseCaseAttachInfo> attachedUseCase :
                 mAttachedUseCasesToInfoMap.entrySet()) {
             UseCaseAttachInfo useCaseAttachInfo = attachedUseCase.getValue();
-            if (useCaseAttachInfo.getOnline()) {
+            if (useCaseAttachInfo.getAttached()) {
                 validatingBuilder.add(useCaseAttachInfo.getSessionConfig());
                 UseCase useCase = attachedUseCase.getKey();
                 list.add(useCase.getName());
@@ -240,10 +240,10 @@ public final class UseCaseAttachState {
         @NonNull
         private final SessionConfig mSessionConfig;
         /**
-         * True if the use case is currently online (i.e. camera should have a capture session
+         * True if the use case is currently attached (i.e. camera should have a capture session
          * configured for it).
          */
-        private boolean mOnline = false;
+        private boolean mAttached = false;
 
         /**
          * True if the use case is currently active (i.e. camera should be issuing capture requests
@@ -260,12 +260,12 @@ public final class UseCaseAttachState {
             return mSessionConfig;
         }
 
-        boolean getOnline() {
-            return mOnline;
+        boolean getAttached() {
+            return mAttached;
         }
 
-        void setOnline(boolean online) {
-            mOnline = online;
+        void setAttached(boolean attached) {
+            mAttached = attached;
         }
 
         boolean getActive() {

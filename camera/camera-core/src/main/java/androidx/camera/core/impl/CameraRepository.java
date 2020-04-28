@@ -199,7 +199,7 @@ public final class CameraRepository implements UseCaseMediator.StateChangeCallba
     /** Attaches a set of use cases to a camera. */
     @GuardedBy("mCamerasLock")
     private void attachUseCasesToCamera(CameraInternal cameraInternal, Set<UseCase> useCases) {
-        cameraInternal.addOnlineUseCase(useCases);
+        cameraInternal.attachUseCases(useCases);
     }
 
     /**
@@ -223,6 +223,6 @@ public final class CameraRepository implements UseCaseMediator.StateChangeCallba
     /** Detaches a set of use cases from a camera. */
     @GuardedBy("mCamerasLock")
     private void detachUseCasesFromCamera(CameraInternal cameraInternal, Set<UseCase> useCases) {
-        cameraInternal.removeOnlineUseCase(useCases);
+        cameraInternal.detachUseCases(useCases);
     }
 }
