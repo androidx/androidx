@@ -173,7 +173,7 @@ class Triager(object):
   def __init__(self, fileFinder):
     self.recommenderRules = self.parseKnownOwners({
       "fragment": ["ilake", "mount", "adamp"],
-      "animation": ["mount", "tianlu"],
+      "animation": ["mount", "tianliu"],
       "transition": ["mount"],
       "theme": ["alanv"],
       "style": ["alanv"],
