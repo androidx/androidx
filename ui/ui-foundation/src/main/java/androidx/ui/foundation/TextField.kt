@@ -32,6 +32,7 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.listSaver
+import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
@@ -113,6 +114,10 @@ data class TextFieldValue(
  * that this IME action may be different from what you specified in [imeAction].
  * @param visualTransformation Optional visual filter for changing visual output of input field.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param onTextInputStarted Callback that is executed when the initialization has done for
+ * communicating with platform text input service, e.g. software keyboard on Android. Called with
+ * [SoftwareKeyboardController] instance which can be used for requesting nputshow/hide software
+ * keyboard.
  *
  * @see TextFieldValue
  * @see ImeAction
@@ -132,7 +137,8 @@ fun TextField(
     onFocusChange: (Boolean) -> Unit = {},
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null,
-    onTextLayout: (TextLayoutResult) -> Unit = {}
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
 ) {
     val fullModel = state { EditorValue() }
     if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
@@ -171,6 +177,7 @@ fun TextField(
         focusNode = focusNode ?: remember { FocusNode() },
         onImeActionPerformed = onImeActionPerformed,
         visualTransformation = visualTransformation,
-        onTextLayout = onTextLayout
+        onTextLayout = onTextLayout,
+        onTextInputStarted = onTextInputStarted
     )
 }

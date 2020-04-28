@@ -458,6 +458,13 @@ package androidx.ui.text {
     enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign Top;
   }
 
+  public final class SoftwareKeyboardController {
+    ctor public SoftwareKeyboardController(androidx.ui.input.TextInputService textInputService, int token);
+    method public void hideSoftwareKeyboard();
+    method public void notifyFocusedRect(androidx.ui.geometry.Rect rect);
+    method public void showSoftwareKeyboard();
+  }
+
   public final class SpanStyle {
     method public long component1();
     method public androidx.ui.text.style.TextGeometricTransform? component10();
