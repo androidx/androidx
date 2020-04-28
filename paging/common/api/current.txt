@@ -92,9 +92,9 @@ package androidx.paging {
   }
 
   public enum LoadType {
-    enum_constant public static final androidx.paging.LoadType END;
+    enum_constant public static final androidx.paging.LoadType APPEND;
+    enum_constant public static final androidx.paging.LoadType PREPEND;
     enum_constant public static final androidx.paging.LoadType REFRESH;
-    enum_constant public static final androidx.paging.LoadType START;
   }
 
   public final class PageEventKt {

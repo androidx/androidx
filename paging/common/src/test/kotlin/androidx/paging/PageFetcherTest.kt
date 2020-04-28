@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
@@ -273,7 +273,7 @@ class PageFetcherTest {
 
         // Assert onBoundary is called for terminal page load.
         assertEquals(1, remoteMediatorMock.loadEvents.size)
-        assertEquals(END, remoteMediatorMock.loadEvents[0].loadType)
+        assertEquals(APPEND, remoteMediatorMock.loadEvents[0].loadType)
 
         fetcherState.job.cancel()
     }

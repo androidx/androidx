@@ -194,7 +194,7 @@ class PagingSourceTest {
 
         runBlocking {
             val key = ITEMS_BY_NAME_ID[5].key()
-            val params = LoadParams(LoadType.START, key, 5, false, 5)
+            val params = LoadParams(LoadType.PREPEND, key, 5, false, 5)
             val observed = (dataSource.load(params) as LoadResult.Page).data
 
             assertEquals(ITEMS_BY_NAME_ID.subList(0, 5), observed)
@@ -202,7 +202,7 @@ class PagingSourceTest {
             // Verify error is propagated correctly.
             dataSource.enqueueError()
             assertFailsWith<CustomException> {
-                val errorParams = LoadParams(LoadType.START, key, 5, false, 5)
+                val errorParams = LoadParams(LoadType.PREPEND, key, 5, false, 5)
                 dataSource.load(errorParams)
             }
         }
@@ -214,7 +214,7 @@ class PagingSourceTest {
 
         runBlocking {
             val key = ITEMS_BY_NAME_ID[5].key()
-            val params = LoadParams(LoadType.END, key, 5, false, 5)
+            val params = LoadParams(LoadType.APPEND, key, 5, false, 5)
             val observed = (dataSource.load(params) as LoadResult.Page).data
 
             assertEquals(ITEMS_BY_NAME_ID.subList(6, 11), observed)
@@ -222,7 +222,7 @@ class PagingSourceTest {
             // Verify error is propagated correctly.
             dataSource.enqueueError()
             assertFailsWith<CustomException> {
-                val errorParams = LoadParams(LoadType.END, key, 5, false, 5)
+                val errorParams = LoadParams(LoadType.APPEND, key, 5, false, 5)
                 dataSource.load(errorParams)
             }
         }
@@ -267,8 +267,8 @@ class PagingSourceTest {
         override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Item> {
             return when (params.loadType) {
                 LoadType.REFRESH -> loadInitial(params)
-                LoadType.START -> loadBefore(params)
-                LoadType.END -> loadAfter(params)
+                LoadType.PREPEND -> loadBefore(params)
+                LoadType.APPEND -> loadAfter(params)
             }
         }
 

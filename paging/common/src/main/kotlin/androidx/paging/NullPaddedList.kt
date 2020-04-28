@@ -27,9 +27,9 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface NullPaddedList<T> {
-    val placeholdersStart: Int
+    val placeholdersBefore: Int
     fun getFromStorage(localIndex: Int): T
-    val placeholdersEnd: Int
+    val placeholdersAfter: Int
     val size: Int
     val storageCount: Int
 }

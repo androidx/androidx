@@ -46,7 +46,7 @@ class LegacyPagingSourceTest {
             pageSize = 1,
             prefetchDistance = 1
         ),
-        placeholdersStart = 0
+        placeholdersBefore = 0
     )
 
     @Test
@@ -149,7 +149,7 @@ class LegacyPagingSourceTest {
                         pageSize = 1,
                         prefetchDistance = 1
                     ),
-                    placeholdersStart = 0
+                    placeholdersBefore = 0
                 )
             )
         )
@@ -169,7 +169,7 @@ class LegacyPagingSourceTest {
                         pageSize = 1,
                         prefetchDistance = 1
                     ),
-                    placeholdersStart = 0
+                    placeholdersBefore = 0
                 )
             )
         )

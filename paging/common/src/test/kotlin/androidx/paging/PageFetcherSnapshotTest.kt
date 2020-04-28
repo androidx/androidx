@@ -20,13 +20,13 @@ import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
-import androidx.paging.PageEvent.Insert.Companion.End
+import androidx.paging.PageEvent.Insert.Companion.Append
+import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.TestPagingSource.Companion.LOAD_ERROR
@@ -77,7 +77,7 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(1..2),
-            LoadStateUpdate(START, Loading),
+            LoadStateUpdate(PREPEND, Loading),
             createPrepend(
                 pageOffset = -1,
                 range = 0..0,
@@ -103,14 +103,14 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(1..2),
-            LoadStateUpdate(START, Loading),
+            LoadStateUpdate(PREPEND, Loading),
             createPrepend(
                 pageOffset = -1,
                 range = 0..0,
                 startState = NotLoading.Done
             ),
-            LoadStateUpdate(END, Loading),
-            Drop(START, 1, 1),
+            LoadStateUpdate(APPEND, Loading),
+            Drop(PREPEND, 1, 1),
             createAppend(
                 pageOffset = 1,
                 range = 3..3,
@@ -135,7 +135,7 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 97..98),
-            LoadStateUpdate(END, Loading),
+            LoadStateUpdate(APPEND, Loading),
             createAppend(pageOffset = 1, range = 99..99, endState = NotLoading.Done)
         )
 
@@ -157,15 +157,15 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 97..98),
-            LoadStateUpdate(END, Loading),
+            LoadStateUpdate(APPEND, Loading),
             createAppend(
                 pageOffset = 1,
                 range = 99..99,
                 startState = NotLoading.Idle,
                 endState = NotLoading.Done
             ),
-            LoadStateUpdate(START, Loading),
-            Drop(END, 1, 1),
+            LoadStateUpdate(PREPEND, Loading),
+            Drop(APPEND, 1, 1),
             createPrepend(
                 pageOffset = -1,
                 range = 96..96,
@@ -241,7 +241,7 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51),
-            LoadStateUpdate(START, Loading),
+            LoadStateUpdate(PREPEND, Loading),
             createPrepend(pageOffset = -1, range = 49..49)
         )
 
@@ -261,7 +261,7 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51),
-            LoadStateUpdate(START, Loading),
+            LoadStateUpdate(PREPEND, Loading),
             createPrepend(pageOffset = -1, range = 49..49)
         )
 
@@ -284,10 +284,10 @@ class PageFetcherSnapshotTest {
             val expected: List<PageEvent<Int>> = listOf(
                 LoadStateUpdate(REFRESH, Loading),
                 createRefresh(range = 50..51),
-                LoadStateUpdate(START, Loading),
+                LoadStateUpdate(PREPEND, Loading),
                 createPrepend(pageOffset = -1, range = 49..49),
-                LoadStateUpdate(START, Loading),
-                Drop(END, 1, 50),
+                LoadStateUpdate(PREPEND, Loading),
+                Drop(APPEND, 1, 50),
                 createPrepend(pageOffset = -2, range = 48..48)
             )
 
@@ -319,7 +319,7 @@ class PageFetcherSnapshotTest {
             val expected: List<PageEvent<Int>> = listOf(
                 LoadStateUpdate(REFRESH, Loading),
                 createRefresh(range = 50..54),
-                LoadStateUpdate(START, Loading),
+                LoadStateUpdate(PREPEND, Loading),
                 createPrepend(pageOffset = -1, range = 49..49, startState = Loading),
                 createPrepend(pageOffset = -2, range = 48..48)
             )
@@ -347,11 +347,11 @@ class PageFetcherSnapshotTest {
             val expected: List<PageEvent<Int>> = listOf(
                 LoadStateUpdate(REFRESH, Loading),
                 createRefresh(range = 50..51),
-                LoadStateUpdate(START, Loading),
+                LoadStateUpdate(PREPEND, Loading),
                 createPrepend(pageOffset = -1, range = 49..49),
-                LoadStateUpdate(START, Loading),
-                LoadStateUpdate(END, Loading),
-                Drop(END, 1, 50),
+                LoadStateUpdate(PREPEND, Loading),
+                LoadStateUpdate(APPEND, Loading),
+                Drop(APPEND, 1, 50),
                 createPrepend(pageOffset = -2, range = 48..48)
             )
 
@@ -379,7 +379,7 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(50..52),
-            LoadStateUpdate(START, Loading),
+            LoadStateUpdate(PREPEND, Loading),
             createPrepend(pageOffset = -1, range = 49..49, startState = Loading),
             createPrepend(-2, 48..48)
         )
@@ -400,7 +400,7 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(50..51),
-            LoadStateUpdate(END, Loading),
+            LoadStateUpdate(APPEND, Loading),
             createAppend(1, 52..52)
         )
 
@@ -427,7 +427,7 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(50..52),
-            LoadStateUpdate(END, Loading),
+            LoadStateUpdate(APPEND, Loading),
             createAppend(
                 pageOffset = 1,
                 range = 53..53,
@@ -455,10 +455,10 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51),
-            LoadStateUpdate(END, Loading),
+            LoadStateUpdate(APPEND, Loading),
             createAppend(pageOffset = 1, range = 52..52),
-            LoadStateUpdate(END, Loading),
-            Drop(START, 1, 52),
+            LoadStateUpdate(APPEND, Loading),
+            Drop(PREPEND, 1, 52),
             createAppend(pageOffset = 2, range = 53..53)
         )
 
@@ -489,7 +489,7 @@ class PageFetcherSnapshotTest {
             val expected: List<PageEvent<Int>> = listOf(
                 LoadStateUpdate(REFRESH, Loading),
                 createRefresh(range = 50..54),
-                LoadStateUpdate(END, Loading),
+                LoadStateUpdate(APPEND, Loading),
                 createAppend(pageOffset = 1, range = 55..55, endState = Loading),
                 createAppend(pageOffset = 2, range = 56..56)
             )
@@ -517,11 +517,11 @@ class PageFetcherSnapshotTest {
             val expected: List<PageEvent<Int>> = listOf(
                 LoadStateUpdate(REFRESH, Loading),
                 createRefresh(range = 50..51),
-                LoadStateUpdate(END, Loading),
+                LoadStateUpdate(APPEND, Loading),
                 createAppend(pageOffset = 1, range = 52..52),
-                LoadStateUpdate(END, Loading),
-                LoadStateUpdate(START, Loading),
-                Drop(START, 1, 52),
+                LoadStateUpdate(APPEND, Loading),
+                LoadStateUpdate(PREPEND, Loading),
+                Drop(PREPEND, 1, 52),
                 createAppend(
                     pageOffset = 2,
                     range = 53..53,
@@ -575,7 +575,7 @@ class PageFetcherSnapshotTest {
             listOf(
                 LoadStateUpdate(REFRESH, Loading),
                 createRefresh(50..51),
-                LoadStateUpdate(END, Loading),
+                LoadStateUpdate(APPEND, Loading),
                 createAppend(1, 52..52)
             ),
             listOf(
@@ -627,9 +627,9 @@ class PageFetcherSnapshotTest {
                 val expected = listOf<PageEvent<Int>>(
                     LoadStateUpdate(REFRESH, Loading),
                     createRefresh(50..51),
-                    LoadStateUpdate(END, Loading),
-                    LoadStateUpdate(END, Error(LOAD_ERROR)),
-                    LoadStateUpdate(END, Loading),
+                    LoadStateUpdate(APPEND, Loading),
+                    LoadStateUpdate(APPEND, Error(LOAD_ERROR)),
+                    LoadStateUpdate(APPEND, Loading),
                     createAppend(1, 52..52)
                 )
 
@@ -655,7 +655,7 @@ class PageFetcherSnapshotTest {
                 val expected = listOf<PageEvent<Int>>(
                     LoadStateUpdate(REFRESH, Loading),
                     createRefresh(50..51),
-                    LoadStateUpdate(END, Loading),
+                    LoadStateUpdate(APPEND, Loading),
                     createAppend(1, 52..52)
                 )
 
@@ -680,9 +680,9 @@ class PageFetcherSnapshotTest {
                 val expected = listOf<PageEvent<Int>>(
                     LoadStateUpdate(REFRESH, Loading),
                     createRefresh(50..51),
-                    LoadStateUpdate(END, Loading),
-                    LoadStateUpdate(END, Error(LOAD_ERROR)),
-                    LoadStateUpdate(END, Loading),
+                    LoadStateUpdate(APPEND, Loading),
+                    LoadStateUpdate(APPEND, Error(LOAD_ERROR)),
+                    LoadStateUpdate(APPEND, Loading),
                     createAppend(1, 52..52)
                 )
 
@@ -710,19 +710,19 @@ class PageFetcherSnapshotTest {
                 val expected = listOf<PageEvent<Int>>(
                     LoadStateUpdate(REFRESH, Loading),
                     createRefresh(50..51),
-                    LoadStateUpdate(END, Loading),
-                    LoadStateUpdate(END, Error(LOAD_ERROR)),
-                    LoadStateUpdate(START, Loading),
-                    LoadStateUpdate(START, Error(LOAD_ERROR)),
-                    LoadStateUpdate(START, Loading),
-                    LoadStateUpdate(END, Loading),
+                    LoadStateUpdate(APPEND, Loading),
+                    LoadStateUpdate(APPEND, Error(LOAD_ERROR)),
+                    LoadStateUpdate(PREPEND, Loading),
+                    LoadStateUpdate(PREPEND, Error(LOAD_ERROR)),
+                    LoadStateUpdate(PREPEND, Loading),
+                    LoadStateUpdate(APPEND, Loading),
                     createPrepend(
                         pageOffset = -1,
                         range = 49..49,
                         startState = NotLoading.Idle,
                         endState = Loading
                     ),
-                    Drop(START, 1, 50),
+                    Drop(PREPEND, 1, 50),
                     createAppend(1, 52..52)
                 )
 
@@ -776,7 +776,7 @@ class PageFetcherSnapshotTest {
                     LoadStateUpdate(REFRESH, Error(LOAD_ERROR)),
                     LoadStateUpdate(REFRESH, Loading),
                     createRefresh(50..51),
-                    LoadStateUpdate(START, Loading),
+                    LoadStateUpdate(PREPEND, Loading),
                     createPrepend(pageOffset = -1, range = 49..49)
                 )
 
@@ -834,8 +834,8 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) },
-            LoadStateUpdate(START, Loading),
-            createPrepend(-1, 49..49).let { Start(it.pages, 0, it.loadStates) }
+            LoadStateUpdate(PREPEND, Loading),
+            createPrepend(-1, 49..49).let { Prepend(it.pages, 0, it.loadStates) }
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -861,8 +861,8 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..51).let { Refresh(it.pages, 0, 0, it.loadStates) },
-            LoadStateUpdate(END, Loading),
-            createAppend(1, 52..52).let { End(it.pages, 0, it.loadStates) }
+            LoadStateUpdate(APPEND, Loading),
+            createAppend(1, 52..52).let { Append(it.pages, 0, it.loadStates) }
         )
 
         assertEvents(expected, fetcherState.pageEventLists[0])
@@ -888,7 +888,7 @@ class PageFetcherSnapshotTest {
         val expected: List<PageEvent<Int>> = listOf(
             LoadStateUpdate(REFRESH, Loading),
             createRefresh(range = 50..52),
-            LoadStateUpdate(END, Loading),
+            LoadStateUpdate(APPEND, Loading),
             createAppend(pageOffset = 1, range = 53..53)
         )
 
@@ -928,12 +928,12 @@ class PageFetcherSnapshotTest {
                 assertNotNull(refreshKeyInfo)
                 assertEquals(51, refreshKeyInfo.anchorPosition)
 
-                // Assert from anchorPosition in placeholdersStart
+                // Assert from anchorPosition in placeholdersBefore
                 assertEquals(50, refreshKeyInfo.closestItemToPosition(10))
                 // Assert from anchorPosition in loaded indices
                 assertEquals(50, refreshKeyInfo.closestItemToPosition(50))
                 assertEquals(51, refreshKeyInfo.closestItemToPosition(51))
-                // Assert from anchorPosition in placeholdersEnd
+                // Assert from anchorPosition in placeholdersAfter
                 assertEquals(51, refreshKeyInfo.closestItemToPosition(90))
 
                 val loadedPage = Page(
@@ -944,19 +944,19 @@ class PageFetcherSnapshotTest {
                     itemsAfter = 48
                 )
                 assertEquals(listOf(loadedPage), refreshKeyInfo.pages)
-                // Assert from anchorPosition in placeholdersStart
+                // Assert from anchorPosition in placeholdersBefore
                 assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(10))
                 // Assert from anchorPosition in loaded indices
                 assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(50))
                 assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(51))
-                // Assert from anchorPosition in placeholdersEnd
+                // Assert from anchorPosition in placeholdersAfter
                 assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(90))
             }
         }
     }
 
     @Test
-    fun refreshKeyInfo_placeholdersStart() = testScope.runBlockingTest {
+    fun refreshKeyInfo_placeholdersBefore() = testScope.runBlockingTest {
         pauseDispatcher {
             val pagingSource = pagingSourceFactory()
             val pager = PageFetcherSnapshot(50, pagingSource, config, retryFlow = retryCh.asFlow())
@@ -982,12 +982,12 @@ class PageFetcherSnapshotTest {
                     refreshKeyInfo.pages
                 )
 
-                // Assert from anchorPosition in placeholdersStart
+                // Assert from anchorPosition in placeholdersBefore
                 assertEquals(50, refreshKeyInfo.closestItemToPosition(10))
                 // Assert from anchorPosition in loaded indices
                 assertEquals(50, refreshKeyInfo.closestItemToPosition(50))
                 assertEquals(51, refreshKeyInfo.closestItemToPosition(51))
-                // Assert from anchorPosition in placeholdersEnd
+                // Assert from anchorPosition in placeholdersAfter
                 assertEquals(51, refreshKeyInfo.closestItemToPosition(90))
 
                 val loadedPage = Page(
@@ -997,12 +997,12 @@ class PageFetcherSnapshotTest {
                     itemsBefore = 50,
                     itemsAfter = 48
                 )
-                // Assert from anchorPosition in placeholdersStart
+                // Assert from anchorPosition in placeholdersBefore
                 assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(10))
                 // Assert from anchorPosition in loaded indices
                 assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(50))
                 assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(51))
-                // Assert from anchorPosition in placeholdersEnd
+                // Assert from anchorPosition in placeholdersAfter
                 assertEquals(loadedPage, refreshKeyInfo.closestPageToPosition(90))
             }
         }
@@ -1089,7 +1089,7 @@ class PageFetcherSnapshotTest {
             advanceUntilIdle()
 
             assertEquals(1, remoteMediator.loadEvents.size)
-            assertEquals(START, remoteMediator.loadEvents[0].loadType)
+            assertEquals(PREPEND, remoteMediator.loadEvents[0].loadType)
             assertNotNull(remoteMediator.loadEvents[0].state)
         }
     }
@@ -1116,7 +1116,7 @@ class PageFetcherSnapshotTest {
             advanceUntilIdle()
 
             assertEquals(1, remoteMediator.loadEvents.size)
-            assertEquals(END, remoteMediator.loadEvents[0].loadType)
+            assertEquals(APPEND, remoteMediator.loadEvents[0].loadType)
             assertNotNull(remoteMediator.loadEvents[0].state)
         }
     }
@@ -1154,7 +1154,7 @@ class PageFetcherSnapshotTest {
             assertEvents(
                 listOf(
                     LoadStateUpdate(loadType = REFRESH, loadState = Loading),
-                    LoadStateUpdate(loadType = END, loadState = Loading),
+                    LoadStateUpdate(loadType = APPEND, loadState = Loading),
                     Refresh(
                         pages = listOf(
                             TransformablePage(
@@ -1164,12 +1164,12 @@ class PageFetcherSnapshotTest {
                                 originalIndices = null
                             )
                         ),
-                        placeholdersStart = 99,
-                        placeholdersEnd = 0,
+                        placeholdersBefore = 99,
+                        placeholdersAfter = 0,
                         loadStates = mapOf(
                             REFRESH to NotLoading.Idle,
-                            START to NotLoading.Idle,
-                            END to NotLoading.Idle
+                            PREPEND to NotLoading.Idle,
+                            APPEND to NotLoading.Idle
                         )
                     )
                 ),
@@ -1211,7 +1211,7 @@ class PageFetcherSnapshotTest {
             assertEvents(
                 listOf(
                     LoadStateUpdate(loadType = REFRESH, loadState = Loading),
-                    LoadStateUpdate(loadType = END, loadState = Loading),
+                    LoadStateUpdate(loadType = APPEND, loadState = Loading),
                     Refresh(
                         pages = listOf(
                             TransformablePage(
@@ -1221,12 +1221,12 @@ class PageFetcherSnapshotTest {
                                 originalIndices = null
                             )
                         ),
-                        placeholdersStart = 99,
-                        placeholdersEnd = 0,
+                        placeholdersBefore = 99,
+                        placeholdersAfter = 0,
                         loadStates = mapOf(
                             REFRESH to NotLoading.Idle,
-                            START to NotLoading.Idle,
-                            END to NotLoading.Done
+                            PREPEND to NotLoading.Idle,
+                            APPEND to NotLoading.Done
                         )
                     )
                 ),

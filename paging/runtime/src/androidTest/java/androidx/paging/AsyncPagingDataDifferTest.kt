@@ -23,9 +23,9 @@ import androidx.paging.ListUpdateEvent.Moved
 import androidx.paging.ListUpdateEvent.Removed
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadState.Loading
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
+import androidx.paging.LoadType.PREPEND
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.test.filters.SmallTest
@@ -138,8 +138,8 @@ class AsyncPagingDataDifferTest {
         assertEvents(
             listOf(
                 LoadEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
-                LoadEvent(START, NotLoading(endOfPaginationReached = false)),
-                LoadEvent(END, NotLoading(endOfPaginationReached = false)),
+                LoadEvent(PREPEND, NotLoading(endOfPaginationReached = false)),
+                LoadEvent(APPEND, NotLoading(endOfPaginationReached = false)),
                 LoadEvent(REFRESH, Loading),
                 LoadEvent(REFRESH, NotLoading(endOfPaginationReached = false))
             ),
@@ -156,8 +156,8 @@ class AsyncPagingDataDifferTest {
         // empty next list.
         assertEvents(
             listOf(
-                LoadEvent(START, NotLoading(endOfPaginationReached = true)),
-                LoadEvent(END, NotLoading(endOfPaginationReached = true))
+                LoadEvent(PREPEND, NotLoading(endOfPaginationReached = true)),
+                LoadEvent(APPEND, NotLoading(endOfPaginationReached = true))
             ),
             loadEvents
         )

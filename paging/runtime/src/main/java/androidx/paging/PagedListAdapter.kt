@@ -241,7 +241,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * Add a [LoadState] listener to observe the loading state of the current [PagedList].
      *
      * As new PagedLists are submitted and displayed, the listener will be notified to reflect
-     * current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
+     * current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
      *
      * @param listener [LoadStateListener] to receive updates.
      *
@@ -263,13 +263,13 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
 
     /**
      * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.END] [LoadState] as a list item at the end of the presented list.
+     * [LoadType.APPEND] [LoadState] as a list item at the end of the presented list.
      */
     fun withLoadStateHeader(
         header: LoadStateAdapter<*>
     ): MergeAdapter {
         addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.START) {
+            if (loadType == LoadType.PREPEND) {
                 header.loadState = loadState
             }
         }
@@ -278,13 +278,13 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
 
     /**
      * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.START] [LoadState] as a list item at the start of the presented list.
+     * [LoadType.PREPEND] [LoadState] as a list item at the start of the presented list.
      */
     fun withLoadStateFooter(
         footer: LoadStateAdapter<*>
     ): MergeAdapter {
         addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.END) {
+            if (loadType == LoadType.APPEND) {
                 footer.loadState = loadState
             }
         }
@@ -293,7 +293,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
 
     /**
      * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.START] and [LoadType.END] [LoadState]s as list items at the start and end
+     * [LoadType.PREPEND] and [LoadType.APPEND] [LoadState]s as list items at the start and end
      * respectively.
      */
     fun withLoadStateHeaderAndFooter(
@@ -301,9 +301,9 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
         footer: LoadStateAdapter<*>
     ): MergeAdapter {
         addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.START) {
+            if (loadType == LoadType.PREPEND) {
                 header.loadState = loadState
-            } else if (loadType == LoadType.END) {
+            } else if (loadType == LoadType.APPEND) {
                 footer.loadState = loadState
             }
         }

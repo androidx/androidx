@@ -23,7 +23,8 @@ import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
  * [PagingData], that allow for control of the following events:
  *  * Stream initialization
  *  * [LoadType.REFRESH] signal driven from UI
- *  * [PagingSource] returns a [PagingSource.LoadResult] which signals start / end boundary.
+ *  * [PagingSource] returns a [PagingSource.LoadResult] which signals a boundary condition, i.e.,
+ *  the first page for [LoadType.PREPEND] or the last page for [LoadType.APPEND].
  *
  * These events together can be used to implement layered pagination - network + local storage.
  *
@@ -33,7 +34,7 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
     /**
      * Implement this method to load additional remote data, which will then be stored for the
      * [PagingSource] to access. These loads take one of two forms:
-     *  * type == [LoadType.START] / [LoadType.END]
+     *  * type == [LoadType.PREPEND] / [LoadType.APPEND]
      *  The [PagingSource] has loaded a 'boundary' page, with a `null` adjacent key. This means
      *  this method should load additional remote data to append / prepend as appropriate, and store
      *  it locally.
@@ -45,12 +46,12 @@ abstract class RemoteMediator<Key : Any, Value : Any> {
      * affects e.g., [LoadState] callbacks registered to [androidx.paging.PagingDataAdapter].
      *
      * NOTE: A [PagingSource.load] request which is fulfilled by a page that hits a boundary
-     * condition in either direction will trigger this callback with [LoadType.START] or
-     * [LoadType.END] or both. [LoadType.REFRESH] occurs as a result of [initialize].
+     * condition in either direction will trigger this callback with [LoadType.PREPEND] or
+     * [LoadType.APPEND] or both. [LoadType.REFRESH] occurs as a result of [initialize].
      *
      * @param loadType [LoadType] of the boundary condition which triggered this callback.
-     *  * [LoadType.START] indicates a boundary condition at the front of the list.
-     *  * [LoadType.END] indicates a boundary condition at the end of the list.
+     *  * [LoadType.PREPEND] indicates a boundary condition at the front of the list.
+     *  * [LoadType.APPEND] indicates a boundary condition at the end of the list.
      *  * [LoadType.REFRESH] indicates this callback was triggered as the result of a requested
      *  refresh - either driven by the UI, or by [initialize].
      * @param state A copy of the state including the list of pages currently held in

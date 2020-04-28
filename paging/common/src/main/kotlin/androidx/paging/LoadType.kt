@@ -35,10 +35,10 @@ enum class LoadType {
     /**
      * Load at the start of a [PagingData].
      */
-    START,
+    PREPEND,
 
     /**
      * Load at the end of a [PagingData].
      */
-    END
+    APPEND
 }

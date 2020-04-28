@@ -43,14 +43,14 @@ internal class ItemDataSource : PagingSource<Int, Item>() {
                     position = ((params.key ?: 0) - params.loadSize / 2).coerceAtLeast(0),
                     loadSize = params.loadSize
                 )
-            LoadType.START -> {
+            LoadType.PREPEND -> {
                 val loadSize = minOf(params.key!!, params.pageSize)
                 loadInternal(
                     position = params.key!! - loadSize,
                     loadSize = loadSize
                 )
             }
-            LoadType.END ->
+            LoadType.APPEND ->
                 loadInternal(
                     position = params.key!!,
                     loadSize = params.loadSize

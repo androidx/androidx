@@ -43,8 +43,8 @@ class TestPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
         val key = params.key ?: 0
 
-        val start = if (params.loadType == LoadType.START) key - params.loadSize + 1 else key
-        val end = if (params.loadType == LoadType.START) key + 1 else key + params.loadSize
+        val start = if (params.loadType == LoadType.PREPEND) key - params.loadSize + 1 else key
+        val end = if (params.loadType == LoadType.PREPEND) key + 1 else key + params.loadSize
 
         // This delay allows tests running withing DelayController APIs to control the order of
         // execution of events.

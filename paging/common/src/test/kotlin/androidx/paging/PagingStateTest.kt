@@ -35,7 +35,7 @@ class PagingStateTest {
             ),
             anchorPosition = 10,
             config = PagingConfig(pageSize = 10, prefetchDistance = 0),
-            placeholdersStart = 0
+            placeholdersBefore = 0
         )
 
         assertEquals(0, pagingState.closestItemToPosition(-1))
@@ -55,7 +55,7 @@ class PagingStateTest {
             ),
             anchorPosition = 10,
             config = PagingConfig(pageSize = 10, prefetchDistance = 0),
-            placeholdersStart = 10
+            placeholdersBefore = 10
         )
 
         assertEquals(0, pagingState.closestItemToPosition(5))
@@ -76,7 +76,7 @@ class PagingStateTest {
             pages = pages,
             anchorPosition = 10,
             config = PagingConfig(pageSize = 10, prefetchDistance = 0),
-            placeholdersStart = 0
+            placeholdersBefore = 0
         )
 
         assertEquals(pages.first(), pagingState.closestPageToPosition(-1))
@@ -97,7 +97,7 @@ class PagingStateTest {
             pages = pages,
             anchorPosition = 10,
             config = PagingConfig(pageSize = 10, prefetchDistance = 0),
-            placeholdersStart = 10
+            placeholdersBefore = 10
         )
 
         assertEquals(pages.first(), pagingState.closestPageToPosition(5))

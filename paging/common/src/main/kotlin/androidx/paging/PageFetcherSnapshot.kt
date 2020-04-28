@@ -18,9 +18,9 @@ package androidx.paging
 
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadParams
@@ -119,11 +119,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     // Handle prepend / append failures.
 
                     // Reset load state to allow loads in this direction.
-                    stateLock.withLock { state.failedHintsByLoadType.remove(START) }
+                    stateLock.withLock { state.failedHintsByLoadType.remove(PREPEND) }
                         ?.also { loadError -> retryLoadError(loadError) }
 
                     // Reset load state to allow loads in this direction.
-                    stateLock.withLock { state.failedHintsByLoadType.remove(END) }
+                    stateLock.withLock { state.failedHintsByLoadType.remove(APPEND) }
                         ?.also { loadError -> retryLoadError(loadError) }
                 }
         }
@@ -223,10 +223,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[START] == LoadState.NotLoading.Done) {
+                        if (state.loadStates[PREPEND] == LoadState.NotLoading.Done) {
                             return@transformLatest
-                        } else if (state.failedHintsByLoadType[START] == null) {
-                            state.loadStates[START] = LoadState.NotLoading.Idle
+                        } else if (state.failedHintsByLoadType[PREPEND] == null) {
+                            state.loadStates[PREPEND] = LoadState.NotLoading.Idle
                         }
                     }
 
@@ -242,7 +242,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 }
                 .filter { it != GenerationalViewportHint.PREPEND_INITIAL_VALUE }
                 .conflate()
-                .collect { generationalHint -> doLoad(this, state, START, generationalHint) }
+                .collect { generationalHint -> doLoad(this, state, PREPEND, generationalHint) }
         }
 
         launch {
@@ -254,10 +254,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         // Skip this generationId of loads if there is no more to load in this
                         // direction. In the case of the terminal page getting dropped, a new
                         // generationId will be sent after load state is updated to Idle.
-                        if (state.loadStates[END] == LoadState.NotLoading.Done) {
+                        if (state.loadStates[APPEND] == LoadState.NotLoading.Done) {
                             return@transformLatest
-                        } else if (state.failedHintsByLoadType[END] == null) {
-                            state.loadStates[END] = LoadState.NotLoading.Idle
+                        } else if (state.failedHintsByLoadType[APPEND] == null) {
+                            state.loadStates[APPEND] = LoadState.NotLoading.Idle
                         }
                     }
 
@@ -274,7 +274,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 .filter { it != GenerationalViewportHint.APPEND_INITIAL_VALUE }
                 .conflate()
                 .collect { generationalHint ->
-                    doLoad(this, state, END, generationalHint)
+                    doLoad(this, state, APPEND, generationalHint)
                 }
         }
     }
@@ -302,10 +302,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         // Update loadStates which are sent along with this load's Insert PageEvent.
                         state.loadStates[REFRESH] = LoadState.NotLoading.Idle
                         if (result.prevKey == null) {
-                            state.loadStates[START] = LoadState.NotLoading.Done
+                            state.loadStates[PREPEND] = LoadState.NotLoading.Done
                         }
                         if (result.nextKey == null) {
-                            state.loadStates[END] = LoadState.NotLoading.Done
+                            state.loadStates[APPEND] = LoadState.NotLoading.Done
                         }
                     }
                 } else {
@@ -316,11 +316,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
 
                         if (result.prevKey == null) {
-                            remoteMediatorAccessor.doBoundaryCall(scope, START, pagingState)
+                            remoteMediatorAccessor.doBoundaryCall(scope, PREPEND, pagingState)
                         }
 
                         if (result.nextKey == null) {
-                            remoteMediatorAccessor.doBoundaryCall(scope, END, pagingState)
+                            remoteMediatorAccessor.doBoundaryCall(scope, APPEND, pagingState)
                         }
                     }
                 }
@@ -386,8 +386,8 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
                     // Set endOfPaginationReached to false if no more data to load in current
                     // direction.
-                    if ((loadType == START && result.prevKey == null) ||
-                        (loadType == END && result.nextKey == null)
+                    if ((loadType == PREPEND && result.prevKey == null) ||
+                        (loadType == APPEND && result.nextKey == null)
                     ) {
                         endOfPaginationReached = true
                     }
@@ -401,8 +401,8 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
 
             val dropType = when (loadType) {
-                START -> END
-                else -> START
+                PREPEND -> APPEND
+                else -> PREPEND
             }
 
             stateLock.withLock {
@@ -441,12 +441,12 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             } else {
                 val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
 
-                if (params.loadType == START && result.prevKey == null) {
-                    remoteMediatorAccessor.doBoundaryCall(scope, START, pagingState)
+                if (params.loadType == PREPEND && result.prevKey == null) {
+                    remoteMediatorAccessor.doBoundaryCall(scope, PREPEND, pagingState)
                 }
 
-                if (params.loadType == END && result.nextKey == null) {
-                    remoteMediatorAccessor.doBoundaryCall(scope, END, pagingState)
+                if (params.loadType == APPEND && result.nextKey == null) {
+                    remoteMediatorAccessor.doBoundaryCall(scope, APPEND, pagingState)
                 }
             }
 
@@ -540,13 +540,13 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         pageIndex: Int,
         hintOffset: Int
     ): Key? = when (loadType) {
-        START -> nextPrependKey(
+        PREPEND -> nextPrependKey(
             generationId,
             pageIndex,
             indexInPage,
             config.prefetchDistance + hintOffset.absoluteValue
         )
-        END -> nextAppendKey(
+        APPEND -> nextAppendKey(
             generationId,
             pageIndex,
             indexInPage,
@@ -566,7 +566,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         prefetchDistance: Int
     ): Key? {
         if (loadId != prependLoadId) return null
-        if (failedHintsByLoadType[START] != null) return null
+        if (failedHintsByLoadType[PREPEND] != null) return null
 
         val itemsBeforePage = (0 until pageIndex).sumBy { pages[it].data.size }
         val shouldLoad = itemsBeforePage + indexInPage < prefetchDistance
@@ -584,7 +584,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         prefetchDistance: Int
     ): Key? {
         if (loadId != appendLoadId) return null
-        if (failedHintsByLoadType[END] != null) return null
+        if (failedHintsByLoadType[APPEND] != null) return null
 
         val itemsIncludingPage = (pageIndex until pages.size).sumBy { pages[it].data.size }
         val shouldLoad = indexInPage + 1 + prefetchDistance > itemsIncludingPage
@@ -605,7 +605,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     i++
                 }
 
-                lastAccessedIndex + state.placeholdersStart
+                lastAccessedIndex + state.placeholdersBefore
             }
         }
 
@@ -613,7 +613,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             pages = state.pages.toList(),
             anchorPosition = anchorPosition,
             config = config,
-            placeholdersStart = state.placeholdersStart
+            placeholdersBefore = state.placeholdersBefore
         )
     }
 }

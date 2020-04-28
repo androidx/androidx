@@ -84,8 +84,8 @@ abstract class PagingSource<Key : Any, Value : Any> {
          *
          * May be one of the following values:
          * * [LoadType.REFRESH] - initial load or a refresh triggered by [invalidate].
-         * * [LoadType.START] - load a page of data to be prepended to the start of the list.
-         * * [LoadType.END] - load a page of data to be appended to the end of the list.
+         * * [LoadType.PREPEND] - load a page of data to be prepended to the start of the list.
+         * * [LoadType.APPEND] - load a page of data to be appended to the end of the list.
          */
         val loadType: LoadType,
         /**
