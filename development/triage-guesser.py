@@ -285,7 +285,7 @@ class Triager(object):
 def main(args):
   if len(args) != 1:
     usage()
-  fileFinder = FileFinder(os.path.dirname(args[0]))
+  fileFinder = FileFinder(os.path.dirname(os.path.dirname(args[0])))
   print("Reading issues (copy-paste from the hotlist) from stdin")
   lines = sys.stdin.readlines()
   triager = Triager(fileFinder)
