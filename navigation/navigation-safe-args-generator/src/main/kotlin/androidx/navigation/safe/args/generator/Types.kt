@@ -31,6 +31,8 @@ interface NavType {
             "long[]" -> LongArrayType
             "float" -> FloatType
             "float[]" -> FloatArrayType
+            "double" -> DoubleType
+            "double[]" -> DoubleArrayType
             "boolean" -> BoolType
             "boolean[]" -> BoolArrayType
             "reference" -> ReferenceType
@@ -93,6 +95,20 @@ object FloatArrayType : NavType {
     override fun bundlePutMethod() = "putFloatArray"
     override fun bundleGetMethod() = "getFloatArray"
     override fun toString() = "float[]"
+    override fun allowsNullable() = true
+}
+
+object DoubleType : NavType {
+    override fun bundlePutMethod() = "putDouble"
+    override fun bundleGetMethod() = "getDouble"
+    override fun toString() = "double"
+    override fun allowsNullable() = false
+}
+
+object DoubleArrayType : NavType {
+    override fun bundlePutMethod() = "putDoubleArray"
+    override fun bundleGetMethod() = "getDoubleArray"
+    override fun toString() = "double[]"
     override fun allowsNullable() = true
 }
 
@@ -170,6 +186,9 @@ data class LongValue(val value: String) : WritableValue
 
 // keeping value as String, it will help to preserve client format of it: scientific, dot
 data class FloatValue(val value: String) : WritableValue
+
+// keeping value as String, it will help to preserve client format of it: scientific, dot
+data class DoubleValue(val value: String) : WritableValue
 
 data class BooleanValue(val value: String) : WritableValue
 
