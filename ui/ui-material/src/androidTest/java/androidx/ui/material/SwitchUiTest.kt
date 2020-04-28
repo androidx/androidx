@@ -20,18 +20,14 @@ import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Strings
-import androidx.ui.foundation.selection.ToggleableState
-import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.layout.Column
 import androidx.ui.layout.Stack
-import androidx.ui.semantics.accessibilityValue
 import androidx.ui.test.assertHasNoClickAction
+import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsOff
 import androidx.ui.test.assertIsOn
-import androidx.ui.test.assertSemanticsIsEqualTo
-import androidx.ui.test.copyWith
+import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.unit.dp
@@ -47,16 +43,6 @@ class SwitchUiTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    private val defaultUncheckedSwitchSemantics = createFullSemantics(
-        isEnabled = true,
-        toggleableState = ToggleableState.Off,
-        value = Strings.Unchecked // TODO(a11y): Do we still call this checked/unchecked?
-    )
-
-    private val defaultCheckedSwitchSemantics = defaultUncheckedSwitchSemantics.copyWith {
-        toggleableState = ToggleableState.On
-        accessibilityValue = Strings.Checked
-    }
     private val defaultSwitchTag = "switch"
 
     @Test
@@ -72,8 +58,14 @@ class SwitchUiTest {
             }
         }
 
-        findByTag("checked").assertSemanticsIsEqualTo(defaultCheckedSwitchSemantics)
-        findByTag("unchecked").assertSemanticsIsEqualTo(defaultUncheckedSwitchSemantics)
+        findByTag("checked")
+            .assertIsEnabled()
+            .assertIsOn()
+            .assertValueEquals(Strings.Checked)
+        findByTag("unchecked")
+            .assertIsEnabled()
+            .assertIsOff()
+            .assertValueEquals(Strings.Unchecked)
     }
 
     @Test

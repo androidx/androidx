@@ -34,11 +34,10 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.Favorite
-import androidx.ui.test.assertSemanticsIsEqualTo
+import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
@@ -62,10 +61,6 @@ class FloatingActionButtonTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val defaultButtonSemantics = createFullSemantics(
-        isEnabled = true
-    )
-
     @Test
     fun fabDefaultSemantics() {
         composeTestRule.setMaterialContent {
@@ -79,7 +74,7 @@ class FloatingActionButtonTest {
         }
 
         findByTag("myButton")
-            .assertSemanticsIsEqualTo(defaultButtonSemantics)
+            .assertIsEnabled()
     }
 
     @Test

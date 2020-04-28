@@ -24,6 +24,22 @@ import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsProperties
 
 /**
+ * Returns whether the component is enabled.
+ *
+ * @see SemanticsProperties.Enabled
+ */
+fun isEnabled(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(SemanticsProperties.Enabled, true)
+
+/**
+ * Returns whether the component is not enabled.
+ *
+ * @see SemanticsProperties.Enabled
+ */
+fun isNotEnabled(): SemanticsMatcher =
+    SemanticsMatcher.expectValue(SemanticsProperties.Enabled, false)
+
+/**
  * Return whether the component is checkable.
  *
  * @see FoundationSemanticsProperties.ToggleableState
