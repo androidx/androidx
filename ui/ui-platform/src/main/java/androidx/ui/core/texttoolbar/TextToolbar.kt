@@ -29,6 +29,7 @@ interface TextToolbar {
      * @param rect region of interest. The selected region around which the floating toolbar
      * should show.
      * @param text selected text. For copying to the clipboard manager.
+     * @param onDeselectRequested callback to deselect after the floating toolbar is clicked.
      */
-    fun showCopyMenu(rect: Rect, text: AnnotatedString)
+    fun showCopyMenu(rect: Rect, text: AnnotatedString, onDeselectRequested: () -> Unit)
 }
