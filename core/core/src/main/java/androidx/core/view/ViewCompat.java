@@ -3769,21 +3769,18 @@ public class ViewCompat {
         }
     }
 
-    /**
-     * Adds a listener which will receive unhandled {@link KeyEvent}s. This must be called on the
-     * UI thread.
-     *
-     * @param listener a receiver of unhandled {@link KeyEvent}s.
-     * @see #removeOnUnhandledKeyEventListener
-     */
-    @SuppressWarnings("unchecked")
-    public static void addOnUnhandledKeyEventListener(@NonNull View v,
-            final @NonNull OnUnhandledKeyEventListenerCompat listener) {
-        if (Build.VERSION.SDK_INT >= 28) {
+    @RequiresApi(28)
+    static class CompatImplApi28 {
+        private CompatImplApi28() {
+        }
+
+        @SuppressWarnings("unchecked")
+        static void addOnUnhandledKeyEventListener(@NonNull View v,
+                final @NonNull OnUnhandledKeyEventListenerCompat listener) {
             SimpleArrayMap<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
                     viewListeners = (SimpleArrayMap<OnUnhandledKeyEventListenerCompat,
-                            View.OnUnhandledKeyEventListener>)
-                            v.getTag(R.id.tag_unhandled_key_listeners);
+                    View.OnUnhandledKeyEventListener>)
+                    v.getTag(R.id.tag_unhandled_key_listeners);
             if (viewListeners == null) {
                 viewListeners = new SimpleArrayMap<>();
                 v.setTag(R.id.tag_unhandled_key_listeners, viewListeners);
@@ -3798,6 +3795,37 @@ public class ViewCompat {
 
             viewListeners.put(listener, fwListener);
             v.addOnUnhandledKeyEventListener(fwListener);
+        }
+
+        @SuppressWarnings("unchecked")
+        static void removeOnUnhandledKeyEventListener(@NonNull View v,
+                @NonNull OnUnhandledKeyEventListenerCompat listener) {
+            SimpleArrayMap<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
+                    viewListeners = (SimpleArrayMap<OnUnhandledKeyEventListenerCompat,
+                    View.OnUnhandledKeyEventListener>)
+                    v.getTag(R.id.tag_unhandled_key_listeners);
+            if (viewListeners == null) {
+                return;
+            }
+            View.OnUnhandledKeyEventListener fwListener = viewListeners.get(listener);
+            if (fwListener != null) {
+                v.removeOnUnhandledKeyEventListener(fwListener);
+            }
+        }
+    }
+
+    /**
+     * Adds a listener which will receive unhandled {@link KeyEvent}s. This must be called on the
+     * UI thread.
+     *
+     * @param listener a receiver of unhandled {@link KeyEvent}s.
+     * @see #removeOnUnhandledKeyEventListener
+     */
+    @SuppressWarnings("unchecked")
+    public static void addOnUnhandledKeyEventListener(@NonNull View v,
+            final @NonNull OnUnhandledKeyEventListenerCompat listener) {
+        if (Build.VERSION.SDK_INT >= 28) {
+            CompatImplApi28.addOnUnhandledKeyEventListener(v, listener);
             return;
         }
         ArrayList<OnUnhandledKeyEventListenerCompat> viewListeners =
@@ -3824,17 +3852,7 @@ public class ViewCompat {
     public static void removeOnUnhandledKeyEventListener(@NonNull View v,
             @NonNull OnUnhandledKeyEventListenerCompat listener) {
         if (Build.VERSION.SDK_INT >= 28) {
-            SimpleArrayMap<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
-                    viewListeners = (SimpleArrayMap<OnUnhandledKeyEventListenerCompat,
-                            View.OnUnhandledKeyEventListener>)
-                            v.getTag(R.id.tag_unhandled_key_listeners);
-            if (viewListeners == null) {
-                return;
-            }
-            View.OnUnhandledKeyEventListener fwListener = viewListeners.get(listener);
-            if (fwListener != null) {
-                v.removeOnUnhandledKeyEventListener(fwListener);
-            }
+            CompatImplApi28.removeOnUnhandledKeyEventListener(v, listener);
             return;
         }
         ArrayList<OnUnhandledKeyEventListenerCompat> viewListeners =
