@@ -69,10 +69,10 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         }
 
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
-            return when (params.loadType) {
-                REFRESH -> loadInitial(params)
-                PREPEND -> loadBefore(params)
-                APPEND -> loadAfter(params)
+            return when (params) {
+                is LoadParams.Refresh -> loadInitial(params)
+                is LoadParams.Prepend -> loadBefore(params)
+                is LoadParams.Append -> loadAfter(params)
             }
         }
 
@@ -191,8 +191,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         Int
     ): Page<Int, Item> = runBlocking {
         val result = load(
-            PagingSource.LoadParams(
-                REFRESH,
+            PagingSource.LoadParams.Refresh(
                 initialKey,
                 loadSize,
                 placeholdersEnabled,

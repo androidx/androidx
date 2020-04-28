@@ -19,9 +19,9 @@
 package androidx.paging
 
 import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagedList.Config
+import androidx.paging.PagingSource.LoadParams.Refresh
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.testutils.TestDispatcher
@@ -42,18 +42,13 @@ class LegacyPageFetcherTest {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
             val key = params.key ?: 0
 
-            val start = when (params.loadType) {
-                REFRESH -> key
-                PREPEND -> key - params.loadSize
-                APPEND -> key
-            }.coerceAtLeast(0)
-
-            val end = when (params.loadType) {
-                REFRESH -> key + params.loadSize
-                PREPEND -> key
-                APPEND -> key + params.loadSize
-            }.coerceAtMost(data.size)
-
+            val (start, end) = when (params) {
+                is Refresh -> key to key + params.loadSize
+                is LoadParams.Prepend -> key - params.loadSize to key
+                is LoadParams.Append -> key to key + params.loadSize
+            }.let { (start, end) ->
+                start.coerceAtLeast(0) to end.coerceAtMost(data.size)
+            }
             return Page(
                 data = data.subList(start, end),
                 prevKey = if (start > 0) start else null,
@@ -121,8 +116,7 @@ class LegacyPageFetcherTest {
 
         val initialResult = runBlocking {
             pagingSource.load(
-                PagingSource.LoadParams(
-                    loadType = REFRESH,
+                Refresh(
                     key = start,
                     loadSize = end - start,
                     placeholdersEnabled = config.enablePlaceholders,

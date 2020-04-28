@@ -113,8 +113,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
 
         loadStateManager.setState(LoadType.PREPEND, LoadState.Loading)
 
-        val loadParams = LoadParams(
-            LoadType.PREPEND,
+        val loadParams = LoadParams.Prepend(
             key,
             config.pageSize,
             config.enablePlaceholders,
@@ -131,8 +130,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
         }
 
         loadStateManager.setState(LoadType.APPEND, LoadState.Loading)
-        val loadParams = LoadParams(
-            LoadType.APPEND,
+        val loadParams = LoadParams.Append(
             key,
             config.pageSize,
             config.enablePlaceholders,
