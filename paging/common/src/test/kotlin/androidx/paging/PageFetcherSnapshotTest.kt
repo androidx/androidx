@@ -793,6 +793,88 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
+    fun retry_remotePrepend() = testScope.runBlockingTest {
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                super.load(loadType, state)
+
+                return if (loadType == PREPEND) {
+                    MediatorResult.Error(EXCEPTION)
+                } else {
+                    MediatorResult.Success(endOfPaginationReached = true)
+                }
+            }
+        }
+
+        val pageSource = TestPagingSource(items = List(2) { it })
+        val pager = PageFetcherSnapshot(
+            initialKey = 0,
+            pagingSource = pageSource,
+            config = config,
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator),
+            triggerRemoteRefresh = false
+        )
+
+        collectPagerData(pager) { _, _ ->
+            // Resolve initial load.
+            advanceUntilIdle()
+
+            retryCh.offer(Unit)
+            advanceUntilIdle()
+
+            retryCh.offer(Unit)
+            advanceUntilIdle()
+
+            assertEquals(3, remoteMediator.loadEvents.filter { it.loadType == PREPEND }.size)
+        }
+    }
+
+    @Test
+    fun retry_remoteAppend() = testScope.runBlockingTest {
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                super.load(loadType, state)
+
+                return if (loadType == APPEND) {
+                    MediatorResult.Error(EXCEPTION)
+                } else {
+                    MediatorResult.Success(endOfPaginationReached = true)
+                }
+            }
+        }
+
+        val pageSource = TestPagingSource(items = List(2) { it })
+        val pager = PageFetcherSnapshot(
+            initialKey = 0,
+            pagingSource = pageSource,
+            config = config,
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator),
+            triggerRemoteRefresh = false
+        )
+
+        collectPagerData(pager) { _, _ ->
+            // Resolve initial load.
+            advanceUntilIdle()
+
+            retryCh.offer(Unit)
+            advanceUntilIdle()
+
+            retryCh.offer(Unit)
+            advanceUntilIdle()
+
+            assertEquals(3, remoteMediator.loadEvents.filter { it.loadType == APPEND }.size)
+        }
+    }
+
+    @Test
     fun disablePlaceholders_refresh() = testScope.runBlockingTest {
         val config = PagingConfig(
             pageSize = 1,
