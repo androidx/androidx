@@ -32,7 +32,7 @@ import java.util.Set;
  * {@link java.util.Collection}, these factories reduce the volume of lambdas that need to be
  * created in generated code.
  */
-public final class CollectionFactories {
+public final class SerializationRuntime {
     private static final CollectionFactory<? extends List<?>> LIST_FACTORY =
             new CollectionFactory<List<?>>() {
                 @NonNull
@@ -59,14 +59,26 @@ public final class CollectionFactories {
                 }
             };
 
-    private CollectionFactories() {
+    private SerializationRuntime() {
+    }
+
+    /**
+     * Obtain a default instance of a message class from its serializer.
+     *
+     * @param serializer the serializer for the message class.
+     * @param <T>        a message class.
+     * @return a new message with all fields set to default values.
+     */
+    @NonNull
+    public static <T> T defaultInstanceOf(@NonNull SerializerV1<T> serializer) {
+        return serializer.decode(EmptyDecoder.INSTANCE, null);
     }
 
     /**
      * A collection factory that creates lists.
      *
-     * @param <T> Element type of the factory.
-     * @return A list factory.
+     * @param <T> element type of the factory.
+     * @return a list factory.
      */
     @NonNull
     @SuppressWarnings("unchecked")
@@ -77,8 +89,8 @@ public final class CollectionFactories {
     /**
      * A collection factory that creates sets.
      *
-     * @param <T> Element type of the factory.
-     * @return A set factory.
+     * @param <T> element type of the factory.
+     * @return a set factory.
      */
     @NonNull
     @SuppressWarnings("unchecked")
