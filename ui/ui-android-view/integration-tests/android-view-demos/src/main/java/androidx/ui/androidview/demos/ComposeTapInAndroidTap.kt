@@ -15,8 +15,10 @@
  */
 package androidx.ui.androidview.demos
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
 import androidx.compose.Recomposer
@@ -30,6 +32,7 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.toArgb
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 
 open class ComposeTapInAndroidTap : ComponentActivity() {
@@ -38,9 +41,17 @@ open class ComposeTapInAndroidTap : ComponentActivity() {
 
     private lateinit var composition: Composition
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.compose_in_android_tap)
+
+        findViewById<TextView>(R.id.text1).text =
+            "Demonstrates correct interop with simple tapping"
+        findViewById<TextView>(R.id.text2).text =
+            "The inner box is Compose, the outer is Android.  When you tap on the inner box, " +
+                    "only it changes colors. When you tap on the outer box, only the outer box " +
+                    "changes colors."
 
         val container = findViewById<ViewGroup>(R.id.clickableContainer)
         container.isClickable = true
@@ -64,9 +75,11 @@ open class ComposeTapInAndroidTap : ComponentActivity() {
                         if (currentColor.value == Color.Blue) Color.Yellow else Color.Blue
                 }
 
-            Box(
-                tap + Modifier.drawBackground(currentColor.value, RectangleShape).fillMaxSize()
-            )
+            Column {
+                Box(
+                    tap + Modifier.drawBackground(currentColor.value, RectangleShape).fillMaxSize()
+                )
+            }
         }
     }
 

@@ -638,7 +638,7 @@ internal class AndroidComposeView constructor(
     // TODO(shepshapard): Test this method.
     override fun dispatchTouchEvent(motionEvent: MotionEvent): Boolean {
         val processResult = trace("AndroidOwner:onTouch") {
-            val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
+            val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(motionEvent)
             if (pointerInputEvent != null) {
                 pointerInputEventProcessor.process(pointerInputEvent)
             } else {
