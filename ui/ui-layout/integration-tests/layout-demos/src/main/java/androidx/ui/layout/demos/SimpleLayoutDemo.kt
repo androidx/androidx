@@ -41,7 +41,7 @@ import androidx.ui.unit.sp
 fun SimpleLayoutDemo() {
     val lightGrey = Color(0xFFCFD8DC)
     Column {
-        Text(text = "Row", style = TextStyle(fontSize = 48.sp))
+        Text(text = "Row", fontSize = 48.sp)
 
         Stack(Modifier.preferredWidth(ExampleSize).drawBackground(color = lightGrey)) {
             Row(Modifier.fillMaxWidth()) {
@@ -78,7 +78,7 @@ fun SimpleLayoutDemo() {
             }
         }
         Spacer(Modifier.preferredHeight(24.dp))
-        Text(text = "Column", style = TextStyle(fontSize = 48.sp))
+        Text(text = "Column", fontSize = 48.sp)
         Row(Modifier.fillMaxWidth()) {
             Stack(Modifier.preferredHeight(ExampleSize).drawBackground(color = lightGrey)) {
                 Column(Modifier.fillMaxHeight()) {

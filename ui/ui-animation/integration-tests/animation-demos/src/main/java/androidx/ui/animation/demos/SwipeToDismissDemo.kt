@@ -53,7 +53,7 @@ fun SwipeToDismissDemo() {
         SwipeToDismiss()
         Text(
             "Swipe up to dismiss",
-            style = TextStyle(fontSize = 30.sp),
+            fontSize = 30.sp,
             modifier = Modifier.padding(40.dp)
         )
     }
