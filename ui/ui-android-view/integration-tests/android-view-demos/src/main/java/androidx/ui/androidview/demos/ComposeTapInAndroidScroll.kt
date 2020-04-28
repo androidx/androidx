@@ -18,6 +18,7 @@ package androidx.ui.androidview.demos
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
 import androidx.compose.Recomposer
@@ -46,6 +47,16 @@ open class ComposeTapInAndroidScroll : ComponentActivity() {
         setContentView(R.layout.compose_in_android_scroll)
 
         findViewById<View>(R.id.container).setBackgroundColor(Color.DarkGray.toArgb())
+
+        findViewById<TextView>(R.id.text1).text =
+            "Demonstrates that press gestures and movement gestures interact correctly between " +
+                    "Android and Compose when Compose is inside of Android."
+
+        findViewById<TextView>(R.id.text2).text =
+            "The inner box is Compose, the rest is Android.  Tapping the inner box will change " +
+                    "it's color.  Putting a finger down on the inner box and dragging vertically," +
+                    " will cause the outer Android ScrollView to scroll and removing the finger " +
+                    "from the screen will not cause the Compose box to change colors. "
 
         val container = findViewById<ViewGroup>(R.id.container)
         composition = container.setContent(Recomposer.current()) {

@@ -558,11 +558,13 @@ package androidx.ui.core {
   }
 
   public final class PointerInputKt {
+    method public static boolean anyChangeConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean anyPositionChangeConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean changedToDown(androidx.ui.core.PointerInputChange);
     method public static boolean changedToDownIgnoreConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean changedToUp(androidx.ui.core.PointerInputChange);
     method public static boolean changedToUpIgnoreConsumed(androidx.ui.core.PointerInputChange);
+    method public static androidx.ui.core.PointerInputChange consumeAllChanges(androidx.ui.core.PointerInputChange);
     method public static androidx.ui.core.PointerInputChange consumeDownChange(androidx.ui.core.PointerInputChange);
     method public static androidx.ui.core.PointerInputChange consumePositionChange-3EnrK0w(androidx.ui.core.PointerInputChange, float consumedDx, float consumedDy);
     method public static androidx.ui.unit.PxPosition positionChange(androidx.ui.core.PointerInputChange);

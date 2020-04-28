@@ -41,6 +41,17 @@ fun AndroidView(@LayoutRes resId: Int, postInflationCallback: (View) -> Unit = {
     )
 }
 
+/**
+ * Composes an Android [View].
+ *
+ * @param view The [View] to compose.
+ */
+@Composable
+// TODO(popam): support modifiers here
+fun AndroidView(view: View) {
+    AndroidViewHolder(view = view)
+}
+
 private class AndroidViewHolder(context: Context) : ViewGroup(context) {
     var view: View? = null
         set(value) {

@@ -110,12 +110,14 @@ fun PointerInputHandler.invokeOverAllPasses(
     size = size
 )
 
+// TODO(shepshapard): Rename to invokeOverPass
 fun PointerInputHandler.invokeOverPasses(
     pointerInputChange: PointerInputChange,
     pointerEventPass: PointerEventPass,
     size: IntPxSize = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx)
 ) = invokeOverPasses(listOf(pointerInputChange), listOf(pointerEventPass), size).first()
 
+// TODO(shepshapard): Rename to invokeOverPass
 fun PointerInputHandler.invokeOverPasses(
     vararg pointerInputChanges: PointerInputChange,
     pointerEventPass: PointerEventPass,

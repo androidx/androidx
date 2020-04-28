@@ -33,7 +33,7 @@ import androidx.ui.unit.px
 /**
  * Converts Android framework [MotionEvent]s into Compose [PointerInputEvent]s.
  */
-class MotionEventAdapter {
+internal class MotionEventAdapter {
 
     private var nextId = 0L
 
@@ -51,7 +51,7 @@ class MotionEventAdapter {
      *
      * @return The PointerInputEvent or null if the event action was ACTION_CANCEL.
      */
-    internal fun processMotionEvent(motionEvent: MotionEvent): PointerInputEvent? {
+    internal fun convertToPointerInputEvent(motionEvent: MotionEvent): PointerInputEvent? {
 
         if (motionEvent.actionMasked == ACTION_CANCEL) {
             intIdToPointerIdMap.clear()

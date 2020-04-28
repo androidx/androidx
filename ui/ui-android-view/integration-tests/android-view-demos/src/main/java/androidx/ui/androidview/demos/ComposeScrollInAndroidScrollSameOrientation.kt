@@ -18,6 +18,7 @@ package androidx.ui.androidview.demos
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.compose.Composition
 import androidx.compose.Recomposer
@@ -43,6 +44,16 @@ open class ComposeScrollInAndroidScrollSameOrientation : ComponentActivity() {
         setContentView(R.layout.compose_in_android_scroll)
 
         findViewById<View>(R.id.container).setBackgroundColor(Color.DarkGray.toArgb())
+
+        findViewById<TextView>(R.id.text1).text =
+            "Intended to demonstrate that scrolling between 2 scrollable things interops " +
+                    "\"correctly\" between Compose and Android when Compose is inside Android. " +
+                    "This currently does not actually work because nested scrolling interop is " +
+                    "not complete."
+
+        findViewById<TextView>(R.id.text2).text =
+            "The outer scrollable container always wins because it always intercepts the scroll " +
+                    "before the child scrolling container can start scrolling."
 
         val container = findViewById<ViewGroup>(R.id.container)
         composition = container.setContent(Recomposer.current()) {
