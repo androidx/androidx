@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.navigation.ui.AppBarConfigurationKt#AppBarConfiguration(android.view.Menu, androidx.drawerlayout.widget.DrawerLayout, kotlin.jvm.functions.Function0<java.lang.Boolean>):
+    Removed method androidx.navigation.ui.AppBarConfigurationKt.AppBarConfiguration(android.view.Menu,androidx.drawerlayout.widget.DrawerLayout,kotlin.jvm.functions.Function0<java.lang.Boolean>)
+RemovedMethod: androidx.navigation.ui.AppBarConfigurationKt#AppBarConfiguration(androidx.navigation.NavGraph, androidx.drawerlayout.widget.DrawerLayout, kotlin.jvm.functions.Function0<java.lang.Boolean>):
+    Removed method androidx.navigation.ui.AppBarConfigurationKt.AppBarConfiguration(androidx.navigation.NavGraph,androidx.drawerlayout.widget.DrawerLayout,kotlin.jvm.functions.Function0<java.lang.Boolean>)
+RemovedMethod: androidx.navigation.ui.AppBarConfigurationKt#AppBarConfiguration(java.util.Set<java.lang.Integer>, androidx.drawerlayout.widget.DrawerLayout, kotlin.jvm.functions.Function0<java.lang.Boolean>):
+    Removed method androidx.navigation.ui.AppBarConfigurationKt.AppBarConfiguration(java.util.Set<java.lang.Integer>,androidx.drawerlayout.widget.DrawerLayout,kotlin.jvm.functions.Function0<java.lang.Boolean>)
+RemovedMethod: androidx.navigation.ui.NavControllerKt#navigateUp(androidx.navigation.NavController, androidx.drawerlayout.widget.DrawerLayout):
+    Removed method androidx.navigation.ui.NavControllerKt.navigateUp(androidx.navigation.NavController,androidx.drawerlayout.widget.DrawerLayout)
