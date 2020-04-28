@@ -41,6 +41,7 @@ class WorkerGeneratorTest {
         package androidx.hilt.work.test;
 
         import android.content.Context;
+        import androidx.hilt.Assisted;
         import androidx.hilt.work.WorkerInject;
         import androidx.work.Worker;
         import androidx.work.WorkerParameters;
@@ -48,7 +49,8 @@ class WorkerGeneratorTest {
 
         class MyWorker extends Worker {
             @WorkerInject
-            MyWorker(Context context, WorkerParameters params, String s, Foo f, long l) {
+            MyWorker(@Assisted Context context, @Assisted WorkerParameters params, String s,
+                    Foo f, long l) {
                 super(context, params);
             }
         }
@@ -106,13 +108,14 @@ class WorkerGeneratorTest {
         package androidx.hilt.work.test;
 
         import android.content.Context;
+        import androidx.hilt.Assisted;
         import androidx.hilt.work.WorkerInject;
         import androidx.work.Worker;
         import androidx.work.WorkerParameters;
 
         class MyWorker extends Worker {
             @WorkerInject
-            MyWorker(Context context, WorkerParameters params) {
+            MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
                 super(context, params);
             }
         }

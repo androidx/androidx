@@ -36,19 +36,20 @@ import dagger.hilt.GeneratesRootInput;
  * Example:
  * <pre>
  * public class UploadWorker extends Worker {
- *     {@literal @}WorkerInject
- *     public UploadWorker(Context context, WorkerParameters params, HttpClient httpClient) {
+ *     &#64;WorkerInject
+ *     public UploadWorker(&#64;Assisted Context context, &#64;Assisted WorkerParameters params,
+ *             HttpClient httpClient) {
  *         // ...
  *     }
  * }
  * </pre>
  * <pre>
- * {@literal @}GenerateComponents
- * {@literal @}AndroidEntryPoint
+ * &#64;GenerateComponents
+ * &#64;AndroidEntryPoint
  * public class MyApplication extends Application implements Configuration.Provider {
- *     {@literal @}Inject HiltWorkerFactory workerFactory;
+ *     &#64;Inject HiltWorkerFactory workerFactory;
  *
- *     {@literal @}Override
+ *     &#64;Override
  *     public Configuration getWorkManagerConfiguration() {
  *         return Configuration.Builder()
  *                 .setWorkerFactory(workerFactory)
@@ -58,9 +59,10 @@ import dagger.hilt.GeneratesRootInput;
  * </pre>
  * <p>
  * Only one constructor in the {@code Worker} must be annotated with {@code WorkerInject}. The
- * constructor must define parameters for a {@code Context} and a {@code WorkerParameters} along
- * with any other dependencies. Both the {@code Context} and {@code WorkerParameters} must not be
- * a type param of {@link javax.inject.Provider} nor {@link dagger.Lazy} and must not be qualified.
+ * constructor must define parameters for a {@link androidx.hilt.Assisted}-annotated {@code Context}
+ * and a {@link androidx.hilt.Assisted}-annotated {@code WorkerParameters} along with any other
+ * dependencies. Both the {@code Context} and {@code WorkerParameters} must not be a type param
+ * of {@link javax.inject.Provider} nor {@link dagger.Lazy} and must not be qualified.
  * <p>
  * Only dependencies available in the {@link dagger.hilt.android.components.ApplicationComponent}
  * can be injected into the {@code Worker}.
