@@ -2018,7 +2018,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Called to ask the fragment to save its current dynamic state, so it
-     * can later be reconstructed in a new instance of its process is
+     * can later be reconstructed in a new instance if its process is
      * restarted.  If a new instance of the fragment later needs to be
      * created, the data you place in the Bundle here will be available
      * in the Bundle given to {@link #onCreate(Bundle)},
