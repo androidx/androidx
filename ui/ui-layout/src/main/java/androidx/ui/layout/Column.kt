@@ -92,6 +92,9 @@ enum class ColumnAlign {
 object ColumnScope {
     /**
      * Position the element horizontally within the [Column] according to [align].
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleGravityInColumn
      */
     fun Modifier.gravity(align: Alignment.Horizontal) = this + GravityModifier(align)
 

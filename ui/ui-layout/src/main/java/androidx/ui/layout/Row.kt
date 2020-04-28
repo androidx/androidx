@@ -90,6 +90,9 @@ enum class RowAlign {
 object RowScope {
     /**
      * Position the element vertically within the [Row] according to [align].
+     *
+     * Example usage:
+     * @sample androidx.ui.layout.samples.SimpleGravityInRow
      */
     fun Modifier.gravity(align: Alignment.Vertical) = this + GravityModifier(align)
 

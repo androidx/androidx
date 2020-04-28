@@ -32,9 +32,13 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.height
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.size
 import androidx.ui.layout.width
+import androidx.ui.layout.wrapContentHeight
+import androidx.ui.layout.wrapContentSize
+import androidx.ui.layout.wrapContentWidth
 import androidx.ui.unit.dp
 
 @Sampled
@@ -127,4 +131,56 @@ fun SimpleFillModifier() {
     Box(Modifier.fillMaxSize(), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
         Box(Modifier.preferredSize(100.dp).drawBackground(Color.Magenta))
     }
+}
+
+@Sampled
+@Composable
+fun SimpleWrapContentAlignedModifier() {
+    // Here the result will be a 20.dp x 20.dp blue box top-centered in a 40.dp x 40.dp space.
+    // Because of the preferredSizeIn modifier, if wrapContentSize did not exist, the blue rectangle
+    // would actually be 40.dp x 40.dp to satisfy the min size set by the modifier. However,
+    // because we provide wrapContentSize, the blue rectangle is specified to be wrap
+    // content - if the desired size is smaller than 40.dp x 40.dp, it will be top-centered in
+    // this space. Therefore the 20.dp x 20.dp is top-centered in the space.
+    Box(
+        Modifier.preferredSizeIn(minWidth = 40.dp, minHeight = 40.dp)
+            .wrapContentSize(Alignment.TopCenter)
+            .preferredSize(20.dp),
+        backgroundColor = Color.Blue
+    )
+}
+
+@Sampled
+@Composable
+fun SimpleWrapContentVerticallyAlignedModifier() {
+    // Here the result will be a 50.dp x 20.dp blue box centered vertically in a 50.dp x 50.dp
+    // space. Because of the preferredSize modifier, if wrapContentHeight did not exist,
+    // the blue rectangle would actually be 50.dp x 50.dp to satisfy the size set by the modifier.
+    // However, because we provide wrapContentHeight, the blue rectangle is specified to be wrap
+    // content in height - if the desired height is smaller than 50.dp, it will be centered
+    // vertically in this space. Therefore the 50.dp x 20.dp is centered vertically in the space.
+    Box(
+        Modifier.preferredSize(50.dp)
+            .wrapContentHeight(Alignment.CenterVertically)
+            .preferredHeight(20.dp),
+        backgroundColor = Color.Blue
+    )
+}
+
+@Sampled
+@Composable
+fun SimpleWrapContentHorizontallyAlignedModifier() {
+    // Here the result will be a 20.dp x 50.dp blue box centered vertically in a 50.dp x 50.dp
+    // space. Because of the preferredSize modifier, if wrapContentWidth did not exist,
+    // the blue rectangle would actually be 50.dp x 50.dp to satisfy the size set by the modifier.
+    // However, because we provide wrapContentWidth, the blue rectangle is specified to be wrap
+    // content in width - if the desired width is smaller than 50.dp, it will be centered
+    // horizontally in this space. Therefore the 50.dp x 20.dp is centered horizontally
+    // in the space.
+    Box(
+        Modifier.preferredSize(50.dp)
+            .wrapContentWidth(Alignment.CenterHorizontally)
+            .preferredWidth(20.dp),
+        backgroundColor = Color.Blue
+    )
 }
