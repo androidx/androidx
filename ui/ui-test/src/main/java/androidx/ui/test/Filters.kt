@@ -228,6 +228,16 @@ fun isNotHidden(): SemanticsMatcher =
 fun isDialog(): SemanticsMatcher =
     SemanticsMatcher.keyIsDefined(FoundationSemanticsProperties.IsDialog)
 
+/** Returns whether the component is a popup.
+ *
+ * This only checks if the component itself is a popup, not if it is _part of_ a popup. Use
+ * `hasAnyAncestorThat(isPopup())` for that.
+ *
+ * @see SemanticsProperties.IsPopup
+ */
+fun isPopup(): SemanticsMatcher =
+    SemanticsMatcher.keyIsDefined(SemanticsProperties.IsPopup)
+
 /**
  * Returns whether the component defines the given IME action.
  *

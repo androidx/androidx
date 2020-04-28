@@ -177,6 +177,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsMatcher isNotHidden();
     method public static androidx.ui.test.SemanticsMatcher isOff();
     method public static androidx.ui.test.SemanticsMatcher isOn();
+    method public static androidx.ui.test.SemanticsMatcher isPopup();
     method public static androidx.ui.test.SemanticsMatcher isSelectable();
     method public static androidx.ui.test.SemanticsMatcher isSelected();
     method public static androidx.ui.test.SemanticsMatcher isToggleable();

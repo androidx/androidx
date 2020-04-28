@@ -42,6 +42,7 @@ val MaterialDemos = DemoCategory("Material", listOf(
         ComposableDemo("Multiple text fields") { TextFieldsDemo() }
     )),
     ComposableDemo("Material Theme") { MaterialThemeDemo() },
+    ComposableDemo("Menus") { MenuDemo() },
     DemoCategory("Playground", listOf(
         ComposableDemo("Color Picker") { ColorPickerDemo() },
         ActivityDemo("Dynamic Theme", DynamicThemeActivity::class)

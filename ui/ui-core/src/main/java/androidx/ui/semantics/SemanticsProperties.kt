@@ -46,6 +46,12 @@ object SemanticsProperties {
     // whether this semantics node is hidden
     val Hidden = SemanticsPropertyKey<Boolean>("Hidden")
 
+    /**
+     * Whether this semantics node represents a Popup. Not to be confused with if this node is
+     * _part of_ a Popup.
+     */
+    val IsPopup = SemanticsPropertyKey<Boolean>("IsPopup")
+
     // TODO(b/151228491): TextDirection needs to be in core for platform use
     // val TextDirection = SemanticsPropertyKey<TextDirection>("TextDirection")
 
@@ -179,6 +185,12 @@ var SemanticsPropertyReceiver.accessibilityValueRange
 var SemanticsPropertyReceiver.enabled by SemanticsProperties.Enabled
 
 var SemanticsPropertyReceiver.hidden by SemanticsProperties.Hidden
+
+/**
+ * Whether this semantics node represents a Popup. Not to be confused with if this node is
+ * _part of_ a Popup.
+ */
+var SemanticsPropertyReceiver.popup by SemanticsProperties.IsPopup
 
 // var SemanticsPropertyReceiver.textDirection by SemanticsProperties.TextDirection
 

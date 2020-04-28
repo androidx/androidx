@@ -26,7 +26,6 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Composition
-import androidx.compose.Immutable
 import androidx.compose.Providers
 import androidx.compose.ambientOf
 import androidx.compose.currentComposer
@@ -36,6 +35,8 @@ import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.popup
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
@@ -59,14 +60,17 @@ import org.jetbrains.annotations.TestOnly
  * @param offset An offset from the original aligned position of the popup. Offset respects the
  * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
  * will be subtracted from it.
- * @param popupProperties Provides extended set of properties to configure the popup.
+ * @param isFocusable Indicates if the popup can grab the focus.
+ * @param onDismissRequest Executes when the popup tries to dismiss itself. This happens when
+ * the popup is focusable and the user clicks outside.
  * @param children The content to be displayed inside the popup.
  */
 @Composable
 fun Popup(
     alignment: Alignment = Alignment.TopStart,
     offset: IntPxPosition = IntPxPosition(IntPx.Zero, IntPx.Zero),
-    popupProperties: PopupProperties = PopupProperties(),
+    isFocusable: Boolean = false,
+    onDismissRequest: (() -> Unit)? = null,
     children: @Composable () -> Unit
 ) {
     // Memoize the object, but change the value of the properties if a recomposition happens
@@ -78,7 +82,8 @@ fun Popup(
     popupPositionProperties.offset = offset
 
     Popup(
-        popupProperties = popupProperties,
+        isFocusable = isFocusable,
+        onDismissRequest = onDismissRequest,
         popupPositionProperties = popupPositionProperties,
         calculatePopupPosition = { calculatePopupGlobalPosition(it, alignment) },
         children = children
@@ -95,14 +100,17 @@ fun Popup(
  *
  * @param dropDownAlignment The start or end alignment below the parent.
  * @param offset An offset from the original aligned position of the popup.
- * @param popupProperties Provides extended set of properties to configure the popup.
+ * @param isFocusable Indicates if the popup can grab the focus.
+ * @param onDismissRequest Executes when the popup tries to dismiss itself. This happens when
+ * the popup is focusable and the user clicks outside.
  * @param children The content to be displayed inside the popup.
  */
 @Composable
 fun DropdownPopup(
     dropDownAlignment: DropDownAlignment = DropDownAlignment.Start,
     offset: IntPxPosition = IntPxPosition(IntPx.Zero, IntPx.Zero),
-    popupProperties: PopupProperties = PopupProperties(),
+    isFocusable: Boolean = false,
+    onDismissRequest: (() -> Unit)? = null,
     children: @Composable () -> Unit
 ) {
     // Memoize the object, but change the value of the properties if a recomposition happens
@@ -114,7 +122,8 @@ fun DropdownPopup(
     popupPositionProperties.offset = offset
 
     Popup(
-        popupProperties = popupProperties,
+        isFocusable = isFocusable,
+        onDismissRequest = onDismissRequest,
         popupPositionProperties = popupPositionProperties,
         calculatePopupPosition = { calculateDropdownPopupPosition(it, dropDownAlignment) },
         children = children
@@ -133,7 +142,8 @@ internal fun PopupTestTag(tag: String, children: @Composable () -> Unit) {
 
 @Composable
 private fun Popup(
-    popupProperties: PopupProperties,
+    isFocusable: Boolean,
+    onDismissRequest: (() -> Unit)? = null,
     popupPositionProperties: PopupPositionProperties,
     calculatePopupPosition: ((PopupPositionProperties) -> IntPxPosition),
     children: @Composable () -> Unit
@@ -144,12 +154,13 @@ private fun Popup(
     val owner = OwnerAmbient.current
     val providedTestTag = PopupTestTagAmbient.current
 
-    val popupLayout = remember(popupProperties) {
+    val popupLayout = remember(isFocusable) {
         escapeCompose {
             PopupLayout(
                 context = context,
                 composeView = owner as View,
-                popupProperties = popupProperties,
+                popupIsFocusable = isFocusable,
+                onDismissRequest = onDismissRequest,
                 popupPositionProperties = popupPositionProperties,
                 calculatePopupPosition = calculatePopupPosition,
                 testTag = providedTestTag
@@ -182,13 +193,15 @@ private fun Popup(
     val recomposer = currentComposer.recomposer
     onCommit {
         composition = popupLayout.setContent(recomposer) {
-            SimpleStack(Modifier.onPositioned {
-                // Get the size of the content
-                popupLayout.popupPositionProperties.childrenSize = it.size.toPxSize()
+            Semantics(container = true, properties = { this.popup = true }) {
+                SimpleStack(Modifier.onPositioned {
+                    // Get the size of the content
+                    popupLayout.popupPositionProperties.childrenSize = it.size.toPxSize()
 
-                // Update the popup's position
-                popupLayout.updatePosition()
-            }, children = children)
+                    // Update the popup's position
+                    popupLayout.updatePosition()
+                }, children = children)
+            }
         }
     }
 
@@ -238,14 +251,16 @@ private inline fun SimpleStack(modifier: Modifier, noinline children: @Composabl
  *
  * @param context The application context.
  * @param composeView The parent view of the popup which is the AndroidComposeView.
- * @param popupProperties Properties of the popup.
+ * @param popupIsFocusable Indicates if the popup can grab the focus.
+ * @param onDismissRequest Executed when the popup tries to dismiss itself.
  * @param calculatePopupPosition The logic of positioning the popup relative to its parent.
  */
 @SuppressLint("ViewConstructor")
 private class PopupLayout(
     context: Context,
     val composeView: View,
-    val popupProperties: PopupProperties,
+    val popupIsFocusable: Boolean,
+    val onDismissRequest: (() -> Unit)? = null,
     var popupPositionProperties: PopupPositionProperties,
     var calculatePopupPosition: ((PopupPositionProperties) -> IntPxPosition),
     var testTag: String
@@ -282,7 +297,7 @@ private class PopupLayout(
      * Update the LayoutParams using the popup's properties.
      */
     fun updateLayoutParams() {
-        if (!popupProperties.isFocusable) {
+        if (!popupIsFocusable) {
             this.params.flags = this.params.flags or
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
         }
@@ -297,19 +312,17 @@ private class PopupLayout(
     }
 
     /**
-     * Handles touch screen motion events and calls [PopupProperties.onDismissRequest] when the
+     * Handles touch screen motion events and calls [onDismissRequest] when the
      * users clicks outside the popup.
      */
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if ((event?.action == MotionEvent.ACTION_DOWN) &&
             ((event.x < 0) || (event.x >= width) || (event.y < 0) || (event.y >= height))
         ) {
-            popupProperties.onDismissRequest?.invoke()
-
+            onDismissRequest?.invoke()
             return true
         } else if (event?.action == MotionEvent.ACTION_OUTSIDE) {
-            popupProperties.onDismissRequest?.invoke()
-
+            onDismissRequest?.invoke()
             return true
         }
 
@@ -346,20 +359,6 @@ private class PopupLayout(
         }
     }
 }
-
-// TODO(b/139800142): Add other PopupWindow properties which may be needed
-@Immutable
-data class PopupProperties(
-    /**
-     * Indicates if the popup can grab the focus.
-     */
-    val isFocusable: Boolean = false,
-    /**
-     * Executes when the popup tries to dismiss itself.
-     * This happens when the popup is focusable and the user clicks outside.
-     */
-    val onDismissRequest: (() -> Unit)? = null
-)
 
 internal data class PopupPositionProperties(
     var offset: IntPxPosition
