@@ -55,7 +55,7 @@ fun AnimatableSeekBarDemo() {
         Column {
             Text(
                 "Drag to update AnimationClock",
-                style = TextStyle(fontSize = 20.sp),
+                fontSize = 20.sp,
                 modifier = Modifier.padding(40.dp)
             )
 

@@ -29,7 +29,7 @@ import androidx.ui.unit.sp
 @Composable
 fun SpanStyleSample() {
     Text(
-        style = TextStyle(fontSize = 16.sp),
+        fontSize = 16.sp,
         text = AnnotatedString {
             pushStyle(style = SpanStyle(color = Color.Red))
             append("Hello")

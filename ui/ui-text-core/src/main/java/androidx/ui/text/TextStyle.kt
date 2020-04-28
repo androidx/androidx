@@ -50,7 +50,7 @@ private val DefaultColor = Color.Black
  * @sample androidx.ui.text.samples.TextStyleSample
  *
  * @param color The text color.
- * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
+ * @param fontSize The size of glyphs to use when painting the text. This
  * may be [TextUnit.Inherit] for inheriting from another [TextStyle].
  * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
  * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
@@ -60,7 +60,7 @@ private val DefaultColor = Color.Black
  * @param fontFeatureSettings The advanced typography settings provided by font. The format is the
  *  same as the CSS font-feature-settings attribute:
  *  https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
- * @param letterSpacing The amount of space (in em) to add between each letter.
+ * @param letterSpacing The amount of space to add between each letter.
  * @param baselineShift The amount by which the text is shifted up from the current baseline.
  * @param textGeometricTransform The geometric transformation applied the text.
  * @param localeList The locale list used to select region-specific glyphs.

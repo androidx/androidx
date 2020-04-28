@@ -50,7 +50,7 @@ class TextBasicTestCase(
     @Composable
     override fun emitContent() {
         Text(
-            text = text, color = Color.Black, style = TextStyle(fontSize = 8.sp),
+            text = text, color = Color.Black, fontSize = 8.sp,
             modifier = Modifier.wrapContentSize(Alignment.Center).preferredWidth(160.dp)
         )
     }

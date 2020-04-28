@@ -156,11 +156,14 @@ class FilledTextFieldTest {
                     value = "",
                     onValueChange = {},
                     label = {
-                        Text(text = "label", style = TextStyle(fontSize = 10.sp),
+                        Text(
+                            text = "label",
+                            fontSize = 10.sp,
                             modifier = Modifier.onPositioned {
-                            labelPosition.value = it.globalPosition
-                            labelSize.value = it.size
-                        })
+                                labelPosition.value = it.globalPosition
+                                labelSize.value = it.size
+                            }
+                        )
                     }
                 )
             }

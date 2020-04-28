@@ -19,7 +19,6 @@ package androidx.ui.text.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.foundation.Text
-import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextDecoration
 
 @Sampled
@@ -27,7 +26,7 @@ import androidx.ui.text.style.TextDecoration
 fun TextDecorationLineThroughSample() {
     Text(
         text = "Demo Text",
-        style = TextStyle(textDecoration = TextDecoration.LineThrough)
+        textDecoration = TextDecoration.LineThrough
     )
 }
 
@@ -36,7 +35,7 @@ fun TextDecorationLineThroughSample() {
 fun TextDecorationUnderlineSample() {
     Text(
         text = "Demo Text",
-        style = TextStyle(textDecoration = TextDecoration.Underline)
+        textDecoration = TextDecoration.Underline
     )
 }
 
@@ -45,12 +44,10 @@ fun TextDecorationUnderlineSample() {
 fun TextDecorationCombinedSample() {
     Text(
         text = "Demo Text",
-        style = TextStyle(
-            textDecoration = TextDecoration.combine(
-                listOf(
-                    TextDecoration.Underline,
-                    TextDecoration.LineThrough
-                )
+        textDecoration = TextDecoration.combine(
+            listOf(
+                TextDecoration.Underline,
+                TextDecoration.LineThrough
             )
         )
     )

@@ -32,7 +32,7 @@ import androidx.ui.text.font.fontFamily
 fun FontFamilySansSerifSample() {
     Text(
         text = "Demo Text sans-serif",
-        style = TextStyle(fontFamily = FontFamily.SansSerif)
+        fontFamily = FontFamily.SansSerif
     )
 }
 
@@ -41,7 +41,7 @@ fun FontFamilySansSerifSample() {
 fun FontFamilySerifSample() {
     Text(
         text = "Demo Text serif",
-        style = TextStyle(fontFamily = FontFamily.Serif)
+        fontFamily = FontFamily.Serif
     )
 }
 
@@ -50,7 +50,7 @@ fun FontFamilySerifSample() {
 fun FontFamilyMonospaceSample() {
     Text(
         text = "Demo Text monospace",
-        style = TextStyle(fontFamily = FontFamily.Monospace)
+        fontFamily = FontFamily.Monospace
     )
 }
 
@@ -59,7 +59,7 @@ fun FontFamilyMonospaceSample() {
 fun FontFamilyCursiveSample() {
     Text(
         text = "Demo Text cursive",
-        style = TextStyle(fontFamily = FontFamily.Cursive)
+        fontFamily = FontFamily.Cursive
     )
 }
 
@@ -76,7 +76,7 @@ fun CustomFontFamilySample() {
             weight = FontWeight.W400,
             style = FontStyle.Italic)
     )
-    Text(text = "Demo Text", style = TextStyle(fontFamily = fontFamily))
+    Text(text = "Demo Text", fontFamily = fontFamily)
 }
 
 @Sampled

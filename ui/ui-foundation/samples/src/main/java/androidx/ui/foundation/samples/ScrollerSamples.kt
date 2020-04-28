@@ -183,7 +183,7 @@ private fun SquareButton(text: String, color: Color = Color.LightGray, onClick: 
             backgroundColor = color,
             gravity = ContentGravity.Center
         ) {
-            Text(text, style = TextStyle(fontSize = 20.sp))
+            Text(text, fontSize = 20.sp)
         }
     }
 }
