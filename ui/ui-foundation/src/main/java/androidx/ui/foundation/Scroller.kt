@@ -40,7 +40,6 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import kotlin.math.roundToInt
 
@@ -272,34 +271,22 @@ private fun ScrollerLayout(
             )
         },
         measureBlock = { measurables, constraints, _ ->
-            if (measurables.size > 1) {
-                throw IllegalStateException("Only one child is allowed in a VerticalScroller")
-            }
             val childConstraints = constraints.copy(
                 maxHeight = if (isVertical) IntPx.Infinity else constraints.maxHeight,
                 maxWidth = if (isVertical) constraints.maxWidth else IntPx.Infinity
             )
-            val childMeasurable = measurables.firstOrNull()
-            val placeable = childMeasurable?.measure(childConstraints)
-            val width: IntPx
-            val height: IntPx
-            if (placeable == null) {
-                width = constraints.minWidth
-                height = constraints.minHeight
-            } else {
-                width = min(placeable.width, constraints.maxWidth)
-                height = min(placeable.height, constraints.maxHeight)
-            }
+            require(measurables.size == 1)
+            val placeable = measurables.first().measure(childConstraints)
+            val width = min(placeable.width, constraints.maxWidth)
+            val height = min(placeable.height, constraints.maxHeight)
+            val scrollHeight = placeable.height.toPx() - height.toPx()
+            val scrollWidth = placeable.width.toPx() - width.toPx()
+            val side = if (isVertical) scrollHeight else scrollWidth
             layout(width, height) {
-                val childHeight = placeable?.height?.toPx() ?: 0.px
-                val childWidth = placeable?.width?.toPx() ?: 0.px
-                val scrollHeight = childHeight - height.toPx()
-                val scrollWidth = childWidth - width.toPx()
-                val side = if (isVertical) scrollHeight else scrollWidth
                 scrollerPosition.updateMaxPosition(side.value)
                 val xOffset = if (isVertical) 0 else -scrollerPosition.value.roundToInt()
                 val yOffset = if (isVertical) -scrollerPosition.value.roundToInt() else 0
-                placeable?.place(xOffset.ipx, yOffset.ipx)
+                placeable.place(xOffset.ipx, yOffset.ipx)
             }
         }
     )
