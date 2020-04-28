@@ -82,13 +82,14 @@ class ViewModelGeneratorTest {
         val myViewModel = """
         package androidx.hilt.lifecycle.test;
 
+        import androidx.hilt.Assisted;
         import androidx.hilt.lifecycle.ViewModelInject;
         import androidx.lifecycle.ViewModel;
         import androidx.lifecycle.SavedStateHandle;
 
         class MyViewModel extends ViewModel {
             @ViewModelInject
-            MyViewModel(SavedStateHandle savedState) { }
+            MyViewModel(@Assisted SavedStateHandle savedState) { }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
 
@@ -137,6 +138,7 @@ class ViewModelGeneratorTest {
         val myViewModel = """
         package androidx.hilt.lifecycle.test;
 
+        import androidx.hilt.Assisted;
         import androidx.hilt.lifecycle.ViewModelInject;
         import androidx.lifecycle.ViewModel;
         import androidx.lifecycle.SavedStateHandle;
@@ -144,7 +146,7 @@ class ViewModelGeneratorTest {
 
         class MyViewModel extends ViewModel {
             @ViewModelInject
-            MyViewModel(String s, Foo f, SavedStateHandle savedState, long l) { }
+            MyViewModel(String s, Foo f, @Assisted SavedStateHandle savedState, long l) { }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
 
@@ -204,6 +206,7 @@ class ViewModelGeneratorTest {
         val myViewModel = """
         package androidx.hilt.lifecycle.test;
 
+        import androidx.hilt.Assisted;
         import androidx.hilt.lifecycle.ViewModelInject;
         import androidx.lifecycle.ViewModel;
         import androidx.lifecycle.SavedStateHandle;
@@ -212,7 +215,7 @@ class ViewModelGeneratorTest {
 
         class MyViewModel extends ViewModel {
             @ViewModelInject
-            MyViewModel(String s, Provider<Foo> f, SavedStateHandle savedState) { }
+            MyViewModel(String s, Provider<Foo> f, @Assisted SavedStateHandle savedState) { }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")
 
@@ -272,6 +275,7 @@ class ViewModelGeneratorTest {
         val myViewModel = """
         package androidx.hilt.lifecycle.test;
 
+        import androidx.hilt.Assisted;
         import androidx.hilt.lifecycle.ViewModelInject;
         import androidx.lifecycle.ViewModel;
         import androidx.lifecycle.SavedStateHandle;
@@ -283,7 +287,7 @@ class ViewModelGeneratorTest {
         class MyViewModel extends ViewModel {
             @ViewModelInject
             MyViewModel(@Named("TheString") String s, @MyQualifier Provider<Long> l,
-                    SavedStateHandle savedState) {
+                    @Assisted SavedStateHandle savedState) {
             }
         }
         """.toJFO("androidx.hilt.lifecycle.test.MyViewModel")

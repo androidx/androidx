@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.hilt.integration.viewmodelapp
+package androidx.hilt;
 
-import androidx.hilt.Assisted
-import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import javax.inject.Inject
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Suppress("UNUSED_PARAMETER")
-class SimpleViewModel @ViewModelInject constructor(
-    mngr: MyManager,
-    @Assisted savedState: SavedStateHandle
-) : ViewModel() {
-    fun hi() = "$this - hi"
+/**
+ * Marks a parameter in a {@link androidx.hilt.lifecycle.ViewModelInject}-annotated constructor
+ * or a {@link androidx.hilt.work.WorkerInject}-annotated constructor to be assisted
+ * injected at runtime via a factory.
+ */
+// TODO(danysantiago): Remove and replace with dagger.assisted.
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Assisted {
 }
-
-class MyManager @Inject constructor()

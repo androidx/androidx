@@ -18,14 +18,15 @@ package androidx.hilt.integration.workerapp
 
 import android.content.Context
 import android.util.Log
+import androidx.hilt.Assisted
 import androidx.hilt.work.WorkerInject
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import javax.inject.Inject
 
 class SimpleWorker @WorkerInject constructor(
-    context: Context,
-    params: WorkerParameters,
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
     private val logger: MyLogger
 ) : Worker(context, params) {
     override fun doWork(): Result {
