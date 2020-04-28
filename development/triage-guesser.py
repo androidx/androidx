@@ -163,6 +163,7 @@ class Triager(object):
       "android.support.design": ["dcarlsson"],
       "RenderThread": ["jreck"],
       "VectorDrawable": ["tianliu"],
+      "Vector Drawable": ["tianliu"],
       "drawable": ["alanv"],
       "colorstatelist": ["alanv"],
       "multilocale": ["nona", "mnita"],
@@ -177,7 +178,8 @@ class Triager(object):
       "harfbuzz": ["android-text", "nona", "junkshik"],
       "slice": ["madym"],
       "checkApi": ["jeffrygaston", "aurimas"],
-      "compose": ["chuckj", "jsproch", "lelandr"]
+      "compose": ["chuckj", "jsproch", "lelandr"],
+      "jetifier": ["pavlis", "jeffrygaston"]
     })
     self.recommenderRules.append(OwnersRule(fileFinder))
     self.recommenderRules.append(LastTouchedBy_Rule(fileFinder))
@@ -192,7 +194,8 @@ class Triager(object):
 
   def process(self, lines):
     issues = self.parseIssues(lines)
-    outputs = []
+    recognizedTriages = []
+    unrecognizedTriages = []
     print("Analyzing " + str(len(issues)) + " issues")
     for issue in issues:
       print(".")
@@ -203,11 +206,14 @@ class Triager(object):
         if len(usernames) > 2:
           usernames = usernames[:2]
         recommendationText = str(usernames) + " (" + assigneeRecommendation.justification + ")"
-      outputs.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
+        recognizedTriages.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
+      else:
+        unrecognizedTriages.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
     maxColumnWidth = 0
-    for item in outputs:
+    allTriages = recognizedTriages + unrecognizedTriages
+    for item in allTriages:
       maxColumnWidth = max(maxColumnWidth, len(item[0]))
-    for item in outputs:
+    for item in allTriages:
       print(str(item[0]) + (" " * (maxColumnWidth - len(item[0]))) + " -> " + str(item[1]))
 
   def parseIssues(self, lines):
