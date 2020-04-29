@@ -16,18 +16,18 @@
 
 package androidx.transition;
 
+import android.animation.Animator;
+import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.animation.AccelerateInterpolator;
-import androidx.core.animation.Animator;
-import androidx.core.animation.DecelerateInterpolator;
-import androidx.core.animation.Interpolator;
 
 /**
  * This transition tracks changes to the visibility of target views in the
@@ -42,8 +42,8 @@ import androidx.core.animation.Interpolator;
  */
 public class Explode extends Visibility {
 
-    private static final Interpolator sDecelerate = new DecelerateInterpolator();
-    private static final Interpolator sAccelerate = new AccelerateInterpolator();
+    private static final TimeInterpolator sDecelerate = new DecelerateInterpolator();
+    private static final TimeInterpolator sAccelerate = new AccelerateInterpolator();
     private static final String PROPNAME_SCREEN_BOUNDS = "android:explode:screenBounds";
 
     private int[] mTempLoc = new int[2];

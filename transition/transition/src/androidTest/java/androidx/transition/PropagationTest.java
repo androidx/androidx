@@ -23,6 +23,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.graphics.Rect;
 import android.util.SparseArray;
 import android.view.Gravity;
@@ -30,9 +33,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.animation.Animator;
-import androidx.core.animation.AnimatorListenerAdapter;
-import androidx.core.animation.ObjectAnimator;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.transition.test.R;
@@ -111,7 +111,7 @@ public class PropagationTest extends BaseTransitionTest {
                 final Animator anim = super.onDisappear(sceneRoot, view, startValues, endValues);
                 anim.addListener(new AnimatorListenerAdapter() {
                     @Override
-                    public void onAnimationStart(@NonNull Animator animation) {
+                    public void onAnimationStart(Animator animation) {
                         final ObjectAnimator a = (ObjectAnimator) animation;
                         final int viewId = ((View) a.getTarget()).getId();
                         final long startDelay = a.getStartDelay();

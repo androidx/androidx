@@ -16,6 +16,9 @@
 
 package androidx.transition;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -27,9 +30,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.animation.Animator;
-import androidx.core.animation.AnimatorListenerAdapter;
-import androidx.core.animation.ObjectAnimator;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.ViewCompat;
 
@@ -191,7 +191,7 @@ public class Fade extends Visibility {
         }
 
         @Override
-        public void onAnimationStart(@NonNull Animator animation) {
+        public void onAnimationStart(Animator animation) {
             if (ViewCompat.hasOverlappingRendering(mView)
                     && mView.getLayerType() == View.LAYER_TYPE_NONE) {
                 mLayerTypeChanged = true;
@@ -200,7 +200,7 @@ public class Fade extends Visibility {
         }
 
         @Override
-        public void onAnimationEnd(@NonNull Animator animation) {
+        public void onAnimationEnd(Animator animation) {
             ViewUtils.setTransitionAlpha(mView, 1);
             if (mLayerTypeChanged) {
                 mView.setLayerType(View.LAYER_TYPE_NONE, null);
