@@ -279,7 +279,8 @@ class JavaNavWriterTest {
         val generatedFiles = compileFiles(actual).generatedFiles()
         val loader = InMemoryGeneratedClassLoader(generatedFiles)
 
-        fun createNextObj(mainArgValue: String) = loader.loadClass("a.b.MainFragmentDirections")
+        fun createNextObj(mainArgValue: String): Any? = loader.loadClass("a.b" +
+                ".MainFragmentDirections")
             .getDeclaredMethod("next", String::class.java)
             .invoke(null, mainArgValue)
 

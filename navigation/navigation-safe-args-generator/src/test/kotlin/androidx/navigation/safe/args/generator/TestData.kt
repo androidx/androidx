@@ -18,4 +18,4 @@ package androidx.navigation.safe.args.generator
 
 import java.io.File
 
-fun testData(path: String) = File("src/tests/test-data/$path")
+fun testData(path: String) = File("src/test/test-data/$path")
