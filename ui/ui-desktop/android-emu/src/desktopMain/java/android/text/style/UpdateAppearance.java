@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright (C) 2008 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package android.view.accessibility
+package android.text.style;
 
-class AccessibilityManager() {
-    fun isEnabled(): Boolean = false
+/**
+ * The classes that affect character-level text in a way that modifies their
+ * appearance when one is added or removed must implement this interface.  Note
+ * that if the class also impacts size or other metrics, it should instead
+ * implement {@link UpdateLayout}.
+ */
+public interface UpdateAppearance {
 }

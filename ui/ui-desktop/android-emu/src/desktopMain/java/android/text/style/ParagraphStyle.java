@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package android.view.accessibility
+package android.text.style;
 
-class AccessibilityManager() {
-    fun isEnabled(): Boolean = false
+/**
+ * The classes that affect paragraph-level text formatting implement
+ * this interface.
+ */
+public interface ParagraphStyle {
 }

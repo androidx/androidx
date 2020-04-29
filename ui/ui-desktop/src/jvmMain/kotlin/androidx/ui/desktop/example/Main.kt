@@ -16,14 +16,19 @@
 package androidx.ui.desktop.example
 
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
+import androidx.ui.core.Modifier
+
 import androidx.ui.graphics.Color
 import androidx.ui.desktop.SkiaWindow
 import androidx.ui.desktop.setContent
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
-import androidx.ui.core.Modifier
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.wrapContentSize
 import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.unit.dp
 
 import javax.swing.WindowConstants
@@ -49,4 +54,8 @@ fun main() {
 fun App() {
     Box(Modifier.fillMaxSize(), backgroundColor = Color.Green)
     Box(Modifier.padding(40.dp) + Modifier.drawBackground(color = Color.Blue))
+    Text(text = "Привет! 你好! Desktop Compose!",
+        color = Color.Black,
+        modifier = Modifier.preferredHeight(56.dp).wrapContentSize(Alignment.Center)
+    )
 }

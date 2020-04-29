@@ -16,7 +16,7 @@
 
 package android.graphics
 
-class Paint {
+open class Paint {
     enum class Style {
         FILL,
         FILL_AND_STROKE,
@@ -35,6 +35,25 @@ class Paint {
         ROUND
     }
 
+    open class FontMetricsInt {
+        @JvmField
+        var top: Int = 0
+        @JvmField
+        var ascent: Int = 0
+        @JvmField
+        var descent: Int = 0
+        @JvmField
+        var bottom: Int = 0
+        @JvmField
+        var leading: Int = 0
+
+        override fun toString(): String {
+            return "FontMetricsInt: top=" + top + " ascent=" + ascent +
+                    " descent=" + descent + " bottom=" + bottom +
+                    " leading=" + leading
+        }
+    }
+
     constructor(flags: Int) {}
 
     val skijaPaint = org.jetbrains.skija.Paint()
@@ -47,4 +66,22 @@ class Paint {
     var strokeWidth: Float = 0f
     var style: Style = Style.STROKE
     var stokeCap: Cap = Cap.BUTT
+
+    var textSize: Float = 0f
+
+    private var typeface: Typeface? = null
+    fun getTypeface(): Typeface? = typeface
+    fun setTypeface(newTypeface: Typeface?): Typeface? {
+        val oldTypeface = typeface
+        typeface = newTypeface
+        return oldTypeface
+    }
+    var textLocale: java.util.Locale = java.util.Locale.getDefault()
+    var fontFeatureSettings: String? = null
+    var textScaleX: Float = 1f
+    var textSkewX: Float = 1f
+
+    fun setShadowLayer(radius: Float, dx: Float, dy: Float, shadowColor: Int) {
+        println("Paint.setShadowLayer")
+    }
 }
