@@ -28,7 +28,7 @@ fun JavaSourcesSubject.parsesAs(fullClassName: String, folder: String = "expecte
         this.parsesAs(loadSourceFileObject(fullClassName, folder))
 
 fun loadSourceString(fullClassName: String, folder: String, fileExtension: String): String {
-    val folderPath = "src/tests/test-data/${if (folder.isEmpty()) "" else "$folder/"}"
+    val folderPath = "src/test/test-data/${if (folder.isEmpty()) "" else "$folder/"}"
     val split = fullClassName.split(".")
     return File("$folderPath/${split.last()}.$fileExtension").readText(Charset.defaultCharset())
 }
