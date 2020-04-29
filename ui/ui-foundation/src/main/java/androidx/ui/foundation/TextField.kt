@@ -18,24 +18,35 @@ package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.text.CoreTextField
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
+import androidx.ui.core.drawBehind
 import androidx.ui.core.input.FocusManager
 import androidx.ui.core.input.FocusNode
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.graphics.useOrElse
 import androidx.ui.input.ImeAction
 import androidx.ui.input.EditorValue
 import androidx.ui.input.KeyboardType
+import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.listSaver
 import androidx.ui.text.SoftwareKeyboardController
+import androidx.ui.text.TextFieldDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.dp
 
 /**
  * A class holding information about the editing state.
@@ -116,8 +127,9 @@ data class TextFieldValue(
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
  * @param onTextInputStarted Callback that is executed when the initialization has done for
  * communicating with platform text input service, e.g. software keyboard on Android. Called with
- * [SoftwareKeyboardController] instance which can be used for requesting nputshow/hide software
+ * [SoftwareKeyboardController] instance which can be used for requesting input show/hide software
  * keyboard.
+ * @param cursorColor Color of the cursor.
  *
  * @see TextFieldValue
  * @see ImeAction
@@ -138,7 +150,8 @@ fun TextField(
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
+    cursorColor: Color = contentColor()
 ) {
     val fullModel = state { EditorValue() }
     if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
@@ -155,9 +168,20 @@ fun TextField(
     val color = textColor.useOrElse { textStyle.color.useOrElse { contentColor() } }
     val mergedStyle = textStyle.merge(TextStyle(color = color))
 
+    val transformedText: TransformedText = remember(fullModel.value, visualTransformation) {
+        val transformed =
+            TextFieldDelegate.applyVisualFilter(fullModel.value, visualTransformation)
+        fullModel.value.composition?.let {
+            TextFieldDelegate.applyCompositionDecoration(it, transformed)
+        } ?: transformed
+    }
+    val cursorState: CursorState = remember { CursorState() }
+
     CoreTextField(
         value = fullModel.value,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .drawCursor(cursorColor, cursorState, fullModel.value, transformedText),
         onValueChange = {
             val prevState = fullModel.value
             fullModel.value = it
@@ -173,11 +197,57 @@ fun TextField(
         textStyle = mergedStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
-        onFocusChange = onFocusChange,
+        onFocusChange = {
+            cursorState.focused = it
+            onFocusChange(it)
+        },
         focusNode = focusNode ?: remember { FocusNode() },
         onImeActionPerformed = onImeActionPerformed,
         visualTransformation = visualTransformation,
-        onTextLayout = onTextLayout,
+        onTextLayout = {
+            cursorState.layoutResult = it
+            onTextLayout(it)
+        },
         onTextInputStarted = onTextInputStarted
     )
+}
+
+private class CursorState {
+    var focused by mutableStateOf(false)
+    var layoutResult by mutableStateOf<TextLayoutResult?>(null)
+}
+
+private val CursorThickness = 2.dp
+
+private fun Modifier.drawCursor(
+    cursorColor: Color,
+    cursorState: CursorState,
+    editorValue: EditorValue,
+    transformedText: TransformedText
+): Modifier = composed {
+    val paint = remember { Paint() }
+
+    drawBehind {
+        if (cursorState.focused && editorValue.selection.collapsed) {
+            val cursorWidth = CursorThickness.value * density
+            val cursorHeight = cursorState.layoutResult?.size?.height?.value?.toFloat() ?: 0f
+
+            val cursorRect = cursorState.layoutResult?.getCursorRect(
+                transformedText.offsetMap.originalToTransformed(editorValue.selection.min)
+            ) ?: Rect(
+                0f, 0f,
+                cursorWidth, cursorHeight
+            )
+            val cursorX = (cursorRect.left + cursorRect.right) / 2
+
+            drawLine(
+                Offset(cursorX, cursorRect.top),
+                Offset(cursorX, cursorRect.bottom),
+                paint.apply {
+                    this.color = cursorColor
+                    this.strokeWidth = cursorWidth
+                }
+            )
+        }
+    }
 }
