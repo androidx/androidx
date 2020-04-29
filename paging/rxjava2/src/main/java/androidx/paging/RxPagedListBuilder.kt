@@ -18,6 +18,7 @@ package androidx.paging
 
 import android.annotation.SuppressLint
 import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.paging.LoadState.Loading
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -389,7 +390,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 pagingSource.registerInvalidatedCallback(callback)
 
                 withContext(notifyDispatcher) {
-                    currentData.setInitialLoadState(LoadType.REFRESH, LoadState.Loading)
+                    currentData.setInitialLoadState(LoadType.REFRESH, Loading(fromMediator = false))
                 }
 
                 @Suppress("UNCHECKED_CAST")
@@ -399,7 +400,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                     is PagingSource.LoadResult.Error -> {
                         currentData.setInitialLoadState(
                             LoadType.REFRESH,
-                            LoadState.Error(initialResult.throwable)
+                            LoadState.Error(initialResult.throwable, fromMediator = false)
                         )
                     }
                     is PagingSource.LoadResult.Page -> {

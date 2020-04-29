@@ -285,7 +285,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     )
 
     private suspend fun doInitialLoad(scope: CoroutineScope, state: PagerState<Key, Value>) {
-        stateLock.withLock { state.setLoading(REFRESH) }
+        stateLock.withLock { state.setLoading(REFRESH, false) }
 
         val params = loadParams(REFRESH, initialKey)
         when (val result = pagingSource.load(params)) {
@@ -336,7 +336,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             is LoadResult.Error -> stateLock.withLock {
                 state.setHintError(
                     REFRESH,
-                    Error(result.throwable),
+                    Error(result.throwable, fromMediator = false),
                     ViewportHint.DUMMY_VALUE
                 )
             }
@@ -361,7 +361,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         indexInPage,
                         pageIndex,
                         hintOffset
-                    )?.also { setLoading(loadType) }
+                    )?.also { setLoading(loadType, false) }
                 }
             }
         }
@@ -391,7 +391,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 }
                 is LoadResult.Error -> {
                     stateLock.withLock {
-                        state.setHintError(loadType, Error(result.throwable), generationalHint.hint)
+                        state.setHintError(
+                            loadType,
+                            Error(result.throwable, fromMediator = false),
+                            generationalHint.hint
+                        )
                     }
                     return
                 }
@@ -462,14 +466,14 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         loadType: LoadType,
         pagingState: PagingState<Key, Value>
     ) {
-        stateLock.withLock { state.setLoading(loadType) }
+        stateLock.withLock { state.setLoading(loadType, true) }
         @OptIn(ExperimentalPagingApi::class)
         when (val boundaryResult = load(coroutineScope, loadType, pagingState)) {
             is RemoteMediator.MediatorResult.Error -> {
                 stateLock.withLock {
                     this@PageFetcherSnapshot.state.setBoundaryError(
                         loadType,
-                        Error(boundaryResult.throwable)
+                        Error(boundaryResult.throwable, fromMediator = true)
                     )
                 }
             }
@@ -488,10 +492,13 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
     }
 
-    private suspend fun PagerState<Key, Value>.setLoading(loadType: LoadType) {
-        if (loadStates[loadType] != Loading) {
-            loadStates[loadType] = Loading
-            pageEventCh.send(LoadStateUpdate(loadType, Loading))
+    private suspend fun PagerState<Key, Value>.setLoading(
+        loadType: LoadType,
+        fromMediator: Boolean
+    ) {
+        if (loadStates[loadType] != Loading.instance(fromMediator)) {
+            loadStates[loadType] = Loading.instance(fromMediator)
+            pageEventCh.send(LoadStateUpdate(loadType, Loading.instance(fromMediator)))
         }
     }
 

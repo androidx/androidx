@@ -138,7 +138,10 @@ class PageEventTest {
 
     @Test
     fun stateTransform() {
-        val state = LoadStateUpdate<Char>(loadType = REFRESH, loadState = LoadState.Loading)
+        val state = LoadStateUpdate<Char>(
+            loadType = REFRESH,
+            loadState = LoadState.Loading(fromMediator = false)
+        )
 
         assertSame(state, state.map { it + 1 })
         assertSame(state, state.flatMap { listOf(it, it) })
