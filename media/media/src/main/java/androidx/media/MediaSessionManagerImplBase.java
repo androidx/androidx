@@ -16,8 +16,6 @@
 
 package androidx.media;
 
-import static androidx.media.MediaSessionManager.RemoteUserInfo.UNKNOWN_PID;
-
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -148,7 +146,7 @@ class MediaSessionManagerImplBase implements MediaSessionManager.MediaSessionMan
                 return false;
             }
             RemoteUserInfoImplBase otherUserInfo = (RemoteUserInfoImplBase) obj;
-            if (mPid == UNKNOWN_PID || otherUserInfo.mPid == UNKNOWN_PID) {
+            if (mPid < 0 || otherUserInfo.mPid < 0) {
                 // Only compare package name and UID when PID is unknown.
                 return TextUtils.equals(mPackageName, otherUserInfo.mPackageName)
                         && mUid == otherUserInfo.mUid;
