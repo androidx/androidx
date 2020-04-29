@@ -25,6 +25,10 @@ class SimpleJavaVersionTest {
     fun testTryParse() {
         assert(SimpleJavaVersion.tryParse("11.0.1+13-LTS") == SimpleJavaVersion(11, 0, null))
         assert(
+            SimpleJavaVersion.tryParse("11.0.6+10-post-Ubuntu-1ubuntu118.04.1")
+                    == SimpleJavaVersion(11, 0, null)
+        )
+        assert(
             SimpleJavaVersion.tryParse("1.8.0_202-release-1483-b39-5396753")
                     == SimpleJavaVersion(8, 0, 202)
         )
@@ -38,6 +42,10 @@ class SimpleJavaVersionTest {
     @Test
     fun testParse() {
         assert(SimpleJavaVersion.parse("11.0.1+13-LTS") == SimpleJavaVersion(11, 0, null))
+        assert(
+            SimpleJavaVersion.parse("11.0.6+10-post-Ubuntu-1ubuntu118.04.1")
+                    == SimpleJavaVersion(11, 0, null)
+        )
         assert(
             SimpleJavaVersion.parse("1.8.0_202-release-1483-b39-5396753")
                     == SimpleJavaVersion(8, 0, 202)
