@@ -32,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.coroutines.ContinuationInterceptor
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 
@@ -119,12 +120,62 @@ class PagingDataDifferTest {
 
         job.cancel()
     }
+
+    @Test
+    fun retry() = testScope.runBlockingTest {
+        val differ = SimpleDiffer()
+        val receiver = UiReceiverFake()
+
+        val job = launch {
+            differ.collectFrom(infinitelySuspendingPagingData(receiver), dummyPresenterCallback)
+        }
+
+        differ.retry()
+
+        assertEquals(1, receiver.retryEvents.size)
+
+        job.cancel()
+    }
+
+    @Test
+    fun refresh() = testScope.runBlockingTest {
+        val differ = SimpleDiffer()
+        val receiver = UiReceiverFake()
+
+        val job = launch {
+            differ.collectFrom(infinitelySuspendingPagingData(receiver), dummyPresenterCallback)
+        }
+
+        differ.refresh()
+
+        assertEquals(1, receiver.refreshEvents.size)
+
+        job.cancel()
+    }
 }
 
 private fun infinitelySuspendingPagingData(receiver: UiReceiver = dummyReceiver) = PagingData<Int>(
     flow { emit(suspendCancellableCoroutine { }) },
     receiver
 )
+
+private class UiReceiverFake : UiReceiver {
+    val hints = mutableListOf<ViewportHint>()
+    val retryEvents = mutableListOf<Unit>()
+    val refreshEvents = mutableListOf<Unit>()
+
+    override fun addHint(hint: ViewportHint) {
+        hints.add(hint)
+    }
+
+    override fun retry() {
+        retryEvents.add(Unit)
+    }
+
+    override fun refresh() {
+        refreshEvents.add(Unit)
+    }
+}
 
 private class SimpleDiffer : PagingDataDiffer<Int>() {
     override suspend fun performDiff(
