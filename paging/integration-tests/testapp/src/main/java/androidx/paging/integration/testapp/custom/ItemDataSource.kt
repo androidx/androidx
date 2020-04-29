@@ -18,6 +18,7 @@ package androidx.paging.integration.testapp.custom
 
 import android.graphics.Color
 import androidx.annotation.ColorInt
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
@@ -34,6 +35,7 @@ internal class ItemDataSource : PagingSource<Int, Item>() {
 
     private val generationId = sGenerationId++
 
+    @OptIn(ExperimentalPagingApi::class)
     override fun getRefreshKey(state: PagingState<Int, Item>): Int? = state.anchorPosition
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> =

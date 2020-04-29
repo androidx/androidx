@@ -321,6 +321,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
      * list of loaded pages is not empty. In the case where a refresh is triggered before the
      * initial load succeeds or it errors out, the initial key passed to [Pager] will be used.
      */
+    @ExperimentalPagingApi
     open fun getRefreshKey(state: PagingState<Key, Value>): Key? = null
 
     private val onInvalidatedCallbacks = CopyOnWriteArrayList<() -> Unit>()
