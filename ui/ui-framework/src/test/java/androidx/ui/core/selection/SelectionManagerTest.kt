@@ -20,6 +20,7 @@ import androidx.compose.frames.commit
 import androidx.compose.frames.open
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
 import androidx.ui.core.texttoolbar.TextToolbar
@@ -78,6 +79,7 @@ class SelectionManagerTest {
         )
 
     private val hapticFeedback = mock<HapticFeedback>()
+    private val clipboardManager = mock<ClipboardManager>()
     private val textToolbar = mock<TextToolbar>()
 
     @Before
@@ -86,6 +88,7 @@ class SelectionManagerTest {
         selectionRegistrar.subscribe(selectable)
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.hapticFeedBack = hapticFeedback
+        selectionManager.clipboardManager = clipboardManager
         selectionManager.textToolbar = textToolbar
     }
 
@@ -322,6 +325,45 @@ class SelectionManagerTest {
     }
 
     @Test
+    fun copy_selection_null_not_trigger_clipboardmanager() {
+        selectionManager.selection = null
+
+        selectionManager.copy()
+
+        verify(clipboardManager, times(0)).setText(any())
+    }
+
+    @Test
+    fun copy_selection_not_null_trigger_clipboardmanager_setText() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text = text)
+        val startOffset = text.indexOf('m')
+        val endOffset = text.indexOf('x')
+        whenever(selectable.getText()).thenReturn(annotatedString)
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = startOffset,
+                selectable = selectable),
+            end = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = endOffset,
+                selectable = selectable
+            ),
+            handlesCrossed = true
+        )
+
+        selectionManager.copy()
+
+        verify(clipboardManager, times(1)).setText(
+            annotatedString.subSequence(
+                endOffset,
+                startOffset
+            )
+        )
+    }
+
+    @Test
     fun showSelectionToolbar_trigger_textToolbar_showCopyMenu() {
         val text = "Text Demo"
         val annotatedString = AnnotatedString(text = text)
@@ -341,15 +383,12 @@ class SelectionManagerTest {
             handlesCrossed = true
         )
 
-        selectionManager.showSelectionToolbar(Rect.zero)
+        selectionManager.showSelectionToolbar()
 
         verify(textToolbar, times(1)).showCopyMenu(
-            rect = eq(Rect.zero),
-            text = eq(annotatedString.subSequence(
-                endOffset,
-                startOffset
-            )),
-            onDeselectRequested = any()
+            eq(Rect.zero),
+            any(),
+            any()
         )
     }
 

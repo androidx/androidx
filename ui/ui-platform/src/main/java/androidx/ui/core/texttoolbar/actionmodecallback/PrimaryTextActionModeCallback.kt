@@ -19,7 +19,6 @@ package androidx.ui.core.texttoolbar.actionmodecallback
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
-import androidx.ui.text.AnnotatedString
 
 internal class PrimaryTextActionModeCallback(
     private val callback: TextActionModeCallback
@@ -38,9 +37,5 @@ internal class PrimaryTextActionModeCallback(
 
     override fun onDestroyActionMode(mode: ActionMode?) {
         callback.onDestroyActionMode(mode)
-    }
-
-    internal fun setText(text: AnnotatedString) {
-        callback.setText(text)
     }
 }

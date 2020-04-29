@@ -20,18 +20,14 @@ import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.ui.core.clipboard.AndroidClipboardManager
-import androidx.ui.text.AnnotatedString
 
 internal const val MENU_ITEM_COPY = 0
 
 internal class TextActionModeCallback(
     private val view: View,
-    private val onDeselectRequested: () -> Unit
+    private val onDeselectRequested: () -> Unit,
+    private val onCopyRequested: () -> Unit
 ) : ActionMode.Callback {
-    private var text: AnnotatedString = AnnotatedString {}
-    val clipboardManager = AndroidClipboardManager(view.context)
-
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         requireNotNull(menu)
         requireNotNull(mode)
@@ -47,7 +43,7 @@ internal class TextActionModeCallback(
 
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         if (item!!.itemId == MENU_ITEM_COPY) {
-            clipboardManager.setText(text)
+            onCopyRequested()
             onDeselectRequested()
             mode?.finish()
             return true
@@ -56,8 +52,4 @@ internal class TextActionModeCallback(
     }
 
     override fun onDestroyActionMode(mode: ActionMode?) {}
-
-    internal fun setText(text: AnnotatedString) {
-        this.text = text
-    }
 }
