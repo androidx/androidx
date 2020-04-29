@@ -46,5 +46,10 @@ package androidx.lifecycle {
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
   }
 
+  public class ViewTreeViewModelStoreOwner {
+    method public static androidx.lifecycle.ViewModelStoreOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.lifecycle.ViewModelStoreOwner?);
+  }
+
 }
 

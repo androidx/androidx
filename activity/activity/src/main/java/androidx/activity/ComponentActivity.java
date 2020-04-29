@@ -67,6 +67,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
+import androidx.lifecycle.ViewTreeViewModelStoreOwner;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
@@ -354,6 +355,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         // Set the VTLO before setting the content view so that the inflation process
         // and attach listeners will see it already present
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
+        ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         super.setContentView(layoutResID);
     }
 
@@ -362,6 +364,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         // Set the VTLO before setting the content view so that attach listeners
         // will see it already present
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
+        ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         super.setContentView(view);
     }
 
@@ -372,6 +375,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         // Set the VTLO before setting the content view so that attach listeners
         // will see it already present
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
+        ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         super.setContentView(view, params);
     }
 
@@ -382,6 +386,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         // Set the VTLO before setting the content view so that attach listeners
         // will see it already present.
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
+        ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         super.addContentView(view, params);
     }
 
