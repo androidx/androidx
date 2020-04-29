@@ -227,38 +227,44 @@ public final class CameraXTest {
 
     @Test
     public void viewPortRectFillCenter() {
-        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_CENTER))
-                .isEqualTo(new RectF(15, 10, 45, 40));
+        Rect expectedRect = new Rect();
+        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_CENTER).round(expectedRect);
+        assertThat(expectedRect).isEqualTo(new Rect(15, 10, 45, 40));
     }
 
     @Test
     public void getScaledRectFillStart() {
-        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_START))
-                .isEqualTo(new RectF(10, 10, 40, 40));
+        Rect expectedRect = new Rect();
+        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_START).round(expectedRect);
+        assertThat(expectedRect).isEqualTo(new Rect(10, 10, 40, 40));
     }
 
     @Test
     public void getScaledRectFillEnd() {
-        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_END))
-                .isEqualTo(new RectF(20, 10, 50, 40));
+        Rect expectedRect = new Rect();
+        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FILL_END).round(expectedRect);
+        assertThat(expectedRect).isEqualTo(new Rect(20, 10, 50, 40));
     }
 
     @Test
     public void getScaledRectFitCenter() {
-        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_CENTER))
-                .isEqualTo(new RectF(10, 5, 50, 45));
+        Rect expectedRect = new Rect();
+        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_CENTER).round(expectedRect);
+        assertThat(expectedRect).isEqualTo(new Rect(10, 5, 50, 45));
     }
 
     @Test
     public void getScaledRectFitStart() {
-        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_START))
-                .isEqualTo(new RectF(10, 10, 50, 50));
+        Rect expectedRect = new Rect();
+        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_START).round(expectedRect);
+        assertThat(expectedRect).isEqualTo(new Rect(10, 10, 50, 50));
     }
 
     @Test
     public void getScaledRectFitEnd() {
-        assertThat(getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_END))
-                .isEqualTo(new RectF(10, 0, 50, 40));
+        Rect expectedRect = new Rect();
+        getScaledRect(CONTAINER_RECT, FIT_ASPECT_RATIO, ViewPort.FIT_END).round(expectedRect);
+        assertThat(expectedRect).isEqualTo(new Rect(10, 0, 50, 40));
     }
 
     @Test
