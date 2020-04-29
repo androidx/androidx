@@ -16,6 +16,7 @@
 
 package androidx.paging.integration.testapp.v3room
 
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.integration.testapp.room.Customer
@@ -32,6 +33,7 @@ internal class NetworkCustomerPagingSource : PagingSource<Int, Customer>() {
         return customer
     }
 
+    @OptIn(ExperimentalPagingApi::class)
     override fun getRefreshKey(state: PagingState<Int, Customer>): Int? = state.anchorPosition
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Customer> {

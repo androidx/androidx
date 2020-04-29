@@ -66,6 +66,7 @@ class TestPagingSource(
         )
     }
 
+    @OptIn(ExperimentalPagingApi::class)
     override fun getRefreshKey(state: PagingState<Int, Int>): Int? {
         return state.anchorPosition
     }

@@ -62,6 +62,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
      */
     private inner class TestPagingSource(val listData: List<Item> = ITEMS) :
         PagingSource<Int, Item>() {
+        @OptIn(ExperimentalPagingApi::class)
         override fun getRefreshKey(state: PagingState<Int, Item>): Int? {
             return state.anchorPosition
                 ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition)?.pos }
