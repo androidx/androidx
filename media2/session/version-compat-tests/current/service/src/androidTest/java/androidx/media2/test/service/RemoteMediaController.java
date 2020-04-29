@@ -170,6 +170,14 @@ public class RemoteMediaController {
         }
     }
 
+    public void setMediaUri(@NonNull Uri uri, @Nullable Bundle extras) {
+        try {
+            mBinder.setMediaUri(mControllerId, uri, extras);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call setMediaUri()");
+        }
+    }
+
     public void updatePlaylistMetadata(@Nullable MediaMetadata metadata) {
         try {
             mBinder.updatePlaylistMetadata(mControllerId, MediaParcelUtils.toParcelable(metadata));

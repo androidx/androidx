@@ -872,6 +872,26 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     @Override
+    public void setMediaUri(final IMediaController caller, int seq, final Uri uri,
+            final Bundle extras) {
+        if (caller == null) {
+            return;
+        }
+        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI,
+                new SessionCallbackTask<Integer>() {
+                    @Override
+                    public Integer run(ControllerInfo controller) {
+                        if (uri == null) {
+                            Log.w(TAG, "setMediaUri(): Ignoring null uri from " + controller);
+                            return RESULT_ERROR_BAD_VALUE;
+                        }
+                        return mSessionImpl.getCallback().onSetMediaUri(
+                                mSessionImpl.getInstance(), controller, uri, extras);
+                    }
+                });
+    }
+
+    @Override
     public void updatePlaylistMetadata(final IMediaController caller, int seq,
             final ParcelImpl metadata) {
         if (caller == null) {

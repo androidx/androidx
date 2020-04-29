@@ -889,18 +889,23 @@ public class MediaController implements AutoCloseable {
 
     /**
      * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
-     * sets the playlist with the list of media IDs. Use this or
+     * sets the playlist with the list of media IDs. Use this, {@link #setMediaUri}, or
      * {@link #setMediaItem} to specify which items to play.
      * <p>
      * All media IDs in the list shouldn't be an empty string.
      * <p>
-     * The {@link ControllerCallback#onPlaylistChanged} and
+     * This can be called multiple times in any states other than
+     * {@link SessionPlayer#PLAYER_STATE_ERROR}. This would override previous call of this,
+     * {@link #setMediaItem}, or {@link #setMediaUri}.
+     * <p>
+     * The {@link ControllerCallback#onPlaylistChanged} and/or
      * {@link ControllerCallback#onCurrentMediaItemChanged} would be called when it's completed.
      * The current item would be the first item in the playlist.
      *
      * @param list list of media id. Shouldn't contain an empty id
      * @param metadata metadata of the playlist
      * @see #setMediaItem
+     * @see #setMediaUri
      * @see ControllerCallback#onCurrentMediaItemChanged
      * @see ControllerCallback#onPlaylistChanged
      * @see MediaMetadata#METADATA_KEY_MEDIA_ID
@@ -925,21 +930,23 @@ public class MediaController implements AutoCloseable {
 
     /**
      * Requests that the {@link SessionPlayer} associated with the connected {@link MediaSession}
-     * sets a {@link MediaItem} for playback. Use this or {@link #setPlaylist} to specify which
-     * items to play. If you want to change current item in the playlist, use one of
-     * {@link #skipToPlaylistItem}, {@link #skipToNextPlaylistItem}, or
-     * {@link #skipToPreviousPlaylistItem} instead of this method.
+     * sets a {@link MediaItem} for playback. Use this, {@link #setMediaUri}, or
+     * {@link #setPlaylist} to specify which items to play.
+     * If you want to change current item in the playlist, use one of {@link #skipToPlaylistItem},
+     * {@link #skipToNextPlaylistItem}, or {@link #skipToPreviousPlaylistItem} instead of this
+     * method.
      * <p>
      * This can be called multiple times in any states other than
-     * {@link SessionPlayer#PLAYER_STATE_ERROR}. This would override previous {@link #setMediaItem}
-     * or {@link #setPlaylist} calls.
+     * {@link SessionPlayer#PLAYER_STATE_ERROR}. This would override previous call of this,
+     * {@link #setMediaUri}, or {@link #setPlaylist}.
      * <p>
-     * The {@link ControllerCallback#onPlaylistChanged} and
+     * The {@link ControllerCallback#onPlaylistChanged} and/or
      * {@link ControllerCallback#onCurrentMediaItemChanged} would be called when it's completed.
      * <p>
      * On success, a {@link SessionResult} would be returned with {@code item} set.
      *
      * @param mediaId the non-empty media id of the item to play
+     * @see #setMediaUri
      * @see #setPlaylist
      * @see ControllerCallback#onCurrentMediaItemChanged
      * @see ControllerCallback#onPlaylistChanged
@@ -951,6 +958,36 @@ public class MediaController implements AutoCloseable {
         }
         if (isConnected()) {
             return getImpl().setMediaItem(mediaId);
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
+     * Requests that the connected {@link MediaSession} sets a specific {@link Uri} for playback.
+     * Use this, {@link #setMediaItem}, or {@link #setPlaylist} to specify which items to play.
+     * <p>
+     * This can be called multiple times in any states other than
+     * {@link SessionPlayer#PLAYER_STATE_ERROR}. This would override previous call of this,
+     * {@link #setMediaItem}, or {@link #setPlaylist}.
+     * <p>
+     * The {@link ControllerCallback#onPlaylistChanged} and/or
+     * {@link ControllerCallback#onCurrentMediaItemChanged} would be called when it's completed.
+     * <p>
+     * On success, a {@link SessionResult} would be returned with {@code item} set.
+     *
+     * @param uri the Uri of the item to play
+     * @see #setMediaItem
+     * @see #setPlaylist
+     * @see ControllerCallback#onCurrentMediaItemChanged
+     * @see ControllerCallback#onPlaylistChanged
+     */
+    @NonNull
+    public ListenableFuture<SessionResult> setMediaUri(@NonNull Uri uri, @Nullable Bundle extras) {
+        if (uri == null) {
+            throw new NullPointerException("mediaUri shouldn't be null");
+        }
+        if (isConnected()) {
+            return getImpl().setMediaUri(uri, extras);
         }
         return createDisconnectedFuture();
     }
@@ -1614,6 +1651,7 @@ public class MediaController implements AutoCloseable {
         ListenableFuture<SessionResult> setPlaylist(@NonNull List<String> list,
                 @Nullable MediaMetadata metadata);
         ListenableFuture<SessionResult> setMediaItem(@NonNull String mediaId);
+        ListenableFuture<SessionResult> setMediaUri(@NonNull Uri uri, @Nullable Bundle extras);
         ListenableFuture<SessionResult> updatePlaylistMetadata(
                 @Nullable MediaMetadata metadata);
         @Nullable MediaMetadata getPlaylistMetadata();

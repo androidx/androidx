@@ -611,6 +611,25 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
+         * Called when a controller requested to set the specific media item(s) represented by a URI
+         * through {@link MediaController#setMediaUri(Uri, Bundle)}.
+         * <p>
+         * The implementation should create proper {@link MediaItem media item(s)} for the given
+         * {@code uri} and call {@link SessionPlayer#setMediaItem} or
+         * {@link SessionPlayer#setPlaylist}.
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @param uri uri
+         * @param extras optional extra bundle
+         */
+        @ResultCode
+        public int onSetMediaUri(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull Uri uri, @Nullable Bundle extras) {
+            return RESULT_ERROR_NOT_SUPPORTED;
+        }
+
+        /**
          * Called when a controller sent a custom command through
          * {@link MediaController#sendCustomCommand(SessionCommand, Bundle)}.
          * <p>
