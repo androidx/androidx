@@ -29,7 +29,7 @@ dependencies {
 
 // we actually need to compile :lifecycle:lifecycle-common, but compileJava is easier
 task compileTestLibrarySource(type: JavaCompile, dependsOn: compileJava) {
-    source "src/tests/test-data/lib/src"
+    source "src/test/test-data/lib/src"
     classpath = project.compileJava.classpath
     destinationDir = new File(project.buildDir, 'test-data/lib/classes')
 }
@@ -37,7 +37,7 @@ task compileTestLibrarySource(type: JavaCompile, dependsOn: compileJava) {
 task jarTestLibrarySource(type: Jar, dependsOn: compileTestLibrarySource) {
     from compileTestLibrarySource.destinationDir
     archiveName = "test-library.jar"
-    destinationDir = file("src/tests/test-data/lib/")
+    destinationDir = file("src/test/test-data/lib/")
 }
 
 androidx {
