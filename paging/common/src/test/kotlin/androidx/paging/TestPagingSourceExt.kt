@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.TestPagingSource.Companion.items
+import androidx.paging.TestPagingSource.Companion.ITEMS
 
 internal fun createRefresh(
     range: IntRange,
@@ -25,7 +25,7 @@ internal fun createRefresh(
 ) = PageEvent.Insert.Refresh(
     pages = pages(0, range),
     placeholdersBefore = range.first.coerceAtLeast(0),
-    placeholdersAfter = (items.size - range.last - 1).coerceAtLeast(0),
+    placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
     loadStates = mapOf(
         LoadType.REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
         LoadType.PREPEND to startState,
@@ -55,7 +55,7 @@ internal fun createAppend(
     endState: LoadState = LoadState.NotLoading(endOfPaginationReached = false)
 ) = PageEvent.Insert.Append(
     pages = pages(pageOffset, range),
-    placeholdersAfter = (items.size - range.last - 1).coerceAtLeast(0),
+    placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
     loadStates = mapOf(
         LoadType.REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
         LoadType.PREPEND to startState,
@@ -69,7 +69,7 @@ private fun pages(
 ) = listOf(
     TransformablePage(
         originalPageOffset = pageOffset,
-        data = items.slice(range),
+        data = ITEMS.slice(range),
         originalPageSize = range.count(),
         originalIndices = null
     )
