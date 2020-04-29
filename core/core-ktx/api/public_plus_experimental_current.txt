@@ -428,9 +428,13 @@ package androidx.core.util {
   }
 
   public final class PairKt {
+    method public static inline operator <F, S> F! component1(androidx.core.util.Pair<F,S>);
     method public static inline operator <F, S> F! component1(android.util.Pair<F,S>);
+    method public static inline operator <F, S> S! component2(androidx.core.util.Pair<F,S>);
     method public static inline operator <F, S> S! component2(android.util.Pair<F,S>);
     method public static inline <F, S> android.util.Pair<F,S> toAndroidPair(kotlin.Pair<? extends F,? extends S>);
+    method public static inline <F, S> androidx.core.util.Pair<F,S> toAndroidXPair(kotlin.Pair<? extends F,? extends S>);
+    method public static inline <F, S> kotlin.Pair<F,S> toKotlinPair(androidx.core.util.Pair<F,S>);
     method public static inline <F, S> kotlin.Pair<F,S> toKotlinPair(android.util.Pair<F,S>);
   }
 

@@ -1627,10 +1627,10 @@ package androidx.core.util {
   }
 
   public class Pair<F, S> {
-    ctor public Pair(F?, S?);
-    method public static <A, B> androidx.core.util.Pair<A!,B!> create(A?, B?);
-    field public final F? first;
-    field public final S? second;
+    ctor public Pair(F!, S!);
+    method public static <A, B> androidx.core.util.Pair<A!,B!> create(A!, B!);
+    field public final F! first;
+    field public final S! second;
   }
 
   public final class PatternsCompat {
