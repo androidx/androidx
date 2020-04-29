@@ -374,6 +374,7 @@ package androidx.ui.layout {
   }
 
   public final class LayoutSizeKt {
+    method public static androidx.ui.core.Modifier defaultMinSizeConstraints-qJOR85M(androidx.ui.core.Modifier, float minWidth = Dp.Unspecified, float minHeight = Dp.Unspecified);
     method public static androidx.ui.core.Modifier fillMaxHeight(androidx.ui.core.Modifier);
     method public static androidx.ui.core.Modifier fillMaxSize(androidx.ui.core.Modifier);
     method public static androidx.ui.core.Modifier fillMaxWidth(androidx.ui.core.Modifier);
