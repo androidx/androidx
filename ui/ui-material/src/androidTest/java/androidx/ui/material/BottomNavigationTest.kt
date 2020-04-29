@@ -252,28 +252,22 @@ class BottomNavigationTest {
         }
 
         // Find all items and ensure there are 3
-        val items = findAll(isInMutuallyExclusiveGroup())
-        items.assertCountEquals(3)
-
-        // Ensure semantics match for selected state of the items
-        items.forEachIndexed { index, interaction ->
-            if (index == 0) {
-                interaction.assertIsSelected()
-            } else {
-                interaction.assertIsUnselected()
+        findAll(isInMutuallyExclusiveGroup())
+            .assertCountEquals(3)
+            // Ensure semantics match for selected state of the items
+            .apply {
+                get(0).assertIsSelected()
+                get(1).assertIsUnselected()
+                get(2).assertIsUnselected()
             }
-        }
-
-        // Click the last item
-        items.last().doClick()
-
-        // Now only the last item should be selected
-        items.forEachIndexed { index, interaction ->
-            if (index == items.lastIndex) {
-                interaction.assertIsSelected()
-            } else {
-                interaction.assertIsUnselected()
+            // Click the last item
+            .apply {
+                get(2).doClick()
             }
-        }
+            .apply {
+                get(0).assertIsUnselected()
+                get(1).assertIsUnselected()
+                get(2).assertIsSelected()
+            }
     }
 }

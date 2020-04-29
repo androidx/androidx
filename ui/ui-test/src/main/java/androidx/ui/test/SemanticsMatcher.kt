@@ -25,24 +25,22 @@ import androidx.ui.semantics.SemanticsPropertyKey
  */
 class SemanticsMatcher(
     val description: String,
-    private val selector: (Iterable<SemanticsNode>) -> Iterable<SemanticsNode>
+    private val matcher: (SemanticsNode) -> Boolean
 ) {
 
     companion object {
         /**
          * Predicate that matches anything.
          */
-        val any: SemanticsMatcher = SemanticsMatcher("Any") { nodes ->
-            nodes
-        }
+        val any: SemanticsMatcher = SemanticsMatcher("Any") { true }
 
         /**
          * Builds a predicate that tests whether the value of the given [key] is equal to
          * [expectedValue].
          */
         fun <T> expectValue(key: SemanticsPropertyKey<T>, expectedValue: T): SemanticsMatcher {
-            return fromCondition("${key.name} = '$expectedValue'") {
-                config.getOrElseNullable(key) { null } == expectedValue
+            return SemanticsMatcher("${key.name} = '$expectedValue'") {
+                it.config.getOrElseNullable(key) { null } == expectedValue
             }
         }
 
@@ -50,8 +48,8 @@ class SemanticsMatcher(
          * Builds a predicate that tests whether the given [key] is defined in semantics.
          */
         fun <T> keyIsDefined(key: SemanticsPropertyKey<T>): SemanticsMatcher {
-            return fromCondition("${key.name} is defined") {
-                key in config
+            return SemanticsMatcher("${key.name} is defined") {
+                key in it.config
             }
         }
 
@@ -59,24 +57,8 @@ class SemanticsMatcher(
          * Builds a predicate that tests whether the given [key] is NOT defined in semantics.
          */
         fun <T> keyNotDefined(key: SemanticsPropertyKey<T>): SemanticsMatcher {
-            return fromCondition("${key.name} is NOT defined") {
-                key !in config
-            }
-        }
-
-        /**
-         * Creates a matcher that will match using a provided boolean selector.
-         *
-         * @param description Description of the condition being performed (will be displayed to the
-         * developer when this matcher fails).
-         * @param selector The filter lambda to use to build the matcher.
-         */
-        fun fromCondition(
-            description: String,
-            selector: SemanticsNode.() -> Boolean
-        ): SemanticsMatcher {
-            return SemanticsMatcher(description) { nodes ->
-                nodes.filter { selector(it) }
+            return SemanticsMatcher("${key.name} is NOT defined") {
+                key !in it.config
             }
         }
     }
@@ -85,48 +67,31 @@ class SemanticsMatcher(
      * Returns whether the given node is matched by this matcher.
      */
     fun matches(node: SemanticsNode): Boolean {
-        return selector(listOf(node)).count() == 1
+        return matcher(node)
     }
 
     /**
      * Returns whether at least one of the given nodes is matched by this matcher.
      */
     fun matchesAny(nodes: Iterable<SemanticsNode>): Boolean {
-        return selector(nodes).count() >= 1
-    }
-
-    /**
-     * From the given nodes, returns all the nodes that got matched by this matcher.
-     */
-    fun match(nodes: Iterable<SemanticsNode>): Iterable<SemanticsNode> {
-        return selector(nodes)
+        return nodes.any(matcher)
     }
 
     infix fun and(other: SemanticsMatcher): SemanticsMatcher {
-        val desc = "($description) && (${other.description})"
-        return SemanticsMatcher(desc) { nodes ->
-            selector(nodes).intersect(other.selector(nodes))
+        return SemanticsMatcher("($description) && (${other.description})") {
+            matcher(it) && other.matches(it)
         }
     }
 
     infix fun or(other: SemanticsMatcher): SemanticsMatcher {
-        val desc = "($description) || (${other.description})"
-        return SemanticsMatcher(desc) { nodes ->
-            selector(nodes).union(other.selector(nodes))
+        return SemanticsMatcher("($description) || (${other.description})") {
+            matcher(it) || other.matches(it)
         }
     }
 
     operator fun not(): SemanticsMatcher {
-        val desc = "NOT ($description)"
-        return SemanticsMatcher(desc) { nodes ->
-            nodes.subtract(selector(nodes))
+        return SemanticsMatcher("NOT ($description)") {
+            !matcher(it)
         }
     }
-}
-
-internal fun SemanticsMatcher.appendSelector(
-    description: String,
-    selector: (Iterable<SemanticsNode>) -> Iterable<SemanticsNode>
-): SemanticsMatcher {
-    return SemanticsMatcher("(${this.description}).$description", selector)
 }

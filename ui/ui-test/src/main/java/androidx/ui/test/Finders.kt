@@ -34,7 +34,7 @@ fun findByTag(testTag: String): SemanticsNodeInteraction =
  *
  * For usage patterns see [SemanticsNodeInteraction]
  */
-fun findAllByTag(testTag: String): List<SemanticsNodeInteraction> =
+fun findAllByTag(testTag: String): SemanticsNodeInteractionCollection =
     findAll(hasTestTag(testTag))
 
 /**
@@ -62,7 +62,7 @@ fun findBySubstring(text: String, ignoreCase: Boolean = false): SemanticsNodeInt
  *
  * For usage patterns see [SemanticsNodeInteraction]
  */
-fun findAllByText(text: String, ignoreCase: Boolean = false): List<SemanticsNodeInteraction> =
+fun findAllByText(text: String, ignoreCase: Boolean = false): SemanticsNodeInteractionCollection =
     findAll(hasText(text, ignoreCase))
 
 /**
@@ -75,9 +75,8 @@ fun findAllByText(text: String, ignoreCase: Boolean = false): List<SemanticsNode
  * For usage patterns see [SemanticsNodeInteraction]
  * @see findAll to work with multiple elements
  */
-fun find(selector: SemanticsMatcher): SemanticsNodeInteraction {
-    val matchedNodes = selector.match(getAllSemanticsNodes())
-    return SemanticsNodeInteraction(matchedNodes.toList(), selector)
+fun find(matcher: SemanticsMatcher): SemanticsNodeInteraction {
+    return SemanticsNodeInteraction(SemanticsSelector(matcher))
 }
 
 /**
@@ -87,10 +86,8 @@ fun find(selector: SemanticsMatcher): SemanticsNodeInteraction {
  * instead.
  * @see find
  */
-fun findAll(selector: SemanticsMatcher): List<SemanticsNodeInteraction> {
-    return selector.match(getAllSemanticsNodes()).map {
-        SemanticsNodeInteraction(it, selector)
-    }
+fun findAll(matcher: SemanticsMatcher): SemanticsNodeInteractionCollection {
+    return SemanticsNodeInteractionCollection(SemanticsSelector(matcher))
 }
 
 internal fun getAllSemanticsNodes(): List<SemanticsNode> {

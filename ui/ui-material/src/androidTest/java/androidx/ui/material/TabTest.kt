@@ -391,15 +391,14 @@ class TabTest {
                 TextTabs()
             }
 
-        findAll(isInMutuallyExclusiveGroup()).apply {
-            forEachIndexed { index, interaction ->
-                if (index == 0) {
-                    interaction.assertIsSelected()
-                } else {
-                    interaction.assertIsUnselected()
-                }
+        // Only the first tab should be selected
+        findAll(isInMutuallyExclusiveGroup())
+            .assertCountEquals(3)
+            .apply {
+                get(0).assertIsSelected()
+                get(1).assertIsUnselected()
+                get(2).assertIsUnselected()
             }
-        }.assertCountEquals(3)
     }
 
     @Test
@@ -410,29 +409,25 @@ class TabTest {
             }
 
         // Only the first tab should be selected
-        findAll(isInMutuallyExclusiveGroup()).apply {
-            forEachIndexed { index, interaction ->
-                if (index == 0) {
-                    interaction.assertIsSelected()
-                } else {
-                    interaction.assertIsUnselected()
-                }
+        findAll(isInMutuallyExclusiveGroup())
+            .assertCountEquals(3)
+            .apply {
+                get(0).assertIsSelected()
+                get(1).assertIsUnselected()
+                get(2).assertIsUnselected()
             }
-        }.assertCountEquals(3)
 
         // Click the last tab
-        findAll(isInMutuallyExclusiveGroup()).last().doClick()
+        findAll(isInMutuallyExclusiveGroup())[2].doClick()
 
         // Now only the last tab should be selected
-        findAll(isInMutuallyExclusiveGroup()).apply {
-            forEachIndexed { index, interaction ->
-                if (index == lastIndex) {
-                    interaction.assertIsSelected()
-                } else {
-                    interaction.assertIsUnselected()
-                }
+        findAll(isInMutuallyExclusiveGroup())
+            .assertCountEquals(3)
+            .apply {
+                get(0).assertIsUnselected()
+                get(1).assertIsUnselected()
+                get(2).assertIsSelected()
             }
-        }.assertCountEquals(3)
     }
 
     @Test
@@ -442,15 +437,15 @@ class TabTest {
                 ScrollingTextTabs()
             }
 
-        findAll(isInMutuallyExclusiveGroup()).apply {
-            forEachIndexed { index, interaction ->
-                if (index == 0) {
-                    interaction.assertIsSelected()
-                } else {
-                    interaction.assertIsUnselected()
+        // Only the first tab should be selected
+        findAll(isInMutuallyExclusiveGroup())
+            .assertCountEquals(10)
+            .apply {
+                get(0).assertIsSelected()
+                (1..9).forEach {
+                    get(it).assertIsUnselected()
                 }
             }
-        }.assertCountEquals(10)
     }
 
     @Test
@@ -461,28 +456,27 @@ class TabTest {
             }
 
         // Only the first tab should be selected
-        findAll(isInMutuallyExclusiveGroup()).apply {
-            forEachIndexed { index, interaction ->
-                if (index == 0) {
-                    interaction.assertIsSelected()
-                } else {
-                    interaction.assertIsUnselected()
+        findAll(isInMutuallyExclusiveGroup())
+            .assertCountEquals(10)
+            .apply {
+                get(0).assertIsSelected()
+                (1..9).forEach {
+                    get(it).assertIsUnselected()
                 }
             }
-        }.assertCountEquals(10)
 
         // Click the second tab
         findAll(isInMutuallyExclusiveGroup())[1].doClick()
 
         // Now only the second tab should be selected
-        findAll(isInMutuallyExclusiveGroup()).apply {
-            forEachIndexed { index, interaction ->
-                if (index == 1) {
-                    interaction.assertIsSelected()
-                } else {
-                    interaction.assertIsUnselected()
+        findAll(isInMutuallyExclusiveGroup())
+            .assertCountEquals(10)
+            .apply {
+                get(0).assertIsUnselected()
+                get(1).assertIsSelected()
+                (2..9).forEach {
+                    get(it).assertIsUnselected()
                 }
             }
-        }.assertCountEquals(10)
     }
 }
