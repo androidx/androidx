@@ -314,7 +314,8 @@ private fun FilledTextFieldImpl(
                     focused = it
                     onFocusChange(it)
                 },
-                focusNode = focusNode
+                focusNode = focusNode,
+                cursorColor = if (isErrorValue) errorColor else MaterialTheme.colors.primary
             )
         }
     }

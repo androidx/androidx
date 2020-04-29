@@ -234,6 +234,8 @@ internal class AndroidComposeView constructor(
         isFocusable = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             focusable = View.FOCUSABLE
+            // not to add the default focus highlight to the whole compose view
+            defaultFocusHighlightEnabled = false
         }
         isFocusableInTouchMode = true
         clipChildren = false
