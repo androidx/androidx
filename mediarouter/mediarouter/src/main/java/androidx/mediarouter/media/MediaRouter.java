@@ -3148,6 +3148,7 @@ public final class MediaRouter {
             return -1;
         }
 
+        @SuppressLint("NewApi")
         private void updatePlaybackInfoFromSelectedRoute() {
             if (mSelectedRoute != null) {
                 mPlaybackInfo.volume = mSelectedRoute.getVolume();
@@ -3155,6 +3156,12 @@ public final class MediaRouter {
                 mPlaybackInfo.volumeHandling = mSelectedRoute.getVolumeHandling();
                 mPlaybackInfo.playbackStream = mSelectedRoute.getPlaybackStream();
                 mPlaybackInfo.playbackType = mSelectedRoute.getPlaybackType();
+                if (mTransferEnabled && mSelectedRoute.getProviderInstance() == mMr2Provider) {
+                    mPlaybackInfo.volumeControlId = MediaRoute2Provider
+                            .getSessionIdForRouteController(mSelectedRouteController);
+                } else {
+                    mPlaybackInfo.volumeControlId = null;
+                }
 
                 final int count = mRemoteControlClients.size();
                 for (int i = 0; i < count; i++) {
@@ -3174,7 +3181,7 @@ public final class MediaRouter {
                             controlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
                         }
                         mMediaSession.configureVolume(controlType, mPlaybackInfo.volumeMax,
-                                mPlaybackInfo.volume);
+                                mPlaybackInfo.volume, mPlaybackInfo.volumeControlId);
                     }
                 }
             } else {
@@ -3267,7 +3274,7 @@ public final class MediaRouter {
 
             }
             public void configureVolume(@VolumeProviderCompat.ControlType int controlType,
-                    int max, int current) {
+                    int max, int current, @Nullable String volumeControlId) {
                 if (mMsCompat != null) {
                     if (mVpCompat != null && controlType == mControlType && max == mMaxVolume) {
                         // If we haven't changed control type or max just set the
@@ -3275,7 +3282,8 @@ public final class MediaRouter {
                         mVpCompat.setCurrentVolume(current);
                     } else {
                         // Otherwise create a new provider and update
-                        mVpCompat = new VolumeProviderCompat(controlType, max, current) {
+                        mVpCompat = new VolumeProviderCompat(controlType, max, current,
+                                volumeControlId) {
                             @Override
                             public void onSetVolumeTo(final int volume) {
                                 mCallbackHandler.post(new Runnable() {

@@ -19,6 +19,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.Build;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.lang.ref.WeakReference;
@@ -77,6 +78,8 @@ abstract class RemoteControlClientCompat {
         public int volumeHandling = MediaRouter.RouteInfo.PLAYBACK_VOLUME_FIXED;
         public int playbackStream = AudioManager.STREAM_MUSIC;
         public int playbackType = MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE;
+        @Nullable
+        public String volumeControlId;
     }
 
     /**
