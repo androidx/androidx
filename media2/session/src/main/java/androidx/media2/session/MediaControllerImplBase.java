@@ -48,6 +48,7 @@ import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPAR
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_REWIND;
+import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SKIP_BACKWARD;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SKIP_FORWARD;
@@ -622,6 +623,19 @@ class MediaControllerImplBase implements MediaControllerImpl {
                     @Override
                     public void run(IMediaSession iSession, int seq) throws RemoteException {
                         iSession.setMediaItem(mControllerStub, seq, mediaId);
+                    }
+                });
+    }
+
+
+    @Override
+    public ListenableFuture<SessionResult> setMediaUri(@NonNull final Uri uri,
+            @Nullable final Bundle extras) {
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_SET_MEDIA_URI,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession iSession, int seq) throws RemoteException {
+                        iSession.setMediaUri(mControllerStub, seq, uri, extras);
                     }
                 });
     }
