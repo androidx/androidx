@@ -16,5 +16,9 @@ package androidx.lifecycle {
     method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> VM get(androidx.lifecycle.ViewModelProvider);
   }
 
+  public final class ViewTreeViewModelKt {
+    method public static androidx.lifecycle.ViewModelStoreOwner? findViewTreeViewModelStoreOwner(android.view.View);
+  }
+
 }
 

@@ -22,6 +22,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.TextView
 import androidx.activity.test.R
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -45,7 +46,7 @@ class ContentViewTest {
     }
 
     @Test
-    fun testViewTreeLifecycleOwnerInflation() {
+    fun testViewTreeInflation() {
         with(ActivityScenario.launch(ContentViewActivity::class.java)) {
             val inflatedTextView: TextView = withActivity { findViewById(R.id.inflated_text_view) }
 
@@ -53,12 +54,15 @@ class ContentViewTest {
                 assertWithMessage("inflated view has correct ViewTreeLifecycleOwner")
                     .that(ViewTreeLifecycleOwner.get(inflatedTextView))
                     .isSameInstanceAs(this@withActivity)
+                assertWithMessage("inflated view has correct ViewTreeViewModelStoreOwner")
+                    .that(ViewTreeViewModelStoreOwner.get(inflatedTextView))
+                    .isSameInstanceAs(this@withActivity)
             }
         }
     }
 
     @Test
-    fun testViewTreeLifecycleAttachment() {
+    fun testViewTreeAttachment() {
         runAttachTest("setContentView view only") { setContentView(it) }
         runAttachTest("setContentView with LayoutParams") {
             setContentView(it, ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
@@ -76,19 +80,23 @@ class ContentViewTest {
             withActivity {
                 val view = View(this)
 
-                var attachedResult: Any? = "did not attach"
+                var attachedLifecycleOwner: Any? = "did not attach"
+                var attachedViewModelStoreOwner: Any? = "did not attach"
                 view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                     override fun onViewDetachedFromWindow(v: View?) {
                         // Do nothing
                     }
 
                     override fun onViewAttachedToWindow(v: View?) {
-                        attachedResult = ViewTreeLifecycleOwner.get(view)
+                        attachedLifecycleOwner = ViewTreeLifecycleOwner.get(view)
+                        attachedViewModelStoreOwner = ViewTreeViewModelStoreOwner.get(view)
                     }
                 })
                 attach(view)
                 assertWithMessage("$message: ViewTreeLifecycleOwner was set correctly")
-                    .that(attachedResult).isSameInstanceAs(this)
+                    .that(attachedLifecycleOwner).isSameInstanceAs(this)
+                assertWithMessage("$message: ViewTreeViewModelStoreOwner was set correctly")
+                    .that(attachedViewModelStoreOwner).isSameInstanceAs(this)
             }
         }
     }
