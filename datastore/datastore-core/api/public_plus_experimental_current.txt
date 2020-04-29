@@ -12,7 +12,7 @@ package androidx.datastore {
   public interface DataMigration<T> {
     method public suspend Object? cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public suspend Object? migrate(T? currentData, kotlin.coroutines.Continuation<? super T> p);
-    method public suspend Object? shouldMigrate(kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
+    method public suspend Object? shouldMigrate(T? currentData, kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
   }
 
   public interface DataStore<T> {
