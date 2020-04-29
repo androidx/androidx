@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingSource.LoadResult.Page
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.GlobalScope
@@ -31,6 +30,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
 class LegacyPagingSourceTest {
     private val fakePagingState = PagingState(

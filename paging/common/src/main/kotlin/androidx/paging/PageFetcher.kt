@@ -61,6 +61,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
             .scan(null) { previousGeneration: PageFetcherSnapshot<Key, Value>?,
                           triggerRemoteRefresh ->
                 val pagingSource = pagingSourceFactory()
+                @OptIn(ExperimentalPagingApi::class)
                 val initialKey = previousGeneration?.refreshKeyInfo()
                     ?.let { pagingSource.getRefreshKey(it) }
                     ?: initialKey

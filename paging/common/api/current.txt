@@ -37,6 +37,9 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
+  public @interface ExperimentalPagingApi {
+  }
+
   @Deprecated public abstract class ItemKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor @Deprecated public ItemKeyedDataSource();
     method @Deprecated public abstract Key getKey(Value item);
@@ -265,7 +268,7 @@ package androidx.paging {
     ctor public PagingSource();
     method public final boolean getInvalid();
     method public boolean getJumpingSupported();
-    method public Key? getRefreshKey(androidx.paging.PagingState<Key,Value> state);
+    method @androidx.paging.ExperimentalPagingApi public Key? getRefreshKey(androidx.paging.PagingState<Key,Value> state);
     method public void invalidate();
     method public abstract suspend Object load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
     method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
