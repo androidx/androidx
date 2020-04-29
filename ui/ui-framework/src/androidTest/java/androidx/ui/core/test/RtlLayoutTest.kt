@@ -16,7 +16,9 @@
 
 package androidx.ui.core.test
 
+import android.os.Build
 import androidx.compose.Composable
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Constraints
@@ -145,6 +147,7 @@ class RtlLayoutTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun measurement_subsequentChanges() = with(density) {
         // The layout is a 100.dp white square, wrapped by 10.dp blue padding, wrapped by
         // 10.dp green padding, wrapped by 10.dp gray padding, wrapped by 10.dp magenta padding.
