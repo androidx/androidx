@@ -226,7 +226,6 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         final List<String> shortcutIds = Lists.newArrayList("test-id");
         final String disableMessage = "disabled";
         final List<ShortcutInfoCompat> shortcuts = Lists.newArrayList(mInfoCompat);
-        final List<ShortcutInfo> shortcutInfos = Lists.newArrayList(mInfoCompat.toShortcutInfo());
         final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
         doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
 
@@ -258,9 +257,12 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
 
         reset(mockShortcutManager);
         reset(mShortcutInfoCompatSaver);
+        when(mockShortcutManager.setDynamicShortcuts(ArgumentMatchers.<ShortcutInfo>anyList()))
+                .thenReturn(true);
         ShortcutManagerCompat.setDynamicShortcuts(mContext, shortcuts);
         if (Build.VERSION.SDK_INT >= 25) {
-            verify(mockShortcutManager).setDynamicShortcuts(shortcutInfos);
+            verify(mockShortcutManager)
+                    .setDynamicShortcuts(ArgumentMatchers.<ShortcutInfo>anyList());
         }
         verify(mShortcutInfoCompatSaver).removeAllShortcuts();
         verify(mShortcutInfoCompatSaver).addShortcuts(shortcuts);
@@ -297,6 +299,63 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         }
         assertTrue(ShortcutManagerCompat.addDynamicShortcuts(mContext, getShortcuts()));
         removeShortcuts();
+    }
+
+    @MediumTest
+    @Test
+    @SdkSuppress(minSdkVersion = 25)
+    public void testPushDynamicShortcuts() throws Throwable {
+        // setup mock objects
+        final ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
+        doReturn(mockShortcutManager).when(mContext).getSystemService(
+                eq(Context.SHORTCUT_SERVICE));
+        when(mockShortcutManager.addDynamicShortcuts(ArgumentMatchers.<ShortcutInfo>anyList()))
+                .thenReturn(true);
+        when(mockShortcutManager.getMaxShortcutCountPerActivity()).thenReturn(4);
+        doReturn(getShortcuts()).when(mockShortcutManager).getDynamicShortcuts();
+        doReturn(getShortcuts()).when(mShortcutInfoCompatSaver).getShortcuts();
+        // push a new shortcut
+        final ShortcutInfoCompat shortcutInfo = new ShortcutInfoCompat.Builder(
+                mContext, "bitmap-shortcut")
+                .setShortLabel("bitmap")
+                .setIcon(createBitmapIcon())
+                .setIntent(new Intent().setAction(Intent.ACTION_DEFAULT))
+                .setRank(0)
+                .build();
+        ShortcutManagerCompat.pushDynamicShortcut(mContext, shortcutInfo);
+        if (Build.VERSION.SDK_INT >= 30) {
+            verify(mockShortcutManager).pushDynamicShortcut(any(ShortcutInfo.class));
+        } else if (Build.VERSION.SDK_INT >= 25) {
+            // verify the shortcut with lowest rank has been removed
+            final ArgumentCaptor<List<String>> stringCaptor =
+                    ArgumentCaptor.forClass(ArrayList.class);
+            verify(mockShortcutManager).removeDynamicShortcuts(stringCaptor.capture());
+            verifyShortcutRemoved(stringCaptor);
+            // verify the new shortcut has been added
+            final ArgumentCaptor<List<ShortcutInfo>> shortcutInfoCaptor =
+                    ArgumentCaptor.forClass(ArrayList.class);
+            verify(mockShortcutManager).addDynamicShortcuts(shortcutInfoCaptor.capture());
+            final List<ShortcutInfo> actualShortcutInfos = shortcutInfoCaptor.getValue();
+            assertEquals(1, actualShortcutInfos.size());
+            assertEquals(shortcutInfo, actualShortcutInfos.get(0));
+        }
+        // verify the shortcut with lowest rank has been removed
+        final ArgumentCaptor<List<String>> stringCaptor = ArgumentCaptor.forClass(ArrayList.class);
+        verify(mShortcutInfoCompatSaver).removeShortcuts(stringCaptor.capture());
+        verifyShortcutRemoved(stringCaptor);
+        // verify the new shortcut has been added
+        final ArgumentCaptor<List<ShortcutInfoCompat>> shortcutInfoCaptor =
+                ArgumentCaptor.forClass(ArrayList.class);
+        verify(mShortcutInfoCompatSaver).addShortcuts(shortcutInfoCaptor.capture());
+        final List<ShortcutInfoCompat> actualShortcutInfos = shortcutInfoCaptor.getValue();
+        assertEquals(1, actualShortcutInfos.size());
+        assertEquals(shortcutInfo, actualShortcutInfos.get(0));
+    }
+
+    private void verifyShortcutRemoved(final ArgumentCaptor<List<String>> stringCaptor) {
+        final List<String> actualStrings = stringCaptor.getValue();
+        assertEquals(1, actualStrings.size());
+        assertEquals("uri-bitmap-shortcut", actualStrings.get(0));
     }
 
     @MediumTest
