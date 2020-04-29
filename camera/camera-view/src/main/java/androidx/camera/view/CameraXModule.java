@@ -210,10 +210,10 @@ final class CameraXModule {
 
         Rational targetAspectRatio;
         if (getCaptureMode() == CaptureMode.IMAGE) {
-            mImageCaptureBuilder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
             targetAspectRatio = isDisplayPortrait ? ASPECT_RATIO_3_4 : ASPECT_RATIO_4_3;
         } else {
             mImageCaptureBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+            mVideoCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
             targetAspectRatio = isDisplayPortrait ? ASPECT_RATIO_9_16 : ASPECT_RATIO_16_9;
         }
 
