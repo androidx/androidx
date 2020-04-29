@@ -49,8 +49,9 @@ class FindAllTest {
 
         findAll(isOn())
             .assertCountEquals(2)
-            .forEach {
-                it.assertIsOn()
+            .apply {
+                get(0).assertIsOn()
+                get(1).assertIsOn()
             }
     }
 
@@ -77,9 +78,13 @@ class FindAllTest {
 
         findAll(isToggleable())
             .assertCountEquals(2)
-            .forEach {
-                it.doClick()
-                it.assertIsOn()
+            .apply {
+                get(0)
+                    .doClick()
+                    .assertIsOn()
+                get(1)
+                    .doClick()
+                    .assertIsOn()
             }
     }
 
@@ -213,6 +218,6 @@ class FindAllTest {
                     .assertIsOn()
                 get(1)
                     .assertDoesNotExist()
-        }
+            }
     }
 }

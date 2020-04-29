@@ -183,35 +183,6 @@ fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction 
     assert(hasNoClickAction())
 
 /**
- * Asserts that this collection of nodes is equal to the given [expectedSize].
- *
- * Provides a detailed error message on failure.
- *
- * @throws AssertionError if the size is not equal to [expectedSize]
- */
-// TODO: Rename to assertSizeEquals to be consistent with Collection.size
-fun <T : Collection<SemanticsNodeInteraction>> T.assertCountEquals(expectedSize: Int): T {
-    if (size != expectedSize) {
-        // Quite often all the elements of a collection come from the same selector. So we try to
-        // distinct them hoping we get just one selector to show it to the user on failure.
-        // TODO: If there is more than one selector maybe show selector per node?
-        val selectors = map { it.selector }
-            .distinct()
-        val selector = if (selectors.size == 1) {
-            selectors.first()
-        } else {
-            null
-        }
-        throw AssertionError(buildErrorMessageForCountMismatch(
-            errorMessage = "Failed to assert count of nodes.",
-            selector = selector,
-            foundNodes = map { it.fetchSemanticsNode("") },
-            expectedCount = expectedSize))
-    }
-    return this
-}
-
-/**
  * Asserts that the provided [matcher] is satisfied for this node.
  *
  * @param matcher Matcher to verify.
@@ -226,6 +197,28 @@ fun SemanticsNodeInteraction.assert(
     if (!matcher.matches(node)) {
         throw AssertionError(buildErrorMessageForMatcherFail(
             selector, node, matcher))
+    }
+    return this
+}
+
+/**
+ * Asserts that this collection of nodes is equal to the given [expectedSize].
+ *
+ * Provides a detailed error message on failure.
+ *
+ * @throws AssertionError if the size is not equal to [expectedSize]
+ */
+fun SemanticsNodeInteractionCollection.assertCountEquals(
+    expectedSize: Int
+): SemanticsNodeInteractionCollection {
+    val errorOnFail = "Failed to assert count of nodes."
+    val matchedNodes = fetchSemanticsNodes(errorOnFail)
+    if (matchedNodes.size != expectedSize) {
+        throw AssertionError(buildErrorMessageForCountMismatch(
+            errorMessage = errorOnFail,
+            selector = selector,
+            foundNodes = matchedNodes,
+            expectedCount = expectedSize))
     }
     return this
 }

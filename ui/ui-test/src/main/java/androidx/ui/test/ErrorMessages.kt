@@ -33,7 +33,7 @@ import androidx.ui.unit.PxBounds
  */
 internal fun buildErrorMessageForCountMismatch(
     errorMessage: String,
-    selector: SemanticsMatcher?,
+    selector: SemanticsSelector?,
     foundNodes: List<SemanticsNode>,
     expectedCount: Int
 ): String {
@@ -94,7 +94,7 @@ internal fun buildErrorMessageForCountMismatch(
  */
 internal fun buildErrorMessageForNodeMissingInTree(
     errorMessage: String,
-    selector: SemanticsMatcher,
+    selector: SemanticsSelector,
     lastSeenSemantics: String
 ): String {
     val sb = StringBuilder()
@@ -116,18 +116,18 @@ internal fun buildErrorMessageForNodeMissingInTree(
  * To see some examples, check out "ErrorMessagesTest".
  */
 internal fun buildErrorMessageForMatcherFail(
-    selectorMatcher: SemanticsMatcher,
+    selector: SemanticsSelector,
     node: SemanticsNode,
     assertionMatcher: SemanticsMatcher
 ): String {
     return buildGeneralErrorMessage(
         "Failed to assert that node satisfies the following condition: " +
-                "(${assertionMatcher.description})", selectorMatcher, node)
+                "(${assertionMatcher.description})", selector, node)
 }
 
 internal fun buildGeneralErrorMessage(
     errorMessage: String,
-    selector: SemanticsMatcher,
+    selector: SemanticsSelector,
     node: SemanticsNode
 ): String {
     val sb = StringBuilder()
@@ -140,6 +140,30 @@ internal fun buildGeneralErrorMessage(
     sb.append("Selector used: (")
     sb.append(selector.description)
     sb.appendln(")")
+
+    return sb.toString()
+}
+
+internal fun buildIndexErrorMessage(
+    index: Int,
+    selector: SemanticsSelector,
+    nodes: List<SemanticsNode>
+): String {
+    val sb = StringBuilder()
+
+    sb.append("Can't retrieve node at index '$index' of '")
+    sb.append(selector.description)
+    sb.appendln("'")
+
+    if (nodes.isEmpty()) {
+        sb.appendln("There are no existing nodes for that selector.")
+    } else if (nodes.size == 1) {
+        sb.appendln("There is 1 node only:")
+        sb.appendln(nodes.toStringInfo())
+    } else {
+        sb.appendln("There are '${nodes.size}' nodes only:")
+        sb.appendln(nodes.toStringInfo())
+    }
 
     return sb.toString()
 }
