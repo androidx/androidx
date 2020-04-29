@@ -71,6 +71,7 @@ import androidx.lifecycle.ViewTreeViewModelStoreOwner;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -352,19 +353,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
-        // Set the VTLO before setting the content view so that the inflation process
-        // and attach listeners will see it already present
-        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
-        ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
+        initViewTreeOwners();
         super.setContentView(layoutResID);
     }
 
     @Override
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view) {
-        // Set the VTLO before setting the content view so that attach listeners
-        // will see it already present
-        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
-        ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
+        initViewTreeOwners();
         super.setContentView(view);
     }
 
@@ -372,10 +367,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        // Set the VTLO before setting the content view so that attach listeners
-        // will see it already present
-        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
-        ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
+        initViewTreeOwners();
         super.setContentView(view, params);
     }
 
@@ -383,11 +375,16 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void addContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        // Set the VTLO before setting the content view so that attach listeners
-        // will see it already present.
+        initViewTreeOwners();
+        super.addContentView(view, params);
+    }
+
+    private void initViewTreeOwners() {
+        // Set the view tree owners before setting the content view so that the inflation process
+        // and attach listeners will see them already present
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
-        super.addContentView(view, params);
+        ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
     }
 
     /**

@@ -23,6 +23,7 @@ import android.widget.TextView
 import androidx.activity.test.R
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -57,6 +58,9 @@ class ContentViewTest {
                 assertWithMessage("inflated view has correct ViewTreeViewModelStoreOwner")
                     .that(ViewTreeViewModelStoreOwner.get(inflatedTextView))
                     .isSameInstanceAs(this@withActivity)
+                assertWithMessage("inflated view has correct ViewTreeSavedStateRegistryOwner")
+                    .that(ViewTreeSavedStateRegistryOwner.get(inflatedTextView))
+                    .isSameInstanceAs(this@withActivity)
             }
         }
     }
@@ -82,6 +86,7 @@ class ContentViewTest {
 
                 var attachedLifecycleOwner: Any? = "did not attach"
                 var attachedViewModelStoreOwner: Any? = "did not attach"
+                var attachedSavedStateRegistryOwner: Any? = "did not attach"
                 view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                     override fun onViewDetachedFromWindow(v: View?) {
                         // Do nothing
@@ -90,6 +95,7 @@ class ContentViewTest {
                     override fun onViewAttachedToWindow(v: View?) {
                         attachedLifecycleOwner = ViewTreeLifecycleOwner.get(view)
                         attachedViewModelStoreOwner = ViewTreeViewModelStoreOwner.get(view)
+                        attachedSavedStateRegistryOwner = ViewTreeSavedStateRegistryOwner.get(view)
                     }
                 })
                 attach(view)
@@ -97,6 +103,8 @@ class ContentViewTest {
                     .that(attachedLifecycleOwner).isSameInstanceAs(this)
                 assertWithMessage("$message: ViewTreeViewModelStoreOwner was set correctly")
                     .that(attachedViewModelStoreOwner).isSameInstanceAs(this)
+                assertWithMessage("$message: ViewTreeSavedStateRegistryOwner was set correctly")
+                    .that(attachedSavedStateRegistryOwner).isSameInstanceAs(this)
             }
         }
     }

@@ -89,6 +89,7 @@ import androidx.loader.app.LoaderManager;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -2898,6 +2899,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             // ViewTree get() methods return something meaningful
             ViewTreeLifecycleOwner.set(mView, mViewLifecycleOwner);
             ViewTreeViewModelStoreOwner.set(mView, this);
+            ViewTreeSavedStateRegistryOwner.set(mView, this);
             // Then inform any Observers of the new LifecycleOwner
             mViewLifecycleOwnerLiveData.setValue(mViewLifecycleOwner);
         } else {
