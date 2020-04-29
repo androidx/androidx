@@ -157,16 +157,13 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 @OptIn(ExperimentalCoroutinesApi::class)
                 hintChannel.offer(failure.viewportHint)
             }
-            failure is LoadError.Mediator<Key, Value> && failure.loadType == REFRESH -> {
+            failure is LoadError.Mediator<Key, Value> -> {
                 remoteMediatorAccessor?.run {
                     val pagingState = stateLock.withLock { state.currentPagingState(lastHint) }
                     launch {
-                        doBoundaryCall(this@retryLoadError, REFRESH, pagingState)
+                        doBoundaryCall(this@retryLoadError, failure.loadType, pagingState)
                     }
                 }
-            }
-            failure is LoadError.Mediator<Key, Value> -> {
-                remoteMediatorAccessor?.load(this, failure.loadType, failure.state)
             }
         }
     }
@@ -471,8 +468,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 stateLock.withLock {
                     this@PageFetcherSnapshot.state.setBoundaryError(
                         loadType,
-                        Error(boundaryResult.throwable),
-                        this@PageFetcherSnapshot.lastHint
+                        Error(boundaryResult.throwable)
                     )
                 }
             }
@@ -518,8 +514,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     //   DB error, NW error -> reflect NW error? configurable?
     private suspend fun PagerState<Key, Value>.setBoundaryError(
         loadType: LoadType,
-        loadState: Error,
-        hint: ViewportHint?
+        loadState: Error
     ) {
         if (loadStates[loadType] !is Error) {
             loadStates[loadType] = loadState
@@ -527,7 +522,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
 
         // Save the hint for retry on incoming retry signal, typically sent from user interaction.
-        failedHintsByLoadType[loadType] = LoadError.Mediator(loadType, currentPagingState(hint))
+        failedHintsByLoadType[loadType] = LoadError.Mediator(loadType)
     }
 
     /**

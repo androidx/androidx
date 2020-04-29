@@ -27,7 +27,8 @@ import kotlinx.coroutines.delay
  */
 class TestPagingSource(
     counted: Boolean = true,
-    override val jumpingSupported: Boolean = true
+    override val jumpingSupported: Boolean = true,
+    val items: List<Int> = Companion.ITEMS
 ) : PagingSource<Int, Int>() {
     var errorNextLoad = false
 
@@ -70,7 +71,7 @@ class TestPagingSource(
     }
 
     companion object {
-        val items = List(100) { it }
+        val ITEMS = List(100) { it }
         val LOAD_ERROR = Exception("Exception from TestPagingSource.errorNextLoad")
     }
 }
