@@ -451,7 +451,15 @@ package androidx.ui.core.semantics {
 package androidx.ui.core.texttoolbar {
 
   public interface TextToolbar {
-    method public void showCopyMenu(androidx.ui.geometry.Rect rect, androidx.ui.text.AnnotatedString text, kotlin.jvm.functions.Function0<kotlin.Unit> onDeselectRequested);
+    method public androidx.ui.core.texttoolbar.TextToolbarStatus getStatus();
+    method public void hide();
+    method public void showCopyMenu(androidx.ui.geometry.Rect rect, kotlin.jvm.functions.Function0<kotlin.Unit> onDeselectRequested, kotlin.jvm.functions.Function0<kotlin.Unit> onCopyRequested);
+    property public abstract androidx.ui.core.texttoolbar.TextToolbarStatus status;
+  }
+
+  public enum TextToolbarStatus {
+    enum_constant public static final androidx.ui.core.texttoolbar.TextToolbarStatus Hidden;
+    enum_constant public static final androidx.ui.core.texttoolbar.TextToolbarStatus Shown;
   }
 
 }

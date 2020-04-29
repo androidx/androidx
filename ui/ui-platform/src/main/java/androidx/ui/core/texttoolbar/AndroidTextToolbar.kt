@@ -23,35 +23,53 @@ import androidx.ui.core.texttoolbar.actionmodecallback.FloatingTextActionModeCal
 import androidx.ui.core.texttoolbar.actionmodecallback.PrimaryTextActionModeCallback
 import androidx.ui.core.texttoolbar.actionmodecallback.TextActionModeCallback
 import androidx.ui.geometry.Rect
-import androidx.ui.text.AnnotatedString
 
 /**
  * Android implementation for [TextToolbar].
  */
 internal class AndroidTextToolbar(private val view: View) : TextToolbar {
+    private var actionMode: ActionMode? = null
+    private var textToolbarStatus = TextToolbarStatus.Hidden
+
     override fun showCopyMenu(
         rect: Rect,
-        text: AnnotatedString,
-        onDeselectRequested: () -> Unit
+        onDeselectRequested: () -> Unit,
+        onCopyRequested: () -> Unit
     ) {
+        textToolbarStatus = TextToolbarStatus.Shown
         if (Build.VERSION.SDK_INT >= 23) {
             val actionModeCallback =
                 FloatingTextActionModeCallback(
-                    TextActionModeCallback(view, onDeselectRequested)
+                    TextActionModeCallback(
+                        view = view,
+                        onCopyRequested = onCopyRequested,
+                        onDeselectRequested = onDeselectRequested
+                    )
                 )
             actionModeCallback.setRect(rect)
-            actionModeCallback.setText(text)
-            view.startActionMode(
+            actionMode = view.startActionMode(
                 actionModeCallback,
                 ActionMode.TYPE_FLOATING
             )
         } else {
             val actionModeCallback =
                 PrimaryTextActionModeCallback(
-                    TextActionModeCallback(view, onDeselectRequested)
+                    TextActionModeCallback(
+                        view = view,
+                        onCopyRequested = onCopyRequested,
+                        onDeselectRequested = onDeselectRequested
+                    )
                 )
-            actionModeCallback.setText(text)
-            view.startActionMode(actionModeCallback)
+            actionMode = view.startActionMode(actionModeCallback)
         }
     }
+
+    override fun hide() {
+        textToolbarStatus = TextToolbarStatus.Hidden
+        actionMode?.finish()
+        actionMode = null
+    }
+
+    override val status: TextToolbarStatus
+        get() = textToolbarStatus
 }
