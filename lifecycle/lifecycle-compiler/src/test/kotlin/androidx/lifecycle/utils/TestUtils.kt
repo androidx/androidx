@@ -25,7 +25,7 @@ import java.nio.charset.Charset
 import javax.tools.JavaFileObject
 
 fun load(fullClassName: String, folder: String): JavaFileObject {
-    val folderPath = "src/tests/test-data/${if (folder.isEmpty()) "" else folder + "/"}"
+    val folderPath = "src/test/test-data/${if (folder.isEmpty()) "" else folder + "/"}"
     val split = fullClassName.split(".")
     val code = File("$folderPath/${split.last()}.java").readText(Charset.defaultCharset())
     return JavaFileObjects.forSourceString(fullClassName, code)
