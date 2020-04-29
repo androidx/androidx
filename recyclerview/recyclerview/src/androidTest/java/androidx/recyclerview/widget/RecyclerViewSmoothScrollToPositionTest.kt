@@ -16,59 +16,40 @@
 
 package androidx.recyclerview.widget
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import org.hamcrest.CoreMatchers.`is`
+import org.junit.Assert
 import org.junit.Assert.assertThat
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-private const val RV_WIDTH = 500
-private const val RV_HEIGHT = 500
-private const val ITEM_WIDTH = 500
-private const val ITEM_HEIGHT = 200
-private const val NUM_ITEMS = 100
-
-// TODO: This probably isn't a small test
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(JUnit4::class)
 class RecyclerViewSmoothScrollToPositionTest {
-
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var testContentView: TestContentView
 
     @get:Rule
     val mActivityTestRule = ActivityTestRule(TestContentViewActivity::class.java)
 
-    @Before
-    @Throws(Throwable::class)
-    fun setUp() {
-        val context = mActivityTestRule.activity
-
-        recyclerView = RecyclerView(context)
-
-        recyclerView.layoutParams = ViewGroup.LayoutParams(RV_WIDTH, RV_HEIGHT)
-        recyclerView.setBackgroundColor(0x7FFF0000)
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = MyAdapter()
-
-        testContentView = mActivityTestRule.activity.contentView
-        testContentView.expectLayouts(1)
-        mActivityTestRule.runOnUiThread { testContentView.addView(recyclerView) }
-        testContentView.awaitLayouts(2)
-    }
-
     @Test
     @Throws(Throwable::class)
     fun smoothScrollToPosition_calledDuringScrollJustBeforeStop_scrollStateCallbacksCorrect() {
+
+        val recyclerView =
+            setup(
+                500 to 500,
+                500 to 200,
+                100
+            )
+
         val called2ndTime = -1
 
         // Arrange
@@ -87,7 +68,7 @@ class RecyclerViewSmoothScrollToPositionTest {
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 recyclerView.findChildWithTag(target)?.let {
-                    if (it.bottom == RV_HEIGHT) {
+                    if (it.bottom == 500) {
                         log.add(called2ndTime)
                         recyclerView.smoothScrollToPosition(target)
                     }
@@ -105,6 +86,104 @@ class RecyclerViewSmoothScrollToPositionTest {
         assertThat(log[1], `is`(called2ndTime))
         assertThat(log[2], `is`(RecyclerView.SCROLL_STATE_IDLE))
     }
+
+    @Test
+    @Throws(Throwable::class)
+    fun smoothScroll_whenSmoothScrollerStops_destinationReached() {
+
+        // Arrange
+
+        val calledOnStart = CountDownLatch(1)
+        val calledOnStop = CountDownLatch(1)
+
+        val layoutManager =
+            object : LinearLayoutManager(mActivityTestRule.activity) {
+
+                override fun smoothScrollToPosition(
+                    recyclerView: RecyclerView,
+                    state: RecyclerView.State,
+                    position: Int
+                ) {
+                    val linearSmoothScroller: LinearSmoothScroller =
+                        object : LinearSmoothScroller(recyclerView.context) {
+                            override fun onStart() {
+                                super.onStart()
+                                calledOnStart.countDown()
+                            }
+
+                            override fun onStop() {
+                                super.onStop()
+                                calledOnStop.countDown()
+                            }
+                        }
+                    linearSmoothScroller.targetPosition = position
+                    startSmoothScroll(linearSmoothScroller)
+                }
+            }
+
+        // We are going to traverse through 5 of 10 total screens worth of items to find the
+        // target view.
+        val itemHeight = 100
+        val itemsPerScreen = 5
+        val screensToTraverse = 5
+        val totalScreens = 10
+
+        val targetPosition = itemsPerScreen * screensToTraverse
+
+        val recyclerView =
+            setup(
+                500 to itemHeight * itemsPerScreen,
+                500 to itemHeight,
+                itemsPerScreen * totalScreens,
+                layoutManager = layoutManager
+            )
+
+        // Act
+
+        BaseRecyclerViewInstrumentationTest.mActivityRule.runOnUiThread(Runnable {
+            recyclerView.smoothScrollToPosition(
+                targetPosition
+            )
+        })
+
+        // Assert
+
+        Assert.assertTrue(
+            "onStart should be called quickly ",
+            calledOnStart.await(2, TimeUnit.SECONDS)
+        )
+        Assert.assertTrue(
+            "onStop should be called eventually",
+            calledOnStop.await(30, TimeUnit.SECONDS)
+        )
+        Assert.assertNotNull(
+            "smoothScrollToPosition should succeed",
+            recyclerView.findViewHolderForLayoutPosition(targetPosition)
+        )
+    }
+
+    private fun setup(
+        rvDimensions: Pair<Int, Int>,
+        itemDimensions: Pair<Int, Int>,
+        numItems: Int,
+        context: Context = mActivityTestRule.activity,
+        layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
+    ): RecyclerView {
+
+        val recyclerView = RecyclerView(context)
+
+        recyclerView.layoutParams = ViewGroup.LayoutParams(rvDimensions.first, rvDimensions.second)
+        recyclerView.setBackgroundColor(0x7FFF0000)
+        recyclerView.layoutManager = layoutManager
+        recyclerView.adapter = MyAdapter(itemDimensions, numItems)
+
+        val testContentView = mActivityTestRule.activity.contentView
+        testContentView.expectLayouts(1)
+        mActivityTestRule.runOnUiThread { testContentView.addView(recyclerView) }
+        testContentView.awaitLayouts(2)
+
+        return recyclerView
+    }
 }
 
 private fun ViewGroup.findChildWithTag(tag: Int): View? {
@@ -116,22 +195,25 @@ private fun ViewGroup.findChildWithTag(tag: Int): View? {
     return null
 }
 
-private class MyAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+private class MyAdapter(
+    val itemDimensions: Pair<Int, Int>,
+    val numItems: Int
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         object : RecyclerView.ViewHolder(
             TextView(parent.context).apply {
-                minWidth = ITEM_WIDTH
-                minHeight = ITEM_HEIGHT
+                minWidth = itemDimensions.first
+                minHeight = itemDimensions.second
             }
         ) {}
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder.itemView as TextView).apply {
-            text = Integer.toString(position)
+            text = position.toString()
             tag = position
         }
     }
 
-    override fun getItemCount() = NUM_ITEMS
+    override fun getItemCount() = numItems
 }
