@@ -22,6 +22,8 @@ import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.unit.IntPxSize
 import androidx.ui.util.fastAny
 
+// TODO(shepshapard): This continues to be very confusing to use.  Have to come up with a better
+//  way of easily expressing this.
 /**
  * Utility method that determines if any pointers are currently in [bounds].
  *

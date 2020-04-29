@@ -18,7 +18,6 @@ package androidx.ui.core.pointerinput
 
 import androidx.ui.core.ConsumedData
 import androidx.ui.core.LayoutNode
-import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
@@ -67,24 +66,19 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         // for those that are.
         hitPathTracker.removeDetachedPointerInputFilters()
 
-        val eventDispatchedToPointerInputFilter = !hitPathTracker.isEmpty()
-
-        // Dispatch the PointerInputChanges to the hit PointerInputFilters.
-        var changes = pointerInputChangeEvent.changes
-        hitPathTracker.apply {
-            changes = dispatchChanges(changes, PointerEventPass.InitialDown, PointerEventPass.PreUp)
-            changes = dispatchChanges(changes, PointerEventPass.PreDown, PointerEventPass.PostUp)
-            changes = dispatchChanges(changes, PointerEventPass.PostDown)
-        }
+        // Dispatch to PointerInputFilters
+        val (resultingChanges, dispatchedToSomething) =
+            hitPathTracker.dispatchChanges(pointerInputChangeEvent.changes)
 
         // Remove hit paths from the tracker due to up events.
         pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.forEach {
             hitPathTracker.removeHitPath(it.id)
         }
 
+        // TODO(shepshapard): Don't allocate on every call.
         return ProcessResult(
-            eventDispatchedToPointerInputFilter,
-            changes.any { it.anyPositionChangeConsumed() })
+            dispatchedToSomething,
+            resultingChanges.any { it.anyPositionChangeConsumed() })
     }
 
     /**

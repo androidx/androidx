@@ -266,6 +266,8 @@ package androidx.ui.core {
 
   public interface CustomEventDispatcher {
     method public void dispatchCustomEvent(androidx.ui.core.CustomEvent event);
+    method public void releaseHitPaths(java.util.Set<androidx.ui.core.PointerId> pointerIds);
+    method public void retainHitPaths(java.util.Set<androidx.ui.core.PointerId> pointerIds);
   }
 
   public final class DataNode<T> extends androidx.ui.core.ComponentNode {
@@ -1031,10 +1033,6 @@ package androidx.ui.core.gesture {
     method public default void onStop(androidx.ui.unit.PxPosition velocity);
   }
 
-  public final class LongPressFiredEvent implements androidx.ui.core.CustomEvent {
-    field public static final androidx.ui.core.gesture.LongPressFiredEvent! INSTANCE;
-  }
-
   public final class LongPressGestureFilterKt {
     method public static androidx.ui.core.Modifier longPressGestureFilter(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.unit.PxPosition,kotlin.Unit> onLongPress);
   }
@@ -1090,6 +1088,30 @@ package androidx.ui.core.gesture {
 
 }
 
+package androidx.ui.core.gesture.customevents {
+
+  public final class DelayUpEvent implements androidx.ui.core.CustomEvent {
+    ctor public DelayUpEvent(androidx.ui.core.gesture.customevents.DelayUpMessage message, java.util.Set<androidx.ui.core.PointerId> pointers);
+    method public androidx.ui.core.gesture.customevents.DelayUpMessage component1();
+    method public java.util.Set<androidx.ui.core.PointerId> component2();
+    method public androidx.ui.core.gesture.customevents.DelayUpEvent copy(androidx.ui.core.gesture.customevents.DelayUpMessage message, java.util.Set<androidx.ui.core.PointerId> pointers);
+    method public androidx.ui.core.gesture.customevents.DelayUpMessage getMessage();
+    method public java.util.Set<androidx.ui.core.PointerId> getPointers();
+    method public void setMessage(androidx.ui.core.gesture.customevents.DelayUpMessage p);
+  }
+
+  public enum DelayUpMessage {
+    enum_constant public static final androidx.ui.core.gesture.customevents.DelayUpMessage DelayUp;
+    enum_constant public static final androidx.ui.core.gesture.customevents.DelayUpMessage DelayedUpConsumed;
+    enum_constant public static final androidx.ui.core.gesture.customevents.DelayUpMessage DelayedUpNotConsumed;
+  }
+
+  public final class LongPressFiredEvent implements androidx.ui.core.CustomEvent {
+    field public static final androidx.ui.core.gesture.customevents.LongPressFiredEvent! INSTANCE;
+  }
+
+}
+
 package androidx.ui.core.gesture.util {
 
   public final class PolyFitLeastSquaresKt {
@@ -1138,6 +1160,9 @@ package androidx.ui.core.input {
 }
 
 package androidx.ui.core.pointerinput {
+
+  public final class HitPathTrackerKt {
+  }
 
   public final class PointerInputEventData {
     method public long component1();

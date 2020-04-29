@@ -17,7 +17,6 @@
 package androidx.ui.core.demos.gestures
 
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.doubleTapGestureFilter
@@ -26,7 +25,9 @@ import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
+import androidx.ui.foundation.Text
 import androidx.ui.graphics.compositeOver
+import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.unit.PxPosition
@@ -37,9 +38,21 @@ import androidx.ui.unit.dp
  */
 @Composable
 fun NestedPressDemo() {
-    PressableContainer(Modifier.fillMaxSize()) {
-        PressableContainer(Modifier.padding(48.dp).fillMaxSize()) {
-            PressableContainer(Modifier.padding(48.dp).fillMaxSize())
+    Column {
+        Text(
+            "Demonstrates correct behavior of a nested set of regions that each respond with " +
+                    "press indication, tap, double tap, and long press."
+        )
+        Text(
+            "Press indication is a darker version of the current color.  Tap changes colors in " +
+                    "one direction.  Double tap changes colors in the opposite direction. Long " +
+                    "press resets the color to white. Based on the implementations of each " +
+                    "gesture detector, you should only be able to interact with one box at a time."
+        )
+        PressableContainer(Modifier.fillMaxSize()) {
+            PressableContainer(Modifier.padding(48.dp).fillMaxSize()) {
+                PressableContainer(Modifier.padding(48.dp).fillMaxSize())
+            }
         }
     }
 }
@@ -52,7 +65,7 @@ private fun PressableContainer(
     val defaultColor = DefaultBackgroundColor
     val pressedColor = PressedColor
 
-    val currentColor = remember { Single(defaultColor) }
+    val currentColor = state { defaultColor }
     val pressed = state { false }
 
     val onStart: (Any) -> Unit = {
@@ -73,7 +86,7 @@ private fun PressableContainer(
     }
 
     val onDoubleTap = { _: PxPosition ->
-        currentColor.value = currentColor.value.prev().prev()
+        currentColor.value = currentColor.value.prev()
     }
 
     val color = if (pressed.value) {
@@ -94,5 +107,3 @@ private fun PressableContainer(
         children = children
     )
 }
-
-private data class Single<T>(var value: T)
