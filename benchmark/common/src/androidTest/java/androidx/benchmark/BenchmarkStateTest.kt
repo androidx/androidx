@@ -173,9 +173,9 @@ class BenchmarkStateTest {
         assertNotNull(bundle.get("${prefix}standardDeviation"))
 
         // including metric name
-        assertNotNull(bundle.get("${prefix}time_nanos_min"))
-        assertNotNull(bundle.get("${prefix}time_nanos_median"))
-        assertNotNull(bundle.get("${prefix}time_nanos_stddev"))
+        assertNotNull(bundle.get("${prefix}timeNs_min"))
+        assertNotNull(bundle.get("${prefix}timeNs_median"))
+        assertNotNull(bundle.get("${prefix}timeNs_stddev"))
     }
 
     @Test
