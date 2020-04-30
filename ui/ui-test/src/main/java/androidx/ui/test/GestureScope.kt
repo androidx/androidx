@@ -126,7 +126,7 @@ fun GestureScope.sendClick(position: PxPosition) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun GestureScope.sendTouchDown(position: PxPosition) {
     semanticsNodeInteraction.sendInput {
-        it.sendTouchDown(localToGlobal(position))
+        it.sendDown(localToGlobal(position))
     }
 }
 
@@ -398,4 +398,15 @@ private fun createFunctionForVelocity(
             }
         }
     }
+}
+
+/**
+ * A token to be shared between individual motion events that form a single gesture.
+ */
+class GestureToken internal constructor(
+    internal val downTime: Long,
+    internal var lastPosition: PxPosition
+) {
+    internal var eventTime: Long = downTime
+    internal var finished: Boolean = false
 }

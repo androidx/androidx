@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.ui.test
+package androidx.ui.test.inputdispatcher
 
 import android.view.MotionEvent
 import androidx.test.filters.SmallTest
-import androidx.ui.unit.PxPosition
-import androidx.ui.unit.px
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
+import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verify
+import androidx.ui.unit.PxPosition
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -34,25 +35,28 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests if the [AndroidInputDispatcher.sendClick] gesture works
+ * Tests if the [AndroidInputDispatcher.sendUp] gesture works.
  */
 @SmallTest
 @RunWith(Parameterized::class)
-class AndroidInputDispatcherSendClickTest(config: TestConfig) {
+class SendUpTest(config: TestConfig) {
     data class TestConfig(
         val x: Float,
         val y: Float
     )
 
     companion object {
+        private const val eventPeriod = 10L
+        private val downPosition = PxPosition(5.px, 5.px)
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
-            return listOf(0f, 10f, -10f, 1000000f).flatMap { x ->
-                listOf(0f, 10f, -10f, 1000000f).map { y ->
+            return listOf(0f, 10f).flatMap { x ->
+                listOf(0f, -10f).map { y ->
                     TestConfig(x, y)
                 }
-            }
+            }.plus(TestConfig(downPosition.x.value, downPosition.y.value))
         }
     }
 
@@ -61,7 +65,6 @@ class AndroidInputDispatcherSendClickTest(config: TestConfig) {
         disableDispatchInRealTime = true
     )
 
-    private val eventPeriod = 10L
     private val position = PxPosition(config.x.px, config.y.px)
 
     private lateinit var recorder: MotionEventRecorder
@@ -79,13 +82,52 @@ class AndroidInputDispatcherSendClickTest(config: TestConfig) {
     }
 
     @Test
-    fun testClick() {
-        subject.sendClick(position)
+    fun testSendUp() {
+        val token = subject.sendDown(downPosition)
+        subject.sendUp(token, position)
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
             assertThat(size).isEqualTo(2)
-            first().verify(position, MotionEvent.ACTION_DOWN, 0)
+            first().verify(downPosition, MotionEvent.ACTION_DOWN, 0)
             last().verify(position, MotionEvent.ACTION_UP, eventPeriod)
+        }
+        assertThat(token.lastPosition).isEqualTo(position)
+        assertThat(token.eventTime - token.downTime).isEqualTo(eventPeriod)
+        assertThat(token.finished).isTrue()
+    }
+}
+
+/**
+ * Tests if the [AndroidInputDispatcher.sendUp] gesture throws after
+ * [AndroidInputDispatcher.sendUp] or [AndroidInputDispatcher.sendCancel] has been called.
+ */
+@SmallTest
+class SendUpAfterFinishedTest {
+    private val downPosition = PxPosition(5.px, 5.px)
+    private val position = PxPosition(1.px, 1.px)
+
+    @get:Rule
+    val inputDispatcherRule: TestRule = AndroidInputDispatcher.TestRule(
+        disableDispatchInRealTime = true
+    )
+
+    private val subject: AndroidInputDispatcher = AndroidInputDispatcher {}
+
+    @Test
+    fun testUpAfterUp() {
+        val token = subject.sendDown(downPosition)
+        subject.sendUp(token, downPosition)
+        expectError<java.lang.IllegalArgumentException> {
+            subject.sendUp(token, position)
+        }
+    }
+
+    @Test
+    fun testUpAfterCancel() {
+        val token = subject.sendDown(downPosition)
+        subject.sendCancel(token, downPosition)
+        expectError<java.lang.IllegalArgumentException> {
+            subject.sendUp(token, position)
         }
     }
 }

@@ -205,6 +205,9 @@ package androidx.ui.test {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static void sendTouchDown(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
   }
 
+  public final class GestureToken {
+  }
+
   public final class OutputKt {
     method public static String dumpToString(androidx.ui.test.SemanticsNodeInteraction);
     method public static String dumpToString(androidx.ui.test.SemanticsNodeInteractionCollection);

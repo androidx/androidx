@@ -19,9 +19,6 @@ package androidx.ui.test.util
 import androidx.ui.unit.PxPosition
 import com.google.common.truth.FloatSubject
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
-import java.io.PrintWriter
-import java.io.StringWriter
 import kotlin.math.sign
 
 /**
@@ -71,25 +68,4 @@ fun FloatSubject.isAlmostBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {
         isAtLeast(b - tolerance)
         isAtMost(a + tolerance)
     }
-}
-
-/**
- * Runs the [block] and asserts that an [AssertionError] is thrown if [expectError] is `true`, or
- * that it is not thrown if [expectError] is `false`.
- */
-fun expectAssertionError(expectError: Boolean, block: () -> Unit) {
-    var thrown = false
-    var errorMessage = "Expected an AssertionError, got nothing"
-    try {
-        block()
-    } catch (e: AssertionError) {
-        thrown = true
-        StringWriter().use { sw ->
-            PrintWriter(sw).use { pw ->
-                e.printStackTrace(pw)
-            }
-            errorMessage = "Expected no AssertionError, got:\n==============\n$sw=============="
-        }
-    }
-    assertWithMessage(errorMessage).that(thrown).isEqualTo(expectError)
 }

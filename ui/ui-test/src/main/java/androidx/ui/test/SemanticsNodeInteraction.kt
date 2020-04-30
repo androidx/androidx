@@ -197,7 +197,7 @@ class SemanticsNodeInteractionCollection(
     }
 }
 
-internal var inputDispatcherFactory: (SemanticsNode) -> InputDispatcher = { node ->
+private var inputDispatcherFactory: (SemanticsNode) -> InputDispatcher = { node ->
     val view = (node.componentNode.owner as AndroidOwner).view
     AndroidInputDispatcher { view.dispatchTouchEvent(it) }
 }
