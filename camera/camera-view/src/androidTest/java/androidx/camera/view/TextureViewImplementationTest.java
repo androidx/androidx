@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
@@ -31,7 +32,6 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -142,10 +142,9 @@ public class TextureViewImplementationTest {
         assertThat(surfaceTextureListener.onSurfaceTextureDestroyed(mSurfaceTexture)).isTrue();
     }
 
-    @SdkSuppress(maxSdkVersion = 25)
     @Test
     @LargeTest
-    public void releaseSurfaceTexture_afterSurfaceTextureDestroyed_andCameraNoLongerUsingSurface_1()
+    public void releaseSurfaceTexture_afterSurfaceTextureDestroyed_andCameraNoLongerUsingSurface()
             throws Exception {
         SurfaceRequest surfaceRequest = getSurfaceRequest();
         mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
@@ -165,32 +164,9 @@ public class TextureViewImplementationTest {
         Thread.sleep(1_000);
 
         assertThat(mImplementation.mSurfaceReleaseFuture).isNull();
-    }
-
-    @SdkSuppress(minSdkVersion = 26)
-    @Test
-    @LargeTest
-    public void releaseSurfaceTexture_afterSurfaceTextureDestroyed_andCameraNoLongerUsingSurface_2()
-            throws Exception {
-        SurfaceRequest surfaceRequest = getSurfaceRequest();
-        mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
-        DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
-        final ListenableFuture<Surface> surfaceListenableFuture = deferrableSurface.getSurface();
-
-        final TextureView.SurfaceTextureListener surfaceTextureListener =
-                mImplementation.mTextureView.getSurfaceTextureListener();
-        surfaceTextureListener.onSurfaceTextureAvailable(mSurfaceTexture, ANY_WIDTH, ANY_HEIGHT);
-
-        surfaceListenableFuture.get();
-
-        surfaceTextureListener.onSurfaceTextureDestroyed(mSurfaceTexture);
-        deferrableSurface.close();
-
-        // Wait enough time for surfaceReleaseFuture's listener to be called
-        Thread.sleep(1_000);
-
-        assertThat(mImplementation.mSurfaceReleaseFuture).isNull();
-        assertThat(mSurfaceTexture.isReleased()).isTrue();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            assertThat(mSurfaceTexture.isReleased()).isTrue();
+        }
     }
 
     @Test
@@ -261,12 +237,10 @@ public class TextureViewImplementationTest {
     @Test
     @LargeTest
     public void releaseDetachedSurfaceTexture_whenDeferrableSurfaceClose() throws Exception {
-
-        SurfaceRequest surfaceRequest = getSurfaceRequest();
+        final SurfaceRequest surfaceRequest = getSurfaceRequest();
         mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
-        DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
+        final DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
         final ListenableFuture<Surface> surfaceListenableFuture = deferrableSurface.getSurface();
-
 
         final TextureView.SurfaceTextureListener surfaceTextureListener =
                 mImplementation.mTextureView.getSurfaceTextureListener();
@@ -283,9 +257,10 @@ public class TextureViewImplementationTest {
         Thread.sleep(1_000);
 
         assertThat(mImplementation.mSurfaceReleaseFuture).isNull();
-        assertThat(mSurfaceTexture.isReleased()).isTrue();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            assertThat(mSurfaceTexture.isReleased()).isTrue();
+        }
         assertThat(mImplementation.mDetachedSurfaceTexture).isNull();
-
     }
 
     @Test
