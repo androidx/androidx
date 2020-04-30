@@ -794,6 +794,7 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun retry_remotePrepend() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -835,6 +836,7 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun retry_remoteAppend() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -1118,6 +1120,7 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_initialLoadLoadStateError() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -1205,6 +1208,7 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_endOfPaginationNotReachedLoadState() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -1262,6 +1266,7 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_endOfPaginationReachedLoadState() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,

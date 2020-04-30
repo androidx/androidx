@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalPagingApi::class)
 open class RemoteMediatorMock(private val loadDelay: Long = 0) : RemoteMediator<Int, Int>() {
     val loadEvents = mutableListOf<LoadEvent<Int, Int>>()
     private val _newLoadEvents = mutableListOf<LoadEvent<Int, Int>>()
