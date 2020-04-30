@@ -66,7 +66,7 @@ class SavedStateHandleProviderTest {
             }
         }
         // Now reset the SavedStateProvider
-        handle.setSavedStateProvider("provider", null)
+        handle.clearSavedStateProvider("provider")
 
         // Now save the state
         handle.savedStateProvider().saveState()

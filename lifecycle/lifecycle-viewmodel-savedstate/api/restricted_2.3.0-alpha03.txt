@@ -11,6 +11,7 @@ package androidx.lifecycle {
   public final class SavedStateHandle {
     ctor public SavedStateHandle(java.util.Map<java.lang.String!,java.lang.Object!>);
     ctor public SavedStateHandle();
+    method @MainThread public void clearSavedStateProvider(String);
     method @MainThread public boolean contains(String);
     method @MainThread public <T> T? get(String);
     method @MainThread public <T> androidx.lifecycle.MutableLiveData<T!> getLiveData(String);
@@ -18,7 +19,7 @@ package androidx.lifecycle {
     method @MainThread public java.util.Set<java.lang.String!> keys();
     method @MainThread public <T> T? remove(String);
     method @MainThread public <T> void set(String, T?);
-    method @MainThread public void setSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider?);
+    method @MainThread public void setSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider);
   }
 
   public final class SavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
