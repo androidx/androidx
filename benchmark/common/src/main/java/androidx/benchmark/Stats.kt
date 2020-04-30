@@ -67,9 +67,13 @@ internal class Stats(data: LongArray, val name: String) {
             status.putLong("${prefix}median", median)
             status.putLong("${prefix}standardDeviation", standardDeviation.toLong())
         }
-        status.putLong("${prefix}${name}_min", min)
-        status.putLong("${prefix}${name}_median", median)
-        status.putLong("${prefix}${name}_stddev", standardDeviation.toLong())
+
+        // format string for
+        val bundleName = name.toOutputMetricName()
+
+        status.putLong("${prefix}${bundleName}_min", min)
+        status.putLong("${prefix}${bundleName}_median", median)
+        status.putLong("${prefix}${bundleName}_stddev", standardDeviation.toLong())
     }
 
     override fun equals(other: Any?): Boolean {
