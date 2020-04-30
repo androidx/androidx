@@ -19,11 +19,17 @@ package androidx.ui.test.android
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.view.Choreographer
+import androidx.compose.onCommit
 import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getAllSemanticsNodes
+import androidx.ui.test.isOnUiThread
+import androidx.ui.test.runOnUiThread
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * Collects all [AndroidOwner]s that are part of the currently visible window.
@@ -69,6 +75,19 @@ internal object SynchronizedTreeCollector {
     internal fun waitForIdle() {
         registerComposeWithEspresso()
         Espresso.onIdle()
+        waitForOnCommitCallbacks()
+    }
+
+    /**
+     * Waits for all scheduled [onCommit] callbacks to be executed.
+     */
+    private fun waitForOnCommitCallbacks() {
+        require(!isOnUiThread())
+        val latch = CountDownLatch(1)
+        runOnUiThread {
+            Choreographer.getInstance().postFrameCallbackDelayed({ latch.countDown() }, 1)
+        }
+        latch.await(1, TimeUnit.SECONDS)
     }
 }
 
