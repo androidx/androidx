@@ -14,5 +14,8 @@ package androidx.benchmark {
   public static final class BenchmarkState.Companion {
   }
 
+  public final class MetricNameUtilsKt {
+  }
+
 }
 
