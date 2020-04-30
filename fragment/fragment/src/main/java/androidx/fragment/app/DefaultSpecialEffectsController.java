@@ -83,10 +83,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
     }
 
     @Override
-    void executeOperations(@NonNull List<Operation> operations) {
-        // TODO Pipe this information in from the actual transactions being done
-        boolean isPop = !operations.isEmpty()
-                && operations.get(operations.size() - 1).getType() == Operation.Type.REMOVE;
+    void executeOperations(@NonNull List<Operation> operations, boolean isPop) {
         List<AnimationInfo> animations = new ArrayList<>();
         List<TransitionInfo> transitions = new ArrayList<>();
         final List<Operation> awaitingContainerChanges = new ArrayList<>(operations);
