@@ -73,8 +73,6 @@ MissingNullability: androidx.transition.Slide#onDisappear(android.view.ViewGroup
     Missing nullability on parameter `startValues` in method `onDisappear`
 MissingNullability: androidx.transition.Slide#onDisappear(android.view.ViewGroup, android.view.View, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `onDisappear`
-MissingNullability: androidx.transition.Transition#clone():
-    Missing nullability on method `clone` return
 MissingNullability: androidx.transition.Transition#setMatchOrder(int...) parameter #0:
     Missing nullability on parameter `matches` in method `setMatchOrder`
 MissingNullability: androidx.transition.Transition.EpicenterCallback#onGetEpicenter(androidx.transition.Transition):
@@ -99,8 +97,6 @@ MissingNullability: androidx.transition.TransitionPropagation#getStartDelay(andr
     Missing nullability on parameter `startValues` in method `getStartDelay`
 MissingNullability: androidx.transition.TransitionPropagation#getStartDelay(android.view.ViewGroup, androidx.transition.Transition, androidx.transition.TransitionValues, androidx.transition.TransitionValues) parameter #3:
     Missing nullability on parameter `endValues` in method `getStartDelay`
-MissingNullability: androidx.transition.TransitionSet#clone():
-    Missing nullability on method `clone` return
 MissingNullability: androidx.transition.TransitionSet#setEpicenterCallback(androidx.transition.Transition.EpicenterCallback) parameter #0:
     Missing nullability on parameter `epicenterCallback` in method `setEpicenterCallback`
 MissingNullability: androidx.transition.TransitionSet#setPathMotion(androidx.transition.PathMotion) parameter #0:

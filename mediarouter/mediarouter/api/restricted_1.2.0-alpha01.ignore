@@ -2,10 +2,15 @@
 RemovedClass: androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.SelectionState:
     Removed class androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.SelectionState
 
-RemovedMethod: androidx.mediarouter.app.MediaRouteControllerDialogFragment#getRouteSelector():
-    Removed method androidx.mediarouter.app.MediaRouteControllerDialogFragment.getRouteSelector()
-RemovedMethod: androidx.mediarouter.app.MediaRouteControllerDialogFragment#setRouteSelector(androidx.mediarouter.media.MediaRouteSelector):
-    Removed method androidx.mediarouter.app.MediaRouteControllerDialogFragment.setRouteSelector(androidx.mediarouter.media.MediaRouteSelector)
+
+RemovedField: androidx.mediarouter.media.MediaRouter.RouteInfo#DEVICE_TYPE_BLUETOOTH:
+    Removed field androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH
+RemovedField: androidx.mediarouter.media.MediaRouter.RouteInfo#DEVICE_TYPE_UNKNOWN:
+    Removed field androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN
+RemovedField: androidx.mediarouter.media.MediaRouter.RouteInfo#PRESENTATION_DISPLAY_ID_NONE:
+    Removed field androidx.mediarouter.media.MediaRouter.RouteInfo.PRESENTATION_DISPLAY_ID_NONE
+
+
 RemovedMethod: androidx.mediarouter.app.MediaRouteControllerDialogFragment#getRouteSelector():
     Removed method androidx.mediarouter.app.MediaRouteControllerDialogFragment.getRouteSelector()
 RemovedMethod: androidx.mediarouter.app.MediaRouteControllerDialogFragment#setRouteSelector(androidx.mediarouter.media.MediaRouteSelector):
@@ -40,10 +45,3 @@ RemovedMethod: androidx.mediarouter.media.MediaRouter.RouteInfo#isDefaultOrBluet
     Removed method androidx.mediarouter.media.MediaRouter.RouteInfo.isDefaultOrBluetooth()
 RemovedMethod: androidx.mediarouter.media.MediaRouter.RouteInfo#isGroup():
     Removed method androidx.mediarouter.media.MediaRouter.RouteInfo.isGroup()
-
-RemovedField: androidx.mediarouter.media.MediaRouter.RouteInfo#DEVICE_TYPE_BLUETOOTH:
-    Removed field androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH
-RemovedField: androidx.mediarouter.media.MediaRouter.RouteInfo#DEVICE_TYPE_UNKNOWN:
-    Removed field androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN
-RemovedField: androidx.mediarouter.media.MediaRouter.RouteInfo#PRESENTATION_DISPLAY_ID_NONE:
-    Removed field androidx.mediarouter.media.MediaRouter.RouteInfo.PRESENTATION_DISPLAY_ID_NONE

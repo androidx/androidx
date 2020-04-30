@@ -2,6 +2,7 @@
 package androidx.enterprise.feedback {
 
   public class FakeKeyedAppStatesReporter extends androidx.enterprise.feedback.KeyedAppStatesReporter {
+    ctor public FakeKeyedAppStatesReporter();
     method public java.util.List<androidx.enterprise.feedback.KeyedAppState!> getKeyedAppStates();
     method public java.util.Map<java.lang.String!,androidx.enterprise.feedback.KeyedAppState!> getKeyedAppStatesByKey();
     method public int getNumberOfUploads();

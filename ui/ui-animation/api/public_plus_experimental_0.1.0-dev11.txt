@@ -77,13 +77,13 @@ package androidx.ui.animation {
 
   public final class SingleValueAnimationKt {
     method public static float animate(float target, androidx.animation.AnimationBuilder<java.lang.Float> animBuilder = remember({ 
-    <init>()
+    return <init>()
 }), kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>? endListener = null);
     method public static <T, V extends androidx.animation.AnimationVector> T! animate(T? target, androidx.animation.TwoWayConverter<T,V> converter, androidx.animation.AnimationBuilder<T> animBuilder = remember({ 
-    <init>()
+    return <init>()
 }), kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? endListener = null);
     method public static long animate-90dr43Y(long target, androidx.animation.AnimationBuilder<androidx.ui.graphics.Color> animBuilder = remember({ 
-    <init>()
+    return <init>()
 }), kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,kotlin.Unit>? endListener = null);
   }
 

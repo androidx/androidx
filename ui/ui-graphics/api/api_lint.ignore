@@ -75,6 +75,8 @@ MissingNullability: androidx.ui.graphics.Shader#equals-impl(android.graphics.Sha
     Missing nullability on parameter `p` in method `equals-impl`
 MissingNullability: androidx.ui.graphics.Shader#hashCode-impl(android.graphics.Shader) parameter #0:
     Missing nullability on parameter `p` in method `hashCode-impl`
+MissingNullability: androidx.ui.graphics.Shader#toString-impl(android.graphics.Shader):
+    Missing nullability on method `toString-impl` return
 MissingNullability: androidx.ui.graphics.Shader#toString-impl(android.graphics.Shader) parameter #0:
     Missing nullability on parameter `p` in method `toString-impl`
 

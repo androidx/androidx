@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-MissingNullability: androidx.tracing.TraceKt#traceAsync(String, int, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,?>, kotlin.coroutines.Continuation<? super T>):
-    Missing nullability on method `traceAsync` return
-MissingNullability: androidx.tracing.TraceKt#traceAsync(String, int, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,?>, kotlin.coroutines.Continuation<? super T>) parameter #3:
-    Missing nullability on parameter `p` in method `traceAsync`

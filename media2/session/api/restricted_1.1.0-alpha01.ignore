@@ -39,8 +39,6 @@ RemovedInterface: androidx.media2.session.SessionToken.OnSessionTokenCreatedList
     Removed class androidx.media2.session.SessionToken.OnSessionTokenCreatedListener
 
 
-RemovedMethod: androidx.media2.session.MediaController#getTrackInfo():
-    Removed method androidx.media2.session.MediaController.getTrackInfo()
 RemovedMethod: androidx.media2.session.MediaController#playFromMediaId(String, android.os.Bundle):
     Removed method androidx.media2.session.MediaController.playFromMediaId(String,android.os.Bundle)
 RemovedMethod: androidx.media2.session.MediaController#playFromSearch(String, android.os.Bundle):
@@ -55,10 +53,6 @@ RemovedMethod: androidx.media2.session.MediaController#prepareFromUri(android.ne
     Removed method androidx.media2.session.MediaController.prepareFromUri(android.net.Uri,android.os.Bundle)
 RemovedMethod: androidx.media2.session.MediaController#setTimeDiff(Long):
     Removed method androidx.media2.session.MediaController.setTimeDiff(Long)
-RemovedMethod: androidx.media2.session.MediaController.ControllerCallback#onTrackInfoChanged(androidx.media2.session.MediaController, java.util.List<androidx.media2.common.SessionPlayer.TrackInfo>):
-    Removed method androidx.media2.session.MediaController.ControllerCallback.onTrackInfoChanged(androidx.media2.session.MediaController,java.util.List<androidx.media2.common.SessionPlayer.TrackInfo>)
-RemovedMethod: androidx.media2.session.MediaController.ControllerCallback#onVideoSizeChanged(androidx.media2.session.MediaController, androidx.media2.common.MediaItem, androidx.media2.common.VideoSize):
-    Removed method androidx.media2.session.MediaController.ControllerCallback.onVideoSizeChanged(androidx.media2.session.MediaController,androidx.media2.common.MediaItem,androidx.media2.common.VideoSize)
 RemovedMethod: androidx.media2.session.MediaSession#getSessionCompat():
     Removed method androidx.media2.session.MediaSession.getSessionCompat()
 RemovedMethod: androidx.media2.session.MediaSession#isClosed():
@@ -87,7 +81,3 @@ RemovedMethod: androidx.media2.session.SessionToken#getComponentName():
     Removed method androidx.media2.session.SessionToken.getComponentName()
 RemovedMethod: androidx.media2.session.SessionToken#isLegacySession():
     Removed method androidx.media2.session.SessionToken.isLegacySession()
-
-
-RemovedPackage: androidx.media2.session.futures:
-    Removed package androidx.media2.session.futures
