@@ -117,7 +117,5 @@ RemovedPackage: androidx.media2.player.common:
     Removed package androidx.media2.player.common
 RemovedPackage: androidx.media2.player.exoplayer:
     Removed package androidx.media2.player.exoplayer
-RemovedPackage: androidx.media2.player.futures:
-    Removed package androidx.media2.player.futures
 RemovedPackage: androidx.media2.player.subtitle:
     Removed package androidx.media2.player.subtitle

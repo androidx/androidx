@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+AcronymName: androidx.ui.core.DrawShadowKt#drawShadow-xWKVMPI(androidx.ui.core.Modifier, float, androidx.ui.graphics.Shape, boolean, float):
+    Acronyms should not be capitalized in method names: was `drawShadow-xWKVMPI`, should this be `drawShadow-xWkvmpi`?
 AcronymName: androidx.ui.graphics.vector.VectorComposeKt#drawVector-DGWccOo(androidx.ui.core.Modifier, float, float, float, float, long, androidx.ui.graphics.BlendMode, androidx.ui.core.Alignment, androidx.ui.core.ContentScale, String, kotlin.jvm.functions.Function3<? super androidx.ui.graphics.vector.VectorScope,? super java.lang.Float,? super java.lang.Float,kotlin.Unit>):
     Acronyms should not be capitalized in method names: was `drawVector-DGWccOo`, should this be `drawVector-DgWccOo`?
 

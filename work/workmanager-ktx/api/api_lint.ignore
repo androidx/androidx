@@ -1,7 +1,11 @@
 // Baseline format: 1.0
-MissingNullability: androidx.work.CoroutineWorker#setForeground(androidx.work.ForegroundInfo, kotlin.coroutines.Continuation<? super kotlin.Unit>):
-    Missing nullability on method `setForeground` return
-MissingNullability: androidx.work.CoroutineWorker#setProgress(androidx.work.Data, kotlin.coroutines.Continuation<? super kotlin.Unit>):
-    Missing nullability on method `setProgress` return
-MissingNullability: androidx.work.OperationKt#await(androidx.work.Operation, kotlin.coroutines.Continuation<? super androidx.work.Operation.State.SUCCESS>):
-    Missing nullability on method `await` return
+MissingNullability: androidx.work.OneTimeWorkRequestKt#OneTimeWorkRequestBuilder():
+    Missing nullability on method `OneTimeWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration, java.time.Duration):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return
+MissingNullability: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit, long, java.util.concurrent.TimeUnit):
+    Missing nullability on method `PeriodicWorkRequestBuilder` return

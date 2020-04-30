@@ -191,7 +191,7 @@ package androidx.ui.material {
 
   public final class ScaffoldKt {
     method public static void Scaffold(androidx.ui.material.ScaffoldState scaffoldState = remember({ 
-    <init>()
+    return <init>()
 }), kotlin.jvm.functions.Function0<kotlin.Unit>? topAppBar = null, kotlin.jvm.functions.Function1<? super androidx.ui.material.BottomAppBar.FabConfiguration,kotlin.Unit>? bottomAppBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = null, androidx.ui.material.Scaffold.FabPosition floatingActionButtonPosition = androidx.ui.material.Scaffold.FabPosition.End, kotlin.jvm.functions.Function0<kotlin.Unit>? drawerContent = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier,kotlin.Unit> bodyContent);
   }
 
@@ -229,7 +229,7 @@ package androidx.ui.material {
   }
 
   public final class SurfaceKt {
-    method public static void Surface-r7cpYJI(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = RectangleShape, long color = MaterialTheme.colors.surface, long contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, float elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static void Surface-r7cpYJI(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, long color = MaterialTheme.colors.surface, long contentColor = contentColorFor(color), androidx.ui.foundation.Border? border = null, float elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static long getPrimarySurface(androidx.ui.material.ColorPalette);
   }
 
