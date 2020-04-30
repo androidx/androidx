@@ -30,6 +30,7 @@ import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
  *
  * @sample androidx.paging.samples.remoteMediatorSample
  */
+@ExperimentalPagingApi
 abstract class RemoteMediator<Key : Any, Value : Any> {
     /**
      * Implement this method to load additional remote data, which will then be stored for the

@@ -25,9 +25,11 @@ import kotlinx.coroutines.flow.Flow
  * paginated data. These objects can be transformed to alter data as it loads, and presented in a
  * `RecyclerView`.
  */
-class Pager<Key : Any, Value : Any> @JvmOverloads constructor(
+class Pager<Key : Any, Value : Any>
+@JvmOverloads constructor(
     config: PagingConfig,
     initialKey: Key? = null,
+    @OptIn(ExperimentalPagingApi::class)
     remoteMediator: RemoteMediator<Key, Value>? = null,
     pagingSourceFactory: () -> PagingSource<Key, Value>
 ) {

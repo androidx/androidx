@@ -463,6 +463,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         pagingState: PagingState<Key, Value>
     ) {
         stateLock.withLock { state.setLoading(loadType) }
+        @OptIn(ExperimentalPagingApi::class)
         when (val boundaryResult = load(coroutineScope, loadType, pagingState)) {
             is RemoteMediator.MediatorResult.Error -> {
                 stateLock.withLock {

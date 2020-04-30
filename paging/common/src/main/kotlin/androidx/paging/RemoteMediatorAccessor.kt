@@ -29,6 +29,7 @@ import kotlinx.coroutines.sync.withLock
  * Usage of [RemoteMediator] within [PageFetcher] and [PageFetcherSnapshot] should always be
  * accessed behind this class, which handles state tracking of active remote jobs.
  */
+@OptIn(ExperimentalPagingApi::class)
 internal class RemoteMediatorAccessor<Key : Any, Value : Any>(
     private val remoteMediator: RemoteMediator<Key, Value>
 ) {

@@ -214,6 +214,7 @@ class PageFetcherTest {
 
     @Test
     fun remoteMediator_initializeSkip() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
         val remoteMediatorMock = RemoteMediatorMock().apply {
             initializeResult = SKIP_INITIAL_REFRESH
         }
@@ -236,6 +237,7 @@ class PageFetcherTest {
 
     @Test
     fun remoteMediator_initializeLaunch() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
         val remoteMediatorMock = RemoteMediatorMock().apply {
             initializeResult = LAUNCH_INITIAL_REFRESH
         }
