@@ -39,9 +39,9 @@ import androidx.ui.layout.offset
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.doGesture
+import androidx.ui.test.doPartialGesture
 import androidx.ui.test.findByTag
-import androidx.ui.test.sendTouchDown
+import androidx.ui.test.sendDown
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
@@ -142,7 +142,7 @@ class LayerTouchTransformTest {
         // its bounds
 
         val mappedPosition = PxPosition(Px(342.0f), Px(168.0f))
-        val node = findByTag(testTag).doGesture { sendTouchDown(mappedPosition) }
+        val node = findByTag(testTag).doPartialGesture { sendDown(mappedPosition) }
 
         latch = CountDownLatch(1).apply {
             await(5, TimeUnit.SECONDS)

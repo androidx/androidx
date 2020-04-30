@@ -6,6 +6,7 @@ package androidx.ui.test {
     method public static void callSemanticsAction(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> key);
     method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction doGesture(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.test.GestureScope,kotlin.Unit> block);
+    method public static androidx.ui.test.SemanticsNodeInteraction doPartialGesture(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.ui.test.PartialGestureScope,kotlin.Unit> block);
     method public static androidx.ui.test.SemanticsNodeInteraction doScrollTo(androidx.ui.test.SemanticsNodeInteraction);
   }
 
@@ -41,6 +42,9 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction assertIsUnselected(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertLabelEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
     method public static androidx.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
+  }
+
+  public abstract sealed class BaseGestureScope {
   }
 
   public final class BitmapHelpersKt {
@@ -182,26 +186,31 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction findByText(String text, boolean ignoreCase = false);
   }
 
-  public final class GestureScope {
+  public final class GestureScope extends androidx.ui.test.BaseGestureScope {
   }
 
   public final class GestureScopeKt {
-    method public static androidx.ui.unit.PxPosition getCenter(androidx.ui.test.GestureScope);
-    method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.test.GestureScope);
-    method public static androidx.ui.unit.IntPxSize getSize(androidx.ui.test.GestureScope);
-    method public static androidx.ui.unit.PxPosition localToGlobal(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
+    method public static androidx.ui.unit.PxPosition getCenter(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.unit.PxBounds getGlobalBounds(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.unit.IntPxSize getSize(androidx.ui.test.BaseGestureScope);
+    method public static androidx.ui.unit.PxPosition localToGlobal(androidx.ui.test.BaseGestureScope, androidx.ui.unit.PxPosition position);
+    method public static void sendCancel(androidx.ui.test.PartialGestureScope, androidx.ui.test.GestureToken token, androidx.ui.unit.PxPosition? position = null);
     method public static void sendClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendClick(androidx.ui.test.GestureScope);
     method public static void sendDoubleClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendDoubleClick(androidx.ui.test.GestureScope);
+    method public static androidx.ui.test.GestureToken sendDown(androidx.ui.test.PartialGestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendLongClick(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition position);
     method public static void sendLongClick(androidx.ui.test.GestureScope);
+    method public static void sendMoveBy(androidx.ui.test.PartialGestureScope, androidx.ui.test.GestureToken token, androidx.ui.unit.PxPosition delta);
+    method public static void sendMoveTo(androidx.ui.test.PartialGestureScope, androidx.ui.test.GestureToken token, androidx.ui.unit.PxPosition position);
     method public static void sendSwipe(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, androidx.ui.unit.Duration duration = 200.milliseconds);
     method public static void sendSwipeDown(androidx.ui.test.GestureScope);
     method public static void sendSwipeLeft(androidx.ui.test.GestureScope);
     method public static void sendSwipeRight(androidx.ui.test.GestureScope);
     method public static void sendSwipeUp(androidx.ui.test.GestureScope);
     method public static void sendSwipeWithVelocity(androidx.ui.test.GestureScope, androidx.ui.unit.PxPosition start, androidx.ui.unit.PxPosition end, @FloatRange(from=0.0) float endVelocity, androidx.ui.unit.Duration duration = 200.milliseconds);
+    method public static void sendUp(androidx.ui.test.PartialGestureScope, androidx.ui.test.GestureToken token, androidx.ui.unit.PxPosition? position = null);
   }
 
   public final class GestureToken {
@@ -210,6 +219,9 @@ package androidx.ui.test {
   public final class OutputKt {
     method public static String dumpToString(androidx.ui.test.SemanticsNodeInteraction);
     method public static String dumpToString(androidx.ui.test.SemanticsNodeInteractionCollection);
+  }
+
+  public final class PartialGestureScope extends androidx.ui.test.BaseGestureScope {
   }
 
   public final class SelectionResult {

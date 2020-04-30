@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.test
+package androidx.ui.test.gesturescope
 
 import androidx.compose.Composable
 import androidx.test.filters.MediumTest
@@ -29,6 +29,11 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.createComposeRule
+import androidx.ui.test.doGesture
+import androidx.ui.test.findByTag
+import androidx.ui.test.runOnUiThread
+import androidx.ui.test.sendDoubleClick
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.unit.Px

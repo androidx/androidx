@@ -268,12 +268,16 @@ internal class AndroidInputDispatcher constructor(
      * immediately without blocking. See also [dispatchInRealTime].
      * @param eventPeriodOverride If set, specifies a different period in milliseconds between
      * two consecutive injected motion events injected by this [AndroidInputDispatcher]. If not
-     * set, the event period of 10 milliseconds is unchanged. See also [eventPeriod].
+     * set, the event period of 10 milliseconds is unchanged.
+     *
+     * @see AndroidInputDispatcher.eventPeriod
      */
     internal class TestRule(
         private val disableDispatchInRealTime: Boolean = false,
         private val eventPeriodOverride: Long? = null
     ) : org.junit.rules.TestRule {
+
+        val eventPeriod get() = AndroidInputDispatcher.eventPeriod
 
         override fun apply(base: Statement, description: Description?): Statement {
             return ModifyingStatement(base)
@@ -285,7 +289,7 @@ internal class AndroidInputDispatcher constructor(
                     dispatchInRealTime = false
                 }
                 if (eventPeriodOverride != null) {
-                    eventPeriod = eventPeriodOverride
+                    AndroidInputDispatcher.eventPeriod = eventPeriodOverride
                 }
                 try {
                     base.evaluate()
@@ -294,7 +298,7 @@ internal class AndroidInputDispatcher constructor(
                         dispatchInRealTime = true
                     }
                     if (eventPeriodOverride != null) {
-                        eventPeriod = 10L
+                        AndroidInputDispatcher.eventPeriod = 10L
                     }
                 }
             }

@@ -27,6 +27,7 @@ import androidx.ui.test.util.PointerInputRecorder.DataPoint
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.Uptime
 import com.google.common.truth.Truth.assertThat
 
 class PointerInputRecorder : PointerInputModifier {
@@ -66,6 +67,8 @@ class PointerInputRecorder : PointerInputModifier {
             }
         }
 }
+
+fun Uptime.inMilliseconds(): Long = nanoseconds / 1_000_000
 
 val PointerInputRecorder.downEvents get() = events.filter { it.down }
 
