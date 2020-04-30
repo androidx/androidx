@@ -17,7 +17,6 @@
 package androidx.ui.test.partialgesturescope
 
 import androidx.test.filters.MediumTest
-import androidx.ui.graphics.Color
 import androidx.ui.test.GestureToken
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
@@ -39,9 +38,6 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-
-private val width = 200.px
-private val height = 200.px
 
 private const val tag = "widget"
 
@@ -81,7 +77,7 @@ class SendMoveByTest(private val config: TestConfig) {
         // Given some content
         recorder = PointerInputRecorder()
         composeTestRule.setContent {
-            ClickableTestBox(width, height, Color.Yellow, tag, recorder)
+            ClickableTestBox(recorder, tag = tag)
         }
 
         // When we inject a down event followed by a move event

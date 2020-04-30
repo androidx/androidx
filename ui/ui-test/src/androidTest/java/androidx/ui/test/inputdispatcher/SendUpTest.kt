@@ -27,7 +27,6 @@ import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -67,14 +66,8 @@ class SendUpTest(config: TestConfig) {
 
     private val position = PxPosition(config.x.px, config.y.px)
 
-    private lateinit var recorder: MotionEventRecorder
-    private lateinit var subject: AndroidInputDispatcher
-
-    @Before
-    fun setUp() {
-        recorder = MotionEventRecorder()
-        subject = AndroidInputDispatcher(recorder::sendEvent)
-    }
+    private val recorder = MotionEventRecorder()
+    private val subject = AndroidInputDispatcher(recorder::sendEvent)
 
     @After
     fun tearDown() {
@@ -111,7 +104,7 @@ class SendUpAfterFinishedTest {
         disableDispatchInRealTime = true
     )
 
-    private val subject: AndroidInputDispatcher = AndroidInputDispatcher {}
+    private val subject = AndroidInputDispatcher {}
 
     @Test
     fun testUpAfterUp() {

@@ -46,26 +46,29 @@ class PointerInputRecorder : PointerInputModifier {
     private val velocityTracker = VelocityTracker()
     val recordedVelocity get() = velocityTracker.calculateVelocity()
 
-    override val pointerInputFilter: PointerInputFilter =
-        object : PointerInputFilter() {
-            override fun onPointerInput(
-                changes: List<PointerInputChange>,
-                pass: PointerEventPass,
-                bounds: IntPxSize
-            ): List<PointerInputChange> {
-                if (pass == PointerEventPass.InitialDown) {
-                    changes.forEach {
-                        _events.add(DataPoint(it.id, it.current))
-                        velocityTracker.addPosition(it.current.uptime!!, it.current.position!!)
-                    }
-                }
-                return changes
-            }
+    override val pointerInputFilter = RecordingFilter {
+        _events.add(DataPoint(it.id, it.current))
+        velocityTracker.addPosition(it.current.uptime!!, it.current.position!!)
+    }
+}
 
-            override fun onCancel() {
-                // Do nothing
+class RecordingFilter(private val record: (PointerInputChange) -> Unit) : PointerInputFilter() {
+    override fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntPxSize
+    ): List<PointerInputChange> {
+        if (pass == PointerEventPass.InitialDown) {
+            changes.forEach {
+                record(it)
             }
         }
+        return changes
+    }
+
+    override fun onCancel() {
+        // Do nothing
+    }
 }
 
 fun Uptime.inMilliseconds(): Long = nanoseconds / 1_000_000
