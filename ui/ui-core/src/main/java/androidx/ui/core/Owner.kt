@@ -202,6 +202,13 @@ interface Owner {
         invalidateParentLayer: () -> Unit
     ): OwnedLayer
 
+    /**
+     * The semantics have changed. This function will be called when a SemanticsNode is added to
+     * or deleted from the Semantics tree. It will also be called when a SemanticsNode in the
+     * Semantics tree has some property change.
+     */
+    fun onSemanticsChange()
+
     val measureIteration: Long
 
     companion object {

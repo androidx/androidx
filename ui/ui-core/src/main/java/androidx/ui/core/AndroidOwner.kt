@@ -20,6 +20,7 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
+import android.os.Handler
 import android.os.Looper
 import android.os.Parcelable
 import android.util.Log
@@ -28,6 +29,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStructure
+import android.view.accessibility.AccessibilityManager
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -115,6 +117,7 @@ internal class AndroidComposeView constructor(
     private val relayoutNodes = DepthSortedSet<LayoutNode>(enableExtraAssertions)
 
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
+    private var checkingForSemanticsChanges = false
 
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
@@ -567,6 +570,17 @@ internal class AndroidComposeView constructor(
         updateLayerProperties(layer)
 
         return layer
+    }
+
+    override fun onSemanticsChange() {
+        if ((context.getSystemService(Context.ACCESSIBILITY_SERVICE)
+                    as AccessibilityManager).isEnabled && !checkingForSemanticsChanges) {
+            checkingForSemanticsChanges = true
+            Handler(Looper.getMainLooper()).post {
+                // checkForSemanticsChanges()
+                checkingForSemanticsChanges = false
+            }
+        }
     }
 
     private fun updateLayerProperties(layer: OwnedLayer) {
