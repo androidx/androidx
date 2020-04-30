@@ -16,7 +16,6 @@
 
 package androidx.ui.test
 
-import androidx.annotation.RestrictTo
 import androidx.ui.unit.Duration
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.inMilliseconds
@@ -30,17 +29,6 @@ internal interface InputDispatcher {
      * @param position The coordinate of the click
      */
     fun sendClick(position: PxPosition)
-
-    /**
-     * Sends a press event at [position]. This is similar to [sendClick] however, only a down event
-     * will be sent with no following up event.
-     *
-     * @param position The coordinate of the down event
-     *
-     * @suppress
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun sendTouchDown(position: PxPosition)
 
     /**
      * Sends a swipe gesture from [start] to [end] with the given [duration]. This method blocks
@@ -80,9 +68,83 @@ internal interface InputDispatcher {
      * first event time of the next gesture will be exactly [duration] later then if that gesture
      * would be injected without this delay.
      *
+     * Note: this does not affect the time of the next event for the _current_ partial gesture,
+     * using [sendMove], [sendUp] and [sendCancel], but it will affect the time of the _next_
+     * gesture (including partial gestures started with [sendDown]).
+     *
      * @param duration The duration of the delay. Must be positive
      */
     fun delay(duration: Duration)
+
+    /**
+     * Sends a down event at [position] and returns a [token][GestureToken] to send subsequent
+     * touch events to continue this gesture. This method blocks until the input event has been
+     * dispatched.
+     *
+     * A full gesture starts with a down event at some position (this method) that indicates a
+     * finger has started touching the screen, followed by zero or more [move][sendMove] events
+     * that indicate the finger has moved around along those positions, and is finished by an
+     * [up][sendUp] or a [cancel][sendCancel] event that indicate the finger was lifted up from
+     * the screen. As long as the gesture is incomplete, keep in mind that an imaginary finger is
+     * actively touching the screen.
+     *
+     * In the context of testing, it is not necessary to complete a gesture with an up or cancel
+     * event, if the test ends before it expects the finger to be lifted from the screen.
+     *
+     * @param position The coordinate of the down event
+     * @return A [token][GestureToken] that must be passed to all subsequent events that are part
+     * of the gesture started by this method.
+     *
+     * @see sendMove
+     * @see sendUp
+     * @see sendCancel
+     */
+    fun sendDown(position: PxPosition): GestureToken
+
+    /**
+     * Sends a move event at [position], 10 milliseconds after the previous injected event of
+     * this gesture. This method blocks until the input event has been dispatched. See [sendDown]
+     * for more information on how to make complete gestures from partial gestures.
+     *
+     * @param token The token returned from the corresponding [down event][sendDown] that started
+     * this gesture.
+     * @param position The coordinate of the move event
+     *
+     * @see sendDown
+     * @see sendUp
+     * @see sendCancel
+     */
+    fun sendMove(token: GestureToken, position: PxPosition)
+
+    /**
+     * Sends an up event at [position], 10 milliseconds after the previous injected event of this
+     * gesture. This method blocks until the input event has been dispatched. See [sendDown] for
+     * more information on how to make complete gestures from partial gestures.
+     *
+     * @param token The token returned from the corresponding [down event][sendDown] that started
+     * this gesture.
+     * @param position The coordinate of the up event
+     *
+     * @see sendDown
+     * @see sendMove
+     * @see sendCancel
+     */
+    fun sendUp(token: GestureToken, position: PxPosition)
+
+    /**
+     * Sends a cancel event at [position], 10 milliseconds after the previous injected event of
+     * this gesture. This method blocks until the input event has been dispatched. See [sendDown]
+     * for more information on how to make complete gestures from partial gestures.
+     *
+     * @param token The token returned from the corresponding [down event][sendDown] that started
+     * this gesture.
+     * @param position The coordinate of the cancel event
+     *
+     * @see sendDown
+     * @see sendMove
+     * @see sendUp
+     */
+    fun sendCancel(token: GestureToken, position: PxPosition)
 
     // TODO(b/145593752): how to solve multi-touch?
 }
