@@ -30,8 +30,6 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-
 /**
  * Note: This composable is on the deprecation path and will be soon replaced with a [Modifier].
  *
@@ -68,16 +66,16 @@ fun AlignmentLineOffset(
         require(measurables.isNotEmpty()) { "No child found in AlignmentLineOffset" }
         val placeable = measurables.first().measure(
             // Loose constraints perpendicular on the alignment line.
-            if (alignmentLine.horizontal) constraints.copy(minHeight = 0.ipx)
-            else constraints.copy(minWidth = 0.ipx)
+            if (alignmentLine.horizontal) constraints.copy(minHeight = 0)
+            else constraints.copy(minWidth = 0)
         )
-        val linePosition = placeable[alignmentLine] ?: 0.ipx
+        val linePosition = placeable[alignmentLine] ?: 0
         val axis = if (alignmentLine.horizontal) placeable.height else placeable.width
         val axisMax = if (alignmentLine.horizontal) constraints.maxHeight else constraints.maxWidth
         // Compute padding required to satisfy the total before and after offsets.
-        val paddingBefore = (before.toIntPx() - linePosition).coerceIn(0.ipx, axisMax - axis)
+        val paddingBefore = (before.toIntPx() - linePosition).coerceIn(0, axisMax - axis)
         val paddingAfter = (after.toIntPx() - axis + linePosition).coerceIn(
-            0.ipx,
+            0,
             axisMax - axis - paddingBefore
         )
         // Calculate the size of the AlignmentLineOffset composable & define layout.
@@ -88,8 +86,8 @@ fun AlignmentLineOffset(
             if (alignmentLine.horizontal) paddingBefore + placeable.height + paddingAfter
             else placeable.height
         layout(containerWidth, containerHeight) {
-            val x = if (alignmentLine.horizontal) 0.ipx else paddingBefore
-            val y = if (alignmentLine.horizontal) paddingBefore else 0.ipx
+            val x = if (alignmentLine.horizontal) 0 else paddingBefore
+            val y = if (alignmentLine.horizontal) paddingBefore else 0
             placeable.placeAbsolute(x, y)
         }
     }
@@ -137,16 +135,16 @@ private data class AlignmentLineOffset(
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(
             // Loose constraints perpendicular on the alignment line.
-            if (alignmentLine.horizontal) constraints.copy(minHeight = 0.ipx)
-            else constraints.copy(minWidth = 0.ipx)
+            if (alignmentLine.horizontal) constraints.copy(minHeight = 0)
+            else constraints.copy(minWidth = 0)
         )
-        val linePosition = placeable[alignmentLine] ?: 0.ipx
+        val linePosition = placeable[alignmentLine] ?: 0
         val axis = if (alignmentLine.horizontal) placeable.height else placeable.width
         val axisMax = if (alignmentLine.horizontal) constraints.maxHeight else constraints.maxWidth
         // Compute padding required to satisfy the total before and after offsets.
-        val paddingBefore = (before.toIntPx() - linePosition).coerceIn(0.ipx, axisMax - axis)
+        val paddingBefore = (before.toIntPx() - linePosition).coerceIn(0, axisMax - axis)
         val paddingAfter = (after.toIntPx() - axis + linePosition).coerceIn(
-            0.ipx,
+            0,
             axisMax - axis - paddingBefore
         )
 
@@ -157,8 +155,8 @@ private data class AlignmentLineOffset(
             if (alignmentLine.horizontal) paddingBefore + placeable.height + paddingAfter
             else placeable.height
         return layout(width, height) {
-            val x = if (alignmentLine.horizontal) 0.ipx else paddingBefore
-            val y = if (alignmentLine.horizontal) paddingBefore else 0.ipx
+            val x = if (alignmentLine.horizontal) 0 else paddingBefore
+            val y = if (alignmentLine.horizontal) paddingBefore else 0
             placeable.place(x, y)
         }
     }

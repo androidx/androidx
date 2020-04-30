@@ -21,9 +21,7 @@ import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.drawscope.withTransform
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -74,68 +72,68 @@ private data class PainterModifier(
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(modifyConstraints(constraints))
         return layout(placeable.width, placeable.height) {
-            placeable.place(IntPx.Zero, IntPx.Zero)
+            placeable.place(0, 0)
         }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: IntPx,
+        height: Int,
         layoutDirection: LayoutDirection
-    ): IntPx {
+    ): Int {
         val constraints = Constraints(maxHeight = height)
         val layoutWidth =
-            measurable.minIntrinsicWidth(modifyConstraints(constraints).maxHeight).value
+            measurable.minIntrinsicWidth(modifyConstraints(constraints).maxHeight)
         val painterIntrinsicWidth =
             painter.intrinsicSize.width.takeUnless {
                 !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
             }?.roundToInt() ?: layoutWidth
-        return max(painterIntrinsicWidth, layoutWidth).ipx
+        return max(painterIntrinsicWidth, layoutWidth)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: IntPx,
+        height: Int,
         layoutDirection: LayoutDirection
-    ): IntPx {
+    ): Int {
         val constraints = Constraints(maxHeight = height)
         val layoutWidth =
-            measurable.maxIntrinsicWidth(modifyConstraints(constraints).maxHeight).value
+            measurable.maxIntrinsicWidth(modifyConstraints(constraints).maxHeight)
         val painterIntrinsicWidth =
             painter.intrinsicSize.width.takeUnless {
                 !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
             }?.roundToInt() ?: layoutWidth
-        return max(painterIntrinsicWidth, layoutWidth).ipx
+        return max(painterIntrinsicWidth, layoutWidth)
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: IntPx,
+        width: Int,
         layoutDirection: LayoutDirection
-    ): IntPx {
+    ): Int {
         val constraints = Constraints(maxWidth = width)
         val layoutHeight =
-            measurable.minIntrinsicHeight(modifyConstraints(constraints).maxWidth).value
+            measurable.minIntrinsicHeight(modifyConstraints(constraints).maxWidth)
         val painterIntrinsicHeight =
             painter.intrinsicSize.height.takeUnless {
                 !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
             }?.roundToInt() ?: layoutHeight
-        return max(painterIntrinsicHeight, layoutHeight).ipx
+        return max(painterIntrinsicHeight, layoutHeight)
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: IntPx,
+        width: Int,
         layoutDirection: LayoutDirection
-    ): IntPx {
+    ): Int {
         val constraints = Constraints(maxWidth = width)
         val layoutHeight =
-            measurable.maxIntrinsicHeight(modifyConstraints(constraints).maxWidth).value
+            measurable.maxIntrinsicHeight(modifyConstraints(constraints).maxWidth)
         val painterIntrinsicHeight =
             painter.intrinsicSize.height.takeUnless {
                 !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
             }?.roundToInt() ?: layoutHeight
-        return max(painterIntrinsicHeight, layoutHeight).ipx
+        return max(painterIntrinsicHeight, layoutHeight)
     }
 
     private fun modifyConstraints(constraints: Constraints): Constraints {
@@ -143,14 +141,14 @@ private data class PainterModifier(
         val intrinsicWidth =
             intrinsicSize.width.takeUnless {
                 !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
-            }?.roundToInt()?.ipx ?: constraints.minWidth
+            }?.roundToInt() ?: constraints.minWidth
         val intrinsicHeight =
             intrinsicSize.height.takeUnless {
                 !sizeToIntrinsics || it == Float.POSITIVE_INFINITY
-            }?.roundToInt()?.ipx ?: constraints.minHeight
+            }?.roundToInt() ?: constraints.minHeight
 
-        val minWidth = intrinsicWidth.coerceIn(constraints.minWidth, constraints.maxWidth)
-        val minHeight = intrinsicHeight.coerceIn(constraints.minHeight, constraints.maxHeight)
+        val minWidth = constraints.constrainWidth(intrinsicWidth)
+        val minHeight = constraints.constrainHeight(intrinsicHeight)
 
         return if (minWidth == constraints.minWidth && minHeight == constraints.minHeight) {
             constraints
@@ -177,14 +175,14 @@ private data class PainterModifier(
         val scale = contentScale.scale(srcSize, size)
 
         val alignedPosition = alignment.align(
-            IntPxSize(
-                IntPx(ceil(size.width - (srcWidth * scale)).toInt()),
-                IntPx(ceil(size.height - (srcHeight * scale)).toInt())
+            IntSize(
+                ceil(size.width - (srcWidth * scale)).toInt(),
+                ceil(size.height - (srcHeight * scale)).toInt()
             )
         )
 
-        val dx = alignedPosition.x.value.toFloat()
-        val dy = alignedPosition.y.value.toFloat()
+        val dx = alignedPosition.x.toFloat()
+        val dy = alignedPosition.y.toFloat()
 
         withTransform({
             translate(dx, dy)

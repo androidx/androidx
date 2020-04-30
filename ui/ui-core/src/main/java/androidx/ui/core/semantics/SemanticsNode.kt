@@ -24,7 +24,7 @@ import androidx.ui.core.globalBounds
 import androidx.ui.core.globalPosition
 import androidx.ui.semantics.AccessibilityAction
 import androidx.ui.semantics.SemanticsPropertyKey
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Offset
 import androidx.ui.util.fastForEach
@@ -88,7 +88,7 @@ class SemanticsNode internal constructor(
     // GEOMETRY
 
     /** The size of the bounding box for this node */
-    val size: IntPxSize
+    val size: IntSize
         get() {
             return layoutNode.coordinates.size
         }

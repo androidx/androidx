@@ -25,7 +25,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -58,7 +57,7 @@ class ModelReadsTest {
 
     @Test
     fun useTheSameModelInDrawAndPosition() {
-        val offset = mutableStateOf(5.ipx)
+        val offset = mutableStateOf(5)
         var drawLatch = CountDownLatch(1)
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
@@ -68,7 +67,7 @@ class ModelReadsTest {
                     offset.value
                     drawLatch.countDown()
                 }) { _, _, _ ->
-                    layout(10.ipx, 10.ipx) {
+                    layout(10, 10) {
                         // read from the model
                         offset.value
                         positionLatch.countDown()
@@ -82,7 +81,7 @@ class ModelReadsTest {
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            offset.value = 7.ipx
+            offset.value = 7
         }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -91,7 +90,7 @@ class ModelReadsTest {
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            offset.value = 10.ipx
+            offset.value = 10
         }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -100,8 +99,8 @@ class ModelReadsTest {
 
     @Test
     fun useDifferentModelsInDrawAndPosition() {
-        val drawModel = mutableStateOf(5.ipx)
-        val positionModel = mutableStateOf(5.ipx)
+        val drawModel = mutableStateOf(5)
+        val positionModel = mutableStateOf(5)
         var drawLatch = CountDownLatch(1)
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
@@ -111,7 +110,7 @@ class ModelReadsTest {
                     drawModel.value
                     drawLatch.countDown()
                 }) { _, _, _ ->
-                    layout(10.ipx, 10.ipx) {
+                    layout(10, 10) {
                         // read from the model
                         positionModel.value
                         positionLatch.countDown()
@@ -125,7 +124,7 @@ class ModelReadsTest {
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            drawModel.value = 7.ipx
+            drawModel.value = 7
         }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -134,7 +133,7 @@ class ModelReadsTest {
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            positionModel.value = 10.ipx
+            positionModel.value = 10
         }
 
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
@@ -143,7 +142,7 @@ class ModelReadsTest {
 
     @Test
     fun useTheSameModelInMeasureAndPosition() {
-        val offset = mutableStateOf(5.ipx)
+        val offset = mutableStateOf(5)
         var measureLatch = CountDownLatch(1)
         var drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
@@ -155,7 +154,7 @@ class ModelReadsTest {
                 }) { _, _, _ ->
                     measureLatch.countDown()
                     // read from the model
-                    layout(offset.value, 10.ipx) {}
+                    layout(offset.value, 10) {}
                 }
             }
         }
@@ -165,7 +164,7 @@ class ModelReadsTest {
         measureLatch = CountDownLatch(1)
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            offset.value = 10.ipx
+            offset.value = 10
         }
 
         assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
@@ -174,7 +173,7 @@ class ModelReadsTest {
         measureLatch = CountDownLatch(1)
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            offset.value = 15.ipx
+            offset.value = 15
         }
 
         assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
@@ -183,8 +182,8 @@ class ModelReadsTest {
 
     @Test
     fun useDifferentModelsInMeasureAndPosition() {
-        val measureModel = mutableStateOf(5.ipx)
-        val positionModel = mutableStateOf(5.ipx)
+        val measureModel = mutableStateOf(5)
+        val positionModel = mutableStateOf(5)
         var measureLatch = CountDownLatch(1)
         var positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
@@ -192,7 +191,7 @@ class ModelReadsTest {
                 Layout({}) { _, _, _ ->
                     measureLatch.countDown()
                     // read from the model
-                    layout(measureModel.value, 10.ipx) {
+                    layout(measureModel.value, 10) {
                         // read from the model
                         positionModel.value
                         positionLatch.countDown()
@@ -206,7 +205,7 @@ class ModelReadsTest {
         measureLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            measureModel.value = 10.ipx
+            measureModel.value = 10
         }
 
         assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
@@ -216,7 +215,7 @@ class ModelReadsTest {
         measureLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
         rule.runOnUiThread {
-            positionModel.value = 15.ipx
+            positionModel.value = 15
         }
 
         assertFalse(measureLatch.await(200, TimeUnit.MILLISECONDS))
@@ -229,7 +228,7 @@ class ModelReadsTest {
         val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
-                AtLeastSize(10.ipx, modifier = Modifier.drawBehind {
+                AtLeastSize(10, modifier = Modifier.drawBehind {
                     if (enabled.value) {
                         // read the model
                         model.value
@@ -254,7 +253,7 @@ class ModelReadsTest {
                         model.value
                     }
                     latch.countDown()
-                    layout(10.ipx, 10.ipx) {}
+                    layout(10, 10) {}
                 }
             }
         }
@@ -270,7 +269,7 @@ class ModelReadsTest {
         rule.runOnUiThread {
             activity.setContent {
                 Layout({}) { _, _, _ ->
-                    layout(10.ipx, 10.ipx) {
+                    layout(10, 10) {
                         if (enabled.value) {
                             // read the model
                             model.value
@@ -298,7 +297,7 @@ class ModelReadsTest {
                         latch.countDown()
                     }
                 } else Modifier
-                AtLeastSize(10.ipx, modifier = modifier) {}
+                AtLeastSize(10, modifier = modifier) {}
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
@@ -317,7 +316,7 @@ class ModelReadsTest {
                         // read the model
                         model.value
                         latch.countDown()
-                        layout(10.ipx, 10.ipx) {}
+                        layout(10, 10) {}
                     }
                 }
             }
@@ -335,7 +334,7 @@ class ModelReadsTest {
             activity.setContent {
                 if (enabled.value) {
                     Layout({}) { _, _, _ ->
-                        layout(10.ipx, 10.ipx) {
+                        layout(10, 10) {
                             // read the model
                             model.value
                             latch.countDown()
@@ -362,7 +361,7 @@ class ModelReadsTest {
                         FrameManager.nextFrame()
                     }
                     latch.countDown()
-                    layout(100.ipx, 100.ipx) {}
+                    layout(100, 100) {}
                 }
             }
         }
@@ -391,7 +390,7 @@ class ModelReadsTest {
                 Layout({}) { _, _, _ ->
                     valueReadDuringMeasure = remeasureModel.value
                     remeasureLatch.countDown()
-                    layout(100.ipx, 100.ipx) {
+                    layout(100, 100) {
                         if (relayoutModel.value != 0) {
                             if (!modelAlreadyChanged) {
                                 // this will trigger remeasure request for this node we layout
@@ -438,7 +437,7 @@ class ModelReadsTest {
                         FrameManager.nextFrame()
                     }
                     remeasureLatch.countDown()
-                    layout(100.ipx, 100.ipx) {
+                    layout(100, 100) {
                         relayoutModel.value // just register the read
                         relayoutLatch.countDown()
                     }
@@ -467,7 +466,7 @@ class ModelReadsTest {
         rule.runOnUiThread {
             activity.setContent {
                 Layout({}) { _, _, _ ->
-                    layout(100.ipx, 100.ipx) {
+                    layout(100, 100) {
                         if (model.value == 1) {
                             // this will trigger relayout request for this node we currently layout
                             model.value = 2

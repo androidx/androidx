@@ -19,9 +19,8 @@ package androidx.ui.core
 import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.core.LayoutNode.MeasureBlocks
 import androidx.ui.core.LayoutNode.UsageByParent
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 
 internal class OuterMeasurablePlaceable(
     private val layoutNode: LayoutNode,
@@ -32,9 +31,9 @@ internal class OuterMeasurablePlaceable(
     val lastConstraints: Constraints? get() = if (measuredOnce) measurementConstraints else null
     var lastLayoutDirection: LayoutDirection? = null
         private set
-    var lastPosition: IntPxPosition? = null
+    var lastPosition: IntOffset? = null
         private set
-    private val lastProvidedAlignmentLines = mutableMapOf<AlignmentLine, IntPx>()
+    private val lastProvidedAlignmentLines = mutableMapOf<AlignmentLine, Int>()
 
     /**
      * A local version of [Owner.measureIteration] to ensure that [MeasureBlocks.measure]
@@ -101,16 +100,16 @@ internal class OuterMeasurablePlaceable(
             if (newWidth != previousSize.width ||
                 newHeight != previousSize.height
             ) {
-                measuredSize = IntPxSize(newWidth, newHeight)
+                measuredSize = IntSize(newWidth, newHeight)
                 return true
             }
         }
         return false
     }
 
-    override fun get(line: AlignmentLine): IntPx? = outerWrapper[line]
+    override fun get(line: AlignmentLine): Int? = outerWrapper[line]
 
-    override fun place(position: IntPxPosition) {
+    override fun place(position: IntOffset) {
         lastPosition = position
         with(InnerPlacementScope) {
             outerWrapper.placeAbsolute(position)
@@ -124,15 +123,15 @@ internal class OuterMeasurablePlaceable(
         place(checkNotNull(lastPosition))
     }
 
-    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
         outerWrapper.minIntrinsicWidth(height, layoutDirection)
 
-    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
         outerWrapper.maxIntrinsicWidth(height, layoutDirection)
 
-    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
         outerWrapper.minIntrinsicHeight(width, layoutDirection)
 
-    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
         outerWrapper.maxIntrinsicHeight(width, layoutDirection)
 }

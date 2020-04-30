@@ -23,8 +23,8 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.CanvasHolder
 import androidx.ui.graphics.RectangleShape
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 
 /**
  * RenderNode implementation of OwnedLayer.
@@ -97,9 +97,9 @@ internal class RenderNodeLayer(
         }
     }
 
-    override fun resize(size: IntPxSize) {
-        val width = size.width.value
-        val height = size.height.value
+    override fun resize(size: IntSize) {
+        val width = size.width
+        val height = size.height
         renderNode.pivotX = transformOrigin.pivotFractionX * width
         renderNode.pivotY = transformOrigin.pivotFractionY * height
         if (renderNode.setPosition(
@@ -114,11 +114,11 @@ internal class RenderNodeLayer(
         }
     }
 
-    override fun move(position: IntPxPosition) {
+    override fun move(position: IntOffset) {
         val oldLeft = renderNode.left
         val oldTop = renderNode.top
-        val newLeft = position.x.value
-        val newTop = position.y.value
+        val newLeft = position.x
+        val newTop = position.y
         if (oldLeft != newLeft || oldTop != newTop) {
             renderNode.offsetLeftAndRight(newLeft - oldLeft)
             renderNode.offsetTopAndBottom(newTop - oldTop)

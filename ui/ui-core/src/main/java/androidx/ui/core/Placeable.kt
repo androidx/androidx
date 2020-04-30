@@ -16,12 +16,9 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.coerceIn
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.round
 
 /**
@@ -37,7 +34,7 @@ abstract class Placeable {
      * not respect its incoming constraints, so the width will be coerced inside the min and
      * max width.
      */
-    var width: IntPx = 0.ipx
+    var width: Int = 0
         private set
 
     /**
@@ -46,19 +43,19 @@ abstract class Placeable {
      * not respect its incoming constraints, so the height will be coerced inside the min and
      * max height.
      */
-    var height: IntPx = 0.ipx
+    var height: Int = 0
         private set
 
     /**
      * Returns the position of an [alignment line][AlignmentLine],
      * or `null` if the line is not provided.
      */
-    abstract operator fun get(line: AlignmentLine): IntPx?
+    abstract operator fun get(line: AlignmentLine): Int?
 
     /**
      * The measured size of this Placeable. This might not respect [measurementConstraints].
      */
-    protected var measuredSize: IntPxSize = IntPxSize.Zero
+    protected var measuredSize: IntSize = IntSize(0, 0)
         set(value) {
             field = value
             width = value.width.coerceIn(
@@ -78,7 +75,7 @@ abstract class Placeable {
     /**
      * Positions the [Placeable] at [position] in its parent's coordinate system.
      */
-    protected abstract fun place(position: IntPxPosition)
+    protected abstract fun place(position: IntOffset)
 
     /**
      * The constraints used for the measurement made to obtain this [Placeable].
@@ -90,8 +87,8 @@ abstract class Placeable {
      * The real layout will be centered on the space assigned by the parent, which computed the
      * child's position only seeing its apparent size.
      */
-    protected val apparentToRealOffset: IntPxPosition
-        get() = IntPxPosition((width - measuredSize.width) / 2, (height - measuredSize.height) / 2)
+    protected val apparentToRealOffset: IntOffset
+        get() = IntOffset((width - measuredSize.width) / 2, (height - measuredSize.height) / 2)
 
     /**
      * Receiver scope that permits explicit placement of a [Placeable].
@@ -112,7 +109,7 @@ abstract class Placeable {
          * in RTL environment. If the value is zero, than the [Placeable] will be be placed to
          * the original position (position will not be mirrored).
          */
-        abstract val parentWidth: IntPx
+        abstract val parentWidth: Int
 
         /**
          * Keeps the layout direction of the parent of the placeable that is being places using
@@ -130,7 +127,7 @@ abstract class Placeable {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given [position], similar to the [placeAbsolute] method.
          */
-        fun Placeable.place(position: IntPxPosition) = placeAutoMirrored(position)
+        fun Placeable.place(position: IntOffset) = placeAutoMirrored(position)
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
@@ -152,7 +149,7 @@ abstract class Placeable {
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
          * given position, similar to the [placeAbsolute] method.
          */
-        fun Placeable.place(x: IntPx, y: IntPx) = placeAutoMirrored(IntPxPosition(x, y))
+        fun Placeable.place(x: Int, y: Int) = placeAutoMirrored(IntOffset(x, y))
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
@@ -166,22 +163,22 @@ abstract class Placeable {
          * Unlike [place], the given position will not implicitly react in RTL layout direction
          * contexts.
          */
-        fun Placeable.placeAbsolute(x: IntPx, y: IntPx) = placeAbsolute(IntPxPosition(x, y))
+        fun Placeable.placeAbsolute(x: Int, y: Int) = placeAbsolute(IntOffset(x, y))
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
          * Unlike [place], the given [position] will not implicitly react in RTL layout direction
          * contexts.
          */
-        fun Placeable.placeAbsolute(position: IntPxPosition) =
+        fun Placeable.placeAbsolute(position: IntOffset) =
             place(position + apparentToRealOffset)
 
-        private fun Placeable.placeAutoMirrored(position: IntPxPosition) {
-            if (parentLayoutDirection == LayoutDirection.Ltr || parentWidth == IntPx.Zero) {
+        private fun Placeable.placeAutoMirrored(position: IntOffset) {
+            if (parentLayoutDirection == LayoutDirection.Ltr || parentWidth == 0) {
                 placeAbsolute(position)
             } else {
                 placeAbsolute(
-                    IntPxPosition(parentWidth - measuredSize.width - position.x, position.y)
+                    IntOffset(parentWidth - measuredSize.width - position.x, position.y)
                 )
             }
         }

@@ -23,8 +23,7 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntOffset
 import androidx.ui.unit.milliseconds
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -38,7 +37,7 @@ class PointerInteropUtilsTest {
     @Test(expected = IllegalStateException::class)
     fun toMotionEventScope_emptyList_throws() {
         val list = listOf<PointerInputChange>()
-        list.toMotionEventScope(IntPxPosition.Origin) {}
+        list.toMotionEventScope(IntOffset.Origin) {}
     }
 
     @Test
@@ -55,7 +54,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope(IntPxPosition.Origin) {
+        list.toMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -76,7 +75,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope(IntPxPosition.Origin) {
+        list.toMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -100,7 +99,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope(IntPxPosition.Origin) {
+        list.toMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -124,7 +123,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope(IntPxPosition.Origin) {
+        list.toMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -148,7 +147,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope(IntPxPosition.Origin) {
+        list.toMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -172,7 +171,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope(IntPxPosition.Origin) {
+        list.toMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -195,7 +194,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope(IntPxPosition.Origin) {
+        list.toMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -219,7 +218,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope(IntPxPosition.Origin) {
+        list.toMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -242,7 +241,7 @@ class PointerInteropUtilsTest {
             ).apply { offsetLocation(-10f, -100f) }
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope(IntPxPosition(10.ipx, 100.ipx)) {
+        list.toMotionEventScope(IntOffset(10, 100)) {
             actual = it
         }
 
@@ -266,7 +265,7 @@ class PointerInteropUtilsTest {
             ).apply { offsetLocation(-100f, -1000f) }
         lateinit var actual: MotionEvent
 
-        list.toMotionEventScope(IntPxPosition(100.ipx, 1000.ipx)) {
+        list.toMotionEventScope(IntOffset(100, 1000)) {
             actual = it
         }
 
@@ -276,7 +275,7 @@ class PointerInteropUtilsTest {
     @Test(expected = IllegalStateException::class)
     fun toCancelMotionEventScope_emptyList_throws() {
         val list = listOf<PointerInputChange>()
-        list.toCancelMotionEventScope(IntPxPosition.Origin) {}
+        list.toCancelMotionEventScope(IntOffset.Origin) {}
     }
 
     @Test
@@ -295,7 +294,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toCancelMotionEventScope(IntPxPosition.Origin) {
+        list.toCancelMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -319,7 +318,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toCancelMotionEventScope(IntPxPosition.Origin) {
+        list.toCancelMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -343,7 +342,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        list.toCancelMotionEventScope(IntPxPosition.Origin) {
+        list.toCancelMotionEventScope(IntOffset.Origin) {
             actual = it
         }
 
@@ -366,7 +365,7 @@ class PointerInteropUtilsTest {
             ).apply { offsetLocation(-10f, -100f) }
         lateinit var actual: MotionEvent
 
-        list.toCancelMotionEventScope(IntPxPosition(10.ipx, 100.ipx)) {
+        list.toCancelMotionEventScope(IntOffset(10, 100)) {
             actual = it
         }
 
@@ -390,7 +389,7 @@ class PointerInteropUtilsTest {
             ).apply { offsetLocation(-100f, -1000f) }
         lateinit var actual: MotionEvent
 
-        list.toCancelMotionEventScope(IntPxPosition(100.ipx, 1000.ipx)) {
+        list.toCancelMotionEventScope(IntOffset(100, 1000)) {
             actual = it
         }
 

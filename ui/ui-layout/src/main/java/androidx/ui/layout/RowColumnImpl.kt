@@ -30,12 +30,11 @@ import androidx.ui.core.Measured
 import androidx.ui.core.Modifier
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.Placeable
+import androidx.ui.layout.LayoutOrientation.Horizontal
+import androidx.ui.layout.LayoutOrientation.Vertical
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
-import androidx.ui.unit.max
 import androidx.ui.util.fastForEach
+import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
@@ -75,8 +74,8 @@ internal fun RowColumnImpl(
         val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
         var totalWeight = 0f
-        var fixedSpace = IntPx.Zero
-        var crossAxisSpace = IntPx.Zero
+        var fixedSpace = 0
+        var crossAxisSpace = 0
 
         var anyAlignWithSiblings = false
         val placeables = arrayOfNulls<Placeable>(measurables.size)
@@ -91,12 +90,18 @@ internal fun RowColumnImpl(
             if (weight > 0f) {
                 totalWeight += weight
             } else {
+                val mainAxisMax = constraints.mainAxisMax
                 val placeable = child.measure(
+
                     // Ask for preferred main axis size.
                     constraints.copy(
-                        mainAxisMin = IntPx.Zero,
-                        mainAxisMax = constraints.mainAxisMax - fixedSpace,
-                        crossAxisMin = IntPx.Zero
+                        mainAxisMin = 0,
+                        mainAxisMax = if (mainAxisMax == Constraints.Infinity) {
+                            Constraints.Infinity
+                        } else {
+                            mainAxisMax - fixedSpace
+                        },
+                        crossAxisMin = 0
                     ).toBoxConstraints(orientation)
                 )
                 fixedSpace += placeable.mainAxisSize()
@@ -107,23 +112,23 @@ internal fun RowColumnImpl(
         }
 
         // Then measure the rest according to their weights in the remaining main axis space.
-        val targetSpace = if (totalWeight > 0f && constraints.mainAxisMax.isFinite()) {
+        val targetSpace = if (totalWeight > 0f && constraints.mainAxisMax != Constraints.Infinity) {
             constraints.mainAxisMax
         } else {
             constraints.mainAxisMin
         }
 
         val weightUnitSpace = if (totalWeight > 0) {
-            (targetSpace.value.toFloat() - fixedSpace.value.toFloat()) / totalWeight
+            (targetSpace.toFloat() - fixedSpace.toFloat()) / totalWeight
         } else {
             0f
         }
 
         var remainder = targetSpace - fixedSpace - rowColumnParentData.sumBy {
             (weightUnitSpace * it.weight).roundToInt()
-        }.ipx
+        }
 
-        var weightedSpace = IntPx.Zero
+        var weightedSpace = 0
 
         for (i in measurables.indices) {
             if (placeables[i] == null) {
@@ -131,21 +136,21 @@ internal fun RowColumnImpl(
                 val parentData = rowColumnParentData[i]
                 val weight = parentData.weight
                 check(weight > 0) { "All weights <= 0 should have placeables" }
-                val remainderUnit = remainder.value.sign.ipx
+                val remainderUnit = remainder.sign
                 remainder -= remainderUnit
                 val childMainAxisSize = max(
-                    IntPx.Zero,
-                    (weightUnitSpace * weight).roundToInt().ipx + remainderUnit
+                    0,
+                    (weightUnitSpace * weight).roundToInt() + remainderUnit
                 )
                 val placeable = child.measure(
                     OrientationIndependentConstraints(
-                        if (parentData.fill && childMainAxisSize.isFinite()) {
+                        if (parentData.fill && childMainAxisSize != Constraints.Infinity) {
                             childMainAxisSize
                         } else {
-                            IntPx.Zero
+                            0
                         },
                         childMainAxisSize,
-                        IntPx.Zero,
+                        0,
                         constraints.crossAxisMax
                     ).toBoxConstraints(orientation)
                 )
@@ -156,8 +161,8 @@ internal fun RowColumnImpl(
             }
         }
 
-        var beforeCrossAxisAlignmentLine = IntPx.Zero
-        var afterCrossAxisAlignmentLine = IntPx.Zero
+        var beforeCrossAxisAlignmentLine = 0
+        var afterCrossAxisAlignmentLine = 0
         if (anyAlignWithSiblings) {
             for (i in placeables.indices) {
                 val placeable = placeables[i]!!
@@ -178,12 +183,13 @@ internal fun RowColumnImpl(
         }
 
         // Compute the Row or Column size and position the children.
-        val mainAxisLayoutSize = if (totalWeight > 0f && constraints.mainAxisMax.isFinite()) {
-            constraints.mainAxisMax
-        } else {
-            max(fixedSpace + weightedSpace, constraints.mainAxisMin)
-        }
-        val crossAxisLayoutSize = if (constraints.crossAxisMax.isFinite() &&
+        val mainAxisLayoutSize =
+            if (totalWeight > 0f && constraints.mainAxisMax != Constraints.Infinity) {
+                constraints.mainAxisMax
+            } else {
+                max(fixedSpace + weightedSpace, constraints.mainAxisMin)
+            }
+        val crossAxisLayoutSize = if (constraints.crossAxisMax != Constraints.Infinity &&
             crossAxisSize == SizeMode.Expand
         ) {
             constraints.crossAxisMax
@@ -256,7 +262,7 @@ interface Arrangement {
      * layout that should be taken into account when determining positions of the children in
      * horizontal direction.
      */
-    fun arrange(totalSize: IntPx, size: List<IntPx>, layoutDirection: LayoutDirection): List<IntPx>
+    fun arrange(totalSize: Int, size: List<Int>, layoutDirection: LayoutDirection): List<Int>
 
     /**
      * Used to specify the vertical arrangement of the layout's children in a [Column].
@@ -273,8 +279,8 @@ interface Arrangement {
      */
     object Start : Horizontal {
         override fun arrange(
-            totalSize: IntPx,
-            size: List<IntPx>,
+            totalSize: Int,
+            size: List<Int>,
             layoutDirection: LayoutDirection
         ) = if (layoutDirection == LayoutDirection.Ltr) {
             placeLeftOrTop(size)
@@ -289,8 +295,8 @@ interface Arrangement {
      */
     object End : Horizontal {
         override fun arrange(
-            totalSize: IntPx,
-            size: List<IntPx>,
+            totalSize: Int,
+            size: List<Int>,
             layoutDirection: LayoutDirection
         ) = if (layoutDirection == LayoutDirection.Ltr) {
             placeRightOrBottom(totalSize, size)
@@ -305,8 +311,8 @@ interface Arrangement {
      */
     object Top : Vertical {
         override fun arrange(
-            totalSize: IntPx,
-            size: List<IntPx>,
+            totalSize: Int,
+            size: List<Int>,
             layoutDirection: LayoutDirection
         ) = placeLeftOrTop(size)
     }
@@ -317,8 +323,8 @@ interface Arrangement {
      */
     object Bottom : Vertical {
         override fun arrange(
-            totalSize: IntPx,
-            size: List<IntPx>,
+            totalSize: Int,
+            size: List<Int>,
             layoutDirection: LayoutDirection
         ) = placeRightOrBottom(totalSize, size)
     }
@@ -328,16 +334,16 @@ interface Arrangement {
      */
     object Center : Vertical, Horizontal {
         override fun arrange(
-            totalSize: IntPx,
-            size: List<IntPx>,
+            totalSize: Int,
+            size: List<Int>,
             layoutDirection: LayoutDirection
-        ): List<IntPx> {
-            val consumedSize = size.fold(0.ipx) { a, b -> a + b }
-            val positions = mutableListOf<IntPx>()
-            var current = (totalSize - consumedSize).value.toFloat() / 2
+        ): List<Int> {
+            val consumedSize = size.fold(0) { a, b -> a + b }
+            val positions = mutableListOf<Int>()
+            var current = (totalSize - consumedSize).toFloat() / 2
             size.fastForEach {
-                positions.add(current.roundToInt().ipx)
-                current += it.value.toFloat()
+                positions.add(current.roundToInt())
+                current += it.toFloat()
             }
             return positions
         }
@@ -349,17 +355,17 @@ interface Arrangement {
      */
     object SpaceEvenly : Vertical, Horizontal {
         override fun arrange(
-            totalSize: IntPx,
-            size: List<IntPx>,
+            totalSize: Int,
+            size: List<Int>,
             layoutDirection: LayoutDirection
-        ): List<IntPx> {
-            val consumedSize = size.fold(0.ipx) { a, b -> a + b }
-            val gapSize = (totalSize - consumedSize).value.toFloat() / (size.size + 1)
-            val positions = mutableListOf<IntPx>()
+        ): List<Int> {
+            val consumedSize = size.fold(0) { a, b -> a + b }
+            val gapSize = (totalSize - consumedSize).toFloat() / (size.size + 1)
+            val positions = mutableListOf<Int>()
             var current = gapSize
             size.fastForEach {
-                positions.add(current.roundToInt().ipx)
-                current += it.value.toFloat() + gapSize
+                positions.add(current.roundToInt())
+                current += it.toFloat() + gapSize
             }
             return positions
         }
@@ -371,21 +377,21 @@ interface Arrangement {
      */
     object SpaceBetween : Vertical, Horizontal {
         override fun arrange(
-            totalSize: IntPx,
-            size: List<IntPx>,
+            totalSize: Int,
+            size: List<Int>,
             layoutDirection: LayoutDirection
-        ): List<IntPx> {
-            val consumedSize = size.fold(0.ipx) { a, b -> a + b }
+        ): List<Int> {
+            val consumedSize = size.fold(0) { a, b -> a + b }
             val gapSize = if (size.size > 1) {
-                (totalSize - consumedSize).value.toFloat() / (size.size - 1)
+                (totalSize - consumedSize).toFloat() / (size.size - 1)
             } else {
                 0f
             }
-            val positions = mutableListOf<IntPx>()
+            val positions = mutableListOf<Int>()
             var current = 0f
             size.fastForEach {
-                positions.add(current.roundToInt().ipx)
-                current += it.value.toFloat() + gapSize
+                positions.add(current.roundToInt())
+                current += it.toFloat() + gapSize
             }
             return positions
         }
@@ -398,30 +404,30 @@ interface Arrangement {
      */
     object SpaceAround : Vertical, Horizontal {
         override fun arrange(
-            totalSize: IntPx,
-            size: List<IntPx>,
+            totalSize: Int,
+            size: List<Int>,
             layoutDirection: LayoutDirection
-        ): List<IntPx> {
-            val consumedSize = size.fold(0.ipx) { a, b -> a + b }
+        ): List<Int> {
+            val consumedSize = size.fold(0) { a, b -> a + b }
             val gapSize = if (size.isNotEmpty()) {
-                (totalSize - consumedSize).value.toFloat() / size.size
+                (totalSize - consumedSize).toFloat() / size.size
             } else {
                 0f
             }
-            val positions = mutableListOf<IntPx>()
+            val positions = mutableListOf<Int>()
             var current = gapSize / 2
             size.fastForEach {
-                positions.add(current.roundToInt().ipx)
-                current += it.value.toFloat() + gapSize
+                positions.add(current.roundToInt())
+                current += it.toFloat() + gapSize
             }
             return positions
         }
     }
 
     private companion object {
-        private fun placeRightOrBottom(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
-            val consumedSize = size.fold(0.ipx) { a, b -> a + b }
-            val positions = mutableListOf<IntPx>()
+        private fun placeRightOrBottom(totalSize: Int, size: List<Int>): List<Int> {
+            val consumedSize = size.fold(0) { a, b -> a + b }
+            val positions = mutableListOf<Int>()
             var current = totalSize - consumedSize
             size.fastForEach {
                 positions.add(current)
@@ -429,9 +435,9 @@ interface Arrangement {
             }
             return positions
         }
-        private fun placeLeftOrTop(size: List<IntPx>): List<IntPx> {
-            val positions = mutableListOf<IntPx>()
-            var current = 0.ipx
+        private fun placeLeftOrTop(size: List<Int>): List<Int> {
+            val positions = mutableListOf<Int>()
+            var current = 0
             size.fastForEach {
                 positions.add(current)
                 current += it
@@ -517,14 +523,14 @@ sealed class CrossAxisAlignment {
      * [LayoutDirection.Ltr] if vertical.
      * @param placeable The item being aligned.
      * @param beforeCrossAxisAlignmentLine The space before the cross-axis alignment line if
-     * an alignment line is being used or 0.ipx if no alignment line is being used.
+     * an alignment line is being used or 0 if no alignment line is being used.
      */
     internal abstract fun align(
-        size: IntPx,
+        size: Int,
         layoutDirection: LayoutDirection,
         placeable: Placeable,
-        beforeCrossAxisAlignmentLine: IntPx
-    ): IntPx
+        beforeCrossAxisAlignmentLine: Int
+    ): Int
 
     /**
      * Returns `true` if this is [Relative].
@@ -536,7 +542,7 @@ sealed class CrossAxisAlignment {
      * Returns the alignment line position relative to the left/top of the space or `null` if
      * this alignment doesn't rely on alignment lines.
      */
-    internal open fun calculateAlignmentLinePosition(placeable: Placeable): IntPx? = null
+    internal open fun calculateAlignmentLinePosition(placeable: Placeable): Int? = null
 
     companion object {
         /**
@@ -583,34 +589,34 @@ sealed class CrossAxisAlignment {
 
     private object CenterCrossAxisAlignment : CrossAxisAlignment() {
         override fun align(
-            size: IntPx,
+            size: Int,
             layoutDirection: LayoutDirection,
             placeable: Placeable,
-            beforeCrossAxisAlignmentLine: IntPx
-        ): IntPx {
+            beforeCrossAxisAlignmentLine: Int
+        ): Int {
             return size / 2
         }
     }
 
     private object StartCrossAxisAlignment : CrossAxisAlignment() {
         override fun align(
-            size: IntPx,
+            size: Int,
             layoutDirection: LayoutDirection,
             placeable: Placeable,
-            beforeCrossAxisAlignmentLine: IntPx
-        ): IntPx {
-            return if (layoutDirection == LayoutDirection.Ltr) 0.ipx else size
+            beforeCrossAxisAlignmentLine: Int
+        ): Int {
+            return if (layoutDirection == LayoutDirection.Ltr) 0 else size
         }
     }
 
     private object EndCrossAxisAlignment : CrossAxisAlignment() {
         override fun align(
-            size: IntPx,
+            size: Int,
             layoutDirection: LayoutDirection,
             placeable: Placeable,
-            beforeCrossAxisAlignmentLine: IntPx
-        ): IntPx {
-            return if (layoutDirection == LayoutDirection.Ltr) size else 0.ipx
+            beforeCrossAxisAlignmentLine: Int
+        ): Int {
+            return if (layoutDirection == LayoutDirection.Ltr) size else 0
         }
     }
 
@@ -620,16 +626,16 @@ sealed class CrossAxisAlignment {
         override val isRelative: Boolean
             get() = true
 
-        override fun calculateAlignmentLinePosition(placeable: Placeable): IntPx? {
+        override fun calculateAlignmentLinePosition(placeable: Placeable): Int? {
             return alignmentLineProvider.calculateAlignmentLinePosition(placeable)
         }
 
         override fun align(
-            size: IntPx,
+            size: Int,
             layoutDirection: LayoutDirection,
             placeable: Placeable,
-            beforeCrossAxisAlignmentLine: IntPx
-        ): IntPx {
+            beforeCrossAxisAlignmentLine: Int
+        ): Int {
             val alignmentLinePosition =
                 alignmentLineProvider.calculateAlignmentLinePosition(placeable)
             return if (alignmentLinePosition != null) {
@@ -640,7 +646,7 @@ sealed class CrossAxisAlignment {
                     line
                 }
             } else {
-                IntPx.Zero
+                0
             }
         }
     }
@@ -649,11 +655,11 @@ sealed class CrossAxisAlignment {
         val vertical: Alignment.Vertical
     ) : CrossAxisAlignment() {
         override fun align(
-            size: IntPx,
+            size: Int,
             layoutDirection: LayoutDirection,
             placeable: Placeable,
-            beforeCrossAxisAlignmentLine: IntPx
-        ): IntPx {
+            beforeCrossAxisAlignmentLine: Int
+        ): Int {
             return vertical.align(size)
         }
     }
@@ -662,11 +668,11 @@ sealed class CrossAxisAlignment {
         val horizontal: Alignment.Horizontal
     ) : CrossAxisAlignment() {
         override fun align(
-            size: IntPx,
+            size: Int,
             layoutDirection: LayoutDirection,
             placeable: Placeable,
-            beforeCrossAxisAlignmentLine: IntPx
-        ): IntPx {
+            beforeCrossAxisAlignmentLine: Int
+        ): Int {
             return horizontal.align(size, layoutDirection)
         }
     }
@@ -676,10 +682,10 @@ sealed class CrossAxisAlignment {
  * Box [Constraints], but which abstract away width and height in favor of main axis and cross axis.
  */
 internal data class OrientationIndependentConstraints(
-    val mainAxisMin: IntPx,
-    val mainAxisMax: IntPx,
-    val crossAxisMin: IntPx,
-    val crossAxisMax: IntPx
+    val mainAxisMin: Int,
+    val mainAxisMax: Int,
+    val crossAxisMin: Int,
+    val crossAxisMax: Int
 ) {
     constructor(c: Constraints, orientation: LayoutOrientation) : this(
         if (orientation === LayoutOrientation.Horizontal) c.minWidth else c.minHeight,
@@ -692,7 +698,7 @@ internal data class OrientationIndependentConstraints(
     fun stretchCrossAxis() = OrientationIndependentConstraints(
         mainAxisMin,
         mainAxisMax,
-        if (crossAxisMax.isFinite()) crossAxisMax else crossAxisMin,
+        if (crossAxisMax != Constraints.Infinity) crossAxisMax else crossAxisMin,
         crossAxisMax
     )
 
@@ -849,9 +855,9 @@ private object IntrinsicMeasureBlocks {
 
 private fun intrinsicSize(
     children: List<IntrinsicMeasurable>,
-    intrinsicMainSize: IntrinsicMeasurable.(IntPx) -> IntPx,
-    intrinsicCrossSize: IntrinsicMeasurable.(IntPx) -> IntPx,
-    crossAxisAvailable: IntPx,
+    intrinsicMainSize: IntrinsicMeasurable.(Int) -> Int,
+    intrinsicCrossSize: IntrinsicMeasurable.(Int) -> Int,
+    crossAxisAvailable: Int,
     layoutOrientation: LayoutOrientation,
     intrinsicOrientation: LayoutOrientation
 ) = if (layoutOrientation == intrinsicOrientation) {
@@ -862,11 +868,11 @@ private fun intrinsicSize(
 
 private fun intrinsicMainAxisSize(
     children: List<IntrinsicMeasurable>,
-    mainAxisSize: IntrinsicMeasurable.(IntPx) -> IntPx,
-    crossAxisAvailable: IntPx
-): IntPx {
-    var weightUnitSpace = 0.ipx
-    var fixedSpace = 0.ipx
+    mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
+    crossAxisAvailable: Int
+): Int {
+    var weightUnitSpace = 0
+    var fixedSpace = 0
     var totalWeight = 0f
     children.fastForEach { child ->
         val weight = child.data.weight
@@ -875,25 +881,25 @@ private fun intrinsicMainAxisSize(
             fixedSpace += size
         } else if (weight > 0f) {
             totalWeight += weight
-            weightUnitSpace = max(weightUnitSpace, size / weight)
+            weightUnitSpace = max(weightUnitSpace, (size / weight).roundToInt())
         }
     }
-    return weightUnitSpace * totalWeight + fixedSpace
+    return (weightUnitSpace * totalWeight).roundToInt() + fixedSpace
 }
 
 private fun intrinsicCrossAxisSize(
     children: List<IntrinsicMeasurable>,
-    mainAxisSize: IntrinsicMeasurable.(IntPx) -> IntPx,
-    crossAxisSize: IntrinsicMeasurable.(IntPx) -> IntPx,
-    mainAxisAvailable: IntPx
-): IntPx {
-    var fixedSpace = 0.ipx
-    var crossAxisMax = 0.ipx
+    mainAxisSize: IntrinsicMeasurable.(Int) -> Int,
+    crossAxisSize: IntrinsicMeasurable.(Int) -> Int,
+    mainAxisAvailable: Int
+): Int {
+    var fixedSpace = 0
+    var crossAxisMax = 0
     var totalWeight = 0f
     children.fastForEach { child ->
         val weight = child.data.weight
         if (weight == 0f) {
-            val mainAxisSpace = child.mainAxisSize(IntPx.Infinity)
+            val mainAxisSpace = child.mainAxisSize(Constraints.Infinity)
             fixedSpace += mainAxisSpace
             crossAxisMax = max(crossAxisMax, child.crossAxisSize(mainAxisSpace))
         } else if (weight > 0f) {
@@ -902,15 +908,20 @@ private fun intrinsicCrossAxisSize(
     }
 
     val weightUnitSpace = if (totalWeight == 0f) {
-        IntPx.Zero
+        0
+    } else if (mainAxisAvailable == Constraints.Infinity) {
+        Constraints.Infinity
     } else {
-        max(mainAxisAvailable - fixedSpace, IntPx.Zero) / totalWeight
+        (max(mainAxisAvailable - fixedSpace, 0) / totalWeight).roundToInt()
     }
 
     children.fastForEach { child ->
         val weight = child.data.weight
         if (weight > 0f) {
-            crossAxisMax = max(crossAxisMax, child.crossAxisSize(weightUnitSpace * weight))
+            crossAxisMax = max(
+                crossAxisMax,
+                child.crossAxisSize((weightUnitSpace * weight).roundToInt())
+            )
         }
     }
     return crossAxisMax
@@ -927,7 +938,7 @@ internal data class LayoutWeightImpl(val weight: Float, val fill: Boolean) : Par
 internal sealed class SiblingsAlignedModifier : ParentDataModifier {
     abstract override fun Density.modifyParentData(parentData: Any?): Any?
 
-    internal data class WithAlignmentLineBlock(val block: (Measured) -> IntPx) :
+    internal data class WithAlignmentLineBlock(val block: (Measured) -> Int) :
         SiblingsAlignedModifier() {
         override fun Density.modifyParentData(parentData: Any?): Any? {
             return ((parentData as? RowColumnParentData) ?: RowColumnParentData()).also {
@@ -981,17 +992,17 @@ internal data class RowColumnParentData(
  * Provides the alignment line.
  */
 internal sealed class AlignmentLineProvider {
-    abstract fun calculateAlignmentLinePosition(placeable: Placeable): IntPx?
-    data class Block(val lineProviderBlock: (Measured) -> IntPx) : AlignmentLineProvider() {
+    abstract fun calculateAlignmentLinePosition(placeable: Placeable): Int?
+    data class Block(val lineProviderBlock: (Measured) -> Int) : AlignmentLineProvider() {
         override fun calculateAlignmentLinePosition(
             placeable: Placeable
-        ): IntPx? {
+        ): Int? {
             return lineProviderBlock(Measured(placeable))
         }
     }
 
     data class Value(val line: AlignmentLine) : AlignmentLineProvider() {
-        override fun calculateAlignmentLinePosition(placeable: Placeable): IntPx? {
+        override fun calculateAlignmentLinePosition(placeable: Placeable): Int? {
             return placeable[line]
         }
     }

@@ -22,12 +22,10 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Placeable
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.isFinite
-import androidx.ui.unit.max
 import androidx.ui.util.fastForEachIndexed
+import kotlin.math.max
 
 /**
  * A composable that places its children in a horizontal flow. Unlike [Row], if the
@@ -150,15 +148,15 @@ private fun Flow(
 
     Layout(children) { measurables, outerConstraints, layoutDirection ->
         val sequences = mutableListOf<List<Placeable>>()
-        val crossAxisSizes = mutableListOf<IntPx>()
-        val crossAxisPositions = mutableListOf<IntPx>()
+        val crossAxisSizes = mutableListOf<Int>()
+        val crossAxisPositions = mutableListOf<Int>()
 
-        var mainAxisSpace = IntPx.Zero
-        var crossAxisSpace = IntPx.Zero
+        var mainAxisSpace = 0
+        var crossAxisSpace = 0
 
         val currentSequence = mutableListOf<Placeable>()
-        var currentMainAxisSize = IntPx.Zero
-        var currentCrossAxisSize = IntPx.Zero
+        var currentMainAxisSize = 0
+        var currentCrossAxisSize = 0
 
         val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
@@ -186,8 +184,8 @@ private fun Flow(
             mainAxisSpace = max(mainAxisSpace, currentMainAxisSize)
 
             currentSequence.clear()
-            currentMainAxisSize = IntPx.Zero
-            currentCrossAxisSize = IntPx.Zero
+            currentMainAxisSize = 0
+            currentCrossAxisSize = 0
         }
 
         for (measurable in measurables) {
@@ -208,7 +206,7 @@ private fun Flow(
 
         if (currentSequence.isNotEmpty()) startNewSequence()
 
-        val mainAxisLayoutSize = if (constraints.mainAxisMax.isFinite() &&
+        val mainAxisLayoutSize = if (constraints.mainAxisMax != Constraints.Infinity &&
             mainAxisSize == SizeMode.Expand
         ) {
             constraints.mainAxisMax
@@ -232,7 +230,7 @@ private fun Flow(
             sequences.fastForEachIndexed { i, placeables ->
                 val childrenMainAxisSizes = placeables.mapIndexed { j, placeable ->
                     placeable.mainAxisSize() +
-                        if (j < placeables.lastIndex) mainAxisSpacing.toIntPx() else IntPx.Zero
+                        if (j < placeables.lastIndex) mainAxisSpacing.toIntPx() else 0
                 }
                 val arrangement = if (i < sequences.lastIndex) {
                     mainAxisAlignment.arrangement
@@ -248,13 +246,13 @@ private fun Flow(
                 )
                 placeables.fastForEachIndexed { j, placeable ->
                     val crossAxis = when (crossAxisAlignment) {
-                        FlowCrossAxisAlignment.Start -> IntPx.Zero
+                        FlowCrossAxisAlignment.Start -> 0
                         FlowCrossAxisAlignment.End ->
                             crossAxisSizes[i] - placeable.crossAxisSize()
                         FlowCrossAxisAlignment.Center ->
                             Alignment.Center.align(
-                                IntPxSize(
-                                    width = IntPx.Zero,
+                                IntSize(
+                                    width = 0,
                                     height = crossAxisSizes[i] - placeable.crossAxisSize()
                                 )
                             ).y

@@ -19,7 +19,7 @@ package androidx.ui.core.gesture
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.util.fastAny
 
 // TODO(shepshapard): This continues to be very confusing to use.  Have to come up with a better
@@ -32,13 +32,13 @@ import androidx.ui.util.fastAny
  *
  * @return True if at least one pointer is in bounds.
  */
-fun List<PointerInputChange>.anyPointersInBounds(bounds: IntPxSize) =
+fun List<PointerInputChange>.anyPointersInBounds(bounds: IntSize) =
     fastAny {
         it.current.down &&
                 it.current.position!!.x >= 0 &&
-                it.current.position.x < bounds.width.value &&
+                it.current.position.x < bounds.width &&
                 it.current.position.y >= 0 &&
-                it.current.position.y < bounds.height.value
+                it.current.position.y < bounds.height
     }
 
 internal class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :

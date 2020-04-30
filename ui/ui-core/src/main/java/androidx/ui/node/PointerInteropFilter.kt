@@ -26,9 +26,8 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeAllChanges
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import androidx.ui.util.fastAny
 import androidx.ui.viewinterop.AndroidViewHolder
@@ -121,7 +120,7 @@ internal class PointerInteropFilter(
             override fun onPointerInput(
                 changes: List<PointerInputChange>,
                 pass: PointerEventPass,
-                bounds: IntPxSize
+                bounds: IntSize
             ): List<PointerInputChange> {
                 @Suppress("NAME_SHADOWING")
                 var changes = changes
@@ -197,7 +196,7 @@ internal class PointerInteropFilter(
                 val globalToLocalOffset =
                     reusableLocationInWindow.run {
                         view.getLocationInWindow(this)
-                        IntPxPosition(this[0].ipx, this[1].ipx)
+                        IntOffset(this[0], this[1])
                     }
 
                 if (changes.fastAny { it.anyChangeConsumed() }) {

@@ -23,11 +23,10 @@ import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
-import androidx.ui.unit.Duration
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.Duration
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.Uptime
-import androidx.ui.unit.ipx
 
 // TODO(shepshapard): Document.
 
@@ -81,7 +80,7 @@ fun PointerInputChange.consume(dx: Float = 0f, dy: Float = 0f, downChange: Boole
 
 fun PointerInputHandler.invokeOverAllPasses(
     pointerInputChanges: PointerInputChange,
-    size: IntPxSize = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx)
+    size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) = invokeOverPasses(
     listOf(pointerInputChanges),
     listOf(
@@ -96,7 +95,7 @@ fun PointerInputHandler.invokeOverAllPasses(
 
 fun PointerInputHandler.invokeOverAllPasses(
     vararg pointerInputChanges: PointerInputChange,
-    size: IntPxSize = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx)
+    size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) = invokeOverPasses(
     pointerInputChanges.toList(),
     listOf(
@@ -113,26 +112,26 @@ fun PointerInputHandler.invokeOverAllPasses(
 fun PointerInputHandler.invokeOverPasses(
     pointerInputChange: PointerInputChange,
     pointerEventPass: PointerEventPass,
-    size: IntPxSize = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx)
+    size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) = invokeOverPasses(listOf(pointerInputChange), listOf(pointerEventPass), size).first()
 
 // TODO(shepshapard): Rename to invokeOverPass
 fun PointerInputHandler.invokeOverPasses(
     vararg pointerInputChanges: PointerInputChange,
     pointerEventPass: PointerEventPass,
-    size: IntPxSize = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx)
+    size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) = invokeOverPasses(pointerInputChanges.toList(), listOf(pointerEventPass), size)
 
 fun PointerInputHandler.invokeOverPasses(
     pointerInputChange: PointerInputChange,
     vararg pointerEventPasses: PointerEventPass,
-    size: IntPxSize = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx)
+    size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) = invokeOverPasses(listOf(pointerInputChange), pointerEventPasses.toList(), size).first()
 
 fun PointerInputHandler.invokeOverPasses(
     pointerInputChanges: List<PointerInputChange>,
     pointerEventPasses: List<PointerEventPass>,
-    size: IntPxSize = IntPxSize(Int.MAX_VALUE.ipx, Int.MAX_VALUE.ipx)
+    size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ): List<PointerInputChange> {
     require(pointerInputChanges.isNotEmpty())
     require(pointerEventPasses.isNotEmpty())

@@ -31,6 +31,7 @@ import androidx.ui.core.semantics.semantics
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CutCornerShape
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.DpConstraints
@@ -41,10 +42,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
-import androidx.ui.unit.IntPx
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -106,11 +104,11 @@ class SnackbarTest {
         assertThat(textCoords).isNotNull()
         textCoords?.let {
             with(composeTestRule.density) {
-                assertThat(it[FirstBaseline]).isNotEqualTo(IntPx.Zero)
+                assertThat(it[FirstBaseline]).isNotEqualTo(0)
                 assertThat(it[FirstBaseline])
                     .isEqualTo(it[LastBaseline])
                 // TODO(aelias): Remove 'parentCoordinates!!' when Semantics no longer using PassThroughLayout
-                assertThat(it.parentCoordinates!!.positionInParent.y.roundToInt().ipx +
+                assertThat(it.parentCoordinates!!.positionInParent.y.roundToInt() +
                         it[FirstBaseline]!!)
                     .isEqualTo(30.dp.toIntPx())
             }
@@ -165,14 +163,14 @@ class SnackbarTest {
             with(composeTestRule.density) {
                 val buttonTextPos =
                     localSnackCoords.childToLocal(localButtonTextCoords, Offset.Zero)
-                assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(IntPx.Zero)
-                assertThat(localButtonTextCoords[FirstBaseline]).isNotEqualTo(IntPx.Zero)
+                assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(0)
+                assertThat(localButtonTextCoords[FirstBaseline]).isNotEqualTo(0)
                 assertThat(
-                    localTextCoords.globalPosition.y.roundToInt().ipx +
+                    localTextCoords.globalPosition.y.roundToInt() +
                             localTextCoords[FirstBaseline]!!
                 ).isEqualTo(30.dp.toIntPx())
                 assertThat(
-                    buttonTextPos.y.roundToInt().ipx + localButtonTextCoords[FirstBaseline]!!
+                    buttonTextPos.y.roundToInt() + localButtonTextCoords[FirstBaseline]!!
                 ).isEqualTo(30.dp.toIntPx())
             }
         }
@@ -197,12 +195,12 @@ class SnackbarTest {
         assertThat(textCoords).isNotNull()
         textCoords?.let {
             with(composeTestRule.density) {
-                assertThat(it[FirstBaseline]).isNotEqualTo(IntPx.Zero)
-                assertThat(it[LastBaseline]).isNotEqualTo(IntPx.Zero)
+                assertThat(it[FirstBaseline]).isNotEqualTo(0)
+                assertThat(it[LastBaseline]).isNotEqualTo(0)
                 assertThat(it[FirstBaseline]).isNotEqualTo(it[LastBaseline])
                 // TODO(aelias): Remove 'parentCoordinates!!' when Semantics no longer using PassThroughLayout
                 assertThat(
-                    it.parentCoordinates!!.positionInParent.y.roundToInt().ipx +
+                    it.parentCoordinates!!.positionInParent.y.roundToInt() +
                             it[FirstBaseline]!!
                 ).isEqualTo(30.dp.toIntPx())
             }
@@ -249,19 +247,19 @@ class SnackbarTest {
                     localSnackCoords.childToLocal(localButtonCoords, Offset.Zero)
                 val buttonCenter =
                     buttonPositionInSnack.y.roundToInt() +
-                            (localButtonCoords.size.height / 2).value.toFloat()
+                            (localButtonCoords.size.height / 2).toFloat()
 
-                assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(IntPx.Zero)
-                assertThat(localTextCoords[LastBaseline]).isNotEqualTo(IntPx.Zero)
+                assertThat(localTextCoords[FirstBaseline]).isNotEqualTo(0)
+                assertThat(localTextCoords[LastBaseline]).isNotEqualTo(0)
                 assertThat(localTextCoords[FirstBaseline])
                     .isNotEqualTo(localTextCoords[LastBaseline])
                 assertThat(
-                    localTextCoords.globalPosition.y.roundToInt().ipx +
+                    localTextCoords.globalPosition.y.roundToInt() +
                             localTextCoords[FirstBaseline]!!
                 ).isEqualTo(30.dp.toIntPx())
 
                 assertThat(buttonCenter).isEqualTo(
-                    (localSnackCoords.size.height / 2).value.toFloat()
+                    (localSnackCoords.size.height / 2).toFloat()
                 )
             }
         }
@@ -308,22 +306,22 @@ class SnackbarTest {
                     localSnackCoords.childToLocal(localTextCoords, Offset.Zero)
 
                 assertThat(
-                    textPositionInSnack.y.roundToInt().ipx + localTextCoords[FirstBaseline]!!
+                    textPositionInSnack.y.roundToInt() + localTextCoords[FirstBaseline]!!
                 ).isEqualTo(30.dp.toIntPx())
 
                 assertThat(
-                    buttonPositionInSnack.y.roundToInt().ipx -
-                            textPositionInSnack.y.roundToInt().ipx -
+                    buttonPositionInSnack.y.roundToInt() -
+                            textPositionInSnack.y.roundToInt() -
                             localTextCoords[LastBaseline]!!
                 ).isEqualTo(18.dp.toIntPx())
 
                 assertThat(
-                    localSnackCoords.size.height - buttonPositionInSnack.y.roundToInt().ipx -
+                    localSnackCoords.size.height - buttonPositionInSnack.y.roundToInt() -
                             localButtonCoords.size.height
                 ).isEqualTo(8.dp.toIntPx())
 
                 assertThat(
-                    localSnackCoords.size.width - buttonPositionInSnack.x.roundToInt().ipx -
+                    localSnackCoords.size.width - buttonPositionInSnack.x.roundToInt() -
                             localButtonCoords.size.width
                 ).isEqualTo(8.dp.toIntPx())
             }

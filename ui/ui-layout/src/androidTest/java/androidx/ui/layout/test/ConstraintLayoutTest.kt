@@ -26,6 +26,7 @@ import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.core.positionInParent
 import androidx.ui.foundation.Box
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.ConstrainScope
 import androidx.ui.layout.ConstraintLayout
 import androidx.ui.layout.ConstraintSet2
@@ -41,16 +42,15 @@ import androidx.ui.layout.size
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.unit.IntSize
 import androidx.ui.test.waitForIdle
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -63,8 +63,8 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun dividerMatchTextHeight_spread() = with(density) {
-        val aspectRatioBoxSize = Ref<IntPxSize>()
-        val dividerSize = Ref<IntPxSize>()
+        val aspectRatioBoxSize = Ref<IntSize>()
+        val dividerSize = Ref<IntSize>()
         composeTestRule.setContent {
             ConstraintLayout(
                 // Make CL fixed width and wrap content height.
@@ -81,7 +81,7 @@ class ConstraintLayoutTest : LayoutTest() {
                         height = Dimension.wrapContent
                     }
                     // Try to be large to make wrap content impossible.
-                    .preferredWidth((composeTestRule.displayMetrics.widthPixels).ipx.toDp())
+                    .preferredWidth((composeTestRule.displayMetrics.widthPixels).toDp())
                     // This could be any (width in height out child) e.g. text
                     .aspectRatio(2f)
                     .onPositioned { coordinates ->
@@ -103,12 +103,12 @@ class ConstraintLayoutTest : LayoutTest() {
         runOnIdleCompose {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
-                (composeTestRule.displayMetrics.widthPixels / 2).ipx,
+                (composeTestRule.displayMetrics.widthPixels / 2),
                 aspectRatioBoxSize.value!!.width
             )
             // Aspect ratio is preserved.
             assertEquals(
-                (composeTestRule.displayMetrics.widthPixels / 2 / 2).ipx,
+                (composeTestRule.displayMetrics.widthPixels / 2 / 2),
                 aspectRatioBoxSize.value!!.height
             )
             // Divider has fixed width 1.dp in constraint set.
@@ -121,8 +121,8 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun dividerMatchTextHeight_percent() = with(density) {
-        val aspectRatioBoxSize = Ref<IntPxSize>()
-        val dividerSize = Ref<IntPxSize>()
+        val aspectRatioBoxSize = Ref<IntSize>()
+        val dividerSize = Ref<IntSize>()
         composeTestRule.setContent {
             ConstraintLayout(
                 // Make CL fixed width and wrap content height.
@@ -139,7 +139,7 @@ class ConstraintLayoutTest : LayoutTest() {
                         height = Dimension.wrapContent
                     }
                     // Try to be large to make wrap content impossible.
-                    .preferredWidth((composeTestRule.displayMetrics.widthPixels).ipx.toDp())
+                    .preferredWidth((composeTestRule.displayMetrics.widthPixels).toDp())
                     // This could be any (width in height out child) e.g. text
                     .aspectRatio(2f)
                     .onPositioned { coordinates ->
@@ -162,26 +162,27 @@ class ConstraintLayoutTest : LayoutTest() {
         runOnIdleCompose {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
-                (composeTestRule.displayMetrics.widthPixels / 2).ipx,
+                (composeTestRule.displayMetrics.widthPixels / 2),
                 aspectRatioBoxSize.value!!.width
             )
             // Aspect ratio is preserved.
             assertEquals(
-                (composeTestRule.displayMetrics.widthPixels / 2 / 2).ipx,
+                (composeTestRule.displayMetrics.widthPixels / 2 / 2),
                 aspectRatioBoxSize.value!!.height
             )
             // Divider has fixed width 1.dp in constraint set.
             assertEquals(1.dp.toIntPx(), dividerSize.value!!.width)
             // Divider has percent height so it should spread to fill 0.8 of the height of the CL,
             // which in turns is given by the size of the aspect ratio box.
-            assertEquals(aspectRatioBoxSize.value!!.height * 0.8f, dividerSize.value!!.height)
+            assertEquals((aspectRatioBoxSize.value!!.height * 0.8f).roundToInt(),
+                dividerSize.value!!.height)
         }
     }
 
     @Test
     fun dividerMatchTextHeight_inWrapConstraintLayout_longText() = with(density) {
-        val aspectRatioBoxSize = Ref<IntPxSize>()
-        val dividerSize = Ref<IntPxSize>()
+        val aspectRatioBoxSize = Ref<IntSize>()
+        val dividerSize = Ref<IntSize>()
         composeTestRule.setContent {
             ConstraintLayout(
                 // Make CL wrap width and height.
@@ -198,7 +199,7 @@ class ConstraintLayoutTest : LayoutTest() {
                         height = Dimension.wrapContent
                     }
                     // Try to be large to make wrap content impossible.
-                    .preferredWidth((composeTestRule.displayMetrics.widthPixels).ipx.toDp())
+                    .preferredWidth((composeTestRule.displayMetrics.widthPixels).toDp())
                     // This could be any (width in height out child) e.g. text
                     .aspectRatio(2f)
                     .onPositioned { coordinates ->
@@ -221,12 +222,12 @@ class ConstraintLayoutTest : LayoutTest() {
         runOnIdleCompose {
             // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
             assertEquals(
-                (composeTestRule.displayMetrics.widthPixels / 2).ipx,
+                (composeTestRule.displayMetrics.widthPixels / 2),
                 aspectRatioBoxSize.value!!.width
             )
             // Aspect ratio is preserved.
             assertEquals(
-                (composeTestRule.displayMetrics.widthPixels / 2 / 2).ipx,
+                (composeTestRule.displayMetrics.widthPixels / 2 / 2),
                 aspectRatioBoxSize.value!!.height
             )
             // Divider has fixed width 1.dp in constraint set.
@@ -234,16 +235,19 @@ class ConstraintLayoutTest : LayoutTest() {
             // Divider has percent height so it should spread to fill 0.8 of the height of the CL,
             // which in turns is given by the size of the aspect ratio box.
             // TODO(popam; b/150277566): uncomment
-            assertEquals(aspectRatioBoxSize.value!!.height * 0.8f, dividerSize.value!!.height)
+            assertEquals(
+                (aspectRatioBoxSize.value!!.height * 0.8f).roundToInt(),
+                dividerSize.value!!.height
+            )
         }
     }
 
     @Test
     fun dividerMatchTextHeight_inWrapConstraintLayout_shortText() = with(density) {
-        val constraintLayoutSize = Ref<IntPxSize>()
-        val aspectRatioBoxSize = Ref<IntPxSize>()
-        val dividerSize = Ref<IntPxSize>()
-        val size = 40.ipx.toDp()
+        val constraintLayoutSize = Ref<IntSize>()
+        val aspectRatioBoxSize = Ref<IntSize>()
+        val dividerSize = Ref<IntSize>()
+        val size = 40.toDp()
         composeTestRule.setContent {
             ConstraintLayout(
                 // Make CL wrap width and height.
@@ -304,8 +308,8 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun testConstraintLayout_withInlineDSL() = with(density) {
-        val boxSize = 100.ipx
-        val offset = 150.ipx
+        val boxSize = 100
+        val offset = 150
 
         val position = Array(3) { Ref<Offset>() }
 
@@ -345,27 +349,27 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        val displayWidth = composeTestRule.displayMetrics.widthPixels.ipx
-        val displayHeight = composeTestRule.displayMetrics.heightPixels.ipx
+        val displayWidth = composeTestRule.displayMetrics.widthPixels
+        val displayHeight = composeTestRule.displayMetrics.heightPixels
 
         runOnIdleCompose {
             assertEquals(
                 Offset(
-                    ((displayWidth - boxSize) / 2).value.toFloat(),
-                    ((displayHeight - boxSize) / 2).value.toFloat()),
+                    ((displayWidth - boxSize) / 2).toFloat(),
+                    ((displayHeight - boxSize) / 2).toFloat()),
                 position[0].value
             )
             assertEquals(
                 Offset(
-                    (displayWidth / 2 + offset).value.toFloat(),
-                    ((displayHeight - boxSize) / 2 - boxSize).value.toFloat()
+                    (displayWidth / 2 + offset).toFloat(),
+                    ((displayHeight - boxSize) / 2 - boxSize).toFloat()
                 ),
                 position[1].value
             )
             assertEquals(
                 Offset(
-                    offset.value.toFloat(),
-                    (displayHeight - boxSize - offset).value.toFloat()
+                    offset.toFloat(),
+                    (displayHeight - boxSize - offset).toFloat()
                 ),
                 position[2].value
             )
@@ -374,8 +378,8 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun testConstraintLayout_withConstraintSet() = with(density) {
-        val boxSize = 100.ipx
-        val offset = 150.ipx
+        val boxSize = 100
+        val offset = 150
 
         val position = Array(3) { Ref<Offset>() }
 
@@ -413,28 +417,28 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        val displayWidth = composeTestRule.displayMetrics.widthPixels.ipx
-        val displayHeight = composeTestRule.displayMetrics.heightPixels.ipx
+        val displayWidth = composeTestRule.displayMetrics.widthPixels
+        val displayHeight = composeTestRule.displayMetrics.heightPixels
 
         runOnIdleCompose {
             assertEquals(
                 Offset(
-                    (displayWidth - boxSize).value / 2f,
-                    (displayHeight - boxSize).value / 2f
+                    (displayWidth - boxSize) / 2f,
+                    (displayHeight - boxSize) / 2f
                 ),
                 position[0].value
             )
             assertEquals(
                 Offset(
-                    (displayWidth / 2f + offset).value.toFloat(),
-                    ((displayHeight - boxSize) / 2 - boxSize).value.toFloat()
+                    (displayWidth / 2f + offset).toFloat(),
+                    ((displayHeight - boxSize) / 2 - boxSize).toFloat()
                 ),
                 position[1].value
             )
             assertEquals(
                 Offset(
-                    offset.value.toFloat(),
-                    (displayHeight - boxSize - offset).value.toFloat()
+                    offset.toFloat(),
+                    (displayHeight - boxSize - offset).toFloat()
                 ),
                 position[2].value
             )
@@ -443,8 +447,8 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun testConstraintLayout_rtl() = with(density) {
-        val boxSize = 100.ipx
-        val offset = 150.ipx
+        val boxSize = 100
+        val offset = 150
 
         val position = Array(3) { Ref<Offset>() }
 
@@ -484,28 +488,28 @@ class ConstraintLayoutTest : LayoutTest() {
             }
         }
 
-        val displayWidth = composeTestRule.displayMetrics.widthPixels.ipx
-        val displayHeight = composeTestRule.displayMetrics.heightPixels.ipx
+        val displayWidth = composeTestRule.displayMetrics.widthPixels
+        val displayHeight = composeTestRule.displayMetrics.heightPixels
 
         runOnIdleCompose {
             assertEquals(
                 Offset(
-                    (displayWidth - boxSize).value / 2f,
-                    (displayHeight - boxSize).value / 2f
+                    (displayWidth - boxSize) / 2f,
+                    (displayHeight - boxSize) / 2f
                 ),
                 position[0].value
             )
             assertEquals(
                 Offset(
-                    (displayWidth / 2 - offset - boxSize).value.toFloat(),
-                    ((displayHeight - boxSize) / 2 - boxSize).value.toFloat()
+                    (displayWidth / 2 - offset - boxSize).toFloat(),
+                    ((displayHeight - boxSize) / 2 - boxSize).toFloat()
                 ),
                 position[1].value
             )
             assertEquals(
                 Offset(
-                    (displayWidth - offset - boxSize).value.toFloat(),
-                    (displayHeight - boxSize - offset).value.toFloat()
+                    (displayWidth - offset - boxSize).toFloat(),
+                    (displayHeight - boxSize - offset).toFloat()
                 ),
                 position[2].value
             )
@@ -514,8 +518,8 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun testConstraintLayout_helpers_ltr() = with(density) {
-        val size = 200.ipx.toDp()
-        val offset = 50.ipx.toDp()
+        val size = 200.toDp()
+        val offset = 50.toDp()
 
         val position = Array(8) { 0f }
         composeTestRule.setContent {
@@ -558,8 +562,8 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun testConstraintLayout_helpers_rtl() = with(density) {
-        val size = 200.ipx.toDp()
-        val offset = 50.ipx.toDp()
+        val size = 200.toDp()
+        val offset = 50.toDp()
 
         val position = Array(8) { 0f }
         composeTestRule.setContent {
@@ -602,8 +606,8 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun testConstraintLayout_barriers_ltr() = with(density) {
-        val size = 200.ipx.toDp()
-        val offset = 50.ipx.toDp()
+        val size = 200.toDp()
+        val offset = 50.toDp()
 
         val position = Array(4) { 0f }
         composeTestRule.setContent {
@@ -611,12 +615,12 @@ class ConstraintLayoutTest : LayoutTest() {
                 val (box1, box2) = createRefs()
                 val guideline1 = createGuidelineFromAbsoluteLeft(offset)
                 val guideline2 = createGuidelineFromAbsoluteRight(offset)
-                Box(Modifier.size(1.ipx.toDp())
+                Box(Modifier.size(1.toDp())
                     .constrainAs(box1) {
                         absoluteLeft.linkTo(guideline1)
                     }
                 )
-                Box(Modifier.size(1.ipx.toDp())
+                Box(Modifier.size(1.toDp())
                     .constrainAs(box2) {
                         absoluteLeft.linkTo(guideline2)
                     }
@@ -652,8 +656,8 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun testConstraintLayout_barriers_rtl() = with(density) {
-        val size = 200.ipx.toDp()
-        val offset = 50.ipx.toDp()
+        val size = 200.toDp()
+        val offset = 50.toDp()
 
         val position = Array(4) { 0f }
         composeTestRule.setContent {
@@ -661,12 +665,12 @@ class ConstraintLayoutTest : LayoutTest() {
                 val (box1, box2) = createRefs()
                 val guideline1 = createGuidelineFromAbsoluteLeft(offset)
                 val guideline2 = createGuidelineFromAbsoluteRight(offset)
-                Box(Modifier.size(1.ipx.toDp())
+                Box(Modifier.size(1.toDp())
                     .constrainAs(box1) {
                         absoluteLeft.linkTo(guideline1)
                     }
                 )
-                Box(Modifier.size(1.ipx.toDp())
+                Box(Modifier.size(1.toDp())
                     .constrainAs(box2) {
                         absoluteLeft.linkTo(guideline2)
                     }
@@ -702,15 +706,15 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun testConstraintLayout_anchors_ltr() = with(density) {
-        val size = 200.ipx.toDp()
-        val offset = 50.ipx.toDp()
+        val size = 200.toDp()
+        val offset = 50.toDp()
 
         val position = Array(16) { 0f }
         composeTestRule.setContent {
             ConstraintLayout(Modifier.size(size)) {
                 val box = createRef()
                 val guideline = createGuidelineFromAbsoluteLeft(offset)
-                Box(Modifier.size(1.ipx.toDp())
+                Box(Modifier.size(1.toDp())
                     .constrainAs(box) {
                         absoluteLeft.linkTo(guideline)
                     }
@@ -737,7 +741,7 @@ class ConstraintLayoutTest : LayoutTest() {
 
                 anchors.forEachIndexed { index, anchor ->
                     val ref = createRef()
-                    Box(Modifier.size(1.ipx.toDp())
+                    Box(Modifier.size(1.toDp())
                         .constrainAs(ref) {
                             anchor()
                         }.onPositioned {
@@ -770,15 +774,15 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun testConstraintLayout_anchors_rtl() = with(density) {
-        val size = 200.ipx.toDp()
-        val offset = 50.ipx.toDp()
+        val size = 200.toDp()
+        val offset = 50.toDp()
 
         val position = Array(16) { 0f }
         composeTestRule.setContent {
             ConstraintLayout(Modifier.size(size).rtl) {
                 val box = createRef()
                 val guideline = createGuidelineFromAbsoluteLeft(offset)
-                Box(Modifier.size(1.ipx.toDp())
+                Box(Modifier.size(1.toDp())
                     .constrainAs(box) {
                         absoluteLeft.linkTo(guideline)
                     }
@@ -805,7 +809,7 @@ class ConstraintLayoutTest : LayoutTest() {
 
                 anchors.forEachIndexed { index, anchor ->
                     val ref = createRef()
-                    Box(Modifier.size(1.ipx.toDp())
+                    Box(Modifier.size(1.toDp())
                         .constrainAs(ref) {
                             anchor()
                         }.onPositioned {
@@ -838,8 +842,8 @@ class ConstraintLayoutTest : LayoutTest() {
 
     @Test
     fun testConstraintLayout_barriers_margins() = with(density) {
-        val size = 200.ipx.toDp()
-        val offset = 50.ipx.toDp()
+        val size = 200.toDp()
+        val offset = 50.toDp()
 
         val position = Array(2) { Offset(0f, 0f) }
         composeTestRule.setContent {
@@ -847,17 +851,17 @@ class ConstraintLayoutTest : LayoutTest() {
                 val box = createRef()
                 val guideline1 = createGuidelineFromAbsoluteLeft(offset)
                 val guideline2 = createGuidelineFromTop(offset)
-                Box(Modifier.size(1.ipx.toDp())
+                Box(Modifier.size(1.toDp())
                     .constrainAs(box) {
                         absoluteLeft.linkTo(guideline1)
                         top.linkTo(guideline2)
                     }
                 )
 
-                val leftBarrier = createAbsoluteLeftBarrier(box, margin = 10.ipx.toDp())
-                val topBarrier = createTopBarrier(box, margin = 10.ipx.toDp())
-                val rightBarrier = createAbsoluteRightBarrier(box, margin = 10.ipx.toDp())
-                val bottomBarrier = createBottomBarrier(box, margin = 10.ipx.toDp())
+                val leftBarrier = createAbsoluteLeftBarrier(box, margin = 10.toDp())
+                val topBarrier = createTopBarrier(box, margin = 10.toDp())
+                val rightBarrier = createAbsoluteRightBarrier(box, margin = 10.toDp())
+                val bottomBarrier = createBottomBarrier(box, margin = 10.toDp())
 
                 Box(Modifier.size(1.dp)
                     .constrainAs(createRef()) {

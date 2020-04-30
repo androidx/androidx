@@ -19,9 +19,6 @@ package androidx.ui.core
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutNode.LayoutState
 import androidx.ui.core.test.AndroidOwnerExtraAssertionsRule
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doAnswer
@@ -30,6 +27,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.max
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -1030,7 +1028,7 @@ class MeasureAndLayoutDelegateTest {
             assertRemeasured(root.first) {
                 assertRemeasured(root.first.first) {
                     delegate.updateRootParams(
-                        Constraints(maxWidth = DifferentSize.ipx, maxHeight = DifferentSize.ipx),
+                        Constraints(maxWidth = DifferentSize, maxHeight = DifferentSize),
                         LayoutDirection.Ltr
                     )
                     assertThat(delegate.measureAndLayout()).isTrue()
@@ -1053,7 +1051,7 @@ class MeasureAndLayoutDelegateTest {
         assertRemeasured(root.first) {
             assertNotRemeasured(root.first.first) {
                 delegate.updateRootParams(
-                    Constraints(maxWidth = DifferentSize.ipx, maxHeight = DifferentSize.ipx),
+                    Constraints(maxWidth = DifferentSize, maxHeight = DifferentSize),
                     LayoutDirection.Ltr
                 )
                 assertThat(delegate.measureAndLayout()).isTrue()
@@ -1239,7 +1237,7 @@ class MeasureAndLayoutDelegateTest {
         return delegate
     }
 
-    private fun defaultRootConstraints() = Constraints(maxWidth = Size.ipx, maxHeight = Size.ipx)
+    private fun defaultRootConstraints() = Constraints(maxWidth = Size, maxHeight = Size)
 
     private fun assertNotRemeasured(node: LayoutNode, block: (LayoutNode) -> Unit) {
         val measuresCountBefore = node.measuresCount
@@ -1396,14 +1394,14 @@ private class MeasureInMeasureBlock : SmartMeasureBlock() {
         val childConstraints = if (size == null) {
             constraints
         } else {
-            val size = size!!.ipx
+            val size = size!!
             constraints.copy(maxWidth = size, maxHeight = size)
         }
         val placeables = measurables.map {
             it.measure(childConstraints, childrenLayoutDirection ?: layoutDirection)
         }
-        var maxWidth = IntPx.Zero
-        var maxHeight = IntPx.Zero
+        var maxWidth = 0
+        var maxHeight = 0
         if (!wrapChildren) {
             maxWidth = childConstraints.maxWidth
             maxHeight = childConstraints.maxHeight
@@ -1418,7 +1416,7 @@ private class MeasureInMeasureBlock : SmartMeasureBlock() {
             preLayoutCallback?.invoke()
             preLayoutCallback = null
             placeables.forEach { placeable ->
-                placeable.place(IntPx.Zero, IntPx.Zero)
+                placeable.place(0, 0)
             }
         }
     }
@@ -1447,7 +1445,7 @@ private class MeasureInLayoutBlock : SmartMeasureBlock() {
         val childConstraints = if (size == null) {
             constraints
         } else {
-            val size = size!!.ipx
+            val size = size!!
             constraints.copy(maxWidth = size, maxHeight = size)
         }
         return measureScope.layout(childConstraints.maxWidth, childConstraints.maxHeight) {
@@ -1456,7 +1454,7 @@ private class MeasureInLayoutBlock : SmartMeasureBlock() {
             layoutsCount++
             measurables.forEach {
                 it.measure(childConstraints, childrenLayoutDirection ?: layoutDirection)
-                    .place(IntPx.Zero, IntPx.Zero)
+                    .place(0, 0)
             }
         }
     }
@@ -1474,7 +1472,7 @@ private class SpyLayoutModifier : LayoutModifier {
         measuresCount++
         return layout(constraints.maxWidth, constraints.maxHeight) {
             layoutsCount++
-            measurable.measure(constraints).place(0.ipx, 0.ipx)
+            measurable.measure(constraints).place(0, 0)
         }
     }
 }

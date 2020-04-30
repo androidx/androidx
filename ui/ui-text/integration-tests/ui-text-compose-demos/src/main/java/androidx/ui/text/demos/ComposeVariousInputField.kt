@@ -43,7 +43,6 @@ import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
 import androidx.ui.text.toUpperCase
-import androidx.ui.unit.ipx
 import kotlin.math.roundToInt
 
 /**
@@ -243,11 +242,11 @@ fun VariousInputFieldDemo() {
 
         TagLine(tag = "Custom Cursor TextField")
         CustomCursorTextField {
-            // Force 4.ipx with red color cursor
+            // Force 4 with red color cursor
             Layout(
                 children = emptyContent(),
                 modifier = Modifier.drawBackground(Color.Red)
-            ) { _, constraints, _ -> layout(4.ipx, constraints.maxHeight) {} }
+            ) { _, constraints, _ -> layout(4, constraints.maxHeight) {} }
         }
     }
 }
@@ -299,8 +298,8 @@ private fun HintEditText(hintText: @Composable () -> Unit) {
                 measurable.first { it.tag == "inputField" }.measure(constraints)
             val hintTextPlacable = measurable.first { it.tag == "hintText" }.measure(constraints)
             layout(inputFieldPlacable.width, inputFieldPlacable.height) {
-                inputFieldPlacable.place(0.ipx, 0.ipx)
-                hintTextPlacable.place(0.ipx, 0.ipx)
+                inputFieldPlacable.place(0, 0)
+                hintTextPlacable.place(0, 0)
             }
         }
     }
@@ -329,18 +328,18 @@ private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
         val cursorPlacable = measurable.first { it.tag == "cursor" }.measure(cursorConstraints)
 
         layout(inputFieldPlacable.width, inputFieldPlacable.height) {
-            inputFieldPlacable.place(0.ipx, 0.ipx)
+            inputFieldPlacable.place(0, 0)
             if (state.value.selection.collapsed) {
                 // Getting original cursor rectangle.
                 val cursorRect = layoutResult.value?.getCursorRect(state.value.selection.start)
                     ?: Rect(
                         0f, 0f,
-                        cursorPlacable.width.value.toFloat(), cursorPlacable.height.value.toFloat()
+                        cursorPlacable.width.toFloat(), cursorPlacable.height.toFloat()
                     )
                 // Place the custom cursor aligned with center of the original cursor.
                 val cursorX = (cursorRect.left + cursorRect.right) / 2 -
-                            (cursorPlacable.width.value / 2)
-                cursorPlacable.place(cursorX.roundToInt().ipx, cursorRect.top.roundToInt().ipx)
+                            (cursorPlacable.width / 2)
+                cursorPlacable.place(cursorX.roundToInt(), cursorRect.top.roundToInt())
             }
         }
     }

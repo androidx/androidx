@@ -37,8 +37,7 @@ import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
 import androidx.ui.layout.offset
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -116,11 +115,11 @@ class ClipPointerInputTest {
                         val placeables = measurables.map { m ->
                             m.measure(constraints)
                         }
-                        layout(3.ipx, 3.ipx) {
-                            placeables[0].place((-1).ipx, (-1).ipx)
-                            placeables[1].place(2.ipx, (-1).ipx)
-                            placeables[2].place((-1).ipx, 2.ipx)
-                            placeables[3].place(2.ipx, 2.ipx)
+                        layout(3, 3) {
+                            placeables[0].place((-1), (-1))
+                            placeables[1].place(2, (-1))
+                            placeables[2].place((-1), 2)
+                            placeables[3].place(2, 2)
                         }
                     }
                 }
@@ -130,7 +129,7 @@ class ClipPointerInputTest {
                         m.measure(constraints)
                     }
                     layout(constraints.maxWidth, constraints.maxHeight) {
-                        placeables[0].place(1.ipx, 1.ipx)
+                        placeables[0].place(1, 1)
                         setupLatch.countDown()
                     }
                 }
@@ -241,8 +240,8 @@ class ClipPointerInputTest {
                             val placeables = measurables.map { m ->
                                 m.measure(constraints)
                             }
-                            layout(3.ipx, 3.ipx) {
-                                placeables.forEach { it.place(0.ipx, 0.ipx) }
+                            layout(3, 3) {
+                                placeables.forEach { it.place(0, 0) }
                             }
                         }
                     }
@@ -252,7 +251,7 @@ class ClipPointerInputTest {
                             m.measure(constraints)
                         }
                         layout(constraints.maxWidth, constraints.maxHeight) {
-                            placeables[0].place(1.ipx, 1.ipx)
+                            placeables[0].place(1, 1)
                             setupLatch.countDown()
                         }
                     }
@@ -313,7 +312,7 @@ class ClipPointerInputTest {
     @Composable
     fun child(modifier: Modifier) {
         Layout(children = emptyContent(), modifier = modifier) { _, _, _ ->
-            layout(2.ipx, 2.ipx) {}
+            layout(2, 2) {}
         }
     }
 
@@ -324,7 +323,7 @@ class ClipPointerInputTest {
             override fun onPointerInput(
                 changes: List<PointerInputChange>,
                 pass: PointerEventPass,
-                bounds: IntPxSize
+                bounds: IntSize
             ): List<PointerInputChange> {
                 if (pass == PointerEventPass.InitialDown) {
                     changes.forEach {

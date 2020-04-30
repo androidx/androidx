@@ -26,6 +26,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.testTag
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.clickable
+import androidx.ui.geometry.Offset
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
@@ -34,9 +35,7 @@ import androidx.ui.test.globalBounds
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendClick
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.height
 import androidx.ui.unit.width
@@ -90,7 +89,7 @@ class DrawerTest {
 
     @Test
     fun modalDrawer_testEndPadding_whenOpened() {
-        var size: IntPxSize? = null
+        var size: IntSize? = null
         composeTestRule.setMaterialContent {
             ModalDrawerLayout(DrawerState.Opened, {}, drawerContent = {
                 Box(Modifier.fillMaxSize().onPositioned { coords: LayoutCoordinates ->
@@ -101,7 +100,7 @@ class DrawerTest {
 
         val width = composeTestRule.displayMetrics.widthPixels
         composeTestRule.runOnIdleComposeWithDensity {
-            assertThat(size!!.width.value)
+            assertThat(size!!.width)
                 .isEqualTo(width - 56.dp.toPx().roundToInt())
         }
     }
@@ -145,7 +144,7 @@ class DrawerTest {
     @Test
     @Ignore("failing in postsubmit, fix in b/148751721")
     fun modalDrawer_openAndClose() {
-        var contentWidth: IntPx? = null
+        var contentWidth: Int? = null
         var openedLatch: CountDownLatch? = null
         var closedLatch: CountDownLatch? = CountDownLatch(1)
         val drawerState = mutableStateOf(DrawerState.Closed)
@@ -158,7 +157,7 @@ class DrawerTest {
                             if (pos.x == 0.0f) {
                                 // If fully opened, mark the openedLatch if present
                                 openedLatch?.countDown()
-                            } else if (-pos.x.roundToInt() == contentWidth?.value) {
+                            } else if (-pos.x.roundToInt() == contentWidth) {
                                 // If fully closed, mark the closedLatch if present
                                 closedLatch?.countDown()
                             }
@@ -239,8 +238,8 @@ class DrawerTest {
     @Test
     @Ignore("failing in postsubmit, fix in b/148751721")
     fun bottomDrawer_openAndClose() {
-        var contentHeight: IntPx? = null
-        var openedHeight: IntPx? = null
+        var contentHeight: Int? = null
+        var openedHeight: Int? = null
         var openedLatch: CountDownLatch? = null
         var closedLatch: CountDownLatch? = CountDownLatch(1)
         val drawerState = mutableStateOf(DrawerState.Closed)
@@ -249,10 +248,10 @@ class DrawerTest {
                 drawerContent = {
                     Box(Modifier.fillMaxSize().onPositioned { info: LayoutCoordinates ->
                         val pos = info.localToGlobal(Offset.Zero)
-                        if (pos.y.roundToInt() == openedHeight?.value) {
+                        if (pos.y.roundToInt() == openedHeight) {
                             // If fully opened, mark the openedLatch if present
                             openedLatch?.countDown()
-                        } else if (pos.y.roundToInt() == contentHeight?.value) {
+                        } else if (pos.y.roundToInt() == contentHeight) {
                             // If fully closed, mark the closedLatch if present
                             closedLatch?.countDown()
                         }
@@ -261,7 +260,7 @@ class DrawerTest {
                 bodyContent = {
                     Box(Modifier.fillMaxSize().onPositioned {
                         contentHeight = it.size.height
-                        openedHeight = it.size.height * BottomDrawerOpenFraction
+                        openedHeight = (it.size.height * BottomDrawerOpenFraction).roundToInt()
                     })
                 }
             )

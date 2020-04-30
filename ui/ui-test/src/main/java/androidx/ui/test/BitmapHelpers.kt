@@ -31,9 +31,8 @@ import androidx.ui.graphics.asAndroidPath
 import androidx.ui.test.android.captureRegionToBitmap
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -77,11 +76,11 @@ fun View.captureToBitmap(): Bitmap {
  * @throws AssertionError if size or colors don't match.
  */
 fun Bitmap.assertPixels(
-    expectedSize: IntPxSize? = null,
-    expectedColorProvider: (pos: IntPxPosition) -> Color?
+    expectedSize: IntSize? = null,
+    expectedColorProvider: (pos: IntOffset) -> Color?
 ) {
     if (expectedSize != null) {
-        if (width != expectedSize.width.value || height != expectedSize.height.value) {
+        if (width != expectedSize.width || height != expectedSize.height) {
             throw AssertionError(
                 "Bitmap size is wrong! Expected '$expectedSize' but got " +
                         "'$width x $height'"
@@ -91,7 +90,7 @@ fun Bitmap.assertPixels(
 
     for (x in 0 until width) {
         for (y in 0 until height) {
-            val pxPos = IntPxPosition(x.ipx, y.ipx)
+            val pxPos = IntOffset(x, y)
             val expectedClr = expectedColorProvider(pxPos)
             if (expectedClr != null) {
                 assertPixelColor(expectedClr, x, y)

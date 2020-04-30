@@ -29,9 +29,8 @@ import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.android.AndroidComposeTestRule
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -79,7 +78,7 @@ class BitmapCapturingTest(val config: TestConfig) {
         var calledCount = 0
         findByTag(tag11)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(100.ipx, 50.ipx)) {
+            .assertPixels(expectedSize = IntSize(100, 50)) {
                 calledCount++
                 color11
             }
@@ -87,17 +86,17 @@ class BitmapCapturingTest(val config: TestConfig) {
 
         findByTag(tag12)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(100.ipx, 50.ipx)) {
+            .assertPixels(expectedSize = IntSize(100, 50)) {
                 color12
             }
         findByTag(tag21)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(100.ipx, 50.ipx)) {
+            .assertPixels(expectedSize = IntSize(100, 50)) {
                 color21
             }
         findByTag(tag22)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(100.ipx, 50.ipx)) {
+            .assertPixels(expectedSize = IntSize(100, 50)) {
                 color22
             }
     }
@@ -108,8 +107,8 @@ class BitmapCapturingTest(val config: TestConfig) {
 
         findByTag(rootTag)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(200.ipx, 100.ipx)) {
-                if (it.y >= 100.ipx || it.x >= 200.ipx) {
+            .assertPixels(expectedSize = IntSize(200, 100)) {
+                if (it.y >= 100 || it.x >= 200) {
                     throw AssertionError("$it is out of range!")
                 }
                 expectedColorProvider(it)
@@ -122,7 +121,7 @@ class BitmapCapturingTest(val config: TestConfig) {
 
         findByTag(tag11)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(100.ipx, 50.ipx)) {
+            .assertPixels(expectedSize = IntSize(100, 50)) {
                 color22 // Assuming wrong color
             }
     }
@@ -133,22 +132,22 @@ class BitmapCapturingTest(val config: TestConfig) {
 
         findByTag(tag11)
             .captureToBitmap()
-            .assertPixels(expectedSize = IntPxSize(10.ipx, 10.ipx)) {
+            .assertPixels(expectedSize = IntSize(10, 10)) {
                 color21
             }
     }
 
-    private fun expectedColorProvider(pos: IntPxPosition): Color {
-        if (pos.y < 50.ipx) {
-            if (pos.x < 100.ipx) {
+    private fun expectedColorProvider(pos: IntOffset): Color {
+        if (pos.y < 50) {
+            if (pos.x < 100) {
                 return color11
-            } else if (pos.x < 200.ipx) {
+            } else if (pos.x < 200) {
                 return color12
             }
-        } else if (pos.y < 100.ipx) {
-            if (pos.x < 100.ipx) {
+        } else if (pos.y < 100) {
+            if (pos.x < 100) {
                 return color21
-            } else if (pos.x < 200.ipx) {
+            } else if (pos.x < 200) {
                 return color22
             }
         }
@@ -159,29 +158,29 @@ class BitmapCapturingTest(val config: TestConfig) {
         with(composeTestRule.density) {
             composeTestRule.setContent {
                 Box(Modifier.fillMaxSize(), backgroundColor = colorBg) {
-                    Box(Modifier.padding(top = 20.ipx.toDp()), backgroundColor = colorBg) {
+                    Box(Modifier.padding(top = 20.toDp()), backgroundColor = colorBg) {
                         Column(Modifier.testTag(rootTag)) {
                             Row {
                                 Box(Modifier
                                     .testTag(tag11)
-                                    .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                    .preferredSize(100.toDp(), 50.toDp())
                                     .drawBackground(color11)
                                 )
                                 Box(Modifier
                                     .testTag(tag12)
-                                    .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                    .preferredSize(100.toDp(), 50.toDp())
                                     .drawBackground(color12)
                                 )
                             }
                             Row {
                                 Box(Modifier
                                     .testTag(tag21)
-                                    .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                    .preferredSize(100.toDp(), 50.toDp())
                                     .drawBackground(color21)
                                 )
                                 Box(Modifier
                                     .testTag(tag22)
-                                    .preferredSize(100.ipx.toDp(), 50.ipx.toDp())
+                                    .preferredSize(100.toDp(), 50.toDp())
                                     .drawBackground(color22)
                                 )
                             }

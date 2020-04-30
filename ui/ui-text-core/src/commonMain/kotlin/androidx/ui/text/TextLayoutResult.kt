@@ -18,14 +18,14 @@ package androidx.ui.text
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextOverflow
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 
 /**
  * The data class which holds the set of parameters of the text layout computation.
@@ -106,9 +106,9 @@ data class TextLayoutResult internal constructor(
     internal val multiParagraph: MultiParagraph,
 
     /**
-     * The amount of space required to paint this text in IntPx.
+     * The amount of space required to paint this text in Int.
      */
-    val size: IntPxSize
+    val size: IntSize
 ) {
     /**
      * The distance from the top to the alphabetic baseline of the first line.
@@ -128,7 +128,7 @@ data class TextLayoutResult internal constructor(
     /**
      * Returns true if the text is too wide and couldn't fit with given width.
      */
-    val didOverflowWidth: Boolean get() = size.width.value < multiParagraph.width
+    val didOverflowWidth: Boolean get() = size.width < multiParagraph.width
 
     /**
      * Returns true if either vertical overflow or horizontal overflow happens.

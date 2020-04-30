@@ -40,9 +40,9 @@ import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
-import androidx.ui.unit.Density
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.Density
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import com.google.common.truth.Truth
 import org.junit.Rule
@@ -62,7 +62,7 @@ class BoxTest {
 
     @Test
     fun box_testPadding_all() {
-        var childSize: IntPxSize? = null
+        var childSize: IntSize? = null
         val size = 100.dp
         val padding = 20.dp
         composeTestRule.setContent {
@@ -81,7 +81,7 @@ class BoxTest {
 
     @Test
     fun box_testPadding_separate() {
-        var childSize: IntPxSize? = null
+        var childSize: IntSize? = null
         var childPosition: Offset? = null
         val size = 100.dp
         val start = 17.dp
@@ -111,13 +111,13 @@ class BoxTest {
             Truth.assertThat(childSize!!.height)
                 .isEqualTo(size.toIntPx() - top.toIntPx() - bottom.toIntPx())
             Truth.assertThat(childPosition!!)
-                .isEqualTo(Offset(start.toIntPx().value.toFloat(), top.toIntPx().value.toFloat()))
+                .isEqualTo(Offset(start.toIntPx().toFloat(), top.toIntPx().toFloat()))
         }
     }
 
     @Test
     fun box_testPadding_rtl() {
-        var childSize: IntPxSize? = null
+        var childSize: IntSize? = null
         var childPosition: Offset? = null
         val size = 100.dp
         val start = 17.dp
@@ -147,13 +147,13 @@ class BoxTest {
             Truth.assertThat(childSize!!.height)
                 .isEqualTo(size.toIntPx() - top.toIntPx() - bottom.toIntPx())
             Truth.assertThat(childPosition!!)
-                .isEqualTo(Offset(end.toIntPx().value.toFloat(), top.toIntPx().value.toFloat()))
+                .isEqualTo(Offset(end.toIntPx().toFloat(), top.toIntPx().toFloat()))
         }
     }
 
     @Test
     fun box_testPadding_concreteOverride() {
-        var childSize: IntPxSize? = null
+        var childSize: IntSize? = null
         val size = 100.dp
         val padding = 10.dp
         val left = 17.dp
@@ -209,20 +209,20 @@ class BoxTest {
         with(composeTestRule.density) {
             Truth.assertThat(childPosition1).isEqualTo(
                 Offset(
-                    (size.toIntPx() - childSize.toIntPx()).value / 2f,
+                    (size.toIntPx() - childSize.toIntPx()) / 2f,
                     0f
                 )
             )
             Truth.assertThat(childPosition2).isEqualTo(
                 Offset(
-                    (size.toIntPx() - childSize.toIntPx()).value / 2f,
-                    childSize.toIntPx().value.toFloat()
+                    (size.toIntPx() - childSize.toIntPx()) / 2f,
+                    childSize.toIntPx().toFloat()
                 )
             )
             Truth.assertThat(childPosition3).isEqualTo(
                 Offset(
-                    (size.toIntPx() - childSize.toIntPx()).value / 2f,
-                    childSize.toIntPx().value.toFloat() * 2
+                    (size.toIntPx() - childSize.toIntPx()) / 2f,
+                    childSize.toIntPx().toFloat() * 2
                 )
             )
         }
@@ -379,7 +379,7 @@ class BoxTest {
 
     @Test
     fun box_testBorder_addsPadding() {
-        var childSize: IntPxSize? = null
+        var childSize: IntSize? = null
         val size = 50.dp
         val borderSize = 10.dp
         composeTestRule.setContent {

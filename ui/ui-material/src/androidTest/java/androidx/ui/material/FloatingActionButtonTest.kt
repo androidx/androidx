@@ -116,8 +116,8 @@ class FloatingActionButtonTest {
                 )
             }
         with(composeTestRule.density) {
-            assertThat(size.height.roundToInt().toFloat()).isEqualTo(48.dp.toIntPx().value)
-            assertThat(size.width.roundToInt().toFloat()).isAtLeast(48.dp.toIntPx().value)
+            assertThat(size.height.roundToInt().toFloat()).isEqualTo(48.dp.toIntPx())
+            assertThat(size.width.roundToInt().toFloat()).isAtLeast(48.dp.toIntPx())
         }
     }
 
@@ -131,8 +131,8 @@ class FloatingActionButtonTest {
                 )
             }
         with(composeTestRule.density) {
-            assertThat(size.width.roundToInt().toFloat()).isEqualTo(48.dp.toIntPx().value)
-            assertThat(size.height.roundToInt().toFloat()).isEqualTo(48.dp.toIntPx().value)
+            assertThat(size.width.roundToInt().toFloat()).isEqualTo(48.dp.toIntPx())
+            assertThat(size.height.roundToInt().toFloat()).isEqualTo(48.dp.toIntPx())
         }
     }
 
@@ -223,8 +223,8 @@ class FloatingActionButtonTest {
             assertThat(contentBounds.width).isLessThan(buttonBounds.width)
             assertThat(contentBounds.height).isLessThan(buttonBounds.height)
             with(composeTestRule.density) {
-                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().value.toFloat())
-                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().value.toFloat())
+                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
+                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
             }
             assertWithinOnePixel(buttonBounds.center(), contentBounds.center())
         }
@@ -254,8 +254,8 @@ class FloatingActionButtonTest {
             assertThat(contentBounds.width).isLessThan(buttonBounds.width)
             assertThat(contentBounds.height).isLessThan(buttonBounds.height)
             with(composeTestRule.density) {
-                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().value.toFloat())
-                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().value.toFloat())
+                assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
+                assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
             }
             assertWithinOnePixel(buttonBounds.center(), contentBounds.center())
         }
@@ -290,14 +290,14 @@ class FloatingActionButtonTest {
             val textBounds = textCoordinates!!.boundsInRoot
             val iconBounds = iconCoordinates!!.boundsInRoot
             with(composeTestRule.density) {
-                assertThat(textBounds.width).isEqualTo(2.dp.toIntPx().value.toFloat())
-                assertThat(textBounds.height).isEqualTo(2.dp.toIntPx().value.toFloat())
-                assertThat(iconBounds.width).isEqualTo(10.dp.toIntPx().value.toFloat())
-                assertThat(iconBounds.height).isEqualTo(10.dp.toIntPx().value.toFloat())
+                assertThat(textBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
+                assertThat(textBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
+                assertThat(iconBounds.width).isEqualTo(10.dp.toIntPx().toFloat())
+                assertThat(iconBounds.height).isEqualTo(10.dp.toIntPx().toFloat())
 
                 assertWithinOnePixel(buttonBounds.center().y, iconBounds.center().y)
                 assertWithinOnePixel(buttonBounds.center().y, textBounds.center().y)
-                val halfPadding = 6.dp.toIntPx().value.toFloat()
+                val halfPadding = 6.dp.toIntPx().toFloat()
                 assertWithinOnePixel(
                     iconBounds.center().x + iconBounds.width / 2 + halfPadding,
                     textBounds.center().x - textBounds.width / 2 - halfPadding

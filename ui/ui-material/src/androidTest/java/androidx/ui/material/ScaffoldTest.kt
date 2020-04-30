@@ -32,6 +32,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.drawBackground
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.InnerPadding
@@ -51,8 +52,7 @@ import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.toSize
 import androidx.ui.unit.width
@@ -106,7 +106,7 @@ class ScaffoldTest {
     @Test
     fun scaffold_AppbarAndContent_inColumn() {
         var appbarPosition: Offset = Offset.Zero
-        lateinit var appbarSize: IntPxSize
+        lateinit var appbarSize: IntSize
         var contentPosition: Offset = Offset.Zero
         composeTestRule.setMaterialContent {
             Scaffold(
@@ -130,16 +130,16 @@ class ScaffoldTest {
                 )
             }
         }
-        assertThat(appbarPosition.y + appbarSize.height.value.toFloat())
+        assertThat(appbarPosition.y + appbarSize.height.toFloat())
             .isEqualTo(contentPosition.y)
     }
 
     @Test
     fun scaffold_bottomBarAndContent_inStack() {
         var appbarPosition: Offset = Offset.Zero
-        lateinit var appbarSize: IntPxSize
+        lateinit var appbarSize: IntSize
         var contentPosition: Offset = Offset.Zero
-        lateinit var contentSize: IntPxSize
+        lateinit var contentSize: IntSize
         composeTestRule.setMaterialContent {
             Scaffold(
                 bottomBar = {
@@ -165,8 +165,8 @@ class ScaffoldTest {
                 )
             }
         }
-        val appBarBottom = appbarPosition.y + appbarSize.height.value
-        val contentBottom = contentPosition.y + contentSize.height.value
+        val appBarBottom = appbarPosition.y + appbarSize.height
+        val contentBottom = contentPosition.y + contentSize.height
         assertThat(appBarBottom).isEqualTo(contentBottom)
     }
 
@@ -266,7 +266,7 @@ class ScaffoldTest {
     @Test
     fun scaffold_centerDockedFab_position() {
         var fabPosition: Offset = Offset.Zero
-        lateinit var fabSize: IntPxSize
+        lateinit var fabSize: IntSize
         var bottomBarPosition: Offset = Offset.Zero
         composeTestRule.setContent {
             Scaffold(
@@ -297,14 +297,14 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        val expectedFabY = bottomBarPosition.y - (fabSize.height / 2).value
+        val expectedFabY = bottomBarPosition.y - (fabSize.height / 2)
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
     }
 
     @Test
     fun scaffold_endDockedFab_position() {
         var fabPosition: Offset = Offset.Zero
-        lateinit var fabSize: IntPxSize
+        lateinit var fabSize: IntSize
         var bottomBarPosition: Offset = Offset.Zero
         composeTestRule.setContent {
             Scaffold(
@@ -336,7 +336,7 @@ class ScaffoldTest {
                 Text("body")
             }
         }
-        val expectedFabY = bottomBarPosition.y - (fabSize.height / 2).value
+        val expectedFabY = bottomBarPosition.y - (fabSize.height / 2)
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
     }
 
@@ -379,7 +379,7 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_geometry_fabSize() {
-        lateinit var fabSize: IntPxSize
+        lateinit var fabSize: IntSize
         val showFab = mutableStateOf(true)
         val scaffoldState = ScaffoldState()
         composeTestRule.setContent {
@@ -417,7 +417,7 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_geometry_bottomBarSize() {
-        lateinit var bottomBarSize: IntPxSize
+        lateinit var bottomBarSize: IntSize
         val showBottom = mutableStateOf(true)
         val scaffoldState = ScaffoldState()
         composeTestRule.setContent {
@@ -454,7 +454,7 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_geometry_topBarSize() {
-        lateinit var topBarSize: IntPxSize
+        lateinit var topBarSize: IntSize
         val showTop = mutableStateOf(true)
         val scaffoldState = ScaffoldState()
         composeTestRule.setContent {
@@ -491,7 +491,7 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_innerPadding_lambdaParam() {
-        lateinit var bottomBarSize: IntPxSize
+        lateinit var bottomBarSize: IntSize
         lateinit var innerPadding: InnerPadding
 
         val scaffoldState = ScaffoldState()
@@ -522,7 +522,7 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_bottomBar_geometryPropagation() {
-        lateinit var bottomBarSize: IntPxSize
+        lateinit var bottomBarSize: IntSize
         lateinit var geometry: ScaffoldGeometry
 
         val scaffoldState = ScaffoldState()

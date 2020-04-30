@@ -30,7 +30,6 @@ import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.unit.PxBounds
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -67,15 +66,15 @@ class RootNodeLayoutTest {
                 Layout({}) { _, constraints, _ ->
                     realConstraints = constraints
                     latch.countDown()
-                    layout(10.ipx, 10.ipx) {}
+                    layout(10, 10) {}
                 }
             }
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertNotNull(realConstraints)
-        assertEquals(0.ipx, realConstraints!!.minWidth)
-        assertEquals(0.ipx, realConstraints!!.minHeight)
+        assertEquals(0, realConstraints!!.minWidth)
+        assertEquals(0, realConstraints!!.minHeight)
     }
 
     @Test
@@ -88,7 +87,7 @@ class RootNodeLayoutTest {
                     coordinates = it
                     latch.countDown()
                 }) { _, _, _ ->
-                    layout(10.ipx, 10.ipx) {}
+                    layout(10, 10) {}
                 }
             }
         }
@@ -112,7 +111,7 @@ class RootNodeLayoutTest {
                 Layout({}, Modifier.onPositioned {
                     latch.countDown()
                 }) { _, _, _ ->
-                    layout(10.ipx, 15.ipx) {}
+                    layout(10, 15) {}
                 }
             }
         }
@@ -135,7 +134,7 @@ class RootNodeLayoutTest {
                 Layout({}, Modifier.fillMaxSize().onPositioned {
                     latch.countDown()
                 }) { _, _, _ ->
-                    layout(10.ipx, 15.ipx) {}
+                    layout(10, 15) {}
                 }
             }
         }

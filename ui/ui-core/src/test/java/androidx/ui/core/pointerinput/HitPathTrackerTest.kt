@@ -18,6 +18,7 @@ package androidx.ui.core.pointerinput
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.AlignmentLine
+import androidx.ui.core.Constraints
 import androidx.ui.core.CustomEvent
 import androidx.ui.core.CustomEventDispatcher
 import androidx.ui.core.LayoutCoordinates
@@ -30,8 +31,7 @@ import androidx.ui.core.consumePositionChange
 import androidx.ui.core.positionChange
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.PxBounds
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.milliseconds
@@ -2979,7 +2979,7 @@ open class PointerInputFilterStub(
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
         return pointerInputHandler(changes, pass, bounds)
     }
@@ -2999,8 +2999,8 @@ class LayoutCoordinatesStub(
     override val isAttached: Boolean = true
 ) : LayoutCoordinates {
 
-    override val size: IntPxSize
-        get() = IntPxSize(IntPx.Infinity, IntPx.Infinity)
+    override val size: IntSize
+        get() = IntSize(Constraints.Infinity, Constraints.Infinity)
 
     override val providedAlignmentLines: Set<AlignmentLine>
         get() = TODO("not implemented")
@@ -3028,7 +3028,7 @@ class LayoutCoordinatesStub(
         TODO("not implemented")
     }
 
-    override fun get(line: AlignmentLine): IntPx? {
+    override fun get(line: AlignmentLine): Int? {
         TODO("not implemented")
     }
 }

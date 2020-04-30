@@ -21,6 +21,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
+import androidx.ui.core.constrainWidth
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
@@ -31,10 +32,9 @@ import androidx.ui.layout.height
 import androidx.ui.layout.padding
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import androidx.ui.unit.min
+import kotlin.math.min
 
 @Composable
 fun TailFollowingTextFieldDemo() {
@@ -88,18 +88,18 @@ private fun HorizontalTailFollowingTextField(
 
         val p = measurable[0].measure(
             Constraints(
-                minWidth = IntPx.Zero,
-                maxWidth = IntPx.Infinity,
+                minWidth = 0,
+                maxWidth = Constraints.Infinity,
                 minHeight = constraints.minHeight,
                 maxHeight = constraints.maxHeight
             )
         )
 
-        val width = p.width.coerceIn(constraints.minWidth, constraints.maxWidth)
-        val xOffset = min(IntPx.Zero, constraints.maxWidth - p.width)
+        val width = constraints.constrainWidth(p.width)
+        val xOffset = min(0, constraints.maxWidth - p.width)
 
         layout(width, p.height) {
-            p.place(xOffset, 0.ipx)
+            p.place(xOffset, 0)
         }
     }
 }
@@ -126,16 +126,16 @@ private fun VerticalTailFollowintTextField(
             Constraints(
                 minWidth = constraints.minWidth,
                 maxWidth = constraints.maxWidth,
-                minHeight = IntPx.Zero,
-                maxHeight = IntPx.Infinity
+                minHeight = 0,
+                maxHeight = Constraints.Infinity
             )
         )
 
         val height = min(p.height, constraints.maxHeight)
-        val yOffset = min(IntPx.Zero, constraints.maxHeight - p.height)
+        val yOffset = min(0, constraints.maxHeight - p.height)
 
         layout(p.width, height) {
-            p.place(0.ipx, yOffset)
+            p.place(0, yOffset)
         }
     }
 }

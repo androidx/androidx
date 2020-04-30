@@ -31,7 +31,7 @@ import androidx.ui.core.consumePositionChange
 import androidx.ui.core.gesture.util.VelocityTracker
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.geometry.Offset
 import androidx.ui.util.fastAny
 import androidx.ui.util.fastForEach
@@ -142,7 +142,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
 
             var changesToReturn = changes

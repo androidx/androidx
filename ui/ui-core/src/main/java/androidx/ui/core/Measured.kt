@@ -16,8 +16,6 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.IntPx
-
 /**
  * Read-only wrapper over [Placeable] that exposes the measurement result with no placing ability.
  */
@@ -25,16 +23,16 @@ inline class Measured(internal val placeable: Placeable) {
     /**
      * The measured width of the layout.
      */
-    val width: IntPx get() = placeable.measuredWidth
+    val width: Int get() = placeable.measuredWidth
 
     /**
      * The measured height of the layout.
      */
-    val height: IntPx get() = placeable.measuredHeight
+    val height: Int get() = placeable.measuredHeight
 
     /**
      * Returns the position of an [alignment line][AlignmentLine],
      * or `null` if the line is not provided.
      */
-    operator fun get(alignmentLine: AlignmentLine): IntPx? = placeable[alignmentLine]
+    operator fun get(alignmentLine: AlignmentLine): Int? = placeable[alignmentLine]
 }

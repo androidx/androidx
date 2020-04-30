@@ -26,8 +26,8 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 
 /**
  * This gesture filter detects when the average distance change of all pointers surpasses touch
@@ -67,7 +67,7 @@ internal class DragSlopExceededGestureFilter(
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
 
         if (!passedSlop &&

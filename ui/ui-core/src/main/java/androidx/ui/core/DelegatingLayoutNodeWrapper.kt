@@ -19,11 +19,9 @@ package androidx.ui.core
 import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
-import androidx.ui.graphics.Canvas
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
 import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
+import androidx.ui.graphics.Canvas
+import androidx.ui.unit.IntOffset
 
 /**
  * [LayoutNodeWrapper] with default implementations for methods.
@@ -58,9 +56,9 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         wrapped.hitTest(pointerPositionRelativeToScreen, hitPointerInputFilters)
     }
 
-    override fun get(line: AlignmentLine): IntPx? = wrapped[line]
+    override fun get(line: AlignmentLine): Int? = wrapped[line]
 
-    override fun place(position: IntPxPosition) {
+    override fun place(position: IntOffset) {
         this.position = position
 
         // The wrapper only runs their placement block to obtain our position, which allows them
@@ -85,9 +83,9 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
     ): Placeable {
         val placeable = wrapped.measure(constraints, layoutDirection)
         measureResult = object : MeasureScope.MeasureResult {
-            override val width: IntPx = wrapped.measureResult.width
-            override val height: IntPx = wrapped.measureResult.height
-            override val alignmentLines: Map<AlignmentLine, IntPx> = emptyMap()
+            override val width: Int = wrapped.measureResult.width
+            override val height: Int = wrapped.measureResult.height
+            override val alignmentLines: Map<AlignmentLine, Int> = emptyMap()
             override fun placeChildren(layoutDirection: LayoutDirection) {
                 with(InnerPlacementScope) {
                     placeable.placeAbsolute(-apparentToRealOffset)
@@ -122,16 +120,16 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         return if (wrapper !== this) wrapper else null
     }
 
-    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection) =
+    override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection) =
         wrapped.minIntrinsicWidth(height, layoutDirection)
 
-    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection) =
+    override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection) =
         wrapped.maxIntrinsicWidth(height, layoutDirection)
 
-    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection) =
+    override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection) =
         wrapped.minIntrinsicHeight(width, layoutDirection)
 
-    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection) =
+    override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection) =
         wrapped.maxIntrinsicHeight(width, layoutDirection)
 
     override val parentData: Any? get() = wrapped.parentData
@@ -148,6 +146,6 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
 }
 
 internal object InnerPlacementScope : Placeable.PlacementScope() {
-    override var parentWidth = 0.ipx
+    override var parentWidth = 0
     override var parentLayoutDirection = LayoutDirection.Ltr
 }

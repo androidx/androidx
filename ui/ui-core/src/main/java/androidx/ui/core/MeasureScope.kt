@@ -16,8 +16,6 @@
 
 package androidx.ui.core
 
-import androidx.ui.unit.IntPx
-
 /**
  * The receiver scope of a layout's measure lambda. The return value of the
  * measure lambda is [MeasureResult], which should be returned by [layout]
@@ -41,9 +39,9 @@ abstract class MeasureScope : IntrinsicMeasureScope() {
      * layouts, such that indirect parents will be able to query them as well.
      */
     interface MeasureResult {
-        val width: IntPx
-        val height: IntPx
-        val alignmentLines: Map<AlignmentLine, IntPx>
+        val width: Int
+        val height: Int
+        val alignmentLines: Map<AlignmentLine, Int>
         fun placeChildren(layoutDirection: LayoutDirection)
     }
 
@@ -62,9 +60,9 @@ abstract class MeasureScope : IntrinsicMeasureScope() {
      * @param placementBlock block defining the children positioning of the current layout
      */
     /*inline*/ fun layout(
-        width: IntPx,
-        height: IntPx,
-        alignmentLines: Map<AlignmentLine, IntPx> = emptyMap(),
+        width: Int,
+        height: Int,
+        alignmentLines: Map<AlignmentLine, Int> = emptyMap(),
         /*crossinline*/
         placementBlock: Placeable.PlacementScope.() -> Unit
     ) = object : MeasureResult {
@@ -85,7 +83,7 @@ abstract class MeasureScope : IntrinsicMeasureScope() {
     internal companion object {
         object InnerPlacementScope : Placeable.PlacementScope() {
             override var parentLayoutDirection = LayoutDirection.Ltr
-            override var parentWidth = IntPx.Zero
+            override var parentWidth = 0
         }
     }
 }

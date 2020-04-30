@@ -26,7 +26,7 @@ import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.testutils.consume
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 
 /**
  * Observes various events sent by [rawScaleGestureFilter].  Implement and pass into
@@ -136,7 +136,7 @@ internal class RawScaleGestureFilter : PointerInputFilter() {
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
 
             var changesToReturn = changes

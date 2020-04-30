@@ -26,9 +26,8 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import com.google.common.truth.Truth
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -48,7 +47,7 @@ class SpacerTest : LayoutTest() {
 
     @Test
     fun fixedSpacer_Sizes() {
-        var size: IntPxSize? = null
+        var size: IntSize? = null
         val width = 40.dp
         val height = 71.dp
 
@@ -74,7 +73,7 @@ class SpacerTest : LayoutTest() {
 
     @Test
     fun fixedSpacer_Sizes_WithSmallerContainer() {
-        var size: IntPxSize? = null
+        var size: IntSize? = null
         val width = 40.dp
         val height = 71.dp
 
@@ -109,7 +108,7 @@ class SpacerTest : LayoutTest() {
 
     @Test
     fun widthSpacer_Sizes() {
-        var size: IntPxSize? = null
+        var size: IntSize? = null
         val width = 71.dp
 
         val drawLatch = CountDownLatch(1)
@@ -124,14 +123,14 @@ class SpacerTest : LayoutTest() {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
-            Truth.assertThat(size?.height).isEqualTo(0.ipx)
+            Truth.assertThat(size?.height).isEqualTo(0)
             Truth.assertThat(size?.width).isEqualTo(width.toIntPx())
         }
     }
 
     @Test
     fun widthSpacer_Sizes_WithSmallerContainer() {
-        var size: IntPxSize? = null
+        var size: IntSize? = null
         val width = 40.dp
 
         val drawLatch = CountDownLatch(1)
@@ -156,14 +155,14 @@ class SpacerTest : LayoutTest() {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         with(density) {
-            Truth.assertThat(size?.height).isEqualTo(0.ipx)
+            Truth.assertThat(size?.height).isEqualTo(0)
             Truth.assertThat(size?.width).isEqualTo(containerWidth.toIntPx())
         }
     }
 
     @Test
     fun heightSpacer_Sizes() {
-        var size: IntPxSize? = null
+        var size: IntSize? = null
         val height = 7.dp
 
         val drawLatch = CountDownLatch(1)
@@ -180,13 +179,13 @@ class SpacerTest : LayoutTest() {
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(height.toIntPx())
-            Truth.assertThat(size?.width).isEqualTo(0.ipx)
+            Truth.assertThat(size?.width).isEqualTo(0)
         }
     }
 
     @Test
     fun heightSpacer_Sizes_WithSmallerContainer() {
-        var size: IntPxSize? = null
+        var size: IntSize? = null
         val height = 23.dp
 
         val drawLatch = CountDownLatch(1)
@@ -212,7 +211,7 @@ class SpacerTest : LayoutTest() {
 
         with(density) {
             Truth.assertThat(size?.height).isEqualTo(containerHeight.toIntPx())
-            Truth.assertThat(size?.width).isEqualTo(0.ipx)
+            Truth.assertThat(size?.width).isEqualTo(0)
         }
     }
 }

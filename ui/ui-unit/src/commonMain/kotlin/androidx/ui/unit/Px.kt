@@ -220,7 +220,7 @@ fun Size.center(): Offset {
  * Round a [Offset] down to the nearest [Int] coordinates.
  */
 @Stable
-inline fun Offset.round(): IntPxPosition = IntPxPosition(x.roundToInt().ipx, y.roundToInt().ipx)
+inline fun Offset.round(): IntOffset = IntOffset(x.roundToInt(), y.roundToInt())
 
 /**
  * A four dimensional bounds using pixels for units
@@ -290,12 +290,4 @@ fun PxBounds.toRect(): Rect {
         right,
         bottom
     )
-}
-
-/**
- * Convert a [Size] to a [Rect].
- */
-@Stable
-fun Size.toRect(): Rect {
-    return Rect(0f, 0f, width, height)
 }

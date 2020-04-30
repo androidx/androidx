@@ -25,13 +25,12 @@ import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Image
 import androidx.ui.foundation.Text
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -59,7 +58,7 @@ class ListItemTest {
                 ListItem(text = "Primary text")
             }
             .assertHeightEqualsTo(expectedHeightNoIcon)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 
     @Test
@@ -71,7 +70,7 @@ class ListItemTest {
                 ListItem(text = "Primary text", icon = icon24x24)
             }
             .assertHeightEqualsTo(expectedHeightSmallIcon)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 
     @Test
@@ -83,7 +82,7 @@ class ListItemTest {
                 ListItem(text = "Primary text", icon = icon56x56)
             }
             .assertHeightEqualsTo(expectedHeightLargeIcon)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 
     @Test
@@ -95,7 +94,7 @@ class ListItemTest {
                 ListItem(text = "Primary text", secondaryText = "Secondary text")
             }
             .assertHeightEqualsTo(expectedHeightNoIcon)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 
     @Test
@@ -112,7 +111,7 @@ class ListItemTest {
                 )
             }
             .assertHeightEqualsTo(expectedHeightWithIcon)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 
     @Test
@@ -128,7 +127,7 @@ class ListItemTest {
                 )
             }
             .assertHeightEqualsTo(expectedHeight)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 
     @Test
@@ -144,7 +143,7 @@ class ListItemTest {
                 )
             }
             .assertHeightEqualsTo(expectedHeight)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 
     @Test
@@ -161,7 +160,7 @@ class ListItemTest {
                 )
             }
             .assertHeightEqualsTo(expectedHeight)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 
     @Test
@@ -178,7 +177,7 @@ class ListItemTest {
                 )
             }
             .assertHeightEqualsTo(expectedHeight)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 
     @Test
@@ -188,9 +187,9 @@ class ListItemTest {
         val expectedRightPadding = 16.dp
 
         val textPosition = Ref<Offset>()
-        val textSize = Ref<IntPxSize>()
+        val textSize = Ref<IntSize>()
         val trailingPosition = Ref<Offset>()
-        val trailingSize = Ref<IntPxSize>()
+        val trailingSize = Ref<IntSize>()
         composeTestRule.setMaterialContent {
             Box {
                 ListItem(
@@ -203,17 +202,18 @@ class ListItemTest {
         }
         composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(expectedLeftPadding.toIntPx()
-                .value.toFloat())
+                .toFloat())
             assertThat(textPosition.value!!.y).isEqualTo(
-                ((listItemHeight.toIntPx() - textSize.value!!.height) / 2).value.toFloat()
+                ((listItemHeight.toIntPx() - textSize.value!!.height) / 2f).roundToInt().toFloat()
             )
             val dm = composeTestRule.displayMetrics
             assertThat(trailingPosition.value!!.x).isEqualTo(
-                dm.widthPixels - trailingSize.value!!.width.value -
-                        expectedRightPadding.toIntPx().value.toFloat()
+                dm.widthPixels - trailingSize.value!!.width -
+                        expectedRightPadding.toIntPx().toFloat()
             )
             assertThat(trailingPosition.value!!.y).isEqualTo(
-                ((listItemHeight.toIntPx() - trailingSize.value!!.height) / 2).value.toFloat()
+                ((listItemHeight.toIntPx() - trailingSize.value!!.height) / 2f).roundToInt()
+                    .toFloat()
             )
         }
     }
@@ -225,9 +225,9 @@ class ListItemTest {
         val expectedTextLeftPadding = 32.dp
 
         val textPosition = Ref<Offset>()
-        val textSize = Ref<IntPxSize>()
+        val textSize = Ref<IntSize>()
         val iconPosition = Ref<Offset>()
-        val iconSize = Ref<IntPxSize>()
+        val iconSize = Ref<IntSize>()
         composeTestRule.setMaterialContent {
             Box {
                 ListItem(
@@ -238,18 +238,18 @@ class ListItemTest {
         }
         composeTestRule.runOnIdleComposeWithDensity {
             assertThat(iconPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat()
             )
             assertThat(iconPosition.value!!.y).isEqualTo(
-                ((listItemHeight.toIntPx() - iconSize.value!!.height) / 2).value.toFloat()
+                ((listItemHeight.toIntPx() - iconSize.value!!.height) / 2f).roundToInt().toFloat()
             )
             assertThat(textPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat() +
-                        iconSize.value!!.width.value +
-                        expectedTextLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat() +
+                        iconSize.value!!.width +
+                        expectedTextLeftPadding.toIntPx().toFloat()
             )
             assertThat(textPosition.value!!.y).isEqualTo(
-                ((listItemHeight.toIntPx() - textSize.value!!.height) / 2).value.toFloat()
+                ((listItemHeight.toIntPx() - textSize.value!!.height) / 2f).roundToInt().toFloat()
             )
         }
     }
@@ -263,13 +263,13 @@ class ListItemTest {
 
         val textPosition = Ref<Offset>()
         val textBaseline = Ref<Float>()
-        val textSize = Ref<IntPxSize>()
+        val textSize = Ref<IntSize>()
         val secondaryTextPosition = Ref<Offset>()
         val secondaryTextBaseline = Ref<Float>()
-        val secondaryTextSize = Ref<IntPxSize>()
+        val secondaryTextSize = Ref<IntSize>()
         val trailingPosition = Ref<Offset>()
         val trailingBaseline = Ref<Float>()
-        val trailingSize = Ref<IntPxSize>()
+        val trailingSize = Ref<IntSize>()
         composeTestRule.setMaterialContent {
             Box {
                 ListItem(
@@ -294,25 +294,25 @@ class ListItemTest {
         }
         composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat()
             )
             assertThat(textBaseline.value!!).isEqualTo(
-                expectedTextBaseline.toIntPx().value.toFloat()
+                expectedTextBaseline.toIntPx().toFloat()
             )
             assertThat(secondaryTextPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat()
             )
             assertThat(secondaryTextBaseline.value!!).isEqualTo(
-                expectedTextBaseline.toIntPx().value.toFloat() +
-                        expectedSecondaryTextBaselineOffset.toIntPx().value.toFloat()
+                expectedTextBaseline.toIntPx().toFloat() +
+                        expectedSecondaryTextBaselineOffset.toIntPx().toFloat()
             )
             val dm = composeTestRule.displayMetrics
             assertThat(trailingPosition.value!!.x).isEqualTo(
-                dm.widthPixels - trailingSize.value!!.width.value -
-                        expectedRightPadding.toIntPx().value.toFloat()
+                dm.widthPixels - trailingSize.value!!.width -
+                        expectedRightPadding.toIntPx().toFloat()
             )
             assertThat(trailingBaseline.value!!).isEqualTo(
-                expectedTextBaseline.toIntPx().value.toFloat()
+                expectedTextBaseline.toIntPx().toFloat()
             )
         }
     }
@@ -327,12 +327,12 @@ class ListItemTest {
 
         val textPosition = Ref<Offset>()
         val textBaseline = Ref<Float>()
-        val textSize = Ref<IntPxSize>()
+        val textSize = Ref<IntSize>()
         val secondaryTextPosition = Ref<Offset>()
         val secondaryTextBaseline = Ref<Float>()
-        val secondaryTextSize = Ref<IntPxSize>()
+        val secondaryTextSize = Ref<IntSize>()
         val iconPosition = Ref<Offset>()
-        val iconSize = Ref<IntPxSize>()
+        val iconSize = Ref<IntSize>()
         composeTestRule.setMaterialContent {
             Box {
                 ListItem(
@@ -357,26 +357,26 @@ class ListItemTest {
         }
         composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat() + iconSize.value!!.width.value +
-                        expectedContentLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat() + iconSize.value!!.width +
+                        expectedContentLeftPadding.toIntPx().toFloat()
             )
             assertThat(textBaseline.value!!).isEqualTo(
-                expectedTextBaseline.toIntPx().value.toFloat()
+                expectedTextBaseline.toIntPx().toFloat()
             )
             assertThat(secondaryTextPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat() +
-                        iconSize.value!!.width.value +
-                        expectedContentLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat() +
+                        iconSize.value!!.width +
+                        expectedContentLeftPadding.toIntPx().toFloat()
             )
             assertThat(secondaryTextBaseline.value!!).isEqualTo(
-                expectedTextBaseline.toIntPx().value.toFloat() +
-                        expectedSecondaryTextBaselineOffset.toIntPx().value.toFloat()
+                expectedTextBaseline.toIntPx().toFloat() +
+                        expectedSecondaryTextBaselineOffset.toIntPx().toFloat()
             )
             assertThat(iconPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat()
             )
             assertThat(iconPosition.value!!.y).isEqualTo(
-                expectedIconTopPadding.toIntPx().value.toFloat()
+                expectedIconTopPadding.toIntPx().toFloat()
             )
         }
     }
@@ -393,14 +393,14 @@ class ListItemTest {
 
         val textPosition = Ref<Offset>()
         val textBaseline = Ref<Float>()
-        val textSize = Ref<IntPxSize>()
+        val textSize = Ref<IntSize>()
         val secondaryTextPosition = Ref<Offset>()
         val secondaryTextBaseline = Ref<Float>()
-        val secondaryTextSize = Ref<IntPxSize>()
+        val secondaryTextSize = Ref<IntSize>()
         val iconPosition = Ref<Offset>()
-        val iconSize = Ref<IntPxSize>()
+        val iconSize = Ref<IntSize>()
         val trailingPosition = Ref<Offset>()
-        val trailingSize = Ref<IntPxSize>()
+        val trailingSize = Ref<IntSize>()
         composeTestRule.setMaterialContent {
             Box {
                 ListItem(
@@ -428,34 +428,34 @@ class ListItemTest {
         }
         composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat() + iconSize.value!!.width.value +
-                        expectedContentLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat() + iconSize.value!!.width +
+                        expectedContentLeftPadding.toIntPx().toFloat()
             )
             assertThat(textBaseline.value!!).isEqualTo(
-                expectedTextBaseline.toIntPx().value.toFloat()
+                expectedTextBaseline.toIntPx().toFloat()
             )
             assertThat(secondaryTextPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat() +
-                        iconSize.value!!.width.value +
-                        expectedContentLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat() +
+                        iconSize.value!!.width +
+                        expectedContentLeftPadding.toIntPx().toFloat()
             )
             assertThat(secondaryTextBaseline.value!!).isEqualTo(
-                expectedTextBaseline.toIntPx().value.toFloat() +
-                        expectedSecondaryTextBaselineOffset.toIntPx().value.toFloat()
+                expectedTextBaseline.toIntPx().toFloat() +
+                        expectedSecondaryTextBaselineOffset.toIntPx().toFloat()
             )
             assertThat(iconPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat()
             )
             assertThat(iconPosition.value!!.y).isEqualTo(
-                expectedIconTopPadding.toIntPx().value.toFloat()
+                expectedIconTopPadding.toIntPx().toFloat()
             )
             val dm = composeTestRule.displayMetrics
             assertThat(trailingPosition.value!!.x).isEqualTo(
-                dm.widthPixels - trailingSize.value!!.width.value -
-                        expectedRightPadding.toIntPx().value.toFloat()
+                dm.widthPixels - trailingSize.value!!.width -
+                        expectedRightPadding.toIntPx().toFloat()
             )
             assertThat(trailingPosition.value!!.y).isEqualTo(
-                ((listItemHeight.toIntPx() - trailingSize.value!!.height) / 2).value.toFloat()
+                ((listItemHeight.toIntPx() - trailingSize.value!!.height) / 2).toFloat()
             )
         }
     }
@@ -471,14 +471,14 @@ class ListItemTest {
 
         val textPosition = Ref<Offset>()
         val textBaseline = Ref<Float>()
-        val textSize = Ref<IntPxSize>()
+        val textSize = Ref<IntSize>()
         val secondaryTextPosition = Ref<Offset>()
         val secondaryTextBaseline = Ref<Float>()
-        val secondaryTextSize = Ref<IntPxSize>()
+        val secondaryTextSize = Ref<IntSize>()
         val iconPosition = Ref<Offset>()
-        val iconSize = Ref<IntPxSize>()
+        val iconSize = Ref<IntSize>()
         val trailingPosition = Ref<Offset>()
-        val trailingSize = Ref<IntPxSize>()
+        val trailingSize = Ref<IntSize>()
         composeTestRule.setMaterialContent {
             Box {
                 ListItem(
@@ -507,32 +507,31 @@ class ListItemTest {
         }
         composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat() + iconSize.value!!.width.value +
-                        expectedContentLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat() + iconSize.value!!.width +
+                        expectedContentLeftPadding.toIntPx().toFloat()
             )
             assertThat(textBaseline.value!!).isEqualTo(
-                expectedTextBaseline.toIntPx().value.toFloat()
+                expectedTextBaseline.toIntPx().toFloat()
             )
             assertThat(secondaryTextPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat() + iconSize.value!!.width.value +
-                        expectedContentLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat() + iconSize.value!!.width +
+                        expectedContentLeftPadding.toIntPx().toFloat()
             )
             assertThat(secondaryTextBaseline.value!!).isEqualTo(
-                expectedTextBaseline.toIntPx().value.toFloat() +
-                        expectedSecondaryTextBaselineOffset.toIntPx().value.toFloat()
+                expectedTextBaseline.toIntPx().toFloat() +
+                        expectedSecondaryTextBaselineOffset.toIntPx().toFloat()
             )
-            assertThat(iconPosition.value!!.x).isEqualTo(expectedLeftPadding.toIntPx()
-                .value.toFloat())
+            assertThat(iconPosition.value!!.x).isEqualTo(expectedLeftPadding.toIntPx().toFloat())
             assertThat(iconPosition.value!!.y).isEqualTo(
-                expectedIconTopPadding.toIntPx().value.toFloat()
+                expectedIconTopPadding.toIntPx().toFloat()
             )
             val dm = composeTestRule.displayMetrics
             assertThat(trailingPosition.value!!.x).isEqualTo(
-                dm.widthPixels - trailingSize.value!!.width.value.toFloat() -
-                        expectedRightPadding.toIntPx().value.toFloat()
+                dm.widthPixels - trailingSize.value!!.width.toFloat() -
+                        expectedRightPadding.toIntPx().toFloat()
             )
             assertThat(trailingPosition.value!!.y).isEqualTo(
-                expectedIconTopPadding.toIntPx().value.toFloat()
+                expectedIconTopPadding.toIntPx().toFloat()
             )
         }
     }
@@ -549,17 +548,17 @@ class ListItemTest {
 
         val textPosition = Ref<Offset>()
         val textBaseline = Ref<Float>()
-        val textSize = Ref<IntPxSize>()
+        val textSize = Ref<IntSize>()
         val overlineTextPosition = Ref<Offset>()
         val overlineTextBaseline = Ref<Float>()
-        val overlineTextSize = Ref<IntPxSize>()
+        val overlineTextSize = Ref<IntSize>()
         val secondaryTextPosition = Ref<Offset>()
         val secondaryTextBaseline = Ref<Float>()
-        val secondaryTextSize = Ref<IntPxSize>()
+        val secondaryTextSize = Ref<IntSize>()
         val iconPosition = Ref<Offset>()
-        val iconSize = Ref<IntPxSize>()
+        val iconSize = Ref<IntSize>()
         val trailingPosition = Ref<Offset>()
-        val trailingSize = Ref<IntPxSize>()
+        val trailingSize = Ref<IntSize>()
         val trailingBaseline = Ref<Float>()
         composeTestRule.setMaterialContent {
             Box {
@@ -608,45 +607,45 @@ class ListItemTest {
         }
         composeTestRule.runOnIdleComposeWithDensity {
             assertThat(textPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat() +
-                        iconSize.value!!.width.value +
-                        expectedContentLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat() +
+                        iconSize.value!!.width +
+                        expectedContentLeftPadding.toIntPx().toFloat()
             )
             assertThat(textBaseline.value!!).isEqualTo(
-                expectedOverlineBaseline.toIntPx().value.toFloat() +
-                        expectedTextBaselineOffset.toIntPx().value.toFloat()
+                expectedOverlineBaseline.toIntPx().toFloat() +
+                        expectedTextBaselineOffset.toIntPx().toFloat()
             )
             assertThat(overlineTextPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat() +
-                        iconSize.value!!.width.value +
-                        expectedContentLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat() +
+                        iconSize.value!!.width +
+                        expectedContentLeftPadding.toIntPx().toFloat()
             )
             assertThat(overlineTextBaseline.value!!).isEqualTo(
-                expectedOverlineBaseline.toIntPx().value.toFloat()
+                expectedOverlineBaseline.toIntPx().toFloat()
             )
             assertThat(secondaryTextPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat() +
-                        iconSize.value!!.width.value +
-                        expectedContentLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat() +
+                        iconSize.value!!.width +
+                        expectedContentLeftPadding.toIntPx().toFloat()
             )
             assertThat(secondaryTextBaseline.value!!).isEqualTo(
-                expectedOverlineBaseline.toIntPx().value.toFloat() +
-                        expectedTextBaselineOffset.toIntPx().value.toFloat() +
-                        expectedSecondaryTextBaselineOffset.toIntPx().value.toFloat()
+                expectedOverlineBaseline.toIntPx().toFloat() +
+                        expectedTextBaselineOffset.toIntPx().toFloat() +
+                        expectedSecondaryTextBaselineOffset.toIntPx().toFloat()
             )
             assertThat(iconPosition.value!!.x).isEqualTo(
-                expectedLeftPadding.toIntPx().value.toFloat()
+                expectedLeftPadding.toIntPx().toFloat()
             )
             assertThat(iconPosition.value!!.y).isEqualTo(
-                expectedIconTopPadding.toIntPx().value.toFloat()
+                expectedIconTopPadding.toIntPx().toFloat()
             )
             val dm = composeTestRule.displayMetrics
             assertThat(trailingPosition.value!!.x).isEqualTo(
-                dm.widthPixels - trailingSize.value!!.width.value -
-                        expectedRightPadding.toIntPx().value.toFloat()
+                dm.widthPixels - trailingSize.value!!.width -
+                        expectedRightPadding.toIntPx().toFloat()
             )
             assertThat(trailingBaseline.value!!).isEqualTo(
-                expectedOverlineBaseline.toIntPx().value.toFloat()
+                expectedOverlineBaseline.toIntPx().toFloat()
             )
         }
     }
@@ -655,11 +654,11 @@ class ListItemTest {
 
     private fun saveLayout(
         coords: Ref<Offset>,
-        size: Ref<IntPxSize>,
+        size: Ref<IntSize>,
         baseline: Ref<Float> = Ref()
     ): Modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
         coords.value = coordinates.localToGlobal(Offset.Zero)
-        baseline.value = coordinates[FirstBaseline]?.value?.toFloat()?.let {
+        baseline.value = coordinates[FirstBaseline]?.toFloat()?.let {
             it + coords.value!!.y
         }
         size.value = coordinates.size

@@ -39,14 +39,13 @@ import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.min
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.min
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -305,7 +304,7 @@ class OnPositionedTest : LayoutTest() {
     fun testAlignmentLinesArePresent() {
         val latch = CountDownLatch(1)
         val line = VerticalAlignmentLine(::min)
-        val lineValue = 10.ipx
+        val lineValue = 10
         show {
             val onPositioned = Modifier.onPositioned { coordinates: LayoutCoordinates ->
                 Assert.assertEquals(1, coordinates.providedAlignmentLines.size)
@@ -313,7 +312,7 @@ class OnPositionedTest : LayoutTest() {
                 latch.countDown()
             }
             Layout(modifier = onPositioned, children = { }) { _, _, _ ->
-                layout(0.ipx, 0.ipx, mapOf(line to lineValue)) { }
+                layout(0, 0, mapOf(line to lineValue)) { }
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
@@ -324,9 +323,8 @@ class OnPositionedTest : LayoutTest() {
         // simple copy of Padding which doesn't recompose when the size changes
         Layout(children) { measurables, constraints, _ ->
             layout(constraints.maxWidth, constraints.maxHeight) {
-                measurables.first().measure(constraints).place(
-                    sizeModel.value.toPx().roundToInt().ipx,
-                    0.ipx)
+                measurables.first().measure(constraints)
+                    .place(sizeModel.value.toPx().roundToInt(), 0)
             }
         }
     }

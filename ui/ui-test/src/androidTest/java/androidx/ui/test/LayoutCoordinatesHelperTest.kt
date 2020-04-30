@@ -29,7 +29,6 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -81,16 +80,16 @@ class LayoutCoordinatesHelperTest {
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setContent {
             with(DensityAmbient.current) {
-                Box(Modifier.preferredWidth(40.ipx.toDp()), gravity = ContentGravity.Center) {
+                Box(Modifier.preferredWidth(40.toDp()), gravity = ContentGravity.Center) {
                     Column(
-                        Modifier.preferredWidth(20.ipx.toDp())
+                        Modifier.preferredWidth(20.toDp())
                             .onPositioned { coordinates: LayoutCoordinates ->
                                 parentCoordinates = coordinates
                                 latch.countDown()
                             }
                     ) {
                         Box(
-                            Modifier.preferredSize(10.ipx.toDp())
+                            Modifier.preferredSize(10.toDp())
                                 .gravity(Alignment.CenterHorizontally)
                                 .onPositioned { coordinates ->
                                     childCoordinates = coordinates

@@ -22,8 +22,6 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.hasFixedHeight
 import androidx.ui.core.hasFixedWidth
-import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
 
 /**
  * Component that represents an empty space layout, whose size can be defined using the [LayoutWidth],
@@ -37,8 +35,8 @@ import androidx.ui.unit.isFinite
 fun Spacer(modifier: Modifier) {
     Layout(emptyContent(), modifier) { _, constraints, _ ->
         with(constraints) {
-            val width = if (hasFixedWidth && maxWidth.isFinite()) maxWidth else 0.ipx
-            val height = if (hasFixedHeight && maxHeight.isFinite()) maxHeight else 0.ipx
+            val width = if (hasFixedWidth) maxWidth else 0
+            val height = if (hasFixedHeight) maxHeight else 0
             layout(width, height) {}
         }
     }

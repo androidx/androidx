@@ -29,14 +29,13 @@ import androidx.ui.geometry.Offset
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.relativePaddingFrom
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.min
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.min
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -52,8 +51,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 30f.toDp()
         val lineDp = 10f.toDp()
 
-        val parentSize = Ref<IntPxSize>()
-        val childSize = Ref<IntPxSize>()
+        val parentSize = Ref<IntSize>()
+        val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
             Stack(
@@ -71,7 +70,7 @@ class AlignmentLineTest : LayoutTest() {
                         }
                         .relativePaddingFrom(testLine, beforeDp, afterDp)
                 ) { _, _, _ ->
-                    layout(childDp.toIntPx(), 0.ipx, mapOf(testLine to lineDp.toIntPx())) {}
+                    layout(childDp.toIntPx(), 0, mapOf(testLine to lineDp.toIntPx())) {}
                 }
             }
         }
@@ -86,7 +85,7 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertEquals(childSize.value!!.height, parentSize.value!!.height)
         Assert.assertNotNull(childPosition.value)
         Assert.assertEquals(
-            (beforeDp.toIntPx().value - lineDp.toIntPx().value).toFloat(),
+            (beforeDp.toIntPx() - lineDp.toIntPx()).toFloat(),
             childPosition.value!!.x
         )
         Assert.assertEquals(0f, childPosition.value!!.y)
@@ -101,8 +100,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 30f.toDp()
         val lineDp = 10f.toDp()
 
-        val parentSize = Ref<IntPxSize>()
-        val childSize = Ref<IntPxSize>()
+        val parentSize = Ref<IntSize>()
+        val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
             Stack(
@@ -121,7 +120,7 @@ class AlignmentLineTest : LayoutTest() {
                         .relativePaddingFrom(testLine, beforeDp, afterDp),
                     children = {}
                 ) { _, _, _ ->
-                    layout(0.ipx, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) {}
+                    layout(0, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) {}
                 }
             }
         }
@@ -134,7 +133,7 @@ class AlignmentLineTest : LayoutTest() {
         Assert.assertNotNull(childPosition.value)
         Assert.assertEquals(0f, childPosition.value!!.x)
         Assert.assertEquals(
-            (beforeDp.toIntPx().value - lineDp.toIntPx().value).toFloat(),
+            (beforeDp.toIntPx() - lineDp.toIntPx()).toFloat(),
             childPosition.value!!.y
         )
     }
@@ -148,8 +147,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 30f.toDp()
         val lineDp = 10f.toDp()
 
-        val parentSize = Ref<IntPxSize>()
-        val childSize = Ref<IntPxSize>()
+        val parentSize = Ref<IntSize>()
+        val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
             Stack(modifier = Modifier.saveLayoutInfo(parentSize, Ref(), layoutLatch)) {
@@ -159,7 +158,7 @@ class AlignmentLineTest : LayoutTest() {
                         .relativePaddingFrom(testLine, beforeDp, afterDp),
                     children = {}
                 ) { _, _, _ ->
-                    layout(childDp.toIntPx(), 0.ipx, mapOf(testLine to lineDp.toIntPx())) { }
+                    layout(childDp.toIntPx(), 0, mapOf(testLine to lineDp.toIntPx())) { }
                 }
             }
         }
@@ -182,8 +181,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 30f.toDp()
         val lineDp = 10f.toDp()
 
-        val parentSize = Ref<IntPxSize>()
-        val childSize = Ref<IntPxSize>()
+        val parentSize = Ref<IntSize>()
+        val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
             Stack(Modifier.saveLayoutInfo(parentSize, Ref(), layoutLatch)) {
@@ -193,7 +192,7 @@ class AlignmentLineTest : LayoutTest() {
                         .saveLayoutInfo(childSize, childPosition, layoutLatch)
                         .relativePaddingFrom(testLine, beforeDp, afterDp)
                 ) { _, _, _ ->
-                    layout(0.ipx, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) { }
+                    layout(0, childDp.toIntPx(), mapOf(testLine to lineDp.toIntPx())) { }
                 }
             }
         }
@@ -217,8 +216,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 25f.toDp()
         val lineDp = 10f.toDp()
 
-        val parentSize = Ref<IntPxSize>()
-        val childSize = Ref<IntPxSize>()
+        val parentSize = Ref<IntSize>()
+        val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
             Stack(Modifier.saveLayoutInfo(parentSize, Ref(), layoutLatch)) {
@@ -231,7 +230,7 @@ class AlignmentLineTest : LayoutTest() {
                 ) { _, _, _ ->
                     layout(
                         childDp.toIntPx(),
-                        0.ipx,
+                        0,
                         mapOf(testLine to lineDp.toIntPx())
                     ) { }
                 }
@@ -258,8 +257,8 @@ class AlignmentLineTest : LayoutTest() {
         val childDp = 25f.toDp()
         val lineDp = 10f.toDp()
 
-        val parentSize = Ref<IntPxSize>()
-        val childSize = Ref<IntPxSize>()
+        val parentSize = Ref<IntSize>()
+        val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
             Stack(Modifier.saveLayoutInfo(parentSize, Ref(), layoutLatch)) {
@@ -271,7 +270,7 @@ class AlignmentLineTest : LayoutTest() {
                         .relativePaddingFrom(testLine, beforeDp, afterDp)
                 ) { _, _, _ ->
                     layout(
-                        0.ipx,
+                        0,
                         childDp.toIntPx(),
                         mapOf(testLine to lineDp.toIntPx())
                     ) { }

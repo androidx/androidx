@@ -40,9 +40,6 @@ import androidx.ui.layout.padding
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
-import androidx.ui.unit.min
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -194,18 +191,18 @@ private sealed class PaddingTestCase : ComposeTestCase,
 @Composable
 fun FillerContainer(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
     Layout(children, modifier) { measurable, constraints, _ ->
-        val childConstraints = constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+        val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val placeable = measurable.firstOrNull()?.measure(childConstraints)
         val width =
-            if (constraints.maxWidth.isFinite()) constraints.maxWidth else placeable?.width ?: 0.ipx
+            if (constraints.hasBoundedWidth) constraints.maxWidth else placeable?.width ?: 0
         val height =
-            if (constraints.maxHeight.isFinite()) {
+            if (constraints.hasBoundedHeight) {
                 constraints.maxHeight
             } else {
-                placeable?.height ?: 0.ipx
+                placeable?.height ?: 0
             }
         layout(width, height) {
-            placeable?.place(0.ipx, 0.ipx)
+            placeable?.place(0, 0)
         }
     }
 }
@@ -250,10 +247,8 @@ private fun Padding(
 
             val newConstraints = constraints.offset(-horizontalPadding, -verticalPadding)
             val placeable = measurable.measure(newConstraints)
-            val width =
-                min(placeable.width + horizontalPadding, constraints.maxWidth)
-            val height =
-                min(placeable.height + verticalPadding, constraints.maxHeight)
+            val width = (placeable.width + horizontalPadding).coerceAtMost(constraints.maxWidth)
+            val height = (placeable.height + verticalPadding).coerceAtMost(constraints.maxHeight)
 
             layout(width, height) {
                 placeable.place(paddingLeft, paddingTop)

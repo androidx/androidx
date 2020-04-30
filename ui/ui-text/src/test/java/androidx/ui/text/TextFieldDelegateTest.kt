@@ -19,6 +19,7 @@ package androidx.ui.text
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.LayoutDirection
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -36,9 +37,7 @@ import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -287,10 +286,10 @@ class TextFieldDelegateTest {
     @Test
     fun layout() {
         val constraints = Constraints(
-            minWidth = 0.ipx,
-            maxWidth = 1280.ipx,
-            minHeight = 0.ipx,
-            maxHeight = 2048.ipx
+            minWidth = 0,
+            maxWidth = 1280,
+            minHeight = 0,
+            maxHeight = 2048
         )
 
         val dummyText = AnnotatedString(text = "Hello, World")
@@ -299,15 +298,15 @@ class TextFieldDelegateTest {
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
         whenever(mDelegate.layout(any(), any(), eq(null))).thenReturn(textLayoutResult)
-        whenever(textLayoutResult.size).thenReturn(IntPxSize(1024.ipx, 512.ipx))
+        whenever(textLayoutResult.size).thenReturn(IntSize(1024, 512))
 
         val (width, height, layoutResult) = TextFieldDelegate.layout(
             mDelegate,
             constraints,
             layoutDirection
         )
-        assertEquals(1024f, width.value.toFloat())
-        assertEquals(512f, height.value.toFloat())
+        assertEquals(1024f, width.toFloat())
+        assertEquals(512f, height.toFloat())
         assertEquals(layoutResult, textLayoutResult)
     }
 

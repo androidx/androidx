@@ -55,10 +55,8 @@ import androidx.ui.layout.ConstraintSetBuilderScope.Companion.verticalAnchorFunc
 import androidx.ui.layout.ConstraintSetBuilderScope.Companion.verticalAnchorIndexToFunctionIndex
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import androidx.ui.util.fastForEach
 
 /**
@@ -1088,13 +1086,13 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Sets the lower bound of the current [Dimension] to a fixed [dp] value.
      */
     fun Dimension.Coercible.min(dp: Dp): Dimension.MaxCoercible =
-        (this as DimensionDescription).also { it.min = state.convertDimension(dp).ipx }
+        (this as DimensionDescription).also { it.min = state.convertDimension(dp) }
 
     /**
      * Sets the upper bound of the current [Dimension] to a fixed [dp] value.
      */
     fun Dimension.Coercible.max(dp: Dp): Dimension.MinCoercible =
-        (this as DimensionDescription).also { it.max = state.convertDimension(dp).ipx }
+        (this as DimensionDescription).also { it.max = state.convertDimension(dp) }
 
     /**
      * Sets the upper bound of the current [Dimension] to be the [Wrap] size of the child.
@@ -1106,7 +1104,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Sets the lower bound of the current [Dimension] to a fixed [dp] value.
      */
     fun Dimension.MinCoercible.min(dp: Dp): Dimension =
-        (this as DimensionDescription).also { it.min = state.convertDimension(dp).ipx }
+        (this as DimensionDescription).also { it.min = state.convertDimension(dp) }
 
     /**
      * Sets the lower bound of the current [Dimension] to be the [Wrap] size of the child.
@@ -1118,7 +1116,7 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
      * Sets the upper bound of the current [Dimension] to a fixed [dp] value.
      */
     fun Dimension.MaxCoercible.max(dp: Dp): Dimension =
-        (this as DimensionDescription).also { it.max = state.convertDimension(dp).ipx }
+        (this as DimensionDescription).also { it.max = state.convertDimension(dp) }
 
     /**
      * Sets the upper bound of the current [Dimension] to be the [Wrap] size of the child.
@@ -1135,20 +1133,20 @@ class ConstraintSetBuilderScope internal constructor(internal val state: State) 
     internal class DimensionDescription internal constructor(
         private val baseDimension: SolverDimension
     ) : Dimension.Coercible, Dimension.MinCoercible, Dimension.MaxCoercible, Dimension {
-        var min: IntPx? = null
+        var min: Int? = null
         var minSymbol: Any? = null
-        var max: IntPx? = null
+        var max: Int? = null
         var maxSymbol: Any? = null
         internal fun toSolverDimension() = baseDimension.also {
             if (minSymbol != null) {
                 it.min(minSymbol)
             } else if (min != null) {
-                it.min(min!!.value)
+                it.min(min!!)
             }
             if (maxSymbol != null) {
                 it.max(maxSymbol)
             } else if (max != null) {
-                it.max(max!!.value)
+                it.max(max!!)
             }
         }
     }
@@ -1720,7 +1718,7 @@ class State(val density: Density) : SolverState() {
 
     override fun convertDimension(value: Any?): Int {
         return if (value is Dp) {
-            with(density) { value.toIntPx().value }
+            with(density) { value.toIntPx() }
         } else {
             super.convertDimension(value)
         }
@@ -1756,8 +1754,8 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         }
 
         val initialPlaceable = placeables[measurable]
-        val initialWidth = initialPlaceable?.width?.value ?: constraintWidget.width
-        val initialHeight = initialPlaceable?.height?.value ?: constraintWidget.height
+        val initialWidth = initialPlaceable?.width ?: constraintWidget.width
+        val initialHeight = initialPlaceable?.height ?: constraintWidget.height
         val initialBaseline =
             initialPlaceable?.get(FirstBaseline) ?: constraintWidget.baselineDistance
 
@@ -1767,7 +1765,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
                 constraintWidget.width,
                 constraintWidget.mMatchConstraintDefaultWidth,
                 measure.useDeprecated,
-                state.rootIncomingConstraints.maxWidth.value,
+                state.rootIncomingConstraints.maxWidth,
                 widthConstraintsHolder
             )
             obtainConstraints(
@@ -1775,15 +1773,15 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
                 constraintWidget.height,
                 constraintWidget.mMatchConstraintDefaultHeight,
                 measure.useDeprecated,
-                state.rootIncomingConstraints.maxHeight.value,
+                state.rootIncomingConstraints.maxHeight,
                 heightConstraintsHolder
             )
 
             Constraints(
-                widthConstraintsHolder[0].ipx,
-                widthConstraintsHolder[1].ipx,
-                heightConstraintsHolder[0].ipx,
-                heightConstraintsHolder[1].ipx
+                widthConstraintsHolder[0],
+                widthConstraintsHolder[1],
+                heightConstraintsHolder[0],
+                heightConstraintsHolder[1]
             )
         }
 
@@ -1802,27 +1800,27 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
                 Log.d("CCL", "${measurable.tag} is size ${placeable.width} ${placeable.height}")
             }
 
-            val coercedWidth = placeable.width.value.coerceIn(
+            val coercedWidth = placeable.width.coerceIn(
                 constraintWidget.minWidth.takeIf { it > 0 },
                 constraintWidget.maxWidth.takeIf { it > 0 }
             )
-            val coercedHeight = placeable.height.value.coerceIn(
+            val coercedHeight = placeable.height.coerceIn(
                 constraintWidget.minHeight.takeIf { it > 0 },
                 constraintWidget.maxHeight.takeIf { it > 0 }
             )
 
             var remeasure = false
-            if (coercedWidth != placeable.width.value) {
+            if (coercedWidth != placeable.width) {
                 constraints = constraints.copy(
-                    minWidth = coercedWidth.ipx,
-                    maxWidth = coercedWidth.ipx
+                    minWidth = coercedWidth,
+                    maxWidth = coercedWidth
                 )
                 remeasure = true
             }
-            if (coercedHeight != placeable.height.value) {
+            if (coercedHeight != placeable.height) {
                 constraints = constraints.copy(
-                    minHeight = coercedHeight.ipx,
-                    maxHeight = coercedHeight.ipx
+                    minHeight = coercedHeight,
+                    maxHeight = coercedHeight
                 )
                 remeasure = true
             }
@@ -1837,11 +1835,11 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         }
 
         val currentPlaceable = placeables[measurable]
-        measure.measuredWidth = currentPlaceable?.width?.value ?: constraintWidget.width
-        measure.measuredHeight = currentPlaceable?.height?.value ?: constraintWidget.height
+        measure.measuredWidth = currentPlaceable?.width ?: constraintWidget.width
+        measure.measuredHeight = currentPlaceable?.height ?: constraintWidget.height
         val baseline = currentPlaceable?.get(FirstBaseline)
         measure.measuredHasBaseline = baseline != null
-        if (baseline != null) measure.measuredBaseline = baseline.value
+        if (baseline != null) measure.measuredBaseline = baseline
         measure.measuredNeedsSolverPass = measure.measuredWidth != initialWidth ||
                 measure.measuredHeight != initialHeight ||
                 measure.measuredBaseline != initialBaseline
@@ -1884,23 +1882,23 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         constraintSet: ConstraintSet,
         measurables: List<Measurable>,
         measureScope: MeasureScope
-    ): IntPxSize {
+    ): IntSize {
         this.density = measureScope
         this.measureScope = measureScope
         state.reset()
         // Define the size of the ConstraintLayout.
         state.width(
             if (constraints.hasFixedWidth) {
-                SolverDimension.Fixed(constraints.maxWidth.value)
+                SolverDimension.Fixed(constraints.maxWidth)
             } else {
-                SolverDimension.Wrap().min(constraints.minWidth.value)
+                SolverDimension.Wrap().min(constraints.minWidth)
             }
         )
         state.height(
             if (constraints.hasFixedHeight) {
-                SolverDimension.Fixed(constraints.maxHeight.value)
+                SolverDimension.Fixed(constraints.maxHeight)
             } else {
-                SolverDimension.Wrap().min(constraints.minHeight.value)
+                SolverDimension.Wrap().min(constraints.minHeight)
             }
         )
         // Build constraint set and apply it to the state.
@@ -1908,8 +1906,8 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
         state.layoutDirection = layoutDirection
         constraintSet.applyTo(state, measurables)
         state.apply(root)
-        root.width = constraints.maxWidth.value
-        root.height = constraints.maxHeight.value
+        root.width = constraints.maxWidth
+        root.height = constraints.maxHeight
         root.updateHierarchy()
 
         if (DEBUG) {
@@ -1931,8 +1929,8 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
             val measurable = child.companionWidget
             if (measurable !is Measurable) continue
             val placeable = placeables[measurable]
-            val currentWidth = placeable?.width?.value
-            val currentHeight = placeable?.height?.value
+            val currentWidth = placeable?.width
+            val currentHeight = placeable?.height
             if (child.width != currentWidth || child.height != currentHeight) {
                 if (DEBUG) {
                     Log.d(
@@ -1943,7 +1941,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
                 }
                 with(measureScope) {
                     measurable.measure(
-                        Constraints.fixed(child.width.ipx, child.height.ipx)
+                        Constraints.fixed(child.width, child.height)
                     ).also { placeables[measurable] = it }
                 }
             }
@@ -1952,7 +1950,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
             Log.d("CCL", "ConstraintLayout is at the end ${root.width} ${root.height}")
         }
 
-        return IntPxSize(root.width.ipx, root.height.ipx)
+        return IntSize(root.width, root.height)
     }
 
     fun Placeable.PlacementScope.performLayout() {
@@ -1960,7 +1958,7 @@ private class Measurer internal constructor() : BasicMeasure.Measurer {
             val measurable = child.companionWidget
             if (measurable !is Measurable) continue
             // TODO(popam, b/157886946): check if measurer's rtl support should be used instead
-            placeables[measurable]?.placeAbsolute(child.x.ipx, child.y.ipx)
+            placeables[measurable]?.placeAbsolute(child.x, child.y)
         }
     }
 

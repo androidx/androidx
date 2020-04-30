@@ -34,6 +34,7 @@ import androidx.ui.core.Ref
 import androidx.ui.core.offset
 import androidx.ui.core.onPositioned
 import androidx.ui.core.setContent
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
 import androidx.ui.layout.ltr
@@ -42,10 +43,7 @@ import androidx.ui.layout.rtl
 import androidx.ui.layout.size
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
-import androidx.ui.geometry.Offset
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -70,7 +68,7 @@ class RtlLayoutTest {
     internal lateinit var density: Density
     internal lateinit var countDownLatch: CountDownLatch
     internal lateinit var position: Array<Ref<Offset>>
-    private val size = 100.ipx
+    private val size = 100
 
     @Before
     fun setup() {
@@ -91,11 +89,11 @@ class RtlLayoutTest {
 
         countDownLatch.await(1, TimeUnit.SECONDS)
         Assert.assertEquals(Offset(0f, 0f), position[0].value)
-        Assert.assertEquals(Offset(size.value.toFloat(), size.value.toFloat()), position[1].value)
+        Assert.assertEquals(Offset(size.toFloat(), size.toFloat()), position[1].value)
         Assert.assertEquals(
             Offset(
-                (size * 2).value.toFloat(),
-                (size * 2).value.toFloat()
+                (size * 2).toFloat(),
+                (size * 2).toFloat()
             ),
             position[2].value
         )
@@ -116,15 +114,15 @@ class RtlLayoutTest {
         )
         Assert.assertEquals(
             Offset(
-                size.value.toFloat(),
-                size.value.toFloat()
+                size.toFloat(),
+                size.toFloat()
             ),
             position[1].value
         )
         Assert.assertEquals(
             Offset(
-                (size * 2).value.toFloat(),
-                (size * 2).value.toFloat()
+                (size * 2).toFloat(),
+                (size * 2).toFloat()
             ),
             position[2].value
         )
@@ -140,11 +138,11 @@ class RtlLayoutTest {
 
         countDownLatch.await(1, TimeUnit.SECONDS)
         Assert.assertEquals(Offset(0f, 0f), position[0].value)
-        Assert.assertEquals(Offset(size.value.toFloat(), size.value.toFloat()), position[1].value)
+        Assert.assertEquals(Offset(size.toFloat(), size.toFloat()), position[1].value)
         Assert.assertEquals(
             Offset(
-                (size * 2).value.toFloat(),
-                (size * 2).value.toFloat()
+                (size * 2).toFloat(),
+                (size * 2).toFloat()
             ),
             position[2].value
         )
@@ -163,16 +161,16 @@ class RtlLayoutTest {
         countDownLatch.await(1, TimeUnit.SECONDS)
         Assert.assertEquals(
             Offset(
-                (size * 2).value.toFloat(),
+                (size * 2).toFloat(),
                 0f
             ),
             position[0].value
         )
         Assert.assertEquals(
-            Offset(size.value.toFloat(), size.value.toFloat()),
+            Offset(size.toFloat(), size.toFloat()),
             position[1].value
         )
-        Assert.assertEquals(Offset(0f, (size * 2).value.toFloat()), position[2].value)
+        Assert.assertEquals(Offset(0f, (size * 2).toFloat()), position[2].value)
     }
 
     @Test
@@ -187,13 +185,13 @@ class RtlLayoutTest {
                     Layout({}) { _, _, layoutDirection ->
                         actualDirection = layoutDirection
                         latch.countDown()
-                        layout(100.ipx, 100.ipx) {}
+                        layout(100, 100) {}
                     }
                 }
                 Layout(children) { measurables, constraints, _ ->
-                    layout(100.ipx, 100.ipx) {
+                    layout(100, 100) {
                         measurables.first().measure(constraints, direction.value)
-                            .place(0.ipx, 0.ipx)
+                            .place(0, 0)
                     }
                 }
             }
@@ -283,13 +281,13 @@ class RtlLayoutTest {
         }
 
         activityTestRule.waitAndScreenShot().apply {
-            val center = 200.dp.toIntPx().value / 2
+            val center = 200.dp.toIntPx() / 2
             assertRect(
-                Color.Magenta, 161.dp.toIntPx().value, 179.dp.toIntPx().value, center, center
+                Color.Magenta, 161.dp.toIntPx(), 179.dp.toIntPx(), center, center
             )
-            assertRect(Color.Gray, 141.dp.toIntPx().value, 159.dp.toIntPx().value, center, center)
-            assertRect(Color.Green, 121.dp.toIntPx().value, 139.dp.toIntPx().value, center, center)
-            assertRect(Color.Blue, 101.dp.toIntPx().value, 119.dp.toIntPx().value, center, center)
+            assertRect(Color.Gray, 141.dp.toIntPx(), 159.dp.toIntPx(), center, center)
+            assertRect(Color.Green, 121.dp.toIntPx(), 139.dp.toIntPx(), center, center)
+            assertRect(Color.Blue, 101.dp.toIntPx(), 119.dp.toIntPx(), center, center)
         }
         Unit
     }
@@ -311,24 +309,24 @@ class RtlLayoutTest {
                         children = {},
                         minIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
                             assertEquals(LayoutDirection.Rtl, layoutDirection)
-                            0.ipx
+                            0
                         },
                         minIntrinsicHeightMeasureBlock = { _, _, layoutDirection ->
                             assertEquals(LayoutDirection.Rtl, layoutDirection)
-                            0.ipx
+                            0
                         },
                         maxIntrinsicWidthMeasureBlock = { _, _, layoutDirection ->
                             assertEquals(LayoutDirection.Rtl, layoutDirection)
-                            0.ipx
+                            0
                         },
                         maxIntrinsicHeightMeasureBlock = { _, _, layoutDirection ->
                             assertEquals(LayoutDirection.Rtl, layoutDirection)
-                            0.ipx
+                            0
                         }
                     ) { _, _, layoutDirection ->
                         assertEquals(LayoutDirection.Rtl, layoutDirection)
                         latch.countDown()
-                        layout(0.ipx, 0.ipx) {}
+                        layout(0, 0) {}
                     }
                 }
             }
@@ -357,8 +355,8 @@ class RtlLayoutTest {
             modifier = modifier
         ) { measurables, constraints, _ ->
             val placeables = measurables.map { it.measure(constraints) }
-            val width = placeables.fold(0.ipx) { sum, p -> sum + p.width }
-            val height = placeables.fold(0.ipx) { sum, p -> sum + p.height }
+            val width = placeables.fold(0) { sum, p -> sum + p.width }
+            val height = placeables.fold(0) { sum, p -> sum + p.height }
             layout(width, height) {
                 var x = 0f
                 var y = 0f
@@ -368,8 +366,8 @@ class RtlLayoutTest {
                     } else {
                         placeable.place(Offset(x, y))
                     }
-                    x += placeable.width.value.toFloat()
-                    y += placeable.height.value.toFloat()
+                    x += placeable.width.toFloat()
+                    y += placeable.height.toFloat()
                 }
             }
         }
@@ -380,7 +378,7 @@ class RtlLayoutTest {
         Layout(children) { measurables, constraints, _ ->
             val placeable = measurables[0].measure(constraints, ld)
             layout(placeable.width, placeable.height) {
-                placeable.place(0.ipx, 0.ipx)
+                placeable.place(0, 0)
             }
         }
     }
@@ -414,17 +412,17 @@ class RtlLayoutTest {
             constraints: Constraints,
             layoutDirection: LayoutDirection
         ): MeasureScope.MeasureResult {
-            measurable.minIntrinsicWidth(0.ipx, layoutDirection)
-            measurable.minIntrinsicHeight(0.ipx, layoutDirection)
-            measurable.maxIntrinsicWidth(0.ipx, layoutDirection)
-            measurable.maxIntrinsicHeight(0.ipx, layoutDirection)
-            measurable.minIntrinsicWidth(0.ipx)
-            measurable.minIntrinsicHeight(0.ipx)
-            measurable.maxIntrinsicWidth(0.ipx)
-            measurable.maxIntrinsicHeight(0.ipx)
+            measurable.minIntrinsicWidth(0, layoutDirection)
+            measurable.minIntrinsicHeight(0, layoutDirection)
+            measurable.maxIntrinsicWidth(0, layoutDirection)
+            measurable.maxIntrinsicHeight(0, layoutDirection)
+            measurable.minIntrinsicWidth(0)
+            measurable.minIntrinsicHeight(0)
+            measurable.maxIntrinsicWidth(0)
+            measurable.maxIntrinsicHeight(0)
             val placeable = measurable.measure(constraints)
             return layout(placeable.width, placeable.height) {
-                placeable.place(0.ipx, 0.ipx)
+                placeable.place(0, 0)
             }
         }
     }
@@ -449,15 +447,15 @@ private fun Modifier.assertLayoutDirection(expectedLayoutDirection: LayoutDirect
             assertEquals(expectedLayoutDirection, layoutDirection)
             val placeable = measurable.measure(constraints)
             return layout(placeable.width, placeable.height) {
-                placeable.place(0.ipx, 0.ipx)
+                placeable.place(0, 0)
             }
         }
 
         override fun IntrinsicMeasureScope.minIntrinsicWidth(
             measurable: IntrinsicMeasurable,
-            height: IntPx,
+            height: Int,
             layoutDirection: LayoutDirection
-        ): IntPx {
+        ): Int {
             assertEquals(expectedLayoutDirection, layoutDirection)
             measurable.minIntrinsicWidth(height)
             return measurable.minIntrinsicWidth(height, layoutDirection)
@@ -465,9 +463,9 @@ private fun Modifier.assertLayoutDirection(expectedLayoutDirection: LayoutDirect
 
         override fun IntrinsicMeasureScope.minIntrinsicHeight(
             measurable: IntrinsicMeasurable,
-            width: IntPx,
+            width: Int,
             layoutDirection: LayoutDirection
-        ): IntPx {
+        ): Int {
             assertEquals(expectedLayoutDirection, layoutDirection)
             measurable.minIntrinsicHeight(width)
             return measurable.minIntrinsicHeight(width, layoutDirection)
@@ -475,9 +473,9 @@ private fun Modifier.assertLayoutDirection(expectedLayoutDirection: LayoutDirect
 
         override fun IntrinsicMeasureScope.maxIntrinsicWidth(
             measurable: IntrinsicMeasurable,
-            height: IntPx,
+            height: Int,
             layoutDirection: LayoutDirection
-        ): IntPx {
+        ): Int {
             assertEquals(expectedLayoutDirection, layoutDirection)
             measurable.maxIntrinsicWidth(height)
             return measurable.maxIntrinsicWidth(height, layoutDirection)
@@ -485,9 +483,9 @@ private fun Modifier.assertLayoutDirection(expectedLayoutDirection: LayoutDirect
 
         override fun IntrinsicMeasureScope.maxIntrinsicHeight(
             measurable: IntrinsicMeasurable,
-            width: IntPx,
+            width: Int,
             layoutDirection: LayoutDirection
-        ): IntPx {
+        ): Int {
             assertEquals(expectedLayoutDirection, layoutDirection)
             measurable.maxIntrinsicHeight(width)
             return measurable.maxIntrinsicHeight(width, layoutDirection)

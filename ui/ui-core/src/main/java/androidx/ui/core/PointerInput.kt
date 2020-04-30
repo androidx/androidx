@@ -18,8 +18,8 @@ package androidx.ui.core
 
 import androidx.compose.Immutable
 import androidx.compose.Stable
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.Uptime
 
 /**
@@ -102,7 +102,7 @@ enum class PointerEventPass {
  * A function used to react to and modify [PointerInputChange]s.
  */
 typealias PointerInputHandler =
-            (List<PointerInputChange>, PointerEventPass, IntPxSize) -> List<PointerInputChange>
+            (List<PointerInputChange>, PointerEventPass, IntSize) -> List<PointerInputChange>
 
 // This CustomEvent interface primarily exists exists to provide a base type other than Any.  If it
 // were Any, then Unit would be sufficient, which is not a valid type, or value, to send as a

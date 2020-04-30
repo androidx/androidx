@@ -18,6 +18,7 @@ package androidx.ui.core.gesture
 
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
+import androidx.ui.geometry.Offset
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
@@ -25,9 +26,7 @@ import androidx.ui.testutils.invokeOverPasses
 import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
-import androidx.ui.unit.IntPxSize
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.milliseconds
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
@@ -110,9 +109,9 @@ class PressIndicatorGestureFilterTest {
     @Test
     fun onPointerInput_1DownMoveOutside2ndDown_onStartOnlyCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer0, IntPxSize(5.ipx, 5.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer0, IntSize(5, 5))
         pointer0 = pointer0.moveTo(100.milliseconds, 10f, 0f)
-        filter::onPointerInput.invokeOverAllPasses(pointer0, IntPxSize(5.ipx, 5.ipx))
+        filter::onPointerInput.invokeOverAllPasses(pointer0, IntSize(5, 5))
         pointer0 = pointer0.moveTo(200.milliseconds)
         val pointer1 = down(1, x = 0f, y = 0f)
 
@@ -265,11 +264,11 @@ class PressIndicatorGestureFilterTest {
         var pointer0 = down(0, x = 0f, y = 0f)
         var pointer1 = down(0, x = 4f, y = 4f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, pointer1, size = IntPxSize(5.ipx, 5.ipx))
+            .invokeOverAllPasses(pointer0, pointer1, size = IntSize(5, 5))
         pointer0 = pointer0.moveTo(100.milliseconds, 0f, 0f)
         pointer1 = pointer1.moveTo(100.milliseconds, 5f, 4f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, pointer1, size = IntPxSize(5.ipx, 5.ipx))
+            .invokeOverAllPasses(pointer0, pointer1, size = IntSize(5, 5))
 
         verify(filter.onCancel!!, never()).invoke()
     }
@@ -340,10 +339,10 @@ class PressIndicatorGestureFilterTest {
     fun onPointerInput_1DownMoveOutsideOfBoundsLeft_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
         pointer0 = pointer0.moveTo(100.milliseconds, -1f, 0f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
 
         verify(filter.onCancel!!).invoke()
     }
@@ -352,10 +351,10 @@ class PressIndicatorGestureFilterTest {
     fun onPointerInput_1DownMoveOutsideOfBoundsRight_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
         pointer0 = pointer0.moveTo(100.milliseconds, 1f, 0f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
 
         verify(filter.onCancel!!).invoke()
     }
@@ -364,10 +363,10 @@ class PressIndicatorGestureFilterTest {
     fun onPointerInput_1DownMoveOutsideOfBoundsUp_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
         pointer0 = pointer0.moveTo(100.milliseconds, 0f, -1f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
 
         verify(filter.onCancel!!).invoke()
     }
@@ -376,10 +375,10 @@ class PressIndicatorGestureFilterTest {
     fun onPointerInput_1DownMoveOutsideOfBoundsDown_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
         pointer0 = pointer0.moveTo(100.milliseconds, 0f, 1f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
 
         verify(filter.onCancel!!).invoke()
     }
@@ -389,11 +388,11 @@ class PressIndicatorGestureFilterTest {
         var pointer0 = down(0, x = 0f, y = 4f)
         var pointer1 = down(1, x = 4f, y = 0f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, pointer1, size = IntPxSize(5.ipx, 5.ipx))
+            .invokeOverAllPasses(pointer0, pointer1, size = IntSize(5, 5))
         pointer0 = pointer0.moveTo(100.milliseconds, 0f, 5f)
         pointer1 = pointer1.moveTo(100.milliseconds, 5f, 0f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, pointer1, size = IntPxSize(5.ipx, 5.ipx))
+            .invokeOverAllPasses(pointer0, pointer1, size = IntSize(5, 5))
 
         verify(filter.onCancel!!).invoke()
     }
@@ -402,16 +401,16 @@ class PressIndicatorGestureFilterTest {
     fun onPointerInput_1DownMoveOutsideBoundsThenInsideThenOutside_onCancelCalledOnce() {
         var pointer0 = down(0, x = 0f, y = 0f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
         pointer0 = pointer0.moveTo(100.milliseconds, 0f, 1f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
         pointer0 = pointer0.moveTo(200.milliseconds, 0f, 0f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
         pointer0 = pointer0.moveTo(300.milliseconds, 0f, 1f)
         filter::onPointerInput
-            .invokeOverAllPasses(pointer0, IntPxSize(1.ipx, 1.ipx))
+            .invokeOverAllPasses(pointer0, IntSize(1, 1))
 
         verify(filter.onCancel!!).invoke()
     }
@@ -422,11 +421,11 @@ class PressIndicatorGestureFilterTest {
 
         repeat(2) {
             var pointer = down(0, x = 0f, y = 0f)
-            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
             pointer = pointer.moveTo(time.milliseconds, 0f, 1f)
-            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
             pointer = pointer.up(time.milliseconds)
-            filter::onPointerInput.invokeOverAllPasses(pointer, IntPxSize(1.ipx, 1.ipx))
+            filter::onPointerInput.invokeOverAllPasses(pointer, IntSize(1, 1))
             time += 100L
         }
 
@@ -467,7 +466,7 @@ class PressIndicatorGestureFilterTest {
         pointer = filter::onPointerInput.invoke(
             listOf(pointer),
             PointerEventPass.PostUp,
-            IntPxSize(0.ipx, 0.ipx)
+            IntSize(0, 0)
         ).first()
         assertThat(pointer.consumed.downChange, `is`(true))
     }

@@ -19,7 +19,6 @@ package androidx.ui.material
 import androidx.test.filters.MediumTest
 import androidx.ui.test.createComposeRule
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +41,7 @@ class DividerUiTest {
                 Divider()
             }
             .assertHeightEqualsTo(defaultHeight)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 
     @Test
@@ -53,7 +52,7 @@ class DividerUiTest {
             .setMaterialContentAndCollectSizes {
                 Divider(thickness = height)
             }
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
             .assertHeightEqualsTo(height)
     }
 
@@ -68,6 +67,6 @@ class DividerUiTest {
                 Divider(startIndent = indent, thickness = height)
             }
             .assertHeightEqualsTo(height)
-            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertWidthEqualsTo { dm.widthPixels }
     }
 }

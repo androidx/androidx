@@ -23,10 +23,9 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
+import androidx.ui.geometry.Offset
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.layout.Stack
-import androidx.ui.geometry.Offset
-import androidx.ui.unit.ipx
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.spy
@@ -260,7 +259,7 @@ class TouchSlopDragGestureFilterTest {
                             startDragImmediately = startDragImmediately
                         ),
                         measureBlock = { _, _, _ ->
-                            layout(100.ipx, 100.ipx) {
+                            layout(100, 100) {
                                 setupLatch.countDown()
                             }
                         }, children = {}

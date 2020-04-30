@@ -39,9 +39,6 @@ import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.ltr
 import androidx.ui.layout.rtl
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -51,6 +48,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 @SmallTest
@@ -157,15 +155,15 @@ class PainterModifierTest {
     @Test
     fun testPainterAspectRatioMaintainedInSmallerParent() {
         val paintLatch = CountDownLatch(1)
-        val containerSizePx = containerWidth.roundToInt().ipx * 3
+        val containerSizePx = containerWidth.roundToInt() * 3
         rule.runOnUiThread {
             activity.setContent {
                 FixedSize(size = containerSizePx, modifier = Modifier.background(Color.White)) {
                     // Verify that the contents are scaled down appropriately even though
                     // the Painter's intrinsic width and height is twice that of the component
                     // it is to be drawn into
-                    Padding(containerWidth.roundToInt().ipx) {
-                        AtLeastSize(size = containerWidth.roundToInt().ipx,
+                    Padding(containerWidth.roundToInt()) {
+                        AtLeastSize(size = containerWidth.roundToInt(),
                             modifier = Modifier.paint(
                                 LatchPainter(
                                     containerWidth * 2,
@@ -185,8 +183,8 @@ class PainterModifierTest {
         paintLatch.await(5, TimeUnit.SECONDS)
 
         obtainScreenshotBitmap(
-            containerSizePx.value,
-            containerSizePx.value
+            containerSizePx,
+            containerSizePx
         ).apply {
             assertEquals(Color.White.toArgb(), getPixel(containerWidth.roundToInt() - 1,
                 containerHeight.roundToInt() - 1))
@@ -203,10 +201,10 @@ class PainterModifierTest {
     @Test
     fun testPainterAlignedBottomRightIfSmallerThanParent() {
         val paintLatch = CountDownLatch(1)
-        val containerSizePx = containerWidth.roundToInt().ipx * 2
+        val containerSizePx = containerWidth.roundToInt() * 2
         rule.runOnUiThread {
             activity.setContent {
-                AtLeastSize(size = containerWidth.roundToInt().ipx * 2,
+                AtLeastSize(size = containerWidth.roundToInt() * 2,
                     modifier = Modifier.background(Color.White).paint(
                         LatchPainter(
                             containerWidth,
@@ -224,13 +222,13 @@ class PainterModifierTest {
 
         paintLatch.await(5, TimeUnit.SECONDS)
 
-        val bottom = containerSizePx.value - 1
-        val right = containerSizePx.value - 1
-        val innerBoxTop = containerSizePx.value - containerWidth.roundToInt()
-        val innerBoxLeft = containerSizePx.value - containerWidth.roundToInt()
+        val bottom = containerSizePx - 1
+        val right = containerSizePx - 1
+        val innerBoxTop = containerSizePx - containerWidth.roundToInt()
+        val innerBoxLeft = containerSizePx - containerWidth.roundToInt()
         obtainScreenshotBitmap(
-            containerSizePx.value,
-            containerSizePx.value
+            containerSizePx,
+            containerSizePx
         ).apply {
             assertEquals(Color.Red.toArgb(), getPixel(right, bottom))
             assertEquals(Color.Red.toArgb(), getPixel(innerBoxLeft, bottom))
@@ -285,10 +283,10 @@ class PainterModifierTest {
             activity.setContent {
                 NoIntrinsicSizeContainer(
                     Modifier.background(Color.White) +
-                            FixedSizeModifier(containerWidth.roundToInt().ipx)
+                            FixedSizeModifier(containerWidth.roundToInt())
                 ) {
                     NoIntrinsicSizeContainer(
-                        AlignTopLeft + FixedSizeModifier(containerSize.ipx).paint(
+                        AlignTopLeft + FixedSizeModifier(containerSize).paint(
                             LatchPainter(
                                 containerWidth,
                                 containerHeight,
@@ -333,10 +331,10 @@ class PainterModifierTest {
             activity.setContent {
                 NoIntrinsicSizeContainer(
                     Modifier.background(Color.White) +
-                            FixedSizeModifier(containerSize.ipx)
+                            FixedSizeModifier(containerSize)
                 ) {
                     NoIntrinsicSizeContainer(
-                        FixedSizeModifier(containerSize.ipx).paint(
+                        FixedSizeModifier(containerSize).paint(
                             LatchPainter(
                                 containerWidth,
                                 containerHeight,
@@ -379,7 +377,7 @@ class PainterModifierTest {
             modifier = Modifier.background(Color.White)
                 .plus(if (rtl) Modifier.rtl else Modifier.ltr)
                 .paint(p, alpha = alpha, colorFilter = colorFilter),
-            size = containerWidth.roundToInt().ipx
+            size = containerWidth.roundToInt()
         ) {
             // Intentionally empty
         }
@@ -421,14 +419,14 @@ class PainterModifierTest {
     @Composable
     fun NoMinSizeContainer(children: @Composable () -> Unit) {
         Layout(children) { measurables, constraints, _ ->
-            val loosenedConstraints = constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+            val loosenedConstraints = constraints.copy(minWidth = 0, minHeight = 0)
             val placeables = measurables.map { it.measure(loosenedConstraints) }
-            val maxPlaceableWidth = placeables.maxBy { it.width.value }?.width ?: 0.ipx
-            val maxPlaceableHeight = placeables.maxBy { it.height.value }?.width ?: 0.ipx
+            val maxPlaceableWidth = placeables.maxBy { it.width }?.width ?: 0
+            val maxPlaceableHeight = placeables.maxBy { it.height }?.width ?: 0
             val width = max(maxPlaceableWidth, loosenedConstraints.minWidth)
             val height = max(maxPlaceableHeight, loosenedConstraints.minHeight)
             layout(width, height) {
-                placeables.forEach { it.place(0.ipx, 0.ipx) }
+                placeables.forEach { it.place(0, 0) }
             }
         }
     }
@@ -444,20 +442,20 @@ class PainterModifierTest {
         Layout(children, modifier) { measurables, constraints, _ ->
             val placeables = measurables.map { it.measure(constraints) }
             val width = max(
-                placeables.maxBy { it.width.value }?.width ?: 0.ipx, constraints
+                placeables.maxBy { it.width }?.width ?: 0, constraints
                     .minWidth
             )
             val height = max(
-                placeables.maxBy { it.height.value }?.height ?: 0.ipx, constraints
+                placeables.maxBy { it.height }?.height ?: 0, constraints
                     .minHeight
             )
             layout(width, height) {
-                placeables.forEach { it.place(0.ipx, 0.ipx) }
+                placeables.forEach { it.place(0, 0) }
             }
         }
     }
 
-    class FixedSizeModifier(val width: IntPx, val height: IntPx = width) : LayoutModifier {
+    class FixedSizeModifier(val width: Int, val height: Int = width) : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
             constraints: Constraints,
@@ -472,7 +470,7 @@ class PainterModifierTest {
                 )
             )
             return layout(width, height) {
-                placeable.place(IntPx.Zero, IntPx.Zero)
+                placeable.place(0, 0)
             }
         }
     }

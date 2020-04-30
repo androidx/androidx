@@ -29,9 +29,8 @@ import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntSize
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,7 +42,7 @@ import org.junit.runners.Parameterized
 class ElevationOverlayTest(private val elevation: Dp?, overlayColor: Color?) {
 
     private val Tag = "Surface"
-    private val SurfaceSize = IntPxSize(10.ipx, 10.ipx)
+    private val SurfaceSize = IntSize(10, 10)
     private val expectedOverlayColor = overlayColor!!
 
     companion object {

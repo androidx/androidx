@@ -26,7 +26,6 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.layout.Stack
-import androidx.ui.unit.ipx
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.spy
@@ -75,8 +74,8 @@ class ScaleGestureFilterTest {
                         modifier = Modifier.scaleGestureFilter(scaleObserver),
                         measureBlock = { _, _, _ ->
                             layout(
-                                ceil(touchSlop * LayoutDimensionFactor).toInt().ipx,
-                                ceil(touchSlop * LayoutDimensionFactor).toInt().ipx
+                                ceil(touchSlop * LayoutDimensionFactor).toInt(),
+                                ceil(touchSlop * LayoutDimensionFactor).toInt()
                             ) {
                                 setupLatch.countDown()
                             }

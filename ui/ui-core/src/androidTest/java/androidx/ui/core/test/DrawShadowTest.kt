@@ -38,7 +38,6 @@ import androidx.ui.graphics.luminance
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -150,9 +149,9 @@ class DrawShadowTest {
     fun opacityAppliedForTheShadow() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
+                AtLeastSize(size = 12, modifier = background(Color.White)) {
                     AtLeastSize(
-                        size = 10.ipx,
+                        size = 10,
                         modifier = Modifier.drawShadow(4.dp, rectShape, opacity = 0.5f)
                     ) {
                     }
@@ -178,13 +177,13 @@ class DrawShadowTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 12.ipx, modifier = background(Color.White)) {
+                AtLeastSize(size = 12, modifier = background(Color.White)) {
                     val shadow = if (model.value) {
                         Modifier.drawShadow(8.dp, rectShape)
                     } else {
                         Modifier
                     }
-                    AtLeastSize(size = 10.ipx, modifier = shadow) {
+                    AtLeastSize(size = 10, modifier = shadow) {
                     }
                 }
             }
@@ -206,9 +205,9 @@ class DrawShadowTest {
         elevation: State<Dp> = mutableStateOf(8.dp),
         modifier: Modifier = Modifier
     ) {
-        AtLeastSize(size = 12.ipx, modifier = modifier + background(Color.White)) {
+        AtLeastSize(size = 12, modifier = modifier + background(Color.White)) {
             AtLeastSize(
-                size = 10.ipx,
+                size = 10,
                 modifier = Modifier.drawShadow(elevation = elevation.value, shape = rectShape)
             ) {
             }

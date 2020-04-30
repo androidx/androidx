@@ -31,8 +31,6 @@ import androidx.ui.core.drawOpacity
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -42,6 +40,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -68,7 +67,7 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(
-                    size = 10.ipx,
+                    size = 10,
                     modifier = Modifier.background(Color.White)
                         .drawOpacity(1f)
                         .background(color)
@@ -90,7 +89,7 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(
-                    size = 10.ipx,
+                    size = 10,
                     modifier = Modifier.background(Color.White)
                         .drawOpacity(0f)
                         .background(color)
@@ -112,7 +111,7 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 Row(Modifier.background(Color.White)) {
-                    AtLeastSize(size = 10.ipx,
+                    AtLeastSize(size = 10,
                         modifier = Modifier.background(Color.White)
                             .drawOpacity(0.5f)
                             .background(color)
@@ -120,7 +119,7 @@ class OpacityTest {
                     ) {
                     }
                     AtLeastSize(
-                        size = 10.ipx,
+                        size = 10,
                         modifier = Modifier.background(color.copy(alpha = 0.5f))
                     ) {
                     }
@@ -142,7 +141,7 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(
-                    size = 10.ipx,
+                    size = 10,
                     modifier = Modifier.background(Color.White)
                         .drawOpacity(opacity.value)
                         .plus(unlatch)
@@ -171,7 +170,7 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(
-                    size = 10.ipx,
+                    size = 10,
                     modifier = Modifier.background(Color.White)
                         .drawOpacity(1f)
                         .drawOpacity(opacity)
@@ -200,7 +199,7 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 AtLeastSize(
-                    size = 10.ipx,
+                    size = 10,
                     modifier = Modifier.background(Color.White)
                         .run {
                             if (model.value) drawOpacity(0f).background(Color.Green) else this
@@ -235,16 +234,16 @@ class OpacityTest {
 fun Row(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
-        var width = 0.ipx
-        var height = 0.ipx
+        var width = 0
+        var height = 0
         placeables.forEach {
             width += it.width
             height = max(height, it.height)
         }
         layout(width, height) {
-            var offset = 0.ipx
+            var offset = 0
             placeables.forEach {
-                it.place(offset, 0.ipx)
+                it.place(offset, 0)
                 offset += it.width
             }
         }

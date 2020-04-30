@@ -20,14 +20,13 @@ import androidx.ui.core.LayoutNode.LayoutState.Ready
 import androidx.ui.core.focus.ModifiedFocusNode
 import androidx.ui.core.keyinput.ModifiedKeyInputNode
 import androidx.ui.core.pointerinput.PointerInputFilter
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.unit.Density
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntOffset
 import androidx.ui.util.fastAny
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
@@ -79,7 +78,7 @@ internal class InnerPlaceable(
 
     override fun findLastKeyInputWrapper(): ModifiedKeyInputNode? = findPreviousKeyInputWrapper()
 
-    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
+    override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int {
         return layoutNode.measureBlocks.minIntrinsicWidth(
             layoutNode.measureScope,
             layoutNode.children,
@@ -88,7 +87,7 @@ internal class InnerPlaceable(
         )
     }
 
-    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
+    override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int {
         return layoutNode.measureBlocks.minIntrinsicHeight(
             layoutNode.measureScope,
             layoutNode.children,
@@ -97,7 +96,7 @@ internal class InnerPlaceable(
         )
     }
 
-    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx {
+    override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int {
         return layoutNode.measureBlocks.maxIntrinsicWidth(
             layoutNode.measureScope,
             layoutNode.children,
@@ -106,7 +105,7 @@ internal class InnerPlaceable(
         )
     }
 
-    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx {
+    override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int {
         return layoutNode.measureBlocks.maxIntrinsicHeight(
             layoutNode.measureScope,
             layoutNode.children,
@@ -115,7 +114,7 @@ internal class InnerPlaceable(
         )
     }
 
-    override fun place(position: IntPxPosition) {
+    override fun place(position: IntOffset) {
         this.position = position
 
         // The wrapper only runs their placement block to obtain our position, which allows them
@@ -129,7 +128,7 @@ internal class InnerPlaceable(
         layoutNode.layoutChildren()
     }
 
-    override operator fun get(line: AlignmentLine): IntPx? {
+    override operator fun get(line: AlignmentLine): Int? {
         return layoutNode.calculateAlignmentLines()[line]
     }
 

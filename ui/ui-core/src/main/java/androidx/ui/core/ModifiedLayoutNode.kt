@@ -20,8 +20,6 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
-import androidx.ui.unit.IntPx
-
 internal class ModifiedLayoutNode(
     wrapped: LayoutNodeWrapper,
     private val layoutModifier: LayoutModifier
@@ -38,31 +36,31 @@ internal class ModifiedLayoutNode(
         this@ModifiedLayoutNode
     }
 
-    override fun minIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun minIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
         with(layoutModifier) {
             measureScope.layoutDirection = layoutDirection
             measureScope.minIntrinsicWidth(wrapped, height, layoutDirection)
         }
 
-    override fun maxIntrinsicWidth(height: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun maxIntrinsicWidth(height: Int, layoutDirection: LayoutDirection): Int =
         with(layoutModifier) {
             measureScope.layoutDirection = layoutDirection
             measureScope.maxIntrinsicWidth(wrapped, height, layoutDirection)
         }
 
-    override fun minIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun minIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
         with(layoutModifier) {
             measureScope.layoutDirection = layoutDirection
             measureScope.minIntrinsicHeight(wrapped, width, layoutDirection)
         }
 
-    override fun maxIntrinsicHeight(width: IntPx, layoutDirection: LayoutDirection): IntPx =
+    override fun maxIntrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int =
         with(layoutModifier) {
             measureScope.layoutDirection = layoutDirection
             measureScope.maxIntrinsicHeight(wrapped, width, layoutDirection)
         }
 
-    override operator fun get(line: AlignmentLine): IntPx? {
+    override operator fun get(line: AlignmentLine): Int? {
         if (measureResult.alignmentLines.containsKey(line)) {
             return measureResult.alignmentLines[line]
         }

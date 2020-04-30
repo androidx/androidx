@@ -261,7 +261,7 @@ package androidx.ui.material {
   public static final class TabRow.TabPosition {
     method public int component1();
     method public int component2();
-    method public androidx.ui.material.TabRow.TabPosition copy-rRMsBxU(int left, int width);
+    method public androidx.ui.material.TabRow.TabPosition copy(int left, int width);
     method public int getLeft();
     method public int getRight();
     method public int getWidth();

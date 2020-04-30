@@ -18,8 +18,8 @@ package androidx.ui.core
 
 import android.graphics.Matrix
 import androidx.ui.graphics.Canvas
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 
 /**
  * A layer returned by [Owner.createLayer] to separate drawn content. An `OwnedLayer` has
@@ -40,12 +40,12 @@ interface OwnedLayer {
     /**
      * Changes the position of the layer contents.
      */
-    fun move(position: IntPxPosition)
+    fun move(position: IntOffset)
 
     /**
      * Changes the size of the layer's drawn area.
      */
-    fun resize(size: IntPxSize)
+    fun resize(size: IntSize)
 
     /**
      * Causes the layer to be drawn into [canvas]

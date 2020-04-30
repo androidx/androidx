@@ -28,9 +28,6 @@ import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.graphics.drawscope.drawCanvas
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
-import androidx.ui.unit.isFinite
 import androidx.ui.util.fastFirstOrNull
 import androidx.ui.util.fastForEach
 import androidx.ui.viewinterop.AndroidViewHolder
@@ -63,25 +60,25 @@ fun <T : ViewAdapter> View.getOrAddAdapter(id: Int, factory: () -> T): T {
  * for measuring the [View].
  */
 private fun obtainMeasureSpec(
-    min: IntPx,
-    max: IntPx,
+    min: Int,
+    max: Int,
     preferred: Int
 ): Int = when {
     preferred >= 0 || min == max -> {
         // Fixed size due to fixed size layout param or fixed constraints.
         View.MeasureSpec.makeMeasureSpec(
-            preferred.coerceIn(min.value, max.value),
+            preferred.coerceIn(min, max),
             View.MeasureSpec.EXACTLY
         )
     }
-    preferred == ViewGroup.LayoutParams.WRAP_CONTENT && max.isFinite() -> {
+    preferred == ViewGroup.LayoutParams.WRAP_CONTENT && max != Constraints.Infinity -> {
         // Wrap content layout param with finite max constraint. If max constraint is infinite,
         // we will measure the child with UNSPECIFIED.
-        View.MeasureSpec.makeMeasureSpec(max.value, View.MeasureSpec.AT_MOST)
+        View.MeasureSpec.makeMeasureSpec(max, View.MeasureSpec.AT_MOST)
     }
-    preferred == ViewGroup.LayoutParams.MATCH_PARENT && max.isFinite() -> {
+    preferred == ViewGroup.LayoutParams.MATCH_PARENT && max != Constraints.Infinity -> {
         // Match parent layout param, so we force the child to fill the available space.
-        View.MeasureSpec.makeMeasureSpec(max.value, View.MeasureSpec.EXACTLY)
+        View.MeasureSpec.makeMeasureSpec(max, View.MeasureSpec.EXACTLY)
     }
     else -> {
         // max constraint is infinite and layout param is WRAP_CONTENT or MATCH_PARENT.
@@ -118,11 +115,11 @@ internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
             constraints: Constraints,
             layoutDirection: LayoutDirection
         ): MeasureScope.MeasureResult {
-            if (constraints.minWidth != 0.ipx) {
-                getChildAt(0).minimumWidth = constraints.minWidth.value
+            if (constraints.minWidth != 0) {
+                getChildAt(0).minimumWidth = constraints.minWidth
             }
-            if (constraints.minHeight != 0.ipx) {
-                getChildAt(0).minimumHeight = constraints.minHeight.value
+            if (constraints.minHeight != 0) {
+                getChildAt(0).minimumHeight = constraints.minHeight
             }
             // TODO (soboleva): native view should get LD value from Compose?
 
@@ -139,7 +136,7 @@ internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
                     layoutParams!!.height
                 )
             )
-            return measureScope.layout(measuredWidth.ipx, measuredHeight.ipx) {
+            return measureScope.layout(measuredWidth, measuredHeight) {
                 layout(
                     0,
                     0,

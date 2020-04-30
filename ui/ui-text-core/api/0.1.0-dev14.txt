@@ -571,8 +571,8 @@ package androidx.ui.text {
 
   public final class TextLayoutResult {
     method public androidx.ui.text.TextLayoutInput component1();
-    method public androidx.ui.unit.IntPxSize component3();
-    method public androidx.ui.text.TextLayoutResult copy(androidx.ui.text.TextLayoutInput layoutInput, androidx.ui.text.MultiParagraph multiParagraph, androidx.ui.unit.IntPxSize size);
+    method public androidx.ui.unit.IntSize component3();
+    method public androidx.ui.text.TextLayoutResult copy(androidx.ui.text.TextLayoutInput layoutInput, androidx.ui.text.MultiParagraph multiParagraph, androidx.ui.unit.IntSize size);
     method public androidx.ui.text.style.TextDirection getBidiRunDirection(int offset);
     method public androidx.ui.geometry.Rect getBoundingBox(int offset);
     method public androidx.ui.geometry.Rect getCursorRect(int offset);
@@ -592,7 +592,7 @@ package androidx.ui.text {
     method public androidx.ui.text.style.TextDirection getParagraphDirection(int offset);
     method public androidx.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.ui.geometry.Rect> getPlaceholderRects();
-    method public androidx.ui.unit.IntPxSize getSize();
+    method public androidx.ui.unit.IntSize getSize();
     method public androidx.ui.text.TextRange getWordBoundary(int offset);
     property public final boolean didOverflowHeight;
     property public final boolean didOverflowWidth;

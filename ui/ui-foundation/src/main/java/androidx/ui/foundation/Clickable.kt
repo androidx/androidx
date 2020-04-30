@@ -37,8 +37,8 @@ import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
-import androidx.ui.unit.IntPxSize
 import androidx.ui.geometry.Offset
+import androidx.ui.unit.IntSize
 import androidx.ui.util.fastAny
 
 /**
@@ -202,7 +202,7 @@ private class NoConsumptionIndicatorGestureFilter(
     override fun onPointerInput(
         changes: List<PointerInputChange>,
         pass: PointerEventPass,
-        bounds: IntPxSize
+        bounds: IntSize
     ): List<PointerInputChange> {
         if (pass == PointerEventPass.PostUp) {
             if (state == State.Idle && changes.all { it.changedToDown() }) {

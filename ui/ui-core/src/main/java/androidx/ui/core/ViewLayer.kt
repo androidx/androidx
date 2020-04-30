@@ -24,8 +24,8 @@ import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.CanvasHolder
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.RectangleShape
-import androidx.ui.unit.IntPxPosition
-import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.IntOffset
+import androidx.ui.unit.IntSize
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
@@ -121,9 +121,9 @@ internal class ViewLayer(
         }
     }
 
-    override fun resize(size: IntPxSize) {
-        val width = size.width.value
-        val height = size.height.value
+    override fun resize(size: IntSize) {
+        val width = size.width
+        val height = size.height
         if (width != this.width || height != this.height) {
             pivotX = mTransformOrigin.pivotFractionX * width
             pivotY = mTransformOrigin.pivotFractionY * height
@@ -134,13 +134,13 @@ internal class ViewLayer(
         }
     }
 
-    override fun move(position: IntPxPosition) {
-        val left = position.x.value
+    override fun move(position: IntOffset) {
+        val left = position.x
 
         if (left != this.left) {
             offsetLeftAndRight(left - this.left)
         }
-        val top = position.y.value
+        val top = position.y
         if (top != this.top) {
             offsetTopAndBottom(top - this.top)
         }

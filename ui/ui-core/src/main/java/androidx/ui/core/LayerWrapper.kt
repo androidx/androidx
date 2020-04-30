@@ -20,9 +20,9 @@ import android.graphics.Matrix
 import android.graphics.RectF
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
-import androidx.ui.unit.IntPxPosition
 import androidx.ui.geometry.Offset
+import androidx.ui.graphics.Canvas
+import androidx.ui.unit.IntOffset
 
 internal class LayerWrapper(
     wrapped: LayoutNodeWrapper,
@@ -64,7 +64,7 @@ internal class LayerWrapper(
         return placeable
     }
 
-    override fun place(position: IntPxPosition) {
+    override fun place(position: IntOffset) {
         super.place(position)
         layer.move(position)
     }
@@ -127,7 +127,7 @@ internal class LayerWrapper(
 
     override fun rectInParent(bounds: RectF) {
         if (modifier.clip &&
-            !bounds.intersect(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
+            !bounds.intersect(0f, 0f, size.width.toFloat(), size.height.toFloat())
         ) {
             bounds.setEmpty()
         }
@@ -143,8 +143,8 @@ internal class LayerWrapper(
         if (modifier.clip) {
             val l = globalPosition.x
             val t = globalPosition.y
-            val r = l + width.value
-            val b = t + height.value
+            val r = l + width
+            val b = t + height
 
             val localBoundsRelativeToScreen = Rect(l, t, r, b)
             if (!localBoundsRelativeToScreen.contains(pointerPositionRelativeToScreen)) {

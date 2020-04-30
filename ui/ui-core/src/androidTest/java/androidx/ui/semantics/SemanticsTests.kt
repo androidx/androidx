@@ -36,15 +36,13 @@ import androidx.ui.test.findByText
 import androidx.ui.test.assert
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.unit.IntPx
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
+import kotlin.math.max
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -320,18 +318,18 @@ private fun SimpleTestLayout(modifier: Modifier = Modifier, children: @Composabl
             val (width, height) = with(placeables.filterNotNull()) {
                 Pair(
                     max(
-                        maxBy { it.width.value }?.width ?: IntPx.Zero,
+                        maxBy { it.width }?.width ?: 0,
                         constraints.minWidth
                     ),
                     max(
-                        maxBy { it.height.value }?.height ?: IntPx.Zero,
+                        maxBy { it.height }?.height ?: 0,
                         constraints.minHeight
                     )
                 )
             }
             layout(width, height) {
                 for (placeable in placeables) {
-                    placeable.place(0.ipx, 0.ipx)
+                    placeable.place(0, 0)
                 }
             }
         }
