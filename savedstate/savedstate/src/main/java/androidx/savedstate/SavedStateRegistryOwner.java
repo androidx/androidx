@@ -22,6 +22,8 @@ import androidx.lifecycle.LifecycleOwner;
 
 /**
  * A scope that owns {@link SavedStateRegistry}
+ *
+ * @see ViewTreeSavedStateRegistryOwner
  */
 public interface SavedStateRegistryOwner extends LifecycleOwner {
     /**
