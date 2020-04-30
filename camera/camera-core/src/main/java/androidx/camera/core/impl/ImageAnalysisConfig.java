@@ -31,6 +31,7 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy;
+import androidx.camera.core.ImageReaderProxyProvider;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.internal.ThreadConfig;
 
@@ -54,6 +55,9 @@ public final class ImageAnalysisConfig
                     BackpressureStrategy.class);
     public static final Option<Integer> OPTION_IMAGE_QUEUE_DEPTH =
             Option.create("camerax.core.imageAnalysis.imageQueueDepth", int.class);
+    public static final Option<ImageReaderProxyProvider> OPTION_IMAGE_READER_PROXY_PROVIDER =
+            Option.create("camerax.core.imageAnalysis.imageReaderProxyProvider",
+                    ImageReaderProxyProvider.class);
 
     // *********************************************************************************************
 
@@ -121,6 +125,17 @@ public final class ImageAnalysisConfig
      */
     public int getImageQueueDepth() {
         return retrieveOption(OPTION_IMAGE_QUEUE_DEPTH);
+    }
+
+    /**
+     * Gets the caller provided {@link ImageReaderProxy}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public ImageReaderProxyProvider getImageReaderProxyProvider() {
+        return retrieveOption(OPTION_IMAGE_READER_PROXY_PROVIDER, null);
     }
 
     // Start of the default implementation of Config

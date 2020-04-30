@@ -17,25 +17,20 @@
 package androidx.camera.core
 
 import android.content.Context
-import android.media.Image
+import android.graphics.ImageFormat
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.view.Surface
-import androidx.camera.core.impl.CameraControlInternal.ControlUpdateCallback
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.CaptureConfig
-import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeCameraCaptureResult
-import androidx.camera.testing.fakes.FakeCameraControl
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
-import androidx.camera.testing.fakes.FakeCameraInfoInternal
+import androidx.camera.testing.fakes.FakeImageReaderProxy
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -45,8 +40,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
@@ -61,39 +54,21 @@ import java.util.concurrent.Executor
 @MediumTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(
-    minSdk = Build.VERSION_CODES.LOLLIPOP,
-    shadows = [ShadowCameraX::class, ShadowImageReader::class]
-)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = [ShadowCameraX::class])
 class ImageCaptureTest {
 
     private var executor: Executor? = null
     private var callbackHandler: Handler? = null
-    private var fakeCameraControl: FakeCameraControl? = null
+    private var fakeImageReaderProxy: FakeImageReaderProxy? = null
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
-        fakeCameraControl = FakeCameraControl(
-            object : ControlUpdateCallback {
-                override fun onCameraControlUpdateSessionConfig(
-                    sessionConfig: SessionConfig
-                ) {
-                }
-
-                override fun onCameraControlCaptureRequests(
-                    captureConfigs: List<CaptureConfig>
-                ) {
-                }
-            })
         val cameraFactoryProvider =
             CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(ShadowCameraX.DEFAULT_CAMERA_ID) {
-                    FakeCamera(
-                        ShadowCameraX.DEFAULT_CAMERA_ID, fakeCameraControl,
-                        FakeCameraInfoInternal()
-                    )
+                    FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID)
                 }
                 cameraFactory
             }
@@ -107,7 +82,6 @@ class ImageCaptureTest {
         callbackThread.start()
         callbackHandler = Handler(callbackThread.looper)
         executor = CameraXExecutors.newHandlerExecutor(callbackHandler!!)
-        ShadowImageReader.clear()
     }
 
     @After
@@ -115,17 +89,20 @@ class ImageCaptureTest {
     fun tearDown() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync { CameraX.unbindAll() }
         CameraX.shutdown().get()
+        fakeImageReaderProxy = null
     }
 
     @Test
     fun capturedImageSize_isEqualToSurfaceSize() {
         // Arrange.
-        val timestamp = 0L
         val imageCapture = ImageCapture.Builder()
+            // Set non jpg format so it doesn't trigger the exif code path.
+            .setBufferFormat(ImageFormat.YUV_420_888)
             .setTargetRotation(Surface.ROTATION_0)
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .setFlashMode(ImageCapture.FLASH_MODE_OFF)
             .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
+            .setImageReaderProxyProvider(getImageReaderProxyProvider())
             .build()
         var capturedImage: ImageProxy? = null
         val onImageCapturedCallback = object : ImageCapture.OnImageCapturedCallback() {
@@ -150,29 +127,24 @@ class ImageCaptureTest {
                 lifecycleOwner.startAndResume()
             }
         imageCapture.takePicture(executor!!, onImageCapturedCallback)
-        // Send mock image.
-        ShadowImageReader.triggerCallbackWithMockImage(createMockImage(timestamp))
-        flushHandler(callbackHandler)
-        // Send fake image info.
-        fakeCameraControl?.notifyAllRequestsOnCaptureCompleted(
-            FakeCameraCaptureResult.Builder().setTimestamp(timestamp).build()
-        )
+        // Send fake image.
+        fakeImageReaderProxy?.triggerImageAvailable("tag", 0)
         flushHandler(callbackHandler)
 
         // Assert.
-        Truth.assertThat(capturedImage?.width)
-            .isEqualTo(FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width)
-        Truth.assertThat(capturedImage?.height)
-            .isEqualTo(FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height)
+        Truth.assertThat(capturedImage?.width).isEqualTo(fakeImageReaderProxy?.width)
+        Truth.assertThat(capturedImage?.height).isEqualTo(fakeImageReaderProxy?.height)
+    }
+
+    private fun getImageReaderProxyProvider(): ImageReaderProxyProvider {
+        return ImageReaderProxyProvider { _, _, imageFormat, queueDepth, _ ->
+            fakeImageReaderProxy = FakeImageReaderProxy(queueDepth)
+            fakeImageReaderProxy?.imageFormat = imageFormat
+            fakeImageReaderProxy!!
+        }
     }
 
     private fun flushHandler(handler: Handler?) {
         (Shadow.extract<Any>(handler!!.looper) as ShadowLooper).idle()
-    }
-
-    private fun createMockImage(timestamp: Long): Image? {
-        val mockImage = mock(Image::class.java)
-        Mockito.`when`(mockImage.timestamp).thenReturn(timestamp)
-        return mockImage
     }
 }

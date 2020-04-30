@@ -16,15 +16,9 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
-
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import android.content.Context;
-import android.media.Image;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -34,6 +28,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
@@ -62,23 +57,25 @@ import java.util.concurrent.Executor;
 @MediumTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = {ShadowCameraX.class,
-        ShadowImageReader.class})
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = {ShadowCameraX.class})
 public class ImageAnalysisTest {
 
     private static final int QUEUE_DEPTH = 8;
-    private static final Image MOCK_IMAGE_1 = createMockImage(1);
-    private static final Image MOCK_IMAGE_2 = createMockImage(2);
-    private static final Image MOCK_IMAGE_3 = createMockImage(3);
+    private static final String IMAGE_TAG = "IMAGE_TAG";
+    private static final long TIMESTAMP_1 = 1;
+    private static final long TIMESTAMP_2 = 2;
+    private static final long TIMESTAMP_3 = 3;
 
     private Handler mCallbackHandler;
     private Handler mBackgroundHandler;
     private Executor mBackgroundExecutor;
     private List<ImageProxy> mImageProxiesReceived;
     private ImageAnalysis mImageAnalysis;
+    private FakeImageReaderProxy mFakeImageReaderProxy;
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
+        mFakeImageReaderProxy = new FakeImageReaderProxy(QUEUE_DEPTH);
         HandlerThread callbackThread = new HandlerThread("Callback");
         callbackThread.start();
         mCallbackHandler = new Handler(callbackThread.getLooper());
@@ -89,8 +86,6 @@ public class ImageAnalysisTest {
         mBackgroundExecutor = CameraXExecutors.newHandlerExecutor(mBackgroundHandler);
 
         mImageProxiesReceived = new ArrayList<>();
-
-        ShadowImageReader.clear();
 
         CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2) -> {
             FakeCameraFactory cameraFactory = new FakeCameraFactory();
@@ -114,32 +109,32 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void resultSize_isEqualToSurfaceSize() {
+    public void resultSize_isEqualToSurfaceSize() throws InterruptedException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
 
         // Act.
-        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_1);
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
         flushHandler(mCallbackHandler);
 
         // Assert.
         assertThat(Iterables.getOnlyElement(mImageProxiesReceived).getHeight()).isEqualTo(
-                MAX_OUTPUT_SIZE.getHeight());
+                mFakeImageReaderProxy.getHeight());
         assertThat(Iterables.getOnlyElement(mImageProxiesReceived).getWidth()).isEqualTo(
-                MAX_OUTPUT_SIZE.getWidth());
+                mFakeImageReaderProxy.getWidth());
     }
 
     @Test
-    public void nonBlockingAnalyzerClosed_imageNotAnalyzed() {
+    public void nonBlockingAnalyzerClosed_imageNotAnalyzed() throws InterruptedException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
 
         // Act.
         // Receive images from camera feed.
-        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_1);
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
-        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_2);
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_2);
         flushHandler(mBackgroundHandler);
 
         // Assert.
@@ -148,24 +143,24 @@ public class ImageAnalysisTest {
 
         // Flush callback handler and image1 is received.
         flushHandler(mCallbackHandler);
-        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1);
+        assertThat(getImageTimestampsReceived()).containsExactly(TIMESTAMP_1);
 
         // Clear ImageAnalysis and flush both handlers. No more image should be received because
         // it's closed.
         mImageAnalysis.clear();
         flushHandler(mBackgroundHandler);
         flushHandler(mCallbackHandler);
-        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1);
+        assertThat(getImageTimestampsReceived()).containsExactly(TIMESTAMP_1);
     }
 
     @Test
-    public void blockingAnalyzerClosed_imageNotAnalyzed() {
+    public void blockingAnalyzerClosed_imageNotAnalyzed() throws InterruptedException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER);
 
         // Act.
         // Receive images from camera feed.
-        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_1);
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
 
         // Assert.
@@ -179,17 +174,17 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void keepOnlyLatestStrategy_doesNotBlock() {
+    public void keepOnlyLatestStrategy_doesNotBlock() throws InterruptedException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
 
         // Act.
         // Receive images from camera feed.
-        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_1);
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
-        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_2);
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_2);
         flushHandler(mBackgroundHandler);
-        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_3);
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_3);
         flushHandler(mBackgroundHandler);
 
         // Assert.
@@ -198,32 +193,32 @@ public class ImageAnalysisTest {
 
         // Flush callback handler and image1 is received.
         flushHandler(mCallbackHandler);
-        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1);
+        assertThat(getImageTimestampsReceived()).containsExactly(TIMESTAMP_1);
 
         // Flush both handlers and the previous cached image3 is received (image2 was dropped). The
         // code alternates the 2 threads so they have to be both flushed to proceed.
         flushHandler(mBackgroundHandler);
         flushHandler(mCallbackHandler);
-        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1, MOCK_IMAGE_3);
+        assertThat(getImageTimestampsReceived()).containsExactly(TIMESTAMP_1, TIMESTAMP_3);
 
         // Flush both handlers and no more frame.
         flushHandler(mBackgroundHandler);
         flushHandler(mCallbackHandler);
-        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1, MOCK_IMAGE_3);
+        assertThat(getImageTimestampsReceived()).containsExactly(TIMESTAMP_1, TIMESTAMP_3);
     }
 
     @Test
-    public void blockProducerStrategy_doesNotDropFrames() {
+    public void blockProducerStrategy_doesNotDropFrames() throws InterruptedException {
         // Arrange.
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER);
 
         // Act.
         // Receive images from camera feed.
-        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_1);
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
-        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_2);
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_2);
         flushHandler(mBackgroundHandler);
-        ShadowImageReader.triggerCallbackWithMockImage(MOCK_IMAGE_3);
+        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_3);
         flushHandler(mBackgroundHandler);
 
         // Assert.
@@ -232,7 +227,8 @@ public class ImageAnalysisTest {
 
         // Flush callback handler and 3 frames received.
         flushHandler(mCallbackHandler);
-        assertThat(getImagesReceived()).containsExactly(MOCK_IMAGE_1, MOCK_IMAGE_2, MOCK_IMAGE_3);
+        assertThat(getImageTimestampsReceived())
+                .containsExactly(TIMESTAMP_1, TIMESTAMP_2, TIMESTAMP_3);
     }
 
     private void setUpImageAnalysisWithStrategy(
@@ -241,6 +237,8 @@ public class ImageAnalysisTest {
                 .setBackgroundExecutor(mBackgroundExecutor)
                 .setImageQueueDepth(QUEUE_DEPTH)
                 .setBackpressureStrategy(backpressureStrategy)
+                .setImageReaderProxyProvider(
+                        (width, height, format, queueDepth, usage) -> mFakeImageReaderProxy)
                 .build();
 
         mImageAnalysis.setAnalyzer(CameraXExecutors.newHandlerExecutor(mCallbackHandler),
@@ -258,10 +256,10 @@ public class ImageAnalysisTest {
         });
     }
 
-    private List<Image> getImagesReceived() {
-        List<Image> imagesReceived = new ArrayList<>();
+    private List<Long> getImageTimestampsReceived() {
+        List<Long> imagesReceived = new ArrayList<>();
         for (ImageProxy imageProxy : mImageProxiesReceived) {
-            imagesReceived.add(imageProxy.getImage());
+            imagesReceived.add(imageProxy.getImageInfo().getTimestamp());
         }
         return imagesReceived;
     }
@@ -273,11 +271,5 @@ public class ImageAnalysisTest {
      */
     private static void flushHandler(Handler handler) {
         ((ShadowLooper) Shadow.extract(handler.getLooper())).idle();
-    }
-
-    private static Image createMockImage(long timestamp) {
-        Image mockImage = mock(Image.class);
-        when(mockImage.getTimestamp()).thenReturn(timestamp);
-        return mockImage;
     }
 }
