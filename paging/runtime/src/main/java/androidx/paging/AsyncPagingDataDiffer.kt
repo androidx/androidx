@@ -19,8 +19,8 @@ package androidx.paging
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
@@ -156,6 +156,14 @@ open class AsyncPagingDataDiffer<T : Any>(
         newJob.start()
     }
 
+    /**
+     * Retry any failed load requests that would result in a [LoadState.Error] update to this
+     * [AsyncPagingDataDiffer].
+     *
+     * [LoadState.Error] can be generated from two types of load requests:
+     *  * [PagingSource.load] returning [PagingSource.LoadResult.Error]
+     *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
+     */
     fun retry() {
         differBase.retry()
     }
