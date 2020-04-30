@@ -310,7 +310,7 @@ class FilledTextFieldTest {
                     FilledTextField(
                         value = "",
                         onValueChange = {},
-                        label = {},
+                        label = { Text("label") },
                         placeholder = {
                             Text(text = "placeholder", modifier = Modifier.onPositioned {
                                 placeholderPosition.value = it.globalPosition
@@ -337,6 +337,50 @@ class FilledTextFieldTest {
             )
             assertThat(placeholderBaseline.value).isEqualTo(
                 ExpectedBaselineOffset.toIntPx().toPx() * 2
+            )
+        }
+    }
+
+    @Test
+    fun testPlaceholderPosition_whenNoLabel() {
+        val placeholderSize = Ref<IntPxSize>()
+        val placeholderPosition = Ref<PxPosition>()
+        val placeholderBaseline = Ref<Px>()
+        val height = 60.dp
+        testRule.setMaterialContent {
+            Box {
+                TestTag("textField") {
+                    FilledTextField(
+                        value = "",
+                        onValueChange = {},
+                        label = {},
+                        modifier = Modifier.preferredHeight(height),
+                        placeholder = {
+                            Text(text = "placeholder", modifier = Modifier.onPositioned {
+                                placeholderPosition.value = it.globalPosition
+                                placeholderSize.value = it.size
+                                placeholderBaseline.value =
+                                    it[FirstBaseline]!!.toPx() + placeholderPosition.value!!.y
+                            })
+                        }
+                    )
+                }
+            }
+        }
+        // click to focus
+        clickAndAdvanceClock("textField", 200)
+
+        testRule.runOnIdleComposeWithDensity {
+            // size
+            assertThat(placeholderSize.value).isNotNull()
+            assertThat(placeholderSize.value?.height).isGreaterThan(0.ipx)
+            assertThat(placeholderSize.value?.width).isGreaterThan(0.ipx)
+            // centered position
+            assertThat(placeholderPosition.value?.x).isEqualTo(
+                ExpectedPadding.toIntPx().toPx()
+            )
+            assertThat(placeholderPosition.value?.y).isEqualTo(
+                ((height.toIntPx() - placeholderSize.value!!.height) / 2f).toPx()
             )
         }
     }
