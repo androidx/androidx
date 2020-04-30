@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.core.text.SpannedStringKt#getSpans(android.text.Spanned, int, int):
+    Attempted to remove @NonNull annotation from method androidx.core.text.SpannedStringKt.getSpans(android.text.Spanned,int,int)
+
+
+RemovedMethod: androidx.core.view.ViewKt#updateLayoutParamsTyped(android.view.View, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>):
+    Removed method androidx.core.view.ViewKt.updateLayoutParamsTyped(android.view.View,kotlin.jvm.functions.Function1<? super T,kotlin.Unit>)

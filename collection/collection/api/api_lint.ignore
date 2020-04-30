@@ -27,14 +27,6 @@ KotlinOperator: androidx.collection.SparseArrayCompat#get(int, E):
 
 MissingNullability: androidx.collection.ArrayMap#ArrayMap(androidx.collection.SimpleArrayMap) parameter #0:
     Missing nullability on parameter `map` in method `ArrayMap`
-MissingNullability: androidx.collection.ArrayMap#entrySet():
-    Missing nullability on method `entrySet` return
-MissingNullability: androidx.collection.ArrayMap#keySet():
-    Missing nullability on method `keySet` return
-MissingNullability: androidx.collection.ArrayMap#putAll(java.util.Map<? extends K,? extends V>) parameter #0:
-    Missing nullability on parameter `map` in method `putAll`
-MissingNullability: androidx.collection.ArrayMap#values():
-    Missing nullability on method `values` return
 MissingNullability: androidx.collection.LongSparseArray#clone():
     Missing nullability on method `clone` return
 MissingNullability: androidx.collection.LongSparseArray#remove(long, Object) parameter #1:

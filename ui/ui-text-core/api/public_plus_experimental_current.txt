@@ -841,11 +841,11 @@ package androidx.ui.text.style {
   public final inline class BaselineShift {
     ctor public BaselineShift();
     method public static float constructor-impl(float multiplier);
-    method public static boolean equals-impl(float p, Object? p1);
+    method public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getMultiplier();
-    method public static int hashCode-impl(float p);
-    method public static String toString-impl(float p);
+    method public static inline int hashCode-impl(float p);
+    method public static inline String! toString-impl(float p);
     field public static final androidx.ui.text.style.BaselineShift.Companion! Companion;
   }
 

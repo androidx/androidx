@@ -270,7 +270,7 @@ package androidx.paging {
     method public boolean getJumpingSupported();
     method @androidx.paging.ExperimentalPagingApi public Key? getRefreshKey(androidx.paging.PagingState<Key,Value> state);
     method public void invalidate();
-    method public abstract suspend Object load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
+    method public abstract suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
     method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     method public final void unregisterInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     property public final boolean invalid;
@@ -380,8 +380,8 @@ package androidx.paging {
 
   @androidx.paging.ExperimentalPagingApi public abstract class RemoteMediator<Key, Value> {
     ctor public RemoteMediator();
-    method public suspend Object initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction> $completion);
-    method public abstract suspend Object load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> p);
+    method public suspend Object? initialize(kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.InitializeAction> $completion);
+    method public abstract suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> p);
   }
 
   public enum RemoteMediator.InitializeAction {
