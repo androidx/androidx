@@ -178,7 +178,8 @@ public final class RoleManagerCompat {
      * <p>
      * To qualify for this role, an application needs to implement
      * {@link android.telecom.CallScreeningService}. The application will be able to screen calls
-     * and provide call identification.
+     * and provide call identification. The application will also be able to display over other apps
+     * on Android 11 or above.
      *
      * @see android.telecom.CallScreeningService
      */
