@@ -25,6 +25,8 @@ import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.input.KeyboardType
+import androidx.ui.input.PasswordVisualTransformation
 import androidx.ui.layout.Column
 import androidx.ui.layout.padding
 import androidx.ui.material.EmphasisAmbient
@@ -121,6 +123,19 @@ fun TextFieldWithHelperMessage() {
             modifier = Modifier.padding(start = 16.dp)
         )
     }
+}
+
+@Sampled
+@Composable
+fun PasswordFilledTextField() {
+    var password by savedInstanceState { "" }
+    FilledTextField(
+        value = password,
+        onValueChange = { password = it },
+        label = { Text("Enter password", style = currentTextStyle()) },
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardType = KeyboardType.Password
+    )
 }
 
 @Sampled

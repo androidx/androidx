@@ -57,6 +57,9 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Shape
+import androidx.ui.input.ImeAction
+import androidx.ui.input.KeyboardType
+import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple
@@ -97,17 +100,22 @@ import androidx.ui.unit.max
  *
  * @sample androidx.ui.material.samples.TextFieldWithHelperMessage
  *
+ * Password text field example:
+ *
+ * @sample androidx.ui.material.samples.PasswordFilledTextField
+ *
  * If apart from input text change you also want to observe the cursor location or selection range,
  * use a FilledTextField overload with the [TextFieldValue] parameter instead.
  *
  * @param value the input text to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text. An
  * updated text comes as a parameter of the callback
- * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
- * [currentTextStyle] defined by a theme
  * @param label the label to be displayed inside the text field container. The default text style
  * for internal [Text] is [Typography.caption] when the text field is in focus and
  * [Typography.subtitle1] when text field is not in focus
+ * @param modifier a [Modifier] for this text field
+ * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
+ * [currentTextStyle] defined by the theme
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
  * the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
@@ -117,6 +125,18 @@ import androidx.ui.unit.max
  * If the boolean parameter value is `true`, it means the text field has a focus, and vice versa
  * @param isErrorValue indicates if the text field's current value is in error. If set to true, the
  * label, bottom indicator and trailing icon will be displayed in [errorColor] color
+ * @param keyboardType the keyboard type to be used with the text field.
+ * Note that the input type is not guaranteed. For example, an IME may send a non-ASCII character
+ * even if you set the keyboard type to [KeyboardType.Ascii]
+ * @param imeAction the IME action honored by the IME. The 'enter' key on the soft keyboard input
+ * will show a corresponding icon. For example, search icon may be shown if [ImeAction.Search] is
+ * selected. When a user taps on that 'enter' key, the [onImeActionPerformed] callback is called
+ * with the specified [ImeAction]
+ * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
+ * Note that the emitted IME action may be different from what you specified through the
+ * [imeAction] field
+ * @param visualTransformation transforms the visual output of the input [value]. For example, you
+ * can use [androidx.ui.input.PasswordVisualTransformation] to create a password text field
  * @param onFocusChange the callback triggered when the text field gets or loses the focus
  * @param activeColor the color of the label and bottom indicator when the text field is in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
@@ -131,13 +151,17 @@ import androidx.ui.unit.max
 fun FilledTextField(
     value: String,
     onValueChange: (String) -> Unit,
+    label: @Composable() () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
-    label: @Composable() () -> Unit,
     placeholder: @Composable() (() -> Unit)? = null,
     leadingIcon: @Composable() (() -> Unit)? = null,
     trailingIcon: @Composable() (() -> Unit)? = null,
     isErrorValue: Boolean = false,
+    visualTransformation: VisualTransformation? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Unspecified,
+    onImeActionPerformed: (ImeAction) -> Unit = {},
     onFocusChange: (Boolean) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
@@ -170,6 +194,10 @@ fun FilledTextField(
         leading = leadingIcon,
         trailing = trailingIcon,
         isErrorValue = isErrorValue,
+        visualTransformation = visualTransformation,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        onImeActionPerformed = onImeActionPerformed,
         onFocusChange = onFocusChange,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
@@ -193,11 +221,12 @@ fun FilledTextField(
  * @param value the input [TextFieldValue] to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text,
  * selection or cursor. An updated [TextFieldValue] comes as a parameter of the callback
- * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
- * [currentTextStyle] defined by a theme
  * @param label the label to be displayed inside the text field container. The default text style
  * for internal [Text] is [Typography.caption] when the text field is in focus and
  * [Typography.subtitle1] when text field is not in focus
+ * @param modifier a [Modifier] for this text field
+ * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
+ * [currentTextStyle] defined by the theme
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
  * the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
@@ -207,6 +236,18 @@ fun FilledTextField(
  * If the boolean parameter value is `true`, it means the text field has a focus, and vice versa
  * @param isErrorValue indicates if the text field's current value is in error state. If set to
  * true, the label, bottom indicator and trailing icon will be displayed in [errorColor] color
+ * @param keyboardType the keyboard type to be used with the text field.
+ * Note that the input type is not guaranteed. For example, an IME may send a non-ASCII character
+ * even if you set the keyboard type to [KeyboardType.Ascii]
+ * @param imeAction the IME action honored by the IME. The 'enter' key on the soft keyboard input
+ * will show a corresponding icon. For example, search icon may be shown if [ImeAction.Search] is
+ * selected. When a user taps on that 'enter' key, the [onImeActionPerformed] callback is called
+ * with the specified [ImeAction]
+ * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
+ * Note that the emitted IME action may be different from what you specified through the
+ * [imeAction] field
+ * @param visualTransformation transforms the visual output of the input [value]. For example, you
+ * can use [androidx.ui.input.PasswordVisualTransformation] to create a password text field
  * @param onFocusChange the callback triggered when the text field gets or loses the focus
  * @param activeColor the color of the label and bottom indicator when the text field is in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
@@ -221,13 +262,17 @@ fun FilledTextField(
 fun FilledTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
+    label: @Composable() () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
-    label: @Composable() () -> Unit,
     placeholder: @Composable() (() -> Unit)? = null,
     leadingIcon: @Composable() (() -> Unit)? = null,
     trailingIcon: @Composable() (() -> Unit)? = null,
     isErrorValue: Boolean = false,
+    visualTransformation: VisualTransformation? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Unspecified,
+    onImeActionPerformed: (ImeAction) -> Unit = {},
     onFocusChange: (Boolean) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
@@ -246,6 +291,10 @@ fun FilledTextField(
         leading = leadingIcon,
         trailing = trailingIcon,
         isErrorValue = isErrorValue,
+        visualTransformation = visualTransformation,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        onImeActionPerformed = onImeActionPerformed,
         onFocusChange = onFocusChange,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
@@ -269,6 +318,10 @@ private fun FilledTextFieldImpl(
     leading: @Composable() (() -> Unit)?,
     trailing: @Composable() (() -> Unit)?,
     isErrorValue: Boolean,
+    visualTransformation: VisualTransformation?,
+    keyboardType: KeyboardType,
+    imeAction: ImeAction,
+    onImeActionPerformed: (ImeAction) -> Unit,
     onFocusChange: (Boolean) -> Unit,
     activeColor: Color,
     inactiveColor: Color,
@@ -315,7 +368,11 @@ private fun FilledTextFieldImpl(
                     onFocusChange(it)
                 },
                 focusNode = focusNode,
-                cursorColor = if (isErrorValue) errorColor else MaterialTheme.colors.primary
+                cursorColor = if (isErrorValue) errorColor else MaterialTheme.colors.primary,
+                visualTransformation = visualTransformation,
+                keyboardType = keyboardType,
+                imeAction = imeAction,
+                onImeActionPerformed = onImeActionPerformed
             )
         }
     }
