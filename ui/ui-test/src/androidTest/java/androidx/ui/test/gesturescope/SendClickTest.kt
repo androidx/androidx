@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.test
+package androidx.ui.test.gesturescope
 
 import android.os.Bundle
 import android.view.Gravity
@@ -38,6 +38,11 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.doGesture
+import androidx.ui.test.findByTag
+import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.runOnUiThread
+import androidx.ui.test.sendClick
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.px
