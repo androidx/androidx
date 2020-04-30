@@ -25,11 +25,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ZoomState;
+import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
+
+import java.util.concurrent.Executor;
 
 /**
  * Implementation of the {@link CameraInfoInternal} interface that exposes parameters through
@@ -40,17 +43,19 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     private static final String TAG = "Camera2CameraInfo";
     private final String mCameraId;
     private final CameraCharacteristics mCameraCharacteristics;
+    private final Camera2CameraControl mCamera2CameraControl;
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
 
     Camera2CameraInfoImpl(@NonNull String cameraId,
             @NonNull CameraCharacteristics cameraCharacteristics,
-            @NonNull ZoomControl zoomControl, @NonNull TorchControl torchControl) {
+            @NonNull Camera2CameraControl camera2CameraControl) {
         Preconditions.checkNotNull(cameraCharacteristics, "Camera characteristics map is missing");
         mCameraId = Preconditions.checkNotNull(cameraId);
         mCameraCharacteristics = cameraCharacteristics;
-        mZoomControl = zoomControl;
-        mTorchControl = torchControl;
+        mCamera2CameraControl = camera2CameraControl;
+        mZoomControl = camera2CameraControl.getZoomControl();
+        mTorchControl = camera2CameraControl.getTorchControl();
         logDeviceInfo();
     }
 
@@ -180,5 +185,16 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         final int hardwareLevel = getSupportedHardwareLevel();
         return hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
                 ? IMPLEMENTATION_TYPE_CAMERA2_LEGACY : IMPLEMENTATION_TYPE_CAMERA2;
+    }
+
+    @Override
+    public void addSessionCaptureCallback(@NonNull Executor executor,
+            @NonNull CameraCaptureCallback callback) {
+        mCamera2CameraControl.addSessionCameraCaptureCallback(executor, callback);
+    }
+
+    @Override
+    public void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback) {
+        mCamera2CameraControl.removeSessionCameraCaptureCallback(callback);
     }
 }

@@ -1787,8 +1787,8 @@ public final class SupportedSurfaceCombinationTest {
                 CameraCharacteristics.LENS_FACING_BACK);
 
         mCameraFactory.insertCamera(lensFacingEnum, CAMERA_ID, () -> new FakeCamera(CAMERA_ID, null,
-                new Camera2CameraInfoImpl(CAMERA_ID, characteristics, mock(ZoomControl.class),
-                        mock(TorchControl.class))));
+                new Camera2CameraInfoImpl(CAMERA_ID, characteristics,
+                        mock(Camera2CameraControl.class))));
 
         initCameraX();
     }

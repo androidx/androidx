@@ -23,12 +23,15 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
+import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import java.util.concurrent.Executor;
 
 /**
  * Information for a fake camera.
@@ -117,5 +120,16 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @Override
     public String getImplementationType() {
         return IMPLEMENTATION_TYPE_FAKE;
+    }
+
+    @Override
+    public void addSessionCaptureCallback(@NonNull Executor executor,
+            @NonNull CameraCaptureCallback callback) {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
+
+    @Override
+    public void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback) {
+        throw new UnsupportedOperationException("Not Implemented");
     }
 }

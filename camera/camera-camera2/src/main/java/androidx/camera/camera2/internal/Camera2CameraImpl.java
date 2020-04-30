@@ -198,8 +198,7 @@ final class Camera2CameraImpl implements CameraInternal {
             mCameraInfoInternal = new Camera2CameraInfoImpl(
                     cameraId,
                     cameraCharacteristics,
-                    mCameraControlInternal.getZoomControl(),
-                    mCameraControlInternal.getTorchControl());
+                    mCameraControlInternal);
             Camera2CameraInfoImpl camera2CameraInfo = (Camera2CameraInfoImpl) mCameraInfoInternal;
             mCaptureSessionBuilder.setSupportedHardwareLevel(
                     camera2CameraInfo.getSupportedHardwareLevel());
