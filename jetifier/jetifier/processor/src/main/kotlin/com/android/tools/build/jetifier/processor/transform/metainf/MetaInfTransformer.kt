@@ -47,7 +47,8 @@ class MetaInfTransformer internal constructor(
             "androidx.annotation_annotation-experimental.version",
             "androidx.navigation_navigation-dynamic-features-fragment.version",
             "androidx.navigation_navigation-dynamic-features-runtime.version",
-            "androidx.navigation_navigation-testing.version"
+            "androidx.navigation_navigation-testing.version",
+            "androidx.savedstate_savedstate-ktx.version"
         )
     }
 
