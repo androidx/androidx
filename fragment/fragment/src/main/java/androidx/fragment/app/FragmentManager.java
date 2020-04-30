@@ -2060,9 +2060,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
             if (allowReordering) {
                 moveToState(mCurState, true);
             }
+            // The last operation determines the overall direction, this ensures that operations
+            // such as push, push, pop, push are correctly considered a push
+            boolean isPop = isRecordPop.get(endIndex - 1);
             Set<SpecialEffectsController> changedControllers = collectChangedControllers(
                     records, startIndex, endIndex);
             for (SpecialEffectsController controller : changedControllers) {
+                controller.updateOperationDirection(isPop);
                 controller.executePendingOperations();
             }
         } else {
