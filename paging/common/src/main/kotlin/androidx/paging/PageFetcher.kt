@@ -35,6 +35,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     private val pagingSourceFactory: () -> PagingSource<Key, Value>,
     private val initialKey: Key?,
     private val config: PagingConfig,
+    @OptIn(ExperimentalPagingApi::class)
     remoteMediator: RemoteMediator<Key, Value>? = null
 ) {
     private val remoteMediatorAccessor = remoteMediator?.let { RemoteMediatorAccessor(it) }
@@ -56,6 +57,7 @@ internal class PageFetcher<Key : Any, Value : Any>(
     val flow: Flow<PagingData<Value>> = channelFlow {
         refreshChannel.asFlow()
             .onStart {
+                @OptIn(ExperimentalPagingApi::class)
                 emit(remoteMediatorAccessor?.initialize() == LAUNCH_INITIAL_REFRESH)
             }
             .scan(null) { previousGeneration: PageFetcherSnapshot<Key, Value>?,

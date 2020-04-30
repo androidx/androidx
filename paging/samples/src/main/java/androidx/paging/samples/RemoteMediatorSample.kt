@@ -19,6 +19,7 @@
 package androidx.paging.samples
 
 import androidx.annotation.Sampled
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
@@ -48,6 +49,7 @@ fun remoteMediatorSample() {
      * This sample loads `Item`s via Retrofit from a network service using String tokens to load
      * pages (each response has a next/previous token), and inserts them into database.
      */
+    @OptIn(ExperimentalPagingApi::class)
     class MyRemoteMediator(
         private val database: ItemDao,
         private val networkService: MyBackendService

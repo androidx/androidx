@@ -16,6 +16,7 @@
 
 package androidx.paging.integration.testapp.v3room
 
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
@@ -26,6 +27,7 @@ import androidx.room.withTransaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalPagingApi::class)
 internal class V3RemoteMediator(
     private val database: SampleDatabase,
     private val networkSource: NetworkCustomerPagingSource
