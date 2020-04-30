@@ -74,6 +74,76 @@ class FragmentResultTest {
     }
 
     @Test
+    fun testClearResult() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+            val fragment1 = ResultFragment()
+
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .commit()
+            executePendingTransactions()
+
+            val fragment2 = StrictFragment()
+
+            fm.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            val resultBundle = Bundle()
+            val expectedResult = "resultGood"
+            resultBundle.putString("bundleKey", expectedResult)
+
+            fm.setFragmentResult("requestKey", resultBundle)
+            fm.clearFragmentResult("requestKey")
+
+            assertWithMessage("The result should not be set")
+                .that(fragment1.actualResult)
+                .isNull()
+
+            withActivity {
+                fm.popBackStackImmediate()
+            }
+
+            assertWithMessage("The result should not be set")
+                .that(fragment1.actualResult)
+                .isNull()
+        }
+    }
+
+    @Test
+    fun testClearResultListener() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                setContentView(R.layout.simple_container)
+                supportFragmentManager
+            }
+            val fragment1 = ResultFragment()
+
+            fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .commit()
+            executePendingTransactions()
+
+            val resultBundle = Bundle()
+            val expectedResult = "resultGood"
+            resultBundle.putString("bundleKey", expectedResult)
+
+            fm.clearFragmentResultListener("requestKey")
+            fm.setFragmentResult("requestKey", resultBundle)
+
+            assertWithMessage("The result is incorrect")
+                .that(fragment1.actualResult)
+                .isNull()
+        }
+    }
+
+    @Test
     fun testSetResultWhileResumed() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {

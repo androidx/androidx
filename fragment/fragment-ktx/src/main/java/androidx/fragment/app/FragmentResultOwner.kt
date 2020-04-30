@@ -35,8 +35,7 @@ import androidx.lifecycle.LifecycleOwner
 fun FragmentResultOwner.setFragmentResultListener(
     requestKey: String,
     lifecycleOwner: LifecycleOwner,
-    listener: ((resultKey: String, bundle: Bundle) -> Unit)?
+    listener: ((resultKey: String, bundle: Bundle) -> Unit)
 ) {
-    val resultListener = if (listener == null) null else FragmentResultListener(listener)
-    setFragmentResultListener(requestKey, lifecycleOwner, resultListener)
+    setFragmentResultListener(requestKey, lifecycleOwner, FragmentResultListener(listener))
 }

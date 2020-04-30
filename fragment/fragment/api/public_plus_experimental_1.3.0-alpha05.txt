@@ -271,6 +271,8 @@ package androidx.fragment.app {
     ctor public FragmentManager();
     method public void addOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public androidx.fragment.app.FragmentTransaction beginTransaction();
+    method public final void clearFragmentResult(String);
+    method public final void clearFragmentResultListener(String);
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
     method @Deprecated public static void enableDebugLogging(boolean);
     method public boolean executePendingTransactions();
@@ -296,8 +298,8 @@ package androidx.fragment.app {
     method public void removeOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public androidx.fragment.app.Fragment.SavedState? saveFragmentInstanceState(androidx.fragment.app.Fragment);
     method public void setFragmentFactory(androidx.fragment.app.FragmentFactory);
-    method public final void setFragmentResult(String, android.os.Bundle?);
-    method public final void setFragmentResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener?);
+    method public final void setFragmentResult(String, android.os.Bundle);
+    method public final void setFragmentResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener);
     method public void unregisterFragmentLifecycleCallbacks(androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks);
     field public static final int POP_BACK_STACK_INCLUSIVE = 1; // 0x1
   }
@@ -351,8 +353,10 @@ package androidx.fragment.app {
   }
 
   public interface FragmentResultOwner {
-    method public void setFragmentResult(String, android.os.Bundle?);
-    method public void setFragmentResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener?);
+    method public void clearFragmentResult(String);
+    method public void clearFragmentResultListener(String);
+    method public void setFragmentResult(String, android.os.Bundle);
+    method public void setFragmentResultListener(String, androidx.lifecycle.LifecycleOwner, androidx.fragment.app.FragmentResultListener);
   }
 
   @Deprecated public abstract class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {

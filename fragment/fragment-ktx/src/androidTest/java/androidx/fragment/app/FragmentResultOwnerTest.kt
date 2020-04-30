@@ -57,6 +57,33 @@ class FragmentResultOwnerTest {
     }
 
     @Test
+    fun clearFragmentResult() {
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            val fragment1 = ResultFragment()
+
+            val fm = withActivity {
+                supportFragmentManager
+            }
+
+            val expectedResult = "resultGood"
+            val resultBundle = bundleOf("bundleKey" to expectedResult)
+
+            fm.setFragmentResult("requestKey", resultBundle)
+            fm.clearFragmentResult("requestKey")
+
+            withActivity {
+                fm.commitNow {
+                    add(fragment1, null)
+                }
+            }
+
+            assertWithMessage("The result should be null")
+                .that(fragment1.actualResult)
+                .isNull()
+        }
+    }
+
+    @Test
     fun clearFragmentResultListener() {
         with(ActivityScenario.launch(TestActivity::class.java)) {
             val fragment1 = ResultFragment()
@@ -74,7 +101,7 @@ class FragmentResultOwnerTest {
             val expectedResult = "resultGood"
             val resultBundle = bundleOf("bundleKey" to expectedResult)
 
-            fm.setFragmentResultListener("requestKey", fragment1, null)
+            fm.clearFragmentResultListener("requestKey")
             fm.setFragmentResult("requestKey", resultBundle)
 
             assertWithMessage("The listener was cleared but the result was not null")

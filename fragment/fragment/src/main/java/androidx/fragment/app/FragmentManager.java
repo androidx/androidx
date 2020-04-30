@@ -793,13 +793,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     @Override
-    public final void setFragmentResult(@NonNull String requestKey, @Nullable Bundle result) {
-        if (result == null) {
-            // if the given result is null, remove the result
-            mResults.remove(requestKey);
-            return;
-        }
-
+    public final void setFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
         // Check if there is a listener waiting for a result with this key
         LifecycleAwareResultListener resultListener = mResultListeners.get(requestKey);
         // if there is and it is started, fire the callback
@@ -811,16 +805,16 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
     }
 
+    @Override
+    public final void clearFragmentResult(@NonNull String requestKey) {
+        mResults.remove(requestKey);
+    }
+
     @SuppressLint("SyntheticAccessor")
     @Override
     public final void setFragmentResultListener(@NonNull final String requestKey,
             @NonNull final LifecycleOwner lifecycleOwner,
-            @Nullable final FragmentResultListener listener) {
-        if (listener == null) {
-            mResultListeners.remove(requestKey);
-            return;
-        }
-
+            @NonNull final FragmentResultListener listener) {
         final Lifecycle lifecycle = lifecycleOwner.getLifecycle();
         if (lifecycle.getCurrentState() == Lifecycle.State.DESTROYED) {
             return;
@@ -837,7 +831,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                         // if there is a result, fire the callback
                         listener.onFragmentResult(requestKey, storedResult);
                         // and clear the result
-                        setFragmentResult(requestKey, null);
+                        clearFragmentResult(requestKey);
                     }
                 }
 
@@ -849,6 +843,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
         };
         lifecycle.addObserver(observer);
         mResultListeners.put(requestKey, new LifecycleAwareResultListener(lifecycle, listener));
+    }
+
+    @Override
+    public final void clearFragmentResultListener(@NonNull String requestKey) {
+        mResultListeners.remove(requestKey);
     }
 
     /**
