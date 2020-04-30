@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,8 +47,10 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.fakes.FakeActivity;
+import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.view.preview.transform.transformation.Transformation;
 import androidx.camera.view.test.R;
 import androidx.core.content.ContextCompat;
@@ -86,7 +89,10 @@ public class PreviewViewTest {
     private SurfaceRequest mSurfaceRequest;
 
     private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
-        return new SurfaceRequest(new Size(640, 480), cameraInfo);
+        FakeCamera fakeCamera = spy(new FakeCamera());
+        when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
+
+        return new SurfaceRequest(new Size(640, 480), fakeCamera);
     }
 
     private CountDownLatch mCountDownLatch = new CountDownLatch(1);
@@ -127,13 +133,24 @@ public class PreviewViewTest {
         }
     }
 
+    private CameraInfo createCameraInfo(String implementationType) {
+        final CameraInfo cameraInfo = mock(CameraInfoInternal.class);
+        when(cameraInfo.getImplementationType()).thenReturn(implementationType);
+        return cameraInfo;
+    }
+
+    private CameraInfo createCameraInfo(int rotationDegrees, String implementationType) {
+        final CameraInfo cameraInfo = mock(CameraInfoInternal.class);
+        when(cameraInfo.getImplementationType()).thenReturn(implementationType);
+        when(cameraInfo.getSensorRotationDegrees()).thenReturn(rotationDegrees);
+        return cameraInfo;
+    }
+
     @Test
     @UiThreadTest
     public void usesTextureView_whenLegacyDevice() {
-        final CameraInfo cameraInfo = mock(CameraInfo.class);
-        when(cameraInfo.getImplementationType()).thenReturn(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
-
+        final CameraInfo cameraInfo =
+                createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
         previewView.setPreferredImplementationMode(SURFACE_VIEW);
@@ -148,9 +165,7 @@ public class PreviewViewTest {
     @UiThreadTest
     public void usesTextureView_whenAPILevelNotNewerThanN() {
         assumeTrue(Build.VERSION.SDK_INT <= 24);
-        final CameraInfo cameraInfo = mock(CameraInfo.class);
-        when(cameraInfo.getImplementationType()).thenReturn(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -166,9 +181,7 @@ public class PreviewViewTest {
     @UiThreadTest
     public void usesSurfaceView_whenNonLegacyDevice_andAPILevelNewerThanN() {
         assumeTrue(Build.VERSION.SDK_INT > 24);
-        final CameraInfo cameraInfo = mock(CameraInfo.class);
-        when(cameraInfo.getImplementationType()).thenReturn(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -183,9 +196,7 @@ public class PreviewViewTest {
     @Test
     @UiThreadTest
     public void usesTextureView_whenNonLegacyDevice_andPreferredImplModeTextureView() {
-        final CameraInfo cameraInfo = mock(CameraInfo.class);
-        when(cameraInfo.getImplementationType()).thenReturn(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -322,9 +333,10 @@ public class PreviewViewTest {
 
         // Creates mock CameraInfo to return sensor degrees as 90. This means the sensor
         // dimension flip is needed in related transform calculations.
-        final CameraInfo cameraInfo = mock(CameraInfo.class);
-        when(cameraInfo.getImplementationType()).thenReturn(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
-        when(cameraInfo.getSensorRotationDegrees()).thenReturn(90);
+        final CameraInfo cameraInfo = createCameraInfo(90, CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+
+        FakeCamera fakeCamera = spy(new FakeCamera());
+        when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
 
         mActivityRule.runOnUiThread(() -> {
             previewView.set(new PreviewView(mContext));
@@ -345,7 +357,7 @@ public class PreviewViewTest {
             // Creates surface provider and request surface for 1080p surface size.
             Preview.SurfaceProvider surfaceProvider =
                     previewView.get().createSurfaceProvider();
-            mSurfaceRequest = new SurfaceRequest(bufferSize, cameraInfo);
+            mSurfaceRequest = new SurfaceRequest(bufferSize, fakeCamera);
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
             // Retrieves the TextureView
