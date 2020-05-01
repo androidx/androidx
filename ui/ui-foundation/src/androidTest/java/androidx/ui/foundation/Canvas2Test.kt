@@ -27,7 +27,6 @@ import androidx.ui.core.onPositioned
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.painter.Stroke
 import androidx.ui.graphics.toArgb
@@ -44,7 +43,6 @@ import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
-import androidx.ui.unit.toRect
 import com.google.common.truth.Truth
 import org.junit.Assert
 import org.junit.Assert.assertTrue
@@ -140,8 +138,8 @@ class Canvas2Test {
     @Test
     fun canvas2_noSize_emptyCanvas() {
         composeTestRule.setContentAndCollectSizes {
-            Canvas(modifier = Modifier) {
-                drawRect(size.toRect(), Paint())
+            Canvas2(modifier = Modifier) {
+                drawRect(Color.Black)
             }
         }
         .assertHeightEqualsTo(0.dp)

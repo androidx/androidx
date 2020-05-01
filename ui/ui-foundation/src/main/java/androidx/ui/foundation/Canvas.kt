@@ -38,12 +38,10 @@ import androidx.ui.layout.Spacer
  * called during draw stage, you have no access to composition scope, meaning that [Composable]
  * function invocation inside it will result to runtime exception
  */
-
-// TODO b/154962350 to handle deprecation and updating of all compose APIs to Canvas2
-// @Deprecated("Favor usage of Canvas2 which leverages the CanvasScope API. CanvasScope" +
-//        " introduces a stateless, declarative API surface without the requirement of maintaining" +
-//        "a Paint object",
-//    ReplaceWith("PaintBox"))
+@Deprecated("Favor usage of Canvas2 which leverages the CanvasScope API. CanvasScope" +
+        " introduces a stateless, declarative API surface without the requirement of maintaining" +
+        "a Paint object",
+    ReplaceWith("Canvas2"))
 @Composable
 fun Canvas(modifier: Modifier, onCanvas: DrawScope.() -> Unit) {
     Spacer(

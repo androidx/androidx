@@ -469,7 +469,7 @@ class CanvasScope {
         topLeft: Offset = Offset.zero,
         size: Size = this.size,
         radiusX: Float = 0.0f,
-        radiusY: Float = 0.0f,
+        radiusY: Float = radiusX,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
@@ -678,6 +678,50 @@ class CanvasScope {
         )
 
     /**
+     * Draw an arc scaled to fit inside the given rectangle. It starts from
+     * startAngle degrees around the oval up to startAngle + sweepAngle
+     * degrees around the oval, with zero degrees being the point on
+     * the right hand side of the oval that crosses the horizontal line
+     * that intersects the center of the rectangle and with positive
+     * angles going clockwise around the oval. If useCenter is true, the arc is
+     * closed back to the center, forming a circle sector. Otherwise, the arc is
+     * not closed, forming a circle segment.
+     *
+     * @param color: Color to be applied to the arc
+     * @param topLeft: Offset from the local origin of 0, 0 relative to the current translation
+     * @param size: Dimensions of the arc to draw
+     * @param startAngle: Starting angle in degrees. 0 represents 3 o'clock
+     * @param sweepAngle: Size of the arc in degrees that is drawn at the position provided in
+     * [startAngle]
+     * @param useCenter: Flag indicating if the arc is to close the center of the bounds
+     * @param alpha: Opacity to be applied to the arc from 0.0f to 1.0f representing
+     * fully transparent to fully opaque respectively
+     * @param style: Whether or not the arc is stroked or filled in
+     * @param blendMode: Blending algorithm to be applied to the arc when it is drawn
+     */
+    fun drawArc(
+        color: Color,
+        startAngle: Float,
+        sweepAngle: Float,
+        useCenter: Boolean,
+        topLeft: Offset = Offset.zero,
+        size: Size = this.size,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        style: DrawStyle = Fill,
+        colorFilter: ColorFilter? = null,
+        blendMode: BlendMode = DefaultBlendMode
+    ) = canvas?.drawArc(
+        left = topLeft.dx,
+        top = topLeft.dy,
+        right = topLeft.dx + size.width,
+        bottom = topLeft.dy + size.height,
+        startAngle = startAngle,
+        sweepAngle = sweepAngle,
+        useCenter = useCenter,
+        paint = configurePaint(color, style, alpha, colorFilter, blendMode)
+    )
+
+    /**
      * Draws into the provided [Canvas] with the commands specified in the lambda with this
      * [CanvasScope] as a receiver
      *
@@ -850,7 +894,7 @@ data class Stroke(
      * Set the paint's stroke miter value. This is used to control the behavior of miter
      * joins when the joins angle si sharp. This value must be >= 0.
      */
-    val miter: Float = 1.0f,
+    val miter: Float = 4.0f,
 
     /**
      * Return the paint's Cap, controlling how the start and end of stroked

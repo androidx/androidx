@@ -98,6 +98,7 @@ private fun SwitchImpl(
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun DrawSwitch(
     checked: Boolean,
     checkedThumbColor: Color,

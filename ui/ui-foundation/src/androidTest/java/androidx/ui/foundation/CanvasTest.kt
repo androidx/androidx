@@ -63,6 +63,7 @@ class CanvasTest {
     val testTag = "CanvasParent"
 
     @Test
+    @Suppress("DEPRECATION")
     fun canvas_noSize_emptyCanvas() {
         composeTestRule.setContentAndCollectSizes {
             Canvas(modifier = Modifier) {
@@ -74,6 +75,7 @@ class CanvasTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun canvas_exactSizes() {
         var canvasSize: IntPxSize? = null
         val latch = CountDownLatch(1)
@@ -106,6 +108,7 @@ class CanvasTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun canvas_exactSizes_drawCircle() {
         var canvasSize: IntPxSize? = null
         val latch = CountDownLatch(1)

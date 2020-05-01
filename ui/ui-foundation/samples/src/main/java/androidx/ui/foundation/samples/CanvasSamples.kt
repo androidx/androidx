@@ -35,6 +35,7 @@ import androidx.ui.unit.toRect
 @Sampled
 @Composable
 @Suppress("DEPRECATION")
+@Deprecated("Prefer usage of Canvas2", ReplaceWith("Canvas2Sample"))
 fun CanvasSample() {
     val paint = remember { Paint().apply { color = Color.Magenta } }
     Canvas(modifier = Modifier.preferredSize(100.dp)) {

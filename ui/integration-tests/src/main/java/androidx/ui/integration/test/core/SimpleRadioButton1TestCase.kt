@@ -32,6 +32,7 @@ import androidx.ui.unit.dp
 
 class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable
+    @Suppress("DEPRECATION")
     override fun emitContent() {
         Box(
             modifier = Modifier.preferredSize(48.dp),

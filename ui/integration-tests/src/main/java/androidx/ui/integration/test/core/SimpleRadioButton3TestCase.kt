@@ -30,6 +30,7 @@ import androidx.ui.unit.minDimension
 class SimpleRadioButton3TestCase : BaseSimpleRadioButtonTestCase() {
 
     @Composable
+    @Suppress("DEPRECATION")
     override fun emitContent() {
         val innerSize = getInnerSize()
         val borderPaint = remember { Paint().apply { style = PaintingStyle.stroke } }

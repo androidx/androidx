@@ -23,20 +23,19 @@ import androidx.animation.PhysicsBuilder
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.DrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.rawDragGestureFilter
 import androidx.ui.core.onPositioned
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.Text
-import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
+import androidx.ui.graphics.painter.CanvasScope
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
@@ -122,9 +121,8 @@ private fun SwipeToDismiss() {
     })
 
     val heightDp = with(DensityAmbient.current) { height.toDp() }
-    val paint = remember { Paint() }
 
-    Canvas(
+    Canvas2(
         modifier.fillMaxWidth()
             .preferredHeight(heightDp)
             .onPositioned { coordinates ->
@@ -135,64 +133,43 @@ private fun SwipeToDismiss() {
         // TODO: this progress can be used to drive state transitions
         val alpha = 1f - FastOutSlowInEasing(progress)
         val horizontalOffset = progress * itemWidth.value
-        drawLeftItems(
-            paint, horizontalOffset, itemWidth.value, itemHeight, index.value
-        )
-        drawDismissingItem(
-            paint,
-            itemBottom.value, itemWidth.value, itemHeight, index.value + 1,
-            alpha
-        )
+        drawLeftItems(horizontalOffset, itemWidth.value, itemHeight, index.value)
+        drawDismissingItem(itemBottom.value, itemWidth.value, itemHeight, index.value + 1, alpha)
     }
 }
 
-private fun DrawScope.drawLeftItems(
-    paint: Paint,
+private fun CanvasScope.drawLeftItems(
     horizontalOffset: Float,
     width: Float,
     height: Float,
     index: Int
 ) {
-    paint.color = colors[index % colors.size]
-    paint.alpha = 1f
-    val centerX = size.width.value / 2
-    val itemRect =
-        Rect(
-            centerX - width * 1.5f + horizontalOffset + padding,
-            size.height.value - height,
-            centerX - width * 0.5f + horizontalOffset - padding,
-            size.height.value
-        )
-    drawRect(itemRect, paint)
+    val offset = Offset(center.dx - width * 1.5f + horizontalOffset + padding, size.height - height)
+    val rectSize = Size(width - (2 * padding), height)
+    drawRect(colors[index % colors.size], offset, rectSize)
 
-    if (itemRect.left >= 0) {
+    if (offset.dx >= 0) {
         // draw another item
-        paint.color = colors[(index - 1 + colors.size) % colors.size]
-        drawRect(itemRect.translate(-width, 0f), paint)
+        drawRect(
+            colors[(index - 1 + colors.size) % colors.size],
+            offset - Offset(width, 0.0f),
+            rectSize
+        )
     }
 }
 
-private fun DrawScope.drawDismissingItem(
-    paint: Paint,
+private fun CanvasScope.drawDismissingItem(
     bottom: Float,
     width: Float,
     height: Float,
     index: Int,
     alpha: Float
-) {
-    paint.color = colors[index % colors.size]
-    paint.alpha = alpha
-    val centerX = size.width.value / 2
-    drawRect(
-        Rect(
-            centerX - width / 2 + padding,
-            bottom - height,
-            centerX + width / 2 - padding,
-            bottom
-        ),
-        paint
+) = drawRect(
+        colors[index % colors.size],
+        topLeft = Offset(center.dx - width / 2 + padding, bottom - height),
+        size = Size(width - (2 * padding), height),
+        alpha = alpha
     )
-}
 
 private val colors = listOf(
     Color(0xFFffd7d7),

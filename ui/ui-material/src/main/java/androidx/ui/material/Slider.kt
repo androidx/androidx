@@ -195,6 +195,7 @@ private fun SliderImpl(
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun Track(
     modifier: Modifier,
     color: Color,

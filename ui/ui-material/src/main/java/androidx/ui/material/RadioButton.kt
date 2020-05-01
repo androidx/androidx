@@ -193,6 +193,7 @@ class RadioGroupScope internal constructor() {
  * @param color color of the RadioButton
  */
 @Composable
+@Suppress("DEPRECATION")
 fun RadioButton(
     selected: Boolean,
     onSelect: (() -> Unit)?,
