@@ -18,6 +18,7 @@ package androidx.transition;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.animation.TimeInterpolator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -31,7 +32,6 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.animation.Interpolator;
 import androidx.core.content.res.TypedArrayUtils;
 
 import java.util.ArrayList;
@@ -254,7 +254,7 @@ public class TransitionSet extends Transition {
 
     @NonNull
     @Override
-    public TransitionSet setInterpolator(@Nullable Interpolator interpolator) {
+    public TransitionSet setInterpolator(@Nullable TimeInterpolator interpolator) {
         mChangeFlags |= FLAG_CHANGE_INTERPOLATOR;
         if (mTransitions != null) {
             int numTransitions = mTransitions.size();
@@ -634,7 +634,6 @@ public class TransitionSet extends Transition {
         return result;
     }
 
-    @NonNull
     @Override
     public Transition clone() {
         TransitionSet clone = (TransitionSet) super.clone();

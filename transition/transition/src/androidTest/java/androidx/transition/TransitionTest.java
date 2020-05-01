@@ -32,20 +32,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
+import android.animation.TimeInterpolator;
 import android.graphics.Rect;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.animation.Animator;
-import androidx.core.animation.Interpolator;
-import androidx.core.animation.LinearInterpolator;
-import androidx.core.animation.ObjectAnimator;
 import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.MediumTest;
@@ -88,7 +88,7 @@ public class TransitionTest extends BaseTest {
     @Test
     public void testInterpolator() {
         Transition transition = new EmptyTransition();
-        Interpolator interpolator = new LinearInterpolator();
+        TimeInterpolator interpolator = new LinearInterpolator();
         assertThat(transition.setInterpolator(interpolator), is(sameInstance(transition)));
         assertThat(transition.getInterpolator(), is(interpolator));
     }
@@ -226,7 +226,7 @@ public class TransitionTest extends BaseTest {
     public void testExcludeTargetType() throws Throwable {
         showInitialScene();
         Transition transition = new EmptyTransition();
-        FrameLayout container = rule.getActivity().findViewById(R.id.container);
+        FrameLayout container = (FrameLayout) rule.getActivity().findViewById(R.id.container);
         View view0 = rule.getActivity().findViewById(R.id.view0);
         transition.addTarget(View.class);
         assertThat(transition.isValidTarget(container), is(true));
