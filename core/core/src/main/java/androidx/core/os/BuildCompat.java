@@ -16,7 +16,10 @@
 
 package androidx.core.os;
 
+import android.os.Build;
 import android.os.Build.VERSION;
+
+import androidx.annotation.ChecksSdkIntAtLeast;
 
 /**
  * This class contains additional platform version checking methods for targeting pre-release
@@ -34,6 +37,7 @@ public class BuildCompat {
      *             be removed in a future release of the Support Library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.N}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.N)
     @Deprecated
     public static boolean isAtLeastN() {
         return VERSION.SDK_INT >= 24;
@@ -47,6 +51,7 @@ public class BuildCompat {
      *             will be removed in a future release of the Support Library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.N_MR1)
     @Deprecated
     public static boolean isAtLeastNMR1() {
         return VERSION.SDK_INT >= 25;
@@ -60,6 +65,7 @@ public class BuildCompat {
      *             be removed in a future release of the Support Library. Instead use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.O}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O)
     @Deprecated
     public static boolean isAtLeastO() {
         return VERSION.SDK_INT >= 26;
@@ -73,6 +79,7 @@ public class BuildCompat {
      *             will be removed in a future release of the Support Library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.O_MR1)
     @Deprecated
     public static boolean isAtLeastOMR1() {
         return VERSION.SDK_INT >= 27;
@@ -86,6 +93,7 @@ public class BuildCompat {
      *             will be removed in a future release of the Support Library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.P}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
     @Deprecated
     public static boolean isAtLeastP() {
         return VERSION.SDK_INT >= 28;
@@ -99,6 +107,7 @@ public class BuildCompat {
      *             will be removed in a future release of the Support Library. Instead, use
      *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q}.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.Q)
     @Deprecated
     public static boolean isAtLeastQ() {
         return VERSION.SDK_INT >= 29;
@@ -114,6 +123,7 @@ public class BuildCompat {
      *
      * @return {@code true} if R APIs are available for use, {@code false} otherwise
      */
+    @ChecksSdkIntAtLeast(codename = "R")
     public static boolean isAtLeastR() {
         return VERSION.SDK_INT >= 30 || VERSION.CODENAME.equals("R");
     }
