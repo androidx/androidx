@@ -516,8 +516,22 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Alternate constructor that can be used to provide a default layout
-     * that will be inflated by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * Alternate constructor that can be called from your default, no argument constructor to
+     * provide a default layout that will be inflated by
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     *
+     * <pre class="prettyprint">
+     * class MyFragment extends Fragment {
+     *   public MyFragment() {
+     *     super(R.layout.fragment_main);
+     *   }
+     * }
+     * </pre>
+     *
+     * You must
+     * {@link FragmentManager#setFragmentFactory(FragmentFactory) set a custom FragmentFactory}
+     * if you want to use a non-default constructor to ensure that your constructor is called
+     * when the fragment is re-instantiated.
      *
      * @see #Fragment()
      * @see #onCreateView(LayoutInflater, ViewGroup, Bundle)
