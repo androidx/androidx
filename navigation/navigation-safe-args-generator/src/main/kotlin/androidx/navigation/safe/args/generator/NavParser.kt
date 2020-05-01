@@ -161,6 +161,7 @@ internal class NavParser(
         val defaultTypedValue = when (type) {
             IntType -> parseIntValue(defaultValue)
             LongType -> parseLongValue(defaultValue)
+            DoubleType -> parseDoubleValue(defaultValue)
             FloatType -> parseFloatValue(defaultValue)
             BoolType -> parseBoolean(defaultValue)
             ReferenceType -> {
@@ -183,7 +184,7 @@ internal class NavParser(
                     StringValue(defaultValue)
                 }
             }
-            IntArrayType, LongArrayType, FloatArrayType, StringArrayType,
+            IntArrayType, LongArrayType, DoubleArrayType, FloatArrayType, StringArrayType,
             BoolArrayType, ReferenceArrayType, is ObjectArrayType -> {
                 if (defaultValue == VALUE_NULL) {
                     NullValue
@@ -281,6 +282,10 @@ internal fun inferArgument(name: String, defaultValue: String, rFilePackage: Str
     if (intValue != null) {
         return Argument(name, IntType, intValue)
     }
+    val doubleValue = parseDoubleValue(defaultValue)
+    if (doubleValue != null) {
+        return Argument(name, DoubleType, doubleValue)
+    }
     val floatValue = parseFloatValue(defaultValue)
     if (floatValue != null) {
         return Argument(name, FloatType, floatValue)
@@ -340,6 +345,9 @@ internal fun parseLongValue(value: String): LongValue? {
 
 private fun parseFloatValue(value: String): FloatValue? =
         value.toFloatOrNull()?.let { FloatValue(value) }
+
+private fun parseDoubleValue(value: String): DoubleValue? =
+    value.toDoubleOrNull()?.let { DoubleValue(value) }
 
 private fun parseBoolean(value: String): BooleanValue? {
     if (value == VALUE_TRUE || value == VALUE_FALSE) {

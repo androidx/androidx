@@ -47,6 +47,7 @@ class NavParserTest {
                         Argument("myarg2", StringType),
                         Argument("randomArgument", StringType),
                         Argument("intArgument", IntType, IntValue("261")),
+                        Argument("doubleArgument", DoubleType, DoubleValue("1.2345")),
                         Argument("referenceZeroDefaultValue", ReferenceType, IntValue("0")),
                         Argument(
                                 "activityInfo",
@@ -59,6 +60,7 @@ class NavParserTest {
                                 true
                         ),
                         Argument("intArrayArg", IntArrayType),
+                        Argument("doubleArrayArg", DoubleArrayType),
                         Argument("stringArrayArg", StringArrayType),
                         Argument("objectArrayArg", ObjectArrayType(
                             "android.content.pm.ActivityInfo")),
@@ -197,7 +199,7 @@ class NavParserTest {
         val infer = { value: String -> inferArgument("foo", value, "a.b") }
         val intArg = { value: String -> Argument("foo", IntType, IntValue(value)) }
         val longArg = { value: String -> Argument("foo", LongType, LongValue(value)) }
-        val floatArg = { value: String -> Argument("foo", FloatType, FloatValue(value)) }
+        val doubleArg = { value: String -> Argument("foo", DoubleType, DoubleValue(value)) }
         val stringArg = { value: String -> Argument("foo", StringType, StringValue(value)) }
         val nullStringArg = Argument("foo", StringType, NullValue, true)
         val boolArg = { value: String -> Argument("foo", BoolType, BooleanValue(value)) }
@@ -218,10 +220,10 @@ class NavParserTest {
         assertThat(infer("@+id/foo"), `is`(referenceArg("a.b", "id", "foo")))
         assertThat(infer("@foo:stuff"), `is`(stringArg("@foo:stuff")))
         assertThat(infer("@/stuff"), `is`(stringArg("@/stuff")))
-        assertThat(infer("10101010100100"), `is`(floatArg("10101010100100")))
-        assertThat(infer("1."), `is`(floatArg("1.")))
-        assertThat(infer("1.2e-4"), `is`(floatArg("1.2e-4")))
-        assertThat(infer(".4"), `is`(floatArg(".4")))
+        assertThat(infer("10101010100100"), `is`(doubleArg("10101010100100")))
+        assertThat(infer("1."), `is`(doubleArg("1.")))
+        assertThat(infer("1.2e-4"), `is`(doubleArg("1.2e-4")))
+        assertThat(infer(".4"), `is`(doubleArg(".4")))
         assertThat(infer("true"), `is`(boolArg("true")))
         assertThat(infer("false"), `is`(boolArg("false")))
         assertThat(infer("123L"), `is`(longArg("123L")))

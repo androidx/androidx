@@ -19,6 +19,9 @@ package androidx.navigation.safe.args.generator.kotlin
 import androidx.navigation.safe.args.generator.BoolArrayType
 import androidx.navigation.safe.args.generator.BoolType
 import androidx.navigation.safe.args.generator.BooleanValue
+import androidx.navigation.safe.args.generator.DoubleArrayType
+import androidx.navigation.safe.args.generator.DoubleType
+import androidx.navigation.safe.args.generator.DoubleValue
 import androidx.navigation.safe.args.generator.EnumValue
 import androidx.navigation.safe.args.generator.FloatArrayType
 import androidx.navigation.safe.args.generator.FloatType
@@ -47,6 +50,7 @@ import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.DOUBLE
 import com.squareup.kotlinpoet.FLOAT
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.INT
@@ -159,6 +163,8 @@ internal fun NavType.typeName(): TypeName = when (this) {
     LongArrayType -> LongArray::class.asTypeName()
     FloatType -> FLOAT
     FloatArrayType -> FloatArray::class.asTypeName()
+    DoubleType -> DOUBLE
+    DoubleArrayType -> DoubleArray::class.asTypeName()
     StringType -> String::class.asTypeName()
     StringArrayType -> ARRAY.parameterizedBy(String::class.asTypeName())
     BoolType -> BOOLEAN
@@ -183,6 +189,7 @@ internal fun WritableValue.write(): CodeBlock {
         is IntValue -> CodeBlock.of(value)
         is LongValue -> CodeBlock.of(value)
         is FloatValue -> CodeBlock.of("${value}F")
+        is DoubleValue -> CodeBlock.of(value)
         is BooleanValue -> CodeBlock.of(value)
         is NullValue -> CodeBlock.of("null")
         is EnumValue -> CodeBlock.of("%T.%N", type.typeName(), value)
