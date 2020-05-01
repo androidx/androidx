@@ -44,7 +44,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.core.os.CancellationSignal;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 
@@ -95,6 +94,9 @@ public class FingerprintDialogFragment extends DialogFragment {
             resetMessage();
         }
     };
+
+    private final CancellationSignalProvider mCancellationSignalProvider =
+            new CancellationSignalProvider();
 
     // Created once and retained.
     @VisibleForTesting
@@ -190,7 +192,6 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     // Created once and retained.
     private int mCanceledFrom;
-    private CancellationSignal mCancellationSignal;
 
     private Bundle mBundle;
     private int mErrorColor;
@@ -312,7 +313,6 @@ public class FingerprintDialogFragment extends DialogFragment {
         final Context context = getContext();
         if (!mShowing && context != null) {
             mCanceledFrom = USER_CANCELED_FROM_NONE;
-            mCancellationSignal = new CancellationSignal();
             androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManagerCompat =
                     androidx.core.hardware.fingerprint.FingerprintManagerCompat.from(context);
             final int errorCode = checkForPreAuthenticationErrors(fingerprintManagerCompat);
@@ -322,7 +322,7 @@ public class FingerprintDialogFragment extends DialogFragment {
                 fingerprintManagerCompat.authenticate(
                         CryptoObjectUtils.wrapForFingerprintManager(mCryptoObject),
                         0 /* flags */,
-                        mCancellationSignal,
+                        mCancellationSignalProvider.getFingerprintCancellationSignal(),
                         mCallbackProvider.getFingerprintCallback(),
                         null /* handler */);
                 mShowing = true;
@@ -464,9 +464,7 @@ public class FingerprintDialogFragment extends DialogFragment {
             final int errorCode = BiometricPrompt.ERROR_USER_CANCELED;
             sendErrorToClient(errorCode, getErrorString(errorCode));
         }
-        if (mCancellationSignal != null) {
-            mCancellationSignal.cancel();
-        }
+        mCancellationSignalProvider.cancel();
     }
 
     private void updateFingerprintIcon(int newState) {
