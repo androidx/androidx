@@ -17,22 +17,22 @@
 package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
-import androidx.compose.remember
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.drawOutline
 import androidx.ui.layout.preferredSize
+import androidx.ui.unit.Px
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
 
 class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable
-    @Suppress("DEPRECATION")
     override fun emitContent() {
         Box(
             modifier = Modifier.preferredSize(48.dp),
@@ -40,12 +40,13 @@ class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
             border = Border(1.dp, Color.Cyan),
             gravity = ContentGravity.Center
         ) {
-            val paint = remember {
-                Paint().apply { color = Color.Cyan }
-            }
             val innerSize = getInnerSize().value
-            Canvas(Modifier.preferredSize(innerSize)) {
-                drawOutline(CircleShape.createOutline(size, this), paint)
+            val density = DensityAmbient.current
+            Canvas2(Modifier.preferredSize(innerSize)) {
+                drawOutline(
+                    CircleShape.createOutline(PxSize(Px(size.width), Px(size.height)), density),
+                    Color.Cyan
+                )
             }
         }
     }

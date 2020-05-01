@@ -175,9 +175,9 @@ package androidx.ui.geometry {
     method public long getCenterRight();
     method public float getHeight();
     method public float getLeft();
-    method public float getLongestSide();
+    method public float getMaxDimension();
+    method public float getMinDimension();
     method public float getRight();
-    method public float getShortestSide();
     method public long getSize();
     method public float getTop();
     method public long getTopCenter();
@@ -194,6 +194,8 @@ package androidx.ui.geometry {
     method public androidx.ui.geometry.Rect shift-RIqb49o(long offset);
     method public androidx.ui.geometry.Rect translate(float translateX, float translateY);
     property public final float height;
+    property public final float maxDimension;
+    property public final float minDimension;
     property public final float width;
     field public static final androidx.ui.geometry.Rect.Companion! Companion;
   }
@@ -230,8 +232,8 @@ package androidx.ui.geometry {
     method public static boolean equals-impl0(long p1, long p2);
     method public static long getFlipped-impl(long $this);
     method public static float getHeight-impl(long $this);
-    method public static float getLongestSide-impl(long $this);
-    method public static float getShortestSide-impl(long $this);
+    method public static float getMaxDimension-impl(long $this);
+    method public static float getMinDimension-impl(long $this);
     method public static float getWidth-impl(long $this);
     method public static inline int hashCode-impl(long p);
     method public static boolean isEmpty-impl(long $this);

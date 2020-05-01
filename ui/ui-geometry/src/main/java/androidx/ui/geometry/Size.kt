@@ -23,6 +23,8 @@ import androidx.ui.util.toStringAsFixed
 import androidx.ui.util.unpackFloat1
 import androidx.ui.util.unpackFloat2
 import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.truncate
 
 /**
@@ -215,12 +217,14 @@ inline class Size(@PublishedApi internal val value: Long) {
     /**
      * The lesser of the magnitudes of the [width] and the [height].
      */
-    fun getShortestSide(): Float = Math.min(width.absoluteValue, height.absoluteValue)
+    val minDimension: Float
+        get() = min(width.absoluteValue, height.absoluteValue)
 
     /**
      * The greater of the magnitudes of the [width] and the [height].
      */
-    fun getLongestSide(): Float = Math.max(width.absoluteValue, height.absoluteValue)
+    val maxDimension: Float
+        get() = max(width.absoluteValue, height.absoluteValue)
 
     // Convenience methods that do the equivalent of calling the similarly named
     // methods on a Rect constructed from the given origin and this size.

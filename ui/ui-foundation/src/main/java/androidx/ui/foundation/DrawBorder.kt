@@ -201,7 +201,7 @@ class DrawBorder internal constructor(
         canvas: Canvas,
         paint: Paint
     ) {
-        val fillWithBorder = borderSize * 2 >= rect.getShortestSide()
+        val fillWithBorder = borderSize * 2 >= rect.minDimension
         paint.style = if (fillWithBorder) PaintingStyle.fill else PaintingStyle.stroke
 
         val delta = if (fillWithBorder) 0f else borderSize / 2

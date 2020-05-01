@@ -43,7 +43,7 @@ fun PainterModifierSample() {
         override fun CanvasScope.onDraw() {
             drawCircle(
                 center = center,
-                radius = size.getShortestSide() / 2.0f,
+                radius = size.minDimension / 2.0f,
                 color = Color.Red
             )
         }

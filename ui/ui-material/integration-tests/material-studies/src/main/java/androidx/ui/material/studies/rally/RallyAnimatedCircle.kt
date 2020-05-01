@@ -69,7 +69,7 @@ fun AnimatedCircle(
     val stroke = Stroke(5.dp.value * DensityAmbient.current.density)
     Transition(definition = CircularTransition, initState = 0, toState = 1) { state ->
         Canvas2(modifier) {
-            val innerRadius = (size.getShortestSide() - stroke.width) / 2
+            val innerRadius = (size.minDimension - stroke.width) / 2
             val halfSize = size / 2.0f
             val topLeft = Offset(
                 halfSize.width - innerRadius,

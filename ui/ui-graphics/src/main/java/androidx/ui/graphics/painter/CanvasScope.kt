@@ -30,6 +30,7 @@ import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.scale
@@ -534,7 +535,7 @@ class CanvasScope {
      */
     fun drawCircle(
         brush: Brush,
-        radius: Float = size.getShortestSide() / 2.0f,
+        radius: Float = size.minDimension / 2.0f,
         center: Offset = this.center,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
@@ -561,7 +562,7 @@ class CanvasScope {
      */
     fun drawCircle(
         color: Color,
-        radius: Float = size.getShortestSide() / 2.0f,
+        radius: Float = size.minDimension / 2.0f,
         center: Offset = this.center,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
         style: DrawStyle = Fill,
@@ -653,6 +654,7 @@ class CanvasScope {
      * @param alpha: Opacity to be applied to the arc from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
      * @param style: Whether or not the arc is stroked or filled in
+     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode: Blending algorithm to be applied to the arc when it is drawn
      */
     fun drawArc(
@@ -697,6 +699,7 @@ class CanvasScope {
      * @param alpha: Opacity to be applied to the arc from 0.0f to 1.0f representing
      * fully transparent to fully opaque respectively
      * @param style: Whether or not the arc is stroked or filled in
+     * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode: Blending algorithm to be applied to the arc when it is drawn
      */
     fun drawArc(
@@ -719,6 +722,109 @@ class CanvasScope {
         sweepAngle = sweepAngle,
         useCenter = useCenter,
         paint = configurePaint(color, style, alpha, colorFilter, blendMode)
+    )
+
+    /**
+     * Draws the given [Path] with the given [Color]. Whether this shape is
+     * filled or stroked (or both) is controlled by [DrawStyle]. If the path is
+     * filled, then subpaths within it are implicitly closed (see [Path.close]).
+     *
+     *
+     * @param path: Path to draw
+     * @param color: Color to be applied to the path
+     * @param alpha: Opacity to be applied to the path from 0.0f to 1.0f representing
+     * fully transparent to fully opaque respectively
+     * @param style: Whether or not the path is stroked or filled in
+     * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
+     * @param blendMode: Blending algorithm to be applied to the path when it is drawn
+     */
+    fun drawPath(
+        path: Path,
+        color: Color,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        style: DrawStyle = Fill,
+        colorFilter: ColorFilter? = null,
+        blendMode: BlendMode = DefaultBlendMode
+    ) = canvas?.drawPath(path, configurePaint(color, style, alpha, colorFilter, blendMode))
+
+    /**
+     * Draws the given [Path] with the given [Color]. Whether this shape is
+     * filled or stroked (or both) is controlled by [DrawStyle]. If the path is
+     * filled, then subpaths within it are implicitly closed (see [Path.close]).
+     *
+     * @param path: Path to draw
+     * @param brush: Brush to be applied to the path
+     * @param alpha: Opacity to be applied to the path from 0.0f to 1.0f representing
+     * fully transparent to fully opaque respectively
+     * @param style: Whether or not the path is stroked or filled in
+     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode: Blending algorithm to be applied to the path when it is drawn
+     */
+    fun drawPath(
+        path: Path,
+        brush: Brush,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        style: DrawStyle = Fill,
+        colorFilter: ColorFilter? = null,
+        blendMode: BlendMode = DefaultBlendMode
+    ) = canvas?.drawPath(path, configurePaint(brush, style, alpha, colorFilter, blendMode))
+
+    /**
+     * Draws a sequence of points according to the given [PointMode].
+     *
+     * The `points` argument is interpreted as offsets from the origin.
+     *
+     * @param points: List of points to draw with the specified [PointMode]
+     * @param pointMode: [PointMode] used to indicate how the points are to be drawn
+     * @param color: Color to be applied to the points
+     * @param alpha: Opacity to be applied to the path from 0.0f to 1.0f representing
+     * fully transparent to fully opaque respectively
+     * @param stroke: The stroke parameters to apply to the points
+     * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
+     * @param blendMode: Blending algorithm to be applied to the path when it is drawn
+     */
+    fun drawPoints(
+        points: List<Offset>,
+        pointMode: PointMode,
+        color: Color,
+        stroke: Stroke,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        colorFilter: ColorFilter? = null,
+        blendMode: BlendMode = DefaultBlendMode
+    ) = canvas?.drawPoints(
+            pointMode,
+            points,
+            configurePaint(color, stroke, alpha, colorFilter,
+            blendMode)
+        )
+
+    /**
+     * Draws a sequence of points according to the given [PointMode].
+     *
+     * The `points` argument is interpreted as offsets from the origin.
+     *
+     * @param points: List of points to draw with the specified [PointMode]
+     * @param pointMode: [PointMode] used to indicate how the points are to be drawn
+     * @param brush: Brush to be applied to the points
+     * @param alpha: Opacity to be applied to the path from 0.0f to 1.0f representing
+     * fully transparent to fully opaque respectively
+     * @param style: Whether or not the path is stroked or filled in
+     * @param colorFilter: ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode: Blending algorithm to be applied to the path when it is drawn
+     */
+    fun drawPoints(
+        points: List<Offset>,
+        pointMode: PointMode,
+        brush: Brush,
+        @FloatRange(from = 0.0, to = 1.0) alpha: Float = DefaultAlpha,
+        style: DrawStyle = Fill,
+        colorFilter: ColorFilter? = null,
+        blendMode: BlendMode = DefaultBlendMode
+    ) = canvas?.drawPoints(
+        pointMode,
+        points,
+        configurePaint(brush, style, alpha, colorFilter,
+            blendMode)
     )
 
     /**
