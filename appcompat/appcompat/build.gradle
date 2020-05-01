@@ -19,6 +19,8 @@ dependencies {
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
     implementation(project(":lifecycle:lifecycle-runtime"))
+    implementation(project(":lifecycle:lifecycle-viewmodel"))
+    implementation(project(":savedstate:savedstate"))
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
