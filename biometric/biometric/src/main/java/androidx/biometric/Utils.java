@@ -16,6 +16,10 @@
 
 package androidx.biometric;
 
+import android.content.Context;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
@@ -32,19 +36,19 @@ class Utils {
      */
     static boolean isUnknownError(int errMsgId) {
         switch (errMsgId) {
-            case BiometricPrompt.ERROR_HW_UNAVAILABLE:
-            case BiometricPrompt.ERROR_UNABLE_TO_PROCESS:
-            case BiometricPrompt.ERROR_TIMEOUT:
-            case BiometricPrompt.ERROR_NO_SPACE:
             case BiometricPrompt.ERROR_CANCELED:
-            case BiometricPrompt.ERROR_LOCKOUT:
-            case BiometricPrompt.ERROR_VENDOR:
-            case BiometricPrompt.ERROR_LOCKOUT_PERMANENT:
-            case BiometricPrompt.ERROR_USER_CANCELED:
-            case BiometricPrompt.ERROR_NO_BIOMETRICS:
             case BiometricPrompt.ERROR_HW_NOT_PRESENT:
+            case BiometricPrompt.ERROR_HW_UNAVAILABLE:
+            case BiometricPrompt.ERROR_LOCKOUT:
+            case BiometricPrompt.ERROR_LOCKOUT_PERMANENT:
             case BiometricPrompt.ERROR_NEGATIVE_BUTTON:
+            case BiometricPrompt.ERROR_NO_BIOMETRICS:
             case BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL:
+            case BiometricPrompt.ERROR_NO_SPACE:
+            case BiometricPrompt.ERROR_TIMEOUT:
+            case BiometricPrompt.ERROR_UNABLE_TO_PROCESS:
+            case BiometricPrompt.ERROR_USER_CANCELED:
+            case BiometricPrompt.ERROR_VENDOR:
                 return false;
             default:
                 return true;
@@ -70,5 +74,29 @@ class Utils {
     static boolean isConfirmingDeviceCredential() {
         DeviceCredentialHandlerBridge bridge = DeviceCredentialHandlerBridge.getInstanceIfNotNull();
         return bridge != null && bridge.isConfirmingDeviceCredential();
+    }
+
+    /**
+     * Only needs to provide a subset of the fingerprint error strings since the rest are translated
+     * in FingerprintManager
+     */
+    @NonNull
+    static String getFingerprintErrorString(@NonNull Context context, int errorCode) {
+        switch (errorCode) {
+            case BiometricPrompt.ERROR_HW_NOT_PRESENT:
+                return context.getString(R.string.fingerprint_error_hw_not_present);
+            case BiometricPrompt.ERROR_HW_UNAVAILABLE:
+                return context.getString(R.string.fingerprint_error_hw_not_available);
+            case BiometricPrompt.ERROR_NO_BIOMETRICS:
+                return context.getString(R.string.fingerprint_error_no_fingerprints);
+            case BiometricPrompt.ERROR_USER_CANCELED:
+                return context.getString(R.string.fingerprint_error_user_canceled);
+            case BiometricPrompt.ERROR_LOCKOUT:
+            case BiometricPrompt.ERROR_LOCKOUT_PERMANENT:
+                return context.getString(R.string.fingerprint_error_lockout);
+            default:
+                Log.e("BiometricUtils", "Unknown error code: " + errorCode);
+                return context.getString(R.string.default_error_msg);
+        }
     }
 }
