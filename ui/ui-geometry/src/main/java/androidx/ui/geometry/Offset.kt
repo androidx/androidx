@@ -16,11 +16,20 @@
 
 package androidx.ui.geometry
 
+import androidx.compose.Immutable
 import androidx.ui.util.lerp
+import androidx.ui.util.packFloats
 import androidx.ui.util.toStringAsFixed
+import androidx.ui.util.unpackFloat1
+import androidx.ui.util.unpackFloat2
 import kotlin.math.atan2
 import kotlin.math.sqrt
 import kotlin.math.truncate
+
+/**
+ * Constructs an Offset from the given relative x and y offsets
+ */
+fun Offset(dx: Float, dy: Float) = Offset(packFloats(dx, dy))
 
 /**
  * An immutable 2D floating-point offset.
@@ -48,7 +57,14 @@ import kotlin.math.truncate
  * Creates an offset. The first argument sets [dx], the horizontal component,
  * and the second sets [dy], the vertical component.
  */
-data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
+@Immutable
+inline class Offset(@PublishedApi internal val packedValue: Long) {
+
+    val dx: Float
+        get() = unpackFloat1(packedValue)
+
+    val dy: Float
+        get() = unpackFloat2(packedValue)
 
     companion object {
         /**
@@ -274,24 +290,4 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
     infix fun and(other: Size): Rect = Rect.fromLTWH(dx, dy, other.width, other.height)
 
     override fun toString() = "Offset(${dx.toStringAsFixed(1)}, ${dy.toStringAsFixed(1)})"
-
-    // We need to manually override equals (and thus also hashCode) because the auto generated
-    // equals was treating Offset(0.0, 0.0) != Offset(0.0, -0.0).
-    // Filed as https://youtrack.jetbrains.com/issue/KT-27343
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Offset) return false
-
-        if (dx != other.dx) return false
-        if (dy != other.dy) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = dx.hashCode()
-        result = 31 * result + dy.hashCode()
-        return result
-    }
 }

@@ -69,6 +69,8 @@ abstract class Painter {
      */
     private var colorFilter: ColorFilter? = null
 
+    private val canvasScope = CanvasScope()
+
     /**
      * Optional [ColorFilter] used to modify the source pixels when drawn to the destination
      * The default implementation of [Painter] will render it's contents into a separate
@@ -142,6 +144,8 @@ abstract class Painter {
         }
     }
 
+    private val drawLambda: CanvasScope.() -> Unit = { onDraw() }
+
     /**
      * Return the intrinsic size of the [Painter].
      * If the there is no intrinsic size (i.e. filling bounds with an arbitrary color) return
@@ -157,7 +161,7 @@ abstract class Painter {
      * Implementation of drawing logic for instances of [Painter]. This is invoked
      * internally within [draw] after the positioning and configuring the [Painter]
      */
-    protected abstract fun onDraw(canvas: Canvas, bounds: PxSize)
+    protected abstract fun CanvasScope.onDraw()
 
     /**
      * Apply the provided alpha value returning true if it was applied successfully,
@@ -179,7 +183,7 @@ abstract class Painter {
 
     fun draw(
         canvas: Canvas,
-        bounds: PxSize,
+        size: PxSize,
         alpha: Float = DefaultAlpha,
         colorFilter: ColorFilter? = null,
         rtl: Boolean = false
@@ -191,13 +195,13 @@ abstract class Painter {
         if (alpha > 0.0f) {
             if (useLayer) {
                 val layerRect =
-                    Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value)
-                // TODO njawad replace with RenderNode/Layer API usage
+                    Rect.fromLTWH(0.0f, 0.0f, size.width.value, size.height.value)
+                // TODO (b/154550724) njawad replace with RenderNode/Layer API usage
                 canvas.withSaveLayer(layerRect, obtainPaint()) {
-                    onDraw(canvas, bounds)
+                    canvasScope.draw(canvas, size, drawLambda)
                 }
             } else {
-                onDraw(canvas, bounds)
+                canvasScope.draw(canvas, size, drawLambda)
             }
         }
     }

@@ -26,6 +26,7 @@ package androidx.ui.foundation {
 
   public final class CanvasKt {
     method public static void Canvas(androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.DrawScope,kotlin.Unit> onCanvas);
+    method public static void Canvas2(androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.painter.CanvasScope,kotlin.Unit> block);
   }
 
   public final class ClickableKt {

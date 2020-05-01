@@ -16,20 +16,33 @@
 
 package androidx.ui.geometry
 
+import androidx.compose.Immutable
 import androidx.ui.util.lerp
+import androidx.ui.util.packFloats
 import androidx.ui.util.toStringAsFixed
+import androidx.ui.util.unpackFloat1
+import androidx.ui.util.unpackFloat2
 import kotlin.math.absoluteValue
 import kotlin.math.truncate
+
+/**
+ * Constructs a [Size] from the given width and height
+ */
+fun Size(width: Float, height: Float) = Size(packFloats(width, height))
 
 /**
  * Holds a 2D floating-point size.
  *
  * You can think of this as an [Offset] from the origin.
  */
-open class Size(val width: Float, val height: Float) : OffsetBase {
+@Immutable
+inline class Size(@PublishedApi internal val value: Long) {
 
-    override val dx: Float = width
-    override val dy: Float = height
+    val width: Float
+        get() = unpackFloat1(value)
+
+    val height: Float
+        get() = unpackFloat2(value)
 
     companion object {
         /**
@@ -308,18 +321,4 @@ open class Size(val width: Float, val height: Float) : OffsetBase {
     fun getFlipped() = Size(height, width)
 
     override fun toString() = "Size(${width.toStringAsFixed(1)}, ${height.toStringAsFixed(1)})"
-
-    // TODO(Andrey): Can't use data class because of _DebugSize class extending this one.
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Size) return false
-
-        return dx == other.dx && dy == other.dy
-    }
-
-    override fun hashCode(): Int {
-        var result = dx.hashCode()
-        result = 31 * result + dy.hashCode()
-        return result
-    }
 }

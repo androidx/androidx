@@ -21,17 +21,43 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
+import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.painter.inset
 import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.toRect
 
 @Sampled
 @Composable
+@Suppress("DEPRECATION")
 fun CanvasSample() {
     val paint = remember { Paint().apply { color = Color.Magenta } }
     Canvas(modifier = Modifier.preferredSize(100.dp)) {
         drawRect(size.toRect(), paint)
+    }
+}
+
+/**
+ * Sample showing how to create a composable that supports issuing
+ * drawing commands through a [CanvasScope]
+ */
+@Sampled
+@Composable
+fun Canvas2Sample() {
+    Canvas2(modifier = Modifier.preferredSize(20.dp)) {
+        drawRect(color = Color.White)
+        inset(10.0f) {
+            drawLine(
+                p1 = Offset.zero,
+                p2 = Offset(size.width, size.height),
+                stroke = Stroke(width = 5.0f),
+                color = Color.Red
+            )
+        }
     }
 }

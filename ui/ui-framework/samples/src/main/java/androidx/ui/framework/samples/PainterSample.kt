@@ -19,18 +19,12 @@ package androidx.ui.framework.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.core.paint
-import androidx.ui.foundation.Box
+import androidx.ui.foundation.Image
 import androidx.ui.foundation.drawBackground
-import androidx.ui.geometry.Offset
-import androidx.ui.graphics.BlendMode
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.ColorFilter
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.painter.Painter
+import androidx.ui.graphics.painter.CanvasScope
 import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
@@ -40,40 +34,26 @@ import androidx.ui.unit.dp
 fun PainterModifierSample() {
     class CustomPainter : Painter() {
 
-        val paint = Paint().apply {
-            this.color = Color.Red
-        }
-
         override val intrinsicSize: PxSize
             get() = PxSize(
                 Px(300.0f),
                 Px(300.0f)
             )
 
-        override fun onDraw(canvas: Canvas, bounds: PxSize) {
-            val size = intrinsicSize
-            val width = size.width.value
-            val height = size.height.value
-            canvas.drawCircle(
-                Offset(
-                    width / 2.0f,
-                    height / 2.0f
-                ),
-                width / 2.0f,
-                paint
+        override fun CanvasScope.onDraw() {
+            drawCircle(
+                center = center,
+                radius = size.getShortestSide() / 2.0f,
+                color = Color.Red
             )
         }
     }
 
-    Box(
-        Modifier.preferredSize(300.dp)
-            .drawBackground(Color.Gray)
-            .padding(30.dp)
-            .drawBackground(Color.Yellow)
-            .paint(
-                CustomPainter(),
-                alpha = 0.5f,
-                colorFilter = ColorFilter(Color.Cyan, BlendMode.srcIn)
-            )
+    Image(
+        modifier =
+            Modifier.drawBackground(Color.Gray)
+                .padding(30.dp)
+                .drawBackground(Color.Yellow),
+        painter = CustomPainter()
     )
 }

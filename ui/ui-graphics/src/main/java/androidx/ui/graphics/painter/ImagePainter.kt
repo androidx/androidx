@@ -16,58 +16,46 @@
 
 package androidx.ui.graphics.painter
 
-import androidx.ui.geometry.Rect
-import androidx.ui.graphics.Canvas
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.Paint
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.PxSize
-import kotlin.math.roundToInt
-
-private val EmptyPaint = Paint()
 
 /**
  * [Painter] implementation used to draw an [ImageAsset] into the provided canvas
  * This implementation can handle applying alpha and [ColorFilter] to it's drawn result
  *
  * @param image The [ImageAsset] to draw
- * @param srcBounds Optional rectangle used to draw a subsection of the [ImageAsset]. If null is
- * provided the entire [ImageAsset] is drawn within the bounds.
- * These bounds must have the following requirements:
+ * @param srcOffset Optional offset relative to [image] used to draw a subsection of the
+ * [ImageAsset]. By default this uses the origin of [image]
+ * @param srcSize Optional dimensions representing size of the subsection of [image] to draw
+ * Both the offset and size must have the following requirements:
  *
  * 1) Left and top bounds must be greater than or equal to zero
- * 2) Right and bottom bounds must be greater than the left and top respectively
- * 3) Width and height of the bounds must be less than or equal to the dimensions of [image]
+ * 2) Source size must be greater than zero
+ * 3) Source size must be less than or equal to the dimensions of [image]
  */
-data class ImagePainter(private val image: ImageAsset, val srcBounds: Rect? = null) : Painter() {
+data class ImagePainter(
+    private val image: ImageAsset,
+    private val srcOffset: Offset = Offset.zero,
+    private val srcSize: Size = Size(image.width.toFloat(), image.height.toFloat())
+) : Painter() {
 
-    private val size: PxSize = if (srcBounds != null) {
-        require(
-            srcBounds.left >= 0 &&
-            srcBounds.top >= 0 &&
-            srcBounds.right <= image.width &&
-            srcBounds.bottom <= image.height &&
-            srcBounds.right > srcBounds.left &&
-            srcBounds.bottom > srcBounds.top
-        )
-        PxSize(IntPx(srcBounds.width.roundToInt()), IntPx(srcBounds.height.roundToInt()))
-    } else {
-        PxSize(IntPx(image.width), IntPx(image.height))
-    }
+    private val size: PxSize = validateSize(srcOffset, srcSize)
 
-    /**
-     * Lazily allocated paint used to draw the [ImageAsset] if an alpha value between 0.0f and 1.0f
-     * is provided or a color filter is defined on the [Painter]
-     */
-    private var paint: Paint? = null
+    private var alpha: Float = CanvasScope.DefaultAlpha
 
-    override fun onDraw(canvas: Canvas, bounds: PxSize) {
-        canvas.drawImageRect(
+    private var colorFilter: ColorFilter? = null
+
+    override fun CanvasScope.onDraw() {
+        drawImage(
             image,
-            srcBounds,
-            Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value),
-            paint ?: EmptyPaint
+            srcOffset,
+            srcSize,
+            alpha = alpha,
+            colorFilter = colorFilter
         )
     }
 
@@ -77,21 +65,24 @@ data class ImagePainter(private val image: ImageAsset, val srcBounds: Rect? = nu
     override val intrinsicSize: PxSize get() = size
 
     override fun applyAlpha(alpha: Float): Boolean {
-        obtainPaint().alpha = alpha
+        this.alpha = alpha
         return true
     }
 
     override fun applyColorFilter(colorFilter: ColorFilter?): Boolean {
-        obtainPaint().colorFilter = colorFilter
+        this.colorFilter = colorFilter
         return true
     }
 
-    private fun obtainPaint(): Paint {
-        var target = paint
-        if (target == null) {
-            target = Paint()
-            paint = target
-        }
-        return target
+    private fun validateSize(srcOffset: Offset, srcSize: Size): PxSize {
+        require(
+            srcOffset.dx >= 0 &&
+            srcOffset.dy >= 0 &&
+            srcSize.width >= 0 &&
+            srcSize.height >= 0 &&
+            srcSize.width <= image.width &&
+            srcSize.height <= image.height
+        )
+        return PxSize(IntPx(srcSize.width.toInt()), IntPx(srcSize.height.toInt()))
     }
 }

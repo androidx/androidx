@@ -55,12 +55,14 @@ fun TableChildren.drawBorders(
                     dy = verticalOffsets[row].value.toFloat()
                 )
                 val p2 = when (orientation) {
-                    BorderOrientation.Vertical -> p1.copy(
-                        dy = verticalOffsets[row + 1].value.toFloat()
-                    )
-                    BorderOrientation.Horizontal -> p1.copy(
-                        dx = horizontalOffsets[column + 1].value.toFloat()
-                    )
+                    BorderOrientation.Vertical -> Offset(
+                            dx = p1.dx,
+                            dy = verticalOffsets[row + 1].value.toFloat()
+                        )
+                    BorderOrientation.Horizontal -> Offset(
+                            dx = horizontalOffsets[column + 1].value.toFloat(),
+                            dy = p1.dy
+                        )
                 }
                 // TODO(calintat): Reset paint when that operation is available.
                 border.brush.applyTo(paint)
