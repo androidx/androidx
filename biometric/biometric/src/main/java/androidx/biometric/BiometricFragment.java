@@ -77,7 +77,6 @@ public class BiometricFragment extends Fragment {
     // Created once and retained.
     private boolean mShowing;
     private android.hardware.biometrics.BiometricPrompt mBiometricPrompt;
-    private CancellationSignal mCancellationSignal;
     private boolean mStartRespectingCancel;
 
     // Do not rely on the application's executor when calling into the framework's code.
@@ -88,6 +87,9 @@ public class BiometricFragment extends Fragment {
             mHandler.post(runnable);
         }
     };
+
+    private final CancellationSignalProvider mCancellationSignalProvider =
+            new CancellationSignalProvider();
 
     // Created once and retained.
     @VisibleForTesting
@@ -195,9 +197,7 @@ public class BiometricFragment extends Fragment {
                 return;
             }
         }
-        if (mCancellationSignal != null) {
-            mCancellationSignal.cancel();
-        }
+        mCancellationSignalProvider.cancel();
         cleanup();
     }
 
@@ -286,15 +286,16 @@ public class BiometricFragment extends Fragment {
             }
 
             mBiometricPrompt = builder.build();
-            mCancellationSignal = new CancellationSignal();
+            final CancellationSignal cancellationSignal =
+                    mCancellationSignalProvider.getBiometricCancellationSignal();
             if (mCryptoObject == null) {
-                mBiometricPrompt.authenticate(mCancellationSignal, mExecutor,
+                mBiometricPrompt.authenticate(cancellationSignal, mExecutor,
                         mCallbackProvider.getBiometricCallback());
             } else {
                 android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCryptoObject =
                         Objects.requireNonNull(
                                 CryptoObjectUtils.wrapForBiometricPrompt(mCryptoObject));
-                mBiometricPrompt.authenticate(wrappedCryptoObject, mCancellationSignal,
+                mBiometricPrompt.authenticate(wrappedCryptoObject, cancellationSignal,
                         mExecutor, mCallbackProvider.getBiometricCallback());
             }
         }
