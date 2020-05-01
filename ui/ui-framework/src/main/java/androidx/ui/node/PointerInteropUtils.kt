@@ -53,9 +53,9 @@ internal fun List<PointerInputChange>.toMotionEventScope(block: (MotionEvent) ->
             }
         }
 
-    // TODO(b/154136736): toInt() is clearly not right.
+    // TODO(b/154136736): "(it.id.value % 32).toInt()" is very fishy.
     val pointerProperties =
-        map { PointerProperties(it.id.value.toInt()) }
+        map { PointerProperties((it.id.value % 32).toInt()) }
             .toTypedArray()
     val pointerCoords =
         map {

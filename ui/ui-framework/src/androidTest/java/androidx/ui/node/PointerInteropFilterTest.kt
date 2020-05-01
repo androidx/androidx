@@ -21,7 +21,6 @@ import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
-import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.test.filters.SmallTest
 import androidx.ui.core.PointerEventPass
@@ -36,6 +35,7 @@ import androidx.ui.testutils.moveBy
 import androidx.ui.testutils.moveTo
 import androidx.ui.testutils.up
 import androidx.ui.unit.milliseconds
+import androidx.ui.viewinterop.AndroidViewHolder
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -1635,12 +1635,11 @@ class PointerInteropFilterTest {
     }
 
     @Test
-    fun onPointerInput_pointerMove_dispatchedDuringFinalTunnel() {
+    fun onPointerInput_pointerMove_dispatchedDuringPostTunnel() {
         val down = down(1, 2.milliseconds, 3f, 4f)
         val move = down.moveTo(7.milliseconds, 8f, 9f)
-
         pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverAllPasses(down)
-
+        mockViewGroup.dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverPasses(
             move,
             PointerEventPass.InitialDown,
@@ -1649,14 +1648,89 @@ class PointerInteropFilterTest {
             PointerEventPass.PostUp
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
 
         pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverPasses(
             move,
             PointerEventPass.PostDown
         )
 
-        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(2)
+        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+    }
+
+    @Test
+    fun onPointerInput_downDisallowInterceptRequestedMove_moveDispatchedDuringInitialTunnel() {
+        val down = down(1, 2.milliseconds, 3f, 4f)
+        val move = down.moveTo(7.milliseconds, 8f, 9f)
+
+        pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverAllPasses(down)
+        mockViewGroup.dispatchedMotionEvents.clear()
+
+        mockViewGroup.requestDisallowInterceptTouchEvent(true)
+
+        pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverPasses(
+            move,
+            PointerEventPass.InitialDown
+        )
+
+        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+    }
+
+    @Test
+    fun onPointerInput_disallowInterceptRequestedUpDownMove_moveDispatchedDuringPostTunnel() {
+        val downA = down(1, 2.milliseconds, 3f, 4f)
+        val upA = downA.up(11.milliseconds)
+        val downB = down(21, 22.milliseconds, 23f, 24f)
+        val moveB = downB.moveTo(31.milliseconds, 32f, 33f)
+
+        pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverAllPasses(downA)
+        mockViewGroup.requestDisallowInterceptTouchEvent(true)
+        pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverAllPasses(upA)
+        pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverAllPasses(downB)
+        mockViewGroup.dispatchedMotionEvents.clear()
+        pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverPasses(
+            moveB,
+            PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
+            PointerEventPass.PostUp
+        )
+
+        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+
+        pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverPasses(
+            moveB,
+            PointerEventPass.PostDown
+        )
+
+        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
+    }
+
+    @Test
+    fun onPointerInput_disallowInterceptTrueThenFalseThenMove_moveDispatchedDuringPostTunnel() {
+        val down = down(1, 2.milliseconds, 3f, 4f)
+        val move = down.moveTo(7.milliseconds, 8f, 9f)
+
+        pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverAllPasses(down)
+        mockViewGroup.requestDisallowInterceptTouchEvent(true)
+        mockViewGroup.requestDisallowInterceptTouchEvent(false)
+        mockViewGroup.dispatchedMotionEvents.clear()
+        pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverPasses(
+            move,
+            PointerEventPass.InitialDown,
+            PointerEventPass.PreUp,
+            PointerEventPass.PreDown,
+            PointerEventPass.PostUp
+        )
+
+        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(0)
+
+        pointerInteropFilter.pointerInputFilter::onPointerInput.invokeOverPasses(
+            move,
+            PointerEventPass.PostDown
+        )
+
+        assertThat(mockViewGroup.dispatchedMotionEvents).hasSize(1)
     }
 
     @Test
@@ -1866,7 +1940,7 @@ class PointerInteropFilterTest {
     }
 
     @Test
-    fun onPointerInput_pointerMove_consumedDuringFinalTunnel() {
+    fun onPointerInput_pointerMove_consumedDuringPostTunnel() {
         val down = down(1, 2.milliseconds, 3f, 4f)
         val move = down.moveTo(7.milliseconds, 8f, 9f)
 
@@ -2000,7 +2074,7 @@ class PointerInteropFilterTest {
     }
 }
 
-class MockViewGroup(context: Context) : FrameLayout(context) {
+internal class MockViewGroup(context: Context) : AndroidViewHolder(context) {
     var dispatchedMotionEvents = mutableListOf<MotionEvent>()
     var returnValue = true
 
@@ -2034,7 +2108,8 @@ private fun MotionEvent(
     eventTime.toLong(),
     action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
     numPointers,
-    pointerProperties,
+    // TODO(shepshapard): This is bad and temporary
+    pointerProperties.map { PointerProperties(it.id % 32) }.toTypedArray(),
     pointerCoords,
     0,
     0,

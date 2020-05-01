@@ -16,6 +16,7 @@
 
 package androidx.ui.androidview.demos
 
+import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.Composable
@@ -23,48 +24,32 @@ import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.HorizontalScroller
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.drawBackground
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.unit.dp
 import androidx.ui.viewinterop.AndroidView
 
-val ComposeInAndroidDemos = DemoCategory(
-    "Compose in Android Interop", listOf(
-        ActivityDemo(
-            "Compose with no gestures in Android tap",
-            ComposeNothingInAndroidTap::class
-        ),
-        ActivityDemo(
-            "Compose tap in Android tap",
-            ComposeTapInAndroidTap::class
-        ),
-        ActivityDemo(
-            "Compose tap in Android scroll",
-            ComposeTapInAndroidScroll::class
-        ),
-        ActivityDemo(
-            "Compose scroll in Android scroll (same orientation)",
-            ComposeScrollInAndroidScrollSameOrientation::class
-        ),
-        ActivityDemo(
-            "Compose scroll in Android scroll (different orientations)",
-            ComposeScrollInAndroidScrollDifferentOrientation::class
-        )
-    )
-)
-
 val AndroidInComposeDemos = DemoCategory("Android In Compose Interop", listOf(
     ComposableDemo("4 Android tap in Compose") { FourAndroidTapInCompose() },
     ComposableDemo("Android tap in Compose tap") { AndroidTapInComposeTap() },
-    ComposableDemo("Android tap in Compose scroll") { AndroidTapInComposeScroll() }
+    ComposableDemo("Android tap in Compose scroll") { AndroidTapInComposeScroll() },
+    ComposableDemo("Android scroll in Compose scroll (different orientation)") {
+        AndroidScrollInComposeScrollDifferentOrientation()
+    },
+    ComposableDemo("Android scroll in Compose scroll (same orientation)") {
+        AndroidScrollInComposeScrollSameOrientation()
+    }
 ))
 
 @Composable
@@ -81,19 +66,19 @@ private fun FourAndroidTapInCompose() {
                 .wrapContentSize(Alignment.Center)
                 .preferredSize(240.dp)
         ) {
-            AndroidView(R.layout.pointer_interop_targeting_demo) { view ->
+            AndroidView(R.layout.android_4_buttons_in_compose) { view ->
                 view as ViewGroup
                 view.findViewById<View>(R.id.buttonBlue).setOnClick {
-                    view.setBackgroundColor(android.graphics.Color.BLUE)
+                    view.setBackgroundColor(Color.BLUE)
                 }
                 view.findViewById<View>(R.id.buttonRed).setOnClick {
-                    view.setBackgroundColor(android.graphics.Color.RED)
+                    view.setBackgroundColor(Color.RED)
                 }
                 view.findViewById<View>(R.id.buttonGreen).setOnClick {
-                    view.setBackgroundColor(android.graphics.Color.GREEN)
+                    view.setBackgroundColor(Color.GREEN)
                 }
                 view.findViewById<View>(R.id.buttonYellow).setOnClick {
-                    view.setBackgroundColor(android.graphics.Color.YELLOW)
+                    view.setBackgroundColor(Color.YELLOW)
                 }
             }
         }
@@ -105,7 +90,7 @@ private fun AndroidTapInComposeTap() {
     var theView: View? = null
 
     val onTap: () -> Unit = {
-        theView?.setBackgroundColor(android.graphics.Color.BLUE)
+        theView?.setBackgroundColor(Color.BLUE)
     }
 
     Column {
@@ -127,11 +112,11 @@ private fun AndroidTapInComposeTap() {
                 .wrapContentSize(Alignment.Center)
                 .preferredSize(240.dp)
         ) {
-            AndroidView(R.layout.pointer_interop_tap_in_tap_demo) { view ->
+            AndroidView(R.layout.android_tap_in_compose_tap) { view ->
                 theView = view
-                theView?.setBackgroundColor(android.graphics.Color.GREEN)
+                theView?.setBackgroundColor(Color.GREEN)
                 view.findViewById<View>(R.id.buttonRed).setOnClick {
-                    theView?.setBackgroundColor(android.graphics.Color.RED)
+                    theView?.setBackgroundColor(Color.RED)
                 }
             }
         }
@@ -153,32 +138,72 @@ private fun AndroidTapInComposeScroll() {
                     "will not be clicked when released."
         )
         HorizontalScroller {
-            AndroidView(R.layout.pointer_interop_tap_in_drag_demo) { view ->
-                view.setBackgroundColor(android.graphics.Color.YELLOW)
+            AndroidView(R.layout.android_tap_in_compose_scroll) { view ->
+                view.setBackgroundColor(Color.YELLOW)
                 view.findViewById<View>(R.id.buttonRed).apply {
                     isClickable = false
                     setOnClick {
-                        view.setBackgroundColor(android.graphics.Color.RED)
+                        view.setBackgroundColor(Color.RED)
                     }
                 }
                 view.findViewById<View>(R.id.buttonGreen).apply {
                     isClickable = false
                     setOnClick {
-                        view.setBackgroundColor(android.graphics.Color.GREEN)
+                        view.setBackgroundColor(Color.GREEN)
                     }
                 }
                 view.findViewById<View>(R.id.buttonBlue).apply {
                     isClickable = false
                     setOnClick {
-                        view.setBackgroundColor(android.graphics.Color.BLUE)
+                        view.setBackgroundColor(Color.BLUE)
                     }
                 }
                 view.findViewById<View>(R.id.buttonYellow).apply {
                     isClickable = false
                     setOnClick {
-                        view.setBackgroundColor(android.graphics.Color.YELLOW)
+                        view.setBackgroundColor(Color.YELLOW)
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AndroidScrollInComposeScrollDifferentOrientation() {
+    Column {
+        Text("Demonstrates correct \"scroll orientation\" locking when something scrollable in " +
+                "Android is nested inside something scrollable in Compose.")
+        Text("You should only be able to scroll in one orientation at a time.")
+        HorizontalScroller(modifier = Modifier.drawBackground(androidx.ui.graphics.Color.Blue)) {
+            Box(modifier = Modifier.padding(96.dp).drawBackground(androidx.ui.graphics.Color.Red)) {
+                AndroidView(R.layout.android_scroll_in_compose_scroll_different_orientation)
+            }
+        }
+    }
+}
+
+@Composable
+private fun AndroidScrollInComposeScrollSameOrientation() {
+    Column {
+        Text("Supposed to demonstrate correct nested scrolling when something scrollable in " +
+                "Android is inside something scrollable in Compose.")
+        Text(
+            "This doesn't actually work because nested scrolling isn't implemented between " +
+                    "Compose and Android.  Normally, this lack of implementation would mean the " +
+                    "parent would always intercept first and thus block the child from ever " +
+                    "scrolling. However, currently, the touch slop for Android is smaller than " +
+                    "that for Compose, and thus the child scrolls and prevents the parent from " +
+                    "intercepting. "
+        )
+        VerticalScroller(modifier = Modifier.drawBackground(androidx.ui.graphics.Color.Blue)) {
+            Box(
+                modifier = Modifier
+                    .padding(96.dp)
+                    .drawBackground(androidx.ui.graphics.Color.Red)
+                    .preferredHeight(750.dp)
+            ) {
+                AndroidView(R.layout.android_scroll_in_compose_scroll_same_orientation)
             }
         }
     }
