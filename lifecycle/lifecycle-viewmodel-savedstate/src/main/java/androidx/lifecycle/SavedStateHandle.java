@@ -316,17 +316,25 @@ public final class SavedStateHandle {
      *
      * @param key a key which will populated with a {@link Bundle} produced by the provider
      * @param provider a SavedStateProvider which will receive a callback to
-     * {@link SavedStateProvider#saveState()} when the state should be saved or null to remove a
-     * previously set SavedStateProvider
+     * {@link SavedStateProvider#saveState()} when the state should be saved
      */
     @MainThread
-    public void setSavedStateProvider(@NonNull String key,
-            @Nullable SavedStateProvider provider) {
-        if (provider != null) {
-            mSavedStateProviders.put(key, provider);
-        } else {
+    public void setSavedStateProvider(@NonNull String key, @NonNull SavedStateProvider provider) {
+        mSavedStateProviders.put(key, provider);
+    }
+
+    /**
+     * Clear any {@link SavedStateProvider} that was previously set via
+     * {@link #setSavedStateProvider(String, SavedStateProvider)}.
+     *
+     * Note: calling this method within {@link SavedStateProvider#saveState()} is supported, but
+     * will only affect future state saving operations.
+     *
+     * @param key a key previously used with {@link #setSavedStateProvider}
+     */
+    @MainThread
+    public void clearSavedStateProvider(@NonNull String key) {
             mSavedStateProviders.remove(key);
-        }
     }
 
     static class SavingStateLiveData<T> extends MutableLiveData<T> {
