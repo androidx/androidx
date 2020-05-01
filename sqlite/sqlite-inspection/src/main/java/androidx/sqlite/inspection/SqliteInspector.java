@@ -16,6 +16,8 @@
 
 package androidx.sqlite.inspection;
 
+import static android.database.DatabaseUtils.getSqlStatementType;
+
 import static androidx.sqlite.inspection.SqliteInspectionExecutors.directExecutor;
 
 import android.annotation.SuppressLint;
@@ -155,6 +157,9 @@ final class SqliteInspector extends Inspector {
      */
     private final RoomInvalidationRegistry mRoomInvalidationRegistry;
 
+    @NonNull
+    private final SqlDelightInvalidation mSqlDelightInvalidation;
+
     SqliteInspector(@NonNull Connection connection, InspectorEnvironment environment,
             Executor ioExecutor, ScheduledExecutorService scheduledExecutor) {
         super(connection);
@@ -162,6 +167,7 @@ final class SqliteInspector extends Inspector {
         mIOExecutor = ioExecutor;
         mScheduledExecutor = scheduledExecutor;
         mRoomInvalidationRegistry = new RoomInvalidationRegistry(mEnvironment);
+        mSqlDelightInvalidation = SqlDelightInvalidation.create(mEnvironment);
     }
 
     @Override
@@ -316,7 +322,7 @@ final class SqliteInspector extends Inspector {
 
                         // Only track cursors that might modify the database.
                         // TODO: handle PRAGMA select queries, e.g. PRAGMA_TABLE_INFO
-                        if (query != null && DatabaseUtils.getSqlStatementType(query)
+                        if (query != null && getSqlStatementType(query)
                                 != DatabaseUtils.STATEMENT_SELECT) {
                             trackedCursors.put(cursor, null);
                         }
@@ -370,7 +376,7 @@ final class SqliteInspector extends Inspector {
                             .build()
                             .toByteArray()
                     );
-                    mRoomInvalidationRegistry.triggerInvalidationChecks();
+                    triggerInvalidation(command.getQuery());
                 } catch (SQLiteException | IllegalArgumentException exception) {
                     callback.reply(createErrorOccurredResponse(exception, true).toByteArray());
                 } finally {
@@ -388,6 +394,13 @@ final class SqliteInspector extends Inspector {
                 future.cancel(true);
             }
         });
+    }
+
+    private void triggerInvalidation(String query) {
+        if (getSqlStatementType(query) != DatabaseUtils.STATEMENT_SELECT) {
+            mSqlDelightInvalidation.triggerInvalidations();
+            mRoomInvalidationRegistry.triggerInvalidations();
+        }
     }
 
     @SuppressLint("Recycle") // For: "The cursor should be freed up after use with #close"

@@ -63,7 +63,7 @@ class RoomInvalidationRegistry {
      * <p>
      * If the list of InvalidationTracker instances are not cached, this will do a lookup.
      */
-    void triggerInvalidationChecks() {
+    void triggerInvalidations() {
         if (mInvoker == null) {
             return;
         }
