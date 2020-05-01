@@ -26,10 +26,14 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.composed
 import androidx.ui.core.gesture.anyPointersInBounds
+import androidx.ui.core.gesture.doubleTapGestureFilter
+import androidx.ui.core.gesture.longPressGestureFilter
 import androidx.ui.core.gesture.tapGestureFilter
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
+import androidx.ui.core.semantics.semantics
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.enabled
 import androidx.ui.semantics.onClick
@@ -52,7 +56,17 @@ import androidx.ui.unit.PxPosition
  * @param interactionState [InteractionState] that will be updated when this Clickable is
  * pressed, using [Interaction.Pressed]. Only initial (first) press will be recorded and added to
  * [InteractionState]
+ *
+ * @deprecated Use [clickable] modifier instead
  */
+@Deprecated(
+    "Clickable has been deprecated, use clickable modifier instead",
+    ReplaceWith(
+        "Box(modifier.clickable(onClick = onClick, enabled = enabled), children = children)",
+        "androidx.foundation.clickable",
+        "androidx.foundation.Box"
+    )
+)
 @Composable
 fun Clickable(
     onClick: () -> Unit,
@@ -62,36 +76,90 @@ fun Clickable(
     interactionState: InteractionState? = null,
     children: @Composable () -> Unit
 ) {
-    Semantics(
+    @Suppress("DEPRECATION")
+    PassThroughLayout(
+        modifier.clickable(
+            enabled,
+            onClickLabel,
+            interactionState ?: remember { InteractionState() },
+            onClick = onClick
+        ),
+        children
+    )
+}
+
+/**
+ * Configure component to receive clicks via input or accessibility "click" event.
+ *
+ * Add this modifier to the element to make it clickable within its bounds.
+ *
+ * @sample androidx.ui.foundation.samples.ClickableSample
+ *
+ * @param enabled Controls the enabled state. When `false`, [onClick], [onLongClick] or
+ * [onDoubleClick] won't be invoked
+ * @param onClickLabel semantic / accessibility label for the [onClick] action
+ * @param interactionState [InteractionState] that will be updated when this Clickable is
+ * pressed, using [Interaction.Pressed]. Only initial (first) press will be recorded and added to
+ * [InteractionState]
+ * @param indication indication to be shown when modified element is pressed. Be default,
+ * indication from [IndicationAmbient] will be used. Pass `null` to show no indication
+ * @param onLongClick will be called when user long presses on the element
+ * @param onDoubleClick will be called when user double clicks on the element
+ * @param onClick will be called when user clicks on the element
+ */
+@Composable
+fun Modifier.clickable(
+    enabled: Boolean = true,
+    onClickLabel: String? = null,
+    interactionState: InteractionState = remember { InteractionState() },
+    indication: Indication? = IndicationAmbient.current,
+    onLongClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
+    onClick: () -> Unit
+) = composed {
+    val semanticModifier = Modifier.semantics(
         container = true,
         properties = {
             this.enabled = enabled
             if (enabled) {
+                // b/156468846:  add long click semantics and double click if needed
                 onClick(action = { onClick(); return@onClick true }, label = onClickLabel)
             }
         }
-    ) {
-        val tap = if (enabled) {
-            (interactionState?.run {
-                Modifier.noConsumptionIndicatorGestureFilter(
-                    onStart = { position -> addInteraction(Interaction.Pressed, position) },
-                    onStop = { removeInteraction(Interaction.Pressed) },
-                    onCancel = { removeInteraction(Interaction.Pressed) }
-                )
-            } ?: Modifier).tapGestureFilter { onClick() }
+    )
+    val interactionUpdate =
+        if (enabled) {
+            Modifier.noConsumptionIndicatorGestureFilter(
+                onStart = { interactionState.addInteraction(Interaction.Pressed, it) },
+                onStop = { interactionState.removeInteraction(Interaction.Pressed) },
+                onCancel = { interactionState.removeInteraction(Interaction.Pressed) }
+            )
         } else {
             Modifier
         }
-        onCommit(interactionState) {
-            onDispose {
-                interactionState?.removeInteraction(Interaction.Pressed)
-            }
-        }
-        // TODO(b/150706555): This layout is temporary and should be removed once Semantics
-        //  is implemented with modifiers.
-        @Suppress("DEPRECATION")
-        PassThroughLayout(modifier + tap, children)
+    val tap = if (enabled) tapGestureFilter(onTap = { onClick() }) else Modifier
+    val longTap = if (enabled && onLongClick != null) {
+        longPressGestureFilter(onLongPress = { onLongClick() })
+    } else {
+        Modifier
     }
+    val doubleTap =
+        if (enabled && onDoubleClick != null) {
+            doubleTapGestureFilter(onDoubleTap = { onDoubleClick() })
+        } else {
+            Modifier
+        }
+    onCommit(interactionState) {
+        onDispose {
+            interactionState.removeInteraction(Interaction.Pressed)
+        }
+    }
+    semanticModifier
+        .plus(interactionUpdate)
+        .indication(interactionState, indication)
+        .plus(tap)
+        .plus(longTap)
+        .plus(doubleTap)
 }
 
 /**

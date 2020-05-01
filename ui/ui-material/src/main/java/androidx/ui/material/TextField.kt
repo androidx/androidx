@@ -44,12 +44,12 @@ import androidx.ui.core.offset
 import androidx.ui.core.tag
 import androidx.ui.core.focus.FocusModifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentColorAmbient
 import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.TextFieldValue
+import androidx.ui.foundation.clickable
 import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.shape.corner.ZeroCornerSize
 import androidx.ui.geometry.Offset
@@ -61,7 +61,7 @@ import androidx.ui.input.VisualTransformation
 import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
-import androidx.ui.material.ripple.ripple
+import androidx.ui.material.ripple.RippleIndication
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.FirstBaseline
 import androidx.ui.text.LastBaseline
@@ -390,69 +390,71 @@ private fun FilledTextFieldImpl(
             shape = shape,
             color = backgroundColor.applyAlpha(alpha = ContainerAlpha)
         ) {
-            Clickable(onClick = { shouldFocus = true }, modifier = Modifier.ripple(false)) {
-                if (shouldFocus) {
-                    focusModifier.requestFocus()
-                    shouldFocus = false
+            if (shouldFocus) {
+                focusModifier.requestFocus()
+                shouldFocus = false
+            }
+
+            val emphasisLevels = EmphasisAmbient.current
+            val emphasizedActiveColor = emphasisLevels.high.applyEmphasis(activeColor)
+            val labelInactiveColor = emphasisLevels.medium.applyEmphasis(inactiveColor)
+            val indicatorInactiveColor =
+                inactiveColor.applyAlpha(alpha = IndicatorInactiveAlpha)
+
+            TextFieldTransitionScope.transition(
+                inputState = inputState.value,
+                activeColor = emphasizedActiveColor,
+                labelInactiveColor = labelInactiveColor,
+                indicatorInactiveColor = indicatorInactiveColor
+            ) { labelProgress, animatedLabelColor, indicatorWidth, indicatorColor ->
+                // TODO(soboleva): figure out how this will play with the textStyle provided in label slot
+                val labelAnimatedStyle = lerp(
+                    MaterialTheme.typography.subtitle1,
+                    MaterialTheme.typography.caption,
+                    labelProgress
+                )
+
+                val leadingColor = inactiveColor.applyAlpha(alpha = TrailingLeadingAlpha)
+                val trailingColor = if (isErrorValue) errorColor else leadingColor
+
+                // text field with label and placeholder
+                val labelColor = if (isErrorValue) errorColor else animatedLabelColor
+                val decoratedLabel = @Composable {
+                    Decoration(
+                        contentColor = labelColor,
+                        typography = labelAnimatedStyle,
+                        children = label
+                    )
                 }
 
-                val emphasisLevels = EmphasisAmbient.current
-                val emphasizedActiveColor = emphasisLevels.high.applyEmphasis(activeColor)
-                val labelInactiveColor = emphasisLevels.medium.applyEmphasis(inactiveColor)
-                val indicatorInactiveColor =
-                    inactiveColor.applyAlpha(alpha = IndicatorInactiveAlpha)
-
-                TextFieldTransitionScope.transition(
-                    inputState = inputState.value,
-                    activeColor = emphasizedActiveColor,
-                    labelInactiveColor = labelInactiveColor,
-                    indicatorInactiveColor = indicatorInactiveColor
-                ) { labelProgress, animatedLabelColor, indicatorWidth, indicatorColor ->
-                    // TODO(soboleva): figure out how this will play with the textStyle provided in label slot
-                    val labelAnimatedStyle = lerp(
-                        MaterialTheme.typography.subtitle1,
-                        MaterialTheme.typography.caption,
-                        labelProgress
-                    )
-
-                    val leadingColor = inactiveColor.applyAlpha(alpha = TrailingLeadingAlpha)
-                    val trailingColor = if (isErrorValue) errorColor else leadingColor
-
-                    // text field with label and placeholder
-                    val labelColor = if (isErrorValue) errorColor else animatedLabelColor
-                    val decoratedLabel = @Composable {
-                        Decoration(
-                            contentColor = labelColor,
-                            typography = labelAnimatedStyle,
-                            children = label
-                        )
-                    }
-
-                    // places leading icon, text field with label, trailing icon
-                    IconsTextFieldLayout(
-                        modifier = Modifier.drawIndicatorLine(
+                // places leading icon, text field with label, trailing icon
+                IconsTextFieldLayout(
+                    modifier = Modifier
+                        .clickable(indication = RippleIndication(bounded = false)) {
+                            shouldFocus = true
+                        }
+                        .drawIndicatorLine(
                             lineWidth = indicatorWidth,
                             color = if (isErrorValue) errorColor else indicatorColor
                         ),
-                        textField = {
-                            TextFieldLayout(
-                                animationProgress = labelProgress,
-                                modifier = Modifier
-                                    .padding(
-                                        start = HorizontalTextFieldPadding,
-                                        end = HorizontalTextFieldPadding
-                                    ),
-                                placeholder = decoratedPlaceholder,
-                                label = decoratedLabel,
-                                textField = decoratedTextField
-                            )
-                        },
-                        leading = leading,
-                        trailing = trailing,
-                        leadingColor = leadingColor,
-                        trailingColor = trailingColor
-                    )
-                }
+                    textField = {
+                        TextFieldLayout(
+                            animationProgress = labelProgress,
+                            modifier = Modifier
+                                .padding(
+                                    start = HorizontalTextFieldPadding,
+                                    end = HorizontalTextFieldPadding
+                                ),
+                            placeholder = decoratedPlaceholder,
+                            label = decoratedLabel,
+                            textField = decoratedTextField
+                        )
+                    },
+                    leading = leading,
+                    trailing = trailing,
+                    leadingColor = leadingColor,
+                    trailingColor = trailingColor
+                )
             }
         }
     }

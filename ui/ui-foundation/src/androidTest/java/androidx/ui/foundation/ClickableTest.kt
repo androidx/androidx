@@ -20,6 +20,7 @@ import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.test.filters.MediumTest
+import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.layout.Stack
 import androidx.ui.test.assertHasClickAction
@@ -28,13 +29,19 @@ import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsNotEnabled
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
+import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.sendClick
+import androidx.ui.test.sendDoubleClick
+import androidx.ui.test.sendLongClick
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -48,9 +55,7 @@ class ClickableTest {
         composeTestRule.setContent {
             Stack {
                 TestTag(tag = "myClickable") {
-                    Clickable(onClick = {}) {
-                        Text("ClickableText")
-                    }
+                    Text("ClickableText", modifier = Modifier.clickable {})
                 }
             }
         }
@@ -65,9 +70,7 @@ class ClickableTest {
         composeTestRule.setContent {
             Stack {
                 TestTag(tag = "myClickable") {
-                    Clickable(onClick = {}, enabled = false) {
-                        Text("ClickableText")
-                    }
+                    Text("ClickableText", modifier = Modifier.clickable(enabled = false) {})
                 }
             }
         }
@@ -85,9 +88,7 @@ class ClickableTest {
         composeTestRule.setContent {
             Stack {
                 TestTag(tag = "myClickable") {
-                    Clickable(onClick = onClick) {
-                        Text("ClickableText")
-                    }
+                    Text("ClickableText", modifier = Modifier.clickable(onClick = onClick))
                 }
             }
         }
@@ -108,15 +109,216 @@ class ClickableTest {
     }
 
     @Test
+    fun clickableTest_longClick() {
+        var counter = 0
+        val onClick: () -> Unit = { ++counter }
+
+        composeTestRule.setContent {
+            Stack {
+                TestTag(tag = "myClickable") {
+                    Text("ClickableText", modifier = Modifier.clickable(onLongClick = onClick) {})
+                }
+            }
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendLongClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(counter).isEqualTo(1)
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendLongClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(counter).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun clickableTest_click_withLongClick() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        val onClick: () -> Unit = { ++clickCounter }
+        val onLongClick: () -> Unit = { ++longClickCounter }
+
+        composeTestRule.setContent {
+            Stack {
+                TestTag(tag = "myClickable") {
+                    Text(
+                        "ClickableText", modifier = Modifier.clickable(
+                            onLongClick = onLongClick,
+                            onClick = onClick
+                        )
+                    )
+                }
+            }
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(longClickCounter).isEqualTo(0)
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendLongClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(longClickCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun clickableTest_click_withDoubleClick() {
+        val clickLatch = CountDownLatch(1)
+        var doubleClickCounter = 0
+        val onClick: () -> Unit = { clickLatch.countDown() }
+        val onDoubleClick: () -> Unit = { ++doubleClickCounter }
+
+        composeTestRule.setContent {
+            Stack {
+                TestTag(tag = "myClickable") {
+                    Text(
+                        "ClickableText", modifier = Modifier.clickable(
+                            onDoubleClick = onDoubleClick,
+                            onClick = onClick
+                        )
+                    )
+                }
+            }
+        }
+
+        findByTag("myClickable")
+            .doClick()
+
+        val res = clickLatch.await(1000, TimeUnit.MILLISECONDS)
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(0)
+            assertThat(res).isTrue()
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendDoubleClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(1)
+            assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        }
+    }
+
+    @Test
+    fun clickableTest_click_withDoubleClick_andLongClick() {
+        val clickLatch = CountDownLatch(1)
+        var doubleClickCounter = 0
+        var longClickCounter = 0
+        val onClick: () -> Unit = { clickLatch.countDown() }
+        val onDoubleClick: () -> Unit = { ++doubleClickCounter }
+        val onLongClick: () -> Unit = { ++longClickCounter }
+
+        composeTestRule.setContent {
+            Stack {
+                TestTag(tag = "myClickable") {
+                    Text(
+                        "ClickableText", modifier = Modifier.clickable(
+                            onDoubleClick = onDoubleClick,
+                            onLongClick = onLongClick,
+                            onClick = onClick
+                        )
+                    )
+                }
+            }
+        }
+
+        findByTag("myClickable")
+            .doClick()
+
+        val res = clickLatch.await(1000, TimeUnit.MILLISECONDS)
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(0)
+            assertThat(longClickCounter).isEqualTo(0)
+            assertThat(res).isTrue()
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendDoubleClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(1)
+            assertThat(longClickCounter).isEqualTo(0)
+            assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendLongClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(1)
+            assertThat(longClickCounter).isEqualTo(1)
+            assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        }
+    }
+
+    @Test
+    fun clickableTest_doubleClick() {
+        var counter = 0
+        val onClick: () -> Unit = { ++counter }
+
+        composeTestRule.setContent {
+            Stack {
+                TestTag(tag = "myClickable") {
+                    Text("ClickableText", modifier = Modifier.clickable(onDoubleClick = onClick) {})
+                }
+            }
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendDoubleClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(counter).isEqualTo(1)
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendDoubleClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(counter).isEqualTo(2)
+        }
+    }
+
+    @Test
     fun clickableTest_interactionState() {
         val interactionState = InteractionState()
 
         composeTestRule.setContent {
             Stack {
                 TestTag(tag = "myClickable") {
-                    Clickable(onClick = {}, interactionState = interactionState) {
-                        Text("ClickableText")
-                    }
+                    Text(
+                        "ClickableText",
+                        modifier = Modifier.clickable(interactionState = interactionState) {})
                 }
             }
         }
@@ -153,9 +355,9 @@ class ClickableTest {
             Stack {
                 TestTag(tag = "myClickable") {
                     if (emitClickableText) {
-                        Clickable(onClick = {}, interactionState = interactionState) {
-                            Text("ClickableText")
-                        }
+                        Text(
+                            "ClickableText",
+                            modifier = Modifier.clickable(interactionState = interactionState) {})
                     }
                 }
             }
@@ -181,6 +383,96 @@ class ClickableTest {
 
         runOnIdleCompose {
             assertThat(interactionState.value).doesNotContain(Interaction.Pressed)
+        }
+    }
+
+    @Test
+    fun clickableTest_click_withDoubleClick_andLongClick_disabled() {
+        val enabled = mutableStateOf(false)
+        val clickLatch = CountDownLatch(1)
+        var doubleClickCounter = 0
+        var longClickCounter = 0
+        val onClick: () -> Unit = { clickLatch.countDown() }
+        val onDoubleClick: () -> Unit = { ++doubleClickCounter }
+        val onLongClick: () -> Unit = { ++longClickCounter }
+
+        composeTestRule.setContent {
+            Stack {
+                TestTag(tag = "myClickable") {
+                    Text(
+                        "ClickableText", modifier = Modifier.clickable(
+                            enabled = enabled.value,
+                            onDoubleClick = onDoubleClick,
+                            onLongClick = onLongClick,
+                            onClick = onClick
+                        )
+                    )
+                }
+            }
+        }
+
+        findByTag("myClickable")
+            .doClick()
+
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(0)
+            assertThat(longClickCounter).isEqualTo(0)
+            assertThat(clickLatch.count).isEqualTo(1)
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendDoubleClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(0)
+            assertThat(longClickCounter).isEqualTo(0)
+            assertThat(clickLatch.count).isEqualTo(1)
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendLongClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(0)
+            assertThat(longClickCounter).isEqualTo(0)
+            assertThat(clickLatch.count).isEqualTo(1)
+            enabled.value = true
+        }
+
+        findByTag("myClickable")
+            .doClick()
+
+        val res = clickLatch.await(1000, TimeUnit.MILLISECONDS)
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(0)
+            assertThat(longClickCounter).isEqualTo(0)
+            assertThat(res).isTrue()
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendDoubleClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(1)
+            assertThat(longClickCounter).isEqualTo(0)
+            assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        findByTag("myClickable")
+            .doGesture {
+                sendLongClick()
+            }
+
+        runOnIdleCompose {
+            assertThat(doubleClickCounter).isEqualTo(1)
+            assertThat(longClickCounter).isEqualTo(1)
+            assertThat(clickLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
         }
     }
 }
