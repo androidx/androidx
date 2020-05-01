@@ -33,8 +33,10 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraInfo;
@@ -43,6 +45,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
+import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.Threads;
@@ -99,6 +102,9 @@ public class PreviewView extends FrameLayout {
     @Nullable
     private AtomicReference<PreviewStreamStateObserver> mActiveStreamStateObserver =
             new AtomicReference<>();
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    CameraController mCameraController;
 
     @NonNull
     PreviewViewMeteringPointFactory mPreviewViewMeteringPointFactory =
@@ -113,6 +119,13 @@ public class PreviewView extends FrameLayout {
             }
 
             mPreviewViewMeteringPointFactory.setViewSize(right - left, top - bottom);
+
+            boolean isSizeChanged =
+                    right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
+            if (mCameraController != null && isSizeChanged) {
+                mCameraController.attachPreviewSurface(createSurfaceProvider(), getWidth(),
+                        getHeight());
+            }
         }
     };
 
@@ -162,6 +175,10 @@ public class PreviewView extends FrameLayout {
             mImplementation.onAttachedToWindow();
         }
         mPreviewViewMeteringPointFactory.setDisplay(getDisplay());
+        if (mCameraController != null) {
+            mCameraController.attachPreviewSurface(createSurfaceProvider(), getWidth(),
+                    getHeight());
+        }
     }
 
     @Override
@@ -172,6 +189,9 @@ public class PreviewView extends FrameLayout {
             mImplementation.onDetachedFromWindow();
         }
         mPreviewViewMeteringPointFactory.setDisplay(getDisplay());
+        if (mCameraController != null) {
+            mCameraController.clearPreviewSurface();
+        }
     }
 
     /**
@@ -588,5 +608,43 @@ public class PreviewView extends FrameLayout {
          * {@link ImplementationMode#PERFORMANCE} mode via {@link #setImplementationMode}.
          */
         STREAMING
+    }
+
+    /**
+     * Sets the {@link CameraController}.
+     *
+     * <p> The controller creates and manages the {@link Preview} that backs the
+     * {@link PreviewView}. It also configures the {@link ViewPort} based on the {@link ScaleType}
+     * and the dimension of the {@link PreviewView}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @MainThread
+    public void setController(@Nullable CameraController cameraController) {
+        Threads.checkMainThread();
+        if (mCameraController != null && mCameraController != cameraController) {
+            // If already bound to a different controller, ask the old controller to stop
+            // using this PreviewView.
+            mCameraController.clearPreviewSurface();
+        }
+        mCameraController = cameraController;
+        if (mCameraController != null) {
+            mCameraController.attachPreviewSurface(createSurfaceProvider(), getWidth(),
+                    getHeight());
+        }
+    }
+
+    /**
+     * Get the {@link CameraController}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    @MainThread
+    public CameraController getController() {
+        Threads.checkMainThread();
+        return mCameraController;
     }
 }
