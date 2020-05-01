@@ -188,9 +188,7 @@ private fun CanvasScope.drawBox(
     val innerStrokeWidth = innerRadiusFraction * checkboxSize / 2
     if (innerStrokeWidth > strokeWidth) {
         val clipRect = outer.shrink(strokeWidth / 2 - offset).outerRect()
-        val topLeft = Offset(clipRect.left, clipRect.top)
-        val size = Size(clipRect.width, clipRect.height)
-        clipRect(topLeft, size, ClipOp.difference) {
+        clipRect(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom, ClipOp.difference) {
             drawRoundRect(
                 color,
                 Offset(outer.left, outer.top),
@@ -200,7 +198,7 @@ private fun CanvasScope.drawBox(
             )
         }
 
-        clipRect(topLeft, size) {
+        clipRect(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom) {
             val innerHalfStrokeWidth = innerStrokeWidth / 2
             val rect = outer.shrink(innerHalfStrokeWidth - offset).outerRect()
             drawRect(
