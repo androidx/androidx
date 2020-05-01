@@ -267,10 +267,6 @@ package androidx.ui.layout {
     property public final androidx.ui.layout.ConstraintSetBuilderScope.HorizontalAnchor.ConstrainedLayoutAnchor top;
   }
 
-  public final class ContainerKt {
-    method @Deprecated public static void Container-ABW1B3s(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.layout.InnerPadding padding = androidx.ui.layout.InnerPadding(0.dp), androidx.ui.core.Alignment alignment = Alignment.Center, boolean expanded = false, androidx.ui.layout.DpConstraints constraints = androidx.ui.layout.DpConstraints(), androidx.ui.unit.Dp? width = null, androidx.ui.unit.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public final class CrossAxisAlignment {
     field public static final androidx.ui.layout.CrossAxisAlignment.Companion! Companion;
   }
