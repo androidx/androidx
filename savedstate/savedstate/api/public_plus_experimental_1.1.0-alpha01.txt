@@ -28,7 +28,7 @@ package androidx.savedstate {
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
   }
 
-  public class ViewTreeSavedStateRegistryOwner {
+  public final class ViewTreeSavedStateRegistryOwner {
     method public static androidx.savedstate.SavedStateRegistryOwner? get(android.view.View);
     method public static void set(android.view.View, androidx.savedstate.SavedStateRegistryOwner?);
   }

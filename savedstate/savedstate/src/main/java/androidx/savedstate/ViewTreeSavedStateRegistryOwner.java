@@ -26,7 +26,7 @@ import androidx.annotation.Nullable;
  * Accessors for finding a view tree-local {@link SavedStateRegistryOwner} that allows managing the
  * saving state using {@link SavedStateRegistry} for the given view.
  */
-public class ViewTreeSavedStateRegistryOwner {
+public final class ViewTreeSavedStateRegistryOwner {
     private ViewTreeSavedStateRegistryOwner() {
         // No instances
     }
@@ -35,6 +35,9 @@ public class ViewTreeSavedStateRegistryOwner {
      * Set the {@link SavedStateRegistryOwner} responsible for managing the saved state for the
      * given {@link View}.
      * Calls to {@link #get(View)} from this view or descendants will return {@code owner}.
+     *
+     * This is is automatically set for you in the common cases of using fragments or
+     * ComponentActivity.
      *
      * <p>This should only be called by constructs such as activities or fragments that manage
      * a view tree and their saved state through a {@link SavedStateRegistryOwner}. Callers
@@ -54,6 +57,9 @@ public class ViewTreeSavedStateRegistryOwner {
      * Retrieve the {@link SavedStateRegistryOwner} responsible for managing the saved state
      * for the given {@link View}.
      * This may be used to save or restore the state associated with the view.
+     *
+     * The returned {@link SavedStateRegistryOwner} is managing all the Views within the Fragment
+     * or Activity the given {@link View} is added to.
      *
      * @param view View to fetch a {@link SavedStateRegistryOwner} for
      * @return The {@link SavedStateRegistryOwner} responsible for managing the saved state for
