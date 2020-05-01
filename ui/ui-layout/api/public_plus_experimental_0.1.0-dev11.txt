@@ -522,7 +522,7 @@ package androidx.ui.layout {
   }
 
   public final class TableKt {
-    method public static void Table(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,androidx.ui.core.Alignment> alignment = { Alignment.TopStart }, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> children);
+    method public static void Table(int columns, kotlin.jvm.functions.Function1<? super java.lang.Integer,androidx.ui.core.Alignment> alignment = { return Alignment.TopStart }, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { return TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> children);
   }
 
   public final class TableMeasurable {

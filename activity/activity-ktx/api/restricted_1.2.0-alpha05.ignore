@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+ChangedType: androidx.activity.ActivityViewModelLazyKt#viewModels(androidx.activity.ComponentActivity, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
+    Method androidx.activity.ActivityViewModelLazyKt.viewModels has changed return type from kotlin.Lazy<VM> to kotlin.Lazy<? extends VM>
+
+
+InvalidNullConversion: androidx.activity.ActivityViewModelLazyKt#viewModels(androidx.activity.ComponentActivity, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
+    Attempted to remove @NonNull annotation from method androidx.activity.ActivityViewModelLazyKt.viewModels(androidx.activity.ComponentActivity,kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>)

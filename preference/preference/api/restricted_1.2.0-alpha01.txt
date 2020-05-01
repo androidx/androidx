@@ -588,7 +588,7 @@ package androidx.preference {
 
 }
 
-package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) androidx.preference.internal {
+package @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) androidx.preference.internal {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PreferenceImageView extends android.widget.ImageView {
     ctor public PreferenceImageView(android.content.Context!);

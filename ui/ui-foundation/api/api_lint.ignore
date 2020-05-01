@@ -1,7 +1,9 @@
 // Baseline format: 1.0
+AcronymName: androidx.ui.foundation.Border#copy-HIF-_f0(float, androidx.ui.graphics.Brush):
+    Acronyms should not be capitalized in method names: was `copy-HIF-_f0`, should this be `copy-HiF-_f0`?
 AcronymName: androidx.ui.foundation.DrawBackgroundKt#drawBackground-IZZjS-Q(androidx.ui.core.Modifier, long, androidx.ui.graphics.Shape):
     Acronyms should not be capitalized in method names: was `drawBackground-IZZjS-Q`, should this be `drawBackground-IzZjS-Q`?
-AcronymName: androidx.ui.foundation.DrawBorderKt#drawBorder-ik3FbJE(androidx.ui.core.Modifier, androidx.ui.unit.Dp, long, androidx.ui.graphics.Shape):
+AcronymName: androidx.ui.foundation.DrawBorderKt#drawBorder-ik3FbJE(androidx.ui.core.Modifier, float, long, androidx.ui.graphics.Shape):
     Acronyms should not be capitalized in method names: was `drawBorder-ik3FbJE`, should this be `drawBorder-ik3FbJe`?
 AcronymName: androidx.ui.foundation.shape.corner.CornerBasedShape#createOutline-45bKZN0(androidx.ui.unit.PxSize, float, float, float, float):
     Acronyms should not be capitalized in method names: was `createOutline-45bKZN0`, should this be `createOutline-45bKzN0`?

@@ -2,7 +2,7 @@
 package androidx.navigation {
 
   public final class NavGraphViewModelLazyKt {
-    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> navGraphViewModels(androidx.fragment.app.Fragment, @IdRes int navGraphId, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer = null);
+    method @MainThread public static inline <reified VM> kotlin.Lazy<? extends VM>! navGraphViewModels(androidx.fragment.app.Fragment, @IdRes int navGraphId, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer = null);
   }
 
 }
@@ -15,8 +15,8 @@ package androidx.navigation.fragment {
   }
 
   public final class DialogFragmentNavigatorDestinationBuilderKt {
-    method public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, @IdRes int id);
-    method public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline <reified F> void dialog(androidx.navigation.NavGraphBuilder, @IdRes int id);
+    method public static inline <reified F> void dialog(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder,? extends kotlin.Unit> builder);
   }
 
   public final class FragmentKt {
@@ -24,7 +24,7 @@ package androidx.navigation.fragment {
   }
 
   public final class FragmentNavArgsLazyKt {
-    method @MainThread public static inline <reified Args extends androidx.navigation.NavArgs> androidx.navigation.NavArgsLazy<Args> navArgs(androidx.fragment.app.Fragment);
+    method @MainThread public static inline <reified Args> androidx.navigation.NavArgsLazy<Args>! navArgs(androidx.fragment.app.Fragment);
   }
 
   public final class FragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.FragmentNavigator.Destination> {
@@ -33,8 +33,8 @@ package androidx.navigation.fragment {
   }
 
   public final class FragmentNavigatorDestinationBuilderKt {
-    method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id);
-    method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline <reified F> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id);
+    method public static inline <reified F> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,? extends kotlin.Unit> builder);
   }
 
   public final class FragmentNavigatorExtrasKt {

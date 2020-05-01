@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.lifecycle.ViewModelProviderKt#get(androidx.lifecycle.ViewModelProvider):
+    Attempted to remove @NonNull annotation from method androidx.lifecycle.ViewModelProviderKt.get(androidx.lifecycle.ViewModelProvider)

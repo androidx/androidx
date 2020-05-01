@@ -37,3 +37,11 @@ ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotli
     Method parameter should be Collection<PointerEventPass> (or subclass) instead of raw array; was `androidx.ui.core.PointerEventPass[]`
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.core.PointerEventPass, androidx.ui.unit.IntPxSize) parameter #1:
     Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.ui.core.PointerInputChange[]`
+
+
+MissingNullability: androidx.ui.core.Constraints2#toString-impl(long):
+    Missing nullability on method `toString-impl` return
+MissingNullability: androidx.ui.core.PointerId#toString-impl(long):
+    Missing nullability on method `toString-impl` return
+MissingNullability: androidx.ui.core.TransformOrigin#toString-impl(long):
+    Missing nullability on method `toString-impl` return
