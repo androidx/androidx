@@ -16,28 +16,19 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
-import androidx.ui.geometry.Rect
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
-import androidx.ui.test.runOnUiThread
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendSwipeWithVelocity
+import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertOnlyLastEventIsUp
 import androidx.ui.test.util.assertTimestampsAreIncreasing
@@ -51,7 +42,6 @@ import androidx.ui.unit.getDistance
 import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -72,16 +62,11 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
         val eventPeriod: Long
     )
 
-    enum class Direction(
-        val x0: (Rect) -> Float,
-        val y0: (Rect) -> Float,
-        val x1: (Rect) -> Float,
-        val y1: (Rect) -> Float
-    ) {
-        LeftToRight({ it.left + 1 }, ::hmiddle, { it.right - 1 }, ::hmiddle),
-        RightToLeft({ it.right - 1 }, ::hmiddle, { it.left + 1 }, ::hmiddle),
-        TopToBottom(::vmiddle, { it.top + 1 }, ::vmiddle, { it.bottom - 1 }),
-        BottomToTop(::vmiddle, { it.bottom - 1 }, ::vmiddle, { it.top + 1 })
+    enum class Direction(val from: PxPosition, val to: PxPosition) {
+        LeftToRight(PxPosition(boxStart, boxMiddle), PxPosition(boxEnd, boxMiddle)),
+        RightToLeft(PxPosition(boxEnd, boxMiddle), PxPosition(boxStart, boxMiddle)),
+        TopToBottom(PxPosition(boxMiddle, boxStart), PxPosition(boxMiddle, boxEnd)),
+        BottomToTop(PxPosition(boxMiddle, boxEnd), PxPosition(boxMiddle, boxStart))
     }
 
     companion object {
@@ -108,18 +93,16 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
             }
         }
 
-        private fun hmiddle(bounds: Rect): Float = (bounds.left + bounds.right) / 2
-        private fun vmiddle(bounds: Rect): Float = (bounds.top + bounds.bottom) / 2
-
         private const val tag = "widget"
+
+        private val boxSize = 500.px
+        private val boxStart = 1.px
+        private val boxMiddle = boxSize / 2
+        private val boxEnd = boxSize - 1.px
     }
 
-    private val x0 get() = config.direction.x0(bounds)
-    private val y0 get() = config.direction.y0(bounds)
-    private val x1 get() = config.direction.x1(bounds)
-    private val y1 get() = config.direction.y1(bounds)
-    private val start get() = PxPosition(x0.px, y0.px)
-    private val end get() = PxPosition(x1.px, y1.px)
+    private val start get() = config.direction.from
+    private val end get() = config.direction.to
     private val duration get() = config.duration
     private val velocity get() = config.velocity
     private val eventPeriod get() = config.eventPeriod
@@ -145,34 +128,21 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
         eventPeriodOverride = eventPeriod
     )
 
-    private lateinit var recorder: PointerInputRecorder
-    private lateinit var bounds: Rect
-
-    @Before
-    fun setUp() {
-        recorder = PointerInputRecorder()
-    }
-
-    @Composable
-    fun Ui() {
-        val paint = remember { Paint().apply { color = Color.Yellow } }
-        Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
-            Semantics(container = true, properties = { testTag = tag }) {
-                with(DensityAmbient.current) {
-                    Canvas(recorder.preferredSize(500.px.toDp())) {
-                        bounds = Rect(0f, 0f, size.width.value, size.height.value)
-                        drawRect(bounds, paint)
-                    }
-                }
-            }
-        }
-    }
+    private val recorder = PointerInputRecorder()
 
     @Test
     fun swipeWithVelocity() {
-        composeTestRule.setContent { Ui() }
-        findByTag(tag).doGesture { sendSwipeWithVelocity(start, end, velocity, duration) }
-        runOnUiThread {
+        composeTestRule.setContent {
+            Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
+                ClickableTestBox(recorder, boxSize, boxSize, tag = tag)
+            }
+        }
+
+        findByTag(tag).doGesture {
+            sendSwipeWithVelocity(start, end, velocity, duration)
+        }
+
+        runOnIdleCompose {
             recorder.run {
                 val durationMs = duration.inMilliseconds()
                 val minimumEventSize = max(2, (durationMs / eventPeriod).toInt())
