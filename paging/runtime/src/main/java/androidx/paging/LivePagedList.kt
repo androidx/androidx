@@ -74,7 +74,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
             pagingSource.registerInvalidatedCallback(callback)
 
             withContext(notifyDispatcher) {
-                currentData.setInitialLoadState(REFRESH, Loading)
+                currentData.setInitialLoadState(REFRESH, Loading(fromMediator = false))
             }
 
             @Suppress("UNCHECKED_CAST")
@@ -82,7 +82,10 @@ internal class LivePagedList<Key : Any, Value : Any>(
             val params = config.toRefreshLoadParams(lastKey)
             when (val initialResult = pagingSource.load(params)) {
                 is PagingSource.LoadResult.Error -> {
-                    currentData.setInitialLoadState(REFRESH, Error(initialResult.throwable))
+                    currentData.setInitialLoadState(
+                        REFRESH,
+                        Error(initialResult.throwable, fromMediator = false)
+                    )
                 }
                 is PagingSource.LoadResult.Page -> {
                     val pagedList = PagedList.create(

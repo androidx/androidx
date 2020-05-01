@@ -44,8 +44,8 @@ internal sealed class PageEvent<T : Any> {
                 "Prepend state defining placeholdersAfter must be > 0, but was" +
                         " $placeholdersAfter"
             }
-            require(loadStates[REFRESH] != LoadState.NotLoading(endOfPaginationReached = true)) {
-                "Refresh state may not be NotLoading(endOfPaginationReached=true)"
+            require(loadStates[REFRESH]?.endOfPaginationReached != true) {
+                "Refresh state may not set endOfPaginationReached = true"
             }
         }
 
@@ -149,7 +149,7 @@ internal sealed class PageEvent<T : Any> {
         val loadState: LoadState
     ) : PageEvent<T>() {
         init {
-            require(loadState == LoadState.Loading || loadState is LoadState.Error) {
+            require(loadState is LoadState.Loading || loadState is LoadState.Error) {
                 "LoadStateUpdates can only be used for Loading or Error. To update loadState to " +
                         "Idle or Done, use Insert / Drop events."
             }

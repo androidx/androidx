@@ -202,7 +202,11 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handlePageDrop(event: PageEvent.Drop<T>) {
-        loadStates[event.loadType] = LoadState.NotLoading(endOfPaginationReached = false)
+        val previousState = loadStates[event.loadType]
+        loadStates[event.loadType] = LoadState.NotLoading(
+            endOfPaginationReached = false,
+            fromMediator = previousState?.fromMediator == true
+        )
 
         when (event.loadType) {
             LoadType.PREPEND -> {
@@ -262,7 +266,7 @@ internal class FlattenedPageEventStorage<T : Any> {
             )
         } else {
             loadStates.forEach { entry ->
-                if (entry.value == LoadState.Loading || entry.value is LoadState.Error) {
+                if (entry.value is LoadState.Loading || entry.value is LoadState.Error) {
                     events.add(PageEvent.LoadStateUpdate(entry.key, entry.value))
                 }
             }

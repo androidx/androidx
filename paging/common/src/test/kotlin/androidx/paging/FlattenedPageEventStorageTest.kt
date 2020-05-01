@@ -227,7 +227,7 @@ class FlattenedPageEventStorageTest {
 
     @Test
     fun stateInInsert() {
-        val error = LoadState.Error(RuntimeException("?"))
+        val error = LoadState.Error(RuntimeException("?"), fromMediator = false)
         list.add(
             Refresh(
                 pages = listOf(
@@ -238,7 +238,7 @@ class FlattenedPageEventStorageTest {
                 placeholdersAfter = 5,
                 loadStates = mapOf(
                     REFRESH to NotLoading.Idle,
-                    PREPEND to Loading,
+                    PREPEND to Loading(fromMediator = false),
                     APPEND to error
                 )
             )
@@ -249,7 +249,7 @@ class FlattenedPageEventStorageTest {
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
                 refreshState = NotLoading.Idle,
-                startState = Loading,
+                startState = Loading(fromMediator = false),
                 endState = error
             )
         )

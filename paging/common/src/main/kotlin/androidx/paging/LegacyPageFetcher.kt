@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.PagingSource.LoadParams
 import kotlinx.coroutines.CoroutineDispatcher
@@ -86,7 +87,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     private fun onLoadError(type: LoadType, throwable: Throwable) {
         if (isDetached) return // abort!
 
-        val state = LoadState.Error(throwable)
+        val state = LoadState.Error(throwable, fromMediator = false)
         loadStateManager.setState(type, state)
     }
 
@@ -111,7 +112,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
             return
         }
 
-        loadStateManager.setState(LoadType.PREPEND, LoadState.Loading)
+        loadStateManager.setState(LoadType.PREPEND, Loading.instance(fromMediator = false))
 
         val loadParams = LoadParams.Prepend(
             key,
@@ -129,7 +130,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
             return
         }
 
-        loadStateManager.setState(LoadType.APPEND, LoadState.Loading)
+        loadStateManager.setState(LoadType.APPEND, Loading.instance(fromMediator = false))
         val loadParams = LoadParams.Append(
             key,
             config.pageSize,

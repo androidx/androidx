@@ -77,21 +77,20 @@ package androidx.paging {
 
   public abstract sealed class LoadState {
     method public final boolean getEndOfPaginationReached();
+    method public final boolean isFromMediator();
   }
 
   public static final class LoadState.Error extends androidx.paging.LoadState {
-    ctor public LoadState.Error(Throwable error);
-    method public Throwable component1();
-    method public androidx.paging.LoadState.Error copy(Throwable error);
+    ctor public LoadState.Error(Throwable error, boolean fromMediator);
     method public Throwable getError();
   }
 
   public static final class LoadState.Loading extends androidx.paging.LoadState {
-    field public static final androidx.paging.LoadState.Loading! INSTANCE;
+    ctor public LoadState.Loading(boolean fromMediator);
   }
 
   public static final class LoadState.NotLoading extends androidx.paging.LoadState {
-    ctor public LoadState.NotLoading(boolean endOfPaginationReached);
+    ctor public LoadState.NotLoading(boolean endOfPaginationReached, boolean fromMediator);
   }
 
   public enum LoadType {

@@ -18,9 +18,9 @@ package androidx.paging
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadStateAdapterTest.AdapterEventRecorder.Event.CHANGE
 import androidx.paging.LoadStateAdapterTest.AdapterEventRecorder.Event.INSERT
 import androidx.paging.LoadStateAdapterTest.AdapterEventRecorder.Event.REMOVED
@@ -101,21 +101,29 @@ class LoadStateAdapterTest {
     fun init() {
         val adapter = SimpleLoadStateAdapter()
         assertEquals(0, adapter.itemCount)
-        assertFalse(adapter.displayLoadStateAsItem(NotLoading(endOfPaginationReached = false)))
-        assertFalse(adapter.displayLoadStateAsItem(NotLoading(endOfPaginationReached = true)))
-        assertTrue(adapter.displayLoadStateAsItem(Error(Throwable())))
-        assertTrue(adapter.displayLoadStateAsItem(Loading))
+        assertFalse(
+            adapter.displayLoadStateAsItem(
+                NotLoading(endOfPaginationReached = false, fromMediator = false)
+            )
+        )
+        assertFalse(
+            adapter.displayLoadStateAsItem(
+                NotLoading(endOfPaginationReached = true, fromMediator = false)
+            )
+        )
+        assertTrue(adapter.displayLoadStateAsItem(Error(Throwable(), fromMediator = false)))
+        assertTrue(adapter.displayLoadStateAsItem(Loading(fromMediator = false)))
     }
 
     @Test
     fun notifyEquality() {
         val adapter = SimpleLoadStateAdapter()
-        adapter.loadState = Loading
+        adapter.loadState = Loading(fromMediator = false)
 
         val eventRecorder = AdapterEventRecorder()
         adapter.registerAdapterDataObserver(eventRecorder)
 
-        adapter.loadState = Loading
+        adapter.loadState = Loading(fromMediator = false)
         assertTrue(eventRecorder.getClearEvents().isEmpty())
     }
 
@@ -126,12 +134,12 @@ class LoadStateAdapterTest {
         assertFalse("sanity check", throwable1 == throwable2)
 
         val adapter = SimpleLoadStateAdapter()
-        adapter.loadState = Error(throwable1)
+        adapter.loadState = Error(throwable1, fromMediator = false)
 
         val eventRecorder = AdapterEventRecorder()
         adapter.registerAdapterDataObserver(eventRecorder)
 
-        adapter.loadState = Error(throwable2)
+        adapter.loadState = Error(throwable2, fromMediator = false)
         assertEquals(listOf(CHANGE), eventRecorder.getClearEvents())
     }
 
@@ -143,25 +151,25 @@ class LoadStateAdapterTest {
         adapter.registerAdapterDataObserver(eventRecorder)
 
         // idle, done, nothing should happen
-        adapter.loadState = NotLoading(endOfPaginationReached = false)
+        adapter.loadState = NotLoading(endOfPaginationReached = false, fromMediator = false)
         assertTrue(eventRecorder.getClearEvents().isEmpty())
-        adapter.loadState = NotLoading(endOfPaginationReached = true)
+        adapter.loadState = NotLoading(endOfPaginationReached = true, fromMediator = false)
         assertTrue(eventRecorder.getClearEvents().isEmpty())
 
         // insert item
-        adapter.loadState = Loading
+        adapter.loadState = Loading(fromMediator = false)
         assertEquals(listOf(INSERT), eventRecorder.getClearEvents())
 
         // change to error
-        adapter.loadState = Error(Throwable())
+        adapter.loadState = Error(Throwable(), fromMediator = false)
         assertEquals(listOf(CHANGE), eventRecorder.getClearEvents())
 
         // change to different error
-        adapter.loadState = Error(Throwable())
+        adapter.loadState = Error(Throwable(), fromMediator = false)
         assertEquals(listOf(CHANGE), eventRecorder.getClearEvents())
 
         // remove
-        adapter.loadState = NotLoading(endOfPaginationReached = true)
+        adapter.loadState = NotLoading(endOfPaginationReached = true, fromMediator = false)
         assertEquals(listOf(REMOVED), eventRecorder.getClearEvents())
     }
 }
