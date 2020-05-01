@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
     implementation(project(":recyclerview:recyclerview"))
+    implementation(project(":swiperefreshlayout:swiperefreshlayout"))
 
     implementation(GUAVA_ANDROID)
     implementation(MULTIDEX)
