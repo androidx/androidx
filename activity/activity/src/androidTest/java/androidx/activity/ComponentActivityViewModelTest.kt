@@ -47,10 +47,18 @@ class ComponentActivityViewModelTest {
     @Test
     fun testSameViewModelStorePrePostOnCreate() {
         with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+            val originalStore = withActivity { preOnCreateViewModelStore }
             assertWithMessage(
                 "Pre-onCreate() ViewModelStore should equal the post-onCreate() ViewModelStore")
-                .that(withActivity { preOnCreateViewModelStore })
+                .that(originalStore)
                 .isSameInstanceAs(withActivity { postOnCreateViewModelStore })
+
+            recreate()
+
+            assertThat(withActivity { preOnCreateViewModelStore })
+                .isSameInstanceAs(originalStore)
+            assertThat(withActivity { postOnCreateViewModelStore })
+                .isSameInstanceAs(originalStore)
         }
     }
 
