@@ -476,14 +476,14 @@ private fun TextFieldLayout(
                     height,
                     textfieldPlaceable,
                     labelPlaceable,
+                    placeholderPlaceable,
                     labelEndPosition,
                     textfieldPositionY,
                     animationProgress
                 )
             } else {
-                placeTextfield(width, height, textfieldPlaceable)
+                placeTextfield(width, height, textfieldPlaceable, placeholderPlaceable)
             }
-            placeholderPlaceable?.place(IntPx.Zero, textfieldPositionY)
         }
     }
 }
@@ -602,13 +602,14 @@ private fun Modifier.drawIndicatorLine(lineWidth: Dp, color: Color): Modifier {
 }
 
 /**
- * Places a text field and a label with respect to the baseline offsets
+ * Places the provided text field, placeholder and label with respect to the baseline offsets
  */
 private fun Placeable.PlacementScope.placeLabelAndTextfield(
     width: IntPx,
     height: IntPx,
     textfieldPlaceable: Placeable,
     labelPlaceable: Placeable,
+    placeholderPlaceable: Placeable?,
     labelEndPosition: IntPx,
     textPosition: IntPx,
     animationProgress: Float
@@ -625,15 +626,17 @@ private fun Placeable.PlacementScope.placeLabelAndTextfield(
     labelPlaceable.place(IntPx.Zero, labelPositionY)
 
     textfieldPlaceable.place(IntPx.Zero, textPosition)
+    placeholderPlaceable?.place(IntPx.Zero, textPosition)
 }
 
 /**
- * Places a text field center vertically
+ * Places the provided text field and placeholder center vertically
  */
 private fun Placeable.PlacementScope.placeTextfield(
     width: IntPx,
     height: IntPx,
-    textPlaceable: Placeable
+    textPlaceable: Placeable,
+    placeholderPlaceable: Placeable?
 ) {
     val textCenterPosition = Alignment.CenterStart.align(
         IntPxSize(
@@ -642,6 +645,7 @@ private fun Placeable.PlacementScope.placeTextfield(
         )
     )
     textPlaceable.place(IntPx.Zero, textCenterPosition.y)
+    placeholderPlaceable?.place(IntPx.Zero, textCenterPosition.y)
 }
 
 private object TextFieldTransitionScope {
