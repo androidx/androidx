@@ -683,13 +683,33 @@ public class SimpleArrayMap<K, V> {
         if (this == object) {
             return true;
         }
-        if (object instanceof SimpleArrayMap) {
-            SimpleArrayMap<?, ?> map = (SimpleArrayMap<?, ?>) object;
-            if (size() != map.size()) {
-                return false;
-            }
+        try {
+            if (object instanceof SimpleArrayMap) {
+                SimpleArrayMap<?, ?> map = (SimpleArrayMap<?, ?>) object;
+                if (size() != map.size()) {
+                    return false;
+                }
 
-            try {
+                for (int i=0; i<mSize; i++) {
+                    K key = keyAt(i);
+                    V mine = valueAt(i);
+                    // TODO use index-based ops for this
+                    Object theirs = map.get(key);
+                    if (mine == null) {
+                        if (theirs != null || !map.containsKey(key)) {
+                            return false;
+                        }
+                    } else if (!mine.equals(theirs)) {
+                        return false;
+                    }
+                }
+                return true;
+            } else if (object instanceof Map) {
+                Map<?, ?> map = (Map<?, ?>) object;
+                if (size() != map.size()) {
+                    return false;
+                }
+
                 for (int i=0; i<mSize; i++) {
                     K key = keyAt(i);
                     V mine = valueAt(i);
@@ -702,37 +722,10 @@ public class SimpleArrayMap<K, V> {
                         return false;
                     }
                 }
-            } catch (NullPointerException ignored) {
-                return false;
-            } catch (ClassCastException ignored) {
-                return false;
+                return true;
             }
-            return true;
-        } else if (object instanceof Map) {
-            Map<?, ?> map = (Map<?, ?>) object;
-            if (size() != map.size()) {
-                return false;
-            }
-
-            try {
-                for (int i=0; i<mSize; i++) {
-                    K key = keyAt(i);
-                    V mine = valueAt(i);
-                    Object theirs = map.get(key);
-                    if (mine == null) {
-                        if (theirs != null || !map.containsKey(key)) {
-                            return false;
-                        }
-                    } else if (!mine.equals(theirs)) {
-                        return false;
-                    }
-                }
-            } catch (NullPointerException ignored) {
-                return false;
-            } catch (ClassCastException ignored) {
-                return false;
-            }
-            return true;
+        } catch (NullPointerException ignored) {
+        } catch (ClassCastException ignored) {
         }
         return false;
     }
