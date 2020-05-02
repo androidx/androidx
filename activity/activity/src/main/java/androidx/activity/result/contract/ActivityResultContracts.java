@@ -295,7 +295,7 @@ public final class ActivityResultContracts {
      * {@link MediaStore#ACTION_IMAGE_CAPTURE take a picture} saving it into the provided
      * content-{@link Uri}.
      * <p>
-     * Returns a thumbnail.
+     * May return a thumbnail of the photo in the result Intent if the camera provides one.
      * <p>
      * This can be extended to override {@link #createIntent} if you wish to pass additional
      * extras to the Intent created by {@code super.createIntent()}.
