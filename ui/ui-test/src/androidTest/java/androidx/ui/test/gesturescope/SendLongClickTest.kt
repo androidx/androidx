@@ -16,26 +16,20 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.core.gesture.longPressGestureFilter
-import androidx.ui.foundation.Box
-import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
-import androidx.ui.test.runOnUiThread
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendLongClick
+import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.areAlmostEqualTo
 import androidx.ui.test.util.assertOnlyLastEventIsUp
@@ -55,24 +49,6 @@ private const val tag = "widget"
 private val width = 100.px
 private val height = 100.px
 private val expectedDuration = LongPressTimeout + 100.milliseconds
-
-@Composable
-private fun Ui(recorder: PointerInputRecorder, onLongPress: (PxPosition) -> Unit) {
-    Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
-        TestTag(tag) {
-            Semantics(container = true) {
-                with(DensityAmbient.current) {
-                    Box(
-                        Modifier.longPressGestureFilter(onLongPress)
-                            .plus(recorder)
-                            .preferredSize(width.toDp(), height.toDp()),
-                        backgroundColor = Color.Yellow
-                    )
-                }
-            }
-        }
-    }
-}
 
 /**
  * Tests [sendLongClick] without arguments. Verifies that the click is in the middle
@@ -97,7 +73,16 @@ class SendLongClickWithoutArgumentsTest {
     @Test
     fun testLongClick() {
         // Given some content
-        composeTestRule.setContent { Ui(recorder, ::recordLongPress) }
+        composeTestRule.setContent {
+            Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
+                ClickableTestBox(
+                    modifier = Modifier.longPressGestureFilter(::recordLongPress).plus(recorder),
+                    width = width,
+                    height = height,
+                    tag = tag
+                )
+            }
+        }
 
         // When we inject a long click
         findByTag(tag).doGesture { sendLongClick() }
@@ -106,7 +91,7 @@ class SendLongClickWithoutArgumentsTest {
         assertThat(recordedLongClicks).hasSize(1)
 
         // And all events are at the click location
-        runOnUiThread {
+        runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -156,7 +141,16 @@ class SendLongClickWithArgumentsTest(private val config: TestConfig) {
     @Test
     fun testLongClick() {
         // Given some content
-        composeTestRule.setContent { Ui(recorder, ::recordLongPress) }
+        composeTestRule.setContent {
+            Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
+                ClickableTestBox(
+                    modifier = Modifier.longPressGestureFilter(::recordLongPress).plus(recorder),
+                    width = width,
+                    height = height,
+                    tag = tag
+                )
+            }
+        }
 
         // When we inject a long click
         findByTag(tag).doGesture { sendLongClick(config.position) }
@@ -165,7 +159,7 @@ class SendLongClickWithArgumentsTest(private val config: TestConfig) {
         assertThat(recordedLongClicks).hasSize(1)
 
         // And all events are at the click location
-        runOnUiThread {
+        runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()

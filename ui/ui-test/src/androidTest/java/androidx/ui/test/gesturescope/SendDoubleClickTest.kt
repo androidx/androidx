@@ -16,27 +16,18 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.compose.Composable
 import androidx.test.filters.MediumTest
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
 import androidx.ui.core.gesture.doubleTapGestureFilter
-import androidx.ui.core.pointerinput.PointerInputModifier
-import androidx.ui.foundation.Box
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Stack
-import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.Semantics
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
-import androidx.ui.test.runOnUiThread
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendDoubleClick
+import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
-import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.milliseconds
 import androidx.ui.unit.px
@@ -50,26 +41,7 @@ import org.junit.runners.Parameterized
 private val width = 200.px
 private val height = 200.px
 private val expectedDelay = 145.milliseconds
-
 private const val tag = "widget"
-
-@Composable
-private fun Ui(onDoubleTap: (PxPosition) -> Unit, pointerInputRecorder: PointerInputModifier) {
-    Stack {
-        TestTag(tag) {
-            Semantics(container = true) {
-                with(DensityAmbient.current) {
-                    Box(
-                        Modifier.doubleTapGestureFilter(onDoubleTap)
-                            .plus(pointerInputRecorder)
-                            .preferredSize(width.toDp(), height.toDp()),
-                        backgroundColor = Color.Yellow
-                    )
-                }
-            }
-        }
-    }
-}
 
 @MediumTest
 class SendDoubleClickWithoutArgumentsTest {
@@ -95,13 +67,18 @@ class SendDoubleClickWithoutArgumentsTest {
         // Given some content
         recorder = PointerInputRecorder()
         composeTestRule.setContent {
-            Ui(onDoubleTap = this::recordDoubleClick, pointerInputRecorder = recorder)
+            ClickableTestBox(
+                Modifier.doubleTapGestureFilter(this::recordDoubleClick).plus(recorder),
+                width = width,
+                height = height,
+                tag = tag
+            )
         }
 
         // When we inject a double click
         findByTag(tag).doGesture { sendDoubleClick() }
 
-        runOnUiThread {
+        runOnIdleCompose {
             // Then we record 1 double click
             assertThat(recordedDoubleClicks).hasSize(1)
             // at the expected position
@@ -126,12 +103,7 @@ class SendDoubleClickWithoutArgumentsTest {
 @MediumTest
 @RunWith(Parameterized::class)
 class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
-    data class TestConfig(
-        val x: Px,
-        val y: Px
-    ) {
-        val position get() = PxPosition(x, y)
-    }
+    data class TestConfig(val position: PxPosition)
 
     companion object {
         @JvmStatic
@@ -140,14 +112,12 @@ class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
             return mutableListOf<TestConfig>().apply {
                 for (x in listOf(1.px, 33.px, 99.px)) {
                     for (y in listOf(1.px, 33.px, 99.px)) {
-                        add(TestConfig(x, y))
+                        add(TestConfig(PxPosition(x, y)))
                     }
                 }
             }
         }
     }
-
-    private val tag = "widget"
 
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
@@ -157,7 +127,7 @@ class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
         disableDispatchInRealTime = true
     )
 
-    private lateinit var recorder: PointerInputRecorder
+    private val recorder = PointerInputRecorder()
     private val recordedDoubleClicks = mutableListOf<PxPosition>()
     private val expectedClickPosition = config.position
 
@@ -168,15 +138,19 @@ class SendDoubleClickWithArgumentsTest(private val config: TestConfig) {
     @Test
     fun testDoubleClickOnPosition() {
         // Given some content
-        recorder = PointerInputRecorder()
         composeTestRule.setContent {
-            Ui(onDoubleTap = this::recordDoubleClick, pointerInputRecorder = recorder)
+            ClickableTestBox(
+                Modifier.doubleTapGestureFilter(this::recordDoubleClick).plus(recorder),
+                width = width,
+                height = height,
+                tag = tag
+            )
         }
 
         // When we inject a double click
         findByTag(tag).doGesture { sendDoubleClick(config.position) }
 
-        runOnUiThread {
+        runOnIdleCompose {
             // Then we record 1 double click
             assertThat(recordedDoubleClicks).hasSize(1)
             // at the expected position

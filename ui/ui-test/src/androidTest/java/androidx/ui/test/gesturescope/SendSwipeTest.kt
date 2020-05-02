@@ -20,29 +20,23 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredSize
 import androidx.ui.layout.wrapContentSize
-import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.testTag
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doGesture
 import androidx.ui.test.findByTag
-import androidx.ui.test.runOnUiThread
+import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendSwipeDown
 import androidx.ui.test.sendSwipeLeft
 import androidx.ui.test.sendSwipeRight
 import androidx.ui.test.sendSwipeUp
+import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.PointerInputRecorder
 import androidx.ui.test.util.assertOnlyLastEventIsUp
 import androidx.ui.test.util.assertTimestampsAreIncreasing
-import androidx.ui.unit.dp
 import com.google.common.collect.Ordering
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,30 +51,20 @@ class SendSwipeTest {
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    private lateinit var recorder: PointerInputRecorder
-
-    @Before
-    fun setup() {
-        recorder = PointerInputRecorder()
-    }
+    private val recorder = PointerInputRecorder()
 
     @Composable
-    fun Ui(alignment: Modifier) {
-        Stack(Modifier.fillMaxSize() + alignment) {
-            Semantics(container = true, properties = { testTag = tag }) {
-                Box(
-                    recorder.preferredSize(100.dp),
-                    backgroundColor = Color.Yellow
-                )
-            }
+    fun Ui(alignment: Alignment) {
+        Stack(Modifier.fillMaxSize().wrapContentSize(alignment)) {
+            ClickableTestBox(modifier = recorder, tag = tag)
         }
     }
 
     @Test
     fun swipeUp() {
-        composeTestRule.setContent { Ui(Modifier.wrapContentSize(Alignment.TopStart)) }
+        composeTestRule.setContent { Ui(Alignment.TopStart) }
         findByTag(tag).doGesture { sendSwipeUp() }
-        runOnUiThread {
+        runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -91,9 +75,9 @@ class SendSwipeTest {
 
     @Test
     fun swipeDown() {
-        composeTestRule.setContent { Ui(Modifier.wrapContentSize(Alignment.TopEnd)) }
+        composeTestRule.setContent { Ui(Alignment.TopEnd) }
         findByTag(tag).doGesture { sendSwipeDown() }
-        runOnUiThread {
+        runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -104,9 +88,9 @@ class SendSwipeTest {
 
     @Test
     fun swipeLeft() {
-        composeTestRule.setContent { Ui(Modifier.wrapContentSize(Alignment.BottomEnd)) }
+        composeTestRule.setContent { Ui(Alignment.BottomEnd) }
         findByTag(tag).doGesture { sendSwipeLeft() }
-        runOnUiThread {
+        runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -117,9 +101,9 @@ class SendSwipeTest {
 
     @Test
     fun swipeRight() {
-        composeTestRule.setContent { Ui(Modifier.wrapContentSize(Alignment.BottomStart)) }
+        composeTestRule.setContent { Ui(Alignment.BottomStart) }
         findByTag(tag).doGesture { sendSwipeRight() }
-        runOnUiThread {
+        runOnIdleCompose {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()

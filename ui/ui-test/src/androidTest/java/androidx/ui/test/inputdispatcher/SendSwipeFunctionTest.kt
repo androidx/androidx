@@ -108,14 +108,8 @@ class SwipeWithDurationTest(private val config: TestConfig) {
         disableDispatchInRealTime = true
     )
 
-    private lateinit var recorder: MotionEventRecorder
-    private lateinit var subject: AndroidInputDispatcher
-
-    @Before
-    fun setUp() {
-        recorder = MotionEventRecorder()
-        subject = AndroidInputDispatcher(recorder::sendEvent)
-    }
+    private val recorder = MotionEventRecorder()
+    private val subject = AndroidInputDispatcher(recorder::sendEvent)
 
     @After
     fun tearDown() {
@@ -194,14 +188,11 @@ class SwipeWithKeyTimesTest(private val config: TestConfig) {
         disableDispatchInRealTime = true
     )
 
-    private lateinit var recorder: MotionEventRecorder
-    private lateinit var subject: AndroidInputDispatcher
+    private val recorder = MotionEventRecorder()
+    private val subject = AndroidInputDispatcher(recorder::sendEvent)
 
     @Before
     fun setUp() {
-        recorder = MotionEventRecorder()
-        subject = AndroidInputDispatcher(recorder::sendEvent)
-
         require(config.keyTimes.distinct() == config.keyTimes.distinct().sorted()) {
             "keyTimes needs to be sorted, not ${config.keyTimes}"
         }
@@ -293,14 +284,11 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
     private val keyTimes get() = config.keyTimes
     private val eventPeriod = config.eventPeriod
 
-    private lateinit var recorder: MotionEventRecorder
-    private lateinit var subject: AndroidInputDispatcher
+    private val recorder = MotionEventRecorder()
+    private val subject = AndroidInputDispatcher(recorder::sendEvent)
 
     @Before
     fun setUp() {
-        recorder = MotionEventRecorder()
-        subject = AndroidInputDispatcher(recorder::sendEvent)
-
         require(config.keyTimes.distinct() == config.keyTimes.distinct().sorted()) {
             "keyTimes needs to be sorted, not ${config.keyTimes}"
         }

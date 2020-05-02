@@ -31,7 +31,6 @@ import androidx.ui.unit.inMilliseconds
 import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -75,14 +74,8 @@ class SendSwipeLineTest(private val config: TestConfig) {
     private val duration get() = config.duration
     private val eventPeriod = config.eventPeriod
 
-    private lateinit var recorder: MotionEventRecorder
-    private lateinit var subject: AndroidInputDispatcher
-
-    @Before
-    fun setUp() {
-        recorder = MotionEventRecorder()
-        subject = AndroidInputDispatcher(recorder::sendEvent)
-    }
+    private val recorder = MotionEventRecorder()
+    private val subject = AndroidInputDispatcher(recorder::sendEvent)
 
     @After
     fun tearDown() {

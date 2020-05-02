@@ -18,26 +18,36 @@ package androidx.ui.test.util
 
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.pointerinput.PointerInputModifier
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.graphics.Color
 import androidx.ui.layout.size
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.testTag
+import androidx.ui.test.util.ClickableTestBox.defaultColor
+import androidx.ui.test.util.ClickableTestBox.defaultSize
+import androidx.ui.test.util.ClickableTestBox.defaultTag
 import androidx.ui.unit.Px
+import androidx.ui.unit.px
+
+object ClickableTestBox {
+    val defaultSize = 100.px
+    val defaultColor = Color.Yellow
+    const val defaultTag = "ClickableTestBox"
+}
 
 @Composable
 fun ClickableTestBox(
-    width: Px,
-    height: Px,
-    color: Color,
-    tag: String,
-    pointerInputModifier: PointerInputModifier
+    modifier: Modifier = Modifier,
+    width: Px = defaultSize,
+    height: Px = defaultSize,
+    color: Color = defaultColor,
+    tag: String = defaultTag
 ) {
     Semantics(container = true, properties = { testTag = tag }) {
         with(DensityAmbient.current) {
             Box(
-                modifier = pointerInputModifier.size(width.toDp(), height.toDp()),
+                modifier = modifier.size(width.toDp(), height.toDp()),
                 backgroundColor = color
             )
         }
