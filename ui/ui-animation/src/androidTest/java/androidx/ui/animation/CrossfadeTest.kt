@@ -15,6 +15,8 @@
  */
 package androidx.ui.animation
 
+import androidx.animation.DefaultDuration
+import androidx.animation.TweenBuilder
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onDispose
@@ -25,6 +27,8 @@ import androidx.ui.foundation.Text
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByText
 import androidx.ui.test.runOnIdleCompose
+import androidx.ui.test.waitForIdle
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,48 +38,88 @@ import java.util.concurrent.TimeUnit
 
 @RunWith(JUnit4::class)
 @MediumTest
-class CrossfadeUiTest {
+class CrossfadeTest {
 
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = false)
 
     @Test
     fun crossfadeTest_showsContent() {
+        composeTestRule.clockTestRule.pauseClock()
+
         composeTestRule.setContent {
-            var showFirst by state { true }
+            val showFirst by state { true }
             Crossfade(showFirst) {
                 Text(if (it) First else Second)
             }
         }
-        composeTestRule.clockTestRule.advanceClock(300)
+        composeTestRule.clockTestRule.advanceClock(DefaultDuration.toLong())
 
         findByText(First).assertExists()
     }
 
     @Test
     fun crossfadeTest_disposesContentOnChange() {
-        var showFirst by mutableStateOf(true)
-        val disposeLatch = CountDownLatch(1)
-        composeTestRule.setContent {
+        composeTestRule.clockTestRule.pauseClock()
 
+        var showFirst by mutableStateOf(true)
+        var disposed = false
+        composeTestRule.setContent {
             Crossfade(showFirst) {
                 Text(if (it) First else Second)
                 onDispose {
-                    disposeLatch.countDown()
+                    disposed = true
                 }
             }
         }
-        composeTestRule.clockTestRule.advanceClock(300)
+        composeTestRule.clockTestRule.advanceClock(DefaultDuration.toLong())
 
         runOnIdleCompose {
             showFirst = false
         }
-        composeTestRule.clockTestRule.advanceClock(300)
 
-        disposeLatch.await(5, TimeUnit.SECONDS)
+        waitForIdle()
+
+        composeTestRule.clockTestRule.advanceClock(DefaultDuration.toLong())
+
+        runOnIdleCompose {
+            assertTrue(disposed)
+        }
 
         findByText(First).assertDoesNotExist()
         findByText(Second).assertExists()
+    }
+
+    @Test
+    fun crossfadeTest_durationCanBeModifierUsingAnimationBuilder() {
+        composeTestRule.clockTestRule.pauseClock()
+
+        val duration = 100L // smaller than default 300
+        var showFirst by mutableStateOf(true)
+        var disposed = false
+        composeTestRule.setContent {
+            Crossfade(showFirst, TweenBuilder<Float>().apply {
+                this.duration = duration.toInt()
+            }) {
+                Text(if (it) First else Second)
+                onDispose {
+                    disposed = true
+                }
+            }
+        }
+        composeTestRule.clockTestRule.advanceClock(duration)
+
+        runOnIdleCompose {
+            showFirst = false
+        }
+
+        waitForIdle()
+
+        composeTestRule.clockTestRule.advanceClock(duration)
+
+        runOnIdleCompose {
+            assertTrue(disposed)
+        }
     }
 
     companion object {
