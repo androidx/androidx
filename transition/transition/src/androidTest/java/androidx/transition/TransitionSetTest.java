@@ -25,15 +25,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
+import android.animation.TimeInterpolator;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
-import androidx.annotation.NonNull;
-import androidx.core.animation.AccelerateDecelerateInterpolator;
-import androidx.core.animation.AccelerateInterpolator;
-import androidx.core.animation.DecelerateInterpolator;
-import androidx.core.animation.Interpolator;
 import androidx.test.filters.SmallTest;
 import androidx.transition.test.R;
 
@@ -146,7 +145,7 @@ public class TransitionSetTest extends BaseTest {
         fade.setPropagation(new TestPropagation());
         fade.setEpicenterCallback(new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(@NonNull Transition transition) {
+            public Rect onGetEpicenter(Transition transition) {
                 return null;
             }
         });
@@ -156,11 +155,11 @@ public class TransitionSetTest extends BaseTest {
         TransitionSet transitionSet = new TransitionSet();
         int duration = 100;
         TestPropagation propagation = new TestPropagation();
-        Interpolator interpolator = new DecelerateInterpolator();
+        TimeInterpolator interpolator = new DecelerateInterpolator();
         PathMotion pathMotion = new ArcMotion();
         Transition.EpicenterCallback epicenterCallback = new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(@NonNull Transition transition) {
+            public Rect onGetEpicenter(Transition transition) {
                 return null;
             }
         };
@@ -185,7 +184,7 @@ public class TransitionSetTest extends BaseTest {
         fade.setPropagation(new TestPropagation());
         fade.setEpicenterCallback(new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(@NonNull Transition transition) {
+            public Rect onGetEpicenter(Transition transition) {
                 return null;
             }
         });
@@ -212,11 +211,11 @@ public class TransitionSetTest extends BaseTest {
         Fade fade = new Fade();
         int duration = 100;
         TestPropagation propagation = new TestPropagation();
-        Interpolator interpolator = new DecelerateInterpolator();
+        TimeInterpolator interpolator = new DecelerateInterpolator();
         PathMotion pathMotion = new ArcMotion();
         Transition.EpicenterCallback epicenterCallback = new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(@NonNull Transition transition) {
+            public Rect onGetEpicenter(Transition transition) {
                 return null;
             }
         };
@@ -246,7 +245,7 @@ public class TransitionSetTest extends BaseTest {
         transitionSet.addTransition(fade); // here set's duration and interpolator are applied
 
         int overriddenDuration = 200;
-        Interpolator overriddenInterpolator = new AccelerateInterpolator();
+        TimeInterpolator overriddenInterpolator = new AccelerateInterpolator();
         fade.setDuration(overriddenDuration);
         fade.setInterpolator(overriddenInterpolator);
 
