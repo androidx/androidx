@@ -25,11 +25,12 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.RectPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.Clickable
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.layout.fillMaxSize
 
 @Composable
@@ -52,13 +53,16 @@ fun MultiDimensionalAnimationDemo() {
             },
             toState = currentState.value
         ) { state ->
-            val paint = remember { Paint() }
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                width.value = size.width.value
-                height.value = size.height.value
+            Canvas2(modifier = Modifier.fillMaxSize()) {
+                width.value = size.width
+                height.value = size.height
 
-                paint.color = state[background]
-                drawRect(state[bounds], paint)
+                val bounds = state[bounds]
+                drawRect(
+                    state[background],
+                    topLeft = Offset(bounds.left, bounds.top),
+                    size = Size(bounds.width, bounds.height)
+                )
             }
         }
     }

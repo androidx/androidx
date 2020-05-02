@@ -19,13 +19,14 @@ package androidx.ui.graphics
 import androidx.ui.geometry.Offset
 import androidx.ui.unit.Px
 
-interface Brush {
-    fun applyTo(p: Paint)
+sealed class Brush {
+    abstract fun applyTo(p: Paint)
 }
 
-data class SolidColor(val value: Color) : Brush {
+class SolidColor(val value: Color) : Brush() {
     override fun applyTo(p: Paint) {
-        p.color = value
+        if (p.color != value) p.color = value
+        if (p.shader != null) p.shader = null
     }
 }
 
@@ -54,8 +55,7 @@ fun LinearGradient(
     endX: Px,
     endY: Px,
     tileMode: TileMode = TileMode.Clamp
-): LinearGradient {
-    return LinearGradient(
+) = LinearGradient(
         colors,
         null,
         startX,
@@ -64,7 +64,6 @@ fun LinearGradient(
         endY,
         tileMode
     )
-}
 
 /**
  * Creates a linear gradient with the provided colors along the given start and end coordinates.
@@ -89,8 +88,7 @@ fun LinearGradient(
     endX: Px,
     endY: Px,
     tileMode: TileMode = TileMode.Clamp
-): LinearGradient {
-    return LinearGradient(
+) = LinearGradient(
         List<Color>(colorStops.size) { i -> colorStops[i].second },
         List<Float>(colorStops.size) { i -> colorStops[i].first },
         startX,
@@ -99,7 +97,6 @@ fun LinearGradient(
         endY,
         tileMode
     )
-}
 
 /**
  * Creates a radial gradient with the given colors at the provided offset defined in the [ColorStop]
@@ -121,8 +118,7 @@ fun RadialGradient(
     centerY: Float,
     radius: Float,
     tileMode: TileMode = TileMode.Clamp
-): RadialGradient {
-    return RadialGradient(
+) = RadialGradient(
         List<Color>(colorStops.size) { i -> colorStops[i].second },
         List<Float>(colorStops.size) { i -> colorStops[i].first },
         centerX,
@@ -130,7 +126,6 @@ fun RadialGradient(
         radius,
         tileMode
     )
-}
 
 /**
  * Creates a radial gradient with the given colors evenly dispersed within the gradient
@@ -152,9 +147,7 @@ fun RadialGradient(
     centerY: Float,
     radius: Float,
     tileMode: TileMode = TileMode.Clamp
-): RadialGradient {
-    return RadialGradient(colors, null, centerX, centerY, radius, tileMode)
-}
+) = RadialGradient(colors, null, centerX, centerY, radius, tileMode)
 
 /**
  * Creates a vertical gradient with the given colors at the provided offset defined in the [ColorStop]
@@ -175,8 +168,7 @@ fun VerticalGradient(
     startY: Px,
     endY: Px,
     tileMode: TileMode = TileMode.Clamp
-): LinearGradient {
-    return LinearGradient(
+) = LinearGradient(
         colors,
         null,
         startX = Px.Zero,
@@ -185,7 +177,6 @@ fun VerticalGradient(
         endY = endY,
         tileMode = tileMode
     )
-}
 
 /**
  * Creates a vertical gradient with the given colors evenly dispersed within the gradient
@@ -205,8 +196,7 @@ fun VerticalGradient(
     startY: Px,
     endY: Px,
     tileMode: TileMode = TileMode.Clamp
-): LinearGradient {
-    return LinearGradient(
+) = LinearGradient(
         List<Color>(colorStops.size) { i -> colorStops[i].second },
         List<Float>(colorStops.size) { i -> colorStops[i].first },
         startX = Px.Zero,
@@ -215,7 +205,6 @@ fun VerticalGradient(
         endY = endY,
         tileMode = tileMode
     )
-}
 
 /**
  * Creates a horizontal gradient with the given colors evenly dispersed within the gradient
@@ -236,8 +225,7 @@ fun HorizontalGradient(
     startX: Px,
     endX: Px,
     tileMode: TileMode = TileMode.Clamp
-): LinearGradient {
-    return LinearGradient(
+) = LinearGradient(
         colors,
         null,
         startX = startX,
@@ -246,7 +234,6 @@ fun HorizontalGradient(
         endY = Px.Zero,
         tileMode = tileMode
     )
-}
 
 /**
  * Creates a horizontal gradient with the given colors dispersed at the provided offset defined in the [ColorStop]
@@ -298,7 +285,7 @@ data class LinearGradient internal constructor(
         stops,
         tileMode
     )
-    )
+)
 
 /**
  * Brush implementation used to apply a radial gradient on a given [Paint]
@@ -318,13 +305,14 @@ data class RadialGradient internal constructor(
         stops,
         tileMode
     )
-    )
+)
 
 /**
  * Brush implementation that wraps and applies a the provided shader to a [Paint]
  */
-open class ShaderBrush(val shader: Shader) : Brush {
-    override fun applyTo(p: Paint) {
-        p.shader = shader
+open class ShaderBrush(val shader: Shader) : Brush() {
+    final override fun applyTo(p: Paint) {
+        if (p.color != Color.Black) p.color = Color.Black
+        if (p.shader != shader) p.shader = shader
     }
 }

@@ -50,7 +50,7 @@ class PainterTest {
             override val intrinsicSize: PxSize
                 get() = size
 
-            override fun onDraw(canvas: Canvas, bounds: PxSize) {
+            override fun CanvasScope.onDraw() {
                 didDraw = true
             }
         }
@@ -66,21 +66,18 @@ class PainterTest {
     fun testPainterRtl() {
         val p = object : Painter() {
 
-            private val paint = Paint().apply { this.color = Color.Cyan }
+            var color = Color.Black
 
             override val intrinsicSize: PxSize
                 get() = size
 
             override fun applyRtl(rtl: Boolean): Boolean {
-                paint.color = if (rtl) Color.Red else Color.Cyan
+                color = if (rtl) Color.Red else Color.Cyan
                 return true
             }
 
-            override fun onDraw(canvas: Canvas, bounds: PxSize) {
-                canvas.drawRect(
-                    Rect.fromLTWH(0.0f, 0.0f, 100.0f, 100.0f),
-                    paint
-                )
+            override fun CanvasScope.onDraw() {
+                drawRect(color = color)
             }
         }
 
@@ -98,18 +95,11 @@ class PainterTest {
     fun testPainterAlpha() {
         val p = object : Painter() {
 
-            val paint = Paint().apply {
-                this.color = Color.Red
-            }
-
             override val intrinsicSize: PxSize
                 get() = size
 
-            override fun onDraw(canvas: Canvas, bounds: PxSize) {
-                canvas.drawRect(
-                    Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value),
-                    paint
-                )
+            override fun CanvasScope.onDraw() {
+                drawRect(color = Color.Red)
             }
         }
 
@@ -138,12 +128,10 @@ class PainterTest {
     fun testPainterCustomAlpha() {
         val p = object : Painter() {
 
-            val paint = Paint().apply {
-                this.color = Color.Red
-            }
+            var color = Color.Red
 
             override fun applyAlpha(alpha: Float): Boolean {
-                paint.color =
+                color =
                     Color(
                         alpha = alpha,
                         red = Color.Red.red,
@@ -156,15 +144,12 @@ class PainterTest {
             override val intrinsicSize: PxSize
                 get() = size
 
-            override fun onDraw(canvas: Canvas, bounds: PxSize) {
-                canvas.drawRect(
-                    Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value),
-                    paint
-                )
+            override fun CanvasScope.onDraw() {
+                drawRect(color = color)
             }
         }
 
-        assertEquals(Color.Red, p.paint.color)
+        assertEquals(Color.Red, p.color)
         val image = ImageAsset(100, 100)
         val canvas = Canvas(image)
 
@@ -190,23 +175,18 @@ class PainterTest {
     fun testColorFilter() {
         val p = object : Painter() {
 
-            val paint = Paint().apply {
-                colorFilter = ColorFilter(Color.Red, BlendMode.srcIn)
-            }
+            var colorFilter: ColorFilter? = ColorFilter(Color.Red, BlendMode.srcIn)
 
             override fun applyColorFilter(colorFilter: ColorFilter?): Boolean {
-                paint.colorFilter = colorFilter
+                this.colorFilter = colorFilter
                 return true
             }
 
             override val intrinsicSize: PxSize
                 get() = size
 
-            override fun onDraw(canvas: Canvas, bounds: PxSize) {
-                canvas.drawRect(
-                    Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value),
-                    paint
-                )
+            override fun CanvasScope.onDraw() {
+                drawRect(color = Color.Black, colorFilter = colorFilter)
             }
         }
 

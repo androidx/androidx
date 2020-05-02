@@ -19,6 +19,8 @@ package androidx.ui.geometry
 import androidx.ui.util.lerp
 import androidx.ui.util.toStringAsFixed
 import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.min
 
 // TODO(mount): Normalize this class. There are many methods that can be extension functions.
 /**
@@ -237,13 +239,15 @@ data class Rect(
      * The lesser of the magnitudes of the [width] and the [height] of this
      * rectangle.
      */
-    fun getShortestSide(): Float = Math.min(width.absoluteValue, height.absoluteValue)
+    val minDimension: Float
+        get() = min(width.absoluteValue, height.absoluteValue)
 
     /**
      * The greater of the magnitudes of the [width] and the [height] of this
      * rectangle.
      */
-    fun getLongestSide(): Float = Math.max(width.absoluteValue, height.absoluteValue)
+    val maxDimension: Float
+        get() = max(width.absoluteValue, height.absoluteValue)
 
     /**
      * The offset to the intersection of the top and left edges of this rectangle.

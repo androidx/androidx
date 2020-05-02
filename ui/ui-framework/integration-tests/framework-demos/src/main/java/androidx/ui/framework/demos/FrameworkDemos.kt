@@ -63,12 +63,17 @@ private val GestureDemos = DemoCategory("Gestures", listOf(
     ))
 ))
 
+private val GraphicsDemos = DemoCategory("Graphics", listOf(
+    ComposableDemo("VectorGraphicsDemo") { VectorGraphicsDemo() },
+    ComposableDemo("DeclarativeGraphicsDemo") { DeclarativeGraphicsDemo() }
+))
+
 val FrameworkDemos = DemoCategory("Framework", listOf(
     ComposableDemo("Explicit autofill types") { ExplicitAutofillTypesDemo() },
     ComposableDemo("Focus") { FocusableDemo() },
     ComposableDemo("Multiple collects measure") { MultipleCollectTest() },
     ComposableDemo("Popup") { PopupDemo() },
-    ComposableDemo("Vector graphics") { VectorGraphicsDemo() },
+    GraphicsDemos,
     GestureDemos,
     ComposableDemo("View in compose") { ViewInComposeDemo() }
 ))

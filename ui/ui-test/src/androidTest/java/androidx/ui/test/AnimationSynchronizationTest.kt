@@ -24,17 +24,16 @@ import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.State
 import androidx.compose.mutableStateOf
-import androidx.compose.remember
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.LargeTest
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.drawBackground
-import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
@@ -45,7 +44,8 @@ private const val nonIdleDuration = 1000L
 
 private const val animateFromX = 0f
 private const val animateToX = 50f
-private val animatedRect = Rect.fromLTWH(0f, 0f, 50f, 50f)
+
+private val rectSize = Size(50.0f, 50.0f)
 
 @LargeTest
 class AnimationSynchronizationTest {
@@ -176,8 +176,6 @@ class AnimationSynchronizationTest {
 
     @Composable
     private fun Ui(animationState: State<AnimationStates>) {
-        val paint = remember { Paint().also { it.color = Color.Cyan } }
-
         hasRecomposed = true
         Box(modifier = Modifier.drawBackground(Color.Yellow).fillMaxSize()) {
             hasRecomposed = true
@@ -187,9 +185,9 @@ class AnimationSynchronizationTest {
                 onStateChangeFinished = { animationRunning = false }
             ) { state ->
                 hasRecomposed = true
-                Canvas(modifier = Modifier.fillMaxSize()) {
+                Canvas2(modifier = Modifier.fillMaxSize()) {
                     recordedAnimatedValues.add(state[x])
-                    drawRect(animatedRect.translate(state[x], 0f), paint)
+                    drawRect(Color.Cyan, Offset(state[x], 0f), rectSize)
                 }
             }
         }

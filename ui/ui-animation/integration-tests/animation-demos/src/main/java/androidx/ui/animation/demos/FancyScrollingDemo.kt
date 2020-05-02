@@ -22,18 +22,17 @@ import androidx.animation.PhysicsBuilder
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.animatedFloat
-import androidx.ui.core.DrawScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.rawDragGestureFilter
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.Text
-import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
+import androidx.ui.graphics.painter.CanvasScope
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
@@ -77,9 +76,9 @@ fun FancyScrollingDemo() {
                 })
             }
         })
-        val paint = remember { Paint() }
-        Canvas(gesture.fillMaxWidth().preferredHeight(400.dp)) {
-            val width = size.width.value / 2f
+
+        Canvas2(gesture.fillMaxWidth().preferredHeight(400.dp)) {
+            val width = size.width / 2f
             val scroll = animScroll.value + width / 2
             itemWidth.value = width
             if (DEBUG) {
@@ -88,16 +87,15 @@ fun FancyScrollingDemo() {
                             " AnimatedFloat: ${animScroll.value}"
                 )
             }
-            drawItems(scroll, width, size.height.value, paint)
+            drawItems(scroll, width, size.height)
         }
     }
 }
 
-private fun DrawScope.drawItems(
+private fun CanvasScope.drawItems(
     scrollPosition: Float,
     width: Float,
-    height: Float,
-    paint: Paint
+    height: Float
 ) {
     var startingPos = scrollPosition % width
     if (startingPos > 0) {
@@ -108,20 +106,24 @@ private fun DrawScope.drawItems(
     if (startingColorIndex < 0) {
         startingColorIndex += colors.size
     }
-    paint.color = colors[startingColorIndex]
+
+    val size = Size(width - 20, height)
     drawRect(
-        Rect(startingPos + 10, 0f, startingPos + width - 10, height),
-        paint
+        colors[startingColorIndex],
+        topLeft = Offset(startingPos + 10, 0f),
+        size = size
     )
-    paint.color = colors[(startingColorIndex + colors.size - 1) % colors.size]
+
     drawRect(
-        Rect(startingPos + width + 10, 0f, startingPos + width * 2 - 10, height),
-        paint
+        colors[(startingColorIndex + colors.size - 1) % colors.size],
+        topLeft = Offset(startingPos + width + 10, 0.0f),
+        size = size
     )
-    paint.color = colors[(startingColorIndex + colors.size - 2) % colors.size]
+
     drawRect(
-        Rect(startingPos + width * 2 + 10, 0f, startingPos + width * 3 - 10, height),
-        paint
+        colors[(startingColorIndex + colors.size - 2) % colors.size],
+        topLeft = Offset(startingPos + width * 2 + 10, 0.0f),
+        size = size
     )
 }
 
