@@ -182,7 +182,7 @@ package androidx.fragment.app {
     method @Deprecated public void supportInvalidateOptionsMenu();
     method public void supportPostponeEnterTransition();
     method public void supportStartPostponedEnterTransition();
-    method public final void validateRequestPermissionsRequestCode(int);
+    method @Deprecated public final void validateRequestPermissionsRequestCode(int);
   }
 
   public abstract class FragmentContainer {

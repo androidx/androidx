@@ -19,7 +19,6 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentSender
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.test.FragmentResultActivity
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
@@ -34,11 +33,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.ArgumentMatchers.same
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -114,26 +108,6 @@ class FragmentReceiveResultTest {
         assertThat(fragment.requestCode[0]).isEqualTo(40)
         assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_CANCELED)
         assertThat(fragment.resultContent[0]).isEqualTo("content 40")
-    }
-
-    @Suppress("DEPRECATION")
-    @Test
-    fun testActivityResult_withDelegate() {
-        val delegate = mock(ActivityCompat.PermissionCompatDelegate::class.java)
-
-        val data = Intent()
-        ActivityCompat.setPermissionCompatDelegate(delegate)
-
-        activityRule.activity.onActivityResult(42, 43, data)
-
-        verify(delegate).onActivityResult(
-            same(activityRule.activity), eq(42), eq(43),
-            same(data)
-        )
-
-        ActivityCompat.setPermissionCompatDelegate(null)
-        activityRule.activity.onActivityResult(42, 43, data)
-        verifyNoMoreInteractions(delegate)
     }
 
     private fun attachTestFragment(): TestFragment {
