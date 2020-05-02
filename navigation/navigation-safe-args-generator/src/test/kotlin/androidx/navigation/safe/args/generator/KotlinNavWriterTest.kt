@@ -145,6 +145,8 @@ class KotlinNavWriterTest {
             Argument("referenceZeroDefaultValue", ReferenceType, IntValue("0")),
             Argument("floatArg", FloatType, FloatValue("1")),
             Argument("floatArrayArg", FloatArrayType),
+            Argument("doubleArg", DoubleType, DoubleValue("1.2")),
+            Argument("doubleArrayArg", DoubleArrayType),
             Argument("objectArrayArg", ObjectArrayType("android.content.pm.ActivityInfo")),
             Argument("boolArg", BoolType, BooleanValue("true")),
             Argument(
