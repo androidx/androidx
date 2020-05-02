@@ -227,13 +227,13 @@ private class SeparatorState<R : Any, T : R>(
         if (loadType == APPEND) {
             startTerminalSeparatorDeferred
         } else {
-            loadStates[PREPEND] == LoadState.NotLoading(endOfPaginationReached = true)
+            loadStates[PREPEND]?.endOfPaginationReached == true
         }
 
     internal fun <T : Any> Insert<T>.terminatesEnd(): Boolean = if (loadType == PREPEND) {
         endTerminalSeparatorDeferred
     } else {
-        loadStates[APPEND] == LoadState.NotLoading(endOfPaginationReached = true)
+        loadStates[APPEND]?.endOfPaginationReached == true
     }
 
     fun onInsert(event: Insert<T>): Insert<R> {

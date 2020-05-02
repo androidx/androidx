@@ -28,9 +28,16 @@ package androidx.paging
  * should continue to make requests for additional data in this direction or if it should
  * halt as the end of the dataset has been reached.
  *
+ * @param fromMediator `true` if this [LoadState] was generated from a request to [RemoteMediator].
+ * Otherwise `false`, when indicating the state of requests to [PagingSource.load].
+ *
  * @see LoadType
  */
-sealed class LoadState(val endOfPaginationReached: Boolean) {
+sealed class LoadState(
+    val endOfPaginationReached: Boolean,
+    @get:JvmName("isFromMediator")
+    val fromMediator: Boolean
+) {
     /**
      * Indicates the [PagingData] is not currently loading, and no error currently observed.
      *
@@ -38,42 +45,122 @@ sealed class LoadState(val endOfPaginationReached: Boolean) {
      * [LoadState] is associated with, `true` otherwise. This parameter informs [Pager] if it
      * should continue to make requests for additional data in this direction or if it should
      * halt as the end of the dataset has been reached.
+     *
+     * @param fromMediator `true` if this [LoadState] was generated from a request to
+     * [RemoteMediator]. Otherwise `false`, when indicating the state of requests to
+     * [PagingSource.load].
      */
-    @Suppress("DataClassPrivateConstructor")
-    class NotLoading constructor(
-        endOfPaginationReached: Boolean
-    ) : LoadState(endOfPaginationReached) {
+    class NotLoading(
+        endOfPaginationReached: Boolean,
+        fromMediator: Boolean
+    ) : LoadState(endOfPaginationReached, fromMediator) {
         override fun toString(): String {
-            return "NotLoading(endOfPaginationReached=$endOfPaginationReached)"
+            return "NotLoading(endOfPaginationReached=$endOfPaginationReached, " +
+                    "isRemoteError=$fromMediator)"
         }
 
         override fun equals(other: Any?): Boolean {
-            if (other !is NotLoading) return false
-
-            return endOfPaginationReached == other.endOfPaginationReached
+            return other is NotLoading &&
+                    endOfPaginationReached == other.endOfPaginationReached &&
+                    fromMediator == other.fromMediator
         }
 
         override fun hashCode(): Int {
-            return endOfPaginationReached.hashCode()
+            return endOfPaginationReached.hashCode() + fromMediator.hashCode()
         }
 
         internal companion object {
-            val Done = NotLoading(true)
-            val Idle = NotLoading(false)
+            internal fun instance(
+                endOfPaginationReached: Boolean,
+                fromMediator: Boolean
+            ): NotLoading = when {
+                fromMediator -> when {
+                    endOfPaginationReached -> DoneRemote
+                    else -> IdleRemote
+                }
+                else -> when {
+                    endOfPaginationReached -> Done
+                    else -> Idle
+                }
+            }
+
+            internal val Done = NotLoading(true, fromMediator = false)
+            internal val Idle = NotLoading(false, fromMediator = false)
+
+            @Suppress("MemberVisibilityCanBePrivate") // synthetic access
+            internal val DoneRemote = NotLoading(true, fromMediator = true)
+
+            @Suppress("MemberVisibilityCanBePrivate") // synthetic access
+            internal val IdleRemote = NotLoading(false, fromMediator = true)
         }
     }
 
     /**
      * Loading is in progress.
+     *
+     * @param fromMediator `true` if this [LoadState] was generated from a request to
+     * [RemoteMediator]. Otherwise `false`, when indicating the state of requests to
+     * [PagingSource.load].
      */
-    object Loading : LoadState(false)
+    class Loading(fromMediator: Boolean) : LoadState(false, fromMediator) {
+        override fun toString(): String {
+            return "Loading(endOfPaginationReached=$endOfPaginationReached, " +
+                    "isRemoteError=$fromMediator)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is Loading &&
+                    endOfPaginationReached == other.endOfPaginationReached &&
+                    fromMediator == other.fromMediator
+        }
+
+        override fun hashCode(): Int {
+            return endOfPaginationReached.hashCode() + fromMediator.hashCode()
+        }
+
+        internal companion object {
+            internal fun instance(fromMediator: Boolean): Loading {
+                return if (fromMediator) Remote else Local
+            }
+
+            @Suppress("MemberVisibilityCanBePrivate") // synthetic access
+            internal val Remote = Loading(fromMediator = true)
+
+            @Suppress("MemberVisibilityCanBePrivate") // synthetic access
+            internal val Local = Loading(fromMediator = false)
+        }
+    }
 
     /**
      * Loading hit an error.
      *
      * @param error [Throwable] that caused the load operation to generate this error state.
      *
+     * @param fromMediator `true` if this [LoadState] was generated from a request to
+     * [RemoteMediator]. Otherwise `false`, when indicating the state of requests to
+     * [PagingSource.load].
+     *
      * @see androidx.paging.PagedList.retry
      */
-    data class Error(val error: Throwable) : LoadState(false)
+    class Error(
+        val error: Throwable,
+        fromMediator: Boolean
+    ) : LoadState(false, fromMediator) {
+        override fun equals(other: Any?): Boolean {
+            return other is Error &&
+                    endOfPaginationReached == other.endOfPaginationReached &&
+                    fromMediator == other.fromMediator &&
+                    error == other.error
+        }
+
+        override fun hashCode(): Int {
+            return endOfPaginationReached.hashCode() + fromMediator.hashCode() + error.hashCode()
+        }
+
+        override fun toString(): String {
+            return "Error(endOfPaginationReached=$endOfPaginationReached, " +
+                    "isRemoteError=$fromMediator, " +
+                    "error=$error)"
+        }
+    }
 }

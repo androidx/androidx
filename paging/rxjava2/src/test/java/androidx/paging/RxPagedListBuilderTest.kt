@@ -16,9 +16,10 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.REFRESH
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.TestScheduler
@@ -193,14 +194,14 @@ class RxPagedListBuilderTest {
 
         // initial load failed, check that we're in error state
         val loadStateChangedCallback = { type: LoadType, state: LoadState ->
-            if (type == LoadType.REFRESH) {
+            if (type == REFRESH) {
                 loadStates.add(LoadStateEvent(type, state))
             }
         }
         initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
-                LoadStateEvent(LoadType.REFRESH, Loading)
+                LoadStateEvent(REFRESH, Loading(fromMediator = false))
             ), loadStates
         )
 
@@ -210,8 +211,8 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(LoadType.REFRESH, Loading),
-                LoadStateEvent(LoadType.REFRESH, Error(EXCEPTION))
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false))
             ), loadStates
         )
 
@@ -221,9 +222,9 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(LoadType.REFRESH, Loading),
-                LoadStateEvent(LoadType.REFRESH, Error(EXCEPTION)),
-                LoadStateEvent(LoadType.REFRESH, Loading)
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false)),
+                LoadStateEvent(REFRESH, Loading(fromMediator = false))
             ), loadStates
         )
         // flush loadInitial, should succeed now
@@ -239,10 +240,13 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(LoadType.REFRESH, Loading),
-                LoadStateEvent(LoadType.REFRESH, Error(EXCEPTION)),
-                LoadStateEvent(LoadType.REFRESH, Loading),
-                LoadStateEvent(LoadType.REFRESH, NotLoading(endOfPaginationReached = false))
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false)),
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(
+                    REFRESH,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                )
             ), loadStates
         )
     }

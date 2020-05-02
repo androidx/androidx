@@ -16,7 +16,10 @@
 
 package androidx.paging
 
+import androidx.paging.LoadState.Loading
 import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
@@ -302,7 +305,7 @@ class PageFetcherTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                PageEvent.LoadStateUpdate(LoadType.REFRESH, LoadState.Loading),
+                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
                 createRefresh(range = 50..51)
             )
             assertEvents(expected, fetcherState.pageEventLists[0])

@@ -194,9 +194,9 @@ open class AsyncPagingDataDiffer<T : Any>(
         CopyOnWriteArrayList()
 
     internal val loadStates = mutableMapOf<LoadType, LoadState>(
-        REFRESH to LoadState.NotLoading(endOfPaginationReached = false),
-        PREPEND to LoadState.NotLoading(endOfPaginationReached = false),
-        APPEND to LoadState.NotLoading(endOfPaginationReached = false)
+        REFRESH to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false),
+        PREPEND to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false),
+        APPEND to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false)
     )
 
     /**

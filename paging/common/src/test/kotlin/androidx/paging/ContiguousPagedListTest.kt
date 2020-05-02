@@ -20,8 +20,10 @@
 package androidx.paging
 
 import androidx.paging.ItemKeyedDataSourceTest.ItemDataSource
+import androidx.paging.LoadState.Error
+import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagedList.BoundaryCallback
 import androidx.paging.PagedList.Callback
@@ -601,7 +603,12 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
         // No loading going on currently
         assertEquals(
-            listOf(StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = false))),
+            listOf(
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                )
+            ),
             states.getAllAndClear()
         )
         verifyRange(0, 40, pagedList)
@@ -610,7 +617,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(35)
         mainThread.executeAll()
         assertEquals(
-            listOf(StateChange(APPEND, LoadState.Loading)),
+            listOf(StateChange(APPEND, Loading(fromMediator = false))),
             states.getAllAndClear()
         )
         verifyRange(0, 40, pagedList)
@@ -618,7 +625,12 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         // load finishes
         drain()
         assertEquals(
-            listOf(StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = false))),
+            listOf(
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                )
+            ),
             states.getAllAndClear()
         )
         verifyRange(0, 60, pagedList)
@@ -629,7 +641,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(55)
         mainThread.executeAll()
         assertEquals(
-            listOf(StateChange(APPEND, LoadState.Loading)),
+            listOf(StateChange(APPEND, Loading(fromMediator = false))),
             states.getAllAndClear()
         )
         verifyRange(0, 60, pagedList)
@@ -637,7 +649,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         // load now in error state
         drain()
         assertEquals(
-            listOf(StateChange(APPEND, LoadState.Error(EXCEPTION))),
+            listOf(StateChange(APPEND, Error(EXCEPTION, fromMediator = false))),
             states.getAllAndClear()
         )
         verifyRange(0, 60, pagedList)
@@ -646,14 +658,19 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.retry()
         mainThread.executeAll()
         assertEquals(
-            listOf(StateChange(APPEND, LoadState.Loading)),
+            listOf(StateChange(APPEND, Loading(fromMediator = false))),
             states.getAllAndClear()
         )
 
         // load finishes
         drain()
         assertEquals(
-            listOf(StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = false))),
+            listOf(
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                )
+            ),
             states.getAllAndClear()
         )
         verifyRange(0, 80, pagedList)
@@ -678,9 +695,15 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(1, 3, pagedList)
         assertEquals(
             listOf(
-                StateChange(PREPEND, LoadState.NotLoading(endOfPaginationReached = false)),
-                StateChange(PREPEND, LoadState.Loading),
-                StateChange(PREPEND, LoadState.NotLoading(endOfPaginationReached = false))
+                StateChange(
+                    PREPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                ),
+                StateChange(PREPEND, Loading(fromMediator = false)),
+                StateChange(
+                    PREPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                )
             ),
             states.getAllAndClear()
         )
@@ -692,8 +715,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(1, 3, pagedList)
         assertEquals(
             listOf(
-                StateChange(PREPEND, LoadState.Loading),
-                StateChange(PREPEND, LoadState.Error(EXCEPTION))
+                StateChange(PREPEND, Loading(fromMediator = false)),
+                StateChange(PREPEND, Error(EXCEPTION, fromMediator = false))
             ),
             states.getAllAndClear()
         )
@@ -702,7 +725,12 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(if (placeholdersEnabled) 3 else 2)
         drain()
         assertEquals(
-            listOf(StateChange(PREPEND, LoadState.NotLoading(endOfPaginationReached = false))),
+            listOf(
+                StateChange(
+                    PREPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                )
+            ),
             states.getAllAndClear()
         )
         verifyRange(2, 3, pagedList)
@@ -727,9 +755,15 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(1, 3, pagedList)
         assertEquals(
             listOf(
-                StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = false)),
-                StateChange(APPEND, LoadState.Loading),
-                StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = false))
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                ),
+                StateChange(APPEND, Loading(fromMediator = false)),
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                )
             ),
             states.getAllAndClear()
         )
@@ -741,8 +775,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         verifyRange(1, 3, pagedList)
         assertEquals(
             listOf(
-                StateChange(APPEND, LoadState.Loading),
-                StateChange(APPEND, LoadState.Error(EXCEPTION))
+                StateChange(APPEND, Loading(fromMediator = false)),
+                StateChange(APPEND, Error(EXCEPTION, fromMediator = false))
             ),
             states.getAllAndClear()
         )
@@ -751,7 +785,12 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         pagedList.loadAround(if (placeholdersEnabled) 1 else 0)
         drain()
         assertEquals(
-            listOf(StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = false))),
+            listOf(
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                )
+            ),
             states.getAllAndClear()
         )
         verifyRange(0, 3, pagedList)
@@ -769,9 +808,12 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         drain()
         assertEquals(
             listOf(
-                StateChange(APPEND, LoadState.NotLoading(endOfPaginationReached = false)),
-                StateChange(APPEND, LoadState.Loading),
-                StateChange(APPEND, LoadState.Error(EXCEPTION))
+                StateChange(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                ),
+                StateChange(APPEND, Loading(fromMediator = false)),
+                StateChange(APPEND, Error(EXCEPTION, fromMediator = false))
             ),
             states.getAllAndClear()
         )

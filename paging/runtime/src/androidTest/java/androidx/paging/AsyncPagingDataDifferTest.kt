@@ -21,11 +21,11 @@ import androidx.paging.ListUpdateEvent.Changed
 import androidx.paging.ListUpdateEvent.Inserted
 import androidx.paging.ListUpdateEvent.Moved
 import androidx.paging.ListUpdateEvent.Removed
-import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.test.filters.SmallTest
@@ -137,11 +137,17 @@ class AsyncPagingDataDifferTest {
         // empty previous list.
         assertEvents(
             listOf(
-                LoadEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
-                LoadEvent(PREPEND, NotLoading(endOfPaginationReached = false)),
-                LoadEvent(APPEND, NotLoading(endOfPaginationReached = false)),
-                LoadEvent(REFRESH, Loading),
-                LoadEvent(REFRESH, NotLoading(endOfPaginationReached = false))
+                LoadEvent(
+                    REFRESH,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                ),
+                LoadEvent(
+                    PREPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                ),
+                LoadEvent(APPEND, NotLoading(endOfPaginationReached = false, fromMediator = false)),
+                LoadEvent(REFRESH, Loading(fromMediator = false)),
+                LoadEvent(REFRESH, NotLoading(endOfPaginationReached = false, fromMediator = false))
             ),
             loadEvents
         )
@@ -156,8 +162,8 @@ class AsyncPagingDataDifferTest {
         // empty next list.
         assertEvents(
             listOf(
-                LoadEvent(PREPEND, NotLoading(endOfPaginationReached = true)),
-                LoadEvent(APPEND, NotLoading(endOfPaginationReached = true))
+                LoadEvent(PREPEND, NotLoading(endOfPaginationReached = true, fromMediator = false)),
+                LoadEvent(APPEND, NotLoading(endOfPaginationReached = true, fromMediator = false))
             ),
             loadEvents
         )

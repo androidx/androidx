@@ -144,8 +144,8 @@ class PagedListTest {
             }
         }
 
-        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION))
-        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION))
+        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION, fromMediator = false))
+        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION, fromMediator = false))
 
         assertEquals(1, onStateChangeCalls)
     }
