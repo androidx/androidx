@@ -24,12 +24,10 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
@@ -39,6 +37,7 @@ import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.IntPx
+import androidx.ui.unit.Px
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
@@ -233,13 +232,10 @@ class IsDisplayedTests {
 
         val drawRect = @Composable { color: Color ->
             Semantics(container = true) {
-                Canvas(Modifier.preferredSize(100.dp)) {
-                    val paint = Paint()
-                    paint.color = color
-                    paint.style = PaintingStyle.fill
-                    drawRect(size.toRect(), paint)
+                Canvas2(Modifier.preferredSize(100.dp)) {
+                    drawRect(color)
 
-                    elementHeight = size.height
+                    elementHeight = Px(size.height)
                 }
             }
         }

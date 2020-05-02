@@ -24,17 +24,16 @@ import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.State
 import androidx.compose.mutableStateOf
-import androidx.compose.remember
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.MediumTest
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.drawBackground
-import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
@@ -169,9 +168,7 @@ class TestAnimationClockTest {
 
     @Composable
     private fun Ui(animationState: State<AnimationStates>) {
-        val paint = remember { Paint().also { it.color = Color.Cyan } }
-        val rect = remember { Rect.fromLTWH(0f, 0f, 50f, 50f) }
-
+        val size = Size(50.0f, 50.0f)
         hasRecomposed = true
         Box(modifier = Modifier.drawBackground(Color.Yellow).fillMaxSize()) {
             hasRecomposed = true
@@ -181,10 +178,10 @@ class TestAnimationClockTest {
                 onStateChangeFinished = { animationRunning = false }
             ) { state ->
                 hasRecomposed = true
-                Canvas(modifier = Modifier.fillMaxSize()) {
+                Canvas2(modifier = Modifier.fillMaxSize()) {
                     val xValue = state[x]
                     recordedAnimatedValues.add(xValue)
-                    drawRect(rect.translate(xValue, 0f), paint)
+                    drawRect(Color.Cyan, Offset(xValue, 0.0f), size)
                 }
             }
         }

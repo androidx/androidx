@@ -17,11 +17,9 @@
 package androidx.ui.graphics
 
 import android.graphics.Matrix
-import androidx.ui.core.toAndroidRect
-import androidx.ui.core.toAndroidRectF
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.vectormath.isIdentity
 
@@ -51,12 +49,15 @@ import androidx.ui.graphics.vectormath.isIdentity
 fun Canvas(c: android.graphics.Canvas): Canvas =
     AndroidCanvas(c)
 
-private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
-    Canvas {
+private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canvas {
 
-    private val internalPath = Path()
+    private val srcRect: android.graphics.Rect by lazy(LazyThreadSafetyMode.NONE) {
+            android.graphics.Rect()
+        }
 
-    private val internalRectF = android.graphics.RectF()
+    private val dstRect: android.graphics.Rect by lazy(LazyThreadSafetyMode.NONE) {
+            android.graphics.Rect()
+        }
 
     /**
      * @see Canvas.save
@@ -150,27 +151,14 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
         }
     }
 
-    /**
-     * @see Canvas.clipRect
-     */
     @SuppressWarnings("deprecation")
-    override fun clipRect(rect: Rect, clipOp: ClipOp) {
-        val frameworkRect = rect.toAndroidRect()
+    override fun clipRect(left: Float, top: Float, right: Float, bottom: Float, clipOp: ClipOp) {
         @Suppress("DEPRECATION")
         when (clipOp) {
-            ClipOp.intersect -> internalCanvas.clipRect(frameworkRect)
-            ClipOp.difference -> internalCanvas.clipRect(frameworkRect,
+            ClipOp.intersect -> internalCanvas.clipRect(left, top, right, bottom)
+            ClipOp.difference -> internalCanvas.clipRect(left, top, right, bottom,
                 android.graphics.Region.Op.DIFFERENCE)
         }
-    }
-
-    /**
-     * @see Canvas.clipRRect
-     */
-    override fun clipRRect(rrect: RRect) {
-        internalPath.reset()
-        internalPath.addRRect(rrect)
-        clipPath(internalPath)
     }
 
     /**
@@ -193,11 +181,8 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
         )
     }
 
-    /**
-     * @see Canvas.drawRect
-     */
-    override fun drawRect(rect: Rect, paint: Paint) {
-        internalCanvas.drawRect(rect.toAndroidRectF(), paint.asFrameworkPaint())
+    override fun drawRect(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
+        internalCanvas.drawRect(left, top, right, bottom, paint.asFrameworkPaint())
     }
 
     override fun drawRoundRect(
@@ -220,13 +205,8 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
         )
     }
 
-    /**
-     * @see Canvas.drawOval
-     */
-    override fun drawOval(rect: Rect, paint: Paint) {
-        internalRectF.set(rect.toAndroidRect())
-        internalCanvas.drawOval(internalRectF,
-            paint.asFrameworkPaint())
+    override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
+        internalCanvas.drawOval(left, top, right, bottom, paint.asFrameworkPaint())
     }
 
     /**
@@ -241,19 +221,21 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
         )
     }
 
-    /**
-     * @see Canvas.drawArc
-     */
     override fun drawArc(
-        rect: Rect,
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
         paint: Paint
     ) {
-        internalRectF.set(rect.toAndroidRect())
         internalCanvas.drawArc(
-            internalRectF,
+            left,
+            top,
+            right,
+            bottom,
             startAngle,
             sweepAngle,
             useCenter,
@@ -283,11 +265,31 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) :
     /**
      * @See Canvas.drawImageRect
      */
-    override fun drawImageRect(image: ImageAsset, src: Rect?, dst: Rect, paint: Paint) {
+    override fun drawImageRect(
+        image: ImageAsset,
+        srcOffset: Offset,
+        srcSize: Size,
+        dstOffset: Offset,
+        dstSize: Size,
+        paint: Paint
+    ) {
+        // There is no framework API to draw a subset of a target bitmap
+        // that consumes only primitives so lazily allocate a src and dst
+        // rect to populate the dimensions and re-use across calls
         internalCanvas.drawBitmap(
             image.asAndroidBitmap(),
-            src?.toAndroidRect(),
-            dst.toAndroidRect(),
+            srcRect.apply {
+                left = srcOffset.dx.toInt()
+                top = srcOffset.dy.toInt()
+                right = (srcOffset.dx + srcSize.width).toInt()
+                bottom = (srcOffset.dy + srcSize.height).toInt()
+            },
+            dstRect.apply {
+                left = dstOffset.dx.toInt()
+                top = dstOffset.dy.toInt()
+                right = (dstOffset.dx + dstSize.width).toInt()
+                bottom = (dstOffset.dy + dstSize.height).toInt()
+            },
             paint.asFrameworkPaint()
         )
     }

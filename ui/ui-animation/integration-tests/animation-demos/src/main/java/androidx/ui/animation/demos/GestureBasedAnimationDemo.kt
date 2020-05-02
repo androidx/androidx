@@ -19,16 +19,15 @@ package androidx.ui.animation.demos
 import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.compose.state
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.foundation.Canvas
-import androidx.ui.geometry.Rect
+import androidx.ui.foundation.Canvas2
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.layout.fillMaxSize
 
 private const val halfSize = 200f
@@ -73,16 +72,11 @@ fun GestureBasedAnimationDemo() {
 
 @Composable
 private fun ScaledColorRect(modifier: Modifier = Modifier, scale: Float, color: Color) {
-    val paint = remember { Paint() }
-    Canvas(modifier.fillMaxSize()) {
-        val centerX = size.width.value / 2
-        val centerY = size.height.value / 2
-        paint.color = color
+    Canvas2(modifier.fillMaxSize()) {
         drawRect(
-            Rect(
-                centerX - halfSize * scale, centerY - halfSize * scale,
-                centerX + halfSize * scale, centerY + halfSize * scale
-            ), paint
+            color,
+            topLeft = Offset(center.dx - halfSize * scale, center.dy - halfSize * scale),
+            size = Size(halfSize * 2 * scale, halfSize * 2 * scale)
         )
     }
 }

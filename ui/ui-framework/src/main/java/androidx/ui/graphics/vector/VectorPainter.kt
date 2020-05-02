@@ -22,9 +22,10 @@ import androidx.compose.currentComposer
 import androidx.compose.onPreCommit
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.painter.Painter
+import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.Px
@@ -113,8 +114,8 @@ class VectorPainter internal constructor(private val vector: VectorComponent) : 
         IntPx(ceil(vector.defaultHeight.value).roundToInt())
     )
 
-    override fun onDraw(canvas: Canvas, bounds: PxSize) {
-        vector.draw(canvas, currentAlpha, currentColorFilter)
+    override fun CanvasScope.onDraw() {
+        drawCanvas { canvas, _ -> vector.draw(canvas, currentAlpha, currentColorFilter) }
     }
 
     override fun applyAlpha(alpha: Float): Boolean {

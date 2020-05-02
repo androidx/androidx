@@ -465,7 +465,7 @@ package androidx.ui.unit {
     method public static inline operator float times-Ndu7NvY(int, float other);
     method public static inline operator float times-kxDXtn8(float, float other);
     method public static androidx.ui.unit.PxBounds toBounds(androidx.ui.unit.PxSize);
-    method public static inline androidx.ui.geometry.Offset toOffset(androidx.ui.unit.PxPosition);
+    method public static inline long toOffset(androidx.ui.unit.PxPosition);
     method public static androidx.ui.geometry.Rect toRect(androidx.ui.unit.PxBounds);
     method public static androidx.ui.geometry.Rect toRect(androidx.ui.unit.PxSize);
     method public static androidx.ui.unit.PxSize toSize(androidx.ui.unit.PxBounds);

@@ -242,7 +242,7 @@ private data class PainterModifier(
 
         painter.draw(
             canvas = this,
-            bounds = PxSize(srcWidth, srcHeight),
+            size = PxSize(srcWidth, srcHeight),
             alpha = alpha,
             colorFilter = colorFilter,
             rtl = rtl)

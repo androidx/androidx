@@ -17,21 +17,17 @@
 package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
 import androidx.ui.integration.test.ToggleableTestCase
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.unit.dp
-import androidx.ui.unit.toRect
 
 /**
  * Test case that puts a large number of boxes in a column in a vertical scroller to force scrolling.
@@ -74,11 +70,8 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
 
     @Composable
     fun ColorStripe(red: Int, green: Int, blue: Int) {
-        val paint = remember { Paint() }
-        Canvas(Modifier.preferredSize(45.dp, 5.dp)) {
-            paint.color = Color(red = red, green = green, blue = blue)
-            paint.style = PaintingStyle.fill
-            drawRect(size.toRect(), paint)
+        Canvas2(Modifier.preferredSize(45.dp, 5.dp)) {
+            drawRect(Color(red = red, green = green, blue = blue))
         }
     }
 }

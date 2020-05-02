@@ -412,7 +412,7 @@ package androidx.ui.graphics.vector {
 
   public final class VectorPainter extends androidx.ui.graphics.painter.Painter {
     method public androidx.ui.unit.PxSize getIntrinsicSize();
-    method protected void onDraw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize bounds);
+    method protected void onDraw(androidx.ui.graphics.painter.CanvasScope);
     property public androidx.ui.unit.PxSize intrinsicSize;
   }
 
