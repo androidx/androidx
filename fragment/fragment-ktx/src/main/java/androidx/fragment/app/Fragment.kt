@@ -61,9 +61,9 @@ fun Fragment.clearFragmentResult(
  * @param listener listener for result changes or `null` to remove any previously
  *                 registered listener.
  */
-fun Fragment.setFragmentResultListener(
+inline fun Fragment.setFragmentResultListener(
     requestKey: String,
-    listener: ((resultKey: String, bundle: Bundle) -> Unit)
+    crossinline listener: ((resultKey: String, bundle: Bundle) -> Unit)
 ) {
     parentFragmentManager.setFragmentResultListener(requestKey, this, listener)
 }

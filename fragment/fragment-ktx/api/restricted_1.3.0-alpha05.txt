@@ -5,7 +5,7 @@ package androidx.fragment.app {
     method public static void clearFragmentResult(androidx.fragment.app.Fragment, String requestKey);
     method public static void clearFragmentResultListener(androidx.fragment.app.Fragment, String requestKey);
     method public static void setFragmentResult(androidx.fragment.app.Fragment, String requestKey, android.os.Bundle result);
-    method public static void setFragmentResultListener(androidx.fragment.app.Fragment, String requestKey, kotlin.jvm.functions.Function2<? super java.lang.String,? super android.os.Bundle,kotlin.Unit> listener);
+    method public static inline void setFragmentResultListener(androidx.fragment.app.Fragment, String requestKey, kotlin.jvm.functions.Function2<? super java.lang.String,? super android.os.Bundle,kotlin.Unit> listener);
   }
 
   public final class FragmentManagerKt {
@@ -15,7 +15,7 @@ package androidx.fragment.app {
   }
 
   public final class FragmentResultOwnerKt {
-    method public static void setFragmentResultListener(androidx.fragment.app.FragmentResultOwner, String requestKey, androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function2<? super java.lang.String,? super android.os.Bundle,kotlin.Unit> listener);
+    method public static inline void setFragmentResultListener(androidx.fragment.app.FragmentResultOwner, String requestKey, androidx.lifecycle.LifecycleOwner lifecycleOwner, kotlin.jvm.functions.Function2<? super java.lang.String,? super android.os.Bundle,kotlin.Unit> listener);
   }
 
   public final class FragmentTransactionKt {

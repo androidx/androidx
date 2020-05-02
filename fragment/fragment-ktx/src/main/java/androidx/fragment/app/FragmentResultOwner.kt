@@ -32,10 +32,11 @@ import androidx.lifecycle.LifecycleOwner
  * @param listener listener for result changes or `null` to remove any previously registered
  * listener.
  */
-fun FragmentResultOwner.setFragmentResultListener(
+inline fun FragmentResultOwner.setFragmentResultListener(
     requestKey: String,
     lifecycleOwner: LifecycleOwner,
-    listener: ((resultKey: String, bundle: Bundle) -> Unit)
+    crossinline listener: ((resultKey: String, bundle: Bundle) -> Unit)
 ) {
-    setFragmentResultListener(requestKey, lifecycleOwner, FragmentResultListener(listener))
+    setFragmentResultListener(requestKey, lifecycleOwner,
+        FragmentResultListener { resultKey, bundle -> listener.invoke(resultKey, bundle) })
 }
