@@ -16,11 +16,6 @@ package androidx.ui.core {
     method @Deprecated public static androidx.ui.core.Modifier getDrawClipToBounds();
   }
 
-  public final class DrawKt {
-    method @Deprecated public static inline void Draw(kotlin.jvm.functions.Function3<? super androidx.ui.unit.Density,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
-    method @Deprecated public static inline void Draw(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.ContentDrawScope,? super androidx.ui.graphics.Canvas,? super androidx.ui.unit.PxSize,kotlin.Unit> onPaint);
-  }
-
   public final class DrawShadowKt {
     method @Deprecated public static androidx.ui.core.Modifier drawShadow-IFvMOQI(androidx.ui.graphics.Shape shape, float elevation, boolean clipToOutline = true, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
     method public static androidx.ui.core.Modifier drawShadow-xWKVMPI(androidx.ui.core.Modifier, float elevation, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, boolean clipToOutline = elevation > 0.dp, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
