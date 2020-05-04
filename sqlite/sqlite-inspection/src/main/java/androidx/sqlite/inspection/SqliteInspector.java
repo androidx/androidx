@@ -174,14 +174,18 @@ final class SqliteInspector extends Inspector {
     public void onReceiveCommand(@NonNull byte[] data, @NonNull CommandCallback callback) {
         try {
             Command command = Command.parseFrom(data);
-            if (command.hasTrackDatabases()) {
+            switch (command.getOneOfCase()) {
+                case TRACK_DATABASES:
                 handleTrackDatabases(callback);
-            } else if (command.hasGetSchema()) {
+                    break;
+                case GET_SCHEMA:
                 handleGetSchema(command.getGetSchema(), callback);
-            } else if (command.hasQuery()) {
+                    break;
+                case QUERY:
                 handleQuery(command.getQuery(), callback);
-            } else {
-                callback.reply(
+                    break;
+                default:
+                    callback.reply(
                         createErrorOccurredResponse(
                                 "Unrecognised command type: " + command.getOneOfCase().name(),
                                 null,
