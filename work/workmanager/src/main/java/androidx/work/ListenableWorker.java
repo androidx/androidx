@@ -288,7 +288,7 @@ public abstract class ListenableWorker {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public final boolean isRunInForeground() {
+    public boolean isRunInForeground() {
         return mRunInForeground;
     }
 
