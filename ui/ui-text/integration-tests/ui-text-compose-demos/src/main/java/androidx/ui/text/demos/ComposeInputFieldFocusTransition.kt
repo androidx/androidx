@@ -18,39 +18,37 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.FocusManagerAmbient
-import androidx.ui.core.input.FocusNode
+import androidx.ui.focus.FocusModifier
 import androidx.ui.foundation.TextField
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.input.ImeAction
 import androidx.ui.layout.Column
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.sp
 
-val FOCUS_NODES = List(6) { FocusNode() }
-
 @Composable
 fun TextFieldFocusTransition() {
+    val focusModifiers = List(6) { FocusModifier() }
+
     VerticalScroller {
         Column {
-            TextFieldWithFocusId(0, 1)
-            TextFieldWithFocusId(1, 2)
-            TextFieldWithFocusId(2, 3)
-            TextFieldWithFocusId(3, 4)
-            TextFieldWithFocusId(4, 5)
-            TextFieldWithFocusId(5, 0)
+            TextFieldWithFocusId(focusModifiers[0], focusModifiers[1])
+            TextFieldWithFocusId(focusModifiers[1], focusModifiers[2])
+            TextFieldWithFocusId(focusModifiers[2], focusModifiers[3])
+            TextFieldWithFocusId(focusModifiers[3], focusModifiers[4])
+            TextFieldWithFocusId(focusModifiers[4], focusModifiers[5])
+            TextFieldWithFocusId(focusModifiers[5], focusModifiers[0])
         }
     }
 }
 
 @Composable
-private fun TextFieldWithFocusId(focusID: Int, nextFocus: Int) {
-    val focusManager = FocusManagerAmbient.current
+private fun TextFieldWithFocusId(focusModifier: FocusModifier, nextFocusModifier: FocusModifier) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) {
-        TextFieldValue("Focus ID: $focusID")
+        TextFieldValue("Focus Transition Test")
     }
     val focused = state { false }
     val color = if (focused.value) {
@@ -60,6 +58,7 @@ private fun TextFieldWithFocusId(focusID: Int, nextFocus: Int) {
     }
     TextField(
         value = state.value,
+        modifier = focusModifier,
         textColor = color,
         textStyle = TextStyle(fontSize = 32.sp),
         onValueChange = {
@@ -67,10 +66,9 @@ private fun TextFieldWithFocusId(focusID: Int, nextFocus: Int) {
         },
         onFocusChange = { focused.value = it },
         imeAction = ImeAction.Next,
-        focusNode = FOCUS_NODES[focusID],
         onImeActionPerformed = {
             if (it == ImeAction.Next)
-                focusManager.requestFocus(FOCUS_NODES[nextFocus])
+                nextFocusModifier.requestFocus()
         }
     )
 }

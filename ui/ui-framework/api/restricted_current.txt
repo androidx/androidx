@@ -99,7 +99,7 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<android.content.res.Configuration> getConfigurationAmbient();
     method public static androidx.compose.ProvidableAmbient<android.content.Context> getContextAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.unit.Density> getDensityAmbient();
-    method public static androidx.compose.ProvidableAmbient<androidx.ui.core.input.FocusManager> getFocusManagerAmbient();
+    method @Deprecated public static androidx.compose.ProvidableAmbient<androidx.ui.core.input.FocusManager> getFocusManagerAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.ui.core.hapticfeedback.HapticFeedback> getHapticFeedBackAmbient();
     method @Deprecated public static androidx.compose.ProvidableAmbient<androidx.ui.core.LayoutDirection> getLayoutDirectionAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.lifecycle.LifecycleOwner> getLifecycleOwnerAmbient();
