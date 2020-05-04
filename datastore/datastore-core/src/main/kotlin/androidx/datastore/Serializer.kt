@@ -44,6 +44,11 @@ interface Serializer<T> {
      * not yet exist on disk.
      */
     val defaultValue: T
+
+    /**
+     * The extension required for files that this serializer can act on.
+     */
+    val fileExtension: String
 }
 
 /**

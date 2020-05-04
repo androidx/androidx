@@ -94,6 +94,15 @@ constructor(
 
     private val SCRATCH_SUFFIX = ".tmp"
 
+    private val file: File by lazy {
+        val file = produceFile()
+        check(file.extension == serializer.fileExtension) {
+            "File extension for file: $file does not match required extension for" +
+                    " serializer: ${serializer.fileExtension}"
+        }
+        file
+    }
+
     /**
      * The external facing channel. The data flow emits the values from this channel.
      *
@@ -238,8 +247,6 @@ constructor(
     }
 
     private suspend fun readData(): T {
-        // TODO(b/151635324): consider caching produceFile result.
-        val file = produceFile()
         try {
             FileInputStream(file).use { stream ->
                 return serializer.readFrom(stream)
@@ -274,8 +281,6 @@ constructor(
     }
 
     private fun writeData(newData: T) {
-        // TODO(b/151635324): consider caching produceFile result.
-        val file = produceFile()
         file.createParentDirectories()
 
         val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
