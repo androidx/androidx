@@ -23,14 +23,13 @@ import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.core.input.FocusManager
-import androidx.ui.core.input.FocusNode
-import androidx.ui.core.input.FocusTransitionObserver
 import androidx.ui.core.onPositioned
+import androidx.ui.focus.FocusModifier
+import androidx.ui.focus.FocusState
+import androidx.ui.focus.focusState
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.input.CommitTextEditOp
@@ -82,18 +81,19 @@ class TextFieldTest {
 
     @Test
     fun textField_focusInSemantics() {
-        val focusManager = mock<FocusManager>()
         val inputService = mock<TextInputService>()
+
+        lateinit var focusModifier: FocusModifier
         composeTestRule.setContent {
             val state = state { TextFieldValue("") }
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides inputService
             ) {
+                focusModifier = FocusModifier()
                 TestTag(tag = "textField") {
                     TextField(
                         value = state.value,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize() + focusModifier,
                         onValueChange = { state.value = it }
                     )
                 }
@@ -103,7 +103,7 @@ class TextFieldTest {
         findByTag("textField").doClick()
 
         runOnIdleCompose {
-            verify(focusManager, times(1)).requestFocus(any())
+            assertThat(focusModifier.focusState).isEqualTo(FocusState.Focused)
         }
     }
 
@@ -119,26 +119,8 @@ class TextFieldTest {
         )
     }
 
-    /**
-     * Fake class for giving input focus when requestFocus is called.
-     */
-    class FakeFocusManager : FocusManager {
-        var observer: FocusTransitionObserver? = null
-
-        override fun registerObserver(node: FocusNode, observer: FocusTransitionObserver) {
-            this.observer = observer
-        }
-
-        override fun requestFocus(client: FocusNode) {
-            observer?.invoke(null, client)
-        }
-
-        override fun blur(client: FocusNode) {}
-    }
-
     @Test
     fun textField_commitTexts() {
-        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
@@ -147,7 +129,6 @@ class TextFieldTest {
 
         composeTestRule.setContent {
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {
@@ -156,9 +137,7 @@ class TextFieldTest {
             }
         }
 
-        // Perform click to focus in.
-        findByTag("textField")
-            .doClick()
+        findByTag("textField").doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -216,7 +195,6 @@ class TextFieldTest {
 
     @Test
     fun textField_commitTexts_state_may_not_set() {
-        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
@@ -225,7 +203,6 @@ class TextFieldTest {
 
         composeTestRule.setContent {
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {
@@ -234,9 +211,7 @@ class TextFieldTest {
             }
         }
 
-        // Perform click to focus in.
-        findByTag("textField")
-            .doClick()
+        findByTag("textField").doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -281,7 +256,6 @@ class TextFieldTest {
 
     @Test
     fun textField_onTextLayoutCallback() {
-        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
@@ -291,7 +265,6 @@ class TextFieldTest {
         val onTextLayout: (TextLayoutResult) -> Unit = mock()
         composeTestRule.setContent {
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {
@@ -308,9 +281,7 @@ class TextFieldTest {
             }
         }
 
-        // Perform click to focus in.
-        findByTag("textField")
-            .doClick()
+        findByTag("textField").doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {

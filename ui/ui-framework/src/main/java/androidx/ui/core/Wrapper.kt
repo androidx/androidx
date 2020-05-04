@@ -427,6 +427,7 @@ val LayoutDirectionAmbient = ambientOf<LayoutDirection>()
 /**
  * The ambient to provide focus manager.
  */
+@Deprecated("Use FocusModifier instead.")
 val FocusManagerAmbient = ambientOf<FocusManager>()
 
 /**

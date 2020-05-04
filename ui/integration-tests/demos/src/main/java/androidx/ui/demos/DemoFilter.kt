@@ -20,10 +20,9 @@ import androidx.compose.Composable
 import androidx.compose.key
 import androidx.compose.onCommit
 import androidx.ui.core.Alignment
-import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.input.FocusNode
 import androidx.ui.demos.common.Demo
+import androidx.ui.focus.FocusModifier
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
@@ -106,18 +105,16 @@ private fun FilterField(
     onFilter: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val focusNode = FocusNode()
-    val manager = FocusManagerAmbient.current
-    onCommit(manager) {
-        manager.requestFocus(focusNode)
-    }
+    val focusModifier = FocusModifier()
     // TODO: replace with Material text field when available
     TextField(
-        modifier = modifier,
+        modifier = modifier + focusModifier,
         value = filterText,
-        focusNode = focusNode,
         onValueChange = onFilter
     )
+    onCommit {
+        focusModifier.requestFocus()
+    }
 }
 
 /**

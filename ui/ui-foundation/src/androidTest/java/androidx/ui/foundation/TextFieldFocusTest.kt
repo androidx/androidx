@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.ui.text
+package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.Providers
 import androidx.compose.state
+import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
-import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.core.input.FocusManager
-import androidx.ui.core.input.FocusNode
+import androidx.ui.focus.FocusModifier
 import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService
+import androidx.ui.layout.width
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
+import androidx.ui.text.CoreTextField
+import androidx.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -46,64 +48,60 @@ class TextFieldFocusTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    data class FocusTestData(val id: FocusNode = FocusNode(), var focused: Boolean = false)
-
     @Composable
     private fun TextFieldApp(dataList: List<FocusTestData>) {
         for (data in dataList) {
             val editor = state { EditorValue() }
             CoreTextField(
                 value = editor.value,
-                modifier = Modifier,
+                modifier = Modifier.width(10.dp) + data.id,
                 onValueChange = {
                     editor.value = it
                 },
-                focusNode = data.id,
-                onFocusChange = { data.focused = it }
+                onFocusChange = {
+                    data.focused = it
+                }
             )
         }
     }
 
+    data class FocusTestData(val id: FocusModifier, var focused: Boolean = false)
+
     @Test
+    @UiThreadTest
     fun requestFocus() {
-        val inputSessionToken = 10
-        val textInputService = mock<TextInputService>()
-        whenever(textInputService.startInput(any(), any(), any(), any(), any()))
-            .thenReturn(inputSessionToken)
+        lateinit var testDataList: List<FocusTestData>
 
-        val testDataList = listOf(
-            FocusTestData(),
-            FocusTestData(),
-            FocusTestData()
-        )
+        runOnUiThread {
+            composeTestRule.setContent {
+                testDataList = listOf(
+                    FocusTestData(FocusModifier()),
+                    FocusTestData(FocusModifier()),
+                    FocusTestData(FocusModifier())
+                )
 
-        lateinit var focusManager: FocusManager
-        composeTestRule.setContent {
-            Providers(
-                TextInputServiceAmbient provides textInputService
-            ) {
-                focusManager = FocusManagerAmbient.current
                 TestTag(tag = "textField") {
                     TextFieldApp(testDataList)
                 }
             }
         }
 
-        runOnUiThread { focusManager.requestFocus(testDataList[0].id) }
+        runOnIdleCompose { testDataList[0].id.requestFocus() }
+
         runOnIdleCompose {
             assertThat(testDataList[0].focused).isTrue()
             assertThat(testDataList[1].focused).isFalse()
             assertThat(testDataList[2].focused).isFalse()
         }
 
-        runOnUiThread { focusManager.requestFocus(testDataList[1].id) }
+        runOnIdleCompose { testDataList[1].id.requestFocus() }
         runOnIdleCompose {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isTrue()
             assertThat(testDataList[2].focused).isFalse()
         }
 
-        runOnUiThread { focusManager.requestFocus(testDataList[2].id) }
+        runOnIdleCompose { testDataList[2].id.requestFocus() }
         runOnIdleCompose {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isFalse()

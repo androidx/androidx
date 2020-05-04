@@ -19,7 +19,6 @@ package androidx.ui.layout.test
 import androidx.test.filters.SmallTest
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.core.input.FocusNode
 import androidx.ui.input.EditorValue
 import androidx.ui.layout.rtl
 import androidx.ui.text.AnnotatedString
@@ -40,7 +39,6 @@ class TextLayoutDirectionModifierTest : LayoutTest() {
 
     @Test
     fun test_CoreTextField_RtlModifier_changesDirectionTo_Rtl() {
-        val focusNode = FocusNode()
         val latch = CountDownLatch(1)
         var layoutDirection: LayoutDirection? = null
 
@@ -49,7 +47,6 @@ class TextLayoutDirectionModifierTest : LayoutTest() {
                 value = EditorValue("..."),
                 modifier = Modifier.rtl,
                 onValueChange = {},
-                focusNode = focusNode,
                 onTextLayout = { result ->
                     layoutDirection = result.layoutInput.layoutDirection
                     latch.countDown()
