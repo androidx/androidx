@@ -91,6 +91,7 @@ public class WebViewFeature {
             FORCE_DARK,
             FORCE_DARK_STRATEGY,
             WEB_MESSAGE_LISTENER,
+            DOCUMENT_START_SCRIPT,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -425,6 +426,17 @@ public class WebViewFeature {
      * WebViewCompat#removeWebMessageListener(android.webkit.WebView, String)}.
      */
     public static final String WEB_MESSAGE_LISTENER = "WEB_MESSAGE_LISTENER";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebViewCompat#addDocumentStartJavascript(android.webkit.WebView,
+     * String, Set)}.
+     *
+     * TODO(ctzsm): unhide when ready.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String DOCUMENT_START_SCRIPT = "DOCUMENT_START_SCRIPT";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link
