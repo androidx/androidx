@@ -157,11 +157,11 @@ class LinearLayoutManagerFindZeroPxReferenceChildTest(
         internal override fun findReferenceChild(
             recycler: RecyclerView.Recycler?,
             state: RecyclerView.State?,
-            start: Int,
-            end: Int,
-            itemCount: Int
+            layoutFromEnd: Boolean,
+            traverseChildrenInReverseOrder: Boolean
         ): View {
-            val referenceChild = super.findReferenceChild(recycler, state, start, end, itemCount)
+            val referenceChild = super
+                .findReferenceChild(recycler, state, layoutFromEnd, traverseChildrenInReverseOrder)
             recordedReferenceChildren.add(getPosition(referenceChild))
             return referenceChild
         }
