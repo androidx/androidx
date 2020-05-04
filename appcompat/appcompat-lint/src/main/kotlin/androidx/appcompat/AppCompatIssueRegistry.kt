@@ -16,6 +16,7 @@
 
 package androidx.appcompat
 
+import androidx.appcompat.app.SetActionBarDetector
 import androidx.appcompat.res.ColorStateListAlphaDetector
 import androidx.appcompat.res.ColorStateListLoadingDetector
 import androidx.appcompat.res.DrawableLoadingDetector
@@ -31,6 +32,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
 class AppCompatIssueRegistry : IssueRegistry() {
     override val api = CURRENT_API
     override val issues get() = listOf(
+        SetActionBarDetector.USING_CORE_ACTION_BAR,
         ColorStateListAlphaDetector.NOT_USING_ANDROID_ALPHA,
         ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING,
         DrawableLoadingDetector.NOT_USING_COMPAT_LOADING,

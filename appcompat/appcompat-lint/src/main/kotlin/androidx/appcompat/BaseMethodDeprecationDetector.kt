@@ -20,6 +20,7 @@ import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
 
@@ -75,6 +76,17 @@ abstract class BaseMethodDeprecationDetector(
             method: PsiMethod
         ): Boolean {
             return context.mainProject.minSdkVersion.featureLevel < sdkLevel
+        }
+    }
+
+    class SubClassOf(private val superClass: String) : Predicate {
+        override fun matches(
+            context: JavaContext,
+            node: UCallExpression,
+            method: PsiMethod
+        ): Boolean {
+            return context.evaluator.extendsClass(
+                (node.receiverType as? PsiClassType)?.resolve(), superClass, false)
         }
     }
 

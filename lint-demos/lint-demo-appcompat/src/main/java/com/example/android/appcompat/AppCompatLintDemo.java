@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -66,5 +67,10 @@ public class AppCompatLintDemo extends AppCompatActivity {
         // The following usage of the core Switch widget should be flagged by our Lint rule
         Switch mySwitch = new Switch(this);
         mySwitch.setChecked(true);
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            // The following call should be flagged since we're extending AppCompatActivity
+            setActionBar(new Toolbar(this));
+        }
     }
 }
