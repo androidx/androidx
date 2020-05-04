@@ -417,13 +417,25 @@ public class GridLayoutManager extends LinearLayoutManager {
 
     @Override
     View findReferenceChild(RecyclerView.Recycler recycler, RecyclerView.State state,
-                            int start, int end, int itemCount) {
+            boolean layoutFromEnd, boolean traverseChildrenInReverseOrder) {
+
+        int start = 0;
+        int end = getChildCount();
+        int diff = 1;
+        if (traverseChildrenInReverseOrder) {
+            start = getChildCount() - 1;
+            end = -1;
+            diff = -1;
+        }
+
+        int itemCount = state.getItemCount();
+
         ensureLayoutState();
         View invalidMatch = null;
         View outOfBoundsMatch = null;
+
         final int boundsStart = mOrientationHelper.getStartAfterPadding();
         final int boundsEnd = mOrientationHelper.getEndAfterPadding();
-        final int diff = end > start ? 1 : -1;
 
         for (int i = start; i != end; i += diff) {
             final View view = getChildAt(i);
