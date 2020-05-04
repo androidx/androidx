@@ -16,7 +16,9 @@
 
 package androidx.ui.material
 
+import android.os.Build
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
@@ -364,6 +366,7 @@ class ScaffoldTest {
         assertThat(fabPosition.y).isEqualTo(expectedFabY)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun scaffold_topAppBarIsDrawnOnTopOfContent() {
         composeTestRule.setContent {
