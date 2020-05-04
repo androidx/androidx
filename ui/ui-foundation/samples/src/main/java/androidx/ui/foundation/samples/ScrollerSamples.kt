@@ -20,7 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.MutableState
 import androidx.compose.state
-import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
@@ -35,7 +34,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
-import androidx.ui.layout.Table
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.text.TextStyle
@@ -145,8 +143,8 @@ private fun Square(index: Int) {
 
 @Composable
 private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<Boolean>) {
-    Table(3, alignment = { Alignment.Center }) {
-        tableRow {
+    Column {
+        Row {
             Text("Scroll")
             SquareButton("< -", Color.Red) {
                 position.scrollTo(position.value - 1000)
@@ -155,7 +153,7 @@ private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<B
                 position.scrollBy(10000f)
             }
         }
-        tableRow {
+        Row {
             Text("Smooth Scroll")
             SquareButton("< -", Color.Red) {
                 position.smoothScrollTo(position.value - 1000)
@@ -164,13 +162,10 @@ private fun ScrollControl(position: ScrollerPosition, scrollable: MutableState<B
                 position.smoothScrollBy(10000f)
             }
         }
-        tableRow {
+        Row {
             SquareButton("Scroll: ${scrollable.value}") {
                 scrollable.value = !scrollable.value
             }
-            // empty dummy boxes to fill the table
-            Box()
-            Box()
         }
     }
 }
