@@ -144,6 +144,11 @@ package androidx.ui.foundation {
     property public final boolean isAnimating;
     property public final float maxPosition;
     property public final float value;
+    field public static final androidx.ui.foundation.ScrollerPosition.Companion! Companion;
+  }
+
+  public static final class ScrollerPosition.Companion {
+    method public androidx.ui.savedinstancestate.Saver<androidx.ui.foundation.ScrollerPosition,?> Saver(androidx.ui.foundation.animation.FlingConfig flingConfig, androidx.animation.AnimationClockObservable animationClock);
   }
 
   public final class Strings {
