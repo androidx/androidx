@@ -182,6 +182,11 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
         }
     }
 
+    @Override
+    public boolean isRunInForeground() {
+        return mDelegate != null && mDelegate.isRunInForeground();
+    }
+
     /**
      * @return The instance of {@link WorkDatabase}
      * @hide
