@@ -31,7 +31,6 @@ import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteStatement;
 import android.os.CancellationSignal;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.inspection.Connection;
@@ -40,6 +39,7 @@ import androidx.inspection.InspectorEnvironment;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Column;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseClosedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabaseOpenedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabasePossiblyChangedEvent;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent;
@@ -49,6 +49,8 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorRecoverability;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaResponse;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.KeepDatabasesOpenCommand;
+import androidx.sqlite.inspection.SqliteInspectorProtocol.KeepDatabasesOpenResponse;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryCommand;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryParameterValue;
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryResponse;
@@ -64,11 +66,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
@@ -96,17 +96,14 @@ final class SqliteInspector extends Inspector {
             + ")"
             + "Landroid/database/sqlite/SQLiteDatabase;";
 
+    private static final String sAllReferencesReleaseCommandSignature =
+            "onAllReferencesReleased()V";
+
     // SQLiteStatement methods
     private static final List<String> sSqliteStatementExecuteMethodsSignatures = Arrays.asList(
             "execute()V",
             "executeInsert()J",
             "executeUpdateDelete()I");
-
-    private static final String sInMemoryDatabasePath = ":memory:";
-
-    /** Placeholder {@code %x} is for database's hashcode */
-    private static final String sInMemoryDatabaseNameFormat =
-            sInMemoryDatabasePath + " {hashcode=0x%x}";
 
     private static final int INVALIDATION_MIN_INTERVAL_MS = 1000;
 
@@ -148,7 +145,7 @@ final class SqliteInspector extends Inspector {
     private static final Set<String> sHiddenTables = new HashSet<>(Arrays.asList(
             "android_metadata", "sqlite_sequence"));
 
-    private final DatabaseRegistry mDatabaseRegistry = new DatabaseRegistry();
+    private final DatabaseRegistry mDatabaseRegistry;
     private final InspectorEnvironment mEnvironment;
     private final Executor mIOExecutor;
     private final ScheduledExecutorService mScheduledExecutor;
@@ -168,6 +165,20 @@ final class SqliteInspector extends Inspector {
         mScheduledExecutor = scheduledExecutor;
         mRoomInvalidationRegistry = new RoomInvalidationRegistry(mEnvironment);
         mSqlDelightInvalidation = SqlDelightInvalidation.create(mEnvironment);
+
+        mDatabaseRegistry = new DatabaseRegistry(
+                new DatabaseRegistry.Callback() {
+                    @Override
+                    public void onPostEvent(int databaseId, String path) {
+                        dispatchDatabaseOpenedEvent(databaseId, path);
+                    }
+                },
+                new DatabaseRegistry.Callback() {
+                    @Override
+                    public void onPostEvent(int databaseId, String path) {
+                        dispatchDatabaseClosedEvent(databaseId);
+                    }
+                });
     }
 
     @Override
@@ -183,6 +194,9 @@ final class SqliteInspector extends Inspector {
                     break;
                 case QUERY:
                 handleQuery(command.getQuery(), callback);
+                    break;
+                case KEEP_DATABASES_OPEN:
+                    handleKeepDatabasesOpen(command.getKeepDatabasesOpen(), callback);
                     break;
                 default:
                     callback.reply(
@@ -220,7 +234,7 @@ final class SqliteInspector extends Inspector {
                         @Override
                         public SQLiteDatabase onExit(SQLiteDatabase database) {
                             try {
-                                onDatabaseAdded(database);
+                                onDatabaseOpened(database);
                             } catch (Exception exception) {
                                 getConnection().sendEvent(createErrorOccurredEvent(
                                         "Unhandled Exception while processing an onDatabaseAdded "
@@ -234,15 +248,36 @@ final class SqliteInspector extends Inspector {
                     });
         }
 
-        registerInvalidationHooks();
+        EntryExitMatchingHookRegistry hookRegistry = new EntryExitMatchingHookRegistry(
+                mEnvironment);
+
+        registerInvalidationHooks(hookRegistry);
+        registerDatabaseClosedHooks(hookRegistry);
 
         List<SQLiteDatabase> instances = mEnvironment.findInstances(SQLiteDatabase.class);
         for (SQLiteDatabase instance : instances) {
-            onDatabaseAdded(instance);
+            onDatabaseOpened(instance);
         }
     }
 
-    private void registerInvalidationHooks() {
+    /**
+     * Tracking potential database closed events via {@link #sAllReferencesReleaseCommandSignature}
+     */
+    private void registerDatabaseClosedHooks(EntryExitMatchingHookRegistry hookRegistry) {
+        hookRegistry.registerHook(SQLiteDatabase.class, sAllReferencesReleaseCommandSignature,
+                new EntryExitMatchingHookRegistry.OnExitCallback() {
+                    @Override
+                    public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
+                        final Object thisObject = exitFrame.mThisObject;
+                        if (thisObject instanceof SQLiteDatabase) {
+                            mDatabaseRegistry.notifyAllDatabaseReferencesReleased(
+                                    (SQLiteDatabase) thisObject);
+                        }
+                    }
+                });
+    }
+
+    private void registerInvalidationHooks(EntryExitMatchingHookRegistry hookRegistry) {
         /**
          * Schedules a task using {@link mScheduledExecutor} and executes it on {@link mIOExecutor}.
          **/
@@ -264,13 +299,12 @@ final class SqliteInspector extends Inspector {
                 new Runnable() {
                     @Override
                     public void run() {
-                        // TODO: wrap in a try/catch block
-                        sendDatabasePossiblyChangedEvent();
+                        dispatchDatabasePossiblyChangedEvent();
                     }
                 }, deferredExecutor);
 
         registerInvalidationHooksSqliteStatement(throttler);
-        registerInvalidationHooksSQLiteCursor(throttler);
+        registerInvalidationHooksSQLiteCursor(throttler, hookRegistry);
     }
 
     /**
@@ -302,9 +336,8 @@ final class SqliteInspector extends Inspector {
      * In order to access cursor's query, we also use {@link SQLiteDatabase#rawQueryWithFactory}
      * which takes a query String and constructs a cursor based on it.
      */
-    private void registerInvalidationHooksSQLiteCursor(final RequestCollapsingThrottler throttler) {
-        EntryExitMatchingHookRegistry hookRegistry = new EntryExitMatchingHookRegistry(
-                mEnvironment);
+    private void registerInvalidationHooksSQLiteCursor(final RequestCollapsingThrottler throttler,
+            EntryExitMatchingHookRegistry hookRegistry) {
 
         // TODO: add active pruning via Cursor#close listener
         final Map<SQLiteCursor, Void> trackedCursors = Collections.synchronizedMap(
@@ -347,9 +380,26 @@ final class SqliteInspector extends Inspector {
         }
     }
 
-    private void sendDatabasePossiblyChangedEvent() {
+    private void dispatchDatabaseOpenedEvent(int databaseId, String path) {
+        getConnection().sendEvent(Event.newBuilder().setDatabaseOpened(
+                DatabaseOpenedEvent
+                        .newBuilder()
+                        .setDatabaseId(databaseId)
+                        .setName(path)
+                        .setPath(path)
+        ).build().toByteArray());
+    }
+
+    private void dispatchDatabaseClosedEvent(int databaseId) {
+        getConnection().sendEvent(Event.newBuilder().setDatabaseClosed(
+                DatabaseClosedEvent.newBuilder().setDatabaseId(databaseId)
+        ).build().toByteArray());
+    }
+
+    private void dispatchDatabasePossiblyChangedEvent() {
         getConnection().sendEvent(Event.newBuilder().setDatabasePossiblyChanged(
-                DatabasePossiblyChangedEvent.getDefaultInstance()).build().toByteArray());
+                DatabasePossiblyChangedEvent.getDefaultInstance()
+        ).build().toByteArray());
     }
 
     private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
@@ -405,6 +455,16 @@ final class SqliteInspector extends Inspector {
             mSqlDelightInvalidation.triggerInvalidations();
             mRoomInvalidationRegistry.triggerInvalidations();
         }
+    }
+
+    private void handleKeepDatabasesOpen(KeepDatabasesOpenCommand keepDatabasesOpen,
+            CommandCallback callback) {
+        // Acknowledge the command
+        callback.reply(Response.newBuilder().setKeepDatabasesOpen(
+                KeepDatabasesOpenResponse.getDefaultInstance()
+        ).build().toByteArray());
+
+        mDatabaseRegistry.notifyKeepOpenToggle(keepDatabasesOpen.getSetEnabled());
     }
 
     @SuppressLint("Recycle") // For: "The cursor should be freed up after use with #close"
@@ -565,39 +625,10 @@ final class SqliteInspector extends Inspector {
         }
     }
 
-    @SuppressWarnings("WeakerAccess")
-        // avoiding a synthetic accessor
-    void onDatabaseAdded(SQLiteDatabase database) {
-        Event response;
-        int id = mDatabaseRegistry.addDatabase(database);
-        if (id == DatabaseRegistry.ALREADY_TRACKED) return; // Nothing to do
-
-        // TODO: replace with db open/closed tracking as this will keep the database open
-        database.acquireReference();
-
-        response = createDatabaseOpenedEvent(id, generateDatabaseName(database));
+    @SuppressWarnings("WeakerAccess") // avoiding a synthetic accessor
+    void onDatabaseOpened(SQLiteDatabase database) {
         mRoomInvalidationRegistry.invalidateCache();
-        getConnection().sendEvent(response.toByteArray());
-    }
-
-    private static String generateDatabaseName(@NonNull SQLiteDatabase database) {
-        return isInMemoryDatabase(database)
-                ? String.format(sInMemoryDatabaseNameFormat, database.hashCode())
-                : database.getPath();
-    }
-
-    private static boolean isInMemoryDatabase(@NonNull SQLiteDatabase database) {
-        return Objects.equals(sInMemoryDatabasePath, database.getPath());
-    }
-
-    private Event createDatabaseOpenedEvent(int id, String path) {
-        return Event.newBuilder().setDatabaseOpened(
-                DatabaseOpenedEvent.newBuilder()
-                        .setDatabaseId(id)
-                        .setName(path)
-                        .setPath(path)
-                        .build())
-                .build();
+        mDatabaseRegistry.notifyDatabaseOpened(database);
     }
 
     private Event createErrorOccurredEvent(@Nullable String message, @Nullable String stackTrace,
@@ -650,53 +681,5 @@ final class SqliteInspector extends Inspector {
         StringWriter writer = new StringWriter();
         exception.printStackTrace(new PrintWriter(writer));
         return writer.toString();
-    }
-
-    static class DatabaseRegistry {
-        static final int ALREADY_TRACKED = -1;
-
-        private final Object mLock = new Object();
-
-        // starting from '1' to distinguish from '0' which could stand for an unset parameter
-        @GuardedBy("mLock") private int mNextId = 1;
-
-        @GuardedBy("mLock") private final Map<Integer, SQLiteDatabase> mDatabases = new HashMap<>();
-
-        /**
-         * Thread safe
-         *
-         * @return id used to track the database
-         */
-        int addDatabase(@NonNull SQLiteDatabase database) {
-            synchronized (mLock) {
-                // TODO: decide if to track database close events and update here
-                // TODO: decide if use weak-references to database objects
-                // TODO: consider database.acquireReference() approach
-
-                // check if already tracked
-                for (Map.Entry<Integer, SQLiteDatabase> entry : mDatabases.entrySet()) {
-                    // Instance already tracked
-                    if (entry.getValue() == database) {
-                        return ALREADY_TRACKED;
-                    }
-                    // Path already tracked (and not an in-memory database)
-                    if (!isInMemoryDatabase(database)
-                            && Objects.equals(database.getPath(), entry.getValue().getPath())) {
-                        return ALREADY_TRACKED;
-                    }
-                }
-
-                // make a new entry
-                int id = mNextId++;
-                mDatabases.put(id, database);
-                return id;
-            }
-        }
-
-        @Nullable SQLiteDatabase getDatabase(int databaseId) {
-            synchronized (mLock) {
-                return mDatabases.get(databaseId);
-            }
-        }
     }
 }
