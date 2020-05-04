@@ -546,7 +546,8 @@ public final class CameraView extends FrameLayout {
                 mDownEventTimestamp = System.currentTimeMillis();
                 break;
             case MotionEvent.ACTION_UP:
-                if (delta() < ViewConfiguration.getLongPressTimeout()) {
+                if (delta() < ViewConfiguration.getLongPressTimeout()
+                        && mCameraModule.isBoundToLifecycle()) {
                     mUpEvent = event;
                     performClick();
                 }
