@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.contentaccess
+package androidx.contentaccess.compiler.vo
 
-import kotlin.reflect.KClass
+import javax.lang.model.element.VariableElement
+import javax.lang.model.type.TypeMirror
 
-/**
- * Represents an object that will be used for accessing and interacting with a content provider.
- *
- * @property contentEntity The content entity to associate the access object with.
- */
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS)
-annotation class ContentAccessObject(val contentEntity: KClass<*> = Void::class)
+data class ContentQueryVO(
+    val name: String,
+    val toQueryFor: List<ContentColumnVO>,
+    val selection: SelectionVO?,
+    // TODO(obenabde): support runtime specified uris
+    val uri: String,
+    val returnType: TypeMirror,
+    val parameters: List<VariableElement>
+)

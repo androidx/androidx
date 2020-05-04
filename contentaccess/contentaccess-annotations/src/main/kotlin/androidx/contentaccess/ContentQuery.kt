@@ -16,13 +16,19 @@
  */
 package androidx.contentaccess
 
+import kotlin.reflect.KClass
+
 /**
  * Annotates a method that accesses a content provider.
  *
- * @property query The entity fields to query (e.g arrayOf("column1", "column2")),
- * if empty then queries the whole content entity.
+ * @property query optional single field to query, otherwise queried fields are inferred from
+ * return type. If this is specified and but the return type is a POJO, then that will result in
+ * an error.
  *
  * @property selection The matching conditions, if empty applies to all (e.g "column1 = :value").
+ *
+ * @property orderBy The entity fields to query (e.g arrayOf("column1", "column2")),
+ * if empty then queries the whole content entity.
  *
  * @property uri The string representation of the uri to query, if empty then uses the entity's uri,
  * if existing.
@@ -30,7 +36,9 @@ package androidx.contentaccess
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
 annotation class ContentQuery(
-    val query: Array<String>,
-    val selection: String,
-    val uri: String
+    val query: String = "",
+    val selection: String = "",
+    val orderBy: Array<String> = arrayOf(),
+    val uri: String = "",
+    val contentEntity: KClass<*> = Void::class
 )

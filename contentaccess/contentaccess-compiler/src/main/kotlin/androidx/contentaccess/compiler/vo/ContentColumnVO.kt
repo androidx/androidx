@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.contentaccess
+package androidx.contentaccess.compiler.vo
 
-import kotlin.reflect.KClass
+import javax.lang.model.type.TypeMirror
 
-/**
- * Represents an object that will be used for accessing and interacting with a content provider.
- *
- * @property contentEntity The content entity to associate the access object with.
- */
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS)
-annotation class ContentAccessObject(val contentEntity: KClass<*> = Void::class)
+// Represents a column in a content provider
+data class ContentColumnVO(
+    val name: String,
+    val type: TypeMirror,
+    val columnName: String = name
+)
