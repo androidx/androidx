@@ -77,7 +77,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
     /**
      * Params for a load request on a [PagingSource] from [PagingSource.load].
      */
-    sealed class LoadParams<Key : Any>(
+    sealed class LoadParams<Key : Any> constructor(
         /**
          * Requested number of items to load.
          *
@@ -94,14 +94,19 @@ abstract class PagingSource<Key : Any, Value : Any> {
         /**
          * From [PagingConfig.pageSize], the configured page size.
          */
-        val pageSize: Int
+        @Deprecated(
+            message = "PagingConfig.pageSize will be removed in future versions, use " +
+                    "PagingConfig.loadSize instead.",
+            replaceWith = ReplaceWith("loadSize")
+        )
+        val pageSize: Int = loadSize
     ) {
         /**
          * Key for the page to be loaded.
          */
         abstract val key: Key?
 
-        class Refresh<Key : Any>(
+        class Refresh<Key : Any> @JvmOverloads constructor(
             /**
              * Key for the page to be loaded.
              *
@@ -127,14 +132,14 @@ abstract class PagingSource<Key : Any, Value : Any> {
             /**
              * From [PagingConfig.pageSize], the configured page size.
              */
-            pageSize: Int
+            pageSize: Int = loadSize
         ) : LoadParams<Key>(
             loadSize = loadSize,
             placeholdersEnabled = placeholdersEnabled,
             pageSize = pageSize
         )
 
-        class Append<Key : Any>(
+        class Append<Key : Any> @JvmOverloads constructor(
             /**
              * Key for the page to be loaded.
              */
@@ -155,14 +160,14 @@ abstract class PagingSource<Key : Any, Value : Any> {
             /**
              * From [PagingConfig.pageSize], the configured page size.
              */
-            pageSize: Int
+            pageSize: Int = loadSize
         ) : LoadParams<Key>(
             loadSize = loadSize,
             placeholdersEnabled = placeholdersEnabled,
             pageSize = pageSize
         )
 
-        class Prepend<Key : Any>(
+        class Prepend<Key : Any> @JvmOverloads constructor(
             /**
              * Key for the page to be loaded.
              */
@@ -183,7 +188,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
             /**
              * From [PagingConfig.pageSize], the configured page size.
              */
-            pageSize: Int
+            pageSize: Int = loadSize
         ) : LoadParams<Key>(
             loadSize = loadSize,
             placeholdersEnabled = placeholdersEnabled,

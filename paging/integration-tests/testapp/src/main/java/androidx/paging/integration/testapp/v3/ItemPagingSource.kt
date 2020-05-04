@@ -46,7 +46,7 @@ internal class ItemPagingSource : PagingSource<Int, Item>() {
                     loadSize = params.loadSize
                 )
             is LoadParams.Prepend -> {
-                val loadSize = minOf(params.key, params.pageSize)
+                val loadSize = minOf(params.key, params.loadSize)
                 loadInternal(
                     position = params.key - loadSize,
                     loadSize = loadSize
