@@ -29,6 +29,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -282,7 +283,7 @@ public class TextureViewImplementationTest {
     @NonNull
     private SurfaceRequest getSurfaceRequest() {
         if (mSurfaceRequest == null) {
-            mSurfaceRequest = new SurfaceRequest(ANY_SIZE);
+            mSurfaceRequest = new SurfaceRequest(ANY_SIZE, new FakeCameraInfoInternal());
         }
 
         return mSurfaceRequest;

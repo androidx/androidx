@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 import android.Manifest;
 import android.content.Context;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -39,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceRequest;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.view.test.R;
 import androidx.test.annotation.UiThreadTest;
@@ -48,6 +50,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,16 +71,20 @@ public class PreviewViewTest {
     public final ActivityTestRule<FakeActivity> mActivityRule = new ActivityTestRule<>(
             FakeActivity.class);
     private final Context mContext = ApplicationProvider.getApplicationContext();
+    private SurfaceRequest mSurfaceRequest;
 
-    @Test
-    @UiThreadTest
-    public void usesTextureView_whenCameraInfoNull() {
-        final PreviewView previewView = new PreviewView(mContext);
-        setContentView(previewView);
-        previewView.setPreferredImplementationMode(SURFACE_VIEW);
-        previewView.createSurfaceProvider(null);
+    private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
+        return new SurfaceRequest(new Size(640, 480), cameraInfo);
+    }
 
-        assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
+    @After
+    public void tearDown() {
+        if (mSurfaceRequest != null) {
+            mSurfaceRequest.willNotProvideSurface();
+            // Ensure all successful requests have their returned future finish.
+            mSurfaceRequest.getDeferrableSurface().close();
+            mSurfaceRequest = null;
+        }
     }
 
     @Test
@@ -90,7 +97,9 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
         previewView.setPreferredImplementationMode(SURFACE_VIEW);
-        previewView.createSurfaceProvider(cameraInfo);
+        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        mSurfaceRequest = createSurfaceRequest(cameraInfo);
+        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
     }
@@ -105,7 +114,9 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
         previewView.setPreferredImplementationMode(SURFACE_VIEW);
-        previewView.createSurfaceProvider(cameraInfo);
+        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        mSurfaceRequest = createSurfaceRequest(cameraInfo);
+        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
         assertThat(previewView.mImplementation).isInstanceOf(SurfaceViewImplementation.class);
     }
@@ -120,7 +131,9 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
         previewView.setPreferredImplementationMode(TEXTURE_VIEW);
-        previewView.createSurfaceProvider(cameraInfo);
+        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        mSurfaceRequest = createSurfaceRequest(cameraInfo);
+        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
     }

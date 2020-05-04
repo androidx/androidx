@@ -228,7 +228,7 @@ final class CameraXModule {
         mPreviewBuilder.setTargetResolution(new Size(getMeasuredWidth(), height));
 
         mPreview = mPreviewBuilder.build();
-        mPreview.setSurfaceProvider(mCameraView.getPreviewView().createSurfaceProvider(null));
+        mPreview.setSurfaceProvider(mCameraView.getPreviewView().createSurfaceProvider());
 
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(mCameraLensFacing).build();

@@ -159,22 +159,23 @@ public class PreviewView extends FrameLayout {
      * determined by the {@linkplain #setPreferredImplementationMode(ImplementationMode)
      * preferred implementation mode} and the device's capabilities.
      *
-     * @param cameraInfo The {@link CameraInfo} of the camera that will use the
-     *                   {@link android.view.Surface} provided by the returned
-     *                   {@link Preview.SurfaceProvider}.
      * @return A {@link Preview.SurfaceProvider} used to start the camera preview.
      */
     @NonNull
     @UiThread
-    public Preview.SurfaceProvider createSurfaceProvider(@Nullable CameraInfo cameraInfo) {
+    public Preview.SurfaceProvider createSurfaceProvider() {
         Threads.checkMainThread();
         removeAllViews();
 
-        final ImplementationMode actualImplementationMode = computeImplementationMode(cameraInfo,
-                mPreferredImplementationMode);
-        mImplementation = computeImplementation(actualImplementationMode);
-        mImplementation.init(this, mPreviewTransform);
-        return mImplementation.getSurfaceProvider();
+        return surfaceRequest -> {
+            CameraInfo cameraInfo = surfaceRequest.getCameraInfo();
+            final ImplementationMode actualImplementationMode =
+                    computeImplementationMode(cameraInfo, mPreferredImplementationMode);
+            mImplementation = computeImplementation(actualImplementationMode);
+            mImplementation.init(this, mPreviewTransform);
+
+            mImplementation.getSurfaceProvider().onSurfaceRequested(surfaceRequest);
+        };
     }
 
     /**

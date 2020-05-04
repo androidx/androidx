@@ -28,6 +28,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
@@ -187,7 +188,7 @@ public final class SurfaceRequestTest {
     }
 
     private SurfaceRequest createNewRequest(@NonNull Size size) {
-        SurfaceRequest request = new SurfaceRequest(size);
+        SurfaceRequest request = new SurfaceRequest(size, new FakeCameraInfoInternal());
         mSurfaceRequests.add(request);
         return request;
     }
