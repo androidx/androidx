@@ -1399,13 +1399,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
             int requestCode, @Nullable Bundle options) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
-        mHost.onStartActivityFromFragment(this /*fragment*/, intent, requestCode, options);
+        getParentFragmentManager().launchStartActivityForResult(this /*fragment*/, intent,
+                requestCode, options);
     }
 
     /**
@@ -1431,7 +1433,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * passing in a {@link StartIntentSenderForResult} object for the
      * {@link ActivityResultContract}.
      */
-    @SuppressWarnings("deprecation")
     @Deprecated
     public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
@@ -1439,8 +1440,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
-        mHost.onStartIntentSenderFromFragment(this, intent, requestCode, fillInIntent, flagsMask,
-                flagsValues, extraFlags, options);
+        getParentFragmentManager().launchStartIntentSenderForResult(this, intent, requestCode,
+                fillInIntent, flagsMask, flagsValues, extraFlags, options);
     }
 
     /**
@@ -1546,13 +1547,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
      * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
-    @SuppressWarnings("deprecation")
     @Deprecated
     public final void requestPermissions(@NonNull String[] permissions, int requestCode) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
-        mHost.onRequestPermissionsFromFragment(this, permissions, requestCode);
+        getParentFragmentManager().launchRequestPermissions(this, permissions, requestCode);
     }
 
     /**

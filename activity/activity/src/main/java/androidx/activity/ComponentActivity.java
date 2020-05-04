@@ -23,6 +23,7 @@ import static androidx.activity.result.contract.ActivityResultContracts.RequestM
 import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions.EXTRA_PERMISSIONS;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions.EXTRA_PERMISSION_GRANT_RESULTS;
 import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
+import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult.EXTRA_ACTIVITY_OPTIONS_BUNDLE;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION;
@@ -195,8 +196,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             } else {
                 // startActivityForResult path
-                ActivityCompat.startActivityForResult(activity, intent, requestCode,
-                        options != null ? options.toBundle() : null);
+                Bundle optionsBundle = null;
+                if (intent.hasExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE)) {
+                    optionsBundle = intent.getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
+                } else if (options != null) {
+                    optionsBundle = options.toBundle();
+                }
+                ActivityCompat.startActivityForResult(activity, intent, requestCode, optionsBundle);
             }
         }
     };

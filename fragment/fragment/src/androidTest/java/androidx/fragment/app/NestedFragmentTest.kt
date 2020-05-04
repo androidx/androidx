@@ -22,7 +22,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.app.test.FragmentTestActivity.ParentFragment
-import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -59,12 +58,33 @@ class NestedFragmentTest {
         assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
     }
 
-    @UiThreadTest
-    @Test(expected = IllegalArgumentException::class)
-    fun testThrowsWhenUsingReservedRequestCode() {
-        parentFragment.childFragment.startActivityForResult(
-            Intent(Intent.ACTION_CALL), 16777216 /* requestCode */
+    @Test
+    fun testUsingUpper16BitRequestCode() {
+        val activityResult = Instrumentation.ActivityResult(Activity.RESULT_OK, Intent())
+
+        val activityMonitor = instrumentation.addMonitor(
+            IntentFilter(Intent.ACTION_CALL), activityResult, true /* block */
         )
+
+        // Sanity check that onActivityResult hasn't been called yet.
+        assertThat(parentFragment.childFragment.onActivityResultCalled).isFalse()
+
+        val latch = CountDownLatch(1)
+        activityRule.runOnUiThread {
+            parentFragment.childFragment.startActivityForResult(
+                Intent(Intent.ACTION_CALL),
+                16777216 /* requestCode */
+            )
+            latch.countDown()
+        }
+        assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
+
+        assertThat(instrumentation.checkMonitorHit(activityMonitor, 1)).isTrue()
+
+        val childFragment = parentFragment.childFragment
+        assertThat(childFragment.onActivityResultCalled).isTrue()
+        assertThat(childFragment.onActivityResultRequestCode).isEqualTo(16777216)
+        assertThat(childFragment.onActivityResultResultCode).isEqualTo(Activity.RESULT_OK)
     }
 
     @Test

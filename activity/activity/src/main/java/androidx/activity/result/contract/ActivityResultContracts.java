@@ -41,6 +41,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -66,6 +67,18 @@ public final class ActivityResultContracts {
      */
     public static final class StartActivityForResult
             extends ActivityResultContract<Intent, ActivityResult> {
+
+        /**
+         * Key for the extra containing a {@link android.os.Bundle} generated from
+         * {@link androidx.core.app.ActivityOptionsCompat#toBundle()} or
+         * {@link android.app.ActivityOptions#toBundle()}.
+         *
+         * This will override any {@link ActivityOptionsCompat} passed to
+         * {@link androidx.activity.result.ActivityResultLauncher#launch(Object,
+         ActivityOptionsCompat)}
+         */
+        public static final String EXTRA_ACTIVITY_OPTIONS_BUNDLE = "androidx.activity.result"
+                + ".contract.extra.ACTIVITY_OPTIONS_BUNDLE";
 
         @NonNull
         @Override
