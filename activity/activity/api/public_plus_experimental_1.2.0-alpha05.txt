@@ -202,11 +202,11 @@ package androidx.activity.result.contract {
     field public static final String EXTRA_SEND_INTENT_EXCEPTION = "androidx.activity.result.contract.extra.SEND_INTENT_EXCEPTION";
   }
 
-  public static class ActivityResultContracts.TakePicture extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,android.graphics.Bitmap> {
+  public static class ActivityResultContracts.TakePicture extends androidx.activity.result.contract.ActivityResultContract<android.net.Uri,java.lang.Boolean> {
     ctor public ActivityResultContracts.TakePicture();
     method @CallSuper public android.content.Intent createIntent(android.content.Context, android.net.Uri);
-    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.graphics.Bitmap!>? getSynchronousResult(android.content.Context, android.net.Uri);
-    method public final android.graphics.Bitmap? parseResult(int, android.content.Intent?);
+    method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.lang.Boolean!>? getSynchronousResult(android.content.Context, android.net.Uri);
+    method public final Boolean parseResult(int, android.content.Intent?);
   }
 
   public static class ActivityResultContracts.TakePicturePreview extends androidx.activity.result.contract.ActivityResultContract<java.lang.Void,android.graphics.Bitmap> {

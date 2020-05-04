@@ -35,7 +35,10 @@ import androidx.activity.registerForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
+import androidx.core.content.FileProvider
+import java.io.File
 
 class MainActivity : ComponentActivity() {
 
@@ -44,8 +47,12 @@ class MainActivity : ComponentActivity() {
         toast("Location granted: $isGranted")
     }
 
-    val takePicture = registerForActivityResult(TakePicturePreview()) { bitmap ->
+    val takePicturePreview = registerForActivityResult(TakePicturePreview()) { bitmap ->
         toast("Got picture: $bitmap")
+    }
+
+    val takePicture = registerForActivityResult(TakePicture()) { success ->
+        toast("Got picture: $success")
     }
 
     val getContent = registerForActivityResult(GetContent()) { uri ->
@@ -70,8 +77,13 @@ class MainActivity : ComponentActivity() {
                 button("Request location permission") {
                     requestLocation()
                 }
+                button("Get picture thumbnail") {
+                    takePicturePreview()
+                }
                 button("Take pic") {
-                    takePicture()
+                    val file = File(filesDir, "image")
+                    val uri = FileProvider.getUriForFile(this@MainActivity, packageName, file)
+                    takePicture(uri)
                 }
                 button("Pick an image") {
                     getContent("image/*")
