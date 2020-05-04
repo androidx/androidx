@@ -21,6 +21,8 @@ import androidx.sqlite.inspection.SqliteInspectorProtocol.CellValue.OneOfCase
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.GetSchemaResponse
+import androidx.sqlite.inspection.SqliteInspectorProtocol.KeepDatabasesOpenCommand
+import androidx.sqlite.inspection.SqliteInspectorProtocol.KeepDatabasesOpenResponse
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryCommand
 import androidx.sqlite.inspection.SqliteInspectorProtocol.QueryParameterValue
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
@@ -48,6 +50,16 @@ object MessageFactory {
 
     fun createTrackDatabasesResponse(): Response =
         Response.newBuilder().setTrackDatabases(TrackDatabasesResponse.getDefaultInstance()).build()
+
+    fun createKeepDatabasesOpenCommand(setEnabled: Boolean): Command =
+        Command.newBuilder().setKeepDatabasesOpen(
+            KeepDatabasesOpenCommand.newBuilder().setSetEnabled(setEnabled)
+        ).build()
+
+    fun createKeepDatabasesOpenResponse(): Response =
+        Response.newBuilder().setKeepDatabasesOpen(
+            KeepDatabasesOpenResponse.getDefaultInstance()
+        ).build()
 
     fun createGetSchemaCommand(databaseId: Int): Command =
         Command.newBuilder().setGetSchema(

@@ -19,6 +19,9 @@ package androidx.sqlite.inspection.test
 import android.database.sqlite.SQLiteDatabase
 import androidx.inspection.InspectorEnvironment.ExitHook
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
+import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
+import androidx.sqlite.inspection.test.MessageFactory.createKeepDatabasesOpenCommand
+import androidx.sqlite.inspection.test.MessageFactory.createKeepDatabasesOpenResponse
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesCommand
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesResponse
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -43,6 +46,8 @@ private const val CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE = "createInMemory"
         "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
         ")" +
         "Landroid/database/sqlite/SQLiteDatabase;"
+
+private const val ALL_REFERENCES_RELEASED_COMMAND_SIGNATURE = "onAllReferencesReleased()V"
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -153,27 +158,134 @@ class TrackDatabasesTest {
     }
 
     @Test
-    fun test_track_databases_keeps_db_open() = runBlocking {
+    fun test_track_databases_keep_db_open_toggle() = runBlocking {
         // given
-        testEnvironment.sendCommand(createTrackDatabasesCommand())
-        val onOpenHook = testEnvironment.consumeRegisteredHooks()
-            .first { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE }
-
-        @Suppress("UNCHECKED_CAST")
-        val onOpen = (onOpenHook.asExitHook as ExitHook<SQLiteDatabase>)::onExit
+        val hooks = startTracking()
 
         // without inspecting
-        val dbNoInspecting = Database("dbNoInspecting").createInstance(temporaryFolder)
-        dbNoInspecting.close()
-        assertThat(dbNoInspecting.isOpen).isFalse()
-
-        // with inspecting
-        listOf("db2", null).forEach { name ->
-            val dbWithInspecting = Database(name).createInstance(temporaryFolder)
-            onOpen(dbWithInspecting) // start inspecting
-            dbWithInspecting.close()
-            assertThat(dbWithInspecting.isOpen).isTrue()
+        Database("db1").createInstance(temporaryFolder).let { db ->
+            db.close()
+            assertClosed(db)
         }
+
+        // with inspecting (initially keepOpen = false)
+        assertNoQueuedEvents()
+        listOf("db2", null).forEach { path ->
+            openDatabase(path, hooks).let { db ->
+                val id = receiveOpenedEventId(db)
+                closeDatabase(db, hooks)
+                receiveClosedEvent(id)
+                assertClosed(db)
+            }
+        }
+        assertNoQueuedEvents()
+
+        // toggle keepOpen = true
+        issueKeepDatabasesOpenCommand(true)
+        assertNoQueuedEvents()
+
+        // with inspecting (now keepOpen = true)
+        val dbs = listOf("db3", null).map { path ->
+            val db = openDatabase(path, hooks)
+            val id = receiveOpenedEventId(db)
+            id to db
+        }
+        dbs.forEach { (_, db) ->
+            closeDatabase(db, hooks)
+            assertOpen(db) // keep-open has worked
+        }
+        assertNoQueuedEvents()
+
+        // toggle keepOpen = false
+        issueKeepDatabasesOpenCommand(false)
+        assertNoQueuedEvents()
+        dbs.forEach { (id, db) ->
+            assertClosed(db)
+            hooks.triggerOnAllReferencesReleased(db)
+            receiveClosedEvent(id)
+        }
+        assertNoQueuedEvents()
+
+        // keepOpen = true with some of the same databases as before (they are not revived)
+        issueKeepDatabasesOpenCommand(true)
+        dbs.forEach { (_, db) ->
+            assertClosed(db)
+        }
+        assertNoQueuedEvents()
+
+        // keepOpen = false with a database with more than one reference
+        issueKeepDatabasesOpenCommand(false)
+        openDatabase("db4", hooks).let { db ->
+            db.acquireReference() // extra reference
+
+            closeDatabase(db, hooks)
+            assertOpen(db)
+
+            closeDatabase(db, hooks)
+            assertClosed(db)
+        }
+    }
+
+    @Test
+    fun test_on_closed_notification() = runBlocking {
+        // given
+        val hooks = startTracking()
+
+        // simple flow
+        assertNoQueuedEvents()
+        openDatabase("db1", hooks).let { db ->
+            val id = receiveOpenedEventId(db)
+            closeDatabase(db, hooks)
+            receiveClosedEvent(id)
+            assertClosed(db)
+            assertNoQueuedEvents()
+        }
+
+        // test that doesn't fire on each db.closed()
+        assertNoQueuedEvents()
+        openDatabase("db2", hooks).let { db ->
+            val id = receiveOpenedEventId(db)
+
+            db.acquireReference() // extra reference
+
+            // pass 1
+            closeDatabase(db, hooks)
+            assertOpen(db)
+            assertNoQueuedEvents()
+
+            // pass 2
+            closeDatabase(db, hooks)
+            assertClosed(db)
+            receiveClosedEvent(id)
+            assertNoQueuedEvents()
+        }
+    }
+
+    @Test
+    fun test_on_closed_and_reopened() = runBlocking {
+        // given
+        val hooks = startTracking()
+
+        // simple flow
+        val databaseName = "db1"
+
+        assertNoQueuedEvents()
+        var id: Int
+        openDatabase(databaseName, hooks).let { db ->
+            id = receiveOpenedEventId(db)
+            closeDatabase(db, hooks)
+            receiveClosedEvent(id)
+            assertClosed(db)
+        }
+        testEnvironment.assertNoQueuedEvents()
+
+        openDatabase(databaseName, hooks).let { db ->
+            assertThat(receiveOpenedEventId(db)).isEqualTo(id)
+            closeDatabase(db, hooks)
+            receiveClosedEvent(id)
+            assertClosed(db)
+        }
+        testEnvironment.assertNoQueuedEvents()
     }
 
     @Test
@@ -194,5 +306,92 @@ class TrackDatabasesTest {
         // then
         assertThat(queryTableCount(db1)).isEqualTo(2)
         assertThat(queryTableCount(db2)).isEqualTo(1)
+    }
+
+    @Test
+    fun test_three_references_edge_ones_closed() = runBlocking {
+        val hooks = startTracking()
+
+        val db1a = openDatabase("path1", hooks)
+        val id1a = receiveOpenedEventId(db1a)
+
+        val db1b = openDatabase("path1", hooks)
+        assertNoQueuedEvents()
+
+        val db1c = openDatabase("path1", hooks)
+        assertNoQueuedEvents()
+
+        closeDatabase(db1a, hooks)
+        assertNoQueuedEvents()
+
+        closeDatabase(db1c, hooks)
+        assertNoQueuedEvents()
+
+        closeDatabase(db1b, hooks)
+        receiveClosedEvent(id1a)
+    }
+
+    private fun assertNoQueuedEvents() {
+        testEnvironment.assertNoQueuedEvents()
+    }
+
+    private suspend fun startTracking(): List<Hook> {
+        testEnvironment.sendCommand(createTrackDatabasesCommand())
+        return testEnvironment.consumeRegisteredHooks()
+    }
+
+    private fun openDatabase(path: String?, hooks: List<Hook>): SQLiteDatabase =
+        Database(path).createInstance(temporaryFolder).also { hooks.triggerOnOpened(it) }
+
+    private fun closeDatabase(database: SQLiteDatabase, hooks: List<Hook>) {
+        database.close()
+        if (!database.isOpen) {
+            hooks.triggerOnAllReferencesReleased(database)
+        }
+    }
+
+    private suspend fun issueKeepDatabasesOpenCommand(setEnabled: Boolean) {
+        testEnvironment.sendCommand(createKeepDatabasesOpenCommand(setEnabled)).let { response ->
+            assertThat(response.oneOfCase).isEqualTo(Response.OneOfCase.KEEP_DATABASES_OPEN)
+            assertThat(response).isEqualTo(createKeepDatabasesOpenResponse())
+        }
+    }
+
+    private suspend fun receiveOpenedEventId(database: SQLiteDatabase): Int =
+        testEnvironment.receiveEvent().let {
+            assertThat(it.oneOfCase).isEqualTo(Event.OneOfCase.DATABASE_OPENED)
+            assertThat(it.databaseOpened.path).isEqualTo(database.displayName)
+            it.databaseOpened.databaseId
+        }
+
+    private suspend fun receiveClosedEvent(id: Int) =
+        testEnvironment.receiveEvent().let {
+            assertThat(it.oneOfCase).isEqualTo(Event.OneOfCase.DATABASE_CLOSED)
+            assertThat(it.databaseClosed.databaseId).isEqualTo(id)
+        }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun List<Hook>.triggerOnOpened(db: SQLiteDatabase) {
+        val onOpen = filter { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE }
+        assertThat(onOpen).hasSize(1)
+        (onOpen.first().asExitHook as ExitHook<SQLiteDatabase>).onExit(db)
+    }
+
+    private fun List<Hook>.triggerOnAllReferencesReleased(db: SQLiteDatabase) {
+        val onReleasedHooks =
+            this.filter { it.originMethod == ALL_REFERENCES_RELEASED_COMMAND_SIGNATURE }
+        assertThat(onReleasedHooks).hasSize(2)
+        val onReleasedEntry = (onReleasedHooks.first { it is Hook.EntryHook }.asEntryHook)::onEntry
+        val onReleasedExit = (onReleasedHooks.first { it is Hook.ExitHook }.asExitHook)::onExit
+        onReleasedEntry(db, emptyList())
+        onReleasedExit(null)
+    }
+
+    private fun assertOpen(db: SQLiteDatabase) {
+        assertThat(db.isOpen).isTrue()
+    }
+
+    private fun assertClosed(db: SQLiteDatabase) {
+        assertThat(db.isOpen).isFalse()
     }
 }
