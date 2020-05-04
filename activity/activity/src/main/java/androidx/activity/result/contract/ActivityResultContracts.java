@@ -295,12 +295,12 @@ public final class ActivityResultContracts {
      * {@link MediaStore#ACTION_IMAGE_CAPTURE take a picture} saving it into the provided
      * content-{@link Uri}.
      * <p>
-     * May return a thumbnail of the photo in the result Intent if the camera provides one.
+     * Returns {@code true} if the image was saved into the given {@link Uri}.
      * <p>
      * This can be extended to override {@link #createIntent} if you wish to pass additional
      * extras to the Intent created by {@code super.createIntent()}.
      */
-    public static class TakePicture extends ActivityResultContract<Uri, Bitmap> {
+    public static class TakePicture extends ActivityResultContract<Uri, Boolean> {
 
         @CallSuper
         @NonNull
@@ -312,16 +312,15 @@ public final class ActivityResultContracts {
 
         @Nullable
         @Override
-        public final SynchronousResult<Bitmap> getSynchronousResult(@NonNull Context context,
+        public final SynchronousResult<Boolean> getSynchronousResult(@NonNull Context context,
                 @NonNull Uri input) {
             return null;
         }
 
-        @Nullable
+        @NonNull
         @Override
-        public final Bitmap parseResult(int resultCode, @Nullable Intent intent) {
-            if (intent == null || resultCode != Activity.RESULT_OK) return null;
-            return intent.getParcelableExtra("data");
+        public final Boolean parseResult(int resultCode, @Nullable Intent intent) {
+            return resultCode == Activity.RESULT_OK;
         }
     }
 
