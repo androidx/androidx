@@ -642,9 +642,9 @@ public class DialogFragment extends Fragment
                 // with setting up the dialog if mShowsDialog is still true
                 if (mShowsDialog) {
                     setupDialog(mDialog, mStyle);
-                    final Activity activity = getActivity();
-                    if (activity != null) {
-                        mDialog.setOwnerActivity(activity);
+                    final Context context = getContext();
+                    if (context instanceof Activity) {
+                        mDialog.setOwnerActivity((Activity) context);
                     }
                     mDialog.setCancelable(mCancelable);
                     mDialog.setOnCancelListener(mOnCancelListener);
