@@ -16,19 +16,31 @@
 
 package androidx.ui.material
 
+import androidx.compose.Providers
+import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.TestTag
+import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.RectangleShape
+import androidx.ui.input.ImeAction
+import androidx.ui.input.KeyboardType
+import androidx.ui.input.PasswordVisualTransformation
+import androidx.ui.input.TextInputService
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
+import androidx.ui.test.assertShape
+import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.doGesture
@@ -36,7 +48,6 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.sendClick
 import androidx.ui.text.FirstBaseline
-import androidx.ui.text.TextStyle
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
@@ -45,6 +56,11 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -582,6 +598,66 @@ class FilledTextFieldTest {
                 }
             )
         }
+    }
+
+    @Test
+    fun testImeActionAndKeyboardTypePropagatedDownstream() {
+        val textInputService = mock<TextInputService>()
+        testRule.setContent {
+            Providers(
+                TextInputServiceAmbient provides textInputService
+            ) {
+                TestTag("textField") {
+                    var text = state { TextFieldValue("") }
+                    FilledTextField(
+                        value = text.value,
+                        onValueChange = { text.value = it },
+                        label = {},
+                        imeAction = ImeAction.Go,
+                        keyboardType = KeyboardType.Email
+                    )
+                }
+            }
+        }
+
+        clickAndAdvanceClock("textField", 200)
+
+        runOnIdleCompose {
+            verify(textInputService, atLeastOnce()).startInput(
+                initModel = any(),
+                keyboardType = eq(KeyboardType.Email),
+                imeAction = eq(ImeAction.Go),
+                onEditCommand = any(),
+                onImeActionPerformed = any()
+            )
+        }
+    }
+
+    @Test
+    fun testVisualTransformationPropagated() {
+        testRule.setMaterialContent {
+            TestTag("textField") {
+                FilledTextField(
+                    value = "qwerty",
+                    onValueChange = {},
+                    label = {},
+                    visualTransformation = PasswordVisualTransformation('\u0020'),
+                    backgroundColor = Color.White,
+                    shape = RectangleShape
+                )
+            }
+        }
+
+        findByTag("textField")
+            .captureToBitmap()
+            .assertShape(
+                density = testRule.density,
+                backgroundColor = Color.White,
+                shapeColor = Color.White,
+                shape = RectangleShape,
+                // avoid elevation artifacts
+                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx() }
+            )
     }
 
     private fun clickAndAdvanceClock(tag: String, time: Long) {

@@ -49,7 +49,7 @@ import androidx.ui.material.samples.FilledTextFieldSample
 import androidx.ui.material.samples.FilledTextFieldWithErrorState
 import androidx.ui.material.samples.FilledTextFieldWithIcons
 import androidx.ui.material.samples.FilledTextFieldWithPlaceholder
-import androidx.ui.material.samples.SimpleFilledTextFieldSample
+import androidx.ui.material.samples.PasswordFilledTextField
 import androidx.ui.material.samples.TextFieldWithHelperMessage
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.unit.IntPx
@@ -64,8 +64,8 @@ fun TextFieldsDemo() {
         modifier = Modifier.fillMaxHeight().padding(10.dp),
         verticalArrangement = arrangeWithSpacer(space)
     ) {
-        Text("Simple text field")
-        SimpleFilledTextFieldSample()
+        Text("Password text field")
+        PasswordFilledTextField()
         Text("Text field with leading and trailing icons")
         FilledTextFieldWithIcons()
         Text("Text field with placeholder")
