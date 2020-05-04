@@ -22,6 +22,7 @@ import static android.util.TypedValue.COMPLEX_UNIT_SP;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,9 +71,13 @@ public final class TestUtils {
         Assert.assertEquals(pixelSize, textView.getTextSize(), 0.001);
     }
 
+    /**
+     * Copied from {@link TypedValue#complexToDimensionPixelSize(int, DisplayMetrics)}.
+     */
     private static int dpToPixel(Context context, float dp) {
-        return (int) TypedValue.applyDimension(COMPLEX_UNIT_DIP, dp,
+        float f = TypedValue.applyDimension(COMPLEX_UNIT_DIP, dp,
                 context.getResources().getDisplayMetrics());
+        return (int) ((f >= 0) ? (f + 0.5f) : (f - 0.5f));
     }
 
     private TestUtils() {
