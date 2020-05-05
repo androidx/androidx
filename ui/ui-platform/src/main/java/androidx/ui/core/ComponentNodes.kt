@@ -558,6 +558,11 @@ class LayoutNode : ComponentNode(), Measurable {
         private set
 
     /**
+     * `true` while doing [calculateAlignmentLines]
+     */
+    private var isCalculatingAlignmentLines = false
+
+    /**
      * `true` when the current node is positioned during the measure pass,
      * since it needs to compute alignment lines.
      */
@@ -579,7 +584,7 @@ class LayoutNode : ComponentNode(), Measurable {
      */
     var needsRelayout = false
         internal set(value) {
-            require(!isMeasuring)
+            require(!isMeasuring || isCalculatingAlignmentLines)
             require(!isLayingOut)
             field = value
         }
@@ -984,6 +989,7 @@ class LayoutNode : ComponentNode(), Measurable {
     }
 
     internal fun calculateAlignmentLines(): Map<AlignmentLine, IntPx> {
+        isCalculatingAlignmentLines = true
         alignmentLinesRead = true
         alignmentLinesQueryOwner = this
         alignmentLinesQueriedSinceLastLayout = true
@@ -991,6 +997,7 @@ class LayoutNode : ComponentNode(), Measurable {
             needsRelayout = true
             layout()
         }
+        isCalculatingAlignmentLines = false
         return alignmentLines
     }
 

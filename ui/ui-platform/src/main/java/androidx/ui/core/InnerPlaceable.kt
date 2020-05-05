@@ -110,8 +110,16 @@ internal class InnerPlaceable(
     }
 
     override fun place(position: IntPxPosition) {
-        layoutNode.isPlaced = true
         this.position = position
+
+        // The wrapper only runs their placement block to obtain our position, which allows them
+        // to calculate the offset of an alignment line we have already provided a position for.
+        // No need to place our wrapped as well (we might have actually done this already in
+        // get(line), to obtain the position of the alignment line the wrapper currently needs
+        // our position in order ot know how to offset the value we provided).
+        if (wrappedBy?.isShallowPlacing == true) return
+
+        layoutNode.isPlaced = true
         layoutNode.layout()
     }
 
