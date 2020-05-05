@@ -24,6 +24,8 @@ package androidx.ui.test {
 
   public final class AssertionsKt {
     method public static androidx.ui.test.SemanticsNodeInteraction assert(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.test.SemanticsMatcher matcher);
+    method public static androidx.ui.test.SemanticsNodeInteractionCollection assertAll(androidx.ui.test.SemanticsNodeInteractionCollection, androidx.ui.test.SemanticsMatcher matcher);
+    method public static androidx.ui.test.SemanticsNodeInteractionCollection assertAny(androidx.ui.test.SemanticsNodeInteractionCollection, androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection assertCountEquals(androidx.ui.test.SemanticsNodeInteractionCollection, int expectedSize);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasClickAction(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction assertHasNoClickAction(androidx.ui.test.SemanticsNodeInteraction);
@@ -235,7 +237,10 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction child(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction childAt(androidx.ui.test.SemanticsNodeInteraction, int index);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection children(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteractionCollection filter(androidx.ui.test.SemanticsNodeInteractionCollection, androidx.ui.test.SemanticsMatcher matcher);
+    method public static androidx.ui.test.SemanticsNodeInteraction filterToOne(androidx.ui.test.SemanticsNodeInteractionCollection, androidx.ui.test.SemanticsMatcher matcher);
     method public static androidx.ui.test.SemanticsNodeInteraction first(androidx.ui.test.SemanticsNodeInteractionCollection);
+    method public static androidx.ui.test.SemanticsNodeInteraction last(androidx.ui.test.SemanticsNodeInteractionCollection);
     method public static androidx.ui.test.SemanticsNodeInteraction parent(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteraction sibling(androidx.ui.test.SemanticsNodeInteraction);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection siblings(androidx.ui.test.SemanticsNodeInteraction);
