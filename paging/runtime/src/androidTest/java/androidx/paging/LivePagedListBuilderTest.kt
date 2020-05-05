@@ -103,6 +103,7 @@ class LivePagedListBuilderTest {
             }
 
             private fun loadInitial(params: LoadParams<Int>): LoadResult<Int, String> {
+                @Suppress("DEPRECATION")
                 assertEquals(2, params.pageSize)
 
                 throwable?.let { error ->
