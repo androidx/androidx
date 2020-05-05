@@ -177,11 +177,24 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     .AccessibilityActionCompat.ACTION_CLICK
             )
         }
+
+        var rangeInfo =
+            semanticsNode.config.getOrNull(SemanticsProperties.AccessibilityRangeInfo)
+        if (rangeInfo != null) {
+            info.rangeInfo = AccessibilityNodeInfoCompat.RangeInfoCompat.obtain(
+                AccessibilityNodeInfoCompat.RangeInfoCompat.RANGE_TYPE_FLOAT,
+                rangeInfo.current,
+                rangeInfo.range.start, rangeInfo.range.endInclusive
+            )
+        }
+
         if (semanticsNode.config.contains(CustomActions)) {
             var customActions = semanticsNode.config[CustomActions]
             if (customActions.size >= AccessibilityActionsResourceIds.size) {
-                throw IllegalStateException("Can't have more than " +
-                        "${AccessibilityActionsResourceIds.size} custom actions for one widget")
+                throw IllegalStateException(
+                    "Can't have more than " +
+                            "${AccessibilityActionsResourceIds.size} custom actions for one widget"
+                )
             }
             var currentActionIdToLabel = SparseArrayCompat<CharSequence>()
             var currentLabelToActionId = mutableMapOf<CharSequence, Int>()
@@ -199,8 +212,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         currentActionIdToLabel.put(actionId!!, action.label)
                         currentLabelToActionId[action.label] = actionId
                         availableIds.remove(actionId)
-                        info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                            actionId, action.label))
+                        info.addAction(
+                            AccessibilityNodeInfoCompat.AccessibilityActionCompat(
+                                actionId, action.label
+                            )
+                        )
                     } else {
                         unassignedActions.add(action)
                     }
@@ -209,16 +225,22 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     var actionId = availableIds[index]
                     currentActionIdToLabel.put(actionId, action.label)
                     currentLabelToActionId[action.label] = actionId
-                    info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                        actionId, action.label))
+                    info.addAction(
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat(
+                            actionId, action.label
+                        )
+                    )
                 }
             } else {
                 for ((index, action) in customActions.withIndex()) {
                     var actionId = AccessibilityActionsResourceIds[index]
                     currentActionIdToLabel.put(actionId, action.label)
                     currentLabelToActionId[action.label] = actionId
-                    info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                        actionId, action.label))
+                    info.addAction(
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat(
+                            actionId, action.label
+                        )
+                    )
                 }
             }
             actionIdToLabel.put(virtualViewId, currentActionIdToLabel)

@@ -140,14 +140,18 @@ package androidx.ui.foundation {
 
   public final class Strings {
     method public String getChecked();
+    method public String getInProgress();
     method public String getIndeterminate();
     method public String getNotSelected();
     method public String getSelected();
+    method public String getTemplatePercent();
     method public String getUnchecked();
     property public final String Checked;
+    property public final String InProgress;
     property public final String Indeterminate;
     property public final String NotSelected;
     property public final String Selected;
+    property public final String TemplatePercent;
     property public final String Unchecked;
     field public static final androidx.ui.foundation.Strings! INSTANCE;
   }
