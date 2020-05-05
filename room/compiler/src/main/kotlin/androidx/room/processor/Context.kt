@@ -16,8 +16,11 @@
 
 package androidx.room.processor
 
+import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.ext.hasAnnotation
 import androidx.room.log.RLog
 import androidx.room.parser.expansion.ProjectionExpander
+import androidx.room.parser.optimization.RemoveUnusedColumnQueryRewriter
 import androidx.room.preconditions.Checks
 import androidx.room.processor.cache.Cache
 import androidx.room.solver.TypeAdapterStore
@@ -34,7 +37,8 @@ class Context private constructor(
     val logger: RLog,
     private val typeConverters: CustomConverterProcessor.ProcessResult,
     private val inheritedAdapterStore: TypeAdapterStore?,
-    val cache: Cache
+    val cache: Cache,
+    private val canRewriteQueriesToDropUnusedColumns: Boolean
 ) {
     val checker: Checks = Checks(logger)
     val COMMON_TYPES: Context.CommonTypes = Context.CommonTypes(processingEnv)
@@ -50,9 +54,23 @@ class Context private constructor(
     // set when database and its entities are processed.
     var databaseVerifier: DatabaseVerifier? = null
         private set
-    // set when database and its entities are processed.
-    var queryRewriter: QueryRewriter? = null
-        private set
+
+    val queryRewriter: QueryRewriter by lazy {
+        val verifier = databaseVerifier
+        if (verifier == null) {
+            QueryRewriter.NoOpRewriter
+        } else {
+            if (canRewriteQueriesToDropUnusedColumns) {
+                RemoveUnusedColumnQueryRewriter
+            } else if (BooleanProcessorOptions.EXPAND_PROJECTION.getValue(processingEnv)) {
+                ProjectionExpander(
+                    tables = verifier.entitiesAndViews
+                )
+            } else {
+                QueryRewriter.NoOpRewriter
+            }
+        }
+    }
 
     companion object {
         val ARG_OPTIONS by lazy {
@@ -66,13 +84,6 @@ class Context private constructor(
             "database verifier is already set"
         }
         this.databaseVerifier = databaseVerifier
-        queryRewriter = if (BooleanProcessorOptions.EXPAND_PROJECTION.getValue(processingEnv)) {
-            ProjectionExpander(
-                tables = databaseVerifier.entitiesAndViews
-            )
-        } else {
-            QueryRewriter.NoOpRewriter
-        }
     }
 
     constructor(processingEnv: ProcessingEnvironment) : this(
@@ -80,7 +91,8 @@ class Context private constructor(
             logger = RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null),
             typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
             inheritedAdapterStore = null,
-            cache = Cache(null, LinkedHashSet(), emptySet()))
+            cache = Cache(null, LinkedHashSet(), emptySet()),
+            canRewriteQueriesToDropUnusedColumns = false)
 
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
         val VOID: TypeMirror by lazy {
@@ -109,7 +121,8 @@ class Context private constructor(
                 logger = RLog(collector, logger.suppressedWarnings, logger.defaultElement),
                 typeConverters = this.typeConverters,
                 inheritedAdapterStore = typeAdapterStore,
-                cache = cache)
+                cache = cache,
+                canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns)
         subContext.databaseVerifier = databaseVerifier
         val result = handler(subContext)
         return Pair(result, collector)
@@ -128,15 +141,29 @@ class Context private constructor(
         val subSuppressedWarnings =
             forceSuppressedWarnings + suppressedWarnings + logger.suppressedWarnings
         val subCache = Cache(cache, subTypeConverters.classes, subSuppressedWarnings)
+        val subCanRemoveUnusedColumns = canRewriteQueriesToDropUnusedColumns ||
+                element.hasRemoveUnusedColumnsAnnotation()
         val subContext = Context(
                 processingEnv = processingEnv,
                 logger = RLog(logger.messager, subSuppressedWarnings, element),
                 typeConverters = subTypeConverters,
                 inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
-                cache = subCache)
+                cache = subCache,
+                canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns)
         subContext.databaseVerifier = databaseVerifier
-        subContext.queryRewriter = queryRewriter
         return subContext
+    }
+
+    private fun Element.hasRemoveUnusedColumnsAnnotation(): Boolean {
+        return hasAnnotation(RewriteQueriesToDropUnusedColumns::class).also { annotated ->
+            if (annotated && BooleanProcessorOptions.EXPAND_PROJECTION.getValue(processingEnv)) {
+                logger.w(
+                    warning = Warning.EXPAND_PROJECTION_WITH_REMOVE_UNUSED_COLUMNS,
+                    element = this,
+                    msg = ProcessorErrors.EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED
+                )
+            }
+        }
     }
 
     enum class ProcessorOptions(val argName: String) {
