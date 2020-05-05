@@ -23,6 +23,8 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
@@ -687,6 +689,32 @@ class WithConstraintsTest {
 
         assertTrue(compositionLatch.await(1, TimeUnit.SECONDS))
         assertTrue(childMeasureLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun onDisposeInsideWithConstraintsCalled() {
+        var emit by mutableStateOf(true)
+        val composedLatch = CountDownLatch(1)
+        val disposedLatch = CountDownLatch(1)
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                if (emit) {
+                    WithConstraints { _, _ ->
+                        composedLatch.countDown()
+                        onDispose {
+                            disposedLatch.countDown()
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(composedLatch.await(1, TimeUnit.SECONDS))
+
+        rule.runOnUiThread {
+            emit = false
+        }
+        assertTrue(disposedLatch.await(1, TimeUnit.SECONDS))
     }
 
     private fun takeScreenShot(size: Int): Bitmap {
