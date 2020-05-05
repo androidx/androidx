@@ -33,7 +33,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicReference
 
-open class AsyncPagingDataDiffer<T : Any>(
+class AsyncPagingDataDiffer<T : Any>(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val diffCallback: DiffUtil.ItemCallback<T>,
@@ -180,7 +180,7 @@ open class AsyncPagingDataDiffer<T : Any>(
      * @param index Index of item to get, must be >= 0, and < [itemCount]
      * @return The item, or null, if a null placeholder is at the specified position.
      */
-    open fun getItem(index: Int): T? {
+    fun getItem(index: Int): T? {
         try {
             inGetItem = true
             return differBase[index]
@@ -195,7 +195,7 @@ open class AsyncPagingDataDiffer<T : Any>(
      *
      * @return Number of items being presented.
      */
-    open val itemCount: Int
+    val itemCount: Int
         get() = differBase.size
 
     internal val loadStateListeners: MutableList<(LoadType, LoadState) -> Unit> =
@@ -217,7 +217,7 @@ open class AsyncPagingDataDiffer<T : Any>(
      *
      * @see removeLoadStateListener
      */
-    open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         // Note: Important to add the listener first before sending off events, in case the
         // callback triggers removal, which could lead to a leak if the listener is added
         // afterwards.
@@ -233,7 +233,7 @@ open class AsyncPagingDataDiffer<T : Any>(
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         loadStateListeners.remove(listener)
     }
 }

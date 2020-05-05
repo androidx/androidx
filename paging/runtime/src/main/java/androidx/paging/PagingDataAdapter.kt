@@ -116,7 +116,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         differ.refresh()
     }
 
-    protected open fun getItem(position: Int) = differ.getItem(position)
+    protected fun getItem(position: Int) = differ.getItem(position)
 
     override fun getItemCount() = differ.itemCount
 
@@ -130,7 +130,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      *
      * @see removeLoadStateListener
      */
-    open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.addLoadStateListener(listener)
     }
 
@@ -140,7 +140,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.removeLoadStateListener(listener)
     }
 
