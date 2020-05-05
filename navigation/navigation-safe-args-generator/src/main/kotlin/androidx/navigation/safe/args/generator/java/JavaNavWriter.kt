@@ -18,8 +18,6 @@ package androidx.navigation.safe.args.generator.java
 
 import androidx.navigation.safe.args.generator.BoolArrayType
 import androidx.navigation.safe.args.generator.BoolType
-import androidx.navigation.safe.args.generator.DoubleArrayType
-import androidx.navigation.safe.args.generator.DoubleType
 import androidx.navigation.safe.args.generator.FloatArrayType
 import androidx.navigation.safe.args.generator.FloatType
 import androidx.navigation.safe.args.generator.IntArrayType
@@ -452,10 +450,8 @@ private class ClassWithArgsSpecs(
                 ReferenceType,
                 LongType -> "$getterName != that.$getterName"
                 FloatType -> "Float.compare(that.$getterName, $getterName) != 0"
-                DoubleType -> "Double.compare(that.$getterName, $getterName) != 0"
-                StringType, IntArrayType, LongArrayType, FloatArrayType, DoubleArrayType,
-                StringArrayType, BoolArrayType, ReferenceArrayType, is ObjectArrayType,
-                is ObjectType ->
+                StringType, IntArrayType, LongArrayType, FloatArrayType, StringArrayType,
+                BoolArrayType, ReferenceArrayType, is ObjectArrayType, is ObjectType ->
                     "$getterName != null ? !$getterName.equals(that.$getterName) " +
                         ": that.$getterName != null"
                 else -> throw IllegalStateException("unknown type: $type")
@@ -486,8 +482,7 @@ private class ClassWithArgsSpecs(
             val hashCodeExpression = when (type) {
                 IntType, ReferenceType -> getterName
                 FloatType -> "Float.floatToIntBits($getterName)"
-                DoubleType -> "Long.valueOf(Double.doubleToLongBits($getterName)).hashCode()"
-                IntArrayType, LongArrayType, FloatArrayType, DoubleArrayType, StringArrayType,
+                IntArrayType, LongArrayType, FloatArrayType, StringArrayType,
                 BoolArrayType, ReferenceArrayType, is ObjectArrayType ->
                     "java.util.Arrays.hashCode($getterName)"
                 StringType, is ObjectType ->

@@ -79,23 +79,6 @@ public class MainFragmentArgs implements NavArgs {
         } else {
             throw new IllegalArgumentException("Required argument \"floatArrayArg\" is missing and does not have an android:defaultValue");
         }
-        if (bundle.containsKey("doubleArg")) {
-            double doubleArg;
-            doubleArg = bundle.getDouble("doubleArg");
-            __result.arguments.put("doubleArg", doubleArg);
-        } else {
-            __result.arguments.put("doubleArg", 1.2);
-        }
-        if (bundle.containsKey("doubleArrayArg")) {
-            double[] doubleArrayArg;
-            doubleArrayArg = bundle.getDoubleArray("doubleArrayArg");
-            if (doubleArrayArg == null) {
-                throw new IllegalArgumentException("Argument \"doubleArrayArg\" is marked as non-null but was passed a null value.");
-            }
-            __result.arguments.put("doubleArrayArg", doubleArrayArg);
-        } else {
-            throw new IllegalArgumentException("Required argument \"doubleArrayArg\" is missing and does not have an android:defaultValue");
-        }
         if (bundle.containsKey("objectArrayArg")) {
             ActivityInfo[] objectArrayArg;
             Parcelable[] __array = bundle.getParcelableArray("objectArrayArg");
@@ -180,17 +163,6 @@ public class MainFragmentArgs implements NavArgs {
     }
 
     @SuppressWarnings("unchecked")
-    public double getDoubleArg() {
-        return (double) arguments.get("doubleArg");
-    }
-
-    @SuppressWarnings("unchecked")
-    @NonNull
-    public double[] getDoubleArrayArg() {
-        return (double[]) arguments.get("doubleArrayArg");
-    }
-
-    @SuppressWarnings("unchecked")
     @NonNull
     public ActivityInfo[] getObjectArrayArg() {
         return (ActivityInfo[]) arguments.get("objectArrayArg");
@@ -248,16 +220,6 @@ public class MainFragmentArgs implements NavArgs {
         if (arguments.containsKey("floatArrayArg")) {
             float[] floatArrayArg = (float[]) arguments.get("floatArrayArg");
             __result.putFloatArray("floatArrayArg", floatArrayArg);
-        }
-        if (arguments.containsKey("doubleArg")) {
-            double doubleArg = (double) arguments.get("doubleArg");
-            __result.putDouble("doubleArg", doubleArg);
-        } else {
-            __result.putDouble("doubleArg", 1.2);
-        }
-        if (arguments.containsKey("doubleArrayArg")) {
-            double[] doubleArrayArg = (double[]) arguments.get("doubleArrayArg");
-            __result.putDoubleArray("doubleArrayArg", doubleArrayArg);
         }
         if (arguments.containsKey("objectArrayArg")) {
             ActivityInfo[] objectArrayArg = (ActivityInfo[]) arguments.get("objectArrayArg");
@@ -341,18 +303,6 @@ public class MainFragmentArgs implements NavArgs {
         if (getFloatArrayArg() != null ? !getFloatArrayArg().equals(that.getFloatArrayArg()) : that.getFloatArrayArg() != null) {
             return false;
         }
-        if (arguments.containsKey("doubleArg") != that.arguments.containsKey("doubleArg")) {
-            return false;
-        }
-        if (Double.compare(that.getDoubleArg(), getDoubleArg()) != 0) {
-            return false;
-        }
-        if (arguments.containsKey("doubleArrayArg") != that.arguments.containsKey("doubleArrayArg")) {
-            return false;
-        }
-        if (getDoubleArrayArg() != null ? !getDoubleArrayArg().equals(that.getDoubleArrayArg()) : that.getDoubleArrayArg() != null) {
-            return false;
-        }
         if (arguments.containsKey("objectArrayArg") != that.arguments.containsKey("objectArrayArg")) {
             return false;
         }
@@ -389,8 +339,6 @@ public class MainFragmentArgs implements NavArgs {
         result = 31 * result + getReferenceZeroDefaultValue();
         result = 31 * result + Float.floatToIntBits(getFloatArg());
         result = 31 * result + java.util.Arrays.hashCode(getFloatArrayArg());
-        result = 31 * result + Long.valueOf(Double.doubleToLongBits(getDoubleArg())).hashCode();
-        result = 31 * result + java.util.Arrays.hashCode(getDoubleArrayArg());
         result = 31 * result + java.util.Arrays.hashCode(getObjectArrayArg());
         result = 31 * result + (getBoolArg() ? 1 : 0);
         result = 31 * result + (getOptionalParcelable() != null ? getOptionalParcelable().hashCode() : 0);
@@ -407,8 +355,6 @@ public class MainFragmentArgs implements NavArgs {
                 + ", referenceZeroDefaultValue=" + getReferenceZeroDefaultValue()
                 + ", floatArg=" + getFloatArg()
                 + ", floatArrayArg=" + getFloatArrayArg()
-                + ", doubleArg=" + getDoubleArg()
-                + ", doubleArrayArg=" + getDoubleArrayArg()
                 + ", objectArrayArg=" + getObjectArrayArg()
                 + ", boolArg=" + getBoolArg()
                 + ", optionalParcelable=" + getOptionalParcelable()
@@ -424,7 +370,7 @@ public class MainFragmentArgs implements NavArgs {
         }
 
         public Builder(@NonNull String main, @NonNull float[] floatArrayArg,
-                @NonNull double[] doubleArrayArg, @NonNull ActivityInfo[] objectArrayArg) {
+                @NonNull ActivityInfo[] objectArrayArg) {
             if (main == null) {
                 throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
             }
@@ -433,10 +379,6 @@ public class MainFragmentArgs implements NavArgs {
                 throw new IllegalArgumentException("Argument \"floatArrayArg\" is marked as non-null but was passed a null value.");
             }
             this.arguments.put("floatArrayArg", floatArrayArg);
-            if (doubleArrayArg == null) {
-                throw new IllegalArgumentException("Argument \"doubleArrayArg\" is marked as non-null but was passed a null value.");
-            }
-            this.arguments.put("doubleArrayArg", doubleArrayArg);
             if (objectArrayArg == null) {
                 throw new IllegalArgumentException("Argument \"objectArrayArg\" is marked as non-null but was passed a null value.");
             }
@@ -488,21 +430,6 @@ public class MainFragmentArgs implements NavArgs {
                 throw new IllegalArgumentException("Argument \"floatArrayArg\" is marked as non-null but was passed a null value.");
             }
             this.arguments.put("floatArrayArg", floatArrayArg);
-            return this;
-        }
-
-        @NonNull
-        public Builder setDoubleArg(double doubleArg) {
-            this.arguments.put("doubleArg", doubleArg);
-            return this;
-        }
-
-        @NonNull
-        public Builder setDoubleArrayArg(@NonNull double[] doubleArrayArg) {
-            if (doubleArrayArg == null) {
-                throw new IllegalArgumentException("Argument \"doubleArrayArg\" is marked as non-null but was passed a null value.");
-            }
-            this.arguments.put("doubleArrayArg", doubleArrayArg);
             return this;
         }
 
@@ -566,17 +493,6 @@ public class MainFragmentArgs implements NavArgs {
         @NonNull
         public float[] getFloatArrayArg() {
             return (float[]) arguments.get("floatArrayArg");
-        }
-
-        @SuppressWarnings("unchecked")
-        public double getDoubleArg() {
-            return (double) arguments.get("doubleArg");
-        }
-
-        @SuppressWarnings("unchecked")
-        @NonNull
-        public double[] getDoubleArrayArg() {
-            return (double[]) arguments.get("doubleArrayArg");
         }
 
         @SuppressWarnings("unchecked")
