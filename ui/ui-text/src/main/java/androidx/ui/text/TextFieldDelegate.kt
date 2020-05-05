@@ -299,22 +299,6 @@ class TextFieldDelegate {
         }
 
         /**
-         * Helper function of applying visual transformation method to the EditorModel.
-         *
-         * @param value An editor state
-         * @param visualTransformation A visual transformation
-         */
-        @JvmStatic
-        fun applyVisualFilter(
-            value: EditorValue,
-            visualTransformation: VisualTransformation?
-        ): TransformedText {
-            val annotatedString = AnnotatedString(value.text)
-            return visualTransformation?.filter(annotatedString)
-                    ?: TransformedText(annotatedString, OffsetMap.identityOffsetMap)
-        }
-
-        /**
          *  Apply the composition text decoration (undeline) to the transformed text.
          *
          *  @param compositionRange An input state

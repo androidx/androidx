@@ -62,7 +62,7 @@ fun CoreTextField(
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocusChange: (Boolean) -> Unit = {},
     onImeActionPerformed: (ImeAction) -> Unit = {},
-    visualTransformation: VisualTransformation? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
 ) {
@@ -82,7 +82,7 @@ fun CoreTextField(
 
         // State
         val (visualText, offsetMap) = remember(value, visualTransformation) {
-            val transformed = TextFieldDelegate.applyVisualFilter(value, visualTransformation)
+            val transformed = visualTransformation.filter(AnnotatedString(value.text))
             value.composition?.let {
                 TextFieldDelegate.applyCompositionDecoration(it, transformed)
             } ?: transformed
