@@ -126,28 +126,19 @@ public final class IntentSenderRequest {
         }
 
         /**
-         * Set the flag mask for the {@link IntentSenderRequest}.
+         * Set the flag mask and flag values for the {@link IntentSenderRequest}.
          *
-         * @param flagsMask mask to go in the IntentSenderRequest. Intent flags in the original
-         *                  IntentSender that you would like to change.
+         * @param mask mask to go in the IntentSenderRequest. Intent flags in the original
+         *             IntentSender that you would like to change.
+         * @param values flagValues to go in the IntentSenderRequest. Desired values for any bits
+         *             set in flagsMask
+         *
          * @return This builder.
          */
         @NonNull
-        public Builder setFlagsMask(int flagsMask) {
-            mFlagsMask = flagsMask;
-            return this;
-        }
-
-        /**
-         * Set the flag values for the {@link IntentSenderRequest}.
-         *
-         * @param flagsValues flagValues to go in the IntentSenderRequest. Desired values for any
-         *                  bits set in flagsMask
-         * @return This builder.
-         */
-        @NonNull
-        public Builder setFlagsValues(int flagsValues) {
-            mFlagsValues = flagsValues;
+        public Builder setFlags(int mask, int values) {
+            mFlagsMask = mask;
+            mFlagsValues = values;
             return this;
         }
 
