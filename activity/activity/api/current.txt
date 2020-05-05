@@ -101,8 +101,7 @@ package androidx.activity.result {
     ctor public IntentSenderRequest.Builder(android.app.PendingIntent);
     method public androidx.activity.result.IntentSenderRequest build();
     method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent?);
-    method public androidx.activity.result.IntentSenderRequest.Builder setFlagsMask(int);
-    method public androidx.activity.result.IntentSenderRequest.Builder setFlagsValues(int);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int, int);
   }
 
 }
