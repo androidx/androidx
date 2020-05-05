@@ -34,7 +34,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -755,8 +754,7 @@ public class NotificationCompat {
         @GroupAlertBehavior int mGroupAlertBehavior = GROUP_ALERT_ALL;
         boolean mAllowSystemGeneratedContextualActions;
         BubbleMetadata mBubbleMetadata;
-        Notification.Builder mBuilder;
-        Notification mNotification;
+        Notification mNotification = new Notification();
         boolean mSilent;
 
         /**
@@ -782,12 +780,6 @@ public class NotificationCompat {
         public Builder(@NonNull Context context, @NonNull String channelId) {
             mContext = context;
             mChannelId = channelId;
-            mBuilder = Build.VERSION.SDK_INT >= 26
-                    ? new Notification.Builder(context, channelId)
-                    : new Notification.Builder(context);
-            mNotification = Build.VERSION.SDK_INT >= 16
-                    ? mBuilder.build()
-                    : new Notification();
 
             // Set defaults to match the defaults of a Notification
             mNotification.when = System.currentTimeMillis();
@@ -821,19 +813,6 @@ public class NotificationCompat {
          */
         public Builder setShowWhen(boolean show) {
             mShowWhen = show;
-            return this;
-        }
-
-        /**
-         * Set the small icon to use in the notification layouts.  Different classes of devices
-         * may return different sizes.  See the UX guidelines for more information on how to
-         * design these icons.
-         *
-         * @param icon The small Icon object to use
-         */
-        @RequiresApi(23)
-        public @NonNull Builder setSmallIcon(@Nullable Icon icon) {
-            mBuilder.setSmallIcon(icon);
             return this;
         }
 
