@@ -456,6 +456,10 @@ final class CameraXModule {
         }
     }
 
+    boolean isBoundToLifecycle() {
+        return mCamera != null;
+    }
+
     int getRelativeCameraOrientation(boolean compensateForMirroring) {
         int rotationDegrees = 0;
         if (mCamera != null) {
