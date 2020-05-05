@@ -19,15 +19,7 @@
 package androidx.ui.material
 
 import androidx.compose.Composable
-import androidx.ui.core.Constraints
-import androidx.ui.core.IntrinsicMeasurable
-import androidx.ui.core.IntrinsicMeasureScope
-import androidx.ui.core.LayoutDirection
-import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
-import androidx.ui.core.enforce
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentGravity
@@ -37,16 +29,14 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.Row
 import androidx.ui.layout.Spacer
+import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.Dp
-import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
-import androidx.ui.unit.ipx
-import androidx.ui.unit.max
 
 /**
  * A floating action button (FAB) is a button that represents the primary action of a screen.
@@ -90,7 +80,10 @@ fun FloatingActionButton(
             Clickable(onClick, modifier = Modifier.ripple()) {
                 ProvideTextStyle(MaterialTheme.typography.button) {
                     Box(
-                        modifier = MinimumFabSizeModifier,
+                        modifier = Modifier.defaultMinSizeConstraints(
+                            minWidth = FabSize,
+                            minHeight = FabSize
+                        ),
                         gravity = ContentGravity.Center,
                         children = icon
                     )
@@ -161,62 +154,6 @@ fun ExtendedFloatingActionButton(
             }
         }
     }
-}
-
-/**
- * [LayoutModifier] that will set minimum constraints in each dimension to be [FabSize] unless
- * there is an incoming, non-zero minimum already. This allows us to define a default minimum in
- * [FloatingActionButton], but let [ExtendedFloatingActionButton] override it with a smaller
- * minimum just by settings a normal [preferredSizeIn] modifier.
- *
- * TODO: b/150460257 remove after support for this is added as a SizeModifier / similar
- */
-private object MinimumFabSizeModifier : LayoutModifier {
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): MeasureScope.MeasureResult {
-        val minWidth = constraints.minWidth.takeIf { it != IntPx.Zero }
-        val minHeight = constraints.minHeight.takeIf { it != IntPx.Zero }
-        val wrappedConstraints = when {
-            minWidth != null && minHeight != null -> constraints
-            else -> {
-                Constraints(
-                    minWidth = minWidth ?: FabSize.toIntPx(),
-                    minHeight = minHeight ?: FabSize.toIntPx()
-                ).enforce(constraints)
-            }
-        }
-        val placeable = measurable.measure(wrappedConstraints)
-        return layout(placeable.width, placeable.height) {
-            placeable.place(0.ipx, 0.ipx)
-        }
-    }
-
-    override fun IntrinsicMeasureScope.minIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: IntPx,
-        layoutDirection: LayoutDirection
-    ) = max(measurable.minIntrinsicWidth(height), FabSize.toIntPx())
-
-    override fun IntrinsicMeasureScope.minIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: IntPx,
-        layoutDirection: LayoutDirection
-    ) = max(measurable.minIntrinsicHeight(width), FabSize.toIntPx())
-
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurable: IntrinsicMeasurable,
-        height: IntPx,
-        layoutDirection: LayoutDirection
-    ) = max(measurable.maxIntrinsicWidth(height), FabSize.toIntPx())
-
-    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-        measurable: IntrinsicMeasurable,
-        width: IntPx,
-        layoutDirection: LayoutDirection
-    ) = max(measurable.maxIntrinsicHeight(width), FabSize.toIntPx())
 }
 
 private val FabSize = 56.dp

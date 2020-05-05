@@ -334,6 +334,21 @@ fun Modifier.wrapContentHeight(align: Alignment.Vertical = Alignment.CenterVerti
 fun Modifier.wrapContentSize(align: Alignment = Alignment.Center) =
     this + AlignmentModifier(align, Direction.Both)
 
+/**
+ * Constrain the size of the wrapped layout only when it would be otherwise unconstrained:
+ * the [minWidth] and [minHeight] constraints are only applied when the incoming corresponding
+ * constraint is `0.ipx`.
+ * The modifier can be used, for example, to define a default min size of a component,
+ * while still allowing it to be overidden with smaller min sizes across usages.
+ *
+ * Example usage:
+ * @sample androidx.ui.layout.samples.DefaultMinSizeConstraintsSample
+ */
+fun Modifier.defaultMinSizeConstraints(
+    minWidth: Dp = Dp.Unspecified,
+    minHeight: Dp = Dp.Unspecified
+) = this + UnspecifiedConstraintsModifier(minWidth, minHeight)
+
 private data class FillModifier(private val direction: Direction) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -485,6 +500,68 @@ private data class AlignmentModifier(
             placeable.placeAbsolute(position)
         }
     }
+}
+
+    private data class UnspecifiedConstraintsModifier(
+        val minWidth: Dp = Dp.Unspecified,
+        val minHeight: Dp = Dp.Unspecified
+    ) : LayoutModifier {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ): MeasureScope.MeasureResult {
+        val wrappedConstraints = Constraints(
+            if (minWidth != Dp.Unspecified && constraints.minWidth == 0.ipx) {
+                minWidth.toIntPx()
+            } else {
+                constraints.minWidth
+            },
+            constraints.maxWidth,
+            if (minHeight != Dp.Unspecified && constraints.minHeight == 0.ipx) {
+                minHeight.toIntPx()
+            } else {
+                constraints.minHeight
+            },
+            constraints.maxHeight
+        )
+        val placeable = measurable.measure(wrappedConstraints)
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0.ipx, 0.ipx)
+        }
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.minIntrinsicWidth(height).coerceAtLeast(
+        if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0.ipx
+    )
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.maxIntrinsicWidth(height).coerceAtLeast(
+        if (minWidth != Dp.Unspecified) minWidth.toIntPx() else 0.ipx
+    )
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.minIntrinsicHeight(width).coerceAtLeast(
+        if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0.ipx
+    )
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ) = measurable.maxIntrinsicHeight(width).coerceAtLeast(
+        if (minHeight != Dp.Unspecified) minHeight.toIntPx() else 0.ipx
+    )
 }
 
 internal enum class Direction {
