@@ -75,7 +75,7 @@ class QueryMethodProcessor(
             val rowAdapter = initialResult.queryResultBinder.adapter?.rowAdapter
             val originalQuery = initialResult.query
             val finalQuery = rowAdapter?.let {
-                context.queryRewriter?.rewrite(originalQuery, rowAdapter)
+                context.queryRewriter.rewrite(originalQuery, rowAdapter)
             } ?: originalQuery
             if (finalQuery != originalQuery) {
                 // ok parse again
