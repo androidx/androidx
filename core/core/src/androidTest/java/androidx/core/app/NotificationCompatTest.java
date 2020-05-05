@@ -477,7 +477,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
-    public void testSetNotificationSilent() {
+    public void testSetNotificationSilent() throws Throwable {
 
         Notification nSummary = new NotificationCompat.Builder(mActivityTestRule.getActivity())
                 .setVibrate(new long[] {235})
