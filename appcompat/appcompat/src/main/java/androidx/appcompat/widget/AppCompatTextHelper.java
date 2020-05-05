@@ -450,14 +450,29 @@ class AppCompatTextHelper {
             // app:textAllCaps has the chance to override it
             setAllCaps(a.getBoolean(R.styleable.TextAppearance_textAllCaps, false));
         }
-        if (Build.VERSION.SDK_INT < 23
-                && a.hasValue(R.styleable.TextAppearance_android_textColor)) {
-            // If we're running on < API 23, the text color may contain theme references
+        if (Build.VERSION.SDK_INT < 23) {
+            // If we're running on < API 23, the text colors may contain theme references
             // so let's re-set using our own inflater
-            final ColorStateList textColor
-                    = a.getColorStateList(R.styleable.TextAppearance_android_textColor);
-            if (textColor != null) {
-                mView.setTextColor(textColor);
+            if (a.hasValue(R.styleable.TextAppearance_android_textColor)) {
+                final ColorStateList textColor =
+                        a.getColorStateList(R.styleable.TextAppearance_android_textColor);
+                if (textColor != null) {
+                    mView.setTextColor(textColor);
+                }
+            }
+            if (a.hasValue(R.styleable.TextAppearance_android_textColorLink)) {
+                final ColorStateList textColorLink =
+                        a.getColorStateList(R.styleable.TextAppearance_android_textColorLink);
+                if (textColorLink != null) {
+                    mView.setLinkTextColor(textColorLink);
+                }
+            }
+            if (a.hasValue(R.styleable.TextAppearance_android_textColorHint)) {
+                final ColorStateList textColorHint =
+                        a.getColorStateList(R.styleable.TextAppearance_android_textColorHint);
+                if (textColorHint != null) {
+                    mView.setHintTextColor(textColorHint);
+                }
             }
         }
         // For SDK <= P, when the text size attribute is 0, this would not be set. Fix this here.

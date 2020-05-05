@@ -19,12 +19,17 @@ package androidx.appcompat.widget;
 import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.text.Editable;
 import android.text.Layout;
 import android.view.textclassifier.TextClassificationManager;
 import android.view.textclassifier.TextClassifier;
+import android.widget.EditText;
 
+import androidx.annotation.ColorRes;
 import androidx.appcompat.test.R;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.TextViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -132,6 +137,36 @@ public class AppCompatEditTextTest {
         final AppCompatEditText editText = mActivityTestRule.getActivity().findViewById(
                 R.id.text_view_hyphen_break_override);
         assertEquals(Layout.BREAK_STRATEGY_BALANCED, editText.getBreakStrategy());
+    }
+
+    private void verifyTextHintColor(EditText textView,
+            @ColorRes int expectedEnabledColor, @ColorRes int expectedDisabledColor) {
+        ColorStateList hintColorStateList = textView.getHintTextColors();
+        assertEquals(ContextCompat.getColor(textView.getContext(), expectedEnabledColor),
+                hintColorStateList.getColorForState(new int[]{android.R.attr.state_enabled}, 0));
+        assertEquals(ContextCompat.getColor(textView.getContext(), expectedDisabledColor),
+                hintColorStateList.getColorForState(new int[]{-android.R.attr.state_enabled}, 0));
+    }
+
+    @Test
+    @UiThreadTest
+    public void testTextHintColor() {
+        EditText editLinkEnabledView = mActivityTestRule.getActivity().findViewById(
+                R.id.view_edit_hint_enabled);
+        EditText editLinkDisabledView = mActivityTestRule.getActivity().findViewById(
+                R.id.view_edit_hint_disabled);
+
+        // Verify initial enabled and disabled text hint colors set from the activity theme
+        verifyTextHintColor(editLinkEnabledView, R.color.ocean_default, R.color.ocean_disabled);
+        verifyTextHintColor(editLinkDisabledView, R.color.ocean_default, R.color.ocean_disabled);
+
+        // Set new text appearance on the two views - the appearance has new text hint color
+        // state list that references theme-level attributes. And verify that the new text
+        // hint colors are correctly resolved.
+        TextViewCompat.setTextAppearance(editLinkEnabledView, R.style.TextStyleNew);
+        verifyTextHintColor(editLinkEnabledView, R.color.lilac_default, R.color.lilac_disabled);
+        TextViewCompat.setTextAppearance(editLinkDisabledView, R.style.TextStyleNew);
+        verifyTextHintColor(editLinkDisabledView, R.color.lilac_default, R.color.lilac_disabled);
     }
 
     @SdkSuppress(minSdkVersion = 26)
