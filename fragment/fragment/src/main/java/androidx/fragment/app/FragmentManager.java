@@ -2751,7 +2751,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     new ActivityResultCallback<ActivityResult>() {
                         @Override
                         public void onActivityResult(ActivityResult result) {
-                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.removeFirst();
+                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.pollFirst();
+                            if (requestInfo == null) {
+                                Log.w(TAG, "No Activities were started for result for " + this);
+                                return;
+                            }
                             String fragmentWho = requestInfo.mWho;
                             int requestCode = requestInfo.mRequestCode;
                             Fragment fragment =  mFragmentStore.findFragmentByWho(fragmentWho);
@@ -2775,7 +2779,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     new ActivityResultCallback<ActivityResult>() {
                         @Override
                         public void onActivityResult(ActivityResult result) {
-                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.removeFirst();
+                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.pollFirst();
+                            if (requestInfo == null) {
+                                Log.w(TAG, "No IntentSenders were started for " + this);
+                                return;
+                            }
                             String fragmentWho = requestInfo.mWho;
                             int requestCode = requestInfo.mRequestCode;
                             Fragment fragment =  mFragmentStore.findFragmentByWho(fragmentWho);
@@ -2807,7 +2815,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                         ? PackageManager.PERMISSION_GRANTED
                                         : PackageManager.PERMISSION_DENIED;
                             }
-                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.removeFirst();
+                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.pollFirst();
+                            if (requestInfo == null) {
+                                Log.w(TAG, "No permissions were requested for " + this);
+                                return;
+                            }
                             String fragmentWho = requestInfo.mWho;
                             int requestCode = requestInfo.mRequestCode;
                             Fragment fragment =  mFragmentStore.findFragmentByWho(fragmentWho);
