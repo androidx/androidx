@@ -125,6 +125,62 @@ internal fun buildErrorMessageForMatcherFail(
                 "(${assertionMatcher.description})", selector, node)
 }
 
+internal fun buildErrorMessageForAssertAnyFail(
+    selector: SemanticsSelector,
+    nodes: List<SemanticsNode>,
+    assertionMatcher: SemanticsMatcher
+): String {
+    val sb = StringBuilder()
+
+    sb.appendln("Failed to assertAny(${assertionMatcher.description})")
+
+    sb.appendln("None of the following nodes match:")
+    sb.appendln(nodes.toStringInfo())
+
+    sb.append("Selector used: '")
+    sb.append(selector.description)
+    sb.appendln("'")
+
+    return sb.toString()
+}
+
+internal fun buildErrorMessageForAssertAllFail(
+    selector: SemanticsSelector,
+    nodesNotMatching: List<SemanticsNode>,
+    assertionMatcher: SemanticsMatcher
+): String {
+    val sb = StringBuilder()
+
+    sb.appendln("Failed to assertAll(${assertionMatcher.description})")
+
+    sb.append("Found '${nodesNotMatching.size}' ")
+    sb.append(if (nodesNotMatching.size == 1) "node" else "nodes")
+    sb.appendln(" not matching:")
+    sb.appendln(nodesNotMatching.toStringInfo())
+
+    sb.append("Selector used: '")
+    sb.append(selector.description)
+    sb.appendln("'")
+
+    return sb.toString()
+}
+
+internal fun buildErrorMessageForAtLeastOneNodeExpected(
+    errorMessage: String,
+    selector: SemanticsSelector
+): String {
+    val sb = StringBuilder()
+
+    sb.appendln(errorMessage)
+
+    sb.append("Assert needs to receive at least 1 node but 0 nodes were found for selector: ")
+    sb.append("'")
+    sb.append(selector.description)
+    sb.appendln("'")
+
+    return sb.toString()
+}
+
 internal fun buildGeneralErrorMessage(
     errorMessage: String,
     selector: SemanticsSelector,
