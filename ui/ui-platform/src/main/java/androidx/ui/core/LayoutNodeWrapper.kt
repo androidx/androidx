@@ -82,6 +82,10 @@ internal abstract class LayoutNodeWrapper(
             return layoutNode.layoutNodeWrapper.wrappedBy
         }
 
+    // True when the wrapper is running its own placing block to obtain the position of the
+    // wrapped, but is not interested in the position of the wrapped of the wrapped.
+    var isShallowPlacing = false
+
     // TODO(mount): This is not thread safe.
     private var rectCache: RectF? = null
 
