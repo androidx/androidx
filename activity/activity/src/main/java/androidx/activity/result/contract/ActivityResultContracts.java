@@ -121,6 +121,14 @@ public final class ActivityResultContracts {
                 + ".contract.action.INTENT_SENDER_REQUEST";
 
         /**
+         * Key for the extra containing the {@link IntentSenderRequest}.
+         *
+         * @see #ACTION_INTENT_SENDER_REQUEST
+         */
+        public static final String EXTRA_INTENT_SENDER_REQUEST = "androidx.activity.result"
+                + ".contract.extra.INTENT_SENDER_REQUEST";
+
+        /**
          * Key for the extra containing the {@link android.content.IntentSender.SendIntentException}
          * if the call to
          * {@link Activity#startIntentSenderForResult(IntentSender, int, Intent, int, int, int)}
@@ -132,7 +140,8 @@ public final class ActivityResultContracts {
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context, @NonNull IntentSenderRequest input) {
-            return new Intent(ACTION_INTENT_SENDER_REQUEST);
+            return new Intent(ACTION_INTENT_SENDER_REQUEST)
+                    .putExtra(EXTRA_INTENT_SENDER_REQUEST, input);
         }
 
         @NonNull

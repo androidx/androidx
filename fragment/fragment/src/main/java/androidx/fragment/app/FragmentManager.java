@@ -18,6 +18,7 @@ package androidx.fragment.app;
 
 import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult.EXTRA_ACTIVITY_OPTIONS_BUNDLE;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_INTENT_SENDER_REQUEST;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.Animator;
@@ -3472,6 +3473,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     result.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, activityOptions);
                 }
             }
+            result.putExtra(EXTRA_INTENT_SENDER_REQUEST, input);
             return result;
         }
 
