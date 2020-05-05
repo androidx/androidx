@@ -41,7 +41,7 @@ if [ "`command -v getprop`" == "" ]; then
         echo "Pushing $0 and running it on device..."
         dest=/data/local/tmp/`basename $0`
         adb push $0 ${dest}
-        adb shell ${dest}
+        adb shell ${dest} $@
         adb shell rm ${dest}
         exit
     else
@@ -62,14 +62,34 @@ fi
 DEVICE=`getprop ro.product.device`
 MODEL=`getprop ro.product.model`
 
-# Find CPU max frequency, and lock big cores to an available frequency
-# that's >= $CPU_TARGET_FREQ_PERCENT% of max. Disable other cores.
+if [ "$ARG_CORES" == "big" ]; then
+    CPU_IDEAL_START_FREQ_KHZ=0
+elif [ "$ARG_CORES" == "little" ]; then
+    CPU_IDEAL_START_FREQ_KHZ=100000000 ## finding min of max freqs, so start at 100M KHz (100 GHz)
+else
+    echo "Invalid argument \$1 for ARG_CORES, should be 'big' or 'little', but was $ARG_CORES"
+    exit -1
+fi
+
+function_core_check() {
+    if [ "$ARG_CORES" == "big" ]; then
+        [ $1 -gt $2 ]
+    elif [ "$ARG_CORES" == "little" ]; then
+        [ $1 -lt $2 ]
+    else
+        echo "Invalid argument \$1 for ARG_CORES, should be 'big' or 'little', but was $ARG_CORES"
+        exit -1
+    fi
+}
+
+# Find the min or max (little vs big) of CPU max frequency, and lock cores of the selected type to
+# an available frequency that's >= $CPU_TARGET_FREQ_PERCENT% of max. Disable other cores.
 function_lock_cpu() {
     CPU_BASE=/sys/devices/system/cpu
     GOV=cpufreq/scaling_governor
 
     # Find max CPU freq, and associated list of available freqs
-    cpuMaxFreq=0
+    cpuIdealFreq=$CPU_IDEAL_START_FREQ_KHZ
     cpuAvailFreqCmpr=0
     cpuAvailFreq=0
     enableIndices=''
@@ -86,30 +106,40 @@ function_lock_cpu() {
         availFreq=`cat ${CPU_BASE}/cpu$cpu/cpufreq/scaling_available_frequencies`
         availFreqCmpr=${availFreq// /-}
 
-        if [ ${maxFreq} -gt ${cpuMaxFreq} ]; then
-            # new highest max freq, look for cpus with same max freq and same avail freq list
-            cpuMaxFreq=${maxFreq}
+        if (function_core_check $maxFreq $cpuIdealFreq); then
+            # new min/max of max freq, look for cpus with same max freq and same avail freq list
+            cpuIdealFreq=${maxFreq}
             cpuAvailFreq=${availFreq}
             cpuAvailFreqCmpr=${availFreqCmpr}
 
-            if [ -z ${disableIndices} ]; then
+            if [ -z "$disableIndices" ]; then
                 disableIndices="$enableIndices"
             else
                 disableIndices="$disableIndices $enableIndices"
             fi
             enableIndices=${cpu}
-        elif [ ${maxFreq} == ${cpuMaxFreq} ] && [ ${availFreqCmpr} == ${cpuAvailFreqCmpr} ]; then
+        elif [ ${maxFreq} == ${cpuIdealFreq} ] && [ ${availFreqCmpr} == ${cpuAvailFreqCmpr} ]; then
             enableIndices="$enableIndices $cpu"
         else
-            disableIndices="$disableIndices $cpu"
+            if [ -z "$disableIndices" ]; then
+                disableIndices="$cpu"
+            else
+                disableIndices="$disableIndices $cpu"
+            fi
         fi
 
         cpu=$(($cpu + 1))
     done
 
+    # check that some CPUs will be enabled
+    if [ -z "$enableIndices" ]; then
+        echo "Failed to find any $ARG_CORES cores to enable, aborting."
+        exit -1
+    fi
+
     # Chose a frequency to lock to that's >= $CPU_TARGET_FREQ_PERCENT% of max
     # (below, 100M = 1K for KHz->MHz * 100 for %)
-    TARGET_FREQ_MHZ=$(( (${cpuMaxFreq} * ${CPU_TARGET_FREQ_PERCENT}) / 100000 ))
+    TARGET_FREQ_MHZ=$(( (${cpuIdealFreq} * ${CPU_TARGET_FREQ_PERCENT}) / 100000 ))
     chosenFreq=0
     for freq in ${cpuAvailFreq}; do
         freqMhz=$(( ${freq} / 1000 ))
@@ -147,7 +177,7 @@ function_lock_cpu() {
     done
 
     echo "=================================="
-    echo "Locked CPUs ${enableIndices// /,} to $chosenFreq / $maxFreq KHz"
+    echo "Locked CPUs ${enableIndices// /,} to $chosenFreq / $cpuIdealFreq KHz"
     echo "Disabled CPUs ${disableIndices// /,}"
     echo "=================================="
 }
