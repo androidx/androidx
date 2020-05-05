@@ -28,9 +28,9 @@ import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.compositeOver
-import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.relativePaddingFrom
 import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
@@ -129,11 +129,13 @@ private fun NewLineButtonSnackbar(
                 bottom = SeparateButtonExtraY
             )
     ) {
-        AlignmentLineOffset(alignmentLine = LastBaseline, after = LongButtonVerticalOffset) {
-            AlignmentLineOffset(alignmentLine = FirstBaseline, before = HeightToFirstLine) {
-                Box(Modifier.padding(end = HorizontalSpacingButtonSide), children = text)
-            }
-        }
+        Box(
+            Modifier
+                .relativePaddingFrom(LastBaseline, after = LongButtonVerticalOffset)
+                .relativePaddingFrom(FirstBaseline, before = HeightToFirstLine)
+                .padding(end = HorizontalSpacingButtonSide),
+            children = text
+        )
         Box(Modifier.gravity(Alignment.End), children = action)
     }
 }
