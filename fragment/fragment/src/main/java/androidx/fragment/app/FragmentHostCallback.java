@@ -35,6 +35,7 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
 
 import java.io.FileDescriptor;
@@ -136,7 +137,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
             throw new IllegalStateException(
                     "Starting activity with a requestCode requires a FragmentActivity host");
         }
-        mContext.startActivity(intent);
+        ContextCompat.startActivity(mContext, intent, options);
     }
 
     /**
