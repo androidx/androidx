@@ -29,6 +29,11 @@
         <item name="android:textColorPrimary">#FF0000FF</item>
         <item name="android:textColorSecondary">@color/color_state_list_sand</item>
         <item name="android:textColorLink">@color/color_state_list_link</item>
+        <item name="android:textColorHint">@color/color_state_list_hint</item>
+        <item name="color1">@color/ocean_default</item>
+        <item name="color2">@color/ocean_disabled</item>
+        <item name="color3">@color/lilac_default</item>
+        <item name="color4">@color/lilac_disabled</item>
     </style>
 
     <style name="Theme.CustomInflater" parent="@style/Theme.AppCompat.Light">
@@ -49,6 +54,11 @@
 
     <style name="TextStyleAllCapsOff" parent="@android:style/TextAppearance.Medium">
         <item name="textAllCaps">false</item>
+    </style>
+
+    <style name="TextStyleNew" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColorLink">@color/color_state_list_refs12</item>
+        <item name="android:textColorHint">@color/color_state_list_refs34</item>
     </style>
 
     <style name="MagentaThemeOverlay">
