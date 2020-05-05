@@ -31,10 +31,12 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
+import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.GestureScope
 import androidx.ui.test.SemanticsNodeInteraction
+import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.assertIsDisplayed
 import androidx.ui.test.assertIsNotDisplayed
 import androidx.ui.test.assertPixels
@@ -406,6 +408,34 @@ class ScrollerTest {
 
         runOnIdleCompose {
             assertThat(scrollerPosition.isAnimating).isEqualTo(false)
+        }
+    }
+
+    @Test
+    fun scroller_restoresScrollerPosition() {
+        val restorationTester = StateRestorationTester(composeTestRule)
+        var scrollerPosition: ScrollerPosition? = null
+
+        restorationTester.setContent {
+            scrollerPosition = ScrollerPosition()
+            VerticalScroller(scrollerPosition!!) {
+                Column {
+                    repeat(50) {
+                        Box(Modifier.preferredHeight(100.dp))
+                    }
+                }
+            }
+        }
+
+        runOnIdleCompose {
+            scrollerPosition!!.scrollTo(70f)
+            scrollerPosition = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        runOnIdleCompose {
+            assertThat(scrollerPosition!!.value).isEqualTo(70f)
         }
     }
 

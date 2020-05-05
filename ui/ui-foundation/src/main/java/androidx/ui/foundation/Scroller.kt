@@ -30,11 +30,14 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
+import androidx.ui.foundation.TextFieldValue.Companion.Saver
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.layout.Constraints
+import androidx.ui.savedinstancestate.Saver
+import androidx.ui.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.IntPx
@@ -56,7 +59,10 @@ fun ScrollerPosition(
 ): ScrollerPosition {
     val clock = AnimationClockAmbient.current
     val config = FlingConfig()
-    return remember(clock, config) {
+    return rememberSavedInstanceState(
+        clock, config,
+        saver = ScrollerPosition.Saver(config, clock)
+    ) {
         ScrollerPosition(flingConfig = config, initial = initial, animationClock = clock)
     }
 }
@@ -163,6 +169,20 @@ class ScrollerPosition(
         if (value > newMax) {
             value = newMax
         }
+    }
+
+    companion object {
+        /**
+         * The default [Saver] implementation for [ScrollerPosition].
+         */
+        @Composable
+        fun Saver(
+            flingConfig: FlingConfig,
+            animationClock: AnimationClockObservable
+        ): Saver<ScrollerPosition, *> = Saver<ScrollerPosition, Float>(
+            save = { it.value },
+            restore = { ScrollerPosition(flingConfig, it, animationClock) }
+        )
     }
 }
 
