@@ -21,6 +21,7 @@ import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
+import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.test.android.SynchronizedTreeCollector
 import androidx.ui.unit.PxBounds
@@ -166,6 +167,16 @@ fun SemanticsNodeInteraction.assertLabelEquals(value: String): SemanticsNodeInte
  */
 fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction =
     assert(hasValue(value))
+
+/**
+ * Asserts the component's range info equals the given value.
+ *
+ * For further details please check [SemanticsProperties.AccessibilityRangeInfo].
+ * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
+ */
+fun SemanticsNodeInteraction.assertRangeInfoEquals(value: AccessibilityRangeInfo):
+        SemanticsNodeInteraction =
+    assert(hasRangeInfo(value))
 
 /**
  * Asserts that the current component has a click action.

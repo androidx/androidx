@@ -20,6 +20,7 @@ import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.core.semantics.getOrNull
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.FoundationSemanticsProperties
+import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsActions
 import androidx.ui.semantics.SemanticsProperties
 
@@ -164,6 +165,16 @@ fun hasSubstring(substring: String, ignoreCase: Boolean = false):
  */
 fun hasValue(value: String): SemanticsMatcher = SemanticsMatcher.expectValue(
     SemanticsProperties.AccessibilityValue, value)
+
+/**
+ * Returns whether the component's range info matches exactly to the given accessibility range info.
+ *
+ * @param rangeInfo range info to match.
+ *
+ * @see SemanticsProperties.AccessibilityRangeInfo
+ */
+fun hasRangeInfo(rangeInfo: AccessibilityRangeInfo): SemanticsMatcher = SemanticsMatcher
+    .expectValue(SemanticsProperties.AccessibilityRangeInfo, rangeInfo)
 
 /**
  * Returns whether the component is annotated by the given test tag.

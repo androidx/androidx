@@ -19,7 +19,10 @@ package androidx.ui.foundation
 import androidx.annotation.FloatRange
 import androidx.ui.semantics.Semantics
 import androidx.compose.Composable
+import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.accessibilityValue
+import androidx.ui.semantics.accessibilityValueRange
+import kotlin.math.roundToInt
 
 /**
  * Contains the [Semantics] required for a determinate progress indicator, that represents progress
@@ -40,9 +43,17 @@ fun DeterminateProgressIndicator(
     if (progress !in 0f..1f) {
         throw IllegalArgumentException("Progress must be between 0.0 and 1.0")
     }
-    Semantics(
-        container = true,
-        properties = { accessibilityValue = "$progress" },
-        children = children
-    )
+    Semantics(container = true, properties = {
+        var percent: Int
+        // We only report 0% or 100% when it is exactly 0% or 100%.
+        if (progress > 0 && progress < 0.01) {
+            percent = 1
+        } else if (progress > 0.99 && progress < 1) {
+            percent = 99
+        } else {
+            percent = (progress * 100).roundToInt()
+        }
+        accessibilityValue = Strings.TemplatePercent.format(percent)
+        accessibilityValueRange = AccessibilityRangeInfo(progress, 0f..1f)
+    }, children = children)
 }
