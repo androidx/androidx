@@ -38,6 +38,7 @@ import androidx.ui.graphics.asAndroidPath
 import androidx.ui.test.android.SynchronizedTreeCollector
 import androidx.ui.test.android.captureRegionToBitmap
 import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
@@ -192,7 +193,19 @@ fun Path.contains(offset: Offset): Boolean {
  * The bitmap area examined is [sizeX] x [sizeY], centered at ([centerX], [centerY]) and everything
  * outside the shape is expected to be color [backgroundColor].
  *
- * The border area of 1 pixel from the shape outline is left untested as it is likely anti-aliased.
+ * @param density current [Density] or the screen
+ * @param shape defines the [Shape]
+ * @param shapeColor the color of the shape
+ * @param backgroundColor the color of the background
+ * @param backgroundShape defines the [Shape] of the background
+ * @param sizeX width of the area filled with the [backgroundShape]
+ * @param sizeY height of the area filled with the [backgroundShape]
+ * @param shapeSizeX width of the area filled with the [shape]
+ * @param shapeSizeY height of the area filled with the [shape]
+ * @param centerX the X position of the center of the [shape] inside the [sizeX]
+ * @param centerY the Y position of the center of the [shape] inside the [sizeY]
+ * @param shapeOverlapPixelCount The size of the border area from the shape outline to leave it
+ * untested as it is likely anti-aliased. The default is 1 pixel
  */
 // TODO (mount, malkov) : to investigate why it flakes when shape is not rect
 fun Bitmap.assertShape(
@@ -262,6 +275,43 @@ fun Bitmap.assertShape(
             }
         }
     }
+}
+
+/**
+ * Asserts that the bitmap is fully occupied by the given [shape] with the color [shapeColor]
+ * without [horizontalPadding] and [verticalPadding] from the sides. The padded area is expected
+ * to have [backgroundColor].
+ *
+ * @param density current [Density] or the screen
+ * @param horizontalPadding the symmetrical padding to be applied from both left and right sides
+ * @param verticalPadding the symmetrical padding to be applied from both top and bottom sides
+ * @param backgroundColor the color of the background
+ * @param shapeColor the color of the shape
+ * @param shape defines the [Shape]
+ * @param shapeOverlapPixelCount The size of the border area from the shape outline to leave it
+ * untested as it is likely anti-aliased. The default is 1 pixel
+ */
+fun Bitmap.assertShape(
+    density: Density,
+    horizontalPadding: Dp,
+    verticalPadding: Dp,
+    backgroundColor: Color,
+    shapeColor: Color,
+    shape: Shape = RectangleShape,
+    shapeOverlapPixelCount: Px = 1.px
+) {
+    val fullHorizontalPadding = with(density) { horizontalPadding.toPx() * 2 }
+    val fullVerticalPadding = with(density) { verticalPadding.toPx() * 2 }
+    return assertShape(
+        density = density,
+        shape = shape,
+        shapeColor = shapeColor,
+        backgroundColor = backgroundColor,
+        backgroundShape = RectangleShape,
+        shapeSizeX = width.toFloat().px - fullHorizontalPadding,
+        shapeSizeY = height.toFloat().px - fullVerticalPadding,
+        shapeOverlapPixelCount = shapeOverlapPixelCount
+    )
 }
 
 private infix fun Px.until(until: Px): IntRange {
