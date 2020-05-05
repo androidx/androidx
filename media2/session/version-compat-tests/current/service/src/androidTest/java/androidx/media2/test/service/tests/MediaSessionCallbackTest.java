@@ -30,6 +30,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.Rating;
@@ -479,6 +480,37 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
             RemoteMediaController controller = createRemoteController(session.getToken());
 
             controller.prepareFromMediaId(testMediaId, testExtras);
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    public void onSetMediaUri() throws InterruptedException {
+        if (!MediaTestUtils.isClientToT()) {
+            return;
+        }
+
+        final Uri testUri = Uri.parse("foo://boo");
+        final Bundle testExtras = TestUtils.createTestBundle();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
+            @Override
+            public int onSetMediaUri(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull Uri uri, @Nullable Bundle extras) {
+                assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
+                assertEquals(testUri, uri);
+                assertTrue(TestUtils.equals(testExtras, extras));
+                latch.countDown();
+                return RESULT_SUCCESS;
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnSetMediaUri")
+                .build()) {
+            RemoteMediaController controller = createRemoteController(session.getToken());
+
+            controller.setMediaUri(testUri, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }

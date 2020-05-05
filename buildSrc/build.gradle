@@ -44,19 +44,40 @@ allprojects {
     }
 }
 
-dependencies {
-    compileOnly(findGradleKotlinDsl())
-    implementation build_libs.agp
-    implementation build_libs.dex_member_list
-    implementation build_libs.dokka_gradle
-    implementation build_libs.kotlin.gradle_plugin
-    implementation build_libs.kotlinpoet
-    implementation gradleApi()
-    implementation project("jetpad-integration")
-    // needed by inspection plugin
-    implementation "com.google.protobuf:protobuf-gradle-plugin:0.8.8"
-    implementation "org.anarres.jarjar:jarjar-gradle:1.0.1"
+configurations {
+    // Dependencies added to these configurations get copied into the corresponding configuration
+    // (cacheableApi gets copied into api, etc).
+    // Because we cache the resolutions of these configurations, performance is faster when
+    // artifacts are put into these configurations than when those artifacts are put into their
+    // corresponding configuration.
+    cacheableApi
+    cacheableImplementation {
+        extendsFrom(project.configurations.cacheableApi)
+    }
+    cacheableRuntime {
+        extendsFrom(project.configurations.cacheableImplementation)
+    }
 }
+
+dependencies {
+    cacheableApi build_libs.agp
+    cacheableImplementation build_libs.dex_member_list
+    cacheableApi build_libs.kotlin.gradle_plugin
+    cacheableImplementation build_libs.kotlinpoet
+    cacheableImplementation gradleApi()
+    cacheableApi build_libs.dokka_gradle
+    // needed by inspection plugin
+    cacheableImplementation "com.google.protobuf:protobuf-gradle-plugin:0.8.8"
+    cacheableImplementation "org.anarres.jarjar:jarjar-gradle:1.0.1"
+    // dependencies that aren't used by buildSrc directly but that we resolve here so that the
+    // root project doesn't need to re-resolve them and their dependencies on every build
+    cacheableRuntime "com.google.dagger:hilt-android-gradle-plugin:DEV-SNAPSHOT"
+    // dependencies whose resolutions we don't need to cache
+    compileOnly(findGradleKotlinDsl()) // Only one file in this configuration, no need to cache it
+    implementation project("jetpad-integration") // Doesn't have a .pom, so not slow to load
+}
+
+
 
 apply plugin: "java-gradle-plugin"
 
@@ -83,3 +104,61 @@ gradlePlugin {
         }
     }
 }
+
+// Saves configuration into destFile
+// Each line of destFile will be the absolute filepath of one of the files in configuration
+def saveConfigurationResolution(configuration, destFile) {
+    def resolvedConfiguration = configuration.resolvedConfiguration
+    def files = resolvedConfiguration.files
+    def paths = files.collect { f -> f.toString() }
+    def serialized = paths.join("\n")
+    destFile.text = serialized
+}
+
+// Parses a file into a list of Dependency objects representing a ResolvedConfiguration
+def parseConfigurationResolution(savedFile) {
+    def savedText = savedFile.text
+    def filenames = savedText.split("\n")
+    def dependencies = filenames.collect { filename ->
+        project.dependencies.create(project.files(filename))
+    }
+    return dependencies
+}
+
+// Resolves a Configuration into a list of Dependency objects
+def resolveConfiguration(configuration) {
+    def resolvedName = configuration.name
+    def cacheDir = new File(project.buildDir, "/" + resolvedName)
+    def inputsFile = new File(cacheDir, "/deps")
+    def outputsFile = new File(cacheDir, "/result")
+
+    def inputText = fingerprintConfiguration(configuration)
+    if (!inputsFile.exists() || inputsFile.text != inputText) {
+        cacheDir.mkdirs()
+        saveConfigurationResolution(configuration, outputsFile)
+        inputsFile.text = inputText
+    }
+    def result = parseConfigurationResolution(outputsFile)
+    return result
+}
+
+// Computes a unique string from a Configuration based on its dependencies
+// This is used for up-to-date checks
+def fingerprintConfiguration(configuration) {
+    def dependencies = configuration.allDependencies
+    def dependencyTexts = dependencies.collect { dep -> dep.group + ":" + dep.name + ":" + dep.version }
+    return dependencyTexts.join("\n")
+}
+
+// Imports the contents of fromConf into toConf
+// Uses caching to often short-circuit the resolution of fromConf
+def loadConfigurationQuicklyInto(fromConf, toConf) {
+    def resolved = resolveConfiguration(fromConf)
+    resolved.each { dep ->
+        project.dependencies.add(toConf.name, dep)
+    }
+}
+
+loadConfigurationQuicklyInto(configurations.cacheableApi, configurations.api)
+loadConfigurationQuicklyInto(configurations.cacheableImplementation, configurations.implementation)
+loadConfigurationQuicklyInto(configurations.cacheableRuntime, configurations.runtime)

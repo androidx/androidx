@@ -5,7 +5,7 @@ cd "$(dirname $0)"
 
 # Run Gradle
 impl/build.sh --no-daemon listTaskOutputs "$@"
-impl/build.sh --no-daemon buildOnServer \
+impl/build.sh --no-daemon buildOnServer checkExternalLicenses \
     -PverifyUpToDate \
     -Pandroidx.allWarningsAsErrors --profile "$@"
 

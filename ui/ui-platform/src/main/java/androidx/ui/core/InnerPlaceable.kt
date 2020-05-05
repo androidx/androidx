@@ -148,6 +148,10 @@ internal class InnerPlaceable(
         }
     }
 
+    override fun attach() {
+        // Do nothing. InnerPlaceable only is attached when the LayoutNode is attached.
+    }
+
     override fun detach() {
         // Do nothing. InnerPlaceable only is detached when the LayoutNode is detached.
     }

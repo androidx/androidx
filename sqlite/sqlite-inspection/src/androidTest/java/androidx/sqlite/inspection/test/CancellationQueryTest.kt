@@ -35,6 +35,7 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors.newCachedThreadPool
+import java.util.concurrent.Executors.newSingleThreadScheduledExecutor
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -42,7 +43,7 @@ class CancellationQueryTest {
     private val countingExecutorService = CountingDelegatingExecutorService(newCachedThreadPool())
     @get:Rule
     val environment = SqliteInspectorTestEnvironment(
-        SqliteInspectorFactory(countingExecutorService)
+        SqliteInspectorFactory(countingExecutorService, newSingleThreadScheduledExecutor())
     )
     @get:Rule
     val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)

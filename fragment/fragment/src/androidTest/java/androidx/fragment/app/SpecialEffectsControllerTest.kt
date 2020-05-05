@@ -361,7 +361,7 @@ internal class TestSpecialEffectsController(
 ) : SpecialEffectsController(container) {
     val operationsToExecute = mutableListOf<Operation>()
 
-    override fun executeOperations(operations: MutableList<Operation>) {
+    override fun executeOperations(operations: MutableList<Operation>, isPop: Boolean) {
         operationsToExecute.addAll(operations)
         operations.forEach { operation ->
             operation.cancellationSignal.setOnCancelListener {
@@ -379,7 +379,7 @@ internal class TestSpecialEffectsController(
 internal class InstantSpecialEffectsController(
     container: ViewGroup
 ) : SpecialEffectsController(container) {
-    override fun executeOperations(operations: MutableList<Operation>) {
+    override fun executeOperations(operations: MutableList<Operation>, isPop: Boolean) {
         operations.forEach(Operation::complete)
     }
 }

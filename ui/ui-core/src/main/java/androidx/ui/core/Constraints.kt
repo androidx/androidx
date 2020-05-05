@@ -25,7 +25,7 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
 
 /**
- * Immutable constraints used for measuring child [Layout]s or [LayoutModifier2]s. A parent layout
+ * Immutable constraints used for measuring child [Layout]s or [LayoutModifier]s. A parent layout
  * can measure their children using the measure method on the corresponding [Measurable]s,
  * method which takes the [Constraints] the child has to follow. A measured child is then
  * responsible to choose for themselves and return a size which satisfies the set of [Constraints]

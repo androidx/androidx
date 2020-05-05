@@ -16,11 +16,11 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Direction
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.composed
 import androidx.ui.unit.PxPosition
 
 // TODO(b/146133703): Likely rename to PanGestureDetector as per b/146133703
@@ -55,20 +55,18 @@ import androidx.ui.unit.PxPosition
  * should be set to true when the child of the GestureDetector is animating, such that when a finger
  * touches it, dragging is immediately started so the animation stops and dragging can occur.
  */
-@Composable
 fun Modifier.dragGestureFilter(
     dragObserver: DragObserver,
     canDrag: ((Direction) -> Boolean)? = null,
     startDragImmediately: Boolean = false
-): Modifier {
+): Modifier = composed {
     val glue = remember { TouchSlopDragGestureDetectorGlue() }
     glue.touchSlopDragObserver = dragObserver
 
     // TODO(b/146427920): There is a gap here where RawPressStartGestureDetector can cause a call to
     //  DragObserver.onStart but if the pointer doesn't move and releases, (or if cancel is called)
     //  The appropriate callbacks to DragObserver will not be called.
-    return this
-        .rawDragGestureFilter(glue.rawDragObserver, glue::enabledOrStarted)
+    rawDragGestureFilter(glue.rawDragObserver, glue::enabledOrStarted)
         .touchSlopExceededGestureFilter(glue::enableDrag, canDrag)
         .rawPressStartGestureFilter(
             glue::startDrag,

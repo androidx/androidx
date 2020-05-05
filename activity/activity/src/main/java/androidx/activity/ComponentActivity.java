@@ -18,9 +18,13 @@ package androidx.activity;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions.ACTION_REQUEST_PERMISSIONS;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions.EXTRA_PERMISSIONS;
 import static androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions.EXTRA_PERMISSION_GRANT_RESULTS;
+import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
+import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult.EXTRA_ACTIVITY_OPTIONS_BUNDLE;
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION;
 
@@ -64,9 +68,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
+import androidx.lifecycle.ViewTreeViewModelStoreOwner;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -190,8 +196,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             } else {
                 // startActivityForResult path
-                ActivityCompat.startActivityForResult(activity, intent, requestCode,
-                        options != null ? options.toBundle() : null);
+                Bundle optionsBundle = null;
+                if (intent.hasExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE)) {
+                    optionsBundle = intent.getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
+                } else if (options != null) {
+                    optionsBundle = options.toBundle();
+                }
+                ActivityCompat.startActivityForResult(activity, intent, requestCode, optionsBundle);
             }
         }
     };
@@ -348,17 +359,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
-        // Set the VTLO before setting the content view so that the inflation process
-        // and attach listeners will see it already present
-        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
+        initViewTreeOwners();
         super.setContentView(layoutResID);
     }
 
     @Override
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view) {
-        // Set the VTLO before setting the content view so that attach listeners
-        // will see it already present
-        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
+        initViewTreeOwners();
         super.setContentView(view);
     }
 
@@ -366,9 +373,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void setContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        // Set the VTLO before setting the content view so that attach listeners
-        // will see it already present
-        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
+        initViewTreeOwners();
         super.setContentView(view, params);
     }
 
@@ -376,10 +381,16 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     public void addContentView(@SuppressLint({"UnknownNullness", "MissingNullability"}) View view,
             @SuppressLint({"UnknownNullness", "MissingNullability"})
                     ViewGroup.LayoutParams params) {
-        // Set the VTLO before setting the content view so that attach listeners
-        // will see it already present.
-        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
+        initViewTreeOwners();
         super.addContentView(view, params);
+    }
+
+    private void initViewTreeOwners() {
+        // Set the view tree owners before setting the content view so that the inflation process
+        // and attach listeners will see them already present
+        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
+        ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
+        ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
     }
 
     /**
@@ -486,16 +497,97 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         return mSavedStateRegistryController.getSavedStateRegistry();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
+     */
+    @Override
+    @Deprecated
+    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+            int requestCode) {
+        super.startActivityForResult(intent, requestCode);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
+     */
+    @Override
+    @Deprecated
+    public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
+            int requestCode, @Nullable Bundle options) {
+        super.startActivityForResult(intent, requestCode, options);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartIntentSenderForResult} object for the
+     * {@link ActivityResultContract}.
+     */
+    @Override
+    @Deprecated
+    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+            int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
+            int extraFlags)
+            throws IntentSender.SendIntentException {
+        super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
+                extraFlags);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * passing in a {@link StartIntentSenderForResult} object for the
+     * {@link ActivityResultContract}.
+     */
+    @Override
+    @Deprecated
+    public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
+            int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
+            int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
+        super.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues,
+                extraFlags, options);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+     * with the appropriate {@link ActivityResultContract} and handling the result in the
+     * {@link ActivityResultCallback#onActivityResult(Object) callback}.
+     */
     @CallSuper
     @Override
+    @Deprecated
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (!mActivityResultRegistry.dispatchResult(requestCode, resultCode, data)) {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated use
+     * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)} passing
+     * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
+     * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
+     */
     @CallSuper
     @Override
+    @Deprecated
     public void onRequestPermissionsResult(
             int requestCode,
             @NonNull String[] permissions,

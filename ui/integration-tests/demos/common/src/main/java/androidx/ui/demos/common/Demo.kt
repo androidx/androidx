@@ -48,15 +48,25 @@ class ComposableDemo(title: String, val content: @Composable() () -> Unit) : Dem
 class DemoCategory(title: String, val demos: List<Demo>) : Demo(title)
 
 /**
- * Flattened recursive [List] of every launchable demo in [this].
+ * Flattened recursive DFS [List] of every demo in [this].
  */
-fun DemoCategory.allLaunchableDemos(): List<Demo> {
-    val demos = mutableListOf<Demo>()
+fun DemoCategory.allDemos(): List<Demo> {
+    val allDemos = mutableListOf<Demo>()
     fun DemoCategory.addAllDemos() {
-        val (categories, launchableDemos) = this.demos.partition { it is DemoCategory }
-        categories.forEach { (it as DemoCategory).addAllDemos() }
-        demos.addAll(launchableDemos)
+        demos.forEach { demo ->
+            allDemos += demo
+            if (demo is DemoCategory) {
+                demo.addAllDemos()
+            }
+        }
     }
     addAllDemos()
-    return demos
+    return allDemos
+}
+
+/**
+ * Flattened recursive DFS [List] of every launchable demo in [this].
+ */
+fun DemoCategory.allLaunchableDemos(): List<Demo> {
+    return allDemos().filter { it !is DemoCategory }
 }

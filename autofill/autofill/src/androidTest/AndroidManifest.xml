@@ -19,5 +19,8 @@
         <activity xmlns:android="http://schemas.android.com/apk/res/android"
             android:name="androidx.autofill.InlineContentActivity">
         </activity>
+        <activity xmlns:android="http://schemas.android.com/apk/res/android"
+            android:name="androidx.autofill.inline.InlineUiActivity">
+        </activity>
     </application>
 </manifest>

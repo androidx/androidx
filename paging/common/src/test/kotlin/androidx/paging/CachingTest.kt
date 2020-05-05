@@ -288,7 +288,7 @@ class CachingTest {
     }
 
     private fun buildPageFlow(): Flow<PagingData<Item>> {
-        return PagingDataFlow(
+        return Pager(
             pagingSourceFactory = StringPagingSource.VersionedFactory()::create,
             config = PagingConfig(
                 pageSize = 3,
@@ -297,7 +297,7 @@ class CachingTest {
                 initialLoadSize = 3,
                 maxSize = 1000
             )
-        )
+        ).flow
     }
 
     private suspend fun Flow<PagingData<Item>>.collectItemsUntilSize(
@@ -371,24 +371,24 @@ class CachingTest {
         private var generation = -1
 
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
-            when (params.loadType) {
-                LoadType.REFRESH -> {
+            when (params) {
+                is LoadParams.Refresh -> {
                     generation++
                     return doLoad(
                         position = params.key ?: 0,
                         size = params.loadSize
                     )
                 }
-                LoadType.START -> {
-                    val loadSize = minOf(params.key!!, params.pageSize)
+                is LoadParams.Prepend -> {
+                    val loadSize = minOf(params.key, params.pageSize)
                     return doLoad(
-                        position = params.key!! - params.loadSize,
+                        position = params.key - params.loadSize,
                         size = loadSize
                     )
                 }
-                LoadType.END -> {
+                is LoadParams.Append -> {
                     return doLoad(
-                        position = params.key!!,
+                        position = params.key,
                         size = params.loadSize
                     )
                 }

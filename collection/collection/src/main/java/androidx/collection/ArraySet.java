@@ -23,7 +23,6 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -84,7 +83,6 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
     Object[] mArray;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mSize;
-    private MapCollections<E, E> mCollections;
 
     private int binarySearch(int hash) {
         try {
@@ -381,7 +379,6 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * @param index The desired index, must be between 0 and {@link #size()}-1.
      * @return Returns the value stored at the given index.
      */
-    @Nullable
     @SuppressWarnings("unchecked")
     public E valueAt(int index) {
         return (E) mArray[index];
@@ -690,74 +687,32 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
         return buffer.toString();
     }
 
-    // ------------------------------------------------------------------------
-    // Interop with traditional Java containers.  Not as efficient as using
-    // specialized collection APIs.
-    // ------------------------------------------------------------------------
-
-    private MapCollections<E, E> getCollection() {
-        if (mCollections == null) {
-            mCollections = new MapCollections<E, E>() {
-                @Override
-                protected int colGetSize() {
-                    return mSize;
-                }
-
-                @Override
-                protected Object colGetEntry(int index, int offset) {
-                    return mArray[index];
-                }
-
-                @Override
-                protected int colIndexOfKey(Object key) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                protected int colIndexOfValue(Object value) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                protected Map<E, E> colGetMap() {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                protected void colPut(E key, E value) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                protected E colSetValue(int index, E value) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                protected void colRemoveAt(int index) {
-                    removeAt(index);
-                }
-
-                @Override
-                protected void colClear() {
-                    throw new UnsupportedOperationException();
-                }
-            };
-        }
-        return mCollections;
-    }
-
     /**
      * Return an {@link java.util.Iterator} over all values in the set.
      *
-     * <p><b>Note:</b> this is a fairly inefficient way to access the array contents, it
-     * requires generating a number of temporary objects and allocates additional state
-     * information associated with the container that will remain for the life of the container.</p>
+     * <p><b>Note:</b> this is  aless efficient way to access the array contents compared to
+     * looping from 0 until {@link #size()} and calling {@link #valueAt(int)}.
      */
     @NonNull
     @Override
     public Iterator<E> iterator() {
-        return getCollection().new ArrayIterator<>(0);
+        return new ElementIterator();
+    }
+
+    private class ElementIterator extends IndexBasedArrayIterator<E> {
+        ElementIterator() {
+            super(mSize);
+        }
+
+        @Override
+        protected E elementAt(int index) {
+            return valueAt(index);
+        }
+
+        @Override
+        protected void removeAt(int index) {
+            ArraySet.this.removeAt(index);
+        }
     }
 
     /**

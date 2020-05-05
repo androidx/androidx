@@ -23,6 +23,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 android {
@@ -40,6 +41,13 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
+
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
 }
 
 androidx {

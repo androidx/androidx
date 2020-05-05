@@ -17,6 +17,7 @@
 package androidx.ui.animation
 
 import androidx.animation.AnimatedFloat
+import androidx.animation.AnimationBuilder
 import androidx.animation.AnimationEndReason
 import androidx.animation.TweenBuilder
 import androidx.compose.Composable
@@ -36,9 +37,14 @@ import androidx.ui.layout.Stack
  * @param current is a key representing your current layout state. every time you change a key
  * the animation will be triggered. The [children] called with the old key will be faded out while
  * the [children] called with the new key will be faded in.
+ * @param animation the [AnimationBuilder] to configure the animation.
  */
 @Composable
-fun <T> Crossfade(current: T, children: @Composable() (T) -> Unit) {
+fun <T> Crossfade(
+    current: T,
+    animation: AnimationBuilder<Float> = TweenBuilder(),
+    children: @Composable() (T) -> Unit
+) {
     val state = remember { CrossfadeState<T>() }
     if (current != state.current) {
         state.current = current
@@ -50,6 +56,7 @@ fun <T> Crossfade(current: T, children: @Composable() (T) -> Unit) {
         keys.mapTo(state.items) { key ->
             CrossfadeAnimationItem(key) { children ->
                 val opacity = animatedOpacity(
+                    animation = animation,
                     visible = key == current,
                     onAnimationFinish = {
                         if (key == state.current) {
@@ -92,6 +99,7 @@ private typealias CrossfadeTransition = @Composable() (children: @Composable() (
 
 @Composable
 private fun animatedOpacity(
+    animation: AnimationBuilder<Float>,
     visible: Boolean,
     onAnimationFinish: () -> Unit = {}
 ): AnimatedFloat {
@@ -99,7 +107,7 @@ private fun animatedOpacity(
     onCommit(visible) {
         animatedFloat.animateTo(
             if (visible) 1f else 0f,
-            anim = TweenBuilder<Float>().apply { duration = 300 },
+            anim = animation,
             onEnd = { reason, _ ->
                 if (reason == AnimationEndReason.TargetReached) {
                     onAnimationFinish()

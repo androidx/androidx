@@ -139,6 +139,19 @@ package androidx.ui.core {
     method public static int merge-CBRbNzc(androidx.ui.core.AlignmentLine, int position1, int position2);
   }
 
+  public final class CombinedModifier implements androidx.ui.core.Modifier {
+    ctor public CombinedModifier(androidx.ui.core.Modifier outer, androidx.ui.core.Modifier inner);
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
+    method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
+  }
+
+  public final class ComposedModifierKt {
+    method public static androidx.ui.core.Modifier composed(androidx.ui.core.Modifier, kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier,? extends androidx.ui.core.Modifier> factory);
+    method public static androidx.ui.core.Modifier materialize(androidx.compose.Composer<?>, androidx.ui.core.Modifier modifier);
+  }
+
   public final class Constraints {
     method public int component1();
     method public int component2();
@@ -162,7 +175,7 @@ package androidx.ui.core {
     ctor public Constraints2();
     method public static long constructor-impl(internal long value);
     method public static long copy-impl(long $this, int minWidth = this.minWidth, int maxWidth = this.maxWidth, int minHeight = this.minHeight, int maxHeight = this.maxHeight);
-    method public static boolean equals-impl(long p, Object? p1);
+    method public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static boolean getHasBoundedHeight-impl(long $this);
     method public static boolean getHasBoundedWidth-impl(long $this);
@@ -170,8 +183,8 @@ package androidx.ui.core {
     method public static int getMaxWidth-impl(long $this);
     method public static int getMinHeight-impl(long $this);
     method public static int getMinWidth-impl(long $this);
-    method public static int hashCode-impl(long p);
-    method public static String toString-impl(long p);
+    method public static inline int hashCode-impl(long p);
+    method public static inline String! toString-impl(long p);
     field public static final androidx.ui.core.Constraints2.Companion! Companion;
     field public static final int Infinity = -1073741824; // 0xc0000000
   }
@@ -374,19 +387,7 @@ package androidx.ui.core {
     enum_constant public static final androidx.ui.core.LayoutDirection Rtl;
   }
 
-  @Deprecated public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
-    method @Deprecated public default int maxIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default int maxIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default int minIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default int minIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default androidx.ui.unit.IntPx? modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine line, androidx.ui.unit.IntPx? value, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default androidx.ui.core.Constraints modifyConstraints(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default androidx.ui.core.LayoutDirection modifyLayoutDirection(androidx.ui.unit.Density, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default androidx.ui.unit.IntPxPosition modifyPosition(androidx.ui.unit.Density, androidx.ui.unit.IntPxSize childSize, androidx.ui.unit.IntPxSize containerSize, androidx.ui.core.LayoutDirection layoutDirection);
-    method @Deprecated public default androidx.ui.unit.IntPxSize modifySize(androidx.ui.unit.Density, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.unit.IntPxSize childSize);
-  }
-
-  public interface LayoutModifier2 extends androidx.ui.core.Modifier.Element {
+  public interface LayoutModifier extends androidx.ui.core.Modifier.Element {
     method public default int maxIntrinsicHeight-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable measurable, int width, androidx.ui.core.LayoutDirection layoutDirection);
     method public default int maxIntrinsicWidth-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable measurable, int height, androidx.ui.core.LayoutDirection layoutDirection);
     method public androidx.ui.core.MeasureScope.MeasureResult measure(androidx.ui.core.MeasureScope, androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection);
@@ -427,6 +428,8 @@ package androidx.ui.core {
   }
 
   public interface Modifier {
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method public default operator androidx.ui.core.Modifier plus(androidx.ui.core.Modifier other);
@@ -434,6 +437,8 @@ package androidx.ui.core {
   }
 
   public static final class Modifier.Companion implements androidx.ui.core.Modifier {
+    method public boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
     method @Deprecated public androidx.ui.core.Modifier getNone();
@@ -441,6 +446,8 @@ package androidx.ui.core {
   }
 
   public static interface Modifier.Element extends androidx.ui.core.Modifier {
+    method public default boolean all(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
+    method public default boolean any(kotlin.jvm.functions.Function1<? super androidx.ui.core.Modifier.Element,java.lang.Boolean> predicate);
     method public default <R> R! foldIn(R? initial, kotlin.jvm.functions.Function2<? super R,? super androidx.ui.core.Modifier.Element,? extends R> operation);
     method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.ui.core.Modifier.Element,? super R,? extends R> operation);
   }
@@ -507,11 +514,11 @@ package androidx.ui.core {
   public final inline class PointerId {
     ctor public PointerId();
     method public static long constructor-impl(long value);
-    method public static boolean equals-impl(long p, Object? p1);
+    method public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public long getValue();
-    method public static int hashCode-impl(long p);
-    method public static String toString-impl(long p);
+    method public static inline int hashCode-impl(long p);
+    method public static inline String! toString-impl(long p);
   }
 
   public final class PointerInputChange {
@@ -539,11 +546,13 @@ package androidx.ui.core {
   }
 
   public final class PointerInputKt {
+    method public static boolean anyChangeConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean anyPositionChangeConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean changedToDown(androidx.ui.core.PointerInputChange);
     method public static boolean changedToDownIgnoreConsumed(androidx.ui.core.PointerInputChange);
     method public static boolean changedToUp(androidx.ui.core.PointerInputChange);
     method public static boolean changedToUpIgnoreConsumed(androidx.ui.core.PointerInputChange);
+    method public static androidx.ui.core.PointerInputChange consumeAllChanges(androidx.ui.core.PointerInputChange);
     method public static androidx.ui.core.PointerInputChange consumeDownChange(androidx.ui.core.PointerInputChange);
     method public static androidx.ui.core.PointerInputChange consumePositionChange-3EnrK0w(androidx.ui.core.PointerInputChange, float consumedDx, float consumedDy);
     method public static androidx.ui.unit.PxPosition positionChange(androidx.ui.core.PointerInputChange);
@@ -581,12 +590,12 @@ package androidx.ui.core {
   public final inline class TransformOrigin {
     ctor public TransformOrigin();
     method public static long constructor-impl(internal long value);
-    method public static boolean equals-impl(long p, Object? p1);
+    method public static inline boolean equals-impl(long p, Object? p1);
     method public static boolean equals-impl0(long p1, long p2);
     method public static float getPivotFractionX-impl(long $this);
     method public static float getPivotFractionY-impl(long $this);
-    method public static int hashCode-impl(long p);
-    method public static String toString-impl(long p);
+    method public static inline int hashCode-impl(long p);
+    method public static inline String! toString-impl(long p);
     field public static final androidx.ui.core.TransformOrigin.Companion! Companion;
   }
 
@@ -643,12 +652,12 @@ package androidx.ui.focus {
 package androidx.ui.semantics {
 
   public final class AccessibilityAction<T extends kotlin.Function<? extends kotlin.Unit>> {
-    ctor public AccessibilityAction(String? label, T action);
-    method public String? component1();
+    ctor public AccessibilityAction(CharSequence? label, T action);
+    method public CharSequence? component1();
     method public T component2();
-    method public androidx.ui.semantics.AccessibilityAction<T> copy(String? label, T action);
+    method public androidx.ui.semantics.AccessibilityAction<T> copy(CharSequence? label, T action);
     method public T getAction();
-    method public String? getLabel();
+    method public CharSequence? getLabel();
   }
 
   public final class AccessibilityRangeInfo {
@@ -660,16 +669,25 @@ package androidx.ui.semantics {
     method public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getRange();
   }
 
+  public final class CustomAccessibilityAction {
+    ctor public CustomAccessibilityAction(CharSequence label, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
+    method public CharSequence component1();
+    method public kotlin.jvm.functions.Function0<java.lang.Boolean> component2();
+    method public androidx.ui.semantics.CustomAccessibilityAction copy(CharSequence label, kotlin.jvm.functions.Function0<java.lang.Boolean> action);
+    method public kotlin.jvm.functions.Function0<java.lang.Boolean> getAction();
+    method public CharSequence getLabel();
+  }
+
   public final class SemanticsActions {
     ctor public SemanticsActions();
     field public static final androidx.ui.semantics.SemanticsActions.Companion! Companion;
   }
 
   public static final class SemanticsActions.Companion {
-    method public androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>>> getCustomActions();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.CustomAccessibilityAction>> getCustomActions();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> getOnClick();
     method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>>> getScrollTo();
-    property public final androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>>> CustomActions;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.util.List<androidx.ui.semantics.CustomAccessibilityAction>> CustomActions;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<kotlin.Unit>>> OnClick;
     property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function2<androidx.ui.unit.Px,androidx.ui.unit.Px,kotlin.Unit>>> ScrollTo;
   }

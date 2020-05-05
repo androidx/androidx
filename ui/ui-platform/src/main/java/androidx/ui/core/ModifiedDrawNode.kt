@@ -17,8 +17,8 @@
 package androidx.ui.core
 
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.ClipOp
@@ -87,9 +87,13 @@ internal class ModifiedDrawNode(
 
         override fun concat(matrix4: Matrix4) = canvas!!.concat(matrix4)
 
-        override fun clipRect(rect: Rect, clipOp: ClipOp) = canvas!!.clipRect(rect, clipOp)
-
-        override fun clipRRect(rrect: RRect) = canvas!!.clipRRect(rrect)
+        override fun clipRect(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            clipOp: ClipOp
+        ) = canvas!!.clipRect(left, top, right, bottom, clipOp)
 
         override fun clipPath(path: Path) = canvas!!.clipPath(path)
 
@@ -97,6 +101,23 @@ internal class ModifiedDrawNode(
             canvas!!.drawLine(p1, p2, paint)
 
         override fun drawRect(rect: Rect, paint: Paint) = canvas!!.drawRect(rect, paint)
+
+        override fun drawRect(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) =
+            canvas!!.drawRect(left, top, right, bottom, paint)
+
+        override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) =
+            canvas!!.drawOval(left, top, right, bottom, paint)
+
+        override fun drawArc(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            startAngle: Float,
+            sweepAngle: Float,
+            useCenter: Boolean,
+            paint: Paint
+        ) = canvas!!.drawArc(left, top, right, bottom, startAngle, sweepAngle, useCenter, paint)
 
         override fun drawRoundRect(
             left: Float,
@@ -113,21 +134,19 @@ internal class ModifiedDrawNode(
         override fun drawCircle(center: Offset, radius: Float, paint: Paint) =
             canvas!!.drawCircle(center, radius, paint)
 
-        override fun drawArc(
-            rect: Rect,
-            startAngle: Float,
-            sweepAngle: Float,
-            useCenter: Boolean,
-            paint: Paint
-        ) = canvas!!.drawArc(rect, startAngle, sweepAngle, useCenter, paint)
-
         override fun drawPath(path: Path, paint: Paint) = canvas!!.drawPath(path, paint)
 
         override fun drawImage(image: ImageAsset, topLeftOffset: Offset, paint: Paint) =
             canvas!!.drawImage(image, topLeftOffset, paint)
 
-        override fun drawImageRect(image: ImageAsset, src: Rect?, dst: Rect, paint: Paint) =
-            canvas!!.drawImageRect(image, src, dst, paint)
+        override fun drawImageRect(
+            image: ImageAsset,
+            srcOffset: Offset,
+            srcSize: Size,
+            dstOffset: Offset,
+            dstSize: Size,
+            paint: Paint
+        ) = canvas!!.drawImageRect(image, srcOffset, srcSize, dstOffset, dstSize, paint)
 
         override fun drawPicture(picture: Picture) = canvas!!.drawPicture(picture)
 

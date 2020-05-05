@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.PagingSource.LoadResult.Page
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.GlobalScope
@@ -31,6 +30,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
 class LegacyPagingSourceTest {
     private val fakePagingState = PagingState(
@@ -46,7 +46,7 @@ class LegacyPagingSourceTest {
             pageSize = 1,
             prefetchDistance = 1
         ),
-        placeholdersStart = 0
+        placeholdersBefore = 0
     )
 
     @Test
@@ -149,7 +149,7 @@ class LegacyPagingSourceTest {
                         pageSize = 1,
                         prefetchDistance = 1
                     ),
-                    placeholdersStart = 0
+                    placeholdersBefore = 0
                 )
             )
         )
@@ -169,7 +169,7 @@ class LegacyPagingSourceTest {
                         pageSize = 1,
                         prefetchDistance = 1
                     ),
-                    placeholdersStart = 0
+                    placeholdersBefore = 0
                 )
             )
         )
@@ -222,7 +222,7 @@ class LegacyPagingSourceTest {
 
         // Trigger lazy-initialization dispatch.
         val job = GlobalScope.launch {
-            pagingSource.load(PagingSource.LoadParams(REFRESH, 0, 1, false, 1))
+            pagingSource.load(PagingSource.LoadParams.Refresh(0, 1, false, 1))
         }
 
         // Assert that initialization has been scheduled on manualDispatcher, which has not been

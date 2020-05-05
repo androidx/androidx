@@ -228,7 +228,8 @@ private fun BottomNavigationItemBaselineLayout(
         )
 
         // If the text is empty, just place the icon.
-        if (textPlaceable.width == IntPx.Zero && textPlaceable.height == IntPx.Zero) {
+        if (textPlaceable.width <= BottomNavigationItemHorizontalPadding.toIntPx() * 2 &&
+            textPlaceable.height == IntPx.Zero) {
             placeIcon(iconPlaceable, constraints)
         } else {
             placeTextAndIcon(

@@ -20,16 +20,13 @@ import androidx.compose.Composable
 import androidx.test.filters.MediumTest
 import androidx.ui.layout.Column
 import androidx.ui.semantics.Semantics
-import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.semantics.SemanticsPropertyReceiver
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.semantics.testTag
-import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.lang.AssertionError
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -44,8 +41,7 @@ class FindersTest {
             BoundaryNode { testTag = "not_myTestTag" }
         }
 
-        val foundNodes = findAll(hasTestTag("myTestTag"))
-        assertThat(foundNodes).isEmpty()
+        findAll(hasTestTag("myTestTag")).assertCountEquals(0)
     }
 
     @Test
@@ -55,9 +51,10 @@ class FindersTest {
             BoundaryNode { testTag = "myTestTag2" }
         }
 
-        val foundNodes = findAll(hasTestTag("myTestTag"))
-        assertThat(foundNodes.map { it.fetchSemanticsNode().config[SemanticsProperties.TestTag] })
-            .containsExactly("myTestTag")
+        findAll(hasTestTag("myTestTag"))
+            .assertCountEquals(1)
+            .first()
+            .assert(hasTestTag("myTestTag"))
     }
 
     @Test
@@ -67,9 +64,12 @@ class FindersTest {
             BoundaryNode { testTag = "myTestTag" }
         }
 
-        val foundNodes = findAll(hasTestTag("myTestTag"))
-        assertThat(foundNodes.map { it.fetchSemanticsNode().config[SemanticsProperties.TestTag] })
-            .containsExactly("myTestTag", "myTestTag")
+        findAll(hasTestTag("myTestTag"))
+            .assertCountEquals(2)
+            .apply {
+                get(0).assert(hasTestTag("myTestTag"))
+                get(1).assert(hasTestTag("myTestTag"))
+            }
     }
 
     @Test

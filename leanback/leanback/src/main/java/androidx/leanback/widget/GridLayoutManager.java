@@ -438,6 +438,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     int mOrientation = HORIZONTAL;
     private OrientationHelper mOrientationHelper = OrientationHelper.createHorizontalHelper(this);
 
+    private int mSaveContextLevel;
     RecyclerView.State mState;
     // Suppose currently showing 4, 5, 6, 7; removing 2,3,4 will make the layoutPosition to be
     // 2(deleted), 3, 4, 5 in prelayout pass. So when we add item in prelayout, we must subtract 2
@@ -1188,23 +1189,26 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
      * Save Recycler and State for convenience.  Must be paired with leaveContext().
      */
     private void saveContext(Recycler recycler, State state) {
-        if (mRecycler != null || mState != null) {
-            Log.e(TAG, "Recycler information was not released, bug!");
+        if (mSaveContextLevel == 0) {
+            mRecycler = recycler;
+            mState = state;
+            mPositionDeltaInPreLayout = 0;
+            mExtraLayoutSpaceInPreLayout = 0;
         }
-        mRecycler = recycler;
-        mState = state;
-        mPositionDeltaInPreLayout = 0;
-        mExtraLayoutSpaceInPreLayout = 0;
+        mSaveContextLevel++;
     }
 
     /**
      * Discard saved Recycler and State.
      */
     private void leaveContext() {
-        mRecycler = null;
-        mState = null;
-        mPositionDeltaInPreLayout = 0;
-        mExtraLayoutSpaceInPreLayout = 0;
+        mSaveContextLevel--;
+        if (mSaveContextLevel == 0) {
+            mRecycler = null;
+            mState = null;
+            mPositionDeltaInPreLayout = 0;
+            mExtraLayoutSpaceInPreLayout = 0;
+        }
     }
 
     /**

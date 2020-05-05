@@ -21,8 +21,8 @@ import android.app.Application
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingDataFlow
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.integration.testapp.room.Customer
@@ -60,7 +60,7 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
     private val pagingSourceFactory = database.customerDao.loadPagedAgeOrder()
         .asPagingSourceFactory()
 
-    val flow = PagingDataFlow(
+    val flow = Pager(
         PagingConfig(10),
         remoteMediator = V3RemoteMediator(
             database,
@@ -68,6 +68,7 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
         ),
         pagingSourceFactory = pagingSourceFactory
     )
+        .flow
         .map { pagingData ->
             pagingData
                 .insertSeparators { before: Customer?, after: Customer? ->

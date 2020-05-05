@@ -16,6 +16,8 @@
 
 package androidx.fragment.app;
 
+import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult.EXTRA_ACTIVITY_OPTIONS_BUNDLE;
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.Animator;
@@ -23,9 +25,13 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,6 +45,14 @@ import android.view.ViewParent;
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.ActivityResultRegistryOwner;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.IdRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -56,9 +70,11 @@ import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -438,6 +454,15 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 }
             };
 
+    // Key to retrieve the request code from any intents that are started
+    private static final String EXTRA_KEY_REQUEST_CODE = "activity.result.requestCode";
+
+    private ActivityResultLauncher<Intent> mStartActivityForResult;
+    private ActivityResultLauncher<IntentSenderRequest> mStartIntentSenderForResult;
+    private ActivityResultLauncher<String[]> mRequestPermissions;
+
+    ArrayDeque<LaunchedFragmentInfo> mLaunchedFragments = new ArrayDeque<>();
+
     private boolean mNeedMenuInvalidate;
     private boolean mStateSaved;
     private boolean mStopped;
@@ -793,13 +818,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     }
 
     @Override
-    public final void setFragmentResult(@NonNull String requestKey, @Nullable Bundle result) {
-        if (result == null) {
-            // if the given result is null, remove the result
-            mResults.remove(requestKey);
-            return;
-        }
-
+    public final void setFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
         // Check if there is a listener waiting for a result with this key
         LifecycleAwareResultListener resultListener = mResultListeners.get(requestKey);
         // if there is and it is started, fire the callback
@@ -811,16 +830,16 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
     }
 
+    @Override
+    public final void clearFragmentResult(@NonNull String requestKey) {
+        mResults.remove(requestKey);
+    }
+
     @SuppressLint("SyntheticAccessor")
     @Override
     public final void setFragmentResultListener(@NonNull final String requestKey,
             @NonNull final LifecycleOwner lifecycleOwner,
-            @Nullable final FragmentResultListener listener) {
-        if (listener == null) {
-            mResultListeners.remove(requestKey);
-            return;
-        }
-
+            @NonNull final FragmentResultListener listener) {
         final Lifecycle lifecycle = lifecycleOwner.getLifecycle();
         if (lifecycle.getCurrentState() == Lifecycle.State.DESTROYED) {
             return;
@@ -837,7 +856,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                         // if there is a result, fire the callback
                         listener.onFragmentResult(requestKey, storedResult);
                         // and clear the result
-                        setFragmentResult(requestKey, null);
+                        clearFragmentResult(requestKey);
                     }
                 }
 
@@ -849,6 +868,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
         };
         lifecycle.addObserver(observer);
         mResultListeners.put(requestKey, new LifecycleAwareResultListener(lifecycle, listener));
+    }
+
+    @Override
+    public final void clearFragmentResultListener(@NonNull String requestKey) {
+        mResultListeners.remove(requestKey);
     }
 
     /**
@@ -2060,9 +2084,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
             if (allowReordering) {
                 moveToState(mCurState, true);
             }
+            // The last operation determines the overall direction, this ensures that operations
+            // such as push, push, pop, push are correctly considered a push
+            boolean isPop = isRecordPop.get(endIndex - 1);
             Set<SpecialEffectsController> changedControllers = collectChangedControllers(
                     records, startIndex, endIndex);
             for (SpecialEffectsController controller : changedControllers) {
+                controller.updateOperationDirection(isPop);
                 controller.executePendingOperations();
             }
         } else {
@@ -2543,6 +2571,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         }
         fms.mResultKeys.addAll(mResults.keySet());
         fms.mResults.addAll(mResults.values());
+        fms.mLaunchedFragments = new ArrayList<>(mLaunchedFragments);
         return fms;
     }
 
@@ -2651,6 +2680,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 mResults.put(savedResultKeys.get(i), fms.mResults.get(i));
             }
         }
+        mLaunchedFragments = new ArrayDeque<>(fms.mLaunchedFragments);
     }
 
     @NonNull
@@ -2673,6 +2703,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
         return mFragmentStore;
     }
 
+    @SuppressWarnings("deprecation")
+    @SuppressLint("SyntheticAccessor")
     void attachController(@NonNull FragmentHostCallback<?> host,
             @NonNull FragmentContainer container, @Nullable final Fragment parent) {
         if (mHost != null) throw new IllegalStateException("Already attached");
@@ -2705,6 +2737,92 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // Ensure that the state is in sync with FragmentManager
         mNonConfig.setIsStateSaved(isStateSaved());
         mFragmentStore.setNonConfig(mNonConfig);
+
+        if (mHost instanceof ActivityResultRegistryOwner) {
+            ActivityResultRegistry registry =
+                    ((ActivityResultRegistryOwner) mHost).getActivityResultRegistry();
+
+            String parentId = parent != null ? parent.mWho + ":" : "";
+            String keyPrefix = "FragmentManager:" + parentId;
+
+            mStartActivityForResult = registry.register(keyPrefix + "StartActivityForResult",
+                    new ActivityResultContracts.StartActivityForResult(),
+                    new ActivityResultCallback<ActivityResult>() {
+                        @Override
+                        public void onActivityResult(ActivityResult result) {
+                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.removeFirst();
+                            String fragmentWho = requestInfo.mWho;
+                            int requestCode = requestInfo.mRequestCode;
+                            Fragment fragment =  mFragmentStore.findFragmentByWho(fragmentWho);
+                            // Although unlikely, it is possible this fragment could be null if a
+                            // fragment transactions was committed immediately after the for
+                            // result call
+                            if (fragment == null) {
+                                Log.w(TAG,
+                                        "Activity result delivered for unknown Fragment "
+                                                + fragmentWho);
+                                return;
+                            }
+                            fragment.onActivityResult(requestCode, result.getResultCode(),
+                                    result.getData());
+                        }
+                    });
+
+            mStartIntentSenderForResult = registry.register(keyPrefix
+                            + "StartIntentSenderForResult",
+                    new FragmentManager.FragmentIntentSenderContract(),
+                    new ActivityResultCallback<ActivityResult>() {
+                        @Override
+                        public void onActivityResult(ActivityResult result) {
+                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.removeFirst();
+                            String fragmentWho = requestInfo.mWho;
+                            int requestCode = requestInfo.mRequestCode;
+                            Fragment fragment =  mFragmentStore.findFragmentByWho(fragmentWho);
+                            // Although unlikely, it is possible this fragment could be null if a
+                            // fragment transactions was committed immediately after the for
+                            // result call
+                            if (fragment == null) {
+                                Log.w(TAG,
+                                        "Intent Sender result delivered for unknown Fragment "
+                                                + fragmentWho);
+                                return;
+                            }
+                            fragment.onActivityResult(requestCode, result.getResultCode(),
+                                    result.getData());
+                        }
+                    });
+
+            mRequestPermissions = registry.register(keyPrefix + "RequestPermissions",
+                    new ActivityResultContracts.RequestMultiplePermissions(),
+                    new ActivityResultCallback<Map<String, Boolean>>() {
+                        @SuppressLint("SyntheticAccessor")
+                        @Override
+                        public void onActivityResult(Map<String, Boolean> result) {
+                            String[] permissions = result.keySet().toArray(new String[0]);
+                            ArrayList<Boolean> resultValues = new ArrayList<>(result.values());
+                            int[] grantResults = new int[resultValues.size()];
+                            for (int i = 0; i < resultValues.size(); i++) {
+                                grantResults[i] = resultValues.get(i)
+                                        ? PackageManager.PERMISSION_GRANTED
+                                        : PackageManager.PERMISSION_DENIED;
+                            }
+                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.removeFirst();
+                            String fragmentWho = requestInfo.mWho;
+                            int requestCode = requestInfo.mRequestCode;
+                            Fragment fragment =  mFragmentStore.findFragmentByWho(fragmentWho);
+                            // Although unlikely, it is possible this fragment could be null if a
+                            // fragment transactions was committed immediately after the request
+                            // permissions call
+                            if (fragment == null) {
+                                Log.w(TAG, "Permission request result delivered for unknown "
+                                        + "Fragment " + fragmentWho);
+                                return;
+                            }
+                            fragment.onRequestPermissionsResult(requestCode, permissions,
+                                    grantResults);
+                        }
+                    });
+        }
     }
 
     void noteStateNotSaved() {
@@ -2721,6 +2839,57 @@ public abstract class FragmentManager implements FragmentResultOwner {
             if (fragment != null) {
                 fragment.noteStateNotSaved();
             }
+        }
+    }
+
+    void launchStartActivityForResult(@NonNull Fragment f,
+            @SuppressLint("UnknownNullness") Intent intent,
+            int requestCode, @Nullable Bundle options) {
+        if (mStartActivityForResult != null) {
+            LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
+            mLaunchedFragments.addLast(info);
+            if (options != null) {
+                intent.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, options);
+            }
+            mStartActivityForResult.launch(intent);
+        } else {
+            mHost.onStartActivityFromFragment(f, intent, requestCode, options);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    void launchStartIntentSenderForResult(@NonNull Fragment f,
+            @SuppressLint("UnknownNullness") IntentSender intent,
+            int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
+            int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
+        if (mStartIntentSenderForResult != null) {
+            IntentSenderRequest request =
+                    new IntentSenderRequest.Builder(intent).setFillInIntent(fillInIntent)
+                            .setFlagsMask(flagsMask).setFlagsValues(flagsValues).build();
+            if (options != null) {
+                if (fillInIntent == null) {
+                    fillInIntent = new Intent();
+                }
+                fillInIntent.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, options);
+            }
+            LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
+            mLaunchedFragments.addLast(info);
+            mStartIntentSenderForResult.launch(request);
+        } else {
+            mHost.onStartIntentSenderFromFragment(f, intent, requestCode, fillInIntent,
+                    flagsMask, flagsValues, extraFlags, options);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    void launchRequestPermissions(@NonNull Fragment f, @NonNull String[] permissions,
+            int requestCode) {
+        if (mRequestPermissions != null) {
+            LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
+            mLaunchedFragments.addLast(info);
+            mRequestPermissions.launch(permissions);
+        } else {
+            mHost.onRequestPermissionsFromFragment(f, permissions, requestCode);
         }
     }
 
@@ -2786,6 +2955,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
             // so we need to null it out to prevent memory leaks
             mOnBackPressedCallback.remove();
             mOnBackPressedDispatcher = null;
+        }
+        if (mStartActivityForResult != null) {
+            mStartActivityForResult.unregister();
+            mStartIntentSenderForResult.unregister();
+            mRequestPermissions.unregister();
         }
     }
 
@@ -3238,6 +3412,73 @@ public abstract class FragmentManager implements FragmentResultOwner {
          */
         void cancelTransaction() {
             mRecord.mManager.completeExecute(mRecord, mIsBack, false, false);
+        }
+    }
+
+    @SuppressLint("BanParcelableUsage")
+    static class LaunchedFragmentInfo implements Parcelable {
+        String mWho;
+        int mRequestCode;
+
+        LaunchedFragmentInfo(@NonNull String who, int requestCode) {
+            mWho = who;
+            mRequestCode = requestCode;
+        }
+
+        LaunchedFragmentInfo(@NonNull Parcel in) {
+            mWho = in.readString();
+            mRequestCode = in.readInt();
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(mWho);
+            dest.writeInt(mRequestCode);
+        }
+
+        public static final Parcelable.Creator<LaunchedFragmentInfo> CREATOR =
+                new Creator<LaunchedFragmentInfo>() {
+                    @Override
+                    public LaunchedFragmentInfo createFromParcel(Parcel in) {
+                        return new LaunchedFragmentInfo(in);
+                    }
+
+                    @Override
+                    public LaunchedFragmentInfo[] newArray(int size) {
+                        return new LaunchedFragmentInfo[size];
+                    }
+                };
+    }
+
+    static class FragmentIntentSenderContract extends ActivityResultContract<IntentSenderRequest,
+            ActivityResult> {
+
+        @NonNull
+        @Override
+        public Intent createIntent(@NonNull Context context, IntentSenderRequest input) {
+            Intent result = new Intent(ACTION_INTENT_SENDER_REQUEST);
+            if (input.getFillInIntent() != null) {
+                Bundle activityOptions =
+                        input.getFillInIntent().getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
+                int requestCode =
+                        input.getFillInIntent().getIntExtra(EXTRA_KEY_REQUEST_CODE, -1);
+                if (activityOptions != null) {
+                    result.putExtra(EXTRA_KEY_REQUEST_CODE, requestCode);
+                    result.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, activityOptions);
+                }
+            }
+            return result;
+        }
+
+        @NonNull
+        @Override
+        public ActivityResult parseResult(int resultCode, @Nullable Intent intent) {
+            return new ActivityResult(resultCode, intent);
         }
     }
 }

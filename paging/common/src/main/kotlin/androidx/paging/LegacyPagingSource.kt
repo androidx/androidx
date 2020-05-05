@@ -20,8 +20,9 @@ import androidx.paging.DataSource.KeyType.ITEM_KEYED
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
 import androidx.paging.DataSource.KeyType.POSITIONAL
 import androidx.paging.DataSource.Params
-import androidx.paging.LoadType.END
-import androidx.paging.LoadType.START
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadType.REFRESH
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
@@ -39,8 +40,13 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
     }
 
     override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
+        val type = when (params) {
+            is LoadParams.Refresh -> REFRESH
+            is LoadParams.Append -> APPEND
+            is LoadParams.Prepend -> PREPEND
+        }
         val dataSourceParams = Params(
-            params.loadType,
+            type,
             params.key,
             params.loadSize,
             params.placeholdersEnabled,
@@ -52,9 +58,9 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
                 LoadResult.Page(
                     data,
                     @Suppress("UNCHECKED_CAST")
-                    if (data.isEmpty() && params.loadType == START) null else prevKey as Key?,
+                    if (data.isEmpty() && params is LoadParams.Prepend) null else prevKey as Key?,
                     @Suppress("UNCHECKED_CAST")
-                    if (data.isEmpty() && params.loadType == END) null else nextKey as Key?,
+                    if (data.isEmpty() && params is LoadParams.Append) null else nextKey as Key?,
                     itemsBefore,
                     itemsAfter
                 )
@@ -67,6 +73,7 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
         dataSource.invalidate()
     }
 
+    @OptIn(ExperimentalPagingApi::class)
     @Suppress("UNCHECKED_CAST")
     override fun getRefreshKey(state: PagingState<Key, Value>): Key? {
         return when (dataSource.type) {

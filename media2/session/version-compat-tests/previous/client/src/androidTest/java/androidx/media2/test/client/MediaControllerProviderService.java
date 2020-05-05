@@ -213,6 +213,13 @@ public class MediaControllerProviderService extends Service {
         }
 
         @Override
+        public void setMediaUri(String controllerId, Uri uri, Bundle extras)
+                throws RemoteException {
+            // TODO: Implement this once media2-session 1.1.0 becomes previous version.
+            // no-op: Newly added method in media2-session 1.1.0
+        }
+
+        @Override
         public void updatePlaylistMetadata(String controllerId, ParcelImpl metadata)
                 throws RemoteException {
             MediaController controller = mMediaControllerMap.get(controllerId);

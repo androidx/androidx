@@ -21,6 +21,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.transition.ArcMotion;
 import androidx.transition.ChangeBounds;
 import androidx.transition.Transition;

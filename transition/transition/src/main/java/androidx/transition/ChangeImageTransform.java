@@ -16,6 +16,9 @@
 
 package androidx.transition;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
+import android.animation.TypeEvaluator;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -28,9 +31,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.animation.Animator;
-import androidx.core.animation.ObjectAnimator;
-import androidx.core.animation.TypeEvaluator;
 
 import java.util.Map;
 
@@ -54,8 +54,7 @@ public class ChangeImageTransform extends Transition {
 
     private static final TypeEvaluator<Matrix> NULL_MATRIX_EVALUATOR = new TypeEvaluator<Matrix>() {
         @Override
-        public Matrix evaluate(float fraction, @NonNull Matrix startValue,
-                @NonNull Matrix endValue) {
+        public Matrix evaluate(float fraction, Matrix startValue, Matrix endValue) {
             return null;
         }
     };

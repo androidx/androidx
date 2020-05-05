@@ -55,6 +55,8 @@ import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.ProcessResult
 import androidx.ui.core.semantics.SemanticsOwner
 import androidx.ui.core.text.AndroidFontResourceLoader
+import androidx.ui.core.texttoolbar.AndroidTextToolbar
+import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.focus.FocusDetailedState.Active
 import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.graphics.Canvas
@@ -232,6 +234,8 @@ internal class AndroidComposeView constructor(
         isFocusable = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             focusable = View.FOCUSABLE
+            // not to add the default focus highlight to the whole compose view
+            defaultFocusHighlightEnabled = false
         }
         isFocusableInTouchMode = true
         clipChildren = false
@@ -636,7 +640,7 @@ internal class AndroidComposeView constructor(
     // TODO(shepshapard): Test this method.
     override fun dispatchTouchEvent(motionEvent: MotionEvent): Boolean {
         val processResult = trace("AndroidOwner:onTouch") {
-            val pointerInputEvent = motionEventAdapter.processMotionEvent(motionEvent)
+            val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(motionEvent)
             if (pointerInputEvent != null) {
                 pointerInputEventProcessor.process(pointerInputEvent)
             } else {
@@ -682,6 +686,12 @@ internal class AndroidComposeView constructor(
      * Provide clipboard manager to the user. Use the Android version of clipboard manager.
      */
     override val clipboardManager: ClipboardManager = AndroidClipboardManager(context)
+
+    /**
+     * Provide textToolbar to the user, for text-related operation. Use the Android version of
+     * floating toolbar(post-M) and primary toolbar(pre-M).
+     */
+    override val textToolbar: TextToolbar = AndroidTextToolbar(this)
 
     override fun onCheckIsTextEditor(): Boolean = textInputServiceAndroid.isEditorFocused()
 

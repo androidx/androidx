@@ -16,11 +16,13 @@
 
 package androidx.hilt.work
 
+import androidx.hilt.Assisted
 import androidx.hilt.ClassNames
 import androidx.hilt.ext.hasAnnotation
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.MoreElements
 import com.google.common.collect.SetMultimap
+import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
@@ -79,7 +81,7 @@ class WorkerInjectStep(
         if (!types.isSubtype(typeElement.asType(),
                 elements.getTypeElement(ClassNames.WORKER.toString()).asType())) {
             error("@WorkerInject is only supported on types that subclass " +
-                    "androidx.work.Worker.")
+                    "${ClassNames.WORKER}.")
             valid = false
         }
 
@@ -101,6 +103,38 @@ class WorkerInjectStep(
             error("@WorkerInject may only be used on inner classes if they are static.",
                 typeElement)
             valid = false
+        }
+
+        constructorElement.parameters.filter {
+            TypeName.get(it.asType()) == ClassNames.CONTEXT
+        }.apply {
+            if (size != 1) {
+                error("Expected exactly one constructor argument of type " +
+                        "${ClassNames.CONTEXT}, found $size", constructorElement)
+                valid = false
+            }
+            firstOrNull()?.let {
+                if (!it.hasAnnotation(Assisted::class)) {
+                    error("Missing @Assisted annotation in param '${it.simpleName}'.", it)
+                    valid = false
+                }
+            }
+        }
+
+        constructorElement.parameters.filter {
+            TypeName.get(it.asType()) == ClassNames.WORKER_PARAMETERS
+        }.apply {
+            if (size != 1) {
+                error("Expected exactly one constructor argument of type " +
+                        "${ClassNames.WORKER_PARAMETERS}, found $size", constructorElement)
+                valid = false
+            }
+            firstOrNull()?.let {
+                if (!it.hasAnnotation(Assisted::class)) {
+                    error("Missing @Assisted annotation in param '${it.simpleName}'.", it)
+                    valid = false
+                }
+            }
         }
 
         if (!valid) return null

@@ -21,12 +21,12 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.core.animation.Animator;
-import androidx.core.animation.ValueAnimator;
 import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 

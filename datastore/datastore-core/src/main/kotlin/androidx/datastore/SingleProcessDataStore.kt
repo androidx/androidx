@@ -31,12 +31,15 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicReference
 
 @ObsoleteCoroutinesApi
@@ -48,8 +51,17 @@ import java.util.concurrent.atomic.AtomicReference
 class SingleProcessDataStore<T>(
     private val produceFile: () -> File,
     private val serializer: DataStore.Serializer<T>,
+    /**
+     * The list of initialization tasks to perform. These tasks will be completed before any data
+     * is published to the dataFlow and before any read-modify-writes execute in updateData.  If
+     * any of the tasks fail, the tasks will be run again the next time dataFlow is collected or
+     * updateData is called. Init tasks should not wait on results from dataFlow - this will
+     * result in deadlock.
+     */
+    initTasksList: List<suspend (api: DataStore.InitializerApi<T>) -> Unit> = emptyList(),
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 ) : DataStore<T> {
+
     override val dataFlow: Flow<T> = flow {
         val curChannel = downstreamChannel()
         actor.offer(Message.Read(curChannel))
@@ -84,6 +96,9 @@ class SingleProcessDataStore<T>(
      */
     private val downstreamChannel: AtomicReference<ConflatedBroadcastChannel<T>> =
         AtomicReference(ConflatedBroadcastChannel())
+
+    private var initTasks: List<suspend (api: DataStore.InitializerApi<T>) -> Unit>? =
+        initTasksList.toList()
 
     /** The actions for the actor. */
     private sealed class Message<T> {
@@ -123,7 +138,7 @@ class SingleProcessDataStore<T>(
                 }
 
                 try {
-                    readOnce(msg.dataChannel)
+                    readAndInitOnce(msg.dataChannel)
                 } catch (ex: Throwable) {
                     resetDataChannel(ex)
                     continue@messageConsumer
@@ -134,7 +149,7 @@ class SingleProcessDataStore<T>(
                 if (msg is Message.Update) {
                     msg.ack.completeWith(
                         runCatching {
-                            updateDataInternal(msg.transform, downstreamChannel())
+                            transformAndWrite(msg.transform, downstreamChannel())
                         }
                     )
                 }
@@ -152,13 +167,44 @@ class SingleProcessDataStore<T>(
         failedDataChannel.close(ex)
     }
 
-    private suspend fun readOnce(dataChannel: ConflatedBroadcastChannel<T>) {
+    private suspend fun readAndInitOnce(dataChannel: ConflatedBroadcastChannel<T>) {
         if (dataChannel.valueOrNull != null) {
             // If we already have cached data, we don't try to read it again.
             return
         }
 
-        dataChannel.offer(readData())
+        val updateLock = Mutex()
+        var initData = readData()
+
+        var initializationComplete: Boolean = false
+
+        // TODO(b/151635324): Consider using Context Element to throw an error on re-entrance.
+        val api = object : DataStore.InitializerApi<T> {
+            override suspend fun updateData(transform: suspend (t: T) -> T): T {
+                return updateLock.withLock() {
+                    if (initializationComplete) {
+                        throw IllegalStateException("InitializerApi.updateData should not be " +
+                                "called after initialization is complete.")
+                    }
+
+                    val newData = transform(initData)
+                    if (newData != initData) {
+                        writeData(newData)
+                        initData = newData
+                    }
+
+                    initData
+                }
+            }
+        }
+
+        initTasks?.forEach { it(api) }
+        initTasks = null // Init tasks have run successfully, we don't need them anymore.
+        updateLock.withLock {
+            initializationComplete = true
+        }
+
+        dataChannel.offer(initData)
     }
 
     private suspend fun readData(): T {
@@ -176,7 +222,7 @@ class SingleProcessDataStore<T>(
         }
     }
 
-    private suspend fun updateDataInternal(
+    private suspend fun transformAndWrite(
         transform: suspend (t: T) -> T,
         /**
          * This is the channel that contains the data that will be used for the transformation.

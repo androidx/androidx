@@ -16,8 +16,14 @@
 
 package androidx.ui.graphics
 
+import androidx.annotation.FloatRange
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
+import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.DrawStyle
+import androidx.ui.graphics.painter.Fill
 
 /**
  * Defines a simple shape, used for bounding graphical regions.
@@ -67,6 +73,132 @@ fun Path.addOutline(outline: Outline) = when (outline) {
     is Outline.Rounded -> addRRect(outline.rrect)
     is Outline.Generic -> addPath(outline.path)
 }
+
+/**
+ * Draws the [Outline] on a [CanvasScope].
+ *
+ * @param outline the outline to draw.
+ * @param color Color applied to the outline when it is drawn
+ * @param alpha Opacity to be applied to outline from 0.0f to 1.0f representing
+ * fully transparent to fully opaque respectively
+ * @param style Specifies whether the outline is stroked or filled in
+ * @param colorFilter: ColorFilter to apply to the [color] when drawn into the destination
+ * @param blendMode: Blending algorithm to be applied to the outline
+ */
+fun CanvasScope.drawOutline(
+    outline: Outline,
+    color: Color,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = CanvasScope.DefaultAlpha,
+    style: DrawStyle = Fill,
+    colorFilter: ColorFilter? = null,
+    blendMode: BlendMode = CanvasScope.DefaultBlendMode
+) = drawOutlineHelper(
+        outline,
+        { rect ->
+            drawRect(color, rect.topLeft(), rect.size(), alpha, style, colorFilter, blendMode)
+        },
+        { rrect ->
+            val radius = rrect.bottomLeftRadiusX
+            drawRoundRect(
+                color = color,
+                topLeft = rrect.topLeft(),
+                size = rrect.size(),
+                radiusX = radius,
+                radiusY = radius,
+                alpha = alpha,
+                style = style,
+                colorFilter = colorFilter,
+                blendMode = blendMode
+            )
+        },
+        { path -> drawPath(path, color, alpha, style, colorFilter, blendMode) }
+    )
+
+/**
+ * Draws the [Outline] on a [CanvasScope].
+ *
+ * @param outline the outline to draw.
+ * @param brush Brush applied to the outline when it is drawn
+ * @param alpha Opacity to be applied to outline from 0.0f to 1.0f representing
+ * fully transparent to fully opaque respectively
+ * @param style Specifies whether the outline is stroked or filled in
+ * @param colorFilter: ColorFilter to apply to the [Brush] when drawn into the destination
+ * @param blendMode: Blending algorithm to be applied to the outline
+ */
+fun CanvasScope.drawOutline(
+    outline: Outline,
+    brush: Brush,
+    @FloatRange(from = 0.0, to = 1.0) alpha: Float = CanvasScope.DefaultAlpha,
+    style: DrawStyle = Fill,
+    colorFilter: ColorFilter? = null,
+    blendMode: BlendMode = CanvasScope.DefaultBlendMode
+) = drawOutlineHelper(
+        outline,
+        { rect ->
+            drawRect(brush, rect.topLeft(), rect.size(), alpha, style, colorFilter, blendMode)
+        },
+        { rrect ->
+            val radius = rrect.bottomLeftRadiusX
+            drawRoundRect(
+                brush = brush,
+                topLeft = rrect.topLeft(),
+                size = rrect.size(),
+                radiusX = radius,
+                radiusY = radius,
+                alpha = alpha,
+                style = style,
+                colorFilter = colorFilter,
+                blendMode = blendMode
+            )
+        },
+        { path -> drawPath(path, brush, alpha, style, colorFilter, blendMode) }
+    )
+
+/**
+ * Convenience method to obtain an Offset from the Rect's top and left parameters
+ */
+private fun Rect.topLeft(): Offset = Offset(left, top)
+
+/**
+ * Convenience method to obtain a Size from the Rect's width and height
+ */
+private fun Rect.size(): Size = Size(width, height)
+
+/**
+ * Convenience method to obtain an Offset from the RRect's top and left parameters
+ */
+private fun RRect.topLeft(): Offset = Offset(left, top)
+
+/**
+ * Convenience method to obtain a Size from the RRect's width and height parameters
+ */
+private fun RRect.size(): Size = Size(width, height)
+
+/**
+ * Helper method that allows for delegation of appropriate drawing call based on type of
+ * underlying outline shape
+ */
+private inline fun CanvasScope.drawOutlineHelper(
+    outline: Outline,
+    drawRectBlock: CanvasScope.(rect: Rect) -> Unit,
+    drawRoundedRectBlock: CanvasScope.(rrect: RRect) -> Unit,
+    drawPathBlock: CanvasScope.(path: Path) -> Unit
+) = when (outline) {
+        is Outline.Rectangle -> drawRectBlock(outline.rect)
+        is Outline.Rounded -> {
+            val path = outline.roundRectPath
+            // If the rounded rect has a path, then the corner radii are not the same across
+            // each of the corners, so we draw the given path.
+            // If there is no path available, then the corner radii are identical so call the
+            // Canvas primitive for drawing a rounded rectangle
+            if (path != null) {
+                drawPathBlock(path)
+            } else {
+                drawRoundedRectBlock(outline.rrect)
+            }
+        }
+        is Outline.Generic -> drawPathBlock(outline.path)
+    }
 
 /**
  * Draws the [Outline] on a [Canvas].

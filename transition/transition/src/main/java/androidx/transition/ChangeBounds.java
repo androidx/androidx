@@ -16,6 +16,11 @@
 
 package androidx.transition;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -34,12 +39,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.animation.Animator;
-import androidx.core.animation.AnimatorListenerAdapter;
-import androidx.core.animation.AnimatorSet;
-import androidx.core.animation.ObjectAnimator;
-import androidx.core.animation.PropertyValuesHolder;
-import androidx.core.animation.RectEvaluator;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.ViewCompat;
 
@@ -308,19 +307,19 @@ public class ChangeBounds extends Transition {
                         if (startWidth == endWidth && startHeight == endHeight) {
                             Path topLeftPath = getPathMotion().getPath(startLeft, startTop, endLeft,
                                     endTop);
-                            anim = ObjectAnimator.ofObject(view, POSITION_PROPERTY, null,
+                            anim = ObjectAnimatorUtils.ofPointF(view, POSITION_PROPERTY,
                                     topLeftPath);
                         } else {
                             final ViewBounds viewBounds = new ViewBounds(view);
                             Path topLeftPath = getPathMotion().getPath(startLeft, startTop,
                                     endLeft, endTop);
-                            ObjectAnimator topLeftAnimator = ObjectAnimator
-                                    .ofObject(viewBounds, TOP_LEFT_PROPERTY, null, topLeftPath);
+                            ObjectAnimator topLeftAnimator = ObjectAnimatorUtils
+                                    .ofPointF(viewBounds, TOP_LEFT_PROPERTY, topLeftPath);
 
                             Path bottomRightPath = getPathMotion().getPath(startRight, startBottom,
                                     endRight, endBottom);
-                            ObjectAnimator bottomRightAnimator = ObjectAnimator.ofObject(
-                                    viewBounds, BOTTOM_RIGHT_PROPERTY, null, bottomRightPath);
+                            ObjectAnimator bottomRightAnimator = ObjectAnimatorUtils.ofPointF(
+                                    viewBounds, BOTTOM_RIGHT_PROPERTY, bottomRightPath);
                             AnimatorSet set = new AnimatorSet();
                             set.playTogether(topLeftAnimator, bottomRightAnimator);
                             anim = set;
@@ -334,12 +333,12 @@ public class ChangeBounds extends Transition {
                     } else if (startLeft != endLeft || startTop != endTop) {
                         Path topLeftPath = getPathMotion().getPath(startLeft, startTop,
                                 endLeft, endTop);
-                        anim = ObjectAnimator.ofObject(view, TOP_LEFT_ONLY_PROPERTY, null,
+                        anim = ObjectAnimatorUtils.ofPointF(view, TOP_LEFT_ONLY_PROPERTY,
                                 topLeftPath);
                     } else {
                         Path bottomRight = getPathMotion().getPath(startRight, startBottom,
                                 endRight, endBottom);
-                        anim = ObjectAnimator.ofObject(view, BOTTOM_RIGHT_ONLY_PROPERTY, null,
+                        anim = ObjectAnimatorUtils.ofPointF(view, BOTTOM_RIGHT_ONLY_PROPERTY,
                                 bottomRight);
                     }
                 } else {
@@ -353,7 +352,7 @@ public class ChangeBounds extends Transition {
                     if (startLeft != endLeft || startTop != endTop) {
                         Path topLeftPath = getPathMotion().getPath(startLeft, startTop, endLeft,
                                 endTop);
-                        positionAnimator = ObjectAnimator.ofObject(view, POSITION_PROPERTY, null,
+                        positionAnimator = ObjectAnimatorUtils.ofPointF(view, POSITION_PROPERTY,
                                 topLeftPath);
                     }
                     final Rect finalClip = endClip;
@@ -372,12 +371,12 @@ public class ChangeBounds extends Transition {
                             private boolean mIsCanceled;
 
                             @Override
-                            public void onAnimationCancel(@NonNull Animator animation) {
+                            public void onAnimationCancel(Animator animation) {
                                 mIsCanceled = true;
                             }
 
                             @Override
-                            public void onAnimationEnd(@NonNull Animator animation) {
+                            public void onAnimationEnd(Animator animation) {
                                 if (!mIsCanceled) {
                                     ViewCompat.setClipBounds(view, finalClip);
                                     ViewUtils.setLeftTopRightBottom(view, endLeft, endTop, endRight,
@@ -443,12 +442,12 @@ public class ChangeBounds extends Transition {
                 Path topLeftPath = getPathMotion().getPath(startX - mTempLocation[0],
                         startY - mTempLocation[1], endX - mTempLocation[0],
                         endY - mTempLocation[1]);
-                PropertyValuesHolder origin = PropertyValuesHolder.ofObject(
-                        DRAWABLE_ORIGIN_PROPERTY, null, topLeftPath);
+                PropertyValuesHolder origin = PropertyValuesHolderUtils.ofPointF(
+                        DRAWABLE_ORIGIN_PROPERTY, topLeftPath);
                 ObjectAnimator anim = ObjectAnimator.ofPropertyValuesHolder(drawable, origin);
                 anim.addListener(new AnimatorListenerAdapter() {
                     @Override
-                    public void onAnimationEnd(@NonNull Animator animation) {
+                    public void onAnimationEnd(Animator animation) {
                         ViewUtils.getOverlay(sceneRoot).remove(drawable);
                         ViewUtils.setTransitionAlpha(view, transitionAlpha);
                     }

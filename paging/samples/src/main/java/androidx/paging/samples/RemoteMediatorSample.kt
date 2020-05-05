@@ -19,6 +19,7 @@
 package androidx.paging.samples
 
 import androidx.annotation.Sampled
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
@@ -48,6 +49,7 @@ fun remoteMediatorSample() {
      * This sample loads `Item`s via Retrofit from a network service using String tokens to load
      * pages (each response has a next/previous token), and inserts them into database.
      */
+    @OptIn(ExperimentalPagingApi::class)
     class MyRemoteMediator(
         private val database: ItemDao,
         private val networkService: MyBackendService
@@ -60,8 +62,8 @@ fun remoteMediatorSample() {
             // pages from DB.
             val anchorItem = when (loadType) {
                 LoadType.REFRESH -> state.anchorPosition?.let { state.closestItemToPosition(it) }
-                LoadType.START -> return MediatorResult.Success(canRequestMoreData = false)
-                LoadType.END -> state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.last()
+                LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
+                LoadType.APPEND -> state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.last()
             }
 
             return try {
@@ -82,7 +84,7 @@ fun remoteMediatorSample() {
 
                 // Return a successful result, signaling that more items were fetched from
                 // network and that Paging should expect to be invalidated.
-                MediatorResult.Success(canRequestMoreData = response.items.isNotEmpty())
+                MediatorResult.Success(endOfPaginationReached = response.items.isEmpty())
             } catch (e: IOException) {
                 MediatorResult.Error(e)
             } catch (e: HttpException) {

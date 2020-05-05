@@ -16,7 +16,10 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.END
+import androidx.paging.LoadState.Loading
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.REFRESH
+import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
@@ -214,6 +217,7 @@ class PageFetcherTest {
 
     @Test
     fun remoteMediator_initializeSkip() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
         val remoteMediatorMock = RemoteMediatorMock().apply {
             initializeResult = SKIP_INITIAL_REFRESH
         }
@@ -236,6 +240,7 @@ class PageFetcherTest {
 
     @Test
     fun remoteMediator_initializeLaunch() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
         val remoteMediatorMock = RemoteMediatorMock().apply {
             initializeResult = LAUNCH_INITIAL_REFRESH
         }
@@ -273,7 +278,7 @@ class PageFetcherTest {
 
         // Assert onBoundary is called for terminal page load.
         assertEquals(1, remoteMediatorMock.loadEvents.size)
-        assertEquals(END, remoteMediatorMock.loadEvents[0].loadType)
+        assertEquals(APPEND, remoteMediatorMock.loadEvents[0].loadType)
 
         fetcherState.job.cancel()
     }
@@ -300,7 +305,7 @@ class PageFetcherTest {
             advanceUntilIdle()
 
             val expected: List<PageEvent<Int>> = listOf(
-                PageEvent.LoadStateUpdate(LoadType.REFRESH, LoadState.Loading),
+                LoadStateUpdate(REFRESH, Loading(fromMediator = false)),
                 createRefresh(range = 50..51)
             )
             assertEvents(expected, fetcherState.pageEventLists[0])

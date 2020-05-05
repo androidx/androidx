@@ -17,7 +17,6 @@
 package androidx.ui.test
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 import androidx.ui.core.gesture.LongPressTimeout
 import androidx.ui.unit.Duration
 import androidx.ui.unit.IntPxSize
@@ -34,26 +33,6 @@ import kotlin.math.sign
 import kotlin.math.sin
 
 /**
- * An object that has an associated component in which one can inject gestures. The gestures can
- * be injected by calling methods defined on [GestureScope], such as [sendSwipeUp]. The associated
- * component is the [SemanticsNodeInteraction] found by one of the finder methods such as [findByTag].
- *
- * Example usage:
- * findByTag("myWidget")
- *    .doGesture {
- *        sendSwipeUp()
- *    }
- */
-class GestureScope internal constructor(
-    internal val semanticsNodeInteraction: SemanticsNodeInteraction
-) {
-    // TODO(b/133217292): Better error: explain which gesture couldn't be performed
-    // TODO: Avoid calling this multiple times as it involves synchronization.
-    internal inline val semanticsNode
-        get() = semanticsNodeInteraction.fetchSemanticsNode("Failed to perform a gesture.")
-}
-
-/**
  * The distance of a swipe's start position from the node's edge, in terms of the node's length.
  * We do not start the swipe exactly on the node's edge, but somewhat more inward, since swiping
  * from the exact edge may behave in an unexpected way (e.g. may open a navigation drawer).
@@ -66,17 +45,26 @@ private const val edgeFuzzFactor = 0.083f
  */
 private val doubleClickDelay = 145.milliseconds
 
+sealed class BaseGestureScope(
+    internal val semanticsNodeInteraction: SemanticsNodeInteraction
+) {
+    // TODO(b/133217292): Better error: explain which gesture couldn't be performed
+    // TODO: Avoid calling this multiple times as it involves synchronization.
+    internal inline val semanticsNode
+        get() = semanticsNodeInteraction.fetchSemanticsNode("Failed to perform a gesture.")
+}
+
 /**
  * Returns the size of the component we're interacting with
  */
-val GestureScope.size: IntPxSize
+val BaseGestureScope.size: IntPxSize
     get() = semanticsNode.size
 
 /**
  * Returns the center of the component we're interacting with, in the component's local
  * coordinate system, where (0.px, 0.px) is the top left corner of the component.
  */
-val GestureScope.center: PxPosition
+val BaseGestureScope.center: PxPosition
     get() {
         return PxPosition(size.width / 2, size.height / 2)
     }
@@ -84,7 +72,7 @@ val GestureScope.center: PxPosition
 /**
  * Returns the global bounds of the component we're interacting with
  */
-val GestureScope.globalBounds: PxBounds
+val BaseGestureScope.globalBounds: PxBounds
     get() = semanticsNode.globalBounds
 
 /**
@@ -92,13 +80,31 @@ val GestureScope.globalBounds: PxBounds
  *
  * @param position A position in local coordinates
  */
-fun GestureScope.localToGlobal(position: PxPosition): PxPosition {
+fun BaseGestureScope.localToGlobal(position: PxPosition): PxPosition {
     val bounds = globalBounds
     return position + PxPosition(bounds.left, bounds.top)
 }
 
 /**
- * Performs a click gesture on the given [position] on the associated component. The [position]
+ * The receiver scope for injecting gestures on the node identified by the
+ * [semanticsNodeInteraction]. Gestures can be injected by calling methods defined on
+ * [GestureScope], such as [sendSwipeUp]. The [semanticsNodeInteraction] can be found by one of
+ * the finder methods such as [findByTag].
+ *
+ * Example usage:
+ * ```
+ * findByTag("myWidget")
+ *    .doGesture {
+ *        sendSwipeUp()
+ *    }
+ * ```
+ */
+class GestureScope internal constructor(
+    semanticsNodeInteraction: SemanticsNodeInteraction
+) : BaseGestureScope(semanticsNodeInteraction)
+
+/**
+ * Performs a click gesture at the given [position] on the associated component. The [position]
  * is in the component's local coordinate system, where (0.px, 0.px) is the top left corner of
  * the component.
  *
@@ -113,24 +119,6 @@ fun GestureScope.sendClick(position: PxPosition) {
 }
 
 /**
- * Dispatches a down event on the given [position] on the associated component. The [position]
- * is in the component's local coordinate system, where (0.px, 0.px) is the top left corner of
- * the component.
- *
- * Throws [AssertionError] when the component doesn't have a bounding rectangle set
- *
- * @param position The position of the down event, in the component's local coordinate system
- *
- * @suppress
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun GestureScope.sendTouchDown(position: PxPosition) {
-    semanticsNodeInteraction.sendInput {
-        it.sendTouchDown(position)
-    }
-}
-
-/**
  * Performs a click gesture on the associated component. The click is done in the middle of the
  * component's bounds.
  *
@@ -141,7 +129,7 @@ fun GestureScope.sendClick() {
 }
 
 /**
- * Performs a long click gesture on the given [position] on the associated component. There will
+ * Performs a long click gesture at the given [position] on the associated component. There will
  * be [LongPressTimeout] + 100 milliseconds time between the down and the up event. The
  * [position] is in the component's local coordinate system, where (0.px, 0.px) is the top left
  * corner of the component.
@@ -156,7 +144,7 @@ fun GestureScope.sendLongClick(position: PxPosition) {
 }
 
 /**
- * Performs a long click gesture on the middle of the associated component. There will
+ * Performs a long click gesture at the middle of the associated component. There will
  * be [LongPressTimeout] + 100 milliseconds time between the down and the up event.
  *
  * Throws [AssertionError] when the component doesn't have a bounding rectangle set
@@ -166,7 +154,7 @@ fun GestureScope.sendLongClick() {
 }
 
 /**
- * Performs a double click gesture on the given [position] on the associated component. The
+ * Performs a double click gesture at the given [position] on the associated component. The
  * [position] is in the component's local coordinate system, where (0.px, 0.px) is the top left
  * corner of the component.
  *
@@ -397,5 +385,121 @@ private fun createFunctionForVelocity(
                 function(t)
             }
         }
+    }
+}
+
+/**
+ * The receiver scope for injecting partial gestures on the node identified by the
+ * [semanticsNodeInteraction]. Gestures can be injected by calling methods defined on
+ * [PartialGestureScope], such as [sendDown]. The [semanticsNodeInteraction] can be found by one
+ * of the finder methods such as [findByTag].
+ *
+ * Example usage:
+ * ```
+ * val position = PxPosition(10.px, 10.px)
+ * lateinit var token: GestureToken
+ * findByTag("myWidget")
+ *    .doPartialGesture { token = sendDown(position) }
+ *    .assertIsDisplayed()
+ *    .doPartialGesture { sendUp(token, position) }
+ * ```
+ */
+class PartialGestureScope internal constructor(
+    semanticsNodeInteraction: SemanticsNodeInteraction
+) : BaseGestureScope(semanticsNodeInteraction)
+
+/**
+ * A token to be shared between individual motion events that form a single gesture. It is
+ * generated by the [sendDown] partial gesture, and must be passed to all subsequent events of
+ * the gesture, such as [sendMoveTo] and [sendUp].
+ */
+class GestureToken internal constructor(
+    internal val downTime: Long,
+    internal var lastPosition: PxPosition
+) {
+    internal var eventTime: Long = downTime
+    internal var finished: Boolean = false
+}
+
+/**
+ * Sends a down event at the given [position] on the associated component. The [position] is in
+ * the component's local coordinate system, where (0.px, 0.px) is the top left corner of the
+ * component. The returned token needs to be used in all subsequent events of this gesture.
+ *
+ * @param position The position of the down event, in the component's local coordinate system
+ * @return A token that identifies this gesture and must be passed to all subsequent events that
+ * are part of this gesture.
+ */
+fun PartialGestureScope.sendDown(position: PxPosition): GestureToken {
+    val globalPosition = localToGlobal(position)
+    lateinit var token: GestureToken
+    semanticsNodeInteraction.sendInput {
+        token = it.sendDown(globalPosition)
+    }
+    return token
+}
+
+/**
+ * Sends a move event at the given [position] on the associated component. The [position] is in
+ * the component's local coordinate system, where (0.px, 0.px) is the top left corner of the
+ * component.
+ *
+ * @param token The token returned from the corresponding [down event][sendDown] that started
+ * this gesture.
+ * @param position The position of the move event, in the component's local coordinate system
+ */
+fun PartialGestureScope.sendMoveTo(token: GestureToken, position: PxPosition) {
+    val globalPosition = localToGlobal(position)
+    semanticsNodeInteraction.sendInput {
+        it.sendMove(token, globalPosition)
+    }
+}
+
+/**
+ * Sends a move event on the associated component, using the last used coordinate and moving it
+ * by the given [delta].
+ *
+ * @param token The token returned from the corresponding [down event][sendDown] that started
+ * this gesture.
+ * @param delta The position for this move event, relative to the last sent event. For example,
+ * `delta = PxPosition(10.px, -10.px) will add 10.px to the last event's x-position, and subtract
+ * 10.px from the last event's y-position.
+ */
+fun PartialGestureScope.sendMoveBy(token: GestureToken, delta: PxPosition) {
+    val globalPosition = token.lastPosition + delta
+    semanticsNodeInteraction.sendInput {
+        it.sendMove(token, globalPosition)
+    }
+}
+
+/**
+ * Sends an up event at the given [position] on the associated component. If [position] is
+ * omitted, the position of the previous event is used. The [position] is in the component's
+ * local coordinate system, where (0.px, 0.px) is the top left corner of the component.
+ *
+ * @param token The token returned from the corresponding [down event][sendDown] that started
+ * this gesture.
+ * @param position The position of the up event, in the component's local coordinate system
+ */
+fun PartialGestureScope.sendUp(token: GestureToken, position: PxPosition? = null) {
+    val globalPosition = position?.let { localToGlobal(it) } ?: token.lastPosition
+    semanticsNodeInteraction.sendInput {
+        it.sendUp(token, globalPosition)
+    }
+}
+
+/**
+ * Sends a cancel event at the given [position] on the associated component. If [position] is
+ * omitted, the position of the previous event is used. The [position] is in the component's
+ * local coordinate system, where (0.px, 0.px) is the top left corner of the component.
+ *
+ * @param token The token returned from the corresponding [down event][sendDown] that started
+ * this gesture.
+ * @param position The position of the cancel event, in the component's local coordinate system
+ */
+fun PartialGestureScope.sendCancel(token: GestureToken, position: PxPosition? = null) {
+    val globalPosition = position?.let { localToGlobal(it) } ?: token.lastPosition
+    semanticsNodeInteraction.sendInput {
+        it.sendCancel(token, globalPosition)
     }
 }

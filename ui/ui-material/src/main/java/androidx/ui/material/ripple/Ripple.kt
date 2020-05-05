@@ -19,7 +19,6 @@
 package androidx.ui.material.ripple
 
 import androidx.animation.AnimationClockObservable
-import androidx.compose.Composable
 import androidx.compose.CompositionLifecycleObserver
 import androidx.compose.StructurallyEqual
 import androidx.compose.frames.modelListOf
@@ -31,12 +30,15 @@ import androidx.ui.animation.asDisposableClock
 import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Constraints
+import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.DrawModifier
-import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.useOrElse
@@ -68,16 +70,15 @@ import androidx.ui.util.fastForEach
  * @param clock The animation clock observable that will drive this ripple effect
  * @param enabled The ripple effect will not start if false is provided.
  */
-@Composable
 fun Modifier.ripple(
     bounded: Boolean = true,
     radius: Dp? = null,
     color: Color = Color.Unset,
     enabled: Boolean = true,
-    clock: AnimationClockObservable = AnimationClockAmbient.current
-): Modifier {
+    clock: AnimationClockObservable? = null
+): Modifier = composed {
     @Suppress("NAME_SHADOWING") // don't allow usage of the parameter clock, only the disposable
-    val clock = clock.asDisposableClock()
+    val clock = (clock ?: AnimationClockAmbient.current).asDisposableClock()
     val density = DensityAmbient.current
     val rippleModifier = remember { RippleModifier() }
     val theme = RippleThemeAmbient.current
@@ -92,7 +93,7 @@ fun Modifier.ripple(
         onStop = { rippleModifier.handleFinish(false) },
         onCancel = { rippleModifier.handleFinish(true) }
     )
-    return this + pressIndicator + rippleModifier
+    pressIndicator + rippleModifier
 }
 
 private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycleObserver {
@@ -103,13 +104,16 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
     private var effects = modelListOf<RippleEffect>()
     private var currentEffect: RippleEffect? = null
 
-    override fun Density.modifySize(
+    override fun MeasureScope.measure(
+        measurable: Measurable,
         constraints: Constraints,
-        layoutDirection: LayoutDirection,
-        childSize: IntPxSize
-    ): IntPxSize {
-        size = childSize
-        return childSize
+        layoutDirection: LayoutDirection
+    ): MeasureScope.MeasureResult {
+        val placeable = measurable.measure(constraints)
+        size = IntPxSize(placeable.width, placeable.height)
+        return layout(placeable.width, placeable.height) {
+            placeable.place(0.ipx, 0.ipx)
+        }
     }
 
     fun handleStart(

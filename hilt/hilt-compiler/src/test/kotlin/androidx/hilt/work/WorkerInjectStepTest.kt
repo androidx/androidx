@@ -32,11 +32,14 @@ class WorkerInjectStepTest {
         val myWorker = """
         package androidx.hilt.work.test;
 
+        import android.content.Context;
+        import androidx.hilt.Assisted;
         import androidx.hilt.work.WorkerInject;
+        import androidx.work.WorkerParameters;
 
         class MyWorker {
             @WorkerInject
-            MyWorker() { }
+            MyWorker(@Assisted Context context, @Assisted WorkerParameters params) { }
         }
         """.toJFO("androidx.hilt.work.work.MyWorker")
 
@@ -56,6 +59,7 @@ class WorkerInjectStepTest {
         package androidx.hilt.work.test;
 
         import android.content.Context;
+        import androidx.hilt.Assisted;
         import androidx.hilt.work.WorkerInject;
         import androidx.work.Worker;
         import androidx.work.WorkerParameters;
@@ -63,7 +67,7 @@ class WorkerInjectStepTest {
 
         class MyWorker extends Worker {
             @WorkerInject
-            MyWorker(Context context, WorkerParameters params) {
+            MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
                 super(context, params);
             }
 
@@ -89,13 +93,14 @@ class WorkerInjectStepTest {
         package androidx.hilt.work.test;
 
         import android.content.Context;
+        import androidx.hilt.Assisted;
         import androidx.hilt.work.WorkerInject;
         import androidx.work.Worker;
         import androidx.work.WorkerParameters;
 
         class MyWorker extends Worker {
             @WorkerInject
-            private MyWorker(Context context, WorkerParameters params) {
+            private MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
                 super(context, params);
             }
         }
@@ -117,6 +122,7 @@ class WorkerInjectStepTest {
         package androidx.hilt.work.test;
 
         import android.content.Context;
+        import androidx.hilt.Assisted;
         import androidx.hilt.work.WorkerInject;
         import androidx.work.Worker;
         import androidx.work.WorkerParameters;
@@ -124,7 +130,7 @@ class WorkerInjectStepTest {
         class Outer {
             class MyWorker extends Worker {
                 @WorkerInject
-                MyWorker(Context context, WorkerParameters params) {
+                MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
                     super(context, params);
                 }
             }

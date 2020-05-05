@@ -39,6 +39,8 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
 import androidx.ui.core.Ref
@@ -54,7 +56,6 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.test.runOnUiThread
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.ipx
 import junit.framework.TestCase.assertNotNull
@@ -199,12 +200,141 @@ class AndroidViewCompatTest {
             .assertPixels(expectedColorProvider = expectedPixelColor)
     }
 
+    // When incoming constraints are fixed.
+
     @Test
-    fun testMeasurement_isDoneWithCorrectMeasureSpecs() {
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_1() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
+            Constraints.fixed(20.ipx, 30.ipx),
+            ViewGroup.LayoutParams(40, 50)
+        )
+    }
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_2() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
+            Constraints.fixed(20.ipx, 30.ipx),
+            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        )
+    }
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_3() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
+            Constraints.fixed(20.ipx, 30.ipx),
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        )
+    }
+
+    // When incoming constraints are finite.
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_4() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(25, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
+            Constraints(
+                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
+            ),
+            ViewGroup.LayoutParams(25, 35)
+        )
+    }
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_5() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
+            Constraints(
+                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
+            ),
+            ViewGroup.LayoutParams(15, 25)
+        )
+    }
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_6() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(45, MeasureSpec.EXACTLY),
+            Constraints(
+                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
+            ),
+            ViewGroup.LayoutParams(35, 50)
+        )
+    }
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_7() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(40, MeasureSpec.AT_MOST),
+            MeasureSpec.makeMeasureSpec(50, MeasureSpec.AT_MOST),
+            Constraints(maxWidth = 40.ipx, maxHeight = 50.ipx),
+            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        )
+    }
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_8() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(40, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(50, MeasureSpec.EXACTLY),
+            Constraints(maxWidth = 40.ipx, maxHeight = 50.ipx),
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        )
+    }
+
+    // When incoming constraints are infinite.
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_9() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(25, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
+            Constraints(),
+            ViewGroup.LayoutParams(25, 35)
+        )
+    }
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_10() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            Constraints(),
+            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        )
+    }
+
+    @Test
+    fun testMeasurement_isDoneWithCorrectMeasureSpecs_11() {
+        testMeasurement_isDoneWithCorrectMeasureSpecs(
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            Constraints(),
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        )
+    }
+
+    private fun testMeasurement_isDoneWithCorrectMeasureSpecs(
+        expectedWidthSpec: Int,
+        expectedHeightSpec: Int,
+        constraints: Constraints,
+        layoutParams: ViewGroup.LayoutParams
+    ) {
         val viewRef = Ref<MeasureSpecSaverView>()
         val widthMeasureSpecRef = Ref<Int>()
         val heightMeasureSpecRef = Ref<Int>()
-        val constraintsHolder = ConstraintsModel(Constraints())
+        // Unique starting constraints so that new constraints are different and thus recomp is
+        // guaranteed.
+        val constraintsHolder = ConstraintsModel(Constraints.fixed(1234.ipx, 5678.ipx))
+
         composeTestRule.setContent {
             Container(LayoutConstraints(constraintsHolder.constraints)) {
                 MeasureSpecSaverView(
@@ -214,97 +344,16 @@ class AndroidViewCompatTest {
                 )
             }
         }
-        fun assertMeasureSpec(
-            expectedWidthSpec: Int,
-            expectedHeightSpec: Int,
-            constraints: Constraints,
-            layoutParams: ViewGroup.LayoutParams
-        ) {
-            runOnUiThread {
-                constraintsHolder.constraints = constraints
-                viewRef.value?.layoutParams = layoutParams
-            }
 
-            runOnIdleCompose {
-                assertEquals(expectedWidthSpec, widthMeasureSpecRef.value)
-                assertEquals(expectedHeightSpec, heightMeasureSpecRef.value)
-            }
+        runOnUiThread {
+            constraintsHolder.constraints = constraints
+            viewRef.value?.layoutParams = layoutParams
         }
-        // When incoming constraints are fixed.
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
-            Constraints.fixed(20.ipx, 30.ipx),
-            ViewGroup.LayoutParams(40, 50)
-        )
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
-            Constraints.fixed(20.ipx, 30.ipx),
-            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-        )
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
-            Constraints.fixed(20.ipx, 30.ipx),
-            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-        )
-        // When incoming constraints are finite.
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(25, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
-            Constraints(
-                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
-            ),
-            ViewGroup.LayoutParams(25, 35)
-        )
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
-            Constraints(
-                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
-            ),
-            ViewGroup.LayoutParams(15, 25)
-        )
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(45, MeasureSpec.EXACTLY),
-            Constraints(
-                minWidth = 20.ipx, maxWidth = 30.ipx, minHeight = 35.ipx, maxHeight = 45.ipx
-            ),
-            ViewGroup.LayoutParams(35, 50)
-        )
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(40, MeasureSpec.AT_MOST),
-            MeasureSpec.makeMeasureSpec(50, MeasureSpec.AT_MOST),
-            Constraints(maxWidth = 40.ipx, maxHeight = 50.ipx),
-            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-        )
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(40, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(50, MeasureSpec.EXACTLY),
-            Constraints(maxWidth = 40.ipx, maxHeight = 50.ipx),
-            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-        )
-        // When incoming constraints are infinite.
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(25, MeasureSpec.EXACTLY),
-            MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
-            Constraints(),
-            ViewGroup.LayoutParams(25, 35)
-        )
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-            Constraints(),
-            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-        )
-        assertMeasureSpec(
-            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-            Constraints(),
-            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-        )
+
+        runOnIdleCompose {
+            assertEquals(expectedWidthSpec, widthMeasureSpecRef.value)
+            assertEquals(expectedHeightSpec, heightMeasureSpecRef.value)
+        }
     }
 
     @Test
@@ -381,11 +430,15 @@ class AndroidViewCompatTest {
     }
 
     fun LayoutConstraints(childConstraints: Constraints) = object : LayoutModifier {
-        override fun Density.modifyConstraints(
+        override fun MeasureScope.measure(
+            measurable: Measurable,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): Constraints {
-            return childConstraints
+        ): MeasureScope.MeasureResult {
+            val placeable = measurable.measure(childConstraints)
+            return layout(placeable.width, placeable.height) {
+                placeable.place(0.ipx, 0.ipx)
+            }
         }
     }
 

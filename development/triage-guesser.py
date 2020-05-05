@@ -163,6 +163,7 @@ class Triager(object):
       "android.support.design": ["dcarlsson"],
       "RenderThread": ["jreck"],
       "VectorDrawable": ["tianliu"],
+      "Vector Drawable": ["tianliu"],
       "drawable": ["alanv"],
       "colorstatelist": ["alanv"],
       "multilocale": ["nona", "mnita"],
@@ -177,7 +178,8 @@ class Triager(object):
       "harfbuzz": ["android-text", "nona", "junkshik"],
       "slice": ["madym"],
       "checkApi": ["jeffrygaston", "aurimas"],
-      "compose": ["chuckj", "jsproch", "lelandr"]
+      "compose": ["chuckj", "jsproch", "lelandr"],
+      "jetifier": ["pavlis", "jeffrygaston"]
     })
     self.recommenderRules.append(OwnersRule(fileFinder))
     self.recommenderRules.append(LastTouchedBy_Rule(fileFinder))
@@ -192,7 +194,8 @@ class Triager(object):
 
   def process(self, lines):
     issues = self.parseIssues(lines)
-    outputs = []
+    recognizedTriages = []
+    unrecognizedTriages = []
     print("Analyzing " + str(len(issues)) + " issues")
     for issue in issues:
       print(".")
@@ -203,11 +206,14 @@ class Triager(object):
         if len(usernames) > 2:
           usernames = usernames[:2]
         recommendationText = str(usernames) + " (" + assigneeRecommendation.justification + ")"
-      outputs.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
+        recognizedTriages.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
+      else:
+        unrecognizedTriages.append(("(" + issue.issueId + ") " + issue.description.replace("\t", "...."), recommendationText, ))
     maxColumnWidth = 0
-    for item in outputs:
+    allTriages = recognizedTriages + unrecognizedTriages
+    for item in allTriages:
       maxColumnWidth = max(maxColumnWidth, len(item[0]))
-    for item in outputs:
+    for item in allTriages:
       print(str(item[0]) + (" " * (maxColumnWidth - len(item[0]))) + " -> " + str(item[1]))
 
   def parseIssues(self, lines):
@@ -218,7 +224,7 @@ class Triager(object):
 
     lines = [line.strip() for line in lines]
     fields = [line for line in lines if line != ""]
-    linesPerIssue = 4
+    linesPerIssue = 5
     if len(fields) % linesPerIssue != 0:
       raise Exception("Parse error, number of lines must be divisible by " + str(linesPerIssue) + ", not " + str(len(fields)) + ". Last line: " + fields[-1])
     issues = []
@@ -227,15 +233,20 @@ class Triager(object):
       issueType = fields[1]
 
       middle = fields[2].split("\t")
-      expectedNumTabComponents = 5
+      expectedNumTabComponents = 3
       if len(middle) != expectedNumTabComponents:
         raise Exception("Parse error: wrong number of tabs in " + str(middle) + ", got " + str(len(middle) - 1) + ", expected " + str(expectedNumTabComponents - 1))
       description = middle[0]
       currentAssignee = middle[1]
       status = middle[2]
-      issueId = middle[4]
 
-      when = fields[3]
+      bottom = fields[4]
+      bottomSplit = bottom.split("\t")
+      expectedNumTabComponents = 2
+      if len(bottomSplit) != expectedNumTabComponents:
+        raise Exception("Parse error: wrong number of tabs in " + str(bottomSplit) + ", got " + str(len(bottomSplit)) + ", expected " + str(expectedNumTabComponents - 1))
+      issueId = bottomSplit[0]
+      when = bottomSplit[1]
 
       issues.append(Issue(issueId, description))
       fields = fields[linesPerIssue:]

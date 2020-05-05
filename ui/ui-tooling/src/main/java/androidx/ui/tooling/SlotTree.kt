@@ -111,10 +111,10 @@ private fun SlotReader.getGroup(): Group {
     val key = convertKey(groupKey)
     val nodeGroup = isNode
     val end = current + groupSize
+    val node = if (nodeGroup) groupNode else null
     next()
     val data = mutableListOf<Any?>()
     val children = mutableListOf<Group>()
-    val node = if (nodeGroup) next() else null
     while (current < end && isGroup) {
         children.add(getGroup())
     }

@@ -16,8 +16,10 @@
 
 package androidx.ui.node
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.ComponentNode
@@ -31,6 +33,7 @@ import androidx.ui.core.drawBehind
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
+import androidx.ui.viewinterop.AndroidViewHolder
 
 /**
  * @suppress
@@ -90,14 +93,14 @@ private fun obtainMeasureSpec(
  * Builds a [ComponentNode] tree representation for an Android [View].
  * The component nodes will proxy the Compose core calls to the [View].
  */
-internal fun View.toComponentNode(): ComponentNode {
+internal fun AndroidViewHolder.toComponentNode(): ComponentNode {
     // TODO(soboleva): add layout direction here?
     // TODO(popam): forward pointer input, accessibility, focus
     // Prepare layout node that proxies measure and layout passes to the View.
     val layoutNode = LayoutNode()
-    layoutNode.modifier = Modifier.drawBehind {
-        draw(nativeCanvas)
-    }
+    layoutNode.modifier = Modifier
+        .pointerInteropModifier(this)
+        .drawBehind { draw(nativeCanvas) }
     layoutNode.onAttach = { owner ->
         (owner as? AndroidOwner)?.addAndroidView(this, layoutNode)
     }
@@ -114,22 +117,24 @@ internal fun View.toComponentNode(): ComponentNode {
             layoutDirection: LayoutDirection
         ): MeasureScope.MeasureResult {
             if (constraints.minWidth != 0.ipx) {
-                minimumWidth = constraints.minWidth.value
+                getChildAt(0).minimumWidth = constraints.minWidth.value
             }
             if (constraints.minHeight != 0.ipx) {
-                minimumHeight = constraints.minHeight.value
+                getChildAt(0).minimumHeight = constraints.minHeight.value
             }
             // TODO (soboleva): native view should get LD value from Compose?
+
+            // TODO(shepshapard): !! necessary?
             measure(
                 obtainMeasureSpec(
                     constraints.minWidth,
                     constraints.maxWidth,
-                    layoutParams.width
+                    layoutParams!!.width
                 ),
                 obtainMeasureSpec(
                     constraints.minHeight,
                     constraints.maxHeight,
-                    layoutParams.height
+                    layoutParams!!.height
                 )
             )
             return measureScope.layout(measuredWidth.ipx, measuredHeight.ipx) {

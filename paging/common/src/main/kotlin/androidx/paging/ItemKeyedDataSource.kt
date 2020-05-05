@@ -167,8 +167,8 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
                     params.placeholdersEnabled
                 )
             )
-            LoadType.START -> loadBefore(LoadParams(params.key!!, params.pageSize))
-            LoadType.END -> loadAfter(LoadParams(params.key!!, params.pageSize))
+            LoadType.PREPEND -> loadBefore(LoadParams(params.key!!, params.pageSize))
+            LoadType.APPEND -> loadAfter(LoadParams(params.key!!, params.pageSize))
         }
     }
 

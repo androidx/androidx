@@ -40,6 +40,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.Slice.SUBTYPE_RANGE_MODE;
 import static androidx.slice.builders.ListBuilder.INFINITY;
+import static androidx.slice.builders.ListBuilder.RANGE_MODE_DETERMINATE;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
@@ -315,7 +316,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         protected CharSequence mContentDescr;
         protected SliceAction mPrimaryAction;
         protected int mLayoutDir = -1;
-        private int mMode = 0;
+        private int mMode = RANGE_MODE_DETERMINATE;
         private Slice mStartItem;
 
         RangeBuilderImpl(Slice.Builder sb, RangeBuilder builder) {

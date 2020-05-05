@@ -16,50 +16,51 @@
 
 package androidx.paging
 
-import androidx.paging.TestPagingSource.Companion.items
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.TestPagingSource.Companion.ITEMS
 
 internal fun createRefresh(
     range: IntRange,
-    startState: LoadState = LoadState.Idle,
-    endState: LoadState = LoadState.Idle
+    startState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false),
+    endState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false)
 ) = PageEvent.Insert.Refresh(
     pages = pages(0, range),
-    placeholdersStart = range.first.coerceAtLeast(0),
-    placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0),
+    placeholdersBefore = range.first.coerceAtLeast(0),
+    placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
     loadStates = mapOf(
-        LoadType.REFRESH to LoadState.Idle,
-        LoadType.START to startState,
-        LoadType.END to endState
+        LoadType.REFRESH to NotLoading(endOfPaginationReached = false, fromMediator = false),
+        LoadType.PREPEND to startState,
+        LoadType.APPEND to endState
     )
 )
 
 internal fun createPrepend(
     pageOffset: Int,
     range: IntRange,
-    startState: LoadState = LoadState.Idle,
-    endState: LoadState = LoadState.Idle
-) = PageEvent.Insert.Start(
+    startState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false),
+    endState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false)
+) = PageEvent.Insert.Prepend(
     pages = pages(pageOffset, range),
-    placeholdersStart = range.first.coerceAtLeast(0),
+    placeholdersBefore = range.first.coerceAtLeast(0),
     loadStates = mapOf(
-        LoadType.REFRESH to LoadState.Idle,
-        LoadType.START to startState,
-        LoadType.END to endState
+        LoadType.REFRESH to NotLoading(endOfPaginationReached = false, fromMediator = false),
+        LoadType.PREPEND to startState,
+        LoadType.APPEND to endState
     )
 )
 
 internal fun createAppend(
     pageOffset: Int,
     range: IntRange,
-    startState: LoadState = LoadState.Idle,
-    endState: LoadState = LoadState.Idle
-) = PageEvent.Insert.End(
+    startState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false),
+    endState: LoadState = NotLoading(endOfPaginationReached = false, fromMediator = false)
+) = PageEvent.Insert.Append(
     pages = pages(pageOffset, range),
-    placeholdersEnd = (items.size - range.last - 1).coerceAtLeast(0),
+    placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
     loadStates = mapOf(
-        LoadType.REFRESH to LoadState.Idle,
-        LoadType.START to startState,
-        LoadType.END to endState
+        LoadType.REFRESH to NotLoading(endOfPaginationReached = false, fromMediator = false),
+        LoadType.PREPEND to startState,
+        LoadType.APPEND to endState
     )
 )
 
@@ -69,7 +70,7 @@ private fun pages(
 ) = listOf(
     TransformablePage(
         originalPageOffset = pageOffset,
-        data = items.slice(range),
+        data = ITEMS.slice(range),
         originalPageSize = range.count(),
         originalIndices = null
     )

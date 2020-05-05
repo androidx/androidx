@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+MissingNullability: androidx.work.testing.TestListenableWorkerBuilderKt#TestListenableWorkerBuilder(android.content.Context, androidx.work.Data, java.util.List<? extends java.lang.String>, int, java.util.List<? extends android.net.Uri>, java.util.List<? extends java.lang.String>):
+    Missing nullability on method `TestListenableWorkerBuilder` return
+MissingNullability: androidx.work.testing.TestWorkerBuilderKt#TestWorkerBuilder(android.content.Context, java.util.concurrent.Executor, androidx.work.Data, java.util.List<? extends java.lang.String>, int, java.util.List<? extends android.net.Uri>, java.util.List<? extends java.lang.String>):
+    Missing nullability on method `TestWorkerBuilder` return
+
+
 SetterReturnsThis: androidx.work.testing.TestListenableWorkerBuilder#setForegroundUpdater(androidx.work.ForegroundUpdater):
     Methods must return the builder object (return type androidx.work.testing.TestListenableWorkerBuilder<W> instead of androidx.work.testing.TestListenableWorkerBuilder): method androidx.work.testing.TestListenableWorkerBuilder.setForegroundUpdater(androidx.work.ForegroundUpdater)
 SetterReturnsThis: androidx.work.testing.TestListenableWorkerBuilder#setId(java.util.UUID):

@@ -23,6 +23,8 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.clipboard.ClipboardManager
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
+import androidx.ui.core.texttoolbar.TextToolbar
+import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.style.TextDirection
@@ -32,6 +34,7 @@ import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
@@ -77,6 +80,7 @@ class SelectionManagerTest {
 
     private val hapticFeedback = mock<HapticFeedback>()
     private val clipboardManager = mock<ClipboardManager>()
+    private val textToolbar = mock<TextToolbar>()
 
     @Before
     fun setup() {
@@ -85,6 +89,7 @@ class SelectionManagerTest {
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.hapticFeedBack = hapticFeedback
         selectionManager.clipboardManager = clipboardManager
+        selectionManager.textToolbar = textToolbar
     }
 
     @After
@@ -355,6 +360,35 @@ class SelectionManagerTest {
                 endOffset,
                 startOffset
             )
+        )
+    }
+
+    @Test
+    fun showSelectionToolbar_trigger_textToolbar_showCopyMenu() {
+        val text = "Text Demo"
+        val annotatedString = AnnotatedString(text = text)
+        val startOffset = text.indexOf('m')
+        val endOffset = text.indexOf('x')
+        whenever(selectable.getText()).thenReturn(annotatedString)
+        selectionManager.selection = Selection(
+            start = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = startOffset,
+                selectable = selectable),
+            end = Selection.AnchorInfo(
+                direction = TextDirection.Ltr,
+                offset = endOffset,
+                selectable = selectable
+            ),
+            handlesCrossed = true
+        )
+
+        selectionManager.showSelectionToolbar()
+
+        verify(textToolbar, times(1)).showCopyMenu(
+            eq(Rect.zero),
+            any(),
+            any()
         )
     }
 

@@ -45,6 +45,7 @@ public class RowStyle {
     private int mBottomDividerStartPadding;
     private int mBottomDividerEndPadding;
     private int mActionDividerHeight;
+    private int mSeekBarInlineWidth;
 
     public RowStyle(Context context, int resId) {
         TypedArray a = context.getTheme().obtainStyledAttributes(resId, R.styleable.RowStyle);
@@ -75,6 +76,8 @@ public class RowStyle {
                     R.styleable.RowStyle_bottomDividerEndPadding, UNBOUNDED);
             mActionDividerHeight = (int) a.getDimension(
                     R.styleable.RowStyle_actionDividerHeight, UNBOUNDED);
+            mSeekBarInlineWidth = (int) a.getDimension(
+                    R.styleable.RowStyle_seekBarInlineWidth, UNBOUNDED);
         } finally {
             a.recycle();
         }
@@ -130,5 +133,9 @@ public class RowStyle {
 
     public int getActionDividerHeight() {
         return mActionDividerHeight;
+    }
+
+    public int getSeekBarInlineWidth() {
+        return mSeekBarInlineWidth;
     }
 }

@@ -61,7 +61,7 @@ public final class Trace {
             if (sIsTagEnabledMethod == null) {
                 return android.os.Trace.isEnabled();
             }
-        } catch (NoSuchMethodError ignore) {
+        } catch (NoSuchMethodError | NoClassDefFoundError ignore) {
         }
         return isEnabledFallback();
     }
@@ -112,7 +112,7 @@ public final class Trace {
                 TraceApi29Impl.beginAsyncSection(methodName, cookie);
                 return;
             }
-        } catch (NoSuchMethodError ignore) {
+        } catch (NoSuchMethodError | NoClassDefFoundError ignore) {
         }
         beginAsyncSectionFallback(methodName, cookie);
     }
@@ -132,7 +132,7 @@ public final class Trace {
                 TraceApi29Impl.endAsyncSection(methodName, cookie);
                 return;
             }
-        } catch (NoSuchMethodError ignore) {
+        } catch (NoSuchMethodError | NoClassDefFoundError ignore) {
         }
         endAsyncSectionFallback(methodName, cookie);
     }
@@ -150,7 +150,7 @@ public final class Trace {
                 TraceApi29Impl.setCounter(counterName, counterValue);
                 return;
             }
-        } catch (NoSuchMethodError ignore) {
+        } catch (NoSuchMethodError | NoClassDefFoundError ignore) {
         }
         setCounterFallback(counterName, counterValue);
     }

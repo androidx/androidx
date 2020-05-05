@@ -33,6 +33,8 @@ import androidx.ui.graphics.Path
 import androidx.ui.core.ContentScale
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.core.drawBehind
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredSizeIn
@@ -138,12 +140,11 @@ class ImageTest {
                 TestTag(contentTag) {
                     Image(
                         ImagePainter(createImageAsset(),
-                            Rect.fromLTWH(
+                            Offset(
                                 imageWidth / 2.0f - subsectionWidth / 2.0f,
-                                imageHeight / 2.0f - subsectionHeight / 2.0f,
-                                subsectionWidth.toFloat(),
-                                subsectionHeight.toFloat()
-                            )
+                                imageHeight / 2.0f - subsectionHeight / 2.0f
+                            ),
+                            Size(subsectionWidth.toFloat(), subsectionHeight.toFloat())
                         )
                     )
                 }

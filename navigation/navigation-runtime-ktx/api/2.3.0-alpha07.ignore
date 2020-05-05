@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.app.Activity):
+    Attempted to remove @NonNull annotation from method androidx.navigation.ActivityNavArgsLazyKt.navArgs(android.app.Activity)

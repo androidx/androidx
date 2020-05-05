@@ -20,7 +20,9 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ExternalDependency
+import org.gradle.api.attributes.Usage
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.named
 import java.io.File
 
 /**
@@ -104,10 +106,11 @@ open class CheckExternalDependencyLicensesTask : DefaultTask() {
 }
 
 fun Project.configureExternalDependencyLicenseCheck() {
-    val task = tasks.register(CheckExternalDependencyLicensesTask.TASK_NAME,
+    tasks.register(CheckExternalDependencyLicensesTask.TASK_NAME,
             CheckExternalDependencyLicensesTask::class.java)
-    configurations.create(CheckExternalDependencyLicensesTask.CONFIGURATION_NAME)
-    rootProject.tasks.named(CheckExternalDependencyLicensesTask.TASK_NAME).configure {
-        it.dependsOn(task)
+    configurations.create(CheckExternalDependencyLicensesTask.CONFIGURATION_NAME) {
+        it.attributes {
+            it.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+        }
     }
 }

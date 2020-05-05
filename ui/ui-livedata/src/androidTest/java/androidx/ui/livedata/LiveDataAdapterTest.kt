@@ -168,14 +168,14 @@ class LiveDataAdapterTest : LifecycleOwner {
     }
 
     @Test
-    fun initialValueIsNeverUsedWhenWeHadRealInStarted() {
+    fun initialValueIsUpdatedWithTheRealOneRightAfterIfLifecycleIsStarted() {
         val liveData = MutableLiveData<String>()
         liveData.postValue("value")
-        var realValue = "to-be-updated"
+        var realValue: String? = "to-be-updated"
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
         rule.setContent {
             Providers(LifecycleOwnerAmbient provides this) {
-                realValue = liveData.observeAsState(null).value!!
+                realValue = liveData.observeAsState(null).value
             }
         }
 

@@ -76,9 +76,9 @@ class SiblingsSelectorTest {
         findByTag("Child2")
             .siblings()
             .assertCountEquals(2)
-            .let {
-                it[0].assert(hasTestTag("Child1"))
-                it[1].assert(hasTestTag("Child3"))
+            .apply {
+                get(0).assert(hasTestTag("Child1"))
+                get(1).assert(hasTestTag("Child3"))
             }
     }
 }

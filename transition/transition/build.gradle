@@ -13,7 +13,6 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0")
-    api(project(":core:core-animation"))
     implementation("androidx.collection:collection:1.1.0")
     compileOnly(project(":fragment:fragment"))
     compileOnly("androidx.appcompat:appcompat:1.0.1")
@@ -38,8 +37,8 @@ dependencies {
 
 android {
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
     }
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'

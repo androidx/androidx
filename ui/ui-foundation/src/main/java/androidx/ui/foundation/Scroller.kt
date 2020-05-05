@@ -40,7 +40,6 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.min
-import androidx.ui.unit.px
 import androidx.ui.unit.toPx
 import kotlin.math.roundToInt
 
@@ -67,7 +66,7 @@ fun ScrollerPosition(
  * allows the developer to change the scroll position by calling methods on this object.
  *
  * @param flingConfig configuration that specifies fling logic when scrolling ends with velocity
- * @param initial initial scroller position to start with
+ * @param initial initial scroller position in pixels to start with
  * @param animationClock clock observable to run animation on. Consider querying
  * [AnimationClockAmbient] to get current composition value
  */
@@ -97,7 +96,7 @@ class ScrollerPosition(
         ScrollableState(consumeDelta, flingConfig, animationClock)
 
     /**
-     * current scroller position value
+     * current scroller position value in pixels
      */
     var value by mutableStateOf(initial, StructurallyEqual)
         private set
@@ -109,7 +108,7 @@ class ScrollerPosition(
         get() = scrollableState.isAnimating
 
     /**
-     * maxPosition this scroller that consume this ScrollerPosition can reach, or
+     * maxPosition this scroller that consume this ScrollerPosition can reach in pixels, or
      * [Float.POSITIVE_INFINITY] if still unknown
      */
     var maxPosition by mutableStateOf(Float.POSITIVE_INFINITY, StructurallyEqual)
@@ -118,7 +117,8 @@ class ScrollerPosition(
     /**
      * Smooth scroll to position in pixels
      *
-     * @param value target value to smooth scroll to, value will be coerced to 0..maxPosition
+     * @param value target value in pixels to smooth scroll to, value will be coerced to
+     * 0..maxPosition
      */
     // TODO (malkov/tianliu) : think about allowing to scroll with custom animation timings/curves
     fun smoothScrollTo(
@@ -131,7 +131,7 @@ class ScrollerPosition(
     /**
      * Smooth scroll by some amount of pixels
      *
-     * @param value delta to scroll by, total value will be coerced to 0..maxPosition
+     * @param value delta in pixels to scroll by, total value will be coerced to 0..maxPosition
      */
     fun smoothScrollBy(
         value: Float,
@@ -143,7 +143,7 @@ class ScrollerPosition(
     /**
      * Instantly jump to position in pixels
      *
-     * @param value target value to jump to, value will be coerced to 0..maxPosition
+     * @param value target value in pixels to jump to, value will be coerced to 0..maxPosition
      */
     fun scrollTo(value: Float) {
         this.value = value.coerceIn(0f, maxPosition)
@@ -152,7 +152,7 @@ class ScrollerPosition(
     /**
      * Instantly jump by some amount of pixels
      *
-     * @param value delta to jump by, total value will be coerced to 0..maxPosition
+     * @param value delta in pixels to jump by, total value will be coerced to 0..maxPosition
      */
     fun scrollBy(value: Float) {
         scrollTo(this.value + value)
@@ -272,34 +272,22 @@ private fun ScrollerLayout(
             )
         },
         measureBlock = { measurables, constraints, _ ->
-            if (measurables.size > 1) {
-                throw IllegalStateException("Only one child is allowed in a VerticalScroller")
-            }
             val childConstraints = constraints.copy(
                 maxHeight = if (isVertical) IntPx.Infinity else constraints.maxHeight,
                 maxWidth = if (isVertical) constraints.maxWidth else IntPx.Infinity
             )
-            val childMeasurable = measurables.firstOrNull()
-            val placeable = childMeasurable?.measure(childConstraints)
-            val width: IntPx
-            val height: IntPx
-            if (placeable == null) {
-                width = constraints.minWidth
-                height = constraints.minHeight
-            } else {
-                width = min(placeable.width, constraints.maxWidth)
-                height = min(placeable.height, constraints.maxHeight)
-            }
+            require(measurables.size == 1)
+            val placeable = measurables.first().measure(childConstraints)
+            val width = min(placeable.width, constraints.maxWidth)
+            val height = min(placeable.height, constraints.maxHeight)
+            val scrollHeight = placeable.height.toPx() - height.toPx()
+            val scrollWidth = placeable.width.toPx() - width.toPx()
+            val side = if (isVertical) scrollHeight else scrollWidth
             layout(width, height) {
-                val childHeight = placeable?.height?.toPx() ?: 0.px
-                val childWidth = placeable?.width?.toPx() ?: 0.px
-                val scrollHeight = childHeight - height.toPx()
-                val scrollWidth = childWidth - width.toPx()
-                val side = if (isVertical) scrollHeight else scrollWidth
                 scrollerPosition.updateMaxPosition(side.value)
                 val xOffset = if (isVertical) 0 else -scrollerPosition.value.roundToInt()
                 val yOffset = if (isVertical) -scrollerPosition.value.roundToInt() else 0
-                placeable?.place(xOffset.ipx, yOffset.ipx)
+                placeable.place(xOffset.ipx, yOffset.ipx)
             }
         }
     )

@@ -63,6 +63,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -159,6 +160,9 @@ final class Camera2CameraImpl implements CameraInternal {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Set<CaptureSession> mConfiguringForClose = new HashSet<>();
+
+    // The metering repeating use case for ImageCapture only case.
+    private MeteringRepeating mMeteringRepeating;
 
     /**
      * Constructor for a camera.
@@ -555,7 +559,7 @@ final class Camera2CameraImpl implements CameraInternal {
                 mUseCaseAttachState.updateUseCase(useCase);
                 updateCaptureSessionConfig();
             } catch (NullPointerException e) {
-                Log.e(TAG, "Failed to set already detached use case active");
+                debugLog("Failed to set already detached use case active");
             }
         });
     }
@@ -652,6 +656,7 @@ final class Camera2CameraImpl implements CameraInternal {
                 //  where an unbound UseCase is silently ignored.
                 try {
                     mUseCaseAttachState.setUseCaseOnline(useCase);
+
                     useCasesChangedToOnline.add(useCase);
                 } catch (NullPointerException e) {
                     debugLog("Failed to set already detached use case online");
@@ -666,6 +671,9 @@ final class Camera2CameraImpl implements CameraInternal {
         debugLog("Use cases [" + TextUtils.join(", ", useCasesChangedToOnline) + "] now ONLINE");
 
         notifyStateOnlineToUseCases(useCasesChangedToOnline);
+
+        // Check if need to add or remove MeetingRepeatingUseCase.
+        addOrRemoveMeteringRepeatingUseCase();
 
         updateCaptureSessionConfig();
         resetCaptureSession(/*abortInFlightCaptures=*/false);
@@ -750,6 +758,9 @@ final class Camera2CameraImpl implements CameraInternal {
 
         notifyStateOfflineToUseCases(useCasesChangedToOffline);
 
+        // Check if need to add or remove MeetingRepeatingUseCase.
+        addOrRemoveMeteringRepeatingUseCase();
+
         boolean allUseCasesOffline = mUseCaseAttachState.getOnlineUseCases().isEmpty();
         if (allUseCasesOffline) {
             mCameraControlInternal.setActive(false);
@@ -765,6 +776,55 @@ final class Camera2CameraImpl implements CameraInternal {
             if (mState == InternalState.OPENED) {
                 openCaptureSession();
             }
+        }
+    }
+
+    // Check if it need the repeating surface for ImageCapture only use case.
+    private void addOrRemoveMeteringRepeatingUseCase() {
+        ValidatingBuilder validatingBuilder = mUseCaseAttachState.getOnlineBuilder();
+        SessionConfig sessionConfig = validatingBuilder.build();
+        CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
+        int sizeRepeatingSurfaces = captureConfig.getSurfaces().size();
+        int sizeSessionSurfaces = sessionConfig.getSurfaces().size();
+
+        if (!sessionConfig.getSurfaces().isEmpty()) {
+            if (captureConfig.getSurfaces().isEmpty()) {
+                // Create the MeteringRepeating UseCase
+                if (mMeteringRepeating == null) {
+                    mMeteringRepeating = new MeteringRepeating(this);
+                }
+                addMeteringRepeating();
+            } else {
+                // There is mMeteringRepeating and online, check to remove it or not.
+                if (sizeSessionSurfaces == 1 && sizeRepeatingSurfaces == 1) {
+                    // The only online use case is MeteringRepeating, directly remove it.
+                    removeMeteringRepeating();
+                } else if (sizeRepeatingSurfaces >= 2) {
+                    // There are other repeating UseCases, remove the MeteringRepeating.
+                    removeMeteringRepeating();
+                } else {
+                    // Other normal cases, do nothing.
+                    Log.d(TAG, "mMeteringRepeating is online, "
+                            + "SessionConfig Surfaces: " + sizeSessionSurfaces + ", "
+                            + "CaptureConfig Surfaces: " + sizeRepeatingSurfaces);
+                }
+            }
+        }
+    }
+
+    private  void removeMeteringRepeating() {
+        if (mMeteringRepeating != null) {
+            mUseCaseAttachState.setUseCaseOffline(mMeteringRepeating);
+            notifyStateOfflineToUseCases(Arrays.asList(mMeteringRepeating));
+            mMeteringRepeating.clear();
+            mMeteringRepeating = null;
+        }
+    }
+
+    private  void addMeteringRepeating() {
+        if (mMeteringRepeating != null) {
+            mUseCaseAttachState.setUseCaseOnline(mMeteringRepeating);
+            notifyStateOnlineToUseCases(Arrays.asList(mMeteringRepeating));
         }
     }
 

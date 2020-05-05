@@ -19,16 +19,16 @@ package androidx.ui.foundation
 import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
+import androidx.ui.test.assertCountEquals
+import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsUnselected
-import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.find
 import androidx.ui.test.findAll
+import androidx.ui.test.first
 import androidx.ui.test.isInMutuallyExclusiveGroup
-import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,14 +49,11 @@ class MutuallyExclusiveSetItemTest {
             }
         }
 
-        Truth.assertThat(findAll(isInMutuallyExclusiveGroup()).size).isEqualTo(1)
-        findAll(isInMutuallyExclusiveGroup()).first()
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    inMutuallyExclusiveGroup = true,
-                    isSelected = true
-                )
-            )
+        findAll(isInMutuallyExclusiveGroup())
+            .assertCountEquals(1)
+            .first()
+            .assertIsInMutuallyExclusiveGroup()
+            .assertIsSelected()
     }
 
     @Test

@@ -137,38 +137,52 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
         }
 
         /** Set the {@link CameraCaptureMetaData.AfMode} **/
-        public void setAfMode(@Nullable CameraCaptureMetaData.AfMode mode) {
+        @NonNull
+        public Builder setAfMode(@Nullable CameraCaptureMetaData.AfMode mode) {
             mAfMode = mode;
+            return this;
         }
 
         /** Set the {@link CameraCaptureMetaData.AfState} **/
-        public void setAfState(@Nullable CameraCaptureMetaData.AfState state) {
+        @NonNull
+        public Builder setAfState(@Nullable CameraCaptureMetaData.AfState state) {
             mAfState = state;
+            return this;
         }
 
         /** Set the {@link CameraCaptureMetaData.AeState} **/
-        public void setAeState(@Nullable CameraCaptureMetaData.AeState state) {
+        @NonNull
+        public Builder setAeState(@Nullable CameraCaptureMetaData.AeState state) {
             mAeState = state;
+            return this;
         }
 
         /** Set the {@link CameraCaptureMetaData.AwbState} **/
-        public void setAwbState(@Nullable CameraCaptureMetaData.AwbState state) {
+        @NonNull
+        public Builder setAwbState(@Nullable CameraCaptureMetaData.AwbState state) {
             mAwbState = state;
+            return this;
         }
 
         /** Set the {@link CameraCaptureMetaData.FlashState} **/
-        public void setFlashState(@Nullable CameraCaptureMetaData.FlashState state) {
+        @NonNull
+        public Builder setFlashState(@Nullable CameraCaptureMetaData.FlashState state) {
             mFlashState = state;
+            return this;
         }
 
         /** Set the timestamp. */
-        public void setTimestamp(long timestamp) {
+        @NonNull
+        public Builder setTimestamp(long timestamp) {
             mTimestamp = timestamp;
+            return this;
         }
 
         /** Set the tag. */
-        public void setTag(@Nullable Object tag) {
+        @NonNull
+        public Builder setTag(@Nullable Object tag) {
             mTag = tag;
+            return this;
         }
     }
 }

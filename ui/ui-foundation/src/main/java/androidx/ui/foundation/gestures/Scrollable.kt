@@ -28,6 +28,7 @@ import androidx.compose.remember
 import androidx.ui.animation.asDisposableClock
 import androidx.ui.core.AnimationClockAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.foundation.animation.FlingConfig
@@ -39,9 +40,9 @@ import androidx.ui.unit.px
  * Create [ScrollableState] for [scrollable] with default [FlingConfig] and
  * [AnimationClockObservable]
  *
- * @param onScrollDeltaConsumptionRequested callback to be invoked when scrollable
- * drag/fling/smooth scrolling occurs. Users must update their state in this lambda and return
- * amount of delta consumed
+ * @param onScrollDeltaConsumptionRequested callback invoked when scrollable drag/fling/smooth
+ * scrolling occurs. The callback receives the delta in pixels. Callers should update their state
+ * in this lambda and return amount of delta consumed
  */
 @Composable
 fun ScrollableState(
@@ -58,9 +59,9 @@ fun ScrollableState(
  * State of the [scrollable] composable. Contains necessary information about ongoing fling and
  * provides smooth scrolling capabilities.
  *
- * @param onScrollDeltaConsumptionRequested callback to be invoked when scrollable
- * drag/fling/smooth scrolling occurs. Users must update their state in this lambda and return
- * amount of delta consumed
+ * @param onScrollDeltaConsumptionRequested callback invoked when scrollable drag/fling/smooth
+ * scrolling occurs. The callback receives the delta in pixels. Callers should update their state
+ * in this lambda and return amount of delta consumed
  * @param flingConfig configuration that specifies fling logic when scrolling ends with velocity
  * @param animationClock clock observable to run animation on. Consider querying
  * [AnimationClockAmbient] to get current composition value
@@ -137,12 +138,13 @@ class ScrollableState(
 /**
  * Enable scrolling and flinging of the modified UI element.
  *
- * Although [ScrollableState] is required for this composable to be able to work correctly, users
- * of this composable should own, update and reflect their own state. When constructing
- * [ScrollableState], you need to pass [ScrollableState.onScrollDeltaConsumptionRequested]
- * lambda, which will be invoked every time with the delta when scroll is happening (by
- * gesture input, my smooth scrolling or flinging). In this lambda you can change your own state
- * and reflect it on UI. Amount of scrolling delta consumed must be returned from this lambda.
+ * Although [ScrollableState] is required for this composable to work correctly, users of this
+ * composable should own, update and reflect their own state. When constructing
+ * [ScrollableState], you must provide a [ScrollableState.onScrollDeltaConsumptionRequested]
+ * lambda, which will be invoked every time with the delta in pixels when scroll is happening (by
+ * gesture input, by smooth scrolling or flinging). In this lambda callers should update their own
+ * state and reflect it on UI. The amount of scrolling delta consumed must be returned from this
+ * lambda.
  *
  * @sample androidx.ui.foundation.samples.ScrollableSample
  *
@@ -156,18 +158,17 @@ class ScrollableState(
  * unconsumed provided
  * @param enabled whether of not scrolling in enabled
  */
-@Composable
 fun Modifier.scrollable(
     dragDirection: DragDirection,
     scrollableState: ScrollableState,
     onScrollStarted: (startedPosition: PxPosition) -> Unit = {},
     onScrollStopped: (velocity: Float) -> Unit = {},
     enabled: Boolean = true
-): Modifier {
+): Modifier = composed {
     onDispose {
         scrollableState.stopAnimation()
     }
-    return dragGestureFilter(
+    dragGestureFilter(
         dragObserver = object : DragObserver {
 
             override fun onStart(downPosition: PxPosition) {

@@ -131,7 +131,7 @@ fun CoreText(
             // cross-composable selection.
             state.layoutCoordinates = it
 
-            if (selectionRegistrar != null) {
+            if (selectionRegistrar != null && state.selectionRange != null) {
                 val newGlobalPosition = it.globalPosition
                 if (newGlobalPosition != state.previousGlobalPosition) {
                     selectionRegistrar.onPositionChange()

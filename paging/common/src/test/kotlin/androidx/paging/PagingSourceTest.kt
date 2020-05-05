@@ -39,8 +39,7 @@ class PagingSourceTest {
         enablePlaceholders: Boolean
     ): LoadResult<Key, Item> {
         return pagingSource.load(
-            LoadParams(
-                LoadType.REFRESH,
+            LoadParams.Refresh(
                 key,
                 initialLoadSize,
                 enablePlaceholders,
@@ -62,7 +61,7 @@ class PagingSourceTest {
 
             // Verify error is propagated correctly.
             pagingSource.enqueueError()
-            val errorParams = LoadParams(LoadType.REFRESH, key, 10, false, 10)
+            val errorParams = LoadParams.Refresh(key, 10, false, 10)
             assertFailsWith<CustomException> {
                 pagingSource.load(errorParams)
             }
@@ -194,7 +193,7 @@ class PagingSourceTest {
 
         runBlocking {
             val key = ITEMS_BY_NAME_ID[5].key()
-            val params = LoadParams(LoadType.START, key, 5, false, 5)
+            val params = LoadParams.Prepend(key, 5, false, 5)
             val observed = (dataSource.load(params) as LoadResult.Page).data
 
             assertEquals(ITEMS_BY_NAME_ID.subList(0, 5), observed)
@@ -202,7 +201,7 @@ class PagingSourceTest {
             // Verify error is propagated correctly.
             dataSource.enqueueError()
             assertFailsWith<CustomException> {
-                val errorParams = LoadParams(LoadType.START, key, 5, false, 5)
+                val errorParams = LoadParams.Prepend(key, 5, false, 5)
                 dataSource.load(errorParams)
             }
         }
@@ -214,7 +213,7 @@ class PagingSourceTest {
 
         runBlocking {
             val key = ITEMS_BY_NAME_ID[5].key()
-            val params = LoadParams(LoadType.END, key, 5, false, 5)
+            val params = LoadParams.Append(key, 5, false, 5)
             val observed = (dataSource.load(params) as LoadResult.Page).data
 
             assertEquals(ITEMS_BY_NAME_ID.subList(6, 11), observed)
@@ -222,7 +221,7 @@ class PagingSourceTest {
             // Verify error is propagated correctly.
             dataSource.enqueueError()
             assertFailsWith<CustomException> {
-                val errorParams = LoadParams(LoadType.END, key, 5, false, 5)
+                val errorParams = LoadParams.Append(key, 5, false, 5)
                 dataSource.load(errorParams)
             }
         }
@@ -258,6 +257,7 @@ class PagingSourceTest {
 
         private var error = false
 
+        @OptIn(ExperimentalPagingApi::class)
         override fun getRefreshKey(state: PagingState<Key, Item>): Key? {
             return state.anchorPosition
                 ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition) }
@@ -265,10 +265,10 @@ class PagingSourceTest {
         }
 
         override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Item> {
-            return when (params.loadType) {
-                LoadType.REFRESH -> loadInitial(params)
-                LoadType.START -> loadBefore(params)
-                LoadType.END -> loadAfter(params)
+            return when (params) {
+                is LoadParams.Refresh -> loadInitial(params)
+                is LoadParams.Prepend -> loadBefore(params)
+                is LoadParams.Append -> loadAfter(params)
             }
         }
 

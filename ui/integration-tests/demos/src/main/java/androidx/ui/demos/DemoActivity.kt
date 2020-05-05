@@ -26,7 +26,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.compose.Composable
-import androidx.compose.frames.modelListOf
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
 import androidx.compose.onCommit
@@ -45,6 +44,9 @@ import androidx.ui.material.ColorPalette
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.darkColorPalette
 import androidx.ui.material.lightColorPalette
+import androidx.ui.savedinstancestate.Saver
+import androidx.ui.savedinstancestate.listSaver
+import androidx.ui.savedinstancestate.rememberSavedInstanceState
 
 /**
  * Main [Activity] containing all Compose related demos.
@@ -54,13 +56,13 @@ class DemoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val navigator = remember {
-                Navigator(
-                    initialDemo = AllDemosCategory,
-                    backDispatcher = onBackPressedDispatcher
-                ) { activityDemo ->
-                    startActivity(Intent(this, activityDemo.activityClass.java))
-                }
+            val activityStarter = fun(demo: ActivityDemo<*>) {
+                startActivity(Intent(this, demo.activityClass.java))
+            }
+            val navigator = rememberSavedInstanceState(
+                saver = Navigator.Saver(AllDemosCategory, onBackPressedDispatcher, activityStarter)
+            ) {
+                Navigator(AllDemosCategory, onBackPressedDispatcher, activityStarter)
             }
             val demoColors = remember {
                 DemoColorPalette().also {
@@ -72,7 +74,11 @@ class DemoActivity : ComponentActivity() {
                 }
             }
             DemoTheme(demoColors, window) {
-                val filteringMode = remember { FilterMode(onBackPressedDispatcher) }
+                val filteringMode = rememberSavedInstanceState(
+                    saver = FilterMode.Saver(onBackPressedDispatcher)
+                ) {
+                    FilterMode(onBackPressedDispatcher)
+                }
                 val onStartFiltering = { filteringMode.isFiltering = true }
                 val onEndFiltering = { filteringMode.isFiltering = false }
                 DemoApp(
@@ -127,22 +133,29 @@ private val ColorPalette.darkenedPrimary: Int
         )
     }.toArgb()
 
-private class Navigator(
-    private val initialDemo: DemoCategory,
+private class Navigator private constructor(
     private val backDispatcher: OnBackPressedDispatcher,
-    val launchActivityDemo: (ActivityDemo<*>) -> Unit
+    private val launchActivityDemo: (ActivityDemo<*>) -> Unit,
+    private val rootDemo: Demo,
+    initialDemo: Demo,
+    private val backStack: MutableList<Demo>
 ) {
-    private val backStack: MutableList<Demo> = modelListOf()
+    constructor(
+        rootDemo: Demo,
+        backDispatcher: OnBackPressedDispatcher,
+        launchActivityDemo: (ActivityDemo<*>) -> Unit
+    ) : this(backDispatcher, launchActivityDemo, rootDemo, rootDemo, mutableListOf<Demo>())
 
     private val onBackPressed = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
             popBackStack()
         }
     }.apply {
+        isEnabled = !isRoot
         backDispatcher.addCallback(this)
     }
 
-    private var _currentDemo by mutableStateOf<Demo>(initialDemo)
+    private var _currentDemo by mutableStateOf(initialDemo)
     var currentDemo: Demo
         get() = _currentDemo
         private set(value) {
@@ -168,24 +181,58 @@ private class Navigator(
     fun popAll() {
         if (!isRoot) {
             backStack.clear()
-            currentDemo = initialDemo
+            currentDemo = rootDemo
         }
     }
 
     private fun popBackStack() {
         currentDemo = backStack.removeAt(backStack.lastIndex)
     }
+
+    companion object {
+        fun Saver(
+            rootDemo: DemoCategory,
+            backDispatcher: OnBackPressedDispatcher,
+            launchActivityDemo: (ActivityDemo<*>) -> Unit
+        ): Saver<Navigator, *> = listSaver<Navigator, String>(
+            save = { navigator ->
+                (navigator.backStack + navigator.currentDemo).map { it.title }
+            },
+            restore = { restored ->
+                require(restored.isNotEmpty())
+                val backStack = restored.mapTo(mutableListOf()) {
+                    requireNotNull(findDemo(rootDemo, it))
+                }
+                val initial = backStack.removeAt(backStack.lastIndex)
+                Navigator(backDispatcher, launchActivityDemo, rootDemo, initial, backStack)
+            }
+        )
+
+        private fun findDemo(demo: Demo, title: String): Demo? {
+            if (demo.title == title) {
+                return demo
+            }
+            if (demo is DemoCategory) {
+                demo.demos.forEach { child ->
+                    findDemo(child, title)
+                        ?.let { return it }
+                }
+            }
+            return null
+        }
+    }
 }
 
-private class FilterMode(backDispatcher: OnBackPressedDispatcher) {
+private class FilterMode(backDispatcher: OnBackPressedDispatcher, initialValue: Boolean = false) {
 
-    private var _isFiltering by mutableStateOf(false)
+    private var _isFiltering by mutableStateOf(initialValue)
 
     private val onBackPressed = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
             isFiltering = false
         }
     }.apply {
+        isEnabled = initialValue
         backDispatcher.addCallback(this)
     }
 
@@ -195,6 +242,13 @@ private class FilterMode(backDispatcher: OnBackPressedDispatcher) {
             _isFiltering = value
             onBackPressed.isEnabled = value
         }
+
+    companion object {
+        fun Saver(backDispatcher: OnBackPressedDispatcher) = Saver<FilterMode, Boolean>(
+            save = { it.isFiltering },
+            restore = { FilterMode(backDispatcher, it) }
+        )
+    }
 }
 
 /**

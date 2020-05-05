@@ -16,13 +16,13 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
+import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
@@ -49,17 +49,16 @@ import androidx.ui.unit.PxPosition
  * @param executionPass The [PointerEventPass] during which this GestureDetector will attempt to
  * react to and consume down changes.  Defaults to [PointerEventPass.PostUp].
  */
-@Composable
 fun Modifier.rawPressStartGestureFilter(
     onPressStart: (PxPosition) -> Unit,
     enabled: Boolean = false,
     executionPass: PointerEventPass = PointerEventPass.PostUp
-): Modifier {
+): Modifier = composed {
     val filter = remember { RawPressStartGestureFilter() }
     filter.onPressStart = onPressStart
     filter.setEnabled(enabled = enabled)
     filter.setExecutionPass(executionPass)
-    return this + PointerInputModifierImpl(filter)
+    PointerInputModifierImpl(filter)
 }
 
 internal class RawPressStartGestureFilter : PointerInputFilter() {

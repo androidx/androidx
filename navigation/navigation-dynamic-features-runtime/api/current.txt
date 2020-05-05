@@ -115,20 +115,26 @@ package androidx.navigation.dynamicfeatures {
   }
 
   public final class DynamicNavGraphBuilder extends androidx.navigation.NavGraphBuilder {
-    ctor public DynamicNavGraphBuilder(androidx.navigation.NavigatorProvider provider, @IdRes int id, @IdRes int startDestination, String? moduleName, int progressDestination);
+    ctor public DynamicNavGraphBuilder(androidx.navigation.NavigatorProvider provider, @IdRes int id, @IdRes int startDestination);
+    method public String? getModuleName();
+    method public int getProgressDestination();
+    method public void setModuleName(String? p);
+    method public void setProgressDestination(int p);
+    property public final String? moduleName;
+    property public final int progressDestination;
   }
 
   public final class DynamicNavGraphBuilderKt {
-    method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, @IdRes int id = 0, @IdRes int startDestination, String? moduleName = null, int progressDestination = 0, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
-    method public static inline void navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, @IdRes int startDestination, String? moduleName = null, int progressDestination = 0, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
+    method public static inline void navigation(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavControllerKt {
-    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, @IdRes int id = 0, @IdRes int startDestination, String? moduleName = null, int progressDestination = 0, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavHostKt {
-    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, @IdRes int id = 0, @IdRes int startDestination, String? moduleName = null, int progressDestination = 0, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder,kotlin.Unit> builder);
   }
 
 }

@@ -27,9 +27,15 @@ import androidx.ui.graphics.useOrElse
 import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.text.AnnotatedString
+import androidx.ui.text.Paragraph
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
+import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.FontStyle
+import androidx.ui.text.style.TextAlign
+import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextOverflow
+import androidx.ui.unit.TextUnit
 
 /**
  * High level element that displays text and provides semantics / accessibility information.
@@ -39,45 +45,77 @@ import androidx.ui.text.style.TextOverflow
  * [TextStyle.copy] to keep any theme defined attributes, only modifying the specific attributes
  * you want to override.
  *
- * If [color] is explicitly set, it will always be used instead of the value inside [style]. If
- * [color] is not set, and [style] does not have a color, then [contentColor] will be used - this
- * allows this [Text] or element containing this [Text] to adapt to different background
- * colors and still maintain contrast and accessibility.
+ * For ease of use, commonly used parameters from [TextStyle] are also present here. The order of
+ * precedence is as follows:
+ * - If a parameter is explicitly set here (i.e, it is _not_ `null` or [TextUnit.Inherit]), then
+ * this parameter will always be used.
+ * - If a parameter is _not_ set, (`null` or [TextUnit.Inherit]), then the corresponding value
+ * from [style] will be used instead.
+ *
+ * Additionally, for [color], if [color] is not set, and [style] does not have a color, then
+ * [contentColor] will be used - this allows this [Text] or element containing this [Text] to
+ * adapt to different background colors and still maintain contrast and accessibility.
  *
  * @param text The text to be displayed.
  * @param modifier [Modifier] to apply to this layout node.
  * @param color [Color] to apply to the text. If [Color.Unset], and [style] has no color set, this
  * will be [contentColor].
- * @param style Style configuration for the text such as color, font, line height etc.
+ * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
+ * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
+ * See [TextStyle.fontStyle].
+ * @param fontFamily The font family to be used when rendering the text. See [TextStyle.fontFamily].
+ * @param letterSpacing The amount of space to add between each letter.
+ * See [TextStyle.letterSpacing].
+ * @param textDecoration The decorations to paint on the text (e.g., an underline).
+ * See [TextStyle.textDecoration].
+ * @param textAlign The alignment of the text within the lines of the paragraph.
+ * See [TextStyle.textAlign].
+ * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
+ * See [TextStyle.lineHeight].
+ * @param overflow How visual overflow should be handled.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
  * [overflow] and TextAlign may have unexpected effects.
- * @param overflow How visual overflow should be handled.
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param style Style configuration for the text such as color, font, line height etc.
  */
 @Composable
 fun Text(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unset,
-    style: TextStyle = currentTextStyle(),
-    softWrap: Boolean = true,
+    fontSize: TextUnit = TextUnit.Inherit,
+    fontStyle: FontStyle? = null,
+    fontFamily: FontFamily? = null,
+    letterSpacing: TextUnit = TextUnit.Inherit,
+    textDecoration: TextDecoration? = null,
+    textAlign: TextAlign? = null,
+    lineHeight: TextUnit = TextUnit.Inherit,
     overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
-    onTextLayout: (TextLayoutResult) -> Unit = {}
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    style: TextStyle = currentTextStyle()
 ) {
     Text(
         AnnotatedString(text),
         modifier,
         color,
-        style,
-        softWrap,
+        fontSize,
+        fontStyle,
+        fontFamily,
+        letterSpacing,
+        textDecoration,
+        textAlign,
+        lineHeight,
         overflow,
+        softWrap,
         maxLines,
-        onTextLayout
+        onTextLayout,
+        style
     )
 }
 
@@ -89,38 +127,74 @@ fun Text(
  * [TextStyle.copy] to keep any theme defined attributes, only modifying the specific attributes
  * you want to override.
  *
- * If [color] is explicitly set, it will always be used instead of the value inside [style]. If
- * [color] is not set, and [style] does not have a color, then [contentColor] will be used - this
- * allows this [Text] or element containing this [Text] to adapt to different background
- * colors and still maintain contrast and accessibility.
+ * For ease of use, commonly used parameters from [TextStyle] are also present here. The order of
+ * precedence is as follows:
+ * - If a parameter is explicitly set here (i.e, it is _not_ `null` or [TextUnit.Inherit]), then
+ * this parameter will always be used.
+ * - If a parameter is _not_ set, (`null` or [TextUnit.Inherit]), then the corresponding value
+ * from [style] will be used instead.
+ *
+ * Additionally, for [color], if [color] is not set, and [style] does not have a color, then
+ * [contentColor] will be used - this allows this [Text] or element containing this [Text] to
+ * adapt to different background colors and still maintain contrast and accessibility.
  *
  * @param text The text to be displayed.
  * @param modifier [Modifier] to apply to this layout node.
  * @param color [Color] to apply to the text. If [Color.Unset], and [style] has no color set, this
  * will be [contentColor].
- * @param style Style configuration for the text such as color, font, line height etc.
+ * @param fontSize The size of glyphs to use when painting the text. See [TextStyle.fontSize].
+ * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
+ * See [TextStyle.fontStyle].
+ * @param fontFamily The font family to be used when rendering the text. See [TextStyle.fontFamily].
+ * @param letterSpacing The amount of space to add between each letter.
+ * See [TextStyle.letterSpacing].
+ * @param textDecoration The decorations to paint on the text (e.g., an underline).
+ * See [TextStyle.textDecoration].
+ * @param textAlign The alignment of the text within the lines of the paragraph.
+ * See [TextStyle.textAlign].
+ * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
+ * See [TextStyle.lineHeight].
+ * @param overflow How visual overflow should be handled.
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  * text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
  * [overflow] and TextAlign may have unexpected effects.
- * @param overflow How visual overflow should be handled.
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param style Style configuration for the text such as color, font, line height etc.
  */
 @Composable
 fun Text(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     color: Color = Color.Unset,
-    style: TextStyle = currentTextStyle(),
-    softWrap: Boolean = true,
+    fontSize: TextUnit = TextUnit.Inherit,
+    fontStyle: FontStyle? = null,
+    fontFamily: FontFamily? = null,
+    letterSpacing: TextUnit = TextUnit.Inherit,
+    textDecoration: TextDecoration? = null,
+    textAlign: TextAlign? = null,
+    lineHeight: TextUnit = TextUnit.Inherit,
     overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
-    onTextLayout: (TextLayoutResult) -> Unit = {}
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    style: TextStyle = currentTextStyle()
 ) {
     val textColor = color.useOrElse { style.color.useOrElse { contentColor() } }
-    val mergedStyle = style.merge(TextStyle(color = textColor))
+    val mergedStyle = style.merge(
+        TextStyle(
+            color = textColor,
+            fontSize = fontSize,
+            textAlign = textAlign,
+            lineHeight = lineHeight,
+            fontFamily = fontFamily,
+            textDecoration = textDecoration,
+            fontStyle = fontStyle,
+            letterSpacing = letterSpacing
+        )
+    )
     Semantics(properties = { accessibilityLabel = text.text }) {
         CoreText(
             text,

@@ -16,6 +16,7 @@
 
 package androidx.paging.integration.testapp.v3room
 
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
@@ -26,6 +27,7 @@ import androidx.room.withTransaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalPagingApi::class)
 internal class V3RemoteMediator(
     private val database: SampleDatabase,
     private val networkSource: NetworkCustomerPagingSource
@@ -34,24 +36,26 @@ internal class V3RemoteMediator(
         loadType: LoadType,
         state: PagingState<Int, Customer>
     ): MediatorResult {
-        if (loadType == LoadType.START) return MediatorResult.Success(false)
+        if (loadType == LoadType.PREPEND) return MediatorResult.Success(false)
 
         // TODO: Move this to be a more fully featured sample which demonstrated key translation
         //  between two types of PagingSources where the keys do not map 1:1.
-        val key = when (loadType) {
-            LoadType.REFRESH -> 0
-            LoadType.START -> throw IllegalStateException()
-            LoadType.END -> state.pages.lastOrNull()?.nextKey ?: 0
-        }
-        val result = networkSource.load(
-            PagingSource.LoadParams(
-                loadType = loadType,
-                key = key,
+        val loadParams = when (loadType) {
+            LoadType.REFRESH -> PagingSource.LoadParams.Refresh(
+                key = 0,
                 loadSize = 10,
                 placeholdersEnabled = false,
                 pageSize = 10
             )
-        )
+            LoadType.PREPEND -> throw IllegalStateException()
+            LoadType.APPEND -> PagingSource.LoadParams.Append(
+                key = state.pages.lastOrNull()?.nextKey ?: 0,
+                loadSize = 10,
+                placeholdersEnabled = false,
+                pageSize = 10
+            )
+        }
+        val result = networkSource.load(loadParams)
 
         return when (result) {
             is PagingSource.LoadResult.Page -> {
@@ -65,7 +69,7 @@ internal class V3RemoteMediator(
                     }
                 }
 
-                MediatorResult.Success(canRequestMoreData = true)
+                MediatorResult.Success(endOfPaginationReached = false)
             }
             is PagingSource.LoadResult.Error -> {
                 MediatorResult.Error(result.throwable)

@@ -24,6 +24,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_DEFAULT_CAPTUR
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_FLASH_MODE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_CAPTURE_MODE;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_READER_PROXY_PROVIDER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IO_EXECUTOR;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_CAPTURE_STAGES;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
@@ -320,7 +321,12 @@ public final class ImageCapture extends UseCase {
         sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
 
         // Setup the ImageReader to do processing
-        if (mCaptureProcessor != null) {
+        if (config.getImageReaderProxyProvider() != null) {
+            mImageReader = config.getImageReaderProxyProvider().newInstance(resolution.getWidth(),
+                    resolution.getHeight(), getImageFormat(), MAX_IMAGES, 0);
+            mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {
+            };
+        } else if (mCaptureProcessor != null) {
             // TODO: To allow user to use an Executor for the image processing.
             ProcessingImageReader processingImageReader =
                     new ProcessingImageReader(
@@ -1152,7 +1158,8 @@ public final class ImageCapture extends UseCase {
         state.mIsAfTriggered = true;
         ListenableFuture<CameraCaptureResult> future = getCameraControl().triggerAf();
         // Add listener to avoid FutureReturnValueIgnored error.
-        future.addListener(() -> { }, CameraXExecutors.directExecutor());
+        future.addListener(() -> {
+        }, CameraXExecutors.directExecutor());
     }
 
     /** Issues a request to start auto exposure scan. */
@@ -2398,6 +2405,16 @@ public final class ImageCapture extends UseCase {
         @Override
         public Builder setMaxResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
+            return this;
+        }
+
+        /** @hide */
+        @NonNull
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setImageReaderProxyProvider(
+                @NonNull ImageReaderProxyProvider imageReaderProxyProvider) {
+            getMutableConfig().insertOption(OPTION_IMAGE_READER_PROXY_PROVIDER,
+                    imageReaderProxyProvider);
             return this;
         }
 

@@ -19,7 +19,6 @@ package androidx.fragment.app;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 
 /**
@@ -34,13 +33,23 @@ public interface FragmentResultOwner {
      * the same requestKey. If no {@link FragmentResultListener} with the same key is set or the
      * Lifecycle associated with the listener is not at least
      * {@link androidx.lifecycle.Lifecycle.State#STARTED}, the result is stored until one becomes
-     * available, or a null result with the same requestKey is set.
+     * available, or {@link #clearFragmentResult(String)} is called with the same requestKey.
      *
      * @param requestKey key used to identify the result
-     * @param result the result to be passed to another fragment or {@code null} if you want to
-     *               clear out any pending result.
+     * @param result the result to be passed to another fragment
      */
-    void setFragmentResult(@NonNull String requestKey, @Nullable Bundle result);
+    void setFragmentResult(@NonNull String requestKey, @NonNull Bundle result);
+
+    /**
+     * Clears the stored result for the given requestKey.
+     *
+     * This clears any result that was previously set via
+     * {@link #setFragmentResult(String, Bundle)} that hasn't yet been delivered to a
+     * {@link FragmentResultListener}.
+     *
+     * @param requestKey key used to identify the result
+     */
+    void clearFragmentResult(@NonNull String requestKey);
 
     /**
      * Sets the {@link FragmentResultListener} for a given requestKey. Once the given
@@ -49,14 +58,23 @@ public interface FragmentResultOwner {
      * requestKey will be delivered to the
      * {@link FragmentResultListener#onFragmentResult(String, Bundle) callback}. The callback will
      * remain active until the LifecycleOwner reaches the
-     * {@link androidx.lifecycle.Lifecycle.State#DESTROYED} state or a null
-     * {@link FragmentResultListener} is set for the same requestKey.
+     * {@link androidx.lifecycle.Lifecycle.State#DESTROYED} state or
+     * {@link #clearFragmentResultListener(String)} is called with the same requestKey.
      *
-     * @param requestKey requestKey used to store the result
+     * @param requestKey requestKey used to identify the result
      * @param lifecycleOwner lifecycleOwner for handling the result
-     * @param listener listener for result changes or {@code null} to remove any previously
-     *                 registered listener.
+     * @param listener listener for result changes
      */
     void setFragmentResultListener(@NonNull String requestKey,
-            @NonNull LifecycleOwner lifecycleOwner, @Nullable FragmentResultListener listener);
+            @NonNull LifecycleOwner lifecycleOwner, @NonNull FragmentResultListener listener);
+
+    /**
+     * Clears the stored {@link FragmentResultListener} for the given requestKey.
+     *
+     * This clears any {@link FragmentResultListener} that was previously set via
+     * {@link #setFragmentResultListener(String, LifecycleOwner, FragmentResultListener)}.
+     *
+     * @param requestKey key used to identify the result
+     */
+    void clearFragmentResultListener(@NonNull String requestKey);
 }

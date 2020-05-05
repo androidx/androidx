@@ -19,14 +19,15 @@ package androidx.paging.integration.testapp.v3
 import android.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingDataFlow
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import kotlinx.coroutines.flow.map
 
 class V3ViewModel : ViewModel() {
-    val flow = PagingDataFlow(PagingConfig(10), pagingSourceFactory = ItemPagingSource.Factory)
+    val flow = Pager(PagingConfig(10), pagingSourceFactory = ItemPagingSource.Factory)
+        .flow
         .map { pagingData ->
             pagingData
                 .insertSeparators { before: Item?, after: Item? ->

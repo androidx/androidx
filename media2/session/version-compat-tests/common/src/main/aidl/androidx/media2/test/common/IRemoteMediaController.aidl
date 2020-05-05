@@ -36,6 +36,7 @@ interface IRemoteMediaController {
     void setPlaylist(String controllerId, in List<String> list, in ParcelImpl metadata);
     void createAndSetDummyPlaylist(String controllerId, int size, in ParcelImpl metadata);
     void setMediaItem(String controllerId, in String mediaId);
+    void setMediaUri(String controllerId,  in Uri uri, in Bundle extras);
     void updatePlaylistMetadata(String controllerId, in ParcelImpl metadata);
     void addPlaylistItem(String controllerId, int index, String mediaId);
     void removePlaylistItem(String controllerId, int index);

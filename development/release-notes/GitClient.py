@@ -56,12 +56,14 @@ class GitClient:
 		else:
 			return command_output
 
-	def getGitLog(self, fromExclusiveSha, untilInclusiveSha, keepMerges, subProjectDir, n=0):
+	def getGitLog(self, fromExclusiveSha, untilInclusiveSha, keepMerges, subProjectDir, n=None):
 		""" Converts a diff log command into a [List<Commit>]
 			@param fromExclusiveSha the older Sha to include in the git log (exclusive)
 			@param untilInclusiveSha the newest Sha to include in the git log (inclusive)
 			@param keepMerges boolean for whether or not to add merges to the return [List<Commit>].
 			@param subProjectDir a string that represents the project directory relative to the gitRoot.
+			@param n the maximum number of commits to output in the git log. n==None is treated
+					 equivalently to n=infinity
 		"""
 		commitStartDelimiter = "_CommitStart"
 		commitSHADelimiter = "_CommitSHA:"
@@ -85,10 +87,15 @@ class GitClient:
 				bodyDelimiter + "\%b"
 		if not keepMerges:
 			gitLogOptions += " --no-merges"
+
+		gitLogCmd = GIT_LOG_CMD_PREFIX + " " + gitLogOptions + " "
+		if n is not None:
+			gitLogCmd += " -n " + str(n)
 		if fromExclusiveSha != "":
-			gitLogCmd = GIT_LOG_CMD_PREFIX + " %s %s..%s -- %s" % (gitLogOptions, fromExclusiveSha, untilInclusiveSha, fullProjectDir)
-		else:
-			gitLogCmd = GIT_LOG_CMD_PREFIX + " %s %s -n %d -- %s" % (gitLogOptions, untilInclusiveSha, n, fullProjectDir)
+			gitLogCmd += " " + fromExclusiveSha + ".."
+		gitLogCmd += untilInclusiveSha
+		gitLogCmd += " -- " + fullProjectDir
+
 		gitLogOutputString = self.executeCommand(gitLogCmd)
 		return self.parseCommitLogString(gitLogOutputString,commitStartDelimiter,commitSHADelimiter,subjectDelimiter,authorEmailDelimiter,subProjectDir)
 

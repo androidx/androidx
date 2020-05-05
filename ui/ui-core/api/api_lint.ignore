@@ -13,16 +13,22 @@ AcronymName: androidx.ui.core.Constraints2Kt#offset-xOKVbDg(long, int, int):
     Acronyms should not be capitalized in method names: was `offset-xOKVbDg`, should this be `offset-xOkVbDg`?
 AcronymName: androidx.ui.core.ConstraintsKt#offset-3L2DHGc(androidx.ui.core.Constraints, int, int):
     Acronyms should not be capitalized in method names: was `offset-3L2DHGc`, should this be `offset-3L2DhGc`?
-AcronymName: androidx.ui.core.LayoutModifier#maxIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `maxIntrinsicHeightOf-hc1DRLk`, should this be `maxIntrinsicHeightOf-hc1DrLk`?
-AcronymName: androidx.ui.core.LayoutModifier#maxIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `maxIntrinsicWidthOf-hc1DRLk`, should this be `maxIntrinsicWidthOf-hc1DrLk`?
-AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicHeightOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `minIntrinsicHeightOf-hc1DRLk`, should this be `minIntrinsicHeightOf-hc1DrLk`?
-AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicWidthOf-hc1DRLk(androidx.ui.unit.Density, androidx.ui.core.Measurable, int, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `minIntrinsicWidthOf-hc1DRLk`, should this be `minIntrinsicWidthOf-hc1DrLk`?
-AcronymName: androidx.ui.core.LayoutModifier#modifyAlignmentLine-4TLTOQ4(androidx.ui.unit.Density, androidx.ui.core.AlignmentLine, androidx.ui.unit.IntPx, androidx.ui.core.LayoutDirection):
-    Acronyms should not be capitalized in method names: was `modifyAlignmentLine-4TLTOQ4`, should this be `modifyAlignmentLine-4TltoQ4`?
+AcronymName: androidx.ui.core.IntrinsicMeasureScope#maxIntrinsicHeight-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int):
+    Acronyms should not be capitalized in method names: was `maxIntrinsicHeight-e0m06WU`, should this be `maxIntrinsicHeight-e0m06Wu`?
+AcronymName: androidx.ui.core.IntrinsicMeasureScope#maxIntrinsicWidth-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int):
+    Acronyms should not be capitalized in method names: was `maxIntrinsicWidth-e0m06WU`, should this be `maxIntrinsicWidth-e0m06Wu`?
+AcronymName: androidx.ui.core.IntrinsicMeasureScope#minIntrinsicHeight-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int):
+    Acronyms should not be capitalized in method names: was `minIntrinsicHeight-e0m06WU`, should this be `minIntrinsicHeight-e0m06Wu`?
+AcronymName: androidx.ui.core.IntrinsicMeasureScope#minIntrinsicWidth-e0m06WU(androidx.ui.core.IntrinsicMeasurable, int):
+    Acronyms should not be capitalized in method names: was `minIntrinsicWidth-e0m06WU`, should this be `minIntrinsicWidth-e0m06Wu`?
+AcronymName: androidx.ui.core.LayoutModifier#maxIntrinsicHeight-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `maxIntrinsicHeight-QYUUffc`, should this be `maxIntrinsicHeight-QyuUffc`?
+AcronymName: androidx.ui.core.LayoutModifier#maxIntrinsicWidth-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `maxIntrinsicWidth-QYUUffc`, should this be `maxIntrinsicWidth-QyuUffc`?
+AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicHeight-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `minIntrinsicHeight-QYUUffc`, should this be `minIntrinsicHeight-QyuUffc`?
+AcronymName: androidx.ui.core.LayoutModifier#minIntrinsicWidth-QYUUffc(androidx.ui.core.IntrinsicMeasureScope, androidx.ui.core.IntrinsicMeasurable, int, androidx.ui.core.LayoutDirection):
+    Acronyms should not be capitalized in method names: was `minIntrinsicWidth-QYUUffc`, should this be `minIntrinsicWidth-QyuUffc`?
 
 
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.unit.IntPxSize) parameter #1:
@@ -31,3 +37,11 @@ ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotli
     Method parameter should be Collection<PointerEventPass> (or subclass) instead of raw array; was `androidx.ui.core.PointerEventPass[]`
 ArrayReturn: androidx.ui.testutils.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? super androidx.ui.unit.IntPxSize,? extends java.util.List<androidx.ui.core.PointerInputChange>>, androidx.ui.core.PointerInputChange[], androidx.ui.core.PointerEventPass, androidx.ui.unit.IntPxSize) parameter #1:
     Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.ui.core.PointerInputChange[]`
+
+
+MissingNullability: androidx.ui.core.Constraints2#toString-impl(long):
+    Missing nullability on method `toString-impl` return
+MissingNullability: androidx.ui.core.PointerId#toString-impl(long):
+    Missing nullability on method `toString-impl` return
+MissingNullability: androidx.ui.core.TransformOrigin#toString-impl(long):
+    Missing nullability on method `toString-impl` return

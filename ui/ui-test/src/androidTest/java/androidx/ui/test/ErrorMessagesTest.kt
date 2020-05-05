@@ -208,7 +208,8 @@ class ErrorMessagesTest {
 
         expectErrorMessage("" +
                 "Failed to assert count of nodes.\n" +
-                "Reason: Expected '3' nodes but could not find any."
+                "Reason: Expected '3' nodes but could not find any node that satisfies: " +
+                "(AccessibilityLabel = 'Toggle2' (ignoreCase: false))"
         ) {
             findAllByText("Toggle2")
                 .assertCountEquals(3)

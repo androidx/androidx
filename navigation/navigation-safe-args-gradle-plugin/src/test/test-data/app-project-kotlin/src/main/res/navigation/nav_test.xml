@@ -46,7 +46,7 @@
         <argument android:name="optional" android:defaultValue="-1"/>
         <argument android:name="reference" android:defaultValue="@color/colorPrimary"/>
         <argument android:name="referenceZeroDefaultValue" app:argType="reference" android:defaultValue="0"/>
-        <argument android:name="floatArg" android:defaultValue="-1.0"/>
+        <argument android:name="doubleArg" android:defaultValue="-1.0"/>
         <argument android:name="floatArrayArg" app:argType="float[]"/>
         <argument android:name="objectArrayArg" app:argType="android.content.pm.ActivityInfo[]"/>
         <argument android:name="boolArg" android:defaultValue="true"/>

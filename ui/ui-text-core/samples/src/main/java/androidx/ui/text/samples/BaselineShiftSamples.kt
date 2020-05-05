@@ -30,7 +30,7 @@ import androidx.ui.unit.sp
 @Composable
 fun BaselineShiftSample() {
     Text(
-        style = TextStyle(fontSize = 20.sp),
+        fontSize = 20.sp,
         text = AnnotatedString {
             append(text = "Hello")
             withStyle(SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 16.sp)) {

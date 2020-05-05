@@ -23,13 +23,14 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
+import androidx.ui.layout.absolutePadding
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 
 @Sampled
 @Composable
-fun LayoutPaddingModifier() {
+fun PaddingModifier() {
     Stack(Modifier.drawBackground(Color.Gray)) {
         Box(
             Modifier.padding(start = 20.dp, top = 30.dp, end = 20.dp, bottom = 30.dp)
@@ -41,8 +42,31 @@ fun LayoutPaddingModifier() {
 
 @Sampled
 @Composable
-fun LayoutPaddingAllModifier() {
+fun SymmetricPaddingModifier() {
+    Stack(Modifier.drawBackground(Color.Gray)) {
+        Box(
+            Modifier.padding(horizontal = 20.dp, vertical = 30.dp).preferredSize(50.dp),
+            backgroundColor = Color.Blue
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun PaddingAllModifier() {
     Stack(Modifier.drawBackground(Color.Gray)) {
         Box(Modifier.padding(all = 20.dp).preferredSize(50.dp), backgroundColor = Color.Blue)
+    }
+}
+
+@Sampled
+@Composable
+fun AbsolutePaddingModifier() {
+    Stack(Modifier.drawBackground(Color.Gray)) {
+        Box(
+            Modifier.absolutePadding(left = 20.dp, top = 30.dp, right = 20.dp, bottom = 30.dp)
+                .preferredSize(50.dp),
+            backgroundColor = Color.Blue
+        )
     }
 }

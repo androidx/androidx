@@ -16,9 +16,9 @@
 
 package androidx.paging
 
-import androidx.paging.PageEvent.Insert.Companion.End
+import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.Insert.Companion.Start
+import androidx.paging.PageEvent.Insert.Companion.Prepend
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,17 +47,17 @@ class CachedPageEventFlowTest {
                     listOf("a", "b", "c")
                 )
             ),
-            placeholdersStart = 0,
-            placeholdersEnd = 0,
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
             loadStates = emptyMap()
         )
-        val appendEvent = End(
+        val appendEvent = Append(
             listOf(
                 TransformablePage(
                     listOf("d", "e")
                 )
             ),
-            placeholdersEnd = 0,
+            placeholdersAfter = 0,
             loadStates = emptyMap()
         )
         val upstream = Channel<PageEvent<String>>(Channel.UNLIMITED)
@@ -86,12 +86,12 @@ class CachedPageEventFlowTest {
                     listOf("d", "e")
                 )
             ),
-            placeholdersStart = 0,
-            placeholdersEnd = 0,
+            placeholdersBefore = 0,
+            placeholdersAfter = 0,
             loadStates = emptyMap()
         )
         assertThat(collector2.items()).containsExactly(firstSnapshotRefreshEvent)
-        val prependEvent = Start(
+        val prependEvent = Prepend(
             listOf(
                 TransformablePage(
                     listOf("a0", "a1")
@@ -100,7 +100,7 @@ class CachedPageEventFlowTest {
                     listOf("a2", "a3")
                 )
             ),
-            placeholdersStart = 0,
+            placeholdersBefore = 0,
             loadStates = emptyMap()
         )
         upstream.send(prependEvent)
@@ -128,8 +128,8 @@ class CachedPageEventFlowTest {
                         listOf("d", "e")
                     )
                 ),
-                placeholdersStart = 0,
-                placeholdersEnd = 0,
+                placeholdersBefore = 0,
+                placeholdersAfter = 0,
                 loadStates = emptyMap()
             )
         )

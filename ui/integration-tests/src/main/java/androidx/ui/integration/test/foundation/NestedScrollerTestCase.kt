@@ -86,12 +86,12 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                             Text(
                                 text = "Some title",
                                 color = Color.Black,
-                                style = TextStyle(fontSize = 60.px.toSp())
+                                fontSize = 60.px.toSp()
                             )
                             Row(Modifier.fillMaxWidth()) {
                                 Text(
                                     "3.5 ★",
-                                    style = TextStyle(fontSize = 40.px.toSp()),
+                                    fontSize = 40.px.toSp(),
                                     modifier = Modifier.gravity(Alignment.CenterVertically)
                                 )
                                 Box(Modifier

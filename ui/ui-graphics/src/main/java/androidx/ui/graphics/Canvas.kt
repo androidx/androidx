@@ -17,8 +17,8 @@
 package androidx.ui.graphics
 
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.vectormath.Matrix4
 import androidx.ui.graphics.vectormath.degrees
 
@@ -33,7 +33,7 @@ import androidx.ui.graphics.vectormath.degrees
  *
  * A canvas also has a current clip region which is applied to all operations.
  * Initially, the clip region is infinite. It can be modified using the
- * [Canvas.clipRect], [Canvas.clipRRect], and [Canvas.clipPath] methods.
+ * [Canvas.clipRect], and [Canvas.clipPath] methods.
  *
  * The current transform and clip can be saved and restored using the stack
  * managed by the [Canvas.save], [Canvas.saveLayer], and [Canvas.restore] methods.
@@ -100,8 +100,7 @@ import androidx.ui.graphics.vectormath.degrees
  *
  * When a rectangular clip operation (from [Canvas.clipRect]) is not axis-aligned
  * with the raster buffer, or when the clip operation is not rectalinear (e.g.
- * because it is a rounded rectangle clip created by [Canvas.clipRRect] or an
- * arbitrarily complicated path clip created by [Canvas.clipPath]), the edge of the
+ * because it is a rounded rectangle clip created by [Canvas.clipPath]), the edge of the
  * clip needs to be anti-aliased.
  *
  * If two draw calls overlap at the edge of such a clipped region, without
@@ -243,8 +242,7 @@ interface Canvas {
      *
      * When a rectangular clip operation (from [clipRect]) is not axis-aligned
      * with the raster buffer, or when the clip operation is not rectalinear (e.g.
-     * because it is a rounded rectangle clip created by [clipRRect] or an
-     * arbitrarily complicated path clip created by [clipPath]), the edge of the
+     * because it is a rounded rectangle clip created by [clipPath], the edge of the
      * clip needs to be anti-aliased.
      *
      * If two draw calls overlap at the edge of such a clipped region, without
@@ -258,8 +256,8 @@ interface Canvas {
      *
 
      *
-     * (Incidentally, rather than using [clipRRect] to draw
-     * rounded rectangles like this, prefer the [drawRoundRect] method.
+     * (Incidentally, rather than using [clipPath] with a rounded rectangle defined in a path to
+     * draw rounded rectangles like this, prefer the [drawRoundRect] method.
      *
      * ## Performance considerations
      *
@@ -350,18 +348,34 @@ interface Canvas {
      * current clip.
      */
     @SuppressWarnings("deprecation")
-    fun clipRect(rect: Rect, clipOp: ClipOp = ClipOp.intersect)
+    fun clipRect(rect: Rect, clipOp: ClipOp = ClipOp.intersect) =
+        clipRect(rect.left, rect.top, rect.right, rect.bottom, clipOp)
 
     /**
      * Reduces the clip region to the intersection of the current clip and the
-     * given rounded rectangle.
+     * given bounds.
      *
-     * If [Paint.isAntiAlias] is true, then the clip will be anti-aliased. If
+     * If the clip is not axis-aligned with the display device, and
+     * [Paint.isAntiAlias] is true, then the clip will be anti-aliased. If
      * multiple draw commands intersect with the clip boundary, this can result
      * in incorrect blending at the clip boundary. See [saveLayer] for a
-     * discussion of how to address that and some examples of using [clipRRect].
+     * discussion of how to address that.
+     *
+     * Use [ClipOp.difference] to subtract the provided rectangle from the
+     * current clip.
+     *
+     * @param left Left bound of the clip region
+     * @param top Top bound of the clip region
+     * @param right Right bound of the clip region
+     * @param bottom Bottom bound of the clip region
      */
-    fun clipRRect(rrect: RRect)
+    fun clipRect(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        clipOp: ClipOp = ClipOp.intersect
+    )
 
     /**
      * Reduces the clip region to the intersection of the current clip and the
@@ -386,7 +400,31 @@ interface Canvas {
      * Draws a rectangle with the given [Paint]. Whether the rectangle is filled
      * or stroked (or both) is controlled by [Paint.style].
      */
-    fun drawRect(rect: Rect, paint: Paint)
+    fun drawRect(rect: Rect, paint: Paint) = drawRect(
+        left = rect.left,
+        top = rect.top,
+        right = rect.right,
+        bottom = rect.bottom,
+        paint = paint
+    )
+
+    /**
+     * Draws a rectangle with the given [Paint]. Whether the rectangle is filled
+     * or stroked (or both) is controlled by [Paint.style].
+     *
+     * @param left The left bound of the rectangle
+     * @param top The top bound of the rectangle
+     * @param right The right bound of the rectangle
+     * @param bottom The bottom bound of the rectangle
+     * @param paint Paint used to color the rectangle with a fill or stroke
+     */
+    fun drawRect(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        paint: Paint
+    )
 
     /**
      * Draws a rounded rectangle with the given [Paint]. Whether the rectangle is
@@ -407,7 +445,26 @@ interface Canvas {
      * with the given [Paint]. Whether the oval is filled or stroked (or both) is
      * controlled by [Paint.style].
      */
-    fun drawOval(rect: Rect, paint: Paint)
+    fun drawOval(rect: Rect, paint: Paint) = drawOval(
+        left = rect.left,
+        top = rect.top,
+        right = rect.right,
+        bottom = rect.bottom,
+        paint = paint
+    )
+
+    /**
+     * Draws an axis-aligned oval that fills the given bounds provided with the given
+     * [Paint]. Whether the rectangle is filled
+     * or stroked (or both) is controlled by [Paint.style].
+     *
+     * @param left The left bound of the rectangle
+     * @param top The top bound of the rectangle
+     * @param right The right bound of the rectangle
+     * @param bottom The bottom bound of the rectangle
+     * @param paint Paint used to color the rectangle with a fill or stroke
+     */
+    fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint)
 
     /**
      * Draws a circle centered at the point given by the first argument and
@@ -431,6 +488,47 @@ interface Canvas {
      */
     fun drawArc(
         rect: Rect,
+        startAngle: Float,
+        sweepAngle: Float,
+        useCenter: Boolean,
+        paint: Paint
+    ) = drawArc(
+            left = rect.left,
+            top = rect.top,
+            right = rect.right,
+            bottom = rect.bottom,
+            startAngle = startAngle,
+            sweepAngle = sweepAngle,
+            useCenter = useCenter,
+            paint = paint
+        )
+
+    /**
+     * Draw an arc scaled to fit inside the given rectangle. It starts from
+     * startAngle degrees around the oval up to startAngle + sweepAngle
+     * degrees around the oval, with zero degrees being the point on
+     * the right hand side of the oval that crosses the horizontal line
+     * that intersects the center of the rectangle and with positive
+     * angles going clockwise around the oval. If useCenter is true, the arc is
+     * closed back to the center, forming a circle sector. Otherwise, the arc is
+     * not closed, forming a circle segment.
+     *
+     * This method is optimized for drawing arcs and should be faster than [Path.arcTo].
+     *
+     * @param left Left bound of the arc
+     * @param top Top bound of the arc
+     * @param right Right bound of the arc
+     * @param bottom Bottom bound of the arc
+     * @param startAngle Starting angle of the arc relative to 3 o'clock
+     * @param sweepAngle Sweep angle in degrees clockwise
+     * @param useCenter Flag indicating whether or not to include the center of the oval in the
+     * arc, and close it if it is being stroked. This will draw a wedge.
+     */
+    fun drawArc(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
@@ -480,12 +578,23 @@ interface Canvas {
      * an applied filter.
      *
      * @param image ImageAsset to draw
-     * @param src Optional rectangular section of the image to draw into the dst
-     * @param dst Required rectangular region to draw contents of the [ImageAsset] into. Contents
-     * of the subsection provided for [src] will be scaled to fit in the destination bounds
+     * @param srcOffset: Optional offset representing the top left offset of the source image
+     * to draw, this defaults to the origin of [image]
+     * @param srcSize: Optional dimensions of the source image to draw relative to [srcOffset],
+     * this defaults the width and height of [image]
+     * @param dstOffset: Offset representing the top left offset of the destination image
+     * to draw
+     * @param dstSize: Dimensions of the destination to draw
      * @param paint Paint used to composite the [ImageAsset] pixels into the canvas
      */
-    fun drawImageRect(image: ImageAsset, src: Rect?, dst: Rect, paint: Paint)
+    fun drawImageRect(
+        image: ImageAsset,
+        srcOffset: Offset = Offset.zero,
+        srcSize: Size = Size(image.width.toFloat(), image.height.toFloat()),
+        dstOffset: Offset,
+        dstSize: Size,
+        paint: Paint
+    )
 
     /**
      * Draw the given picture onto the canvas. To create a picture, see

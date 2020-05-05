@@ -24,10 +24,12 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
+import androidx.camera.core.ImageReaderProxyProvider;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.internal.IoConfig;
 
@@ -59,6 +61,9 @@ public final class ImageCaptureConfig
             Option.create("camerax.core.imageCapture.bufferFormat", Integer.class);
     public static final Option<Integer> OPTION_MAX_CAPTURE_STAGES =
             Option.create("camerax.core.imageCapture.maxCaptureStages", Integer.class);
+    public static final Option<ImageReaderProxyProvider> OPTION_IMAGE_READER_PROXY_PROVIDER =
+            Option.create("camerax.core.imageAnalysis.imageReaderProxyProvider",
+                    ImageReaderProxyProvider.class);
 
     // *********************************************************************************************
 
@@ -199,6 +204,17 @@ public final class ImageCaptureConfig
      */
     public int getMaxCaptureStages() {
         return retrieveOption(OPTION_MAX_CAPTURE_STAGES);
+    }
+
+    /**
+     * Gets the caller provided {@link ImageReaderProxy}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    public ImageReaderProxyProvider getImageReaderProxyProvider() {
+        return retrieveOption(OPTION_IMAGE_READER_PROXY_PROVIDER, null);
     }
 
     // Start of the default implementation of Config

@@ -32,12 +32,11 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.gesture.rawDragGestureFilter
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.Text
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.padding
@@ -55,7 +54,7 @@ fun AnimatableSeekBarDemo() {
         Column {
             Text(
                 "Drag to update AnimationClock",
-                style = TextStyle(fontSize = 20.sp),
+                fontSize = 20.sp,
                 modifier = Modifier.padding(40.dp)
             )
 
@@ -68,31 +67,27 @@ fun AnimatableSeekBarDemo() {
                 initState = "start",
                 toState = "end"
             ) { state ->
-                val paint = remember { Paint() }
-                Canvas(Modifier.preferredSize(600.dp, 400.dp)) {
-                    val rect = Rect(
-                        0f, 0f, size.width.value * 0.2f,
-                        size.width.value * 0.2f
-                    )
-                    drawRect(rect, paint.apply {
-                        color = Color(1.0f, 0f, 0f, state[alphaKey])
-                    })
-
-                    drawRect(rect.translate(state[offset1] * size.width.value, 0f),
-                        paint.apply {
-                            color = Color(0f, 0f, 1f, state[alphaKey])
-                        })
+                Canvas2(Modifier.preferredSize(600.dp, 400.dp)) {
+                    val rectSize = size * 0.2f
+                    drawRect(Color(1.0f, 0f, 0f, state[alphaKey]), size = rectSize)
 
                     drawRect(
-                        rect.translate(state[offset2] * size.width.value, 0f),
-                        paint.apply {
-                            color = Color(0f, 1f, 1f, state[alphaKey])
-                        })
+                        Color(0f, 0f, 1f, state[alphaKey]),
+                        topLeft = Offset(state[offset1] * size.width, 0.0f),
+                        size = rectSize
+                    )
 
-                    drawRect(rect.translate(state[offset3] * size.width.value, 0f),
-                        paint.apply {
-                            color = Color(0f, 1f, 0f, state[alphaKey])
-                        })
+                    drawRect(
+                        Color(0f, 1f, 1f, state[alphaKey]),
+                        topLeft = Offset(state[offset2] * size.width, 0.0f),
+                        size = rectSize
+                    )
+
+                    drawRect(
+                        Color(0f, 1f, 0f, state[alphaKey]),
+                        topLeft = Offset(state[offset3] * size.width, 0.0f),
+                        size = rectSize
+                    )
                 }
             }
         }
@@ -128,26 +123,28 @@ fun MovingTargetExample(clock: ManualAnimationClock) {
 
 @Composable
 fun DrawSeekBar(modifier: Modifier = Modifier, x: Float, clock: ManualAnimationClock) {
-    val paint = remember { Paint() }
-    Canvas(modifier.fillMaxWidth().preferredHeight(60.dp)) {
-        val centerY = size.height.value / 2
-        val xConstraint = x.coerceIn(0f, size.width.value)
-        clock.clockTimeMillis = (400 * (x / size.width.value)).toLong().coerceIn(0, 399)
+    Canvas2(modifier.fillMaxWidth().preferredHeight(60.dp)) {
+        val xConstraint = x.coerceIn(0f, size.width)
+        clock.clockTimeMillis = (400 * (x / size.width)).toLong().coerceIn(0, 399)
         // draw bar
-        paint.color = Color.Gray
+        val barHeight = 10.0f
+        val offset = Offset(0.0f, center.dy - 5)
         drawRect(
-            Rect(0f, centerY - 5, size.width.value, centerY + 5),
-            paint
+            Color.Gray,
+            topLeft = offset,
+            size = Size(size.width, barHeight)
         )
-        paint.color = Color.Magenta
         drawRect(
-            Rect(0f, centerY - 5, xConstraint, centerY + 5),
-            paint
+            Color.Magenta,
+            topLeft = offset,
+            size = Size(xConstraint, barHeight)
         )
 
         // draw ticker
         drawCircle(
-            Offset(xConstraint, centerY), 40f, paint
+            Color.Magenta,
+            center = Offset(xConstraint, center.dy),
+            radius = 40f
         )
     }
 }

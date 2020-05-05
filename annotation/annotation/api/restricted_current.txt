@@ -32,6 +32,13 @@ package androidx.annotation {
     method public abstract String suggest() default "";
   }
 
+  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.FIELD}) public @interface ChecksSdkIntAtLeast {
+    method public abstract int api() default -1;
+    method public abstract String codename() default "";
+    method public abstract int lambda() default -1;
+    method public abstract int parameter() default -1;
+  }
+
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.FIELD}) public @interface ColorInt {
   }
 

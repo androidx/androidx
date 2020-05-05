@@ -38,7 +38,7 @@ internal object ThrottleDetector {
         copySomeData()
 
         val state = BenchmarkState()
-        state.performThrottleChecks = false
+        state.simplifiedTimingOnlyMode = true
         val sourceMatrix = FloatArray(16) { System.nanoTime().toFloat() }
         val resultMatrix = FloatArray(16)
 

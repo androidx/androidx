@@ -21,6 +21,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.layout.wrapContentSize
@@ -48,6 +49,8 @@ class CheckboxScreenshotTest {
 
     val wrap = Modifier.wrapContentSize(Alignment.TopStart)
 
+    val matcher = MSSIMMatcher(threshold = 0.96)
+
     @Test
     fun checkBoxTest_checked() {
         composeTestRule.setMaterialContent {
@@ -55,7 +58,7 @@ class CheckboxScreenshotTest {
         }
         find(isToggleable())
             .captureToBitmap()
-            .assertAgainstGolden(screenshotRule, "checkbox_checked")
+            .assertAgainstGolden(screenshotRule, "checkbox_checked", matcher)
     }
 
     @Test
@@ -65,7 +68,7 @@ class CheckboxScreenshotTest {
         }
         find(isToggleable())
             .captureToBitmap()
-            .assertAgainstGolden(screenshotRule, "checkbox_unchecked")
+            .assertAgainstGolden(screenshotRule, "checkbox_unchecked", matcher)
     }
 
     @Test
@@ -87,7 +90,7 @@ class CheckboxScreenshotTest {
 
         find(isToggleable())
             .captureToBitmap()
-            .assertAgainstGolden(screenshotRule, "checkbox_animateToChecked")
+            .assertAgainstGolden(screenshotRule, "checkbox_animateToChecked", matcher)
     }
 
     @Test
@@ -109,6 +112,6 @@ class CheckboxScreenshotTest {
 
         find(isToggleable())
             .captureToBitmap()
-            .assertAgainstGolden(screenshotRule, "checkbox_animateToUnchecked")
+            .assertAgainstGolden(screenshotRule, "checkbox_animateToUnchecked", matcher)
     }
 }

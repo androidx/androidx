@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.work.CoroutineWorker#doWork(kotlin.coroutines.Continuation<? super androidx.work.ListenableWorker.Result>):
+    Attempted to change method return from @NonNull to @Nullable: incompatible change for method androidx.work.CoroutineWorker.doWork(kotlin.coroutines.Continuation<? super androidx.work.ListenableWorker.Result>)
+InvalidNullConversion: androidx.work.OneTimeWorkRequestKt#OneTimeWorkRequestBuilder():
+    Attempted to remove @NonNull annotation from method androidx.work.OneTimeWorkRequestKt.OneTimeWorkRequestBuilder()
+InvalidNullConversion: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration):
+    Attempted to remove @NonNull annotation from method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(java.time.Duration)
+InvalidNullConversion: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(java.time.Duration, java.time.Duration):
+    Attempted to remove @NonNull annotation from method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(java.time.Duration,java.time.Duration)
+InvalidNullConversion: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit):
+    Attempted to remove @NonNull annotation from method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(long,java.util.concurrent.TimeUnit)
+InvalidNullConversion: androidx.work.PeriodicWorkRequestKt#PeriodicWorkRequestBuilder(long, java.util.concurrent.TimeUnit, long, java.util.concurrent.TimeUnit):
+    Attempted to remove @NonNull annotation from method androidx.work.PeriodicWorkRequestKt.PeriodicWorkRequestBuilder(long,java.util.concurrent.TimeUnit,long,java.util.concurrent.TimeUnit)

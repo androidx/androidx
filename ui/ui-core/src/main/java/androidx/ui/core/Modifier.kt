@@ -80,6 +80,17 @@ interface Modifier {
     fun <R> foldOut(initial: R, operation: (Element, R) -> R): R
 
     /**
+     * Returns `true` if [predicate] returns true for any [Element] in this [Modifier].
+     */
+    fun any(predicate: (Element) -> Boolean): Boolean
+
+    /**
+     * Returns `true` if [predicate] returns true for all [Element]s in this [Modifier] or if
+     * this [Modifier] contains no [Element]s.
+     */
+    fun all(predicate: (Element) -> Boolean): Boolean
+
+    /**
      * Concatenates this modifier with another.
      *
      * Returns a [Modifier] representing this modifier followed by [other] in sequence.
@@ -96,6 +107,10 @@ interface Modifier {
 
         override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R =
             operation(this, initial)
+
+        override fun any(predicate: (Element) -> Boolean): Boolean = predicate(this)
+
+        override fun all(predicate: (Element) -> Boolean): Boolean = predicate(this)
     }
 
     /**
@@ -114,6 +129,8 @@ interface Modifier {
     companion object : Modifier {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
         override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
+        override fun any(predicate: (Element) -> Boolean): Boolean = false
+        override fun all(predicate: (Element) -> Boolean): Boolean = true
         override operator fun plus(other: Modifier): Modifier = other
         override fun toString() = "Modifier"
 
@@ -138,7 +155,7 @@ interface Modifier {
  * A node in a [Modifier] chain. A CombinedModifier always contains at least two elements;
  * a Modifier [outer] that wraps around the Modifier [inner].
  */
-private class CombinedModifier(
+class CombinedModifier(
     private val outer: Modifier,
     private val inner: Modifier
 ) : Modifier {
@@ -147,6 +164,12 @@ private class CombinedModifier(
 
     override fun <R> foldOut(initial: R, operation: (Modifier.Element, R) -> R): R =
         outer.foldOut(inner.foldOut(initial, operation), operation)
+
+    override fun any(predicate: (Modifier.Element) -> Boolean): Boolean =
+        outer.any(predicate) || inner.any(predicate)
+
+    override fun all(predicate: (Modifier.Element) -> Boolean): Boolean =
+        outer.all(predicate) && inner.all(predicate)
 
     override fun equals(other: Any?): Boolean =
         other is CombinedModifier && outer == other.outer && inner == other.inner

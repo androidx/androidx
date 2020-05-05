@@ -16,9 +16,14 @@
 
 package androidx.autofill.inline.common;
 
+import static android.util.TypedValue.COMPLEX_UNIT_DIP;
+import static android.util.TypedValue.COMPLEX_UNIT_SP;
+
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -34,6 +39,14 @@ public final class TestUtils {
         Assert.assertEquals(top, view.getPaddingTop());
         Assert.assertEquals(right, view.getPaddingRight());
         Assert.assertEquals(bottom, view.getPaddingBottom());
+    }
+
+    public static void verifyPaddingForDp(Context context, View view, int left, int top, int right,
+            int bottom) {
+        Assert.assertEquals(dpToPixel(context, left), view.getPaddingLeft());
+        Assert.assertEquals(dpToPixel(context, top), view.getPaddingTop());
+        Assert.assertEquals(dpToPixel(context, right), view.getPaddingRight());
+        Assert.assertEquals(dpToPixel(context, bottom), view.getPaddingBottom());
     }
 
     public static void verifyLayoutMargin(View view, int left, int top, int right, int bottom) {
@@ -53,16 +66,18 @@ public final class TestUtils {
     }
 
     public static void verifyTextSize(Context context, TextView textView, float spSize) {
-        float density = context.getResources().getDisplayMetrics().density;
-        Assert.assertEquals(spSize, toDp(density, textView.getTextSize()), 0.001);
+        float pixelSize = TypedValue.applyDimension(COMPLEX_UNIT_SP, spSize,
+                context.getResources().getDisplayMetrics());
+        Assert.assertEquals(pixelSize, textView.getTextSize(), 0.001);
     }
 
-    private static int toDp(float density, float pixel) {
-        return (int) (pixel / density);
-    }
-
-    private static int toPixel(float density, int dp) {
-        return (int) (dp * density) + 1;
+    /**
+     * Copied from {@link TypedValue#complexToDimensionPixelSize(int, DisplayMetrics)}.
+     */
+    private static int dpToPixel(Context context, float dp) {
+        float f = TypedValue.applyDimension(COMPLEX_UNIT_DIP, dp,
+                context.getResources().getDisplayMetrics());
+        return (int) ((f >= 0) ? (f + 0.5f) : (f - 0.5f));
     }
 
     private TestUtils() {

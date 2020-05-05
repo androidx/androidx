@@ -218,9 +218,26 @@ internal abstract class LayoutNodeWrapper(
     }
 
     /**
-     * Detaches the LayoutNodeWrapper and its wrapped LayoutNodeWrapper from an active LayoutNode.
-     * This will be called whenever the modifier chain is replaced and the LayoutNodeWrappers
-     * are recreated.
+     * Attaches the [LayoutNodeWrapper] and its wrapped [LayoutNodeWrapper] to an active
+     * LayoutNode.
+     *
+     * This will be called when the [LayoutNode] associated with this [LayoutNodeWrapper] is
+     * attached to the [Owner].
+     *
+     * It is also called whenever the modifier chain is replaced and the [LayoutNodeWrapper]s are
+     * recreated.
+     */
+    abstract fun attach()
+
+    /**
+     * Detaches the [LayoutNodeWrapper] and its wrapped [LayoutNodeWrapper] from an active
+     * LayoutNode.
+     *
+     * This will be called when the [LayoutNode] associated with this [LayoutNodeWrapper] is
+     * detached from the [Owner].
+     *
+     * It is also called whenever the modifier chain is replaced and the [LayoutNodeWrapper]s are
+     * recreated.
      */
     abstract fun detach()
 

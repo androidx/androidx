@@ -20,34 +20,24 @@ import androidx.ui.core.AndroidOwner
 import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.test.android.AndroidInputDispatcher
 
-internal fun SemanticsNodeInteraction(
-    node: SemanticsNode,
-    selector: SemanticsMatcher
-): SemanticsNodeInteraction {
-    return SemanticsNodeInteraction(listOf(node), selector)
-}
-
-internal fun SemanticsNodeInteraction(
-    selector: SemanticsMatcher
-): SemanticsNodeInteraction {
-    val matchedNodes = selector.match(getAllSemanticsNodes()).toList()
-    return SemanticsNodeInteraction(matchedNodes, selector)
-}
-
 /**
- * Represents a component with which one can interact with the hierarchy.
- * Examples of interactions include [findByTag], [isToggleable], [assertIsOn], [doClick]
+ * Represents a semantics node and the path to fetch it from the semantics tree. One can interact
+ * with this node by performing actions such as [doClick], assertions such as
+ * [assertHasClickAction], or navigate to other nodes such as [children].
+ *
+ * This is usually obtained from methods like [findByTag], [find].
  *
  * Example usage:
+ * ```
  * findByTag("myCheckbox")
  *    .doClick()
  *    .assertIsOn()
+ * ````
  */
 class SemanticsNodeInteraction internal constructor(
-    nodes: List<SemanticsNode>,
-    internal val selector: SemanticsMatcher
+    internal val selector: SemanticsSelector
 ) {
-    private val nodeIds: List<Int> = nodes.map { it.id }.toList()
+    private var nodeIds: List<Int>? = null
 
     /**
      * Anytime we refresh semantics we capture it here. This is then presented to the user in case
@@ -55,10 +45,16 @@ class SemanticsNodeInteraction internal constructor(
      * node before it disappeared. We dump it to string because trying to dump the node later can
      * result in failure as it gets detached from its layout.
      */
-    private var lastSeenSemantics: String? = nodes.firstOrNull()?.toStringInfo()
+    private var lastSeenSemantics: String? = null
 
-    internal fun fetchSemanticsNodes(): List<SemanticsNode> {
-        return getAllSemanticsNodes().filter { it.id in nodeIds }
+    internal fun fetchSemanticsNodes(errorMessageOnFail: String? = null): SelectionResult {
+        if (nodeIds == null) {
+            return selector
+                .map(getAllSemanticsNodes(), errorMessageOnFail.orEmpty())
+                .apply { nodeIds = selectedNodes.map { it.id }.toList() }
+        }
+
+        return SelectionResult(getAllSemanticsNodes().filter { it.id in nodeIds!! })
     }
 
     /**
@@ -92,12 +88,12 @@ class SemanticsNodeInteraction internal constructor(
      * @throws [AssertionError] if the assert fails.
      */
     fun assertDoesNotExist() {
-        val nodes = fetchSemanticsNodes()
-        if (nodes.isNotEmpty()) {
+        val result = fetchSemanticsNodes("Failed: assertDoesNotExist.")
+        if (result.selectedNodes.isNotEmpty()) {
             throw AssertionError(buildErrorMessageForCountMismatch(
                 errorMessage = "Failed: assertDoesNotExist.",
                 selector = selector,
-                foundNodes = nodes,
+                foundNodes = result.selectedNodes,
                 expectedCount = 0
             ))
         }
@@ -122,13 +118,12 @@ class SemanticsNodeInteraction internal constructor(
     }
 
     private fun fetchOneOrDie(errorMessageOnFail: String? = null): SemanticsNode {
-        val nodes = fetchSemanticsNodes()
+        val finalErrorMessage = errorMessageOnFail
+            ?: "Failed: assertExists."
 
-        if (nodes.size != 1) {
-            val finalErrorMessage = errorMessageOnFail
-                ?: "Failed: assertExists."
-
-            if (nodes.isEmpty() && lastSeenSemantics != null) {
+        val result = fetchSemanticsNodes(finalErrorMessage)
+        if (result.selectedNodes.count() != 1) {
+            if (result.selectedNodes.isEmpty() && lastSeenSemantics != null) {
                 // This means that node we used to have is no longer in the tree.
                 throw AssertionError(buildErrorMessageForNodeMissingInTree(
                     errorMessage = finalErrorMessage,
@@ -137,20 +132,72 @@ class SemanticsNodeInteraction internal constructor(
                 ))
             }
 
+            if (result.customErrorOnNoMatch != null) {
+                throw AssertionError(finalErrorMessage + "\n" + result.customErrorOnNoMatch)
+            }
+
             throw AssertionError(buildErrorMessageForCountMismatch(
                 errorMessage = finalErrorMessage,
-                foundNodes = nodes,
+                foundNodes = result.selectedNodes,
                 expectedCount = 1,
                 selector = selector
             ))
         }
 
-        lastSeenSemantics = nodes.first().toStringInfo()
-        return nodes.first()
+        lastSeenSemantics = result.selectedNodes.first().toStringInfo()
+        return result.selectedNodes.first()
     }
 }
 
-internal var inputDispatcherFactory: (SemanticsNode) -> InputDispatcher = { node ->
+/**
+ * Represents a collection of semantics nodes and the path to fetch them from the semantics tree.
+ * One can interact with these nodes by performing assertions such as [assertCountEquals], or
+ * navigate to other nodes such as [get].
+ *
+ * This is usually obtained from methods like [findAll] or chains of [find].[children].
+ *
+ * Example usage:
+ * ```
+ * findAll(isClickable())
+ *    .assertCountEquals(2)
+ * ````
+ */
+class SemanticsNodeInteractionCollection(
+    internal val selector: SemanticsSelector
+) {
+    private var nodeIds: List<Int>? = null
+
+    /**
+     * Returns the semantics nodes captured by this object.
+     *
+     * Note: Accessing this object involves synchronization with your UI. If you are accessing this
+     * multiple times in one atomic operation, it is better to cache the result instead of calling
+     * this API multiple times.
+     */
+    fun fetchSemanticsNodes(errorMessageOnFail: String? = null): List<SemanticsNode> {
+        if (nodeIds == null) {
+            return selector
+                .map(getAllSemanticsNodes(), errorMessageOnFail.orEmpty())
+                .apply { nodeIds = selectedNodes.map { it.id }.toList() }
+                .selectedNodes
+        }
+
+        return getAllSemanticsNodes().filter { it.id in nodeIds!! }
+    }
+
+    /**
+     * Retrieve node at the given index of this collection.
+     *
+     * Any subsequent operation on its result will expect exactly one element found (unless
+     * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
+     * none or more than one element is found.
+     */
+    operator fun get(index: Int): SemanticsNodeInteraction {
+        return SemanticsNodeInteraction(selector.addIndexSelector(index))
+    }
+}
+
+private var inputDispatcherFactory: (SemanticsNode) -> InputDispatcher = { node ->
     val view = (node.componentNode.owner as AndroidOwner).view
     AndroidInputDispatcher { view.dispatchTouchEvent(it) }
 }

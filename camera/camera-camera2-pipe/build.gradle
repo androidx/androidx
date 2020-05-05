@@ -22,12 +22,19 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
     implementation(GUAVA_LISTENABLE_FUTURE)
     implementation(project(":camera:camera-core"))
+
+    testImplementation(JUNIT)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
 }
 
 android {

@@ -40,6 +40,7 @@ import androidx.ui.layout.Column
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.LocaleList
 import androidx.ui.foundation.TextFieldValue
+import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
 import androidx.ui.text.toUpperCase
@@ -261,7 +262,7 @@ private fun VariousEditLine(
     onValueChange: (String, String) -> String = { _, new -> new },
     visualTransformation: VisualTransformation
 ) {
-    val state = state { TextFieldValue() }
+    val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     TextField(
         value = state.value,
         keyboardType = keyboardType,
@@ -270,7 +271,7 @@ private fun VariousEditLine(
         onValueChange = {
             state.value = TextFieldValue(
                 onValueChange(state.value.text, it.text),
-                state.value.selection
+                it.selection
             )
         },
         textStyle = TextStyle(fontSize = fontSize8)
@@ -279,7 +280,7 @@ private fun VariousEditLine(
 
 @Composable
 private fun HintEditText(hintText: @Composable() () -> Unit) {
-    val state = state { TextFieldValue() }
+    val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
 
     val inputField = @Composable {
         TextField(
@@ -310,7 +311,7 @@ private fun HintEditText(hintText: @Composable() () -> Unit) {
 
 @Composable
 private fun CustomCursorTextField(cursor: @Composable() () -> Unit) {
-    val state = state { TextFieldValue() }
+    val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val layoutResult = state<TextLayoutResult?> { null }
     Layout({
         TextField(

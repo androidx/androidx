@@ -58,6 +58,13 @@
         <!-- To apply a style for all slice rows shown within an activity or app you
              may set this in your app theme pointing to your custom RowView style.-->
         <attr name="rowStyle" format="reference" />
+
+        <!-- Size of row view with two lines of text -->
+        <attr name="rowMaxHeight" format="dimension" />
+        <!-- Size of range area in a row to fit a slider or progress bar -->
+        <attr name="rowRangeHeight" format="dimension" />
+        <!-- Size of text area row with one line of text and then a range element-->
+        <attr name="rowRangeSingleTextHeight" format="dimension" />
     </declare-styleable>
 
     <!-- To apply a style for all slices shown within an activity or app you
@@ -97,5 +104,8 @@
 
         <!-- Height to use for action divider in the row. -->
         <attr name="actionDividerHeight" format="dimension"/>
+
+        <!-- Width to use for inline SeekBar in the row. -->
+        <attr name="seekBarInlineWidth" format="dimension"/>
     </declare-styleable>
 </resources>

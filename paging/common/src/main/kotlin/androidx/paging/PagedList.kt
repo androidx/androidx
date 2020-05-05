@@ -173,8 +173,7 @@ abstract class PagedList<T : Any> internal constructor(
                 null -> {
                     // Compatibility codepath - perform the initial load immediately, since caller
                     // hasn't done it. We block in this case, but it's only used in the legacy path.
-                    val params = PagingSource.LoadParams(
-                        LoadType.REFRESH,
+                    val params = PagingSource.LoadParams.Refresh(
                         key,
                         config.initialLoadSizeHint,
                         config.enablePlaceholders,
@@ -254,7 +253,7 @@ abstract class PagedList<T : Any> internal constructor(
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData, which no " +
                 "longer supports constructing snapshots of loaded data manually.",
-        replaceWith = ReplaceWith("PagingDataFlow", "androidx.paging.PagingDataFlow")
+        replaceWith = ReplaceWith("Pager.flow", "androidx.paging.Pager")
     )
     class Builder<Key : Any, Value : Any> {
         private val pagingSource: PagingSource<Key, Value>?
@@ -861,9 +860,9 @@ abstract class PagedList<T : Any> internal constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     abstract class LoadStateManager {
-        var refreshState: LoadState = LoadState.Idle
-        var startState: LoadState = LoadState.Idle
-        var endState: LoadState = LoadState.Idle
+        var refreshState: LoadState = LoadState.NotLoading.Idle
+        var startState: LoadState = LoadState.NotLoading.Idle
+        var endState: LoadState = LoadState.NotLoading.Idle
 
         fun setState(type: LoadType, state: LoadState) {
             // deduplicate signals
@@ -872,11 +871,11 @@ abstract class PagedList<T : Any> internal constructor(
                     if (refreshState == state) return
                     refreshState = state
                 }
-                LoadType.START -> {
+                LoadType.PREPEND -> {
                     if (startState == state) return
                     startState = state
                 }
-                LoadType.END -> {
+                LoadType.APPEND -> {
                     if (endState == state) return
                     endState = state
                 }
@@ -893,8 +892,8 @@ abstract class PagedList<T : Any> internal constructor(
 
         fun dispatchCurrentLoadState(callback: (LoadType, LoadState) -> Unit) {
             callback(LoadType.REFRESH, refreshState)
-            callback(LoadType.START, startState)
-            callback(LoadType.END, endState)
+            callback(LoadType.PREPEND, startState)
+            callback(LoadType.APPEND, endState)
         }
     }
 

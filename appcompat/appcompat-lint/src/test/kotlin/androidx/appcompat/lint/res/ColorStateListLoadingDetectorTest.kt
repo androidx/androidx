@@ -32,6 +32,7 @@ class ColorStateListLoadingDetectorTest {
             package com.example
 
             import android.content.res.ColorStateList
+            import android.os.Bundle
             import androidx.appcompat.app.AppCompatActivity
             import androidx.appcompat.content.res.AppCompatResources
 

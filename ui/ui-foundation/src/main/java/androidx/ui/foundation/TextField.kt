@@ -17,19 +17,35 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.remember
+import androidx.compose.setValue
 import androidx.compose.state
-import androidx.ui.text.CoreTextField
 import androidx.ui.core.Modifier
-import androidx.ui.core.input.FocusManager
+import androidx.ui.core.composed
+import androidx.ui.core.drawBehind
+import androidx.ui.focus.FocusModifier
+import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.Paint
 import androidx.ui.graphics.useOrElse
-import androidx.ui.input.ImeAction
 import androidx.ui.input.EditorValue
+import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
+import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
+import androidx.ui.layout.fillMaxWidth
+import androidx.ui.savedinstancestate.Saver
+import androidx.ui.savedinstancestate.listSaver
+import androidx.ui.text.CoreTextField
+import androidx.ui.text.SoftwareKeyboardController
+import androidx.ui.text.TextFieldDelegate
 import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
+import androidx.ui.unit.dp
 
 /**
  * A class holding information about the editing state.
@@ -44,7 +60,21 @@ import androidx.ui.text.TextStyle
 data class TextFieldValue(
     val text: String = "",
     val selection: TextRange = TextRange(0, 0)
-)
+) {
+    companion object {
+        /**
+         * The default [Saver] implementation for [TextFieldValue].
+         */
+        val Saver = listSaver<TextFieldValue, Any>(
+            save = {
+                listOf(it.text, it.selection.start, it.selection.end)
+            },
+            restore = {
+                TextFieldValue(it[0] as String, TextRange(it[1] as Int, it[2] as Int))
+            }
+        )
+    }
+}
 
 /**
  * A user interface element for entering and modifying text.
@@ -69,6 +99,11 @@ data class TextFieldValue(
  * the input service update the text, selection or cursor, this callback is called with the updated
  * [TextFieldValue]. If you want to observe the composition text, use [TextField] with
  * compositionRange instead.
+ * @param modifier optional [Modifier] for this text field.
+ * By default, text field will occupy all available space granted to it. You can use
+ * [androidx.ui.layout.preferredWidthIn] or [androidx.ui.layout.preferredWidth] modifiers to
+ * constrain the horizontal space occupied by the text field. Do not pass [FocusModifier] to this
+ * argument. Pass it to focusModifier argument instead.
  * @param textColor [Color] to apply to the text. If [Color.Unset], and [textStyle] has no color
  * set, this will be [contentColor].
  * @param textStyle Style configuration that applies at character level such as color, font etc.
@@ -80,15 +115,18 @@ data class TextFieldValue(
  * Then, when user tap that key, the [onImeActionPerformed] callback is called with specified
  * ImeAction.
  * @param onFocusChange Called with true value when the input field gains focus and with false
- * value when the input field loses focus.
- * @param focusIdentifier Optional value to identify focus identifier. You can pass
- * [FocusManager.requestFocus] to this value to move focus to this TextField. This identifier
- * must be unique in your app. If you have duplicated identifiers, the behavior is undefined.
+ * value when the input field loses focus. Use [FocusModifier.requestFocus] to obtain text input
+ * focus to this TextField.
  * @param onImeActionPerformed Called when the input service requested an IME action. When the
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
  * @param visualTransformation Optional visual filter for changing visual output of input field.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
+ * @param onTextInputStarted Callback that is executed when the initialization has done for
+ * communicating with platform text input service, e.g. software keyboard on Android. Called with
+ * [SoftwareKeyboardController] instance which can be used for requesting input show/hide software
+ * keyboard.
+ * @param cursorColor Color of the cursor.
  *
  * @see TextFieldValue
  * @see ImeAction
@@ -98,17 +136,18 @@ data class TextFieldValue(
 @Composable
 fun TextField(
     value: TextFieldValue,
-    modifier: Modifier = Modifier,
     onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
     textColor: Color = Color.Unset,
     textStyle: TextStyle = currentTextStyle(),
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocusChange: (Boolean) -> Unit = {},
-    focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null,
-    onTextLayout: (TextLayoutResult) -> Unit = {}
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
+    cursorColor: Color = contentColor()
 ) {
     val fullModel = state { EditorValue() }
     if (fullModel.value.text != value.text || fullModel.value.selection != value.selection) {
@@ -125,9 +164,20 @@ fun TextField(
     val color = textColor.useOrElse { textStyle.color.useOrElse { contentColor() } }
     val mergedStyle = textStyle.merge(TextStyle(color = color))
 
+    val transformedText: TransformedText = remember(fullModel.value, visualTransformation) {
+        val transformed =
+            TextFieldDelegate.applyVisualFilter(fullModel.value, visualTransformation)
+        fullModel.value.composition?.let {
+            TextFieldDelegate.applyCompositionDecoration(it, transformed)
+        } ?: transformed
+    }
+    val cursorState: CursorState = remember { CursorState() }
+
     CoreTextField(
         value = fullModel.value,
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxWidth()
+            .drawCursor(cursorColor, cursorState, fullModel.value, transformedText),
         onValueChange = {
             val prevState = fullModel.value
             fullModel.value = it
@@ -143,10 +193,56 @@ fun TextField(
         textStyle = mergedStyle,
         keyboardType = keyboardType,
         imeAction = imeAction,
-        onFocusChange = onFocusChange,
-        focusIdentifier = focusIdentifier,
+        onFocusChange = {
+            cursorState.focused = it
+            onFocusChange(it)
+        },
         onImeActionPerformed = onImeActionPerformed,
         visualTransformation = visualTransformation,
-        onTextLayout = onTextLayout
+        onTextLayout = {
+            cursorState.layoutResult = it
+            onTextLayout(it)
+        },
+        onTextInputStarted = onTextInputStarted
     )
+}
+
+private class CursorState {
+    var focused by mutableStateOf(false)
+    var layoutResult by mutableStateOf<TextLayoutResult?>(null)
+}
+
+private val CursorThickness = 2.dp
+
+private fun Modifier.drawCursor(
+    cursorColor: Color,
+    cursorState: CursorState,
+    editorValue: EditorValue,
+    transformedText: TransformedText
+): Modifier = composed {
+    val paint = remember { Paint() }
+
+    drawBehind {
+        if (cursorState.focused && editorValue.selection.collapsed) {
+            val cursorWidth = CursorThickness.value * density
+            val cursorHeight = cursorState.layoutResult?.size?.height?.value?.toFloat() ?: 0f
+
+            val cursorRect = cursorState.layoutResult?.getCursorRect(
+                transformedText.offsetMap.originalToTransformed(editorValue.selection.min)
+            ) ?: Rect(
+                0f, 0f,
+                cursorWidth, cursorHeight
+            )
+            val cursorX = (cursorRect.left + cursorRect.right) / 2
+
+            drawLine(
+                Offset(cursorX, cursorRect.top),
+                Offset(cursorX, cursorRect.bottom),
+                paint.apply {
+                    this.color = cursorColor
+                    this.strokeWidth = cursorWidth
+                }
+            )
+        }
+    }
 }
