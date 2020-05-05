@@ -26,6 +26,7 @@ import static androidx.activity.result.contract.ActivityResultContracts.StartAct
 import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult.EXTRA_ACTIVITY_OPTIONS_BUNDLE;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_INTENT_SENDER_REQUEST;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_SEND_INTENT_EXCEPTION;
 
 import android.annotation.SuppressLint;
@@ -178,7 +179,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                             nonGrantedPermissions.toArray(new String[0]), requestCode);
                 }
             } else if (ACTION_INTENT_SENDER_REQUEST.equals(intent.getAction())) {
-                IntentSenderRequest request = (IntentSenderRequest) input;
+                IntentSenderRequest request =
+                        intent.getParcelableExtra(EXTRA_INTENT_SENDER_REQUEST);
                 try {
                     ActivityCompat.startIntentSenderForResult(activity, request.getIntentSender(),
                             requestCode, request.getFillInIntent(),
