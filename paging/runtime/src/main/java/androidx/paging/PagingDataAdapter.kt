@@ -234,4 +234,35 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         }
         return MergeAdapter(header, this, footer)
     }
+
+    /**
+     * A [Flow] of [Unit] that is emitted when new [PagingData] generations are submitted and
+     * displayed.
+     */
+    @ExperimentalPagingApi
+    val dataRefreshFlow: Flow<Unit> = differ.dataRefreshFlow
+
+    /**
+     * Add a listener to observe new [PagingData] generations.
+     *
+     * @param listener called whenever a new [PagingData] is submitted and displayed.
+     *
+     * @see removeDataRefreshListener
+     */
+    @ExperimentalPagingApi
+    fun addDataRefreshListener(listener: () -> Unit) {
+        differ.addDataRefreshListener(listener)
+    }
+
+    /**
+     * Remove a previously registered listener for new [PagingData] generations.
+     *
+     * @param listener Previously registered listener.
+     *
+     * @see addDataRefreshListener
+     */
+    @ExperimentalPagingApi
+    fun removeDataRefreshListener(listener: () -> Unit) {
+        differ.removeDataRefreshListener(listener)
+    }
 }

@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
@@ -292,5 +293,36 @@ class AsyncPagingDataDiffer<T : Any>(
      */
     fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         loadStateListeners.remove(listener)
+    }
+
+    /**
+     * A [Flow] of [Unit] that is emitted when new [PagingData] generations are submitted and
+     * displayed.
+     */
+    @ExperimentalPagingApi
+    val dataRefreshFlow: Flow<Unit> = differBase.dataRefreshFlow
+
+    /**
+     * Add a listener to observe new [PagingData] generations.
+     *
+     * @param listener called whenever a new [PagingData] is submitted and displayed.
+     *
+     * @see removeDataRefreshListener
+     */
+    @ExperimentalPagingApi
+    fun addDataRefreshListener(listener: () -> Unit) {
+        differBase.addDataRefreshListener(listener)
+    }
+
+    /**
+     * Remove a previously registered listener for new [PagingData] generations.
+     *
+     * @param listener Previously registered listener.
+     *
+     * @see addDataRefreshListener
+     */
+    @ExperimentalPagingApi
+    fun removeDataRefreshListener(listener: () -> Unit) {
+        differBase.removeDataRefreshListener(listener)
     }
 }
