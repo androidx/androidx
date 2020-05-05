@@ -40,6 +40,7 @@ import androidx.ui.layout.fillMaxWidth
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.listSaver
 import androidx.ui.text.CoreTextField
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextFieldDelegate
 import androidx.ui.text.TextLayoutResult
@@ -120,7 +121,8 @@ data class TextFieldValue(
  * @param onImeActionPerformed Called when the input service requested an IME action. When the
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
- * @param visualTransformation Optional visual filter for changing visual output of input field.
+ * @param visualTransformation The visual transformation filter for changing the visual
+ * representation of the input. By default no visual transformation is applied.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
  * @param onTextInputStarted Callback that is executed when the initialization has done for
  * communicating with platform text input service, e.g. software keyboard on Android. Called with
@@ -144,7 +146,7 @@ fun TextField(
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocusChange: (Boolean) -> Unit = {},
     onImeActionPerformed: (ImeAction) -> Unit = {},
-    visualTransformation: VisualTransformation? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     cursorColor: Color = contentColor()
@@ -165,8 +167,7 @@ fun TextField(
     val mergedStyle = textStyle.merge(TextStyle(color = color))
 
     val transformedText: TransformedText = remember(fullModel.value, visualTransformation) {
-        val transformed =
-            TextFieldDelegate.applyVisualFilter(fullModel.value, visualTransformation)
+        val transformed = visualTransformation.filter(AnnotatedString(fullModel.value.text))
         fullModel.value.composition?.let {
             TextFieldDelegate.applyCompositionDecoration(it, transformed)
         } ?: transformed

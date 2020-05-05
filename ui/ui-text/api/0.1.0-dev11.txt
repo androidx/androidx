@@ -2,7 +2,7 @@
 package androidx.ui.text {
 
   public final class CoreTextFieldKt {
-    method public static void CoreTextField(androidx.ui.input.EditorValue value, androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorValue,kotlin.Unit> onValueChange, androidx.ui.text.TextStyle textStyle = TextStyle.Default, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onFocusChange = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation? visualTransformation = null, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, kotlin.jvm.functions.Function1<? super androidx.ui.text.SoftwareKeyboardController,kotlin.Unit> onTextInputStarted = {});
+    method public static void CoreTextField(androidx.ui.input.EditorValue value, androidx.ui.core.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorValue,kotlin.Unit> onValueChange, androidx.ui.text.TextStyle textStyle = TextStyle.Default, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onFocusChange = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {}, androidx.ui.input.VisualTransformation visualTransformation = VisualTransformation.None, kotlin.jvm.functions.Function1<? super androidx.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout = {}, kotlin.jvm.functions.Function1<? super androidx.ui.text.SoftwareKeyboardController,kotlin.Unit> onTextInputStarted = {});
   }
 
   public final class CoreTextKt {
@@ -13,7 +13,6 @@ package androidx.ui.text {
 
   public final class TextFieldDelegate {
     ctor public TextFieldDelegate();
-    method public static androidx.ui.input.TransformedText applyVisualFilter(androidx.ui.input.EditorValue value, androidx.ui.input.VisualTransformation? visualTransformation);
     method public static void draw-VTazRi4(androidx.ui.graphics.Canvas canvas, androidx.ui.input.EditorValue value, androidx.ui.input.OffsetMap offsetMap, androidx.ui.text.TextLayoutResult textLayoutResult, long selectionColor);
     method public static kotlin.Triple<androidx.ui.unit.IntPx,androidx.ui.unit.IntPx,androidx.ui.text.TextLayoutResult> layout(androidx.ui.text.TextDelegate textDelegate, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.TextLayoutResult? prevResultText = null);
     method public static void notifyFocusedRect(androidx.ui.input.EditorValue value, androidx.ui.text.TextDelegate textDelegate, androidx.ui.text.TextLayoutResult textLayoutResult, androidx.ui.core.LayoutCoordinates layoutCoordinates, androidx.ui.input.TextInputService textInputService, int token, boolean hasFocus, androidx.ui.input.OffsetMap offsetMap);
@@ -25,7 +24,6 @@ package androidx.ui.text {
 
   public static final class TextFieldDelegate.Companion {
     method public androidx.ui.input.TransformedText applyCompositionDecoration(androidx.ui.text.TextRange compositionRange, androidx.ui.input.TransformedText transformed);
-    method public androidx.ui.input.TransformedText applyVisualFilter(androidx.ui.input.EditorValue value, androidx.ui.input.VisualTransformation? visualTransformation);
     method public void draw-VTazRi4(androidx.ui.graphics.Canvas canvas, androidx.ui.input.EditorValue value, androidx.ui.input.OffsetMap offsetMap, androidx.ui.text.TextLayoutResult textLayoutResult, long selectionColor);
     method public kotlin.Triple<androidx.ui.unit.IntPx,androidx.ui.unit.IntPx,androidx.ui.text.TextLayoutResult> layout(androidx.ui.text.TextDelegate textDelegate, androidx.ui.core.Constraints constraints, androidx.ui.core.LayoutDirection layoutDirection, androidx.ui.text.TextLayoutResult? prevResultText = null);
     method public void notifyFocusedRect(androidx.ui.input.EditorValue value, androidx.ui.text.TextDelegate textDelegate, androidx.ui.text.TextLayoutResult textLayoutResult, androidx.ui.core.LayoutCoordinates layoutCoordinates, androidx.ui.input.TextInputService textInputService, int token, boolean hasFocus, androidx.ui.input.OffsetMap offsetMap);
