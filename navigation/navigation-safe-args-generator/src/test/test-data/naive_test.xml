@@ -25,8 +25,6 @@
             <argument android:name="myarg2" app:argType="string"/>
             <argument android:name="randomArgument" app:argType="string"/>
             <argument android:name="intArgument" app:argType="integer" android:defaultValue="261"/>
-            <argument android:name="doubleArgument" app:argType="double"
-                android:defaultValue="1.2345"/>
             <argument android:name="referenceZeroDefaultValue" app:argType="reference" android:defaultValue="0"/>
             <argument android:name="activityInfo" app:argType="android.content.pm.ActivityInfo"/>
             <argument android:name="activityInfoNull"
@@ -35,7 +33,6 @@
                       android:defaultValue="@null"
             />
             <argument android:name="intArrayArg" app:argType="integer[]"/>
-            <argument android:name="doubleArrayArg" app:argType="double[]"/>
             <argument android:name="stringArrayArg" app:argType="string[]"/>
             <argument android:name="objectArrayArg" app:argType="android.content.pm.ActivityInfo[]"/>
             <argument android:name="enumArg" app:argType="java.nio.file.AccessMode"
