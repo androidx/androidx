@@ -35,6 +35,11 @@ class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
         finishCountDownLatch.countDown()
     }
 
+    @Suppress("DEPRECATION")
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     class ParentFragment : Fragment() {
         var wasAttachedInTime: Boolean = false
 
