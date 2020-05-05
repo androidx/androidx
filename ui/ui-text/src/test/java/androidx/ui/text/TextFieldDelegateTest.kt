@@ -33,6 +33,7 @@ import androidx.ui.input.OffsetMap
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TransformedText
+import androidx.ui.input.VisualTransformation
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
@@ -374,10 +375,9 @@ class TextFieldDelegateTest {
     }
 
     @Test
-    fun use_identity_mapping_if_visual_transformation_is_null() {
-        val (visualText, offsetMap) = TextFieldDelegate.applyVisualFilter(
-            EditorValue(text = "Hello, World"),
-            null)
+    fun use_identity_mapping_if_none_visual_transformation() {
+        val (visualText, offsetMap) =
+            VisualTransformation.None.filter(AnnotatedString(text = "Hello, World"))
 
         assertEquals("Hello, World", visualText.text)
         for (i in 0..visualText.text.length) {

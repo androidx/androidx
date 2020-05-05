@@ -134,8 +134,9 @@ import androidx.ui.unit.max
  * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
  * Note that the emitted IME action may be different from what you specified through the
  * [imeAction] field
- * @param visualTransformation transforms the visual output of the input [value]. For example, you
- * can use [androidx.ui.input.PasswordVisualTransformation] to create a password text field
+ * @param visualTransformation transforms the visual representation of the input [value].
+ * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
+ * text field. By default no visual transformation is applied
  * @param onFocusChange the callback triggered when the text field gets or loses the focus
  * @param activeColor the color of the label and bottom indicator when the text field is in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
@@ -157,7 +158,7 @@ fun FilledTextField(
     leadingIcon: @Composable() (() -> Unit)? = null,
     trailingIcon: @Composable() (() -> Unit)? = null,
     isErrorValue: Boolean = false,
-    visualTransformation: VisualTransformation? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction) -> Unit = {},
@@ -245,8 +246,9 @@ fun FilledTextField(
  * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
  * Note that the emitted IME action may be different from what you specified through the
  * [imeAction] field
- * @param visualTransformation transforms the visual output of the input [value]. For example, you
- * can use [androidx.ui.input.PasswordVisualTransformation] to create a password text field
+ * @param visualTransformation transforms the visual representation of the input [value].
+ * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
+ * text field. By default no visual transformation is applied
  * @param onFocusChange the callback triggered when the text field gets or loses the focus
  * @param activeColor the color of the label and bottom indicator when the text field is in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
@@ -268,7 +270,7 @@ fun FilledTextField(
     leadingIcon: @Composable() (() -> Unit)? = null,
     trailingIcon: @Composable() (() -> Unit)? = null,
     isErrorValue: Boolean = false,
-    visualTransformation: VisualTransformation? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction) -> Unit = {},
@@ -317,7 +319,7 @@ private fun FilledTextFieldImpl(
     leading: @Composable() (() -> Unit)?,
     trailing: @Composable() (() -> Unit)?,
     isErrorValue: Boolean,
-    visualTransformation: VisualTransformation?,
+    visualTransformation: VisualTransformation,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     onImeActionPerformed: (ImeAction) -> Unit,
