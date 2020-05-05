@@ -30,6 +30,8 @@
 #      can't use `cut` on < L
 #      can't use `expr` on < L
 
+ARG_CORES=${1:-big}
+
 CPU_TARGET_FREQ_PERCENT=50
 GPU_TARGET_FREQ_PERCENT=50
 
