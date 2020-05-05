@@ -40,7 +40,7 @@ public class RowHeaderPresenter extends Presenter {
 
     /**
      * Creates default RowHeaderPresenter using a title view and a description view.
-     * @see ViewHolder#RowHeaderPresenter.ViewHolder(View)
+     * @see ViewHolder#ViewHolder(View)
      */
     public RowHeaderPresenter() {
         this(R.layout.lb_row_header);
