@@ -5,5 +5,5 @@ AcronymName: androidx.ui.test.BitmapHelpersKt#assertShape-nbwoFSQ(android.graphi
     Acronyms should not be capitalized in method names: was `assertShape-nbwoFSQ`, should this be `assertShape-nbwoFsq`?
 
 
-DocumentExceptions: androidx.ui.test.GoldenSemanticsKt#assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration):
-    Method GoldenSemanticsKt.assertEquals appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+MissingNullability: androidx.ui.test.android.AndroidComposeTestRuleKt#AndroidComposeTestRule(androidx.compose.Recomposer, boolean):
+    Missing nullability on method `AndroidComposeTestRule` return

@@ -16,14 +16,14 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Idle
-import androidx.paging.LoadType.END
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
-import androidx.paging.PageEvent.Insert.Companion.End
+import androidx.paging.PageEvent.Insert.Companion.Append
+import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PageEvent.LoadStateUpdate
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,9 +33,9 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 
 private val LoadStatesIdle = mapOf(
-    REFRESH to Idle,
-    START to Idle,
-    END to Idle
+    REFRESH to NotLoading.Idle,
+    PREPEND to NotLoading.Idle,
+    APPEND to NotLoading.Idle
 )
 
 internal fun <T : Any> adjacentInsertEvent(
@@ -44,25 +44,25 @@ internal fun <T : Any> adjacentInsertEvent(
     originalPageOffset: Int,
     placeholdersRemaining: Int
 ) = if (isPrepend) {
-    Start(
+    Prepend(
         pages = listOf(
             TransformablePage(
                 originalPageOffset = originalPageOffset,
                 data = page
             )
         ),
-        placeholdersStart = placeholdersRemaining,
+        placeholdersBefore = placeholdersRemaining,
         loadStates = LoadStatesIdle
     )
 } else {
-    End(
+    Append(
         pages = listOf(
             TransformablePage(
                 originalPageOffset = originalPageOffset,
                 data = page
             )
         ),
-        placeholdersEnd = placeholdersRemaining,
+        placeholdersAfter = placeholdersRemaining,
         loadStates = LoadStatesIdle
     )
 }
@@ -75,16 +75,16 @@ class PageEventTest {
         assertFailsWith<IllegalArgumentException> {
             Refresh<Char>(
                 pages = listOf(),
-                placeholdersStart = 1,
-                placeholdersEnd = -1,
+                placeholdersBefore = 1,
+                placeholdersAfter = -1,
                 loadStates = LoadStatesIdle
             )
         }
         assertFailsWith<IllegalArgumentException> {
             Refresh<Char>(
                 pages = listOf(),
-                placeholdersStart = -1,
-                placeholdersEnd = 1,
+                placeholdersBefore = -1,
+                placeholdersAfter = 1,
                 loadStates = LoadStatesIdle
             )
         }
@@ -126,7 +126,7 @@ class PageEventTest {
     @Test
     fun dropTransform() {
         val drop = Drop<Char>(
-            loadType = START,
+            loadType = PREPEND,
             count = 0,
             placeholdersRemaining = 0
         )
@@ -138,7 +138,10 @@ class PageEventTest {
 
     @Test
     fun stateTransform() {
-        val state = LoadStateUpdate<Char>(loadType = REFRESH, loadState = LoadState.Loading)
+        val state = LoadStateUpdate<Char>(
+            loadType = REFRESH,
+            loadState = LoadState.Loading(fromMediator = false)
+        )
 
         assertSame(state, state.map { it + 1 })
         assertSame(state, state.flatMap { listOf(it, it) })
@@ -147,15 +150,15 @@ class PageEventTest {
 
     @Test
     fun insertMap() {
-        val insert = End(
+        val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
-            placeholdersEnd = 4,
+            placeholdersAfter = 4,
             loadStates = LoadStatesIdle
         )
         assertEquals(
-            End(
+            Append(
                 pages = listOf(TransformablePage(listOf("a", "b"))),
-                placeholdersEnd = 4,
+                placeholdersAfter = 4,
                 loadStates = LoadStatesIdle
             ),
             insert.map { it.toString() }
@@ -170,7 +173,7 @@ class PageEventTest {
     @Test
     fun insertMapTransformed() {
         assertEquals(
-            End(
+            Append(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
@@ -179,10 +182,10 @@ class PageEventTest {
                         originalIndices = listOf(0, 2)
                     )
                 ),
-                placeholdersEnd = 4,
+                placeholdersAfter = 4,
                 loadStates = LoadStatesIdle
             ),
-            End(
+            Append(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
@@ -191,7 +194,7 @@ class PageEventTest {
                         originalIndices = listOf(0, 2)
                     )
                 ),
-                placeholdersEnd = 4,
+                placeholdersAfter = 4,
                 loadStates = LoadStatesIdle
             ).map { it.toString() }
         )
@@ -199,20 +202,20 @@ class PageEventTest {
 
     @Test
     fun insertFilter() {
-        val insert = End(
+        val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
-            placeholdersEnd = 4,
+            placeholdersAfter = 4,
             loadStates = mapOf(
-                REFRESH to Idle,
-                START to Idle,
-                END to Idle
+                REFRESH to NotLoading.Idle,
+                PREPEND to NotLoading.Idle,
+                APPEND to NotLoading.Idle
             )
         )
 
         // filter out C
         val insertNoC = insert.filter { it != 'c' }
         assertEquals(
-            End(
+            Append(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
@@ -221,7 +224,7 @@ class PageEventTest {
                         originalIndices = listOf(0, 1, 3)
                     )
                 ),
-                placeholdersEnd = 4,
+                placeholdersAfter = 4,
                 loadStates = LoadStatesIdle
             ),
             insertNoC
@@ -229,7 +232,7 @@ class PageEventTest {
 
         // now filter out A, to validate filtration when lookup present
         assertEquals(
-            End(
+            Append(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
@@ -238,7 +241,7 @@ class PageEventTest {
                         originalIndices = listOf(1, 3)
                     )
                 ),
-                placeholdersEnd = 4,
+                placeholdersAfter = 4,
                 loadStates = LoadStatesIdle
             ),
             insertNoC.filter { it != 'a' }
@@ -247,9 +250,9 @@ class PageEventTest {
 
     @Test
     fun insertFlatMap() {
-        val insert = End(
+        val insert = Append(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
-            placeholdersEnd = 4,
+            placeholdersAfter = 4,
             loadStates = LoadStatesIdle
         )
 
@@ -258,7 +261,7 @@ class PageEventTest {
         }
 
         assertEquals(
-            End(
+            Append(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
@@ -267,7 +270,7 @@ class PageEventTest {
                         originalIndices = listOf(0, 0, 1, 1)
                     )
                 ),
-                placeholdersEnd = 4,
+                placeholdersAfter = 4,
                 loadStates = LoadStatesIdle
             ),
             flatMapped
@@ -278,7 +281,7 @@ class PageEventTest {
         }
 
         assertEquals(
-            End(
+            Append(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
@@ -287,7 +290,7 @@ class PageEventTest {
                         originalIndices = listOf(0, 0, 0, 0, 1, 1, 1, 1)
                     )
                 ),
-                placeholdersEnd = 4,
+                placeholdersAfter = 4,
                 loadStates = LoadStatesIdle
             ),
             flatMappedAgain

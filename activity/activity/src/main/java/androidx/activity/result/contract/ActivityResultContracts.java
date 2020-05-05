@@ -41,6 +41,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -66,6 +67,18 @@ public final class ActivityResultContracts {
      */
     public static final class StartActivityForResult
             extends ActivityResultContract<Intent, ActivityResult> {
+
+        /**
+         * Key for the extra containing a {@link android.os.Bundle} generated from
+         * {@link androidx.core.app.ActivityOptionsCompat#toBundle()} or
+         * {@link android.app.ActivityOptions#toBundle()}.
+         *
+         * This will override any {@link ActivityOptionsCompat} passed to
+         * {@link androidx.activity.result.ActivityResultLauncher#launch(Object,
+         ActivityOptionsCompat)}
+         */
+        public static final String EXTRA_ACTIVITY_OPTIONS_BUNDLE = "androidx.activity.result"
+                + ".contract.extra.ACTIVITY_OPTIONS_BUNDLE";
 
         @NonNull
         @Override
@@ -295,12 +308,12 @@ public final class ActivityResultContracts {
      * {@link MediaStore#ACTION_IMAGE_CAPTURE take a picture} saving it into the provided
      * content-{@link Uri}.
      * <p>
-     * Returns a thumbnail.
+     * Returns {@code true} if the image was saved into the given {@link Uri}.
      * <p>
      * This can be extended to override {@link #createIntent} if you wish to pass additional
      * extras to the Intent created by {@code super.createIntent()}.
      */
-    public static class TakePicture extends ActivityResultContract<Uri, Bitmap> {
+    public static class TakePicture extends ActivityResultContract<Uri, Boolean> {
 
         @CallSuper
         @NonNull
@@ -312,16 +325,15 @@ public final class ActivityResultContracts {
 
         @Nullable
         @Override
-        public final SynchronousResult<Bitmap> getSynchronousResult(@NonNull Context context,
+        public final SynchronousResult<Boolean> getSynchronousResult(@NonNull Context context,
                 @NonNull Uri input) {
             return null;
         }
 
-        @Nullable
+        @NonNull
         @Override
-        public final Bitmap parseResult(int resultCode, @Nullable Intent intent) {
-            if (intent == null || resultCode != Activity.RESULT_OK) return null;
-            return intent.getParcelableExtra("data");
+        public final Boolean parseResult(int resultCode, @Nullable Intent intent) {
+            return resultCode == Activity.RESULT_OK;
         }
     }
 

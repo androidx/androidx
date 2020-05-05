@@ -16,7 +16,6 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Direction
@@ -26,6 +25,7 @@ import androidx.ui.core.PointerId
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.positionChange
 import androidx.ui.unit.IntPxSize
@@ -42,16 +42,15 @@ import androidx.ui.unit.Px
  * if you want a drag to be started due to the touch slop being surpassed in the given [Direction].
  * If [canDrag] is not provided, touch slop will be able to be exceeded in all directions.
  */
-@Composable
 fun Modifier.touchSlopExceededGestureFilter(
     onTouchSlopExceeded: () -> Unit,
     canDrag: ((Direction) -> Boolean)? = null
-): Modifier {
+): Modifier = composed {
     val touchSlop = with(DensityAmbient.current) { TouchSlop.toPx() }
     val filter = remember { TouchSlopExceededGestureFilter(touchSlop) }
     filter.canDrag = canDrag
     filter.onTouchSlopExceeded = onTouchSlopExceeded
-    return this + PointerInputModifierImpl(filter)
+    PointerInputModifierImpl(filter)
 }
 
 // TODO(shepshapard): Shouldn't touchSlop be Px and not IntPx? What if the density bucket of the

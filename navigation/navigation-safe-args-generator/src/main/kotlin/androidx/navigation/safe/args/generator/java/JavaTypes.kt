@@ -19,6 +19,9 @@ package androidx.navigation.safe.args.generator.java
 import androidx.navigation.safe.args.generator.BoolArrayType
 import androidx.navigation.safe.args.generator.BoolType
 import androidx.navigation.safe.args.generator.BooleanValue
+import androidx.navigation.safe.args.generator.DoubleArrayType
+import androidx.navigation.safe.args.generator.DoubleType
+import androidx.navigation.safe.args.generator.DoubleValue
 import androidx.navigation.safe.args.generator.EnumValue
 import androidx.navigation.safe.args.generator.FloatArrayType
 import androidx.navigation.safe.args.generator.FloatType
@@ -202,6 +205,8 @@ internal fun NavType.typeName(): TypeName = when (this) {
     LongArrayType -> ArrayTypeName.of(TypeName.LONG)
     FloatType -> TypeName.FLOAT
     FloatArrayType -> ArrayTypeName.of(TypeName.FLOAT)
+    DoubleType -> TypeName.DOUBLE
+    DoubleArrayType -> ArrayTypeName.of(TypeName.DOUBLE)
     StringType -> ClassName.get(String::class.java)
     StringArrayType -> ArrayTypeName.of(ClassName.get(String::class.java))
     BoolType -> TypeName.BOOLEAN
@@ -225,6 +230,7 @@ internal fun WritableValue.write(): CodeBlock {
         is IntValue -> CodeBlock.of(value)
         is LongValue -> CodeBlock.of(value)
         is FloatValue -> CodeBlock.of("${value}F")
+        is DoubleValue -> CodeBlock.of(value)
         is BooleanValue -> CodeBlock.of(value)
         is NullValue -> CodeBlock.of("null")
         is EnumValue -> CodeBlock.of("$T.$N", type.typeName(), value)

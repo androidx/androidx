@@ -29,6 +29,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -244,18 +246,19 @@ class FragmentViewLifecycleTest {
     }
 
     /**
-     * Test that the ViewTreeLifecycleOwner for a fragment's view is the fragment's own
-     * viewLifecycleOwner.
+     * Test that the ViewTree get() methods for a fragment's view work correctly.
      */
     @Test
-    fun testFragmentViewTreeLifecycleOwner() {
+    fun testFragmentViewTree() {
         val activity = activityRule.activity
         val fm = activity.supportFragmentManager
 
-        val fragment = ViewTreeLifecycleOwnerCheckFragment()
+        val fragment = ViewTreeCheckFragment()
 
         var observedLifecycleOwner: Any? = "not set"
         var observedTreeLifecycleOwner: Any? = "not set"
+        var observedTreeViewModelStoreOwner: Any? = "not set"
+        var observedTreeViewSavedStateRegistryOwner: Any? = "not set"
 
         val latch = CountDownLatch(1)
         activity.runOnUiThread {
@@ -266,6 +269,12 @@ class FragmentViewLifecycleTest {
 
                 observedLifecycleOwner = owner
                 observedTreeLifecycleOwner = fragment.view?.let { ViewTreeLifecycleOwner.get(it) }
+                observedTreeViewModelStoreOwner = fragment.view?.let {
+                    ViewTreeViewModelStoreOwner.get(it)
+                }
+                observedTreeViewSavedStateRegistryOwner = fragment.view?.let {
+                    ViewTreeSavedStateRegistryOwner.get(it)
+                }
             }
 
             fm.beginTransaction().add(R.id.content, fragment).commitNow()
@@ -277,11 +286,30 @@ class FragmentViewLifecycleTest {
         assertWithMessage("ViewTreeLifecycleOwner should match viewLifecycleOwner after commitNow")
             .that(ViewTreeLifecycleOwner.get(fragment.view ?: error("no fragment view created")))
             .isSameInstanceAs(fragment.viewLifecycleOwner)
+        assertWithMessage("ViewTreeViewModelStoreOwner should match fragment after commitNow")
+            .that(ViewTreeViewModelStoreOwner.get(fragment.view
+                ?: error("no fragment view created")))
+            .isSameInstanceAs(fragment)
+        assertWithMessage("ViewTreeSavedStateRegistryOwner should match fragment after commitNow")
+            .that(
+                ViewTreeSavedStateRegistryOwner.get(
+                    fragment.view ?: error("no fragment view created")
+                )
+            )
+            .isSameInstanceAs(fragment)
 
         assertWithMessage("ViewTreeLifecycleOwner should match viewLifecycleOwner in " +
                 "viewLifecycleOwnerLiveData observer")
             .that(observedTreeLifecycleOwner)
             .isSameInstanceAs(fragment.viewLifecycleOwner)
+        assertWithMessage("ViewTreeViewModelStoreOwner should match fragment in " +
+                "viewLifecycleOwnerLiveData observer")
+            .that(observedTreeViewModelStoreOwner)
+            .isSameInstanceAs(fragment)
+        assertWithMessage("ViewTreeSavedStateRegistryOwner should match fragment in " +
+                "viewLifecycleOwnerLiveData observer")
+            .that(observedTreeViewSavedStateRegistryOwner)
+            .isSameInstanceAs(fragment)
 
         assertWithMessage("ViewTreeLifecycleOwner should match observed LifecycleOwner in " +
                 "viewLifecycleOwnerLiveData observer")
@@ -292,10 +320,20 @@ class FragmentViewLifecycleTest {
                 "onViewCreated")
             .that(fragment.onViewCreatedLifecycleOwner)
             .isSameInstanceAs(fragment.viewLifecycleOwner)
+        assertWithMessage("ViewTreeViewModelStoreOwner should match fragment in " +
+                "onViewCreated")
+            .that(fragment.onViewCreatedViewModelStoreOwner)
+            .isSameInstanceAs(fragment)
+        assertWithMessage("ViewTreeSavedStateRegistryOwner should match fragment in " +
+                "onViewCreated")
+            .that(fragment.onViewCreatedSavedStateRegistryOwner)
+            .isSameInstanceAs(fragment)
     }
 
-    class ViewTreeLifecycleOwnerCheckFragment : Fragment() {
+    class ViewTreeCheckFragment : Fragment() {
         var onViewCreatedLifecycleOwner: Any? = "not set"
+        var onViewCreatedViewModelStoreOwner: Any? = "not set"
+        var onViewCreatedSavedStateRegistryOwner: Any? = "not set"
 
         override fun onCreateView(
             inflater: LayoutInflater,
@@ -305,6 +343,8 @@ class FragmentViewLifecycleTest {
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             onViewCreatedLifecycleOwner = ViewTreeLifecycleOwner.get(view)
+            onViewCreatedViewModelStoreOwner = ViewTreeViewModelStoreOwner.get(view)
+            onViewCreatedSavedStateRegistryOwner = ViewTreeSavedStateRegistryOwner.get(view)
         }
     }
 

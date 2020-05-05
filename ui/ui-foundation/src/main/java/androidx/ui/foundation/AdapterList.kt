@@ -35,6 +35,7 @@ import androidx.ui.core.MeasuringIntrinsicsMeasureBlocks
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.clipToBounds
+import androidx.ui.core.materialize
 import androidx.ui.core.subcomposeInto
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.ScrollableState
@@ -490,7 +491,7 @@ fun <T> AdapterList(
     state.forceRecompose = true
 
     androidx.ui.core.LayoutNode(
-        modifier = modifier
+        modifier = currentComposer.materialize(modifier
             .scrollable(
                 dragDirection = DragDirection.Vertical,
                 scrollableState = ScrollableState(
@@ -498,7 +499,7 @@ fun <T> AdapterList(
                     state.onScrollDeltaConsumptionRequestedListener
                 )
             )
-            .clipToBounds(),
+            .clipToBounds()),
         ref = state.rootNodeRef,
         measureBlocks = state.measureBlocks
     )

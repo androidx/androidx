@@ -22,15 +22,16 @@ import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Image
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.ImageAsset
 import androidx.ui.graphics.Paint
 import androidx.ui.core.ContentScale
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.graphics.painter.Painter
+import androidx.ui.graphics.painter.CanvasScope
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.loadVectorResource
 import androidx.ui.unit.PxSize
@@ -51,7 +52,11 @@ fun ImagePainterSubsectionSample() {
     val imageAsset = createTestImage()
     // Lays out and draws an image sized to the rectangular subsection of the ImageAsset
     Image(
-        painter = ImagePainter(imageAsset, Rect.fromLTWH(10.0f, 12.0f, 50.0f, 60.0f))
+        painter = ImagePainter(
+            imageAsset,
+            Offset(10.0f, 12.0f),
+            Size(50.0f, 60.0f)
+        )
     )
 }
 
@@ -75,16 +80,11 @@ fun ImagePainterSample() {
     val customPainter = remember {
         object : Painter() {
 
-            val paint = Paint().apply { this.color = Color.Cyan }
-
             override val intrinsicSize: PxSize
                 get() = PxSize(100.px, 100.px)
 
-            override fun onDraw(canvas: Canvas, bounds: PxSize) {
-                canvas.drawRect(
-                    Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value),
-                    paint
-                )
+            override fun CanvasScope.onDraw() {
+                drawRect(color = Color.Cyan)
             }
         }
     }

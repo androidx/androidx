@@ -17,8 +17,9 @@
 package androidx.paging
 
 import androidx.paging.LoadState.Error
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.REFRESH
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.TestScheduler
@@ -61,8 +62,8 @@ class RxPagedListBuilderTest {
         }
 
         private inner class MockPagingSource : PagingSource<Int, String>() {
-            override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
-                LoadType.REFRESH -> loadInitial(params)
+            override suspend fun load(params: LoadParams<Int>) = when (params) {
+                is LoadParams.Refresh -> loadInitial(params)
                 else -> loadRange()
             }
 
@@ -100,11 +101,13 @@ class RxPagedListBuilderTest {
             )
         )
         val scheduler = TestScheduler()
+
         @Suppress("DEPRECATION")
         val observable = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(scheduler)
             .setNotifyScheduler(scheduler)
             .buildObservable()
+
         @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
 
@@ -134,11 +137,13 @@ class RxPagedListBuilderTest {
         val factory = testDataSourceSequence(listOf(listOf("a", "b"), listOf("c", "d")))
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
+
         @Suppress("DEPRECATION")
         val observable: Observable<PagedList<String>> = RxPagedListBuilder(factory, 10)
             .setFetchScheduler(fetchScheduler)
             .setNotifyScheduler(notifyScheduler)
             .buildObservable()
+
         @Suppress("DEPRECATION")
         val observer = TestObserver<PagedList<String>>()
         observable.subscribe(observer)
@@ -165,6 +170,7 @@ class RxPagedListBuilderTest {
         // initial load - if we used one, we wouldn't be able to see the initial Loading state
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
+
         @Suppress("DEPRECATION")
         val observable = RxPagedListBuilder(factory::create, 2)
             .setFetchScheduler(fetchScheduler)
@@ -188,14 +194,14 @@ class RxPagedListBuilderTest {
 
         // initial load failed, check that we're in error state
         val loadStateChangedCallback = { type: LoadType, state: LoadState ->
-            if (type == LoadType.REFRESH) {
+            if (type == REFRESH) {
                 loadStates.add(LoadStateEvent(type, state))
             }
         }
         initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
-                LoadStateEvent(LoadType.REFRESH, Loading)
+                LoadStateEvent(REFRESH, Loading(fromMediator = false))
             ), loadStates
         )
 
@@ -205,8 +211,8 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(LoadType.REFRESH, Loading),
-                LoadStateEvent(LoadType.REFRESH, Error(EXCEPTION))
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false))
             ), loadStates
         )
 
@@ -216,9 +222,9 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(LoadType.REFRESH, Loading),
-                LoadStateEvent(LoadType.REFRESH, Error(EXCEPTION)),
-                LoadStateEvent(LoadType.REFRESH, Loading)
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false)),
+                LoadStateEvent(REFRESH, Loading(fromMediator = false))
             ), loadStates
         )
         // flush loadInitial, should succeed now
@@ -234,10 +240,13 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(LoadType.REFRESH, Loading),
-                LoadStateEvent(LoadType.REFRESH, Error(EXCEPTION)),
-                LoadStateEvent(LoadType.REFRESH, Loading),
-                LoadStateEvent(LoadType.REFRESH, Idle)
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false)),
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(
+                    REFRESH,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                )
             ), loadStates
         )
     }

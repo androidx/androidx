@@ -396,8 +396,8 @@ public class LiveDataTest {
         mLiveData.observe(mOwner, observer1);
         mLiveData.observe(mOwner, observer2);
         mLiveData.setValue("bla");
-        verify(observer1, Mockito.atMost(2)).onChanged("gt");
-        verify(observer2, Mockito.atMost(2)).onChanged("gt");
+        verify(observer1, Mockito.times(1)).onChanged("gt");
+        verify(observer2, Mockito.times(1)).onChanged("gt");
     }
 
     @Test

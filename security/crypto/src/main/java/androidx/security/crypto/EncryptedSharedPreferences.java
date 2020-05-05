@@ -141,7 +141,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
          *
          * For more information please see the Tink documentation:
          *
-         * {@link DeterministicAeadKeyTemplates}.AES256_SIV
+         * <a href="https://google.github.io/tink/javadoc/tink/1.3.0/com/google/crypto/tink/daead/DeterministicAeadKeyTemplates.html">DeterministicAeadKeyTemplates</a>.AES256_SIV
          */
         AES256_SIV(DeterministicAeadKeyTemplates.AES256_SIV);
 
@@ -165,7 +165,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
          *
          * For more information please see the Tink documentation:
          *
-         * {@link AeadKeyTemplates}.AES256_GCM
+         * <a href="https://google.github.io/tink/javadoc/tink/1.3.0/com/google/crypto/tink/aead/AeadKeyTemplates.html">AeadKeyTemplates</a>.AES256_GCM
          */
         AES256_GCM(AeadKeyTemplates.AES256_GCM);
 

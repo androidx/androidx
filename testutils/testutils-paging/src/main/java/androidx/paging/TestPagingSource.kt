@@ -27,7 +27,8 @@ import kotlinx.coroutines.delay
  */
 class TestPagingSource(
     counted: Boolean = true,
-    override val jumpingSupported: Boolean = true
+    override val jumpingSupported: Boolean = true,
+    val items: List<Int> = Companion.ITEMS
 ) : PagingSource<Int, Int>() {
     var errorNextLoad = false
 
@@ -43,8 +44,9 @@ class TestPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
         val key = params.key ?: 0
 
-        val start = if (params.loadType == LoadType.START) key - params.loadSize + 1 else key
-        val end = if (params.loadType == LoadType.START) key + 1 else key + params.loadSize
+        val isPrepend = params is LoadParams.Prepend
+        val start = if (isPrepend) key - params.loadSize + 1 else key
+        val end = if (isPrepend) key + 1 else key + params.loadSize
 
         // This delay allows tests running withing DelayController APIs to control the order of
         // execution of events.
@@ -64,12 +66,13 @@ class TestPagingSource(
         )
     }
 
+    @OptIn(ExperimentalPagingApi::class)
     override fun getRefreshKey(state: PagingState<Int, Int>): Int? {
         return state.anchorPosition
     }
 
     companion object {
-        val items = List(100) { it }
+        val ITEMS = List(100) { it }
         val LOAD_ERROR = Exception("Exception from TestPagingSource.errorNextLoad")
     }
 }

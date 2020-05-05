@@ -23,11 +23,11 @@ package androidx.ui.test
  * collected before. So the output can change over time if the tree changes.
  */
 fun SemanticsNodeInteraction.dumpToString(): String {
-    val nodes = fetchSemanticsNodes()
-    return if (nodes.isEmpty()) {
+    val result = fetchSemanticsNodes()
+    return if (result.selectedNodes.isEmpty()) {
         "There were 0 nodes found!"
     } else {
-        nodes.toStringInfo()
+        result.selectedNodes.toStringInfo()
     }
 }
 
@@ -37,8 +37,8 @@ fun SemanticsNodeInteraction.dumpToString(): String {
  * Note that this will fetch the latest snapshot of nodes it sees in the hierarchy for the IDs it
  * collected before. So the output can change over time if the tree changes.
  */
-fun Collection<SemanticsNodeInteraction>.dumpToString(): String {
-    val nodes = this.flatMap { it.fetchSemanticsNodes() }
+fun SemanticsNodeInteractionCollection.dumpToString(): String {
+    val nodes = fetchSemanticsNodes()
     return if (nodes.isEmpty()) {
         "There were 0 nodes found!"
     } else {

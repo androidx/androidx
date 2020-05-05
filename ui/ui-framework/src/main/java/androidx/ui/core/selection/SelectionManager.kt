@@ -27,10 +27,16 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.LongPressDragObserver
 import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.hapticfeedback.HapticFeedbackType
+import androidx.ui.core.texttoolbar.TextToolbar
+import androidx.ui.core.texttoolbar.TextToolbarStatus
+import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.length
 import androidx.ui.text.subSequence
+import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.max
+import androidx.ui.unit.min
 import androidx.ui.unit.px
 
 /**
@@ -44,6 +50,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         set(value) {
             field = value
             updateHandleOffsets()
+            hideSelectionToolbar()
         }
 
     /**
@@ -64,12 +71,18 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     var clipboardManager: ClipboardManager? = null
 
     /**
+     * [TextToolbar] to show floating toolbar(post-M) or primary toolbar(pre-M).
+     */
+    var textToolbar: TextToolbar? = null
+
+    /**
      * Layout Coordinates of the selection container.
      */
     var containerLayoutCoordinates: LayoutCoordinates? = null
         set(value) {
             field = value
             updateHandleOffsets()
+            updateSelectionToolbarPosition()
         }
 
     /**
@@ -113,6 +126,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     init {
         selectionRegistrar.onPositionChangeCallback = {
             updateHandleOffsets()
+            hideSelectionToolbar()
         }
     }
 
@@ -226,6 +240,103 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     internal fun copy() {
         val selectedText = getSelectedText()
         selectedText?.let { clipboardManager?.setText(it) }
+    }
+
+    /**
+     * This function get the selected region as a Rectangle region, and pass it to [TextToolbar]
+     * to make the FloatingToolbar show up in the proper place. In addition, this function passes
+     * the copy method as a callback when "copy" is clicked.
+     */
+    internal fun showSelectionToolbar() {
+        selection?.let {
+            textToolbar?.showCopyMenu(
+                getContentRect(),
+                onCopyRequested = { copy() },
+                onDeselectRequested = { onRelease() }
+            )
+        }
+    }
+
+    private fun hideSelectionToolbar() {
+        if (textToolbar?.status == TextToolbarStatus.Shown) {
+            val selection = selection
+            if (selection == null) {
+                textToolbar?.hide()
+            }
+        }
+    }
+
+    private fun updateSelectionToolbarPosition() {
+        if (textToolbar?.status == TextToolbarStatus.Shown) {
+            showSelectionToolbar()
+        }
+    }
+
+    /**
+     * Calculate selected region as [Rect]. The top is the top of the first selected
+     * line, and the bottom is the bottom of the last selected line. The left is the leftmost
+     * handle's horizontal coordinates, and the right is the rightmost handle's coordinates.
+     */
+    private fun getContentRect(): Rect {
+        val selection = selection ?: return Rect.zero
+        val startLayoutCoordinates =
+            selection.start.selectable.getLayoutCoordinates() ?: return Rect.zero
+        val endLayoutCoordinates =
+            selection.end.selectable.getLayoutCoordinates() ?: return Rect.zero
+
+        val localLayoutCoordinates = containerLayoutCoordinates
+        if (localLayoutCoordinates != null && localLayoutCoordinates.isAttached) {
+            var startOffset = localLayoutCoordinates.childToLocal(
+                startLayoutCoordinates,
+                selection.start.selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = true
+                )
+            )
+            var endOffset = localLayoutCoordinates.childToLocal(
+                endLayoutCoordinates,
+                selection.end.selectable.getHandlePosition(
+                    selection = selection,
+                    isStartHandle = false
+                )
+            )
+
+            startOffset = localLayoutCoordinates.localToRoot(startOffset)
+            endOffset = localLayoutCoordinates.localToRoot(endOffset)
+
+            val left = min(startOffset.x, endOffset.x)
+            val right = max(startOffset.x, endOffset.x)
+
+            var startTop = localLayoutCoordinates.childToLocal(
+                startLayoutCoordinates,
+                PxPosition(
+                    Px.Zero,
+                    selection.start.selectable.getBoundingBox(selection.start.offset).top.px
+                )
+            )
+
+            var endTop = localLayoutCoordinates.childToLocal(
+                endLayoutCoordinates,
+                PxPosition(
+                    Px.Zero,
+                    selection.end.selectable.getBoundingBox(selection.end.offset).top.px
+                )
+            )
+
+            startTop = localLayoutCoordinates.localToRoot(startTop)
+            endTop = localLayoutCoordinates.localToRoot(endTop)
+
+            val top = min(startTop.y, endTop.y)
+            val bottom = max(startOffset.y, endOffset.y) + (HANDLE_HEIGHT.value * 4.0).px
+
+            return Rect(
+                left.value,
+                top.value,
+                right.value,
+                bottom.value
+            )
+        }
+        return Rect.zero
     }
 
     // This is for PressGestureDetector to cancel the selection.

@@ -16,13 +16,13 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
+import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.testutils.consume
@@ -117,16 +117,15 @@ interface RawScaleObserver {
  * @param canStartScaling If set, before scaling is started ([RawScaleObserver.onStart] is called),
  * canStartScaling is called for each pointer event to check to see if it is allowed to start.
  */
-@Composable
 fun Modifier.rawScaleGestureFilter(
     scaleObserver: RawScaleObserver,
     canStartScaling: (() -> Boolean)? = null
-): Modifier {
+): Modifier = composed {
     val filter = remember { RawScaleGestureFilter() }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     filter.scaleObserver = scaleObserver
     filter.canStartScaling = canStartScaling
-    return this + PointerInputModifierImpl(filter)
+    PointerInputModifierImpl(filter)
 }
 
 internal class RawScaleGestureFilter : PointerInputFilter() {

@@ -528,7 +528,7 @@ fun AnnotatedString.decapitalize(localeList: LocaleList = LocaleList.current): A
  * @return newly allocated transformed AnnotatedString
  */
 private fun AnnotatedString.transform(transform: (String, Int, Int) -> String): AnnotatedString {
-    val transitions = sortedSetOf<Int>()
+    val transitions = sortedSetOf(0, text.length)
     collectItemTransitions(spanStyles, transitions)
     collectItemTransitions(paragraphStyles, transitions)
 

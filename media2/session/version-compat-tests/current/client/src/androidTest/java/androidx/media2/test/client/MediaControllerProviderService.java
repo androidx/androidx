@@ -214,6 +214,13 @@ public class MediaControllerProviderService extends Service {
         }
 
         @Override
+        public void setMediaUri(String controllerId, Uri uri, Bundle extras)
+                throws RemoteException {
+            MediaController controller = mMediaControllerMap.get(controllerId);
+            controller.setMediaUri(uri, extras);
+        }
+
+        @Override
         public void updatePlaylistMetadata(String controllerId, ParcelImpl metadata)
                 throws RemoteException {
             MediaController controller = mMediaControllerMap.get(controllerId);

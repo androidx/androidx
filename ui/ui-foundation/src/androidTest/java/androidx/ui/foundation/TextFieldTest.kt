@@ -16,27 +16,47 @@
 
 package androidx.ui.foundation
 
+import android.os.Build
 import androidx.compose.Composable
+import androidx.compose.MutableState
 import androidx.compose.Providers
 import androidx.compose.state
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.core.input.FocusManager
-import androidx.ui.core.input.FocusNode
-import androidx.ui.core.input.FocusTransitionObserver
+import androidx.ui.core.onPositioned
+import androidx.ui.focus.FocusModifier
+import androidx.ui.focus.FocusState
+import androidx.ui.focus.focusState
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorValue
 import androidx.ui.input.TextInputService
+import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
+import androidx.ui.layout.preferredSize
+import androidx.ui.layout.preferredWidthIn
+import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.ui.test.StateRestorationTester
+import androidx.ui.test.assertPixels
+import androidx.ui.test.assertShape
+import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
 import androidx.ui.text.TextLayoutResult
+import androidx.ui.text.TextRange
+import androidx.ui.text.TextStyle
+import androidx.ui.unit.IntPx
+import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
+import androidx.ui.unit.px
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -50,6 +70,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -59,18 +81,19 @@ class TextFieldTest {
 
     @Test
     fun textField_focusInSemantics() {
-        val focusManager = mock<FocusManager>()
         val inputService = mock<TextInputService>()
+
+        lateinit var focusModifier: FocusModifier
         composeTestRule.setContent {
             val state = state { TextFieldValue("") }
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides inputService
             ) {
+                focusModifier = FocusModifier()
                 TestTag(tag = "textField") {
                     TextField(
                         value = state.value,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize() + focusModifier,
                         onValueChange = { state.value = it }
                     )
                 }
@@ -80,7 +103,7 @@ class TextFieldTest {
         findByTag("textField").doClick()
 
         runOnIdleCompose {
-            verify(focusManager, times(1)).requestFocus(any())
+            assertThat(focusModifier.focusState).isEqualTo(FocusState.Focused)
         }
     }
 
@@ -96,38 +119,8 @@ class TextFieldTest {
         )
     }
 
-    /**
-     * Fake class for giving input focus when requestFocus is called.
-     */
-    class FakeFocusManager : FocusManager {
-        var observer: FocusTransitionObserver? = null
-
-        override fun registerObserver(node: FocusNode, observer: FocusTransitionObserver) {
-            this.observer = observer
-        }
-
-        override fun requestFocus(client: FocusNode) {
-            observer?.invoke(null, client)
-        }
-
-        override fun requestFocusById(identifier: String) {
-            throw RuntimeException("Not implemented")
-        }
-
-        override fun registerFocusNode(identifier: String, node: FocusNode) {
-            throw RuntimeException("Not implemented")
-        }
-
-        override fun unregisterFocusNode(identifier: String) {
-            throw RuntimeException("Not implemented")
-        }
-
-        override fun blur(client: FocusNode) { }
-    }
-
     @Test
     fun textField_commitTexts() {
-        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
@@ -136,7 +129,6 @@ class TextFieldTest {
 
         composeTestRule.setContent {
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {
@@ -145,9 +137,7 @@ class TextFieldTest {
             }
         }
 
-        // Perform click to focus in.
-        findByTag("textField")
-            .doClick()
+        findByTag("textField").doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -205,7 +195,6 @@ class TextFieldTest {
 
     @Test
     fun textField_commitTexts_state_may_not_set() {
-        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
@@ -214,7 +203,6 @@ class TextFieldTest {
 
         composeTestRule.setContent {
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {
@@ -223,9 +211,7 @@ class TextFieldTest {
             }
         }
 
-        // Perform click to focus in.
-        findByTag("textField")
-            .doClick()
+        findByTag("textField").doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -270,7 +256,6 @@ class TextFieldTest {
 
     @Test
     fun textField_onTextLayoutCallback() {
-        val focusManager = FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
@@ -280,7 +265,6 @@ class TextFieldTest {
         val onTextLayout: (TextLayoutResult) -> Unit = mock()
         composeTestRule.setContent {
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {
@@ -297,9 +281,7 @@ class TextFieldTest {
             }
         }
 
-        // Perform click to focus in.
-        findByTag("textField")
-            .doClick()
+        findByTag("textField").doClick()
 
         var onEditCommandCallback: ((List<EditOperation>) -> Unit)? = null
         runOnIdleCompose {
@@ -336,5 +318,170 @@ class TextFieldTest {
             // Don't care about the intermediate state update. It should eventually be "123"
             assertThat(layoutCaptor.lastValue.layoutInput.text.text).isEqualTo("123")
         }
+    }
+
+    @Test
+    fun textField_occupiesAllAvailableSpace() {
+        val parentSize = 300.dp
+        var size: IntPx? = null
+        composeTestRule.setContent {
+            Box(Modifier.preferredSize(parentSize)) {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {},
+                    modifier = Modifier.onPositioned {
+                        size = it.size.width
+                    }
+                )
+            }
+        }
+
+        with(composeTestRule.density) {
+            assertThat(size).isEqualTo(parentSize.toIntPx())
+        }
+    }
+
+    @Test
+    fun textField_respectsMaxWidthSetByModifier() {
+        val parentSize = 300.dp
+        val textFieldWidth = 100.dp
+        var size: IntPx? = null
+        composeTestRule.setContent {
+            Box(Modifier.preferredSize(parentSize)) {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {},
+                    modifier = Modifier
+                        .preferredWidthIn(maxWidth = textFieldWidth)
+                        .onPositioned {
+                            size = it.size.width
+                        }
+                )
+            }
+        }
+
+        with(composeTestRule.density) {
+            assertThat(size).isEqualTo(textFieldWidth.toIntPx())
+        }
+    }
+
+    @Test
+    fun textFieldInRow_fixedElementIsVisible() {
+        val parentSize = 300.dp
+        val boxSize = 50.dp
+        var size: IntPx? = null
+        composeTestRule.setContent {
+            Box(Modifier.preferredSize(parentSize)) {
+                Row {
+                    TextField(
+                        value = TextFieldValue(),
+                        onValueChange = {},
+                        modifier = Modifier
+                            .weight(1f)
+                            .onPositioned {
+                                size = it.size.width
+                            }
+                    )
+                    Box(Modifier.preferredSize(boxSize))
+                }
+            }
+        }
+
+        with(composeTestRule.density) {
+            assertThat(size).isEqualTo(parentSize.toIntPx() - boxSize.toIntPx())
+        }
+    }
+
+    @Test
+    fun textFieldValue_saverRestoresState() {
+        var state: MutableState<TextFieldValue>? = null
+
+        val restorationTester = StateRestorationTester(composeTestRule)
+        restorationTester.setContent {
+            state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
+        }
+
+        runOnIdleCompose {
+            state!!.value = TextFieldValue("test", TextRange(1, 2))
+
+            // we null it to ensure recomposition happened
+            state = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        runOnIdleCompose {
+            assertThat(state!!.value).isEqualTo(TextFieldValue("test", TextRange(1, 2)))
+        }
+    }
+
+    @Test
+    fun textFieldNotFocused_cursorNotRendered() {
+        composeTestRule.setContent {
+            TestTag("textField") {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {},
+                    textColor = Color.White,
+                    modifier = Modifier.preferredSize(10.dp, 20.dp).drawBackground(Color.White),
+                    cursorColor = Color.Blue
+                )
+            }
+        }
+
+        findByTag("textField")
+            .captureToBitmap()
+            .assertShape(
+                density = composeTestRule.density,
+                shape = RectangleShape,
+                shapeColor = Color.White,
+                backgroundColor = Color.White,
+                shapeOverlapPixelCount = 0.px
+            )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textFieldFocused_cursorRendered() = with(composeTestRule.density) {
+        val width = 10.dp
+        val height = 20.dp
+        val halfCursorWidth = 2.dp.toIntPx() / 2f
+        val latch = CountDownLatch(1)
+        composeTestRule.setContent {
+            TestTag("textField") {
+                TextField(
+                    value = TextFieldValue(),
+                    onValueChange = {},
+                    textStyle = TextStyle(color = Color.White, background = Color.White),
+                    modifier = Modifier.preferredSize(width, height).drawBackground(Color.White),
+                    cursorColor = Color.Red,
+                    onFocusChange = { focused ->
+                        if (focused) latch.countDown()
+                    }
+                )
+            }
+        }
+        findByTag("textField").doClick()
+        assert(latch.await(1, TimeUnit.SECONDS))
+
+        findByTag("textField")
+            .captureToBitmap()
+            .assertPixels(
+                IntPxSize(width.toIntPx(), height.toIntPx())
+            ) { position ->
+                if (position.x >= halfCursorWidth - 1.ipx && position.x < halfCursorWidth + 1.ipx) {
+                    // skip some pixels around cursor
+                    null
+                } else if (position.y < 5.ipx || position.y > height.toIntPx() - 5.ipx) {
+                    // skip some pixels vertically
+                    null
+                } else if (position.x in 0.ipx..halfCursorWidth) {
+                    // cursor
+                    Color.Red
+                } else {
+                    // text field background
+                    Color.White
+                }
+            }
     }
 }

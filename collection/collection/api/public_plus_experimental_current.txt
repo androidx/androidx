@@ -37,7 +37,7 @@ package androidx.collection {
     method public int size();
     method public Object![] toArray();
     method public <T> T![] toArray(T![]);
-    method public E? valueAt(int);
+    method public E! valueAt(int);
   }
 
   public final class CircularArray<E> {

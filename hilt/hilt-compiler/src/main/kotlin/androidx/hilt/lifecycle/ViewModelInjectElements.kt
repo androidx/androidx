@@ -46,8 +46,6 @@ internal data class ViewModelInjectElements(
         "${className.simpleNames().joinToString("_")}_HiltModule")
 
     val dependencyRequests = constructorElement.parameters.map { constructorArg ->
-        constructorArg.toDependencyRequest { paramTypeName ->
-            paramTypeName == ClassNames.SAVED_STATE_HANDLE
-        }
+        constructorArg.toDependencyRequest()
     }
 }

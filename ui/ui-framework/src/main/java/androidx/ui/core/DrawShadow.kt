@@ -69,20 +69,21 @@ fun drawShadow(
  * @param clipToOutline When active, the content drawing clips to the outline.
  * @param opacity The opacity of the layer, including the shadow.
  */
-@Composable
 fun Modifier.drawShadow(
     elevation: Dp,
     shape: Shape = RectangleShape,
     clipToOutline: Boolean = elevation > 0.dp,
     @FloatRange(from = 0.0, to = 1.0) opacity: Float = 1f
 ) = if (elevation > 0.dp || clipToOutline || opacity != 1f) {
-    this + Modifier.drawLayer(
-        alpha = opacity,
-        shadowElevation = with(DensityAmbient.current) { elevation.toPx().value },
-        outlineShape = shape,
-        clipToBounds = false,
-        clipToOutline = clipToOutline
-    )
+    composed {
+        drawLayer(
+            alpha = opacity,
+            shadowElevation = with(DensityAmbient.current) { elevation.toPx().value },
+            outlineShape = shape,
+            clipToBounds = false,
+            clipToOutline = clipToOutline
+        )
+    }
 } else {
     this
 }

@@ -47,9 +47,9 @@ fun loadStateAdapterSample() {
             if (loadState is LoadState.Error) {
                 errorMsg.text = loadState.error.localizedMessage
             }
-            progressBar.visibility = toVisibility(loadState == LoadState.Loading)
-            retry.visibility = toVisibility(loadState != LoadState.Loading)
-            errorMsg.visibility = toVisibility(loadState != LoadState.Loading)
+            progressBar.visibility = toVisibility(loadState is LoadState.Loading)
+            retry.visibility = toVisibility(loadState !is LoadState.Loading)
+            errorMsg.visibility = toVisibility(loadState !is LoadState.Loading)
         }
 
         private fun toVisibility(constraint: Boolean): Int = if (constraint) {

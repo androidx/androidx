@@ -31,13 +31,13 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class NullPaddedListDiffHelperTest {
     class Storage(
-        override val placeholdersStart: Int,
+        override val placeholdersBefore: Int,
         private val data: List<String>,
-        override val placeholdersEnd: Int
+        override val placeholdersAfter: Int
     ) : NullPaddedList<String> {
         override fun getFromStorage(localIndex: Int): String = data[localIndex]
         override val size: Int
-            get() = placeholdersStart + data.size + placeholdersEnd
+            get() = placeholdersBefore + data.size + placeholdersAfter
         override val storageCount: Int
             get() = data.size
     }

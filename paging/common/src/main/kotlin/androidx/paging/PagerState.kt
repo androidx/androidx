@@ -16,13 +16,13 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Idle
-import androidx.paging.LoadType.END
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
-import androidx.paging.PageEvent.Insert.Companion.End
+import androidx.paging.PageEvent.Insert.Companion.Append
+import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
-import androidx.paging.PageEvent.Insert.Companion.Start
 import androidx.paging.PagingConfig.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.onStart
 
 /**
- * Internal state of [Pager] whose updates can be consumed as a [Flow]<[PageEvent]<[Value]>>.
+ * Internal state of [PageFetcherSnapshot] whose updates can be consumed as a [Flow]<[PageEvent]<[Value]>>.
  */
 internal class PagerState<Key : Any, Value : Any>(
     private val pageSize: Int,
@@ -42,8 +42,8 @@ internal class PagerState<Key : Any, Value : Any>(
     private val _pages = mutableListOf<Page<Key, Value>>()
     internal val pages: List<Page<Key, Value>> = _pages
     private var initialPageIndex = 0
-    internal var placeholdersStart = COUNT_UNDEFINED
-    internal var placeholdersEnd = COUNT_UNDEFINED
+    internal var placeholdersBefore = COUNT_UNDEFINED
+    internal var placeholdersAfter = COUNT_UNDEFINED
 
     internal var prependLoadId = 0
         private set
@@ -54,9 +54,9 @@ internal class PagerState<Key : Any, Value : Any>(
 
     internal val failedHintsByLoadType = mutableMapOf<LoadType, LoadError<Key, Value>>()
     internal val loadStates = mutableMapOf<LoadType, LoadState>(
-        REFRESH to Idle,
-        START to Idle,
-        END to Idle
+        REFRESH to NotLoading.Idle,
+        PREPEND to NotLoading.Idle,
+        APPEND to NotLoading.Idle
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -72,7 +72,7 @@ internal class PagerState<Key : Any, Value : Any>(
     }
 
     /**
-     * Convert a loaded [Page] into a [PageEvent] for [Pager.pageEventCh].
+     * Convert a loaded [Page] into a [PageEvent] for [PageFetcherSnapshot.pageEventCh].
      *
      * Note: This method should be called after state updated by [insert]
      *
@@ -85,25 +85,25 @@ internal class PagerState<Key : Any, Value : Any>(
     ): PageEvent<Value> {
         val sourcePageIndex = when (loadType) {
             REFRESH -> 0
-            START -> 0 - initialPageIndex
-            END -> pages.size - initialPageIndex - 1
+            PREPEND -> 0 - initialPageIndex
+            APPEND -> pages.size - initialPageIndex - 1
         }
         val pages = listOf(TransformablePage(sourcePageIndex, data, data.size, null))
         return when (loadType) {
             REFRESH -> Refresh(
                 pages = pages,
-                placeholdersStart = if (placeholdersEnabled) placeholdersStart else 0,
-                placeholdersEnd = if (placeholdersEnabled) placeholdersEnd else 0,
+                placeholdersBefore = if (placeholdersEnabled) placeholdersBefore else 0,
+                placeholdersAfter = if (placeholdersEnabled) placeholdersAfter else 0,
                 loadStates = loadStates.toMap()
             )
-            START -> Start(
+            PREPEND -> Prepend(
                 pages = pages,
-                placeholdersStart = if (placeholdersEnabled) placeholdersStart else 0,
+                placeholdersBefore = if (placeholdersEnabled) placeholdersBefore else 0,
                 loadStates = loadStates.toMap()
             )
-            END -> End(
+            APPEND -> Append(
                 pages = pages,
-                placeholdersEnd = if (placeholdersEnabled) placeholdersEnd else 0,
+                placeholdersAfter = if (placeholdersEnabled) placeholdersAfter else 0,
                 loadStates = loadStates.toMap()
             )
         }
@@ -120,10 +120,18 @@ internal class PagerState<Key : Any, Value : Any>(
 
                 _pages.add(page)
                 initialPageIndex = 0
-                placeholdersEnd = if (page.itemsAfter != COUNT_UNDEFINED) page.itemsAfter else 0
-                placeholdersStart = if (page.itemsBefore != COUNT_UNDEFINED) page.itemsBefore else 0
+                placeholdersAfter = if (page.itemsAfter != COUNT_UNDEFINED) {
+                    page.itemsAfter
+                } else {
+                    0
+                }
+                placeholdersBefore = if (page.itemsBefore != COUNT_UNDEFINED) {
+                    page.itemsBefore
+                } else {
+                    0
+                }
             }
-            START -> {
+            PREPEND -> {
                 check(pages.isNotEmpty()) { "should've received an init before prepend" }
 
                 // Skip this insert if it is the result of a cancelled job due to page drop
@@ -131,30 +139,30 @@ internal class PagerState<Key : Any, Value : Any>(
 
                 _pages.add(0, page)
                 initialPageIndex++
-                placeholdersStart = if (page.itemsBefore == COUNT_UNDEFINED) {
-                    (placeholdersStart - page.data.size).coerceAtLeast(0)
+                placeholdersBefore = if (page.itemsBefore == COUNT_UNDEFINED) {
+                    (placeholdersBefore - page.data.size).coerceAtLeast(0)
                 } else {
                     page.itemsBefore
                 }
 
                 // Clear error on successful insert
-                failedHintsByLoadType.remove(START)
+                failedHintsByLoadType.remove(PREPEND)
             }
-            END -> {
+            APPEND -> {
                 check(pages.isNotEmpty()) { "should've received an init before append" }
 
                 // Skip this insert if it is the result of a cancelled job due to page drop
                 if (loadId != appendLoadId) return false
 
                 _pages.add(page)
-                placeholdersEnd = if (page.itemsAfter == COUNT_UNDEFINED) {
-                    (placeholdersEnd - page.data.size).coerceAtLeast(0)
+                placeholdersAfter = if (page.itemsAfter == COUNT_UNDEFINED) {
+                    (placeholdersAfter - page.data.size).coerceAtLeast(0)
                 } else {
                     page.itemsAfter
                 }
 
                 // Clear error on successful insert
-                failedHintsByLoadType.remove(END)
+                failedHintsByLoadType.remove(APPEND)
             }
         }
 
@@ -166,20 +174,20 @@ internal class PagerState<Key : Any, Value : Any>(
             "invalid drop count. have ${pages.size} but wanted to drop $pageCount"
         }
 
-        loadStates[loadType] = Idle
+        loadStates[loadType] = NotLoading.Idle
 
         when (loadType) {
-            START -> {
+            PREPEND -> {
                 repeat(pageCount) { _pages.removeAt(0) }
                 initialPageIndex -= pageCount
-                this.placeholdersStart = placeholdersRemaining
+                this.placeholdersBefore = placeholdersRemaining
 
                 prependLoadId++
                 prependLoadIdCh.offer(prependLoadId)
             }
-            END -> {
+            APPEND -> {
                 repeat(pageCount) { _pages.removeAt(pages.size - 1) }
-                this.placeholdersEnd = placeholdersRemaining
+                this.placeholdersAfter = placeholdersRemaining
 
                 appendLoadId++
                 appendLoadIdCh.offer(appendLoadId)
@@ -202,7 +210,7 @@ internal class PagerState<Key : Any, Value : Any>(
             REFRESH -> throw IllegalArgumentException(
                 "Drop LoadType must be START or END, but got $loadType"
             )
-            START -> {
+            PREPEND -> {
                 // Compute the first pageIndex of the first loaded page fulfilling
                 // prefetchDistance.
                 val prefetchWindowStartPageIndex =
@@ -234,10 +242,10 @@ internal class PagerState<Key : Any, Value : Any>(
                                 pageCount < prefetchWindowStartPageIndex
                     }
 
-                    return DropInfo(pageCount, placeholdersStart + itemCount)
+                    return DropInfo(pageCount, placeholdersBefore + itemCount)
                 }
             }
-            END -> {
+            APPEND -> {
                 // Compute the last pageIndex of the loaded page fulfilling
                 // prefetchDistance.
                 val prefetchWindowEndPageIndex =
@@ -272,7 +280,7 @@ internal class PagerState<Key : Any, Value : Any>(
                                 // Do not drop pages that would fulfill prefetchDistance.
                                 pages.lastIndex - pageCount > prefetchWindowEndPageIndex
                     }
-                    return DropInfo(pageCount, placeholdersEnd + itemCount)
+                    return DropInfo(pageCount, placeholdersAfter + itemCount)
                 }
             }
         }
@@ -353,7 +361,6 @@ internal sealed class LoadError<Key : Any, Value : Any>(val loadType: LoadType) 
     ) : LoadError<Key, Value>(loadType)
 
     internal class Mediator<Key : Any, Value : Any>(
-        loadType: LoadType,
-        val state: PagingState<Key, Value>
+        loadType: LoadType
     ) : LoadError<Key, Value>(loadType)
 }

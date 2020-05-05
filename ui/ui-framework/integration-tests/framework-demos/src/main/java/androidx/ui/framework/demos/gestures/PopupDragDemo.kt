@@ -65,7 +65,7 @@ fun PopupDragDemo() {
             ) {
                 Text(
                     text = "This is a popup!",
-                    style = TextStyle(textAlign = TextAlign.Center)
+                    textAlign = TextAlign.Center
                 )
             }
         }

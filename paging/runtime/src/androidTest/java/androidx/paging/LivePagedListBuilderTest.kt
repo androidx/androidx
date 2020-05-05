@@ -22,8 +22,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.paging.LoadState.Error
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.REFRESH
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestDispatcher
@@ -97,8 +97,8 @@ class LivePagedListBuilderTest {
         }
 
         private inner class MockPagingSource : PagingSource<Int, String>() {
-            override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
-                REFRESH -> loadInitial(params)
+            override suspend fun load(params: LoadParams<Int>) = when (params) {
+                is LoadParams.Refresh -> loadInitial(params)
                 else -> loadRange()
             }
 
@@ -205,9 +205,14 @@ class LivePagedListBuilderTest {
         // TODO: Investigate removing initial IDLE state from callback updates.
         assertEquals(
             listOf(
-                LoadStateEvent(REFRESH, Idle),
-                LoadStateEvent(REFRESH, Loading),
-                LoadStateEvent(REFRESH, Error(EXCEPTION))
+                LoadStateEvent(
+                    REFRESH, NotLoading(
+                        endOfPaginationReached = false,
+                        fromMediator = false
+                    )
+                ),
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false))
             ), loadStates
         )
 
@@ -222,10 +227,13 @@ class LivePagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(REFRESH, Idle),
-                LoadStateEvent(REFRESH, Loading),
-                LoadStateEvent(REFRESH, Error(EXCEPTION)),
-                LoadStateEvent(REFRESH, Loading)
+                LoadStateEvent(
+                    REFRESH,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                ),
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false)),
+                LoadStateEvent(REFRESH, Loading(fromMediator = false))
             ), loadStates
         )
 
@@ -234,11 +242,17 @@ class LivePagedListBuilderTest {
         pagedListHolder[0]!!.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
-                LoadStateEvent(REFRESH, Idle),
-                LoadStateEvent(REFRESH, Loading),
-                LoadStateEvent(REFRESH, Error(EXCEPTION)),
-                LoadStateEvent(REFRESH, Loading),
-                LoadStateEvent(REFRESH, Idle)
+                LoadStateEvent(
+                    REFRESH,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                ),
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(REFRESH, Error(EXCEPTION, fromMediator = false)),
+                LoadStateEvent(REFRESH, Loading(fromMediator = false)),
+                LoadStateEvent(
+                    REFRESH,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                )
             ),
             loadStates
         )

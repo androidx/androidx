@@ -426,6 +426,7 @@ package androidx.ui.text {
     method public androidx.ui.text.style.TextDirectionAlgorithm? getTextDirectionAlgorithm();
     method public androidx.ui.text.style.TextIndent? getTextIndent();
     method public androidx.ui.text.ParagraphStyle merge(androidx.ui.text.ParagraphStyle? other = null);
+    method public operator androidx.ui.text.ParagraphStyle plus(androidx.ui.text.ParagraphStyle other);
   }
 
   public final class ParagraphStyleKt {
@@ -450,6 +451,13 @@ package androidx.ui.text {
     enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign TextCenter;
     enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign TextTop;
     enum_constant public static final androidx.ui.text.PlaceholderVerticalAlign Top;
+  }
+
+  public final class SoftwareKeyboardController {
+    ctor public SoftwareKeyboardController(androidx.ui.input.TextInputService textInputService, int token);
+    method public void hideSoftwareKeyboard();
+    method public void notifyFocusedRect(androidx.ui.geometry.Rect rect);
+    method public void showSoftwareKeyboard();
   }
 
   public final class SpanStyle {
@@ -483,6 +491,7 @@ package androidx.ui.text {
     method public androidx.ui.text.style.TextDecoration? getTextDecoration();
     method public androidx.ui.text.style.TextGeometricTransform? getTextGeometricTransform();
     method public androidx.ui.text.SpanStyle merge(androidx.ui.text.SpanStyle? other = null);
+    method public operator androidx.ui.text.SpanStyle plus(androidx.ui.text.SpanStyle other);
   }
 
   public final class SpanStyleKt {
@@ -631,6 +640,9 @@ package androidx.ui.text {
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.TextStyle? other = null);
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.SpanStyle other);
     method public androidx.ui.text.TextStyle merge(androidx.ui.text.ParagraphStyle other);
+    method public operator androidx.ui.text.TextStyle plus(androidx.ui.text.TextStyle other);
+    method public operator androidx.ui.text.TextStyle plus(androidx.ui.text.ParagraphStyle other);
+    method public operator androidx.ui.text.TextStyle plus(androidx.ui.text.SpanStyle other);
     method public androidx.ui.text.ParagraphStyle toParagraphStyle();
     method public androidx.ui.text.SpanStyle toSpanStyle();
     field public static final androidx.ui.text.TextStyle.Companion! Companion;
@@ -829,11 +841,11 @@ package androidx.ui.text.style {
   public final inline class BaselineShift {
     ctor public BaselineShift();
     method public static float constructor-impl(float multiplier);
-    method public static boolean equals-impl(float p, Object? p1);
+    method public static inline boolean equals-impl(float p, Object? p1);
     method public static boolean equals-impl0(float p1, float p2);
     method public float getMultiplier();
-    method public static int hashCode-impl(float p);
-    method public static String toString-impl(float p);
+    method public static inline int hashCode-impl(float p);
+    method public static inline String! toString-impl(float p);
     field public static final androidx.ui.text.style.BaselineShift.Companion! Companion;
   }
 

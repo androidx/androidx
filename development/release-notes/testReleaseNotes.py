@@ -570,9 +570,9 @@ class TestGitClient(unittest.TestCase):
 				dateDelimiter + "\%ad\%n" + \
 				subjectDelimiter + "\%s\%n" + \
 				bodyDelimiter + "\%b" + \
-				" --no-merges" 
+				" --no-merges"
 		fullProjectDir = os.path.join(mockGitRootDir, projectDir)
-		gitLogCmd = GIT_LOG_CMD_PREFIX + " %s %s..%s -- %s" % (gitLogOptions, "sha", "topSha", fullProjectDir)
+		gitLogCmd = GIT_LOG_CMD_PREFIX + " " + gitLogOptions + "  sha..topSha -- " + fullProjectDir
 		# Check with default delimiters
 		gitLogString = """
 				_CommitStart
@@ -708,6 +708,44 @@ class TestGitClient(unittest.TestCase):
 		subProjectDir = os.getcwd().split("frameworks/support/")[1]
 		commitList = gitClient.getGitLog(
 			fromExclusiveSha = "",
+			untilInclusiveSha = "HEAD",
+			keepMerges = False,
+			subProjectDir = subProjectDir,
+			n = 1
+		)
+		self.assertEqual(1, len(commitList))
+
+	def test_checkLatestNCommitExists(self):
+		# Do not use the MockCommandRunner because it's a better test to check the validity of
+		# the git command against the actual git in the repo
+		gitClient = GitClient(os.getcwd())
+		subProjectDir = os.getcwd().split("frameworks/support/")[1]
+		commitList = gitClient.getGitLog(
+			fromExclusiveSha = "",
+			untilInclusiveSha = "HEAD",
+			keepMerges = False,
+			subProjectDir = subProjectDir,
+			n = 0
+		)
+		self.assertEqual(0, len(commitList))
+		commitList = gitClient.getGitLog(
+			fromExclusiveSha = "",
+			untilInclusiveSha = "HEAD",
+			keepMerges = False,
+			subProjectDir = subProjectDir,
+			n = 1
+		)
+		self.assertEqual(1, len(commitList))
+		commitList = gitClient.getGitLog(
+			fromExclusiveSha = "",
+			untilInclusiveSha = "HEAD",
+			keepMerges = False,
+			subProjectDir = subProjectDir,
+			n = 2
+		)
+		self.assertEqual(2, len(commitList))
+		commitList = gitClient.getGitLog(
+			fromExclusiveSha = "HEAD~3",
 			untilInclusiveSha = "HEAD",
 			keepMerges = False,
 			subProjectDir = subProjectDir,

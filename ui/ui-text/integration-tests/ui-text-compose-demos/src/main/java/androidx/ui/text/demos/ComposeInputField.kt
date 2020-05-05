@@ -17,6 +17,7 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
+import androidx.compose.key
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.TextField
@@ -26,6 +27,8 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.foundation.TextFieldValue
+import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextStyle
 
 private val KEYBOARD_TYPES = listOf(
@@ -59,13 +62,19 @@ fun InputFieldDemo() {
             EditLine()
 
             for ((type, name) in KEYBOARD_TYPES) {
-                TagLine(tag = "Keyboard Type: $name")
-                EditLine(keyboardType = type)
+                key(name) {
+                    // key is needed because of b/154920561
+                    TagLine(tag = "Keyboard Type: $name")
+                    EditLine(keyboardType = type)
+                }
             }
 
             for ((action, name) in IME_ACTIONS) {
-                TagLine(tag = "Ime Action: $name")
-                EditLine(imeAction = action)
+                key(name) {
+                    // key is needed because of b/154920561
+                    TagLine(tag = "Ime Action: $name")
+                    EditLine(imeAction = action)
+                }
             }
         }
     }
@@ -76,12 +85,17 @@ private fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified
 ) {
-    val state = state { TextFieldValue() }
+    val controller = state<SoftwareKeyboardController?> { null }
+    val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     TextField(
         value = state.value,
         keyboardType = keyboardType,
         imeAction = imeAction,
         onValueChange = { state.value = it },
-        textStyle = TextStyle(fontSize = fontSize8)
+        textStyle = TextStyle(fontSize = fontSize8),
+        onTextInputStarted = { controller.value = it },
+        onImeActionPerformed = {
+            controller.value?.hideSoftwareKeyboard()
+        }
     )
 }

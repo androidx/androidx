@@ -42,11 +42,14 @@ import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawLayerModifier
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.HorizontalAlignmentLine
+import androidx.ui.core.IntrinsicMeasurable
+import androidx.ui.core.IntrinsicMeasureScope
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
 import androidx.ui.core.LayoutTag
 import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
 import androidx.ui.core.ParentData
@@ -74,7 +77,6 @@ import androidx.ui.layout.padding
 import androidx.ui.layout.rtl
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.dp
@@ -1645,7 +1647,18 @@ class AndroidLayoutDrawTest {
 
     @Test
     fun modifiers_validateCorrectSizes() {
-        val layoutModifier = object : LayoutModifier {}
+        val layoutModifier = object : LayoutModifier {
+            override fun MeasureScope.measure(
+                measurable: Measurable,
+                constraints: Constraints,
+                layoutDirection: LayoutDirection
+            ): MeasureScope.MeasureResult {
+                val placeable = measurable.measure(constraints)
+                return layout(placeable.width, placeable.height) {
+                    placeable.place(0.ipx, 0.ipx)
+                }
+            }
+        }
         val parentDataModifier = object : ParentDataModifier {}
         val size = 50.ipx
 
@@ -2744,81 +2757,65 @@ data class PaddingModifier(
     val right: IntPx = 0.ipx,
     val bottom: IntPx = 0.ipx
 ) : LayoutModifier {
-
-    override fun Density.minIntrinsicWidthOf(
+    override fun MeasureScope.measure(
         measurable: Measurable,
-        height: IntPx,
-        layoutDirection: LayoutDirection
-    ): IntPx = measurable.minIntrinsicWidth(
-        (height - (top + bottom)).coerceAtLeast(0.ipx),
-        layoutDirection
-    ) + (left + right)
-
-    override fun Density.maxIntrinsicWidthOf(
-        measurable: Measurable,
-        height: IntPx,
-        layoutDirection: LayoutDirection
-    ): IntPx = measurable.maxIntrinsicWidth(
-        (height - (top + bottom)).coerceAtLeast(0.ipx),
-        layoutDirection
-    ) + (left + right)
-
-    override fun Density.minIntrinsicHeightOf(
-        measurable: Measurable,
-        width: IntPx,
-        layoutDirection: LayoutDirection
-    ): IntPx = measurable.minIntrinsicHeight(
-        (width - (left + right)).coerceAtLeast(0.ipx),
-        layoutDirection
-    ) + (top + bottom)
-
-    override fun Density.maxIntrinsicHeightOf(
-        measurable: Measurable,
-        width: IntPx,
-        layoutDirection: LayoutDirection
-    ): IntPx = measurable.maxIntrinsicHeight(
-        (width - (left + right)).coerceAtLeast(0.ipx),
-        layoutDirection
-    ) + (top + bottom)
-
-    override fun Density.modifyConstraints(
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ) = constraints.offset(
-        horizontal = -left - right,
-        vertical = -top - bottom
-    )
+    ): MeasureScope.MeasureResult {
+        val placeable = measurable.measure(
+            constraints.offset(
+                horizontal = -left - right,
+                vertical = -top - bottom
+            )
+        )
+        return layout(
+            (left + placeable.width + right).coerceIn(constraints.minWidth, constraints.maxWidth),
+            (top + placeable.height + bottom).coerceIn(constraints.minHeight, constraints.maxHeight)
+        ) {
+            placeable.place(left, top)
+        }
+    }
 
-    override fun Density.modifySize(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection,
-        childSize: IntPxSize
-    ) = IntPxSize(
-        (left + childSize.width + right)
-            .coerceIn(constraints.minWidth, constraints.maxWidth),
-        (top + childSize.height + bottom)
-            .coerceIn(constraints.minHeight, constraints.maxHeight)
-    )
-
-    override fun Density.modifyPosition(
-        childSize: IntPxSize,
-        containerSize: IntPxSize,
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: IntPx,
         layoutDirection: LayoutDirection
-    ) = IntPxPosition(left, top)
+    ): IntPx = measurable.minIntrinsicWidth((height - (top + bottom)).coerceAtLeast(0.ipx)) +
+            (left + right)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: IntPx,
+        layoutDirection: LayoutDirection
+    ): IntPx = measurable.maxIntrinsicWidth((height - (top + bottom)).coerceAtLeast(0.ipx)) +
+            (left + right)
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ): IntPx = measurable.minIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
+            (top + bottom)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: IntPx,
+        layoutDirection: LayoutDirection
+    ): IntPx = measurable.maxIntrinsicHeight((width - (left + right)).coerceAtLeast(0.ipx)) +
+            (top + bottom)
 }
 
 internal val AlignTopLeft = object : LayoutModifier {
-    override fun Density.modifyConstraints(
+    override fun MeasureScope.measure(
+        measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ) =
-        constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx)
-
-    override fun Density.modifySize(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection,
-        childSize: IntPxSize
-    ) = IntPxSize(constraints.maxWidth, constraints.maxHeight)
+    ): MeasureScope.MeasureResult {
+        val placeable = measurable.measure(constraints.copy(minWidth = 0.ipx, minHeight = 0.ipx))
+        return layout(constraints.maxWidth, constraints.maxHeight) {
+            placeable.place(0.ipx, 0.ipx)
+        }
+    }
 }
 
 @Model
@@ -2919,30 +2916,18 @@ class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
         paint.style = PaintingStyle.fill
     }
 
-    override fun Density.modifyPosition(
-        childSize: IntPxSize,
-        containerSize: IntPxSize,
-        layoutDirection: LayoutDirection
-    ): IntPxPosition {
-        return IntPxPosition(
-            (containerSize.width - childSize.width) / 2,
-            (containerSize.height - childSize.height) / 2
-        )
-    }
-
-    override fun Density.modifyConstraints(
+    override fun MeasureScope.measure(
+        measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ): Constraints {
-        return Constraints.fixed(10.ipx, 10.ipx)
-    }
-
-    override fun Density.modifySize(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection,
-        childSize: IntPxSize
-    ): IntPxSize {
-        return IntPxSize(constraints.maxWidth, constraints.maxHeight)
+    ): MeasureScope.MeasureResult {
+        val placeable = measurable.measure(Constraints.fixed(10.ipx, 10.ipx))
+        return layout(constraints.maxWidth, constraints.maxHeight) {
+            placeable.place(
+                (constraints.maxWidth - placeable.width) / 2,
+                (constraints.maxHeight - placeable.height) / 2
+            )
+        }
     }
 
     override fun ContentDrawScope.draw() {
@@ -2954,24 +2939,22 @@ fun Modifier.scale(scale: Float) = plus(LayoutScale(scale))
     .drawLayer(scaleX = scale, scaleY = scale)
 
 class LayoutScale(val scale: Float) : LayoutModifier {
-    override fun Density.modifyConstraints(
+    override fun MeasureScope.measure(
+        measurable: Measurable,
         constraints: Constraints,
         layoutDirection: LayoutDirection
-    ): Constraints {
-        return Constraints(
-            minWidth = constraints.minWidth / scale,
-            minHeight = constraints.minHeight / scale,
-            maxWidth = constraints.maxWidth / scale,
-            maxHeight = constraints.maxHeight / scale
+    ): MeasureScope.MeasureResult {
+        val placeable = measurable.measure(
+            Constraints(
+                minWidth = constraints.minWidth / scale,
+                minHeight = constraints.minHeight / scale,
+                maxWidth = constraints.maxWidth / scale,
+                maxHeight = constraints.maxHeight / scale
+            )
         )
-    }
-
-    override fun Density.modifySize(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection,
-        childSize: IntPxSize
-    ): IntPxSize {
-        return IntPxSize(childSize.width * scale, childSize.height * scale)
+        return layout(placeable.width * scale, placeable.height * scale) {
+            placeable.place(0.ipx, 0.ipx)
+        }
     }
 }
 

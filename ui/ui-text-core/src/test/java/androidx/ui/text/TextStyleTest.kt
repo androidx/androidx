@@ -497,6 +497,74 @@ class TextStyleTest {
     }
 
     @Test
+    fun `plus operator merges other TextStyle`() {
+        val style = TextStyle(
+            color = Color.Red,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+        ) + TextStyle(
+            color = Color.Green,
+            fontFamily = FontFamily.Cursive,
+            textAlign = TextAlign.Justify,
+            lineHeight = 12.sp
+        )
+
+        assertThat(style).isEqualTo(
+            TextStyle(
+                color = Color.Green, // SpanStyle attribute overridden by RHS
+                fontWeight = FontWeight.Bold, // SpanStyle attribute from LHS,
+                fontFamily = FontFamily.Cursive, // SpanStyle attribute from RHS
+                textAlign = TextAlign.Justify, // ParagraphStyle attribute overridden by RHS
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl, // from LHS,
+                lineHeight = 12.sp // ParagraphStyle attribute from RHS
+            )
+        )
+    }
+
+    @Test
+    fun `plus operator merges other SpanStyle`() {
+        val style = TextStyle(
+            color = Color.Red,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        ) + SpanStyle(
+            color = Color.Green,
+            fontFamily = FontFamily.Cursive
+        )
+
+        assertThat(style).isEqualTo(
+            TextStyle(
+                color = Color.Green, // SpanStyle attribute overridden by RHS
+                fontWeight = FontWeight.Bold, // SpanStyle attribute from LHS,
+                fontFamily = FontFamily.Cursive, // SpanStyle attribute from RHS
+                textAlign = TextAlign.Center // ParagraphStyle attribute from LHS
+            )
+        )
+    }
+
+    @Test
+    fun `plus operator merges other ParagraphStyle`() {
+        val style = TextStyle(
+            color = Color.Red,
+            textAlign = TextAlign.Center,
+            textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl
+        ) + ParagraphStyle(
+            textAlign = TextAlign.Justify,
+            lineHeight = 12.sp
+        )
+
+        assertThat(style).isEqualTo(
+            TextStyle(
+                color = Color.Red, // SpanStyle from LHS
+                textAlign = TextAlign.Justify, // ParagraphStyle attribute overridden by RHS
+                textDirectionAlgorithm = TextDirectionAlgorithm.ForceRtl, // from LHS,
+                lineHeight = 12.sp // ParagraphStyle attribute from RHS
+            )
+        )
+    }
+
+    @Test
     fun `lerp color with a and b are not Null`() {
         val color1 = Color.Red
         val color2 = Color.Green

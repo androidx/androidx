@@ -90,6 +90,10 @@ class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode: NightS
     companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun data() = listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
+        fun data() = if (Build.VERSION.SDK_INT >= 17) {
+            listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
+        } else {
+            listOf(NightSetMode.DEFAULT)
+        }
     }
 }

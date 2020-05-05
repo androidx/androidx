@@ -116,7 +116,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      * Add a [LoadState] listener to observe the loading state of the current [PagingData].
      *
      * As new [PagingData] generations are submitted and displayed, the listener will be notified to
-     * reflect current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
+     * reflect current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
      *
      * @param listener [LoadState] listener to receive updates.
      *
@@ -138,7 +138,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
 
     /**
      * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.END] [LoadState] as a list item at the end of the presented list.
+     * [LoadType.APPEND] [LoadState] as a list item at the end of the presented list.
      *
      * @see LoadStateAdapter
      * @see withLoadStateHeaderAndFooter
@@ -148,7 +148,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         header: LoadStateAdapter<*>
     ): MergeAdapter {
         addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.START) {
+            if (loadType == LoadType.PREPEND) {
                 header.loadState = loadState
             }
         }
@@ -157,7 +157,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
 
     /**
      * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.START] [LoadState] as a list item at the start of the presented list.
+     * [LoadType.PREPEND] [LoadState] as a list item at the start of the presented list.
      *
      * @see LoadStateAdapter
      * @see withLoadStateHeaderAndFooter
@@ -167,7 +167,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         footer: LoadStateAdapter<*>
     ): MergeAdapter {
         addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.END) {
+            if (loadType == LoadType.APPEND) {
                 footer.loadState = loadState
             }
         }
@@ -176,7 +176,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
 
     /**
      * Create a [MergeAdapter] with the provided [LoadStateAdapter]s displaying the
-     * [LoadType.START] and [LoadType.END] [LoadState]s as list items at the start and end
+     * [LoadType.PREPEND] and [LoadType.APPEND] [LoadState]s as list items at the start and end
      * respectively.
      *
      * @see LoadStateAdapter
@@ -188,9 +188,9 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         footer: LoadStateAdapter<*>
     ): MergeAdapter {
         addLoadStateListener { loadType, loadState ->
-            if (loadType == LoadType.START) {
+            if (loadType == LoadType.PREPEND) {
                 header.loadState = loadState
-            } else if (loadType == LoadType.END) {
+            } else if (loadType == LoadType.APPEND) {
                 footer.loadState = loadState
             }
         }

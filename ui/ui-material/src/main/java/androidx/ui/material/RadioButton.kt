@@ -23,16 +23,16 @@ import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.core.DrawScope
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
+import androidx.ui.graphics.painter.CanvasScope
+import androidx.ui.graphics.painter.Stroke
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
@@ -42,7 +42,6 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
-import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
 
 /**
@@ -198,7 +197,6 @@ fun RadioButton(
     onSelect: (() -> Unit)?,
     color: Color = MaterialTheme.colors.secondary
 ) {
-    val radioPaint = remember { Paint() }
     Stack {
         MutuallyExclusiveSetItem(
             selected = selected, onClick = { if (!selected) onSelect?.invoke() },
@@ -210,13 +208,23 @@ fun RadioButton(
                 generateTransitionDefinition(color, unselectedColor)
             }
             Transition(definition = definition, toState = selected) { state ->
-                Canvas(Modifier.padding(RadioButtonPadding).preferredSize(RadioButtonSize)) {
+                val outerPx: Float
+                val innerPx: Float
+                val gapWidth: Float
+                val radioStroke: Stroke
+                with(DensityAmbient.current) {
+                    outerPx = state[OuterRadiusProp].toPx().value
+                    innerPx = state[InnerRadiusProp].toPx().value
+                    gapWidth = state[GapProp].toPx().value
+                    radioStroke = Stroke(RadioStrokeWidth.toPx().value)
+                }
+                Canvas2(Modifier.padding(RadioButtonPadding).preferredSize(RadioButtonSize)) {
                     drawRadio(
                         state[ColorProp],
-                        state[OuterRadiusProp],
-                        state[InnerRadiusProp],
-                        state[GapProp],
-                        radioPaint
+                        outerPx,
+                        innerPx,
+                        gapWidth,
+                        radioStroke
                     )
                 }
             }
@@ -224,40 +232,28 @@ fun RadioButton(
     }
 }
 
-private fun DrawScope.drawRadio(
+private fun CanvasScope.drawRadio(
     color: Color,
-    outerRadius: Dp,
-    innerRadius: Dp,
-    gap: Dp,
-    paint: Paint
+    outerPx: Float,
+    innerPx: Float,
+    gapWidth: Float,
+    radioStroke: Stroke
 ) {
-    paint.isAntiAlias = true
-    paint.color = color
-
     // TODO(malkov): currently Radio gravity is always CENTER but we need to be flexible
-    val centerW = size.width.value / 2
-    val centerH = size.height.value / 2
-    val outerPx = outerRadius.toPx().value
-    val innerPx = innerRadius.toPx().value
+    val centerW = center.dx
+    val centerH = center.dy
 
     val center = Offset(centerW, centerH)
-    if (gap == 0.dp) {
+    if (gapWidth == 0.0f) {
         val strokeWidth = outerPx - innerPx
-        paint.style = PaintingStyle.stroke
-        paint.strokeWidth = strokeWidth
-        drawCircle(center, outerPx - strokeWidth / 2, paint)
+        drawCircle(color, outerPx - strokeWidth / 2, center, style = Stroke(strokeWidth))
     } else {
-        val strokeWidth = RadioStrokeWidth.toPx().value
-        paint.style = PaintingStyle.stroke
-        paint.strokeWidth = strokeWidth
-        drawCircle(center, outerPx - strokeWidth / 2, paint)
-
-        val gapWidth = gap.toPx().value
-        val circleRadius = outerPx - strokeWidth - gapWidth
+        drawCircle(color, outerPx - radioStroke.width / 2, center, style = radioStroke)
+        val circleRadius = outerPx - radioStroke.width - gapWidth
         val innerCircleStrokeWidth = circleRadius - innerPx
 
-        paint.strokeWidth = innerCircleStrokeWidth
-        drawCircle(center, circleRadius - innerCircleStrokeWidth / 2, paint)
+        drawCircle(color, circleRadius - innerCircleStrokeWidth / 2, center,
+            style = Stroke(innerCircleStrokeWidth))
     }
 }
 

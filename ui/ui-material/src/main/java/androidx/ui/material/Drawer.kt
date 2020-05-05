@@ -19,7 +19,6 @@ package androidx.ui.material
 import androidx.animation.AnimatedFloat
 import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
@@ -28,11 +27,9 @@ import androidx.ui.core.clipToBounds
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.gestures.DragDirection
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
@@ -43,7 +40,6 @@ import androidx.ui.unit.Px
 import androidx.ui.unit.dp
 import androidx.ui.unit.min
 import androidx.ui.unit.px
-import androidx.ui.unit.toRect
 import androidx.ui.util.lerp
 
 /**
@@ -265,12 +261,9 @@ private fun Scrim(
 ) {
     // TODO: use enabled = false here when it will be available
     val scrimContent = @Composable {
-        val paint = remember { Paint().apply { style = PaintingStyle.fill } }
         val color = MaterialTheme.colors.onSurface
-        Canvas(Modifier.fillMaxSize()) {
-            val scrimAlpha = fraction() * ScrimDefaultOpacity
-            paint.color = color.copy(alpha = scrimAlpha)
-            drawRect(size.toRect(), paint)
+        Canvas2(Modifier.fillMaxSize()) {
+            drawRect(color, alpha = fraction() * ScrimDefaultOpacity)
         }
     }
     if (state == DrawerState.Opened) {

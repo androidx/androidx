@@ -46,10 +46,8 @@ class DynamicNavGraphBuilderTest {
 
     @Test
     fun navigation() {
-        val graph = provider.navigation(
-            startDestination = DESTINATION_ID,
+        val graph = provider.navigation(startDestination = DESTINATION_ID) {
             moduleName = MODULE_NAME
-        ) {
             navDestination(DESTINATION_ID) {}
         } as DynamicGraphNavigator.DynamicNavGraph
 
@@ -62,9 +60,7 @@ class DynamicNavGraphBuilderTest {
     }
 
     fun navigation_emptyModuleName() {
-        val graph = provider.navigation(
-            startDestination = DESTINATION_ID
-        ) {
+        val graph = provider.navigation(startDestination = DESTINATION_ID) {
         }
         assertWithMessage("Without a moduleName the graph should be a NavGraph")
             .that(graph !is DynamicGraphNavigator.DynamicNavGraph)
@@ -72,11 +68,9 @@ class DynamicNavGraphBuilderTest {
 
     @Test
     fun progressDestination() {
-        val graph = provider.navigation(
-            startDestination = DESTINATION_ID,
-            moduleName = MODULE_NAME,
+        val graph = provider.navigation(startDestination = DESTINATION_ID) {
+            moduleName = MODULE_NAME
             progressDestination = PROGRESS_DESTINATION_ID
-        ) {
             navDestination(DESTINATION_ID) {}
             navDestination(PROGRESS_DESTINATION_ID) {}
         }
@@ -91,10 +85,9 @@ class DynamicNavGraphBuilderTest {
 
     @Test
     fun progressDestination_notSet() {
-        val graph = provider.navigation(
-            startDestination = DESTINATION_ID,
+        val graph = provider.navigation(startDestination = DESTINATION_ID) {
             moduleName = MODULE_NAME
-        ) {} as DynamicGraphNavigator.DynamicNavGraph
+        } as DynamicGraphNavigator.DynamicNavGraph
 
         assertWithMessage("ProgressDestination should default to 0")
             .that(graph.progressDestination)

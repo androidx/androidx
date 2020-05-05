@@ -99,6 +99,7 @@ package androidx.media2.session {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> selectTrack(androidx.media2.common.SessionPlayer.TrackInfo);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> sendCustomCommand(androidx.media2.session.SessionCommand, android.os.Bundle?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setMediaItem(String);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setMediaUri(android.net.Uri, android.os.Bundle?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setPlaybackSpeed(float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setPlaylist(java.util.List<java.lang.String!>, androidx.media2.common.MediaMetadata?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> setRating(String, androidx.media2.common.Rating);
@@ -262,6 +263,7 @@ package androidx.media2.session {
     method public int onFastForward(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo);
     method public void onPostConnect(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo);
     method public int onRewind(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo);
+    method public int onSetMediaUri(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, android.net.Uri, android.os.Bundle?);
     method public int onSetRating(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, String, androidx.media2.common.Rating);
     method public int onSkipBackward(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo);
     method public int onSkipForward(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo);
@@ -352,6 +354,7 @@ package androidx.media2.session {
     field public static final int COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA = 10017; // 0x2721
     field public static final int COMMAND_CODE_SESSION_FAST_FORWARD = 40000; // 0x9c40
     field public static final int COMMAND_CODE_SESSION_REWIND = 40001; // 0x9c41
+    field public static final int COMMAND_CODE_SESSION_SET_MEDIA_URI = 40011; // 0x9c4b
     field public static final int COMMAND_CODE_SESSION_SET_RATING = 40010; // 0x9c4a
     field public static final int COMMAND_CODE_SESSION_SKIP_BACKWARD = 40003; // 0x9c43
     field public static final int COMMAND_CODE_SESSION_SKIP_FORWARD = 40002; // 0x9c42

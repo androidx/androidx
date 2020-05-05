@@ -18,9 +18,9 @@ package androidx.paging
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
+import androidx.paging.LoadType.PREPEND
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import kotlinx.coroutines.CoroutineDispatcher
@@ -60,16 +60,16 @@ open class AsyncPagingDataDiffer<T : Any>(
                         dispatchLoadState(REFRESH, loadState)
                     }
                 }
-                START -> {
-                    if (loadState != loadStates[START]) {
-                        loadStates[START] = loadState
-                        dispatchLoadState(START, loadState)
+                PREPEND -> {
+                    if (loadState != loadStates[PREPEND]) {
+                        loadStates[PREPEND] = loadState
+                        dispatchLoadState(PREPEND, loadState)
                     }
                 }
-                END -> {
-                    if (loadState != loadStates[END]) {
-                        loadStates[END] = loadState
-                        dispatchLoadState(END, loadState)
+                APPEND -> {
+                    if (loadState != loadStates[APPEND]) {
+                        loadStates[APPEND] = loadState
+                        dispatchLoadState(APPEND, loadState)
                     }
                 }
             }
@@ -194,16 +194,16 @@ open class AsyncPagingDataDiffer<T : Any>(
         CopyOnWriteArrayList()
 
     internal val loadStates = mutableMapOf<LoadType, LoadState>(
-        REFRESH to LoadState.Idle,
-        START to LoadState.Idle,
-        END to LoadState.Idle
+        REFRESH to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false),
+        PREPEND to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false),
+        APPEND to LoadState.NotLoading(endOfPaginationReached = false, fromMediator = false)
     )
 
     /**
      * Add a listener to observe the loading state.
      *
      * As new [PagingData] generations are submitted and displayed, the listener will be notified to
-     * reflect current [LoadType.REFRESH], [LoadType.START], and [LoadType.END] states.
+     * reflect current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
      *
      * @param listener to receive [LoadState] updates.
      *
@@ -215,8 +215,8 @@ open class AsyncPagingDataDiffer<T : Any>(
         // afterwards.
         loadStateListeners.add(listener)
         listener(REFRESH, loadStates[REFRESH]!!)
-        if (loadStateListeners.contains(listener)) listener(START, loadStates[START]!!)
-        if (loadStateListeners.contains(listener)) listener(END, loadStates[END]!!)
+        if (loadStateListeners.contains(listener)) listener(PREPEND, loadStates[PREPEND]!!)
+        if (loadStateListeners.contains(listener)) listener(APPEND, loadStates[APPEND]!!)
     }
 
     /**

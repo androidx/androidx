@@ -55,6 +55,8 @@ abstract class PagingDataDiffer<T : Any>(
             "Collecting from multiple PagingData concurrently is an illegal operation."
         }
 
+        receiver = pagingData.receiver
+
         try {
             pagingData.flow
                 .collect { event ->
@@ -68,7 +70,6 @@ abstract class PagingDataDiffer<T : Any>(
                                 lastAccessedIndex = lastAccessedIndex
                             )
                             presenter = newPresenter
-                            receiver = pagingData.receiver
 
                             // Transform the last loadAround index from the old list to the new list
                             // by passing it through the DiffResult, and pass it forward as a

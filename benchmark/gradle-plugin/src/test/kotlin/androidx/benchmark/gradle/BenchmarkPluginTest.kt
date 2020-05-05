@@ -28,6 +28,7 @@ import java.io.File
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 
 private val PLUGINS_HEADER = """
     plugins {
@@ -343,5 +344,31 @@ class BenchmarkPluginTest {
         assertFailsWith(UnexpectedBuildFailure::class) {
             gradleRunner.withArguments("assemble").build()
         }
+    }
+
+    @Test
+    fun applyPluginSigningConfig() {
+        projectSetup.writeDefaultBuildGradle(
+            prefix = "import com.android.build.gradle.TestedExtension\n$PLUGINS_HEADER",
+            suffix = """
+            android {
+                defaultConfig {
+                    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+                }
+            }
+
+            dependencies {
+                androidTestImplementation "androidx.benchmark:benchmark-junit4:1.0.0"
+            }
+
+            tasks.register("printReleaseSigningConfig") {
+                def extension = project.extensions.getByType(TestedExtension)
+                println extension.buildTypes.getByName("release").signingConfig.name
+            }
+        """.trimIndent()
+        )
+
+        val releaseTask = gradleRunner.withArguments("printReleaseSigningConfig").build()
+        assertEquals("debug", releaseTask.output.lines().first())
     }
 }

@@ -17,11 +17,10 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
-import androidx.paging.LoadState.Done
-import androidx.paging.LoadState.Idle
-import androidx.paging.LoadType.END
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 
 /**
@@ -52,9 +51,9 @@ internal class PagePresenter<T : Any>(
     override var storageCount: Int = insertEvent.pages.fullCount()
         private set
 
-    override var placeholdersStart: Int = insertEvent.placeholdersStart
+    override var placeholdersBefore: Int = insertEvent.placeholdersBefore
         private set
-    override var placeholdersEnd: Int = insertEvent.placeholdersEnd
+    override var placeholdersAfter: Int = insertEvent.placeholdersAfter
         private set
 
     private fun checkIndex(index: Int) {
@@ -65,13 +64,13 @@ internal class PagePresenter<T : Any>(
 
     override fun toString(): String {
         val items = List(storageCount) { getFromStorage(it) }.joinToString()
-        return "[($placeholdersStart placeholders), $items, ($placeholdersEnd placeholders)]"
+        return "[($placeholdersBefore placeholders), $items, ($placeholdersAfter placeholders)]"
     }
 
     fun get(index: Int): T? {
         checkIndex(index)
 
-        val localIndex = index - placeholdersStart
+        val localIndex = index - placeholdersBefore
         if (localIndex < 0 || localIndex >= storageCount) {
             return null
         }
@@ -103,7 +102,7 @@ internal class PagePresenter<T : Any>(
         checkIndex(index)
 
         var pageIndex = 0
-        var indexInPage = index - placeholdersStart
+        var indexInPage = index - placeholdersBefore
         while (indexInPage >= pages[pageIndex].data.size && pageIndex < pages.lastIndex) {
             // index doesn't appear in current page, keep looking!
             indexInPage -= pages[pageIndex].data.size
@@ -113,7 +112,7 @@ internal class PagePresenter<T : Any>(
     }
 
     override val size: Int
-        get() = placeholdersStart + storageCount + placeholdersEnd
+        get() = placeholdersBefore + storageCount + placeholdersAfter
 
     val loadedCount: Int
         get() = storageCount
@@ -153,9 +152,9 @@ internal class PagePresenter<T : Any>(
         val oldSize = size
         when (insert.loadType) {
             REFRESH -> throw IllegalArgumentException()
-            START -> {
-                val placeholdersChangedCount = minOf(placeholdersStart, count)
-                val placeholdersChangedPos = placeholdersStart - placeholdersChangedCount
+            PREPEND -> {
+                val placeholdersChangedCount = minOf(placeholdersBefore, count)
+                val placeholdersChangedPos = placeholdersBefore - placeholdersChangedCount
 
                 val itemsInsertedCount = count - placeholdersChangedCount
                 val itemsInsertedPos = 0
@@ -163,7 +162,7 @@ internal class PagePresenter<T : Any>(
                 // first update all state...
                 pages.addAll(0, insert.pages)
                 storageCount += count
-                placeholdersStart = insert.placeholdersStart
+                placeholdersBefore = insert.placeholdersBefore
 
                 // ... then trigger callbacks, so callbacks won't see inconsistent state
                 callback.onChanged(placeholdersChangedPos, placeholdersChangedCount)
@@ -175,9 +174,9 @@ internal class PagePresenter<T : Any>(
                     callback.onRemoved(0, -placeholderInsertedCount)
                 }
             }
-            END -> {
-                val placeholdersChangedCount = minOf(placeholdersEnd, count)
-                val placeholdersChangedPos = placeholdersStart + storageCount
+            APPEND -> {
+                val placeholdersChangedCount = minOf(placeholdersAfter, count)
+                val placeholdersChangedPos = placeholdersBefore + storageCount
 
                 val itemsInsertedCount = count - placeholdersChangedCount
                 val itemsInsertedPos = placeholdersChangedPos + placeholdersChangedCount
@@ -185,7 +184,7 @@ internal class PagePresenter<T : Any>(
                 // first update all state...
                 pages.addAll(pages.size, insert.pages)
                 storageCount += count
-                placeholdersEnd = insert.placeholdersEnd
+                placeholdersAfter = insert.placeholdersAfter
 
                 // ... then trigger callbacks, so callbacks won't see inconsistent state
                 callback.onChanged(placeholdersChangedPos, placeholdersChangedCount)
@@ -206,11 +205,12 @@ internal class PagePresenter<T : Any>(
 
     private fun dropPages(drop: PageEvent.Drop<T>, callback: PresenterCallback) {
         val oldSize = size
-        if (drop.loadType == START) {
+        if (drop.loadType == PREPEND) {
             val removeCount = pages.take(drop.count).fullCount()
 
             val placeholdersChangedCount = minOf(drop.placeholdersRemaining, removeCount)
-            val placeholdersChangedPos = placeholdersStart + removeCount - placeholdersChangedCount
+            val placeholdersChangedPos = placeholdersBefore + removeCount -
+                    placeholdersChangedCount
 
             val itemsRemovedCount = removeCount - placeholdersChangedCount
             val itemsRemovedPos = 0
@@ -220,7 +220,7 @@ internal class PagePresenter<T : Any>(
                 pages.removeAt(0)
             }
             storageCount -= removeCount
-            placeholdersStart = drop.placeholdersRemaining
+            placeholdersBefore = drop.placeholdersRemaining
 
             // ... then trigger callbacks, so callbacks won't see inconsistent state
             callback.onChanged(placeholdersChangedPos, placeholdersChangedCount)
@@ -232,13 +232,13 @@ internal class PagePresenter<T : Any>(
                 callback.onRemoved(0, -placeholderInsertedCount)
             }
 
-            // dropping from start implies start is idle
-            callback.onStateUpdate(START, Idle)
+            // Dropping from prepend direction implies NotLoading(endOfPaginationReached = false).
+            callback.onStateUpdate(PREPEND, NotLoading.Idle)
         } else {
             val removeCount = pages.takeLast(drop.count).fullCount()
 
             val placeholdersChangedCount = minOf(drop.placeholdersRemaining, removeCount)
-            val placeholdersChangedPos = placeholdersStart + storageCount - removeCount
+            val placeholdersChangedPos = placeholdersBefore + storageCount - removeCount
 
             val itemsRemovedCount = removeCount - placeholdersChangedCount
             val itemsRemovedPos = placeholdersChangedPos + placeholdersChangedCount
@@ -248,7 +248,7 @@ internal class PagePresenter<T : Any>(
                 pages.removeAt(pages.lastIndex)
             }
             storageCount -= removeCount
-            placeholdersEnd = drop.placeholdersRemaining
+            placeholdersAfter = drop.placeholdersRemaining
 
             // ... then trigger callbacks, so callbacks won't see inconsistent state
             callback.onChanged(placeholdersChangedPos, placeholdersChangedCount)
@@ -260,14 +260,23 @@ internal class PagePresenter<T : Any>(
                 callback.onRemoved(size, -placeholderInsertedCount)
             }
 
-            // dropping from end implies end is idle
-            callback.onStateUpdate(END, Idle)
+            // Dropping from append direction implies NotLoading(endOfPaginationReached = false).
+            callback.onStateUpdate(APPEND, NotLoading.Idle)
         }
     }
 
     internal companion object {
         private val INITIAL = PagePresenter<Any>(
-            Refresh(listOf(), 0, 0, mapOf(REFRESH to Idle, START to Done, END to Done))
+            Refresh(
+                pages = listOf(),
+                placeholdersBefore = 0,
+                placeholdersAfter = 0,
+                loadStates = mapOf(
+                    REFRESH to NotLoading.Idle,
+                    PREPEND to NotLoading.Done,
+                    APPEND to NotLoading.Done
+                )
+            )
         )
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")

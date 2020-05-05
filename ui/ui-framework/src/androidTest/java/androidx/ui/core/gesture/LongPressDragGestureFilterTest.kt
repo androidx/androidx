@@ -63,7 +63,8 @@ class LongPressDragGestureFilterTest {
         })
 
         val activity = activityTestRule.activity
-        assertTrue(activity.hasFocusLatch.await(5, TimeUnit.SECONDS))
+        assertTrue("timed out waiting for activity focus",
+            activity.hasFocusLatch.await(5, TimeUnit.SECONDS))
 
         val setupLatch = CountDownLatch(2)
         activityTestRule.runOnUiThreadIR {
@@ -83,7 +84,8 @@ class LongPressDragGestureFilterTest {
             view = activity.findViewById<ViewGroup>(android.R.id.content)
             setupLatch.countDown()
         }
-        assertTrue(setupLatch.await(1000, TimeUnit.SECONDS))
+        assertTrue("timed out waiting for setup completion",
+            setupLatch.await(1000, TimeUnit.SECONDS))
     }
 
     @Test
@@ -362,7 +364,8 @@ class LongPressDragGestureFilterTest {
     private fun waitForLongPress(block: () -> Unit) {
         longPressCountDownLatch = CountDownLatch(1)
         activityTestRule.runOnUiThreadIR(block)
-        assertTrue(longPressCountDownLatch.await(750, TimeUnit.MILLISECONDS))
+        assertTrue("timed out waiting for long press",
+            longPressCountDownLatch.await(750, TimeUnit.MILLISECONDS))
     }
 }
 

@@ -16,9 +16,9 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.END
+import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
+import androidx.paging.LoadType.PREPEND
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -31,19 +31,21 @@ internal sealed class PageEvent<T : Any> {
     data class Insert<T : Any> private constructor(
         val loadType: LoadType,
         val pages: List<TransformablePage<T>>,
-        val placeholdersStart: Int,
-        val placeholdersEnd: Int,
+        val placeholdersBefore: Int,
+        val placeholdersAfter: Int,
         val loadStates: Map<LoadType, LoadState>
     ) : PageEvent<T>() {
         init {
-            require(loadType == END || placeholdersStart >= 0) {
-                "Invalid placeholdersBefore $placeholdersStart"
+            require(loadType == APPEND || placeholdersBefore >= 0) {
+                "Append state defining placeholdersBefore must be > 0, but was" +
+                        " $placeholdersBefore"
             }
-            require(loadType == START || placeholdersEnd >= 0) {
-                "Invalid placeholdersAfter $placeholdersEnd"
+            require(loadType == PREPEND || placeholdersAfter >= 0) {
+                "Prepend state defining placeholdersAfter must be > 0, but was" +
+                        " $placeholdersAfter"
             }
-            require(loadStates[REFRESH] != LoadState.Done) {
-                "Refresh state may not be Done"
+            require(loadStates[REFRESH]?.endOfPaginationReached != true) {
+                "Refresh state may not set endOfPaginationReached = true"
             }
         }
 
@@ -56,8 +58,8 @@ internal sealed class PageEvent<T : Any> {
         ): Insert<R> = Insert(
             loadType = loadType,
             pages = transform(pages),
-            placeholdersStart = placeholdersStart,
-            placeholdersEnd = placeholdersEnd,
+            placeholdersBefore = placeholdersBefore,
+            placeholdersAfter = placeholdersAfter,
             loadStates = loadStates
         )
 
@@ -108,22 +110,22 @@ internal sealed class PageEvent<T : Any> {
         companion object {
             fun <T : Any> Refresh(
                 pages: List<TransformablePage<T>>,
-                placeholdersStart: Int,
-                placeholdersEnd: Int,
+                placeholdersBefore: Int,
+                placeholdersAfter: Int,
                 loadStates: Map<LoadType, LoadState>
-            ) = Insert(REFRESH, pages, placeholdersStart, placeholdersEnd, loadStates)
+            ) = Insert(REFRESH, pages, placeholdersBefore, placeholdersAfter, loadStates)
 
-            fun <T : Any> Start(
+            fun <T : Any> Prepend(
                 pages: List<TransformablePage<T>>,
-                placeholdersStart: Int,
+                placeholdersBefore: Int,
                 loadStates: Map<LoadType, LoadState>
-            ) = Insert(START, pages, placeholdersStart, -1, loadStates)
+            ) = Insert(PREPEND, pages, placeholdersBefore, -1, loadStates)
 
-            fun <T : Any> End(
+            fun <T : Any> Append(
                 pages: List<TransformablePage<T>>,
-                placeholdersEnd: Int,
+                placeholdersAfter: Int,
                 loadStates: Map<LoadType, LoadState>
-            ) = Insert(END, pages, -1, placeholdersEnd, loadStates)
+            ) = Insert(APPEND, pages, -1, placeholdersAfter, loadStates)
         }
     }
 
@@ -134,8 +136,8 @@ internal sealed class PageEvent<T : Any> {
     ) : PageEvent<T>() {
 
         init {
-            require(loadType != REFRESH) { "Drop must be START or END" }
-            require(count >= 0) { "Invalid count $count" }
+            require(loadType != REFRESH) { "Drop load type must be PREPEND or APPEND" }
+            require(count >= 0) { "Drop count must be > 0, but was $count" }
             require(placeholdersRemaining >= 0) {
                 "Invalid placeholdersRemaining $placeholdersRemaining"
             }
@@ -147,7 +149,7 @@ internal sealed class PageEvent<T : Any> {
         val loadState: LoadState
     ) : PageEvent<T>() {
         init {
-            require(loadState == LoadState.Loading || loadState is LoadState.Error) {
+            require(loadState is LoadState.Loading || loadState is LoadState.Error) {
                 "LoadStateUpdates can only be used for Loading or Error. To update loadState to " +
                         "Idle or Done, use Insert / Drop events."
             }
@@ -190,17 +192,17 @@ internal inline fun <R : Any, T : R, PageStash, Stash> Flow<PageEvent<T>>.scan(
                         check(pageStash.isEmpty())
                         pageStash.addAll(pageStashes)
                     }
-                    START -> {
+                    PREPEND -> {
                         pageStash.addAll(0, pageStashes)
                     }
-                    END -> {
+                    APPEND -> {
                         pageStash.addAll(pageStash.size, pageStashes)
                     }
                 }
                 output
             }
             is PageEvent.Drop -> {
-                if (event.loadType == START) {
+                if (event.loadType == PREPEND) {
                     pageStash.removeFirst(event.count)
                 } else {
                     pageStash.removeLast(event.count)
@@ -238,7 +240,7 @@ internal fun <T : Any> Flow<PageEvent<T>>.removeEmptyPages(): Flow<PageEvent<T>>
     },
     createDrop = { drop, pageStash, _ ->
         var newCount = drop.count
-        if (drop.loadType == START) {
+        if (drop.loadType == PREPEND) {
             repeat(drop.count) { i ->
                 if (pageStash[i]) {
                     newCount--

@@ -17,6 +17,7 @@
 package androidx.ui.core.selection
 
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.geometry.Rect
 import androidx.ui.text.AnnotatedString
 import androidx.ui.unit.PxPosition
 
@@ -73,4 +74,16 @@ interface Selectable {
      * @return text content as [AnnotatedString] of the [Selectable].
      */
     fun getText(): AnnotatedString
+
+    /**
+     * Return the bounding box of the character for given character offset. This is currently for
+     * text.
+     * In future when we implemented other selectable Composables, we can return the bounding box of
+     * the wanted rectangle. For example, for an image selectable, this should return the
+     * bounding box of the image.
+     *
+     * @param offset a character offset
+     * @return the bounding box for the character in [Rect].
+     */
+    fun getBoundingBox(offset: Int): Rect
 }

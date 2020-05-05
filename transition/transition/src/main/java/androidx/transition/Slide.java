@@ -18,6 +18,8 @@ package androidx.transition;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.animation.Animator;
+import android.animation.TimeInterpolator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -25,15 +27,13 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.animation.AccelerateInterpolator;
-import androidx.core.animation.Animator;
-import androidx.core.animation.DecelerateInterpolator;
-import androidx.core.animation.Interpolator;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.ViewCompat;
 
@@ -53,8 +53,8 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class Slide extends Visibility {
 
-    private static final Interpolator sDecelerate = new DecelerateInterpolator();
-    private static final Interpolator sAccelerate = new AccelerateInterpolator();
+    private static final TimeInterpolator sDecelerate = new DecelerateInterpolator();
+    private static final TimeInterpolator sAccelerate = new AccelerateInterpolator();
     private static final String PROPNAME_SCREEN_POSITION = "android:slide:screenPosition";
     private CalculateSlide mSlideCalculator = sCalculateBottom;
     private int mSlideEdge = Gravity.BOTTOM;

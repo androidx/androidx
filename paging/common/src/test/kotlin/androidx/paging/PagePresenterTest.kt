@@ -16,10 +16,10 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Idle
-import androidx.paging.LoadType.END
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,9 +44,13 @@ internal fun <T : Any> PagePresenter(
                 originalIndices = null
             )
         },
-        placeholdersStart = leadingNullCount,
-        placeholdersEnd = trailingNullCount,
-        loadStates = mapOf(REFRESH to Idle, START to Idle, END to Idle)
+        placeholdersBefore = leadingNullCount,
+        placeholdersAfter = trailingNullCount,
+        loadStates = mapOf(
+            REFRESH to NotLoading.Idle,
+            PREPEND to NotLoading.Idle,
+            APPEND to NotLoading.Idle
+        )
     )
 )
 
@@ -72,7 +76,7 @@ internal fun <T : Any> PagePresenter<T>.dropPages(
     callback: PresenterCallback
 ) = processEvent(
     PageEvent.Drop(
-        loadType = if (isPrepend) START else END,
+        loadType = if (isPrepend) PREPEND else APPEND,
         count = pagesToDrop,
         placeholdersRemaining = placeholdersRemaining
     ),
@@ -310,7 +314,10 @@ class PagePresenterTest {
         val callback = PresenterCallbackCapture()
         data.dropPages(false, pagesToDrop, newNulls, callback)
 
-        assertEquals(events + listOf(StateEvent(END, Idle)), callback.getAllAndClear())
+        assertEquals(
+            events + listOf(StateEvent(APPEND, NotLoading.Idle)),
+            callback.getAllAndClear()
+        )
 
         // assert final list state
         val finalData = initialPages.subList(0, initialPages.size - pagesToDrop).flatten()
@@ -343,7 +350,10 @@ class PagePresenterTest {
         val callback = PresenterCallbackCapture()
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
-        assertEvents(events + listOf(StateEvent(START, Idle)), callback.getAllAndClear())
+        assertEvents(
+            events + listOf(StateEvent(PREPEND, NotLoading.Idle)),
+            callback.getAllAndClear()
+        )
 
         // assert final list state
         val finalData = initialPages.take(initialPages.size - pagesToDrop).reversed().flatten()
@@ -547,9 +557,9 @@ class PagePresenterTest {
 
     companion object {
         val IDLE_EVENTS = listOf<PresenterEvent>(
-            StateEvent(REFRESH, Idle),
-            StateEvent(START, Idle),
-            StateEvent(END, Idle)
+            StateEvent(REFRESH, NotLoading.Idle),
+            StateEvent(PREPEND, NotLoading.Idle),
+            StateEvent(APPEND, NotLoading.Idle)
         )
     }
 }

@@ -19,76 +19,179 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.compose.getValue
 import androidx.compose.setValue
-import androidx.compose.state
+import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.currentTextStyle
-import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Column
+import androidx.ui.layout.ColumnScope.gravity
+import androidx.ui.layout.Row
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxHeight
-import androidx.ui.layout.preferredHeightIn
-import androidx.ui.layout.preferredSize
+import androidx.ui.layout.padding
+import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
+import androidx.ui.material.Checkbox
+import androidx.ui.material.EmphasisAmbient
 import androidx.ui.material.FilledTextField
+import androidx.ui.material.MaterialTheme
+import androidx.ui.material.RadioGroup
 import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.Email
+import androidx.ui.material.icons.filled.Favorite
+import androidx.ui.material.icons.filled.Info
+import androidx.ui.material.samples.FilledTextFieldSample
+import androidx.ui.material.samples.FilledTextFieldWithErrorState
+import androidx.ui.material.samples.FilledTextFieldWithIcons
+import androidx.ui.material.samples.FilledTextFieldWithPlaceholder
+import androidx.ui.material.samples.PasswordFilledTextField
+import androidx.ui.material.samples.TextFieldWithHelperMessage
+import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 
-// TODO(soboleva): remove explicit currentTextStyle() from label when b/143464846 is fixed
+// TODO(b/154799748): remove explicit currentTextStyle() when upstream bug is fixed
 @Composable
-fun MaterialTextFieldsDemo() {
-    val space = with(DensityAmbient.current) { 10.dp.toIntPx() }
-    Column(Modifier.fillMaxHeight(), verticalArrangement = arrangeWithSpacer(space)) {
-        var text by state { TextFieldValue() }
-        FilledTextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Text("Label", style = currentTextStyle()) },
-            modifier = Modifier.preferredWidth(150.dp)
-        )
+fun TextFieldsDemo() {
+    val space = with(DensityAmbient.current) { 5.dp.toIntPx() }
+    Column(
+        modifier = Modifier.fillMaxHeight().padding(10.dp),
+        verticalArrangement = arrangeWithSpacer(space)
+    ) {
+        Text("Password text field")
+        PasswordFilledTextField()
+        Text("Text field with leading and trailing icons")
+        FilledTextFieldWithIcons()
+        Text("Text field with placeholder")
+        FilledTextFieldWithPlaceholder()
+        Text("Text field with error state handling")
+        FilledTextFieldWithErrorState()
+        Text("Text field with helper/error message")
+        TextFieldWithHelperMessage()
+        Text("TextFieldValue overload")
+        FilledTextFieldSample()
+    }
+}
 
-        FilledTextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Icon(Icons.Filled.Email) },
-            placeholder = { Text(text = "example@example.com", style = currentTextStyle()) },
-            modifier = Modifier.preferredHeightIn(maxHeight = 150.dp)
-        )
+@Composable
+fun FilledTextFieldDemo() {
+    Column(Modifier.padding(10.dp)) {
+        var text by savedInstanceState { "" }
+        var leadingChecked by savedInstanceState { false }
+        var trailingChecked by savedInstanceState { false }
+        val characterCounterChecked by savedInstanceState { false }
+        var selectedOption by savedInstanceState { Option.None }
 
-        FilledTextField(
-            value = text,
-            onValueChange = { text = it },
-            label = {
-                Box(Modifier.preferredSize(40.dp, 40.dp).drawBackground(Color.Red))
-            },
-            placeholder = { Text(text = "placeholder", style = currentTextStyle()) }
-        )
+        val textField = @Composable() {
+            FilledTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = {
+                    val label = "Label" + if (selectedOption == Option.Error) "*" else ""
+                    Text(text = label, style = currentTextStyle())
+                },
+                leadingIcon = { if (leadingChecked) Icon(Icons.Filled.Favorite) },
+                trailingIcon = { if (trailingChecked) Icon(Icons.Filled.Info) },
+                isErrorValue = selectedOption == Option.Error
+            )
+        }
 
-        var initialText by state { "Initial text" }
-        FilledTextField(
-            value = initialText,
-            onValueChange = { initialText = it },
-            label = {
-                Text("With initial text", style = currentTextStyle())
+        Box(Modifier.preferredHeight(150.dp).gravity(Alignment.CenterHorizontally)) {
+            if (selectedOption == Option.None) {
+                textField()
+            } else {
+                TextFieldWithMessage(textField, selectedOption)
             }
-        )
+        }
 
-        FilledTextField(
-            value = initialText,
-            onValueChange = { initialText = it },
-            label = {}
+        Column {
+            Title("Options")
+            OptionRow(
+                title = "Leading icon",
+                checked = leadingChecked,
+                onCheckedChange = { leadingChecked = it }
+            )
+            OptionRow(
+                title = "Trailing icon",
+                checked = trailingChecked,
+                onCheckedChange = { trailingChecked = it }
+            )
+            OptionRow(
+                title = "Character counter",
+                checked = characterCounterChecked,
+                onCheckedChange = { /* TODO */ }
+            )
+
+            Spacer(Modifier.preferredHeight(20.dp))
+
+            Title("Assistive text")
+            RadioGroup(
+                options = Option.values().map { it.name },
+                selectedOption = selectedOption.name,
+                onSelectedChange = { selectedOption = Option.valueOf(it) }
+            )
+        }
+    }
+}
+
+/**
+ * Text field with helper or error message below.
+ */
+@Composable
+private fun TextFieldWithMessage(
+    textField: @Composable() () -> Unit,
+    helperMessageOption: Option
+) {
+    val typography = MaterialTheme.typography.caption
+    val color = when (helperMessageOption) {
+        Option.Helper -> EmphasisAmbient.current.medium.emphasize(MaterialTheme.colors.onSurface)
+        Option.Error -> MaterialTheme.colors.error
+        else -> Color.Unset
+    }
+
+    Column {
+        textField()
+        Text(
+            text = "Helper message",
+            style = typography.copy(color = color),
+            modifier = Modifier.padding(start = 16.dp)
         )
     }
 }
+
+@Composable
+private fun Title(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.body1,
+        modifier = Modifier.gravity(Alignment.CenterHorizontally)
+    )
+    Spacer(Modifier.preferredHeight(10.dp))
+}
+
+@Composable
+private fun OptionRow(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(Modifier.padding(start = 10.dp, top = 10.dp)) {
+        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
+        Spacer(Modifier.preferredWidth(20.dp))
+        Text(text = title, style = MaterialTheme.typography.body1)
+    }
+}
+
+/**
+ * Helper message option
+ */
+private enum class Option { None, Helper, Error }
 
 private fun arrangeWithSpacer(space: IntPx) = object : Arrangement.Vertical {
     override fun arrange(

@@ -189,8 +189,8 @@ private class FlattenedPageController<T : Any> {
  */
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 internal class FlattenedPageEventStorage<T : Any> {
-    private var placeholdersStart: Int = 0
-    private var placeholdersEnd: Int = 0
+    private var placeholdersBefore: Int = 0
+    private var placeholdersAfter: Int = 0
     private val pages = ArrayDeque<TransformablePage<T>>()
     private val loadStates = mutableMapOf<LoadType, LoadState>()
     fun add(event: PageEvent<T>) {
@@ -202,22 +202,26 @@ internal class FlattenedPageEventStorage<T : Any> {
     }
 
     private fun handlePageDrop(event: PageEvent.Drop<T>) {
-        loadStates[event.loadType] = LoadState.Idle
+        val previousState = loadStates[event.loadType]
+        loadStates[event.loadType] = LoadState.NotLoading(
+            endOfPaginationReached = false,
+            fromMediator = previousState?.fromMediator == true
+        )
 
         when (event.loadType) {
-            LoadType.START -> {
-                placeholdersStart = event.placeholdersRemaining
+            LoadType.PREPEND -> {
+                placeholdersBefore = event.placeholdersRemaining
                 repeat(event.count) {
                     pages.removeFirst()
                 }
             }
-            LoadType.END -> {
-                placeholdersEnd = event.placeholdersRemaining
+            LoadType.APPEND -> {
+                placeholdersAfter = event.placeholdersRemaining
                 repeat(event.count) {
                     pages.removeLast()
                 }
             }
-            else -> throw IllegalArgumentException("page drop type must be start or end")
+            else -> throw IllegalArgumentException("Page drop type must be prepend or append")
         }
     }
 
@@ -228,18 +232,18 @@ internal class FlattenedPageEventStorage<T : Any> {
         when (event.loadType) {
             LoadType.REFRESH -> {
                 pages.clear()
-                placeholdersEnd = event.placeholdersEnd
-                placeholdersStart = event.placeholdersStart
+                placeholdersAfter = event.placeholdersAfter
+                placeholdersBefore = event.placeholdersBefore
                 pages.addAll(event.pages)
             }
-            LoadType.START -> {
-                placeholdersStart = event.placeholdersStart
+            LoadType.PREPEND -> {
+                placeholdersBefore = event.placeholdersBefore
                 (event.pages.size - 1 downTo 0).forEach {
                     pages.addFirst(event.pages[it])
                 }
             }
-            LoadType.END -> {
-                placeholdersEnd = event.placeholdersEnd
+            LoadType.APPEND -> {
+                placeholdersAfter = event.placeholdersAfter
                 pages.addAll(event.pages)
             }
         }
@@ -255,14 +259,14 @@ internal class FlattenedPageEventStorage<T : Any> {
             events.add(
                 PageEvent.Insert.Refresh(
                     pages = pages.toList(),
-                    placeholdersStart = placeholdersStart,
-                    placeholdersEnd = placeholdersEnd,
+                    placeholdersBefore = placeholdersBefore,
+                    placeholdersAfter = placeholdersAfter,
                     loadStates = loadStates.toMap() // copy
                 )
             )
         } else {
             loadStates.forEach { entry ->
-                if (entry.value == LoadState.Loading || entry.value is LoadState.Error) {
+                if (entry.value is LoadState.Loading || entry.value is LoadState.Error) {
                     events.add(PageEvent.LoadStateUpdate(entry.key, entry.value))
                 }
             }

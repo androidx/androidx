@@ -16,7 +16,6 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
@@ -24,6 +23,7 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.geometry.Offset
@@ -48,19 +48,18 @@ import androidx.ui.util.fastAny
  * This gesture detector always consumes the down change during the [PointerEventPass.PostUp] pass.
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
-@Composable
 fun Modifier.pressIndicatorGestureFilter(
     onStart: ((PxPosition) -> Unit)? = null,
     onStop: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
     enabled: Boolean = true
-): Modifier {
+): Modifier = composed {
     val filter = remember { PressIndicatorGestureFilter() }
     filter.onStart = onStart
     filter.onStop = onStop
     filter.onCancel = onCancel
     filter.setEnabled(enabled)
-    return this + PointerInputModifierImpl(filter)
+    PointerInputModifierImpl(filter)
 }
 
 internal class PressIndicatorGestureFilter : PointerInputFilter() {

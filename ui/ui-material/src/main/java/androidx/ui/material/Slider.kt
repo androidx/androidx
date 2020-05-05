@@ -34,7 +34,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.Canvas2
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
@@ -42,10 +42,9 @@ import androidx.ui.foundation.gestures.draggable
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
+import androidx.ui.graphics.painter.Stroke
 import androidx.ui.layout.Spacer
 import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
@@ -58,7 +57,6 @@ import androidx.ui.semantics.Semantics
 import androidx.ui.semantics.accessibilityValue
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
-import androidx.ui.unit.toRect
 import androidx.ui.util.lerp
 import kotlin.math.abs
 
@@ -180,7 +178,15 @@ private fun SliderImpl(
         val thumbSize = ThumbRadius * 2
         val offset = (widthDp - thumbSize) * positionFraction
         val center = Modifier.gravity(Alignment.CenterStart)
-        Track(center.fillMaxSize(), color, positionFraction, tickFractions)
+
+        val trackStrokeWidth: Float
+        val thumbPx: Float
+        with(DensityAmbient.current) {
+            trackStrokeWidth = TrackHeight.toPx().value
+            thumbPx = ThumbRadius.toPx().value
+        }
+        val trackStroke = Stroke(trackStrokeWidth, cap = StrokeCap.round)
+        Track(center.fillMaxSize(), color, positionFraction, tickFractions, thumbPx, trackStroke)
         Box(center.padding(start = offset)) {
             Surface(
                 shape = CircleShape,
@@ -199,38 +205,36 @@ private fun Track(
     modifier: Modifier,
     color: Color,
     positionFraction: Float,
-    tickFractions: List<Float>
+    tickFractions: List<Float>,
+    thumbPx: Float,
+    trackStroke: Stroke
 ) {
     val activeTickColor = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha)
     val inactiveTickColor = color.copy(alpha = TickColorAlpha)
-    val paint = remember {
-        Paint().apply {
-            this.isAntiAlias = true
-            this.strokeCap = StrokeCap.round
-            this.style = PaintingStyle.stroke
-        }
-    }
-    Canvas(modifier) {
-        paint.strokeWidth = TrackHeight.toPx().value
-        val parentRect = size.toRect()
-        val thumbPx = ThumbRadius.toPx().value
-        val centerHeight = size.height.value / 2
-        val sliderStart = Offset(parentRect.left + thumbPx, centerHeight)
-        val sliderMax = Offset(parentRect.right - thumbPx, centerHeight)
-        paint.color = color.copy(alpha = InactiveTrackColorAlpha)
-        drawLine(sliderStart, sliderMax, paint)
+    Canvas2(modifier) {
+        val sliderStart = Offset(thumbPx, center.dy)
+        val sliderMax = Offset(size.width - thumbPx, center.dy)
+        drawLine(
+            color.copy(alpha = InactiveTrackColorAlpha),
+            sliderStart,
+            sliderMax,
+            trackStroke
+        )
         val sliderValue = Offset(
             sliderStart.dx + (sliderMax.dx - sliderStart.dx) * positionFraction,
-            centerHeight
+            center.dy
         )
-        paint.color = color
-        drawLine(sliderStart, sliderValue, paint)
+
+        drawLine(color, sliderStart, sliderValue, trackStroke)
         tickFractions.groupBy { it > positionFraction }.forEach { (afterFraction, list) ->
-            paint.color = if (afterFraction) inactiveTickColor else activeTickColor
-            val points = list.map {
-                Offset(Offset.lerp(sliderStart, sliderMax, it).dx, centerHeight)
-            }
-            drawPoints(PointMode.points, points, paint)
+            drawPoints(
+                list.map {
+                    Offset(Offset.lerp(sliderStart, sliderMax, it).dx, center.dy)
+                },
+                PointMode.points,
+                if (afterFraction) inactiveTickColor else activeTickColor,
+                trackStroke
+            )
         }
     }
 }

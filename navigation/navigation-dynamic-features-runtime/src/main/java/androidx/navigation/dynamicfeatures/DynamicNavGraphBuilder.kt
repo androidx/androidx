@@ -21,28 +21,24 @@ import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavigatorProvider
+import androidx.navigation.dynamicfeatures.DynamicActivityNavigator.Destination
+import androidx.navigation.get
 
 /**
  * Construct a new [DynamicGraphNavigator.DynamicNavGraph]
  *
  * @param id NavGraph id.
  * @param startDestination Id start destination in the graph
- * @param moduleName Dynamic feature module name as defined in the module's `AndroidManifest`.
- * @param progressDestination Destination displayed during module installation.
  * @param builder Another builder for chaining.
  */
 inline fun NavigatorProvider.navigation(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
-    moduleName: String? = null,
-    progressDestination: Int = 0,
     builder: DynamicNavGraphBuilder.() -> Unit
 ) = DynamicNavGraphBuilder(
     this,
     id,
-    startDestination,
-    moduleName,
-    progressDestination
+    startDestination
 ).apply(builder).build()
 
 /**
@@ -50,23 +46,17 @@ inline fun NavigatorProvider.navigation(
  *
  * @param id NavGraph id.
  * @param startDestination Id start destination in the graph
- * @param moduleName Dynamic feature module name as defined in the module's `AndroidManifest`.
- * @param progressDestination Destination displayed during module installation.
  * @param builder Another builder for chaining.
  */
 inline fun DynamicNavGraphBuilder.navigation(
     @IdRes id: Int,
     @IdRes startDestination: Int,
-    moduleName: String? = null,
-    progressDestination: Int = 0,
     builder: DynamicNavGraphBuilder.() -> Unit
 ) = destination(
     DynamicNavGraphBuilder(
         provider,
         id,
-        startDestination,
-        moduleName,
-        progressDestination
+        startDestination
     ).apply(builder)
 )
 
@@ -76,27 +66,41 @@ inline fun DynamicNavGraphBuilder.navigation(
  * @param provider [NavigatorProvider] to use.
  * @param id NavGraph id.
  * @param startDestination Id start destination in the graph
- * @param moduleName Dynamic feature module name as defined in the module's `AndroidManifest`.
- * @param progressDestination Destination displayed during module installation.
  */
 @NavDestinationDsl
 class DynamicNavGraphBuilder(
     provider: NavigatorProvider,
     @IdRes id: Int,
-    @IdRes private var startDestination: Int,
-    private val moduleName: String?,
-    private val progressDestination: Int
+    @IdRes private var startDestination: Int
 ) : NavGraphBuilder(provider, id, startDestination) {
 
     /**
-     * @return The [DynamicGraphNavigator.DynamicNavGraph] if a [moduleName] is set.
-     * Otherwise a [NavGraph].
+     * The module name of this [Destination]'s dynamic feature module. This has to be the
+     * same as defined in the dynamic feature module's AndroidManifest.xml file.
+     */
+    var moduleName: String? = null
+
+    /**
+     * ID of the destination displayed during module installation. This generally does
+     * not need to be set, but is instead filled in by the NavHost via
+     * [DynamicGraphNavigator.installDefaultProgressDestination].
+     */
+    var progressDestination: Int = 0
+
+    /**
+     * @return The [DynamicGraphNavigator.DynamicNavGraph].
      */
     override fun build(): NavGraph =
         super.build().also { navGraph ->
             if (navGraph is DynamicGraphNavigator.DynamicNavGraph) {
                 navGraph.moduleName = moduleName
                 navGraph.progressDestination = progressDestination
+                if (progressDestination == 0) {
+                    val navGraphNavigator: DynamicGraphNavigator =
+                        provider[DynamicGraphNavigator::class]
+                    navGraphNavigator.destinationsWithoutDefaultProgressDestination
+                        .add(navGraph)
+                }
             }
         }
 }

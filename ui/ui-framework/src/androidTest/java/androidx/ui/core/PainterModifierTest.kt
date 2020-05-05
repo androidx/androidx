@@ -29,19 +29,15 @@ import androidx.ui.core.test.Padding
 import androidx.ui.core.test.background
 import androidx.ui.core.test.waitAndScreenShot
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.geometry.Rect
 import androidx.ui.graphics.BlendMode
-import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.compositeOver
+import androidx.ui.graphics.painter.CanvasScope
 import androidx.ui.graphics.painter.Painter
 import androidx.ui.graphics.toArgb
-import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
@@ -378,7 +374,7 @@ class PainterModifierTest {
         latch: CountDownLatch
     ) {
         with(DensityAmbient.current) {
-            val p = LatchPainter(containerWidth, containerHeight, latch, rtl)
+            val p = LatchPainter(containerWidth, containerHeight, latch)
             AtLeastSize(
                 modifier = Modifier.background(Color.White)
                     .paint(p, alpha = alpha, colorFilter = colorFilter, rtl = rtl),
@@ -399,23 +395,24 @@ class PainterModifierTest {
     private class LatchPainter(
         val width: Float,
         val height: Float,
-        val latch: CountDownLatch,
-        val rtl: Boolean = false
+        val latch: CountDownLatch
     ) : Painter() {
+
+        var color = Color.Red
+
         override val intrinsicSize: PxSize
             get() = PxSize(
                 Px(width),
                 Px(height)
             )
 
-        override fun onDraw(canvas: Canvas, bounds: PxSize) {
-            val paint = Paint().apply {
-                this.color = if (rtl) Color.Blue else Color.Red
-            }
-            canvas.drawRect(
-                Rect.fromLTWH(0.0f, 0.0f, bounds.width.value, bounds.height.value),
-                paint
-            )
+        override fun applyRtl(rtl: Boolean): Boolean {
+            color = if (rtl) Color.Blue else Color.Red
+            return true
+        }
+
+        override fun CanvasScope.onDraw() {
+            drawRect(color = color)
             latch.countDown()
         }
     }
@@ -463,23 +460,23 @@ class PainterModifierTest {
         }
     }
 
-    @Suppress("Deprecation")
     class FixedSizeModifier(val width: IntPx, val height: IntPx = width) : LayoutModifier {
-        override fun Density.modifySize(
-            constraints: Constraints,
-            layoutDirection: LayoutDirection,
-            childSize: IntPxSize
-        ): IntPxSize = IntPxSize(width, height)
-
-        override fun Density.modifyConstraints(
+        override fun MeasureScope.measure(
+            measurable: Measurable,
             constraints: Constraints,
             layoutDirection: LayoutDirection
-        ): Constraints =
-            Constraints(
-                minWidth = width,
-                minHeight = height,
-                maxWidth = width,
-                maxHeight = height
+        ): MeasureScope.MeasureResult {
+            val placeable = measurable.measure(
+                Constraints(
+                    minWidth = width,
+                    minHeight = height,
+                    maxWidth = width,
+                    maxHeight = height
+                )
             )
+            return layout(width, height) {
+                placeable.place(IntPx.Zero, IntPx.Zero)
+            }
+        }
     }
 }

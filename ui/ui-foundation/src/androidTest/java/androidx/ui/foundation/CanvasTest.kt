@@ -44,10 +44,13 @@ import androidx.ui.unit.px
 import androidx.ui.unit.toOffset
 import androidx.ui.unit.toRect
 import com.google.common.truth.Truth
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -60,6 +63,7 @@ class CanvasTest {
     val testTag = "CanvasParent"
 
     @Test
+    @Suppress("DEPRECATION")
     fun canvas_noSize_emptyCanvas() {
         composeTestRule.setContentAndCollectSizes {
             Canvas(modifier = Modifier) {
@@ -71,8 +75,10 @@ class CanvasTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun canvas_exactSizes() {
         var canvasSize: IntPxSize? = null
+        val latch = CountDownLatch(1)
         composeTestRule.setContentAndCollectSizes {
             SemanticParent {
                 Canvas(
@@ -80,9 +86,12 @@ class CanvasTest {
                         .onPositioned { position -> canvasSize = position.size }
                 ) {
                     drawRect(size.toRect(), Paint().apply { color = Color.Red })
+                    latch.countDown()
                 }
             }
         }
+
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
 
         with(composeTestRule.density) {
             Truth.assertThat(canvasSize!!.width.value).isEqualTo(100.dp.toIntPx().value)
@@ -99,8 +108,10 @@ class CanvasTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun canvas_exactSizes_drawCircle() {
         var canvasSize: IntPxSize? = null
+        val latch = CountDownLatch(1)
         composeTestRule.setContentAndCollectSizes {
             SemanticParent {
                 Canvas(
@@ -113,9 +124,12 @@ class CanvasTest {
                         10f,
                         Paint().apply { color = Color.Blue }
                     )
+                    latch.countDown()
                 }
             }
         }
+
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
 
         with(composeTestRule.density) {
             Truth.assertThat(canvasSize!!.width.value).isEqualTo(100.dp.toIntPx().value)

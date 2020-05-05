@@ -24,9 +24,9 @@ import androidx.ui.core.TestTag
 import androidx.ui.layout.Stack
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
-import androidx.ui.test.assertSemanticsIsEqualTo
+import androidx.ui.test.assertIsEnabled
+import androidx.ui.test.assertIsNotEnabled
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnIdleCompose
@@ -56,11 +56,7 @@ class ClickableTest {
         }
 
         findByTag("myClickable")
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = true
-                )
-            )
+            .assertIsEnabled()
             .assertHasClickAction()
     }
 
@@ -77,11 +73,7 @@ class ClickableTest {
         }
 
         findByTag("myClickable")
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = false
-                )
-            )
+            .assertIsNotEnabled()
             .assertHasNoClickAction()
     }
 

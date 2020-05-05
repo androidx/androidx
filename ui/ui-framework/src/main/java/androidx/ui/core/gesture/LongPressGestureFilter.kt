@@ -16,7 +16,6 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.CoroutineContextAmbient
 import androidx.ui.core.CustomEvent
@@ -29,6 +28,7 @@ import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.temputils.delay
@@ -48,15 +48,14 @@ import kotlin.coroutines.CoroutineContext
  * to interoperate well with forthcoming behavior related to disambiguation between multi-tap
  * (double tap, triple tap) and tap.
  */
-@Composable
 fun Modifier.longPressGestureFilter(
     onLongPress: (PxPosition) -> Unit
-): Modifier {
+): Modifier = composed {
     @Suppress("DEPRECATION")
     val coroutineContext = CoroutineContextAmbient.current
     val filter = remember { LongPressGestureFilter(coroutineContext) }
     filter.onLongPress = onLongPress
-    return this + PointerInputModifierImpl(filter)
+    PointerInputModifierImpl(filter)
 }
 
 internal class LongPressGestureFilter(

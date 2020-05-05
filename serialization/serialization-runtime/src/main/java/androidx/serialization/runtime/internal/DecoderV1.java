@@ -44,6 +44,10 @@ import java.util.Collection;
  * implementations pre-compute the number of items in a collection, and supply it to the factory
  * to be used as the initial capacity of the collection. This enables the decoder to decode
  * fields of any collection type, while avoiding intermediary allocations.
+ * <p>
+ * Decoders include distinct methods for all Protocol Buffers integer types. This makes for
+ * clearer serializer code and enables code shrinking tools such as R8 to more effectively remove
+ * unused integer encodings.
  */
 public interface DecoderV1 {
     /**
@@ -64,11 +68,11 @@ public interface DecoderV1 {
     /**
      * Decode an embedded message field.
      *
-     * @param serializer A serializer for the message class.
-     * @param mergeFrom  An optional message to merge fields.
-     * @param <T>        The message class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A decoded instance of the message.
+     * @param serializer the serializer for the message class.
+     * @param mergeFrom  an optional message to merge fields.
+     * @param <T>        the message class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value as a new instance of the message class.
      */
     @NonNull
     <T> T decodeMessage(
@@ -79,16 +83,16 @@ public interface DecoderV1 {
     /**
      * Decode a repeated embedded message field.
      *
-     * @param serializer A serializer for the message class.
-     * @param mergeFrom  An optional collection to concatenate.
-     * @param factory    Factory for instantiating the collection.
-     * @param <T>        The message class.
-     * @param <C>        The collection class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A collection containing decoded messages.
+     * @param serializer the serializer for the message class.
+     * @param mergeFrom  an optional collection to concatenate.
+     * @param factory    a factory for instantiating the collection.
+     * @param <T>        the message class.
+     * @param <C>        the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of new instances of the message class.
      */
     @NonNull
-    <T, C extends Collection<T>> C decodeMessageCollection(
+    <T, C extends Collection<T>> C decodeRepeatedMessage(
             @NonNull SerializerV1<T> serializer,
             @Nullable C mergeFrom,
             @NonNull CollectionFactory<C> factory
@@ -97,10 +101,10 @@ public interface DecoderV1 {
     /**
      * Decode an enum field.
      *
-     * @param serializer An enum serializer.
-     * @param <T>        The enum class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A decoded enum value.
+     * @param serializer the serializer for the enum class.
+     * @param <T>        the enum class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value as an enum value.
      */
     @NonNull
     <T extends Enum<T>> T decodeEnum(@NonNull EnumSerializerV1<T> serializer);
@@ -108,247 +112,564 @@ public interface DecoderV1 {
     /**
      * Decode a repeated enum field.
      *
-     * @param serializer An enum serializer.
-     * @param mergeFrom  An optional collection to concatenate.
-     * @param factory    Factory for instantiating the collection.
-     * @param <T>        The enum class.
-     * @param <C>        The collection class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A collection containing decoded enum values.
+     * @param serializer the enum serializer.
+     * @param mergeFrom  an optional collection to concatenate.
+     * @param factory    a factory for instantiating the collection.
+     * @param <T>        the enum class.
+     * @param <C>        the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of enum value.
      */
-    @NonNull
-    <T extends Enum<T>, C extends Collection<T>> C decodeEnumCollection(
+    @NonNull <T extends Enum<T>, C extends Collection<T>> C decodeRepeatedEnum(
             @NonNull EnumSerializerV1<T> serializer,
             @Nullable C mergeFrom,
             @NonNull CollectionFactory<C> factory
     );
 
     /**
-     * Decode a boolean field.
+     * Decode a bool scalar field.
      *
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return Boolean field value.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
      */
-    boolean decodeBoolean();
+    boolean decodeBool();
 
     /**
-     * Decode a repeated boolean field.
+     * Decode a repeated bool scalar field.
      *
-     * @param mergeFrom An optional array to concatenate.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return An array of boolean field values.
+     * @param mergeFrom an optional array to concatenate.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as an boolean array.
      */
     @NonNull
-    boolean[] decodeBooleanArray(@Nullable boolean[] mergeFrom);
+    boolean[] decodeRepeatedBool(@Nullable boolean[] mergeFrom);
 
     /**
-     * Decode a repeated boolean field.
+     * Decode a repeated bool scalar field.
      *
-     * @param mergeFrom An optional collection to concatenate.
-     * @param factory   Factory for instantiating the collection.
-     * @param <C>       The collection class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A collection of boolean field values.
+     * @param mergeFrom an optional collection to concatenate.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed booleans.
      */
     @NonNull
-    <C extends Collection<Boolean>> C decodeBoolCollection(
+    <C extends Collection<Boolean>> C decodeRepeatedBool(
             @Nullable C mergeFrom,
             @NonNull CollectionFactory<C> factory
     );
 
     /**
-     * Decode a binary field.
+     * Decode a bytes scalar field.
      *
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return Binary field value.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value as a byte array.
      */
     @NonNull
-    byte[] decodeByteArray();
+    byte[] decodeBytes();
 
     /**
-     * Decode a repeated binary field.
+     * Decode a repeated bytes scalar field.
      *
-     * @param mergeFrom An optional collection to concatenate.
-     * @param factory   Factory for instantiating the collection.
-     * @param <C>       The collection class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A collection of binary field values.
+     * @param mergeFrom an optional collection to concatenate.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of byte arrays.
      */
     @NonNull
-    <C extends Collection<byte[]>> C decodeByteArrayCollection(
+    <C extends Collection<byte[]>> C decodeRepeatedBytes(
             @Nullable C mergeFrom,
             @NonNull CollectionFactory<C> factory
     );
 
     /**
-     * Decode a double field.
+     * Decode a double scalar field.
      *
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return Double field value.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
      */
     double decodeDouble();
 
     /**
-     * Decode a repeated double field.
+     * Decode a repeated double scalar field.
      *
-     * @param mergeFrom An optional array to concatenate.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return An array of double field values.
+     * @param mergeFrom an optional array to concatenate.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a double array.
      */
     @NonNull
-    double[] decodeDoubleArray(@Nullable double[] mergeFrom);
+    double[] decodeRepeatedDouble(@Nullable double[] mergeFrom);
 
     /**
-     * Decode a repeated double field.
+     * Decode a repeated double scalar field.
      *
-     * @param mergeFrom An optional collection to concatenate.
-     * @param factory   Factory for instantiating the collection.
+     * @param mergeFrom an optional collection to concatenate.
+     * @param factory   a factory for instantiating the collection.
      * @param <C>       The collection class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A collection of double field values.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed doubles.
      */
     @NonNull
-    <C extends Collection<Double>> C decodeDoubleCollection(
+    <C extends Collection<Double>> C decodeRepeatedDouble(
             @Nullable C mergeFrom,
             @NonNull CollectionFactory<C> factory
     );
 
     /**
-     * Decode a float field.
+     * Decode a float scalar field.
      *
-     * @return Float field value.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
      */
     float decodeFloat();
 
     /**
-     * Decode a repeated float field.
+     * Decode a repeated float scalar field.
      *
-     * @param mergeFrom An optional array to concatenate or null.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return An array of float field values.
+     * @param mergeFrom an optional array to concatenate or null.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a float array.
      */
     @NonNull
-    float[] decodeFloatArray(@Nullable float[] mergeFrom);
+    float[] decodeRepeatedFloat(@Nullable float[] mergeFrom);
 
     /**
-     * Decode a repeated float field.
+     * Decode a repeated float scalar field.
      *
-     * @param mergeFrom An optional collection to concatenate or null.
-     * @param factory   Factory for instantiating the collection.
-     * @param <C>       The collection class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A collection of float field values.
+     * @param mergeFrom an optional collection to concatenate or null.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed floats.
      */
     @NonNull
-    <C extends Collection<Float>> C decodeFloatCollection(
+    <C extends Collection<Float>> C decodeRepeatedFloat(
             @Nullable C mergeFrom,
             @NonNull CollectionFactory<C> factory
     );
 
     /**
-     * Decode an integer field.
+     * Decode an int32 scalar field.
+     * <p>
+     * With proto-based backends, int32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
      *
-     * @param encoding Encoding of the proto representation of the field.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return Integer field value.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
      */
-    int decodeInt(@IntEncoding int encoding);
+    int decodeInt32();
 
     /**
-     * Decode a repeated integer field.
+     * Decode a repeated int32 scalar field.
+     * <p>
+     * With proto-based backends, int32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
      *
-     * @param encoding  Encoding of the proto representation of the field.
-     * @param mergeFrom An optional array to concatenate.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return An array of integer field values.
+     * @param mergeFrom an optional array to concatenate or null.
+     * @return the field values as an int array.
      */
     @NonNull
-    int[] decodeIntArray(@IntEncoding int encoding, @Nullable int[] mergeFrom);
+    int[] decodeRepeatedInt32(@Nullable int[] mergeFrom);
 
     /**
-     * Decode a repeated integer field.
+     * Decode a repeated int32 scalar field.
+     * <p>
+     * With proto-based backends, int32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
      *
-     * @param encoding  Encoding of the proto representation of the field.
-     * @param mergeFrom An optional collection to concatenate.
-     * @param factory   Factory for instantiating the collection.
-     * @param <C>       The collection class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A collection of integer field values.
+     * @param mergeFrom an optional collection to concatenate or null.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed integers.
      */
     @NonNull
-    <C extends Collection<Integer>> C decodeIntCollection(
-            @IntEncoding int encoding,
+    <C extends Collection<Integer>> C decodeRepeatedInt32(
             @Nullable C mergeFrom,
             @NonNull CollectionFactory<C> factory
     );
 
     /**
-     * Decode a long field.
+     * Decode a sint32 scalar field.
+     * <p>
+     * With proto-based backends, sint32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of values with small absolute values.
      *
-     * @param encoding Encoding of the proto representation of the field.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return Long field value.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
      */
-    long decodeLong(@IntEncoding int encoding);
+    int decodeSInt32();
 
     /**
-     * Decode a repeated long field.
+     * Decode a repeated sint32 scalar field.
+     * <p>
+     * With proto-based backends, sint32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of values with small absolute values.
      *
-     * @param encoding  Encoding of the proto representation of the field.
-     * @param mergeFrom An optional array to concatenate.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return An array of long field values.
+     * @param mergeFrom an optional array to concatenate or null.
+     * @return the field values as an int array.
      */
     @NonNull
-    long[] decodeLongArray(@IntEncoding int encoding, @Nullable long[] mergeFrom);
+    int[] decodeRepeatedSInt32(@Nullable int[] mergeFrom);
 
     /**
-     * Decodes a repeated long field.
+     * Decode a repeated sint32 scalar field.
+     * <p>
+     * With proto-based backends, sint32 fields store 32-bit signed integers using a variable
+     * length encoding with a compact representation of values with small absolute values.
      *
-     * @param encoding  Encoding of the proto representation of the field.
-     * @param mergeFrom An optional collection to concatenate.
-     * @param factory   Factory for instantiating the collection.
-     * @param <C>       The collection class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A collection of long field values.
+     * @param mergeFrom an optional collection to concatenate or null.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed integers.
      */
     @NonNull
-    <C extends Collection<Long>> C decodeLongCollection(
-            @IntEncoding int encoding,
+    <C extends Collection<Integer>> C decodeRepeatedSInt32(
             @Nullable C mergeFrom,
             @NonNull CollectionFactory<C> factory
     );
 
     /**
-     * Decode a string field.
+     * Decode a uint32 scalar field.
+     * <p>
+     * With proto-based backends, uint32 fields store 32-bit unsigned integers using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned
+     * values greater than 2<sup>31</sup> are represented as negative signed values with the same
+     * binary representation as the unsigned values.
      *
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return String field value.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
+     */
+    int decodeUInt32();
+
+    /**
+     * Decode a repeated uint32 scalar field.
+     * <p>
+     * With proto-based backends, uint32 fields store 32-bit unsigned integers using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned
+     * values greater than 2<sup>31</sup> are represented as negative signed values with the same
+     * binary representation as the unsigned values.
+     *
+     * @param mergeFrom an optional array to concatenate or null.
+     * @return the field values as an int array.
+     */
+    @NonNull
+    int[] decodeRepeatedUInt32(@Nullable int[] mergeFrom);
+
+    /**
+     * Decode a repeated uint32 scalar field.
+     * <p>
+     * With proto-based backends, uint32 fields store 32-bit unsigned integers using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned
+     * values greater than 2<sup>31</sup> are represented as negative signed values with the same
+     * binary representation as the unsigned values.
+     *
+     * @param mergeFrom an optional collection to concatenate or null.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed integers.
+     */
+    @NonNull
+    <C extends Collection<Integer>> C decodeRepeatedUInt32(
+            @Nullable C mergeFrom,
+            @NonNull CollectionFactory<C> factory
+    );
+
+    /**
+     * Decode a fixed32 or sfixed32 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed32 and the signed sfixed32 store 32-bit
+     * integers as 4 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>31</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed32 and the unsigned fixed32.
+     *
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
+     */
+    int decodeFixed32();
+
+    /**
+     * Decode a repeated fixed32 or sfixed32 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed32 and the signed sfixed32 store 32-bit
+     * integers as 4 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>31</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed32 and the unsigned fixed32.
+     *
+     * @param mergeFrom an optional array to concatenate or null.
+     * @return the field values as an int array.
+     */
+    @NonNull
+    int[] decodeRepeatedFixed32(@Nullable int[] mergeFrom);
+
+    /**
+     * Decode a repeated fixed32 or sfixed32 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed32 and the signed sfixed32 store 32-bit
+     * integers as 4 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>31</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed32 and the unsigned fixed32.
+     *
+     * @param mergeFrom an optional collection to concatenate or null.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed integers.
+     */
+    @NonNull
+    <C extends Collection<Integer>> C decodeRepeatedFixed32(
+            @Nullable C mergeFrom,
+            @NonNull CollectionFactory<C> factory
+    );
+
+    /**
+     * Decode an int64 scalar field.
+     * <p>
+     * With proto-based backends, int64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
+     *
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
+     */
+    long decodeInt64();
+
+    /**
+     * Decode a repeated int64 scalar field.
+     * <p>
+     * With proto-based backends, int64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
+     *
+     * @param mergeFrom an optional array to concatenate or null.
+     * @return the field values as a long array.
+     */
+    @NonNull
+    long[] decodeRepeatedInt64(@Nullable long[] mergeFrom);
+
+    /**
+     * Decode a repeated int64 scalar field.
+     * <p>
+     * With proto-based backends, int64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of small positive values, but always uses 10
+     * bytes for negative values.
+     *
+     * @param mergeFrom an optional collection to concatenate or null.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed longs.
+     */
+    @NonNull
+    <C extends Collection<Long>> C decodeRepeatedInt64(
+            @Nullable C mergeFrom,
+            @NonNull CollectionFactory<C> factory
+    );
+
+    /**
+     * Decode a sint64 scalar field.
+     * <p>
+     * With proto-based backends, sint64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of values with small absolute values.
+     *
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
+     */
+    long decodeSInt64();
+
+    /**
+     * Decode a repeated sint64 scalar field.
+     * <p>
+     * With proto-based backends, sint64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of values with small absolute values.
+     *
+     * @param mergeFrom an optional array to concatenate or null.
+     * @return the field values as a long array.
+     */
+    @NonNull
+    long[] decodeRepeatedSInt64(@Nullable long[] mergeFrom);
+
+    /**
+     * Decode a repeated sint64 scalar field.
+     * <p>
+     * With proto-based backends, sint64 fields store 64-bit signed longs using a variable
+     * length encoding with a compact representation of values with small absolute values.
+     *
+     * @param mergeFrom an optional collection to concatenate or null.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed longs.
+     */
+    @NonNull
+    <C extends Collection<Long>> C decodeRepeatedSInt64(
+            @Nullable C mergeFrom,
+            @NonNull CollectionFactory<C> factory
+    );
+
+    /**
+     * Decode a uint64 scalar field.
+     * <p>
+     * With proto-based backends, uint64 fields store 64-bit unsigned longs using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java longs with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values.
+     *
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
+     */
+    long decodeUInt64();
+
+    /**
+     * Decode a repeated uint64 scalar field.
+     * <p>
+     * With proto-based backends, sint64 fields store 64-bit unsigned longs using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java longs with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values.
+     *
+     * @param mergeFrom an optional array to concatenate or null.
+     * @return the field values as an long array.
+     */
+    @NonNull
+    long[] decodeRepeatedUInt64(@Nullable long[] mergeFrom);
+
+    /**
+     * Decode a repeated uint64 scalar field.
+     * <p>
+     * With proto-based backends, uint64 fields store 64-bit unsigned longs using a variable
+     * length encoding with a compact representation of small values.
+     * <p>
+     * Unsigned integers are represented as Java longs with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values.
+     *
+     * @param mergeFrom an optional collection to concatenate or null.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed integers.
+     */
+    @NonNull
+    <C extends Collection<Long>> C decodeRepeatedUInt64(
+            @Nullable C mergeFrom,
+            @NonNull CollectionFactory<C> factory
+    );
+
+    /**
+     * Decode a fixed64 or sfixed64 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed64 and the signed sfixed64 store 64-bit
+     * integers as 8 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed64 and the unsigned fixed64.
+     *
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
+     */
+    long decodeFixed64();
+
+    /**
+     * Decode a repeated fixed64 or sfixed64 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed64 and the signed sfixed64 store 64-bit
+     * integers as 8 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed64 and the unsigned fixed64.
+     *
+     * @param mergeFrom an optional array to concatenate or null.
+     * @return the field values as an int array.
+     */
+    @NonNull
+    long[] decodeRepeatedFixed64(@Nullable long[] mergeFrom);
+
+    /**
+     * Decode a repeated fixed64 or sfixed64 scalar field.
+     * <p>
+     * With proto-based backends, the unsigned fixed64 and the signed sfixed64 store 64-bit
+     * integers as 8 little-endian bytes.
+     * <p>
+     * Unsigned integers are represented as Java integers with MSB in the sign bit. This means
+     * unsigned values greater than 2<sup>63</sup> are represented as negative signed values with
+     * the same binary representation as the unsigned values. This allows this method to be used
+     * interchangeably for the signed sfixed64 and the unsigned fixed64.
+     *
+     * @param mergeFrom an optional collection to concatenate or null.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of boxed integers.
+     */
+    @NonNull
+    <C extends Collection<Long>> C decodeRepeatedFixed64(
+            @Nullable C mergeFrom,
+            @NonNull CollectionFactory<C> factory
+    );
+
+    /**
+     * Decode a string scalar field.
+     *
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field value.
      */
     @NonNull
     String decodeString();
 
     /**
-     * Decode a repeated string field.
+     * Decode a repeated string scalar field.
      *
-     * @param mergeFrom An optional array to concatenate.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return An array of string field values.
+     * @param mergeFrom an optional array to concatenate.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a string array.
      */
     @NonNull
-    String[] decodeStringArray(@Nullable String[] mergeFrom);
+    String[] decodeRepeatedString(@Nullable String[] mergeFrom);
 
     /**
-     * Decode a repeated string field.
+     * Decode a repeated string scalar field.
      *
-     * @param mergeFrom An optional collection to concatenate.
-     * @param factory   Factory for instantiating the collection.
-     * @param <C>       The collection class.
-     * @throws IllegalStateException If iteration is not currently positioned on a field.
-     * @return A collection of string field values.
+     * @param mergeFrom an optional collection to concatenate.
+     * @param factory   a factory for instantiating the collection.
+     * @param <C>       the collection class.
+     * @throws IllegalStateException if this decoder is not currently positioned on a field.
+     * @return the field values as a collection of strings.
      */
     @NonNull
-    <C extends Collection<String>> C decodeStringCollection(
+    <C extends Collection<String>> C decodeRepeatedString(
             @Nullable C mergeFrom,
             @NonNull CollectionFactory<C> factory
     );

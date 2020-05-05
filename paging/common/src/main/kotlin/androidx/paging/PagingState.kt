@@ -38,7 +38,7 @@ class PagingState<Key : Any, Value : Any> internal constructor(
      * [PagingConfig] that was given when initializing the [PagingData] stream.
      */
     val config: PagingConfig,
-    private val placeholdersStart: Int
+    private val placeholdersBefore: Int
 ) {
     /**
      * Coerces [anchorPosition] to closest loaded value in [pages].
@@ -92,7 +92,7 @@ class PagingState<Key : Any, Value : Any> internal constructor(
         block: (pageIndex: Int, index: Int) -> T
     ): T {
         var pageIndex = 0
-        var index = anchorPosition - placeholdersStart
+        var index = anchorPosition - placeholdersBefore
         while (pageIndex < pages.lastIndex && index > pages[pageIndex].data.lastIndex) {
             index -= pages[pageIndex].data.size
             pageIndex++

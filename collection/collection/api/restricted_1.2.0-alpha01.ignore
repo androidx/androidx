@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.collection.ArraySet#valueAt(int):
+    Attempted to remove @Nullable annotation from method androidx.collection.ArraySet.valueAt(int)

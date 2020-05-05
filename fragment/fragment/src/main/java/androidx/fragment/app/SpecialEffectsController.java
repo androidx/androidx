@@ -83,6 +83,8 @@ abstract class SpecialEffectsController {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final HashMap<Fragment, Operation> mAwaitingCompletionOperations = new HashMap<>();
 
+    boolean mOperationDirectionIsPop = false;
+
     SpecialEffectsController(@NonNull ViewGroup container) {
         mContainer = container;
     }
@@ -159,10 +161,15 @@ abstract class SpecialEffectsController {
         }
     }
 
+    void updateOperationDirection(boolean isPop) {
+        mOperationDirectionIsPop = isPop;
+    }
+
     void executePendingOperations() {
         synchronized (mPendingOperations) {
-            executeOperations(new ArrayList<>(mPendingOperations));
+            executeOperations(new ArrayList<>(mPendingOperations), mOperationDirectionIsPop);
             mPendingOperations.clear();
+            mOperationDirectionIsPop = false;
         }
     }
 
@@ -190,13 +197,16 @@ abstract class SpecialEffectsController {
      * properly cancelling all special effects when the signal is cancelled.
      *
      * @param operations the list of operations to execute in order.
+     * @param isPop whether this set of operations should be considered as triggered by a 'pop'.
+     *              This can be used to control the direction of any special effects if they
+     *              are not symmetric.
      */
-    abstract void executeOperations(@NonNull List<Operation> operations);
+    abstract void executeOperations(@NonNull List<Operation> operations, boolean isPop);
 
     /**
      * Class representing an ongoing special effects operation.
      *
-     * @see #executeOperations(List)
+     * @see #executeOperations(List, boolean)
      */
     static class Operation {
 

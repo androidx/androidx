@@ -33,7 +33,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.LayoutModifier
-import androidx.ui.core.LayoutModifier2
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureBlock
 import androidx.ui.core.MeasureScope
@@ -800,7 +799,7 @@ fun backgroundModifier(color: Color) = Modifier.drawBehind {
     drawRect(size.toRect(), paint)
 }
 
-val infiniteConstraints = object : LayoutModifier2 {
+val infiniteConstraints = object : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,

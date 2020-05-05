@@ -30,7 +30,6 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
@@ -178,10 +177,9 @@ public class PreviewViewFragment extends Fragment {
         final Preview preview = new Preview.Builder()
                 .setTargetName("Preview")
                 .build();
-        final Camera camera = cameraProvider.bindToLifecycle(this, getCurrentCameraSelector(),
-                preview);
+        cameraProvider.bindToLifecycle(this, getCurrentCameraSelector(), preview);
         mPreviewView.setPreferredImplementationMode(PreviewView.ImplementationMode.TEXTURE_VIEW);
-        preview.setSurfaceProvider(mPreviewView.createSurfaceProvider(camera.getCameraInfo()));
+        preview.setSurfaceProvider(mPreviewView.createSurfaceProvider());
     }
 
     @SuppressWarnings("WeakerAccess")

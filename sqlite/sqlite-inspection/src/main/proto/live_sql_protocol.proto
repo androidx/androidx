@@ -31,6 +31,7 @@ message Command {
     TrackDatabasesCommand track_databases = 1;
     GetSchemaCommand get_schema = 2;
     QueryCommand query = 3;
+    KeepDatabasesOpenCommand keep_databases_open = 4;
   }
 }
 
@@ -65,6 +66,13 @@ message QueryParameterValue {
   }
 }
 
+// Request to prevent databases from being closed by the app
+// (allowing for a larger time-window for inspection)
+message KeepDatabasesOpenCommand {
+  // True to enable the functionality; false to disable
+  bool set_enabled = 1;
+}
+
 // --- Responses ---
 
 // Generic Response object grouping all Inspector Response types to Command
@@ -75,6 +83,7 @@ message Response {
     TrackDatabasesResponse track_databases = 1;
     GetSchemaResponse get_schema = 2;
     QueryResponse query = 3;
+    KeepDatabasesOpenResponse keep_databases_open = 4;
     ErrorOccurredResponse error_occurred = 400;
   }
 }
@@ -134,6 +143,8 @@ message CellValue {
   }
 }
 
+message KeepDatabasesOpenResponse {}
+
 // General Error message.
 // TODO: decide on a more fine-grained approach
 message ErrorOccurredResponse {
@@ -168,7 +179,8 @@ message Event {
   // Wrapped specialised Event.
   oneof OneOf {
     DatabaseOpenedEvent database_opened = 1;
-    DatabasePossiblyChangedEvent database_possibly_changed = 2;
+    DatabaseClosedEvent database_closed = 2;
+    DatabasePossiblyChangedEvent database_possibly_changed = 3;
     ErrorOccurredEvent error_occurred = 400;
   }
 }
@@ -187,6 +199,12 @@ message DatabaseOpenedEvent {
   // Path to db file or ":memory" if it is in-memory database.
   // Note: there is no guarantee that it is necessarily unique between databases.
   string path = 3;
+}
+
+// Notification of a database connection closed (database no longer query-able)
+message DatabaseClosedEvent {
+  // Id uniquely identifying a connection to a database.
+  int32 database_id = 1;
 }
 
 // An event sent when an operation that could potentially change the contents of a database has

@@ -48,9 +48,9 @@ class ChildrenSelectorTest {
         findByTag("Parent")
             .children()
             .assertCountEquals(2)
-            .let {
-                it[0].assert(hasTestTag("Child1"))
-                it[1].assert(hasTestTag("Child2"))
+            .apply {
+                get(0).assert(hasTestTag("Child1"))
+                get(1).assert(hasTestTag("Child2"))
             }
     }
 

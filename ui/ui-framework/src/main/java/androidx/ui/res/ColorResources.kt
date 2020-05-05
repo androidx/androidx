@@ -23,7 +23,7 @@ import androidx.ui.core.ContextAmbient
 import androidx.ui.graphics.Color
 
 /**
- * Load a string resource.
+ * Load a color resource.
  *
  * @param id the resource identifier
  * @return the color associated with the resource

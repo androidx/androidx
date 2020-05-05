@@ -17,18 +17,17 @@
 package androidx.ui.rxjava2
 
 import androidx.compose.Composable
-import androidx.compose.CompositionLifecycleObserver
+import androidx.compose.Composer
 import androidx.compose.FrameManager
 import androidx.compose.State
-import androidx.compose.mutableStateOf
-import androidx.compose.remember
+import androidx.compose.onPreCommit
+import androidx.compose.state
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
 import io.reactivex.plugins.RxJavaPlugins
 
 /**
@@ -62,15 +61,8 @@ inline fun <T : Any> Observable<T>.subscribeAsState(): State<T?> = subscribeAsSt
  * @sample androidx.ui.rxjava2.samples.ObservableWithInitialSample
  */
 @Composable
-fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> {
-    val observer = remember {
-        DisposableConsumer<R, Observable<T>>(initial) {
-            subscribe(it)
-        }
-    }
-    observer.source = this
-    return observer.state
-}
+fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> =
+    asState(initial) { subscribe(it) }
 
 /**
  * Subscribes to this [Flowable] and represents its values via [State]. Every time there would
@@ -103,15 +95,8 @@ inline fun <T : Any> Flowable<T>.subscribeAsState(): State<T?> = subscribeAsStat
  * @sample androidx.ui.rxjava2.samples.FlowableWithInitialSample
  */
 @Composable
-fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> {
-    val observer = remember {
-        DisposableConsumer<R, Flowable<T>>(initial) {
-            subscribe(it)
-        }
-    }
-    observer.source = this
-    return observer.state
-}
+fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> =
+    asState(initial) { subscribe(it) }
 
 /**
  * Subscribes to this [Single] and represents its value via [State]. Once the value would be
@@ -144,15 +129,8 @@ inline fun <T : Any> Single<T>.subscribeAsState(): State<T?> = subscribeAsState(
  * @sample androidx.ui.rxjava2.samples.SingleWithInitialSample
  */
 @Composable
-fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> {
-    val observer = remember {
-        DisposableConsumer<R, Single<T>>(initial) {
-            subscribe(it)
-        }
-    }
-    observer.source = this
-    return observer.state
-}
+fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> =
+    asState(initial) { subscribe(it) }
 
 /**
  * Subscribes to this [Maybe] and represents its value via [State]. Once the value would be
@@ -185,15 +163,8 @@ inline fun <T : Any> Maybe<T>.subscribeAsState(): State<T?> = subscribeAsState(n
  * @sample androidx.ui.rxjava2.samples.MaybeWithInitialSample
  */
 @Composable
-fun <R, T : R> Maybe<T>.subscribeAsState(initial: R): State<R> {
-    val observer = remember {
-        DisposableConsumer<R, Maybe<T>>(initial) {
-            subscribe(it)
-        }
-    }
-    observer.source = this
-    return observer.state
-}
+fun <R, T : R> Maybe<T>.subscribeAsState(initial: R): State<R> =
+    asState(initial) { subscribe(it) }
 
 /**
  * Subscribes to this [Completable] and represents its completed state via [State]. Once the
@@ -209,45 +180,34 @@ fun <R, T : R> Maybe<T>.subscribeAsState(initial: R): State<R> {
  * @sample androidx.ui.rxjava2.samples.CompletableSample
  */
 @Composable
-fun Completable.subscribeAsState(): State<Boolean> {
-    val observer = remember {
-        DisposableConsumer<Boolean, Completable>(false) { onSuccess ->
-            subscribe { onSuccess.accept(true) }
-        }
-    }
-    observer.source = this
-    return observer.state
-}
+fun Completable.subscribeAsState(): State<Boolean> =
+    asState(false) { callback -> subscribe { callback(true) } }
 
-private class DisposableConsumer<T, F>(
+@Composable
+private inline fun <T, S> S.asState(
     initial: T,
-    private val subscribe: F.(onSuccess: Consumer<T>) -> Disposable
-) : Consumer<T>, CompositionLifecycleObserver {
-
-    val state = mutableStateOf(initial)
-
-    private var disposable: Disposable? = null
-
-    override fun accept(t: T) {
-        FrameManager.framed { state.value = t }
-    }
-
-    var source: F? = null
-        set(source) {
-            if (source !== field) {
-                disposable?.dispose()
-                disposable = null
-                field = source
-                disposable = source?.subscribe(this)
-            }
+    crossinline subscribe: S.((T) -> Unit) -> Disposable
+): State<T> {
+    val state = state { initial }
+    onPreCommit(this) {
+        val disposable = subscribe {
+            FrameManager.framed { state.value = it }
         }
-
-    override fun onLeave() {
-        // the same as onDispose()
-        source = null
+        onDispose { disposable.dispose() }
     }
-
-    override fun onEnter() {
-        // do nothing
-    }
+    return state
 }
+
+// NOTE(lmr): This API is no longer needed in any way by the compiler, but we still need this API
+// to be here to support versions of Android Studio that are still looking for it. Without it,
+// valid composable code will look broken in the IDE. Remove this after we have left some time to
+// get all versions of Studio upgraded.
+// b/152059242
+@Deprecated(
+    "This property should not be called directly. It is only used by the compiler.",
+    replaceWith = ReplaceWith("currentComposer")
+)
+internal val composer: Composer<*>
+    get() = error(
+        "This property should not be called directly. It is only used by the compiler."
+    )

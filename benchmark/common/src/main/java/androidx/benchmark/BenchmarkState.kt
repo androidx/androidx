@@ -18,7 +18,6 @@ package androidx.benchmark
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Instrumentation
 import android.os.Build
 import android.os.Bundle
 import android.os.Debug
@@ -30,7 +29,6 @@ import androidx.benchmark.Errors.PREFIX
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.Trace
 import java.io.File
-import java.text.NumberFormat
 import java.util.concurrent.TimeUnit
 
 /**
@@ -60,7 +58,8 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     private var stages = listOf(
         MetricsContainer(arrayOf(TimeCapture()), 1),
-        MetricsContainer(arrayOf(TimeCapture()), REPEAT_COUNT_TIME)
+        MetricsContainer(arrayOf(TimeCapture()), REPEAT_COUNT_TIME),
+        MetricsContainer(arrayOf(AllocationCountCapture()), REPEAT_COUNT_ALLOCATION)
     )
 
     private var metrics = stages[0]
@@ -99,7 +98,20 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     private var repeatCount = 0
 
-    internal var performThrottleChecks = true
+    /**
+     * Set this to true to run a simplified timing loop - no allocation tracking, and no global
+     * state set/reset (such as thread priorities)
+     *
+     * This var is used in one of two cases, either set to true by [ThrottleDetector.measureWorkNs]
+     * when device performance testing for thermal throttling in between benchmarks, or in
+     * correctness tests of this library.
+     *
+     * When set to true, indicates that this BenchmarkState **should not**:
+     * - touch thread priorities
+     * - perform allocation counting (only timing results matter)
+     * - call [ThrottleDetector], since it would infinitely recurse
+     */
+    internal var simplifiedTimingOnlyMode = false
     private var throttleRemainingRetries = THROTTLE_MAX_RETRIES
 
     private var stats = mutableListOf<Stats>()
@@ -255,6 +267,9 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
                 startProfilingTimeStageIfRequested()
                 Trace.beginSection("Benchmark Time")
             }
+            RUNNING_ALLOCATION_STAGE -> {
+                Trace.beginSection("Benchmark Allocations")
+            }
         }
         iterationsRemaining = iterationsPerRepeat
         metrics.captureStart()
@@ -265,7 +280,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
      */
     private fun endRunningStage(): Boolean {
         if (state != RUNNING_WARMUP_STAGE &&
-            performThrottleChecks &&
+            !simplifiedTimingOnlyMode &&
             throttleRemainingRetries > 0 &&
             sleepIfThermalThrottled(THROTTLE_BACKOFF_S)
         ) {
@@ -275,20 +290,33 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             repeatCount = 0
             return false
         }
-        Trace.endSection() // paired with start in beginBenchmarkingLoop()
+        Trace.endSection() // paired with start in beginRunningStage()
         when (state) {
             RUNNING_WARMUP_STAGE -> {
                 warmupRepeats = repeatCount
                 iterationsPerRepeat = computeMaxIterations()
             }
-            RUNNING_TIME_STAGE -> {
-                stopProfilingTimeStageIfRequested()
+            RUNNING_TIME_STAGE, RUNNING_ALLOCATION_STAGE -> {
+                if (state == RUNNING_TIME_STAGE) {
+                    stopProfilingTimeStageIfRequested()
+                }
 
                 stats.addAll(metrics.captureFinished(maxIterations = iterationsPerRepeat))
                 allData.addAll(metrics.data)
             }
         }
-        state += 1
+        state++
+        if (state == RUNNING_ALLOCATION_STAGE) {
+            // skip allocation stage if we are only doing minimal looping (startupMode, dryRunMode,
+            // profilingMode), or if we only care about timing (checkForThermalThrottling)
+            if (simplifiedTimingOnlyMode ||
+                Arguments.startupMode ||
+                Arguments.dryRunMode ||
+                Arguments.profilingMode != ProfilingMode.None
+            ) {
+                state++
+            }
+        }
         return true
     }
 
@@ -304,7 +332,9 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
                 endRunningStage()
                 beginRunningStage()
             }
-        } else if (state == RUNNING_TIME_STAGE && repeatCount >= REPEAT_COUNT_TIME) {
+        } else if (state == RUNNING_TIME_STAGE && repeatCount >= REPEAT_COUNT_TIME ||
+            state == RUNNING_ALLOCATION_STAGE && repeatCount >= REPEAT_COUNT_ALLOCATION
+        ) {
             if (endRunningStage()) {
                 if (state == FINISHED) {
                     afterBenchmark()
@@ -393,7 +423,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
                 beginRunningStage()
                 return true
             }
-            RUNNING_WARMUP_STAGE, RUNNING_TIME_STAGE -> {
+            RUNNING_WARMUP_STAGE, RUNNING_TIME_STAGE, RUNNING_ALLOCATION_STAGE -> {
                 iterationsRemaining--
                 if (iterationsRemaining <= 0) {
                     throwIfPaused() // only check at end of loop to save cycles
@@ -417,15 +447,17 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         firstBenchmark = false
 
         thermalThrottleSleepSeconds = 0
-        if (performThrottleChecks &&
-            !CpuInfo.locked &&
-            !IsolationActivity.sustainedPerformanceModeInUse &&
-            !Errors.isEmulator
-        ) {
-            ThrottleDetector.computeThrottleBaseline()
-        }
 
-        ThreadPriority.bumpCurrentThreadPriority()
+        if (!simplifiedTimingOnlyMode) {
+            if (!CpuInfo.locked &&
+                !IsolationActivity.sustainedPerformanceModeInUse &&
+                !Errors.isEmulator
+            ) {
+                ThrottleDetector.computeThrottleBaseline()
+            }
+
+            ThreadPriority.bumpCurrentThreadPriority()
+        }
 
         totalRunTimeStartNs = System.nanoTime() // Record this time to find total duration
         state = RUNNING_WARMUP_STAGE // begin benchmarking
@@ -434,7 +466,12 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     private fun afterBenchmark() {
         totalRunTimeNs = System.nanoTime() - totalRunTimeStartNs
-        ThreadPriority.resetBumpedThread()
+
+        if (!simplifiedTimingOnlyMode) {
+            // Don't modify thread priority when checking for thermal throttling, since 'outer'
+            // BenchmarkState owns thread priority
+            ThreadPriority.resetBumpedThread()
+        }
         warmupManager.logInfo()
     }
 
@@ -492,24 +529,17 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             // these 'legacy' CI output stats are considered output
             stats.forEach { it.putInBundle(status, PREFIX) }
         }
-        status.putIdeSummaryLine(key, getMinTimeNanos())
+        status.putIdeSummaryLine(
+            testName = key,
+            nanos = getMinTimeNanos(),
+            allocations = stats.firstOrNull { it.name == "allocationCount" }?.median
+        )
         return status
     }
 
-    private fun Instrumentation.addResultsCompat(bundle: Bundle) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            addResults(bundle)
-        } else {
-            // Before addResults() was added in the platform, we use sendStatus(). The constant '2'
-            // comes from IInstrumentationResultParser.StatusCodes.IN_PROGRESS, and signals the
-            // test infra that this is an "additional result" bundle, equivalent to addResults()
-            sendStatus(/* resultCode = */ 2, /* results = */ bundle)
-        }
-    }
-
-    private fun reportResultBundle(testName: String) {
+    private fun sendStatus(testName: String) {
         val bundle = getFullStatusReport(key = testName, includeStats = Arguments.outputEnable)
-        InstrumentationRegistry.getInstrumentation().addResultsCompat(bundle)
+        InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
     }
 
     private fun sleepIfThermalThrottled(sleepSeconds: Long) = when {
@@ -535,7 +565,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     ) {
         checkState() // this method is triggered externally
         val fullTestName = "$PREFIX$simpleClassName.$methodName"
-        reportResultBundle(fullTestName)
+        sendStatus(fullTestName)
 
         ResultWriter.appendReport(
             getReport(
@@ -547,13 +577,12 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     companion object {
         internal const val TAG = "Benchmark"
-        private const val STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display."
-        private const val STUDIO_OUTPUT_KEY_ID = "benchmark"
 
         private const val NOT_STARTED = -1 // The benchmark has not started yet.
         private const val RUNNING_WARMUP_STAGE = 0 // The benchmark warmup stage is running.
         private const val RUNNING_TIME_STAGE = 1 // The time benchmarking stage is running.
-        private const val FINISHED = 2 // The benchmark has stopped; all stages are finished.
+        private const val RUNNING_ALLOCATION_STAGE = 2 // The alloc benchmarking stage is running.
+        private const val FINISHED = 3 // The benchmark has stopped; all stages are finished.
 
         private const val CONNECTED_PROFILING_SLEEP_MS = 20_000L
 
@@ -565,6 +594,8 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             Arguments.startupMode -> 10
             else -> 50
         }
+
+        internal const val REPEAT_COUNT_ALLOCATION = 10
 
         private val OVERRIDE_ITERATIONS = if (
             Arguments.dryRunMode ||
@@ -635,39 +666,15 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             val bundle = Bundle()
             val fullTestName = PREFIX +
                     if (className.isNotEmpty()) "$className.$testName" else testName
-            bundle.putIdeSummaryLine(fullTestName, report.getStats("timeNs").min)
+            bundle.putIdeSummaryLine(
+                testName = fullTestName,
+                nanos = report.getStats("timeNs").min,
+                allocations = null
+            )
             InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
 
             // Report values to file output
             ResultWriter.appendReport(report)
-        }
-
-        private fun ideSummaryLineWrapped(key: String, nanos: Long): String {
-            val warningLines =
-                Errors.acquireWarningStringForLogging()?.split("\n") ?: listOf()
-            return (warningLines + ideSummaryLine(key, nanos))
-                // remove first line if empty
-                .filterIndexed { index, it -> index != 0 || it.isNotEmpty() }
-                // join, prepending key to everything but first string,
-                // to make each line look the same
-                .joinToString("\n$STUDIO_OUTPUT_KEY_ID: ")
-        }
-
-        // NOTE: this summary line will use default locale to determine separators. As
-        // this line is only meant for human eyes, we don't worry about consistency here.
-        internal fun ideSummaryLine(key: String, nanos: Long) = String.format(
-            // 13 is used for alignment here, because it's enough that 9.99sec will still
-            // align with any other output, without moving data too far to the right
-            "%13s ns %s",
-            NumberFormat.getNumberInstance().format(nanos),
-            key
-        )
-
-        internal fun Bundle.putIdeSummaryLine(testName: String, nanos: Long) {
-            putString(
-                STUDIO_OUTPUT_KEY_PREFIX + STUDIO_OUTPUT_KEY_ID,
-                ideSummaryLineWrapped(testName, nanos)
-            )
         }
     }
 }

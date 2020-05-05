@@ -45,6 +45,7 @@ import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
 import android.widget.TextView;
 
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
@@ -4898,6 +4899,41 @@ public class GridWidgetTest {
         waitForScrollIdle(mVerifyLayout);
         int selectedPosition2 = mGridView.getSelectedPosition();
         assertTrue(selectedPosition2 < selectedPosition1);
+    }
+
+    @Test
+    public void testAccessibilitySaveContextCrash() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1000);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        // Returns 0 causes smoothScrollBy becomes a scrollBy to entry saveContext.
+        mGridView.setSmoothScrollByBehavior(new BaseGridView.SmoothScrollByBehavior() {
+            @Override
+            public int configSmoothScrollByDuration(int dx, int dy) {
+                return 0;
+            }
+
+            @Override
+            public Interpolator configSmoothScrollByInterpolator(int dx, int dy) {
+                return null;
+            }
+        });
+        final RecyclerViewAccessibilityDelegate delegateCompat = mGridView
+                .getCompatAccessibilityDelegate();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.performAccessibilityAction(mGridView,
+                        AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD, null);
+            }
+        });
+        waitForScrollIdle(mVerifyLayout);
     }
 
     @Test

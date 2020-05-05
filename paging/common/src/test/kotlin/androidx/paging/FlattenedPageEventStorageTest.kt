@@ -16,11 +16,11 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
-import androidx.paging.LoadType.END
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import com.google.common.truth.Truth.assertThat
@@ -45,16 +45,16 @@ class FlattenedPageEventStorageTest {
                 pages = listOf(
                     TransformablePage(data = listOf("a", "b", "c"))
                 ),
-                placeholdersStart = 3,
-                placeholdersEnd = 5,
+                placeholdersBefore = 3,
+                placeholdersAfter = 5,
                 loadStates = emptyMap()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
             Snapshot(
                 items = listOf("a", "b", "c"),
-                placeholdersStart = 3,
-                placeholdersEnd = 5
+                placeholdersBefore = 3,
+                placeholdersAfter = 5
             )
         )
     }
@@ -66,26 +66,26 @@ class FlattenedPageEventStorageTest {
                 pages = listOf(
                     TransformablePage(data = listOf("a", "b", "c"))
                 ),
-                placeholdersStart = 3,
-                placeholdersEnd = 5,
+                placeholdersBefore = 3,
+                placeholdersAfter = 5,
                 loadStates = emptyMap()
             )
         )
         list.add(
-            PageEvent.Insert.Start(
+            PageEvent.Insert.Prepend(
                 pages = listOf(
                     TransformablePage(data = listOf("x1")),
                     TransformablePage(data = listOf("x2"))
                 ),
-                placeholdersStart = 1,
+                placeholdersBefore = 1,
                 loadStates = emptyMap()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
             Snapshot(
                 items = listOf("x1", "x2", "a", "b", "c"),
-                placeholdersStart = 1,
-                placeholdersEnd = 5
+                placeholdersBefore = 1,
+                placeholdersAfter = 5
             )
         )
     }
@@ -97,27 +97,27 @@ class FlattenedPageEventStorageTest {
                 pages = listOf(
                     TransformablePage(data = listOf("a", "b", "c"))
                 ),
-                placeholdersStart = 3,
-                placeholdersEnd = 5,
+                placeholdersBefore = 3,
+                placeholdersAfter = 5,
                 loadStates = emptyMap()
             )
         )
         list.add(
-            PageEvent.Insert.End(
+            PageEvent.Insert.Append(
                 pages = listOf(
                     TransformablePage(data = listOf("x1")),
                     TransformablePage(data = listOf("x2")),
                     TransformablePage(data = listOf("x3"))
                 ),
-                placeholdersEnd = 2,
+                placeholdersAfter = 2,
                 loadStates = emptyMap()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
             Snapshot(
                 items = listOf("a", "b", "c", "x1", "x2", "x3"),
-                placeholdersStart = 3,
-                placeholdersEnd = 2
+                placeholdersBefore = 3,
+                placeholdersAfter = 2
             )
         )
     }
@@ -129,8 +129,8 @@ class FlattenedPageEventStorageTest {
                 pages = listOf(
                     TransformablePage(data = listOf("a", "b", "c"))
                 ),
-                placeholdersStart = 3,
-                placeholdersEnd = 5,
+                placeholdersBefore = 3,
+                placeholdersAfter = 5,
                 loadStates = emptyMap()
             )
         )
@@ -139,16 +139,16 @@ class FlattenedPageEventStorageTest {
                 pages = listOf(
                     TransformablePage(data = listOf("x", "y"))
                 ),
-                placeholdersStart = 2,
-                placeholdersEnd = 4,
+                placeholdersBefore = 2,
+                placeholdersAfter = 4,
                 loadStates = emptyMap()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
             Snapshot(
                 items = listOf("x", "y"),
-                placeholdersStart = 2,
-                placeholdersEnd = 4
+                placeholdersBefore = 2,
+                placeholdersAfter = 4
             )
         )
     }
@@ -161,21 +161,21 @@ class FlattenedPageEventStorageTest {
                     TransformablePage(data = listOf("a", "b", "c")),
                     TransformablePage(data = listOf("d", "e"))
                 ),
-                placeholdersStart = 3,
-                placeholdersEnd = 5,
+                placeholdersBefore = 3,
+                placeholdersAfter = 5,
                 loadStates = emptyMap()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
             Snapshot(
                 items = listOf("a", "b", "c", "d", "e"),
-                placeholdersStart = 3,
-                placeholdersEnd = 5
+                placeholdersBefore = 3,
+                placeholdersAfter = 5
             )
         )
         list.add(
             Drop(
-                loadType = START,
+                loadType = PREPEND,
                 count = 1,
                 placeholdersRemaining = 6
             )
@@ -183,8 +183,8 @@ class FlattenedPageEventStorageTest {
         assertThat(list.snapshot()).isEqualTo(
             Snapshot(
                 items = listOf("d", "e"),
-                placeholdersStart = 6,
-                placeholdersEnd = 5
+                placeholdersBefore = 6,
+                placeholdersAfter = 5
             )
         )
     }
@@ -197,21 +197,21 @@ class FlattenedPageEventStorageTest {
                     TransformablePage(data = listOf("a", "b", "c")),
                     TransformablePage(data = listOf("d", "e"))
                 ),
-                placeholdersStart = 3,
-                placeholdersEnd = 5,
+                placeholdersBefore = 3,
+                placeholdersAfter = 5,
                 loadStates = emptyMap()
             )
         )
         assertThat(list.snapshot()).isEqualTo(
             Snapshot(
                 items = listOf("a", "b", "c", "d", "e"),
-                placeholdersStart = 3,
-                placeholdersEnd = 5
+                placeholdersBefore = 3,
+                placeholdersAfter = 5
             )
         )
         list.add(
             Drop(
-                loadType = END,
+                loadType = APPEND,
                 count = 1,
                 placeholdersRemaining = 7
             )
@@ -219,37 +219,37 @@ class FlattenedPageEventStorageTest {
         assertThat(list.snapshot()).isEqualTo(
             Snapshot(
                 items = listOf("a", "b", "c"),
-                placeholdersStart = 3,
-                placeholdersEnd = 7
+                placeholdersBefore = 3,
+                placeholdersAfter = 7
             )
         )
     }
 
     @Test
     fun stateInInsert() {
-        val error = LoadState.Error(RuntimeException("?"))
+        val error = LoadState.Error(RuntimeException("?"), fromMediator = false)
         list.add(
             Refresh(
                 pages = listOf(
                     TransformablePage(data = listOf("a", "b", "c")),
                     TransformablePage(data = listOf("d", "e"))
                 ),
-                placeholdersStart = 3,
-                placeholdersEnd = 5,
+                placeholdersBefore = 3,
+                placeholdersAfter = 5,
                 loadStates = mapOf(
-                    REFRESH to Idle,
-                    START to Loading,
-                    END to error
+                    REFRESH to NotLoading.Idle,
+                    PREPEND to Loading(fromMediator = false),
+                    APPEND to error
                 )
             )
         )
         assertThat(list.snapshot()).isEqualTo(
             Snapshot(
                 items = listOf("a", "b", "c", "d", "e"),
-                placeholdersStart = 3,
-                placeholdersEnd = 5,
-                refreshState = Idle,
-                startState = Loading,
+                placeholdersBefore = 3,
+                placeholdersAfter = 5,
+                refreshState = NotLoading.Idle,
+                startState = Loading(fromMediator = false),
                 endState = error
             )
         )
@@ -264,11 +264,11 @@ class FlattenedPageEventStorageTest {
                     }
                     snapshot.copy(
                         items = snapshot.items + event.pages.flatMap { it.data },
-                        placeholdersStart = event.placeholdersStart,
-                        placeholdersEnd = event.placeholdersEnd,
-                        refreshState = event.loadStates[REFRESH] ?: Idle,
-                        startState = event.loadStates[START] ?: Idle,
-                        endState = event.loadStates[END] ?: Idle
+                        placeholdersBefore = event.placeholdersBefore,
+                        placeholdersAfter = event.placeholdersAfter,
+                        refreshState = event.loadStates[REFRESH] ?: NotLoading.Idle,
+                        startState = event.loadStates[PREPEND] ?: NotLoading.Idle,
+                        endState = event.loadStates[APPEND] ?: NotLoading.Idle
                     )
                 }
                 is Drop -> {
@@ -277,8 +277,8 @@ class FlattenedPageEventStorageTest {
                 is PageEvent.LoadStateUpdate -> {
                     when (event.loadType) {
                         REFRESH -> snapshot.copy(refreshState = event.loadState)
-                        START -> snapshot.copy(startState = event.loadState)
-                        END -> snapshot.copy(endState = event.loadState)
+                        PREPEND -> snapshot.copy(startState = event.loadState)
+                        APPEND -> snapshot.copy(endState = event.loadState)
                     }
                 }
             }
@@ -287,10 +287,10 @@ class FlattenedPageEventStorageTest {
 
     data class Snapshot<T>(
         val items: List<T> = emptyList(),
-        val refreshState: LoadState = Idle,
-        val startState: LoadState = Idle,
-        val endState: LoadState = Idle,
-        val placeholdersStart: Int = 0,
-        val placeholdersEnd: Int = 0
+        val refreshState: LoadState = NotLoading.Idle,
+        val startState: LoadState = NotLoading.Idle,
+        val endState: LoadState = NotLoading.Idle,
+        val placeholdersBefore: Int = 0,
+        val placeholdersAfter: Int = 0
     )
 }

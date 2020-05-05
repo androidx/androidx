@@ -17,7 +17,9 @@
 package androidx.ui.graphics.painter
 
 import androidx.test.filters.SmallTest
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
@@ -131,7 +133,8 @@ class ImagePainterTest {
         val canvas = Canvas(dst)
 
         val topLeftPainter = ImagePainter(srcImage,
-            Rect.fromLTWH(0.0f, 0.0f, 50.0f, 50.0f) // Top Left
+            srcOffset = Offset.zero,
+            srcSize = Size(50.0f, 50.0f)
         )
 
         val intrinsicSize = topLeftPainter.intrinsicSize
@@ -146,7 +149,8 @@ class ImagePainterTest {
         assertEquals(Color.Red, topLeftMap[49, 49])
 
         val topRightPainter = ImagePainter(srcImage,
-            Rect.fromLTWH(50.0f, 0.0f, 50.0f, 50.0f)
+            srcOffset = Offset(50.0f, 0.0f),
+            srcSize = Size(50.0f, 50.0f)
         )
 
         val topRightDst = createTestDstImage()
@@ -158,7 +162,8 @@ class ImagePainterTest {
         assertEquals(Color.Blue, topRightMap[49, 49])
 
         val bottomLeftPainter = ImagePainter(srcImage,
-            Rect.fromLTWH(0.0f, 50.0f, 50.0f, 50.0f) // Bottom left
+            srcOffset = Offset(0.0f, 50.0f),
+            srcSize = Size(50.0f, 50.0f)
         )
 
         bottomLeftPainter.draw(canvas, bottomLeftPainter.intrinsicSize)
@@ -170,7 +175,8 @@ class ImagePainterTest {
         assertEquals(Color.Blue, bottomLeftMap[49, 49])
 
         val bottomRightPainter = ImagePainter(srcImage,
-            Rect.fromLTWH(50.0f, 50.0f, 50.0f, 50.0f)
+            srcOffset = Offset(50.0f, 50.0f),
+            srcSize = Size(50.0f, 50.0f)
         )
 
         bottomRightPainter.draw(canvas, bottomRightPainter.intrinsicSize)
@@ -186,7 +192,9 @@ class ImagePainterTest {
     fun testInvalidLeftBoundThrows() {
         try {
             ImagePainter(createTestSrcImage(),
-                Rect.fromLTWH(-1.0f, 0.0f, 10.0f, 10.0f))
+                Offset(-1.0f, 1.0f),
+                Size(10.0f, 10.0f)
+            )
             fail("Left bound must be greater than or equal to zero")
         } catch (e: IllegalArgumentException) {
             // no-op
@@ -197,7 +205,9 @@ class ImagePainterTest {
     fun testInvalidTopBoundThrows() {
         try {
             ImagePainter(createTestSrcImage(),
-                Rect.fromLTWH(0.0f, -1.0f, 10.0f, 10.0f))
+                Offset(0.0f, -1.0f),
+                Size(10.0f, 10.0f)
+            )
             fail("Top bound must be greater than or equal to zero")
         } catch (e: IllegalArgumentException) {
             // no-op
@@ -209,7 +219,9 @@ class ImagePainterTest {
         try {
             val image = createTestSrcImage()
             ImagePainter(image,
-                Rect.fromLTWH(0.0f, 0.0f, image.width + 1.0f, 10.0f))
+                Offset(0.0f, 0.0f),
+                Size(image.width + 1.0f, 10.0f)
+            )
             fail("Right bound must be less than ImageAsset width")
         } catch (e: IllegalArgumentException) {
             // no-op
@@ -221,7 +233,9 @@ class ImagePainterTest {
         try {
             val image = createTestSrcImage()
             ImagePainter(image,
-                Rect.fromLTWH(0.0f, 0.0f, 10.0f, image.height + 1.0f))
+                Offset(0.0f, 0.0f),
+                Size(10.0f, image.height + 1.0f)
+            )
             fail("Bottom bound must be less than ImageAsset height")
         } catch (e: IllegalArgumentException) {
             // no-op
@@ -232,7 +246,9 @@ class ImagePainterTest {
     fun testRightLessThanLeftThrows() {
         try {
             ImagePainter(createTestSrcImage(),
-                Rect.fromLTRB(50.0f, 0.0f, 10.0f, 10.0f))
+                Offset(50.0f, 0.0f),
+                Size(-40.0f, 10.0f)
+            )
             fail("Right bound must be greater than left bound")
         } catch (e: IllegalArgumentException) {
             // no-op
@@ -243,7 +259,9 @@ class ImagePainterTest {
     fun testTopLessThanBottomThrows() {
         try {
             ImagePainter(createTestSrcImage(),
-            Rect.fromLTRB(0.0f, 100.0f, 10.0f, 10.0f))
+                Offset(0.0f, 100.0f),
+                Size(-90.0f, -90.0f)
+            )
             fail("Bottom bound must be larger than top bound")
         } catch (e: IllegalArgumentException) {
             // no-op

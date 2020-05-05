@@ -17,11 +17,10 @@
 package androidx.paging
 
 import androidx.annotation.CheckResult
-import androidx.paging.LoadState.Done
-import androidx.paging.LoadState.Idle
-import androidx.paging.LoadType.END
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.paging.PageEvent.Insert.Companion.Refresh
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -117,9 +116,13 @@ class PagingData<T : Any> internal constructor(
             flow = flowOf(
                 Refresh(
                     pages = listOf(TransformablePage(originalPageOffset = 0, data = emptyList())),
-                    placeholdersStart = 0,
-                    placeholdersEnd = 0,
-                    loadStates = mapOf(REFRESH to Idle, START to Done, END to Done)
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    loadStates = mapOf(
+                        REFRESH to NotLoading.Idle,
+                        PREPEND to NotLoading.Done,
+                        APPEND to NotLoading.Done
+                    )
                 )
             ),
             receiver = NOOP_RECEIVER

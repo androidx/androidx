@@ -16,17 +16,31 @@
 
 package androidx.ui.material
 
+import androidx.compose.Providers
+import androidx.compose.state
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.TestTag
+import androidx.ui.core.TextInputServiceAmbient
+import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Text
+import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.contentColor
 import androidx.ui.foundation.currentTextStyle
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.RectangleShape
+import androidx.ui.input.ImeAction
+import androidx.ui.input.KeyboardType
+import androidx.ui.input.PasswordVisualTransformation
+import androidx.ui.input.TextInputService
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.preferredSize
+import androidx.ui.test.assertShape
+import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.doGesture
@@ -39,8 +53,14 @@ import androidx.ui.unit.Px
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
+import androidx.ui.unit.sp
 import androidx.ui.unit.toPx
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,7 +72,9 @@ class FilledTextFieldTest {
 
     private val ExpectedMinimumTextFieldHeight = 56.dp
     private val ExpectedPadding = 16.dp
+    private val IconPadding = 12.dp
     private val ExpectedBaselineOffset = 20.dp
+    private val IconColorAlpha = 0.54f
 
     @get:Rule
     val testRule = createComposeRule()
@@ -141,8 +163,46 @@ class FilledTextFieldTest {
     }
 
     @Test
-    fun testLabelPosition_initial() {
-        val height = 60.dp
+    fun testLabelPosition_initial_withDefaultHeight() {
+        val labelSize = Ref<IntPxSize>()
+        val labelPosition = Ref<PxPosition>()
+        testRule.setMaterialContent {
+            Box {
+                FilledTextField(
+                    value = "",
+                    onValueChange = {},
+                    label = {
+                        Text(
+                            text = "label",
+                            fontSize = 10.sp,
+                            modifier = Modifier.onPositioned {
+                                labelPosition.value = it.globalPosition
+                                labelSize.value = it.size
+                            }
+                        )
+                    }
+                )
+            }
+        }
+
+        testRule.runOnIdleComposeWithDensity {
+            // size
+            assertThat(labelSize.value).isNotNull()
+            assertThat(labelSize.value?.height).isGreaterThan(0.ipx)
+            assertThat(labelSize.value?.width).isGreaterThan(0.ipx)
+            // centered position
+            assertThat(labelPosition.value?.x).isEqualTo(
+                ExpectedPadding.toIntPx().toPx()
+            )
+            assertThat(labelPosition.value?.y).isEqualTo(
+                ((ExpectedMinimumTextFieldHeight.toIntPx() - labelSize.value!!.height) / 2f).toPx()
+            )
+        }
+    }
+
+    @Test
+    fun testLabelPosition_initial_withCustomHeight() {
+        val height = 80.dp
         val labelSize = Ref<IntPxSize>()
         val labelPosition = Ref<PxPosition>()
         testRule.setMaterialContent {
@@ -153,7 +213,7 @@ class FilledTextFieldTest {
                     modifier = Modifier.preferredHeight(height),
                     label = {
                         Text(text = "label", modifier = Modifier.onPositioned {
-                            labelPosition.value = it.localToGlobal(PxPosition.Origin)
+                            labelPosition.value = it.globalPosition
                             labelSize.value = it.size
                         })
                     }
@@ -170,7 +230,7 @@ class FilledTextFieldTest {
             assertThat(labelPosition.value?.x).isEqualTo(
                 ExpectedPadding.toIntPx().toPx()
             )
-            assertThat(labelPosition.value!!.y).isEqualTo(
+            assertThat(labelPosition.value?.y).isEqualTo(
                 ((height.toIntPx() - labelSize.value!!.height) / 2f).toPx()
             )
         }
@@ -189,7 +249,7 @@ class FilledTextFieldTest {
                         onValueChange = {},
                         label = {
                             Text(text = "label", modifier = Modifier.onPositioned {
-                                labelPosition.value = it.localToGlobal(PxPosition.Origin)
+                                labelPosition.value = it.globalPosition
                                 labelSize.value = it.size
                                 baseline.value =
                                     it[FirstBaseline]!!.toPx() + labelPosition.value!!.y
@@ -230,7 +290,7 @@ class FilledTextFieldTest {
                     onValueChange = {},
                     label = {
                         Text(text = "label", modifier = Modifier.onPositioned {
-                            labelPosition.value = it.localToGlobal(PxPosition.Origin)
+                            labelPosition.value = it.globalPosition
                             labelSize.value = it.size
                             baseline.value =
                                 it[FirstBaseline]!!.toPx() + labelPosition.value!!.y
@@ -266,10 +326,10 @@ class FilledTextFieldTest {
                     FilledTextField(
                         value = "",
                         onValueChange = {},
-                        label = {},
+                        label = { Text("label") },
                         placeholder = {
                             Text(text = "placeholder", modifier = Modifier.onPositioned {
-                                placeholderPosition.value = it.localToGlobal(PxPosition.Origin)
+                                placeholderPosition.value = it.globalPosition
                                 placeholderSize.value = it.size
                                 placeholderBaseline.value =
                                     it[FirstBaseline]!!.toPx() + placeholderPosition.value!!.y
@@ -298,6 +358,50 @@ class FilledTextFieldTest {
     }
 
     @Test
+    fun testPlaceholderPosition_whenNoLabel() {
+        val placeholderSize = Ref<IntPxSize>()
+        val placeholderPosition = Ref<PxPosition>()
+        val placeholderBaseline = Ref<Px>()
+        val height = 60.dp
+        testRule.setMaterialContent {
+            Box {
+                TestTag("textField") {
+                    FilledTextField(
+                        value = "",
+                        onValueChange = {},
+                        label = {},
+                        modifier = Modifier.preferredHeight(height),
+                        placeholder = {
+                            Text(text = "placeholder", modifier = Modifier.onPositioned {
+                                placeholderPosition.value = it.globalPosition
+                                placeholderSize.value = it.size
+                                placeholderBaseline.value =
+                                    it[FirstBaseline]!!.toPx() + placeholderPosition.value!!.y
+                            })
+                        }
+                    )
+                }
+            }
+        }
+        // click to focus
+        clickAndAdvanceClock("textField", 200)
+
+        testRule.runOnIdleComposeWithDensity {
+            // size
+            assertThat(placeholderSize.value).isNotNull()
+            assertThat(placeholderSize.value?.height).isGreaterThan(0.ipx)
+            assertThat(placeholderSize.value?.width).isGreaterThan(0.ipx)
+            // centered position
+            assertThat(placeholderPosition.value?.x).isEqualTo(
+                ExpectedPadding.toIntPx().toPx()
+            )
+            assertThat(placeholderPosition.value?.y).isEqualTo(
+                ((height.toIntPx() - placeholderSize.value!!.height) / 2f).toPx()
+            )
+        }
+    }
+
+    @Test
     fun testNoPlaceholder_whenInputNotEmpty() {
         val placeholderSize = Ref<IntPxSize>()
         val placeholderPosition = Ref<PxPosition>()
@@ -310,7 +414,7 @@ class FilledTextFieldTest {
                         label = {},
                         placeholder = {
                             Text(text = "placeholder", modifier = Modifier.onPositioned {
-                                placeholderPosition.value = it.localToGlobal(PxPosition.Origin)
+                                placeholderPosition.value = it.globalPosition
                                 placeholderSize.value = it.size
                             })
                         }
@@ -348,6 +452,212 @@ class FilledTextFieldTest {
 
         // click to focus
         findByTag("textField").doClick()
+    }
+
+    @Test
+    fun testTrailingAndLeading_sizeAndPosition() {
+        val textFieldHeight = 60.dp
+        val textFieldWidth = 300.dp
+        val size = 30.dp
+        val leadingPosition = Ref<PxPosition>()
+        val leadingSize = Ref<IntPxSize>()
+        val trailingPosition = Ref<PxPosition>()
+        val trailingSize = Ref<IntPxSize>()
+
+        testRule.setMaterialContent {
+            FilledTextField(
+                value = "text",
+                onValueChange = {},
+                modifier = Modifier.preferredSize(textFieldWidth, textFieldHeight),
+                label = {},
+                leadingIcon = {
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        leadingPosition.value = it.globalPosition
+                        leadingSize.value = it.size
+                    })
+                },
+                trailingIcon = {
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        trailingPosition.value = it.globalPosition
+                        trailingSize.value = it.size
+                    })
+                }
+            )
+        }
+
+        testRule.runOnIdleComposeWithDensity {
+            // leading
+            assertThat(leadingSize.value).isEqualTo(IntPxSize(size.toIntPx(), size.toIntPx()))
+            assertThat(leadingPosition.value?.x).isEqualTo(IconPadding.toIntPx().toPx())
+            assertThat(leadingPosition.value?.y).isEqualTo(
+                ((textFieldHeight.toIntPx() - leadingSize.value!!.height) / 2f).toPx()
+            )
+            // trailing
+            assertThat(trailingSize.value).isEqualTo(IntPxSize(size.toIntPx(), size.toIntPx()))
+            assertThat(trailingPosition.value?.x).isEqualTo(
+                (textFieldWidth.toIntPx() - IconPadding.toIntPx() - trailingSize.value!!.width)
+                    .toPx()
+            )
+            assertThat(trailingPosition.value?.y).isEqualTo(
+                ((textFieldHeight.toIntPx() - trailingSize.value!!.height) / 2f).toPx()
+            )
+        }
+    }
+
+    @Test
+    fun testLabelPositionX_initial_withTrailingAndLeading() {
+        val height = 60.dp
+        val iconSize = 30.dp
+        val labelPosition = Ref<PxPosition>()
+        testRule.setMaterialContent {
+            Box {
+                FilledTextField(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier.preferredHeight(height),
+                    label = {
+                        Text(text = "label", modifier = Modifier.onPositioned {
+                            labelPosition.value = it.globalPosition
+                        })
+                    },
+                    trailingIcon = { Box(Modifier.preferredSize(iconSize)) },
+                    leadingIcon = { Box(Modifier.preferredSize(iconSize)) }
+                )
+            }
+        }
+
+        testRule.runOnIdleComposeWithDensity {
+            assertThat(labelPosition.value?.x).isEqualTo(
+                (ExpectedPadding.toIntPx() + IconPadding.toIntPx() + iconSize.toIntPx()).toPx()
+            )
+        }
+    }
+
+    @Test
+    fun testLabelPositionX_initial_withEmptyTrailingAndLeading() {
+        val height = 60.dp
+        val labelPosition = Ref<PxPosition>()
+        testRule.setMaterialContent {
+            Box {
+                FilledTextField(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier.preferredHeight(height),
+                    label = {
+                        Text(text = "label", modifier = Modifier.onPositioned {
+                            labelPosition.value = it.globalPosition
+                        })
+                    },
+                    trailingIcon = {},
+                    leadingIcon = {}
+                )
+            }
+        }
+
+        testRule.runOnIdleComposeWithDensity {
+            assertThat(labelPosition.value?.x).isEqualTo(
+                ExpectedPadding.toIntPx().toPx()
+            )
+        }
+    }
+
+    @Test
+    fun testColorInLeadingTrailing_whenValidInput() {
+        testRule.setMaterialContent {
+            FilledTextField(
+                value = "",
+                onValueChange = {},
+                label = {},
+                isErrorValue = false,
+                leadingIcon = {
+                    assertThat(contentColor())
+                        .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                },
+                trailingIcon = {
+                    assertThat(contentColor())
+                        .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                }
+            )
+        }
+    }
+
+    @Test
+    fun testColorInLeadingTrailing_whenInvalidInput() {
+        testRule.setMaterialContent {
+            FilledTextField(
+                value = "",
+                onValueChange = {},
+                label = {},
+                isErrorValue = true,
+                leadingIcon = {
+                    assertThat(contentColor())
+                        .isEqualTo(MaterialTheme.colors.onSurface.copy(IconColorAlpha))
+                },
+                trailingIcon = {
+                    assertThat(contentColor()).isEqualTo(MaterialTheme.colors.error)
+                }
+            )
+        }
+    }
+
+    @Test
+    fun testImeActionAndKeyboardTypePropagatedDownstream() {
+        val textInputService = mock<TextInputService>()
+        testRule.setContent {
+            Providers(
+                TextInputServiceAmbient provides textInputService
+            ) {
+                TestTag("textField") {
+                    var text = state { TextFieldValue("") }
+                    FilledTextField(
+                        value = text.value,
+                        onValueChange = { text.value = it },
+                        label = {},
+                        imeAction = ImeAction.Go,
+                        keyboardType = KeyboardType.Email
+                    )
+                }
+            }
+        }
+
+        clickAndAdvanceClock("textField", 200)
+
+        runOnIdleCompose {
+            verify(textInputService, atLeastOnce()).startInput(
+                initModel = any(),
+                keyboardType = eq(KeyboardType.Email),
+                imeAction = eq(ImeAction.Go),
+                onEditCommand = any(),
+                onImeActionPerformed = any()
+            )
+        }
+    }
+
+    @Test
+    fun testVisualTransformationPropagated() {
+        testRule.setMaterialContent {
+            TestTag("textField") {
+                FilledTextField(
+                    value = "qwerty",
+                    onValueChange = {},
+                    label = {},
+                    visualTransformation = PasswordVisualTransformation('\u0020'),
+                    backgroundColor = Color.White,
+                    shape = RectangleShape
+                )
+            }
+        }
+
+        findByTag("textField")
+            .captureToBitmap()
+            .assertShape(
+                density = testRule.density,
+                backgroundColor = Color.White,
+                shapeColor = Color.White,
+                shape = RectangleShape,
+                // avoid elevation artifacts
+                shapeOverlapPixelCount = with(testRule.density) { 3.dp.toPx() }
+            )
     }
 
     private fun clickAndAdvanceClock(tag: String, time: Long) {

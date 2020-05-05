@@ -84,10 +84,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
+import androidx.lifecycle.ViewTreeViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -514,8 +516,22 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Alternate constructor that can be used to provide a default layout
-     * that will be inflated by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * Alternate constructor that can be called from your default, no argument constructor to
+     * provide a default layout that will be inflated by
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     *
+     * <pre class="prettyprint">
+     * class MyFragment extends Fragment {
+     *   public MyFragment() {
+     *     super(R.layout.fragment_main);
+     *   }
+     * }
+     * </pre>
+     *
+     * You must
+     * {@link FragmentManager#setFragmentFactory(FragmentFactory) set a custom FragmentFactory}
+     * if you want to use a non-default constructor to ensure that your constructor is called
+     * when the fragment is re-instantiated.
      *
      * @see #Fragment()
      * @see #onCreateView(LayoutInflater, ViewGroup, Bundle)
@@ -1383,13 +1399,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
      * passing in a {@link StartActivityForResult} object for the {@link ActivityResultContract}.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void startActivityForResult(@SuppressLint("UnknownNullness") Intent intent,
             int requestCode, @Nullable Bundle options) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
-        mHost.onStartActivityFromFragment(this /*fragment*/, intent, requestCode, options);
+        getParentFragmentManager().launchStartActivityForResult(this /*fragment*/, intent,
+                requestCode, options);
     }
 
     /**
@@ -1415,7 +1433,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * passing in a {@link StartIntentSenderForResult} object for the
      * {@link ActivityResultContract}.
      */
-    @SuppressWarnings("deprecation")
     @Deprecated
     public void startIntentSenderForResult(@SuppressLint("UnknownNullness") IntentSender intent,
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
@@ -1423,8 +1440,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
-        mHost.onStartIntentSenderFromFragment(this, intent, requestCode, fillInIntent, flagsMask,
-                flagsValues, extraFlags, options);
+        getParentFragmentManager().launchStartIntentSenderForResult(this, intent, requestCode,
+                fillInIntent, flagsMask, flagsValues, extraFlags, options);
     }
 
     /**
@@ -1530,13 +1547,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * in a {@link RequestMultiplePermissions} object for the {@link ActivityResultContract} and
      * handling the result in the {@link ActivityResultCallback#onActivityResult(Object) callback}.
      */
-    @SuppressWarnings("deprecation")
     @Deprecated
     public final void requestPermissions(@NonNull String[] permissions, int requestCode) {
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
-        mHost.onRequestPermissionsFromFragment(this, permissions, requestCode);
+        getParentFragmentManager().launchRequestPermissions(this, permissions, requestCode);
     }
 
     /**
@@ -2018,7 +2034,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Called to ask the fragment to save its current dynamic state, so it
-     * can later be reconstructed in a new instance of its process is
+     * can later be reconstructed in a new instance if its process is
      * restarted.  If a new instance of the fragment later needs to be
      * created, the data you place in the Bundle here will be available
      * in the Bundle given to {@link #onCreate(Bundle)},
@@ -2839,7 +2855,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @Nullable
             public View onFindViewById(int id) {
                 if (mView == null) {
-                    throw new IllegalStateException("Fragment " + this + " does not have a view");
+                    throw new IllegalStateException("Fragment " + Fragment.this
+                            + " does not have a view");
                 }
                 return mView.findViewById(id);
             }
@@ -2893,8 +2910,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mViewLifecycleOwner.initialize();
             // Tell the fragment's new view about it before we tell anyone listening
             // to mViewLifecycleOwnerLiveData and before onViewCreated, so that calls to
-            // ViewTreeLifecycleOwner.get() return something meaningful
+            // ViewTree get() methods return something meaningful
             ViewTreeLifecycleOwner.set(mView, mViewLifecycleOwner);
+            ViewTreeViewModelStoreOwner.set(mView, this);
+            ViewTreeSavedStateRegistryOwner.set(mView, this);
             // Then inform any Observers of the new LifecycleOwner
             mViewLifecycleOwnerLiveData.setValue(mViewLifecycleOwner);
         } else {

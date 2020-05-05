@@ -214,7 +214,6 @@ public class MediaItem extends CustomVersionedParcelable {
      * @return media Id from the session
      * @hide
      */
-    // TODO: Remove
     @RestrictTo(LIBRARY_GROUP)
     @Nullable
     public String getMediaId() {

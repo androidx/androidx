@@ -25,6 +25,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.ContentScale
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
 import androidx.ui.core.drawBehind
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
@@ -161,7 +162,6 @@ fun drawVector(
  * @param[alignment] Specifies the placement of the vector within the drawing bounds
  * @param[contentScale] Specifies how the vector is to be scaled within the parent bounds
  */
-@Composable
 fun Modifier.drawVector(
     defaultWidth: Px,
     defaultHeight: Px,
@@ -173,17 +173,16 @@ fun Modifier.drawVector(
     contentScale: ContentScale = ContentScale.Inside,
     name: String = "",
     children: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
-): Modifier {
-    val vector =
-        remember(name, viewportWidth, viewportHeight) {
-            VectorComponent(
-                name = name,
-                viewportWidth = viewportWidth,
-                viewportHeight = viewportHeight,
-                defaultWidth = defaultWidth,
-                defaultHeight = defaultHeight
-            )
-        }
+): Modifier = composed {
+    val vector = remember(name, viewportWidth, viewportHeight) {
+        VectorComponent(
+            name = name,
+            viewportWidth = viewportWidth,
+            viewportHeight = viewportHeight,
+            defaultWidth = defaultWidth,
+            defaultHeight = defaultHeight
+        )
+    }
 
     val ref = compositionReference()
     val composition = composeVector(vector, currentComposer.recomposer, ref, children)
@@ -197,7 +196,7 @@ fun Modifier.drawVector(
     val vectorHeight = defaultHeight.value
     val vectorPxSize = PxSize(Px(vectorWidth), Px(vectorHeight))
 
-    return this.drawBehind {
+    drawBehind {
         val parentWidth = size.width.value
         val parentHeight = size.height.value
         val scale = contentScale.scale(vectorPxSize, size)

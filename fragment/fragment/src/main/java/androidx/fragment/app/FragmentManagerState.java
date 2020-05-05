@@ -32,6 +32,7 @@ final class FragmentManagerState implements Parcelable {
     String mPrimaryNavActiveWho = null;
     ArrayList<String> mResultKeys = new ArrayList<>();
     ArrayList<Bundle> mResults = new ArrayList<>();
+    ArrayList<FragmentManager.LaunchedFragmentInfo> mLaunchedFragments;
 
     public FragmentManagerState() {
     }
@@ -44,6 +45,7 @@ final class FragmentManagerState implements Parcelable {
         mPrimaryNavActiveWho = in.readString();
         mResultKeys = in.createStringArrayList();
         mResults = in.createTypedArrayList(Bundle.CREATOR);
+        mLaunchedFragments = in.createTypedArrayList(FragmentManager.LaunchedFragmentInfo.CREATOR);
     }
 
     @Override
@@ -60,6 +62,7 @@ final class FragmentManagerState implements Parcelable {
         dest.writeString(mPrimaryNavActiveWho);
         dest.writeStringList(mResultKeys);
         dest.writeTypedList(mResults);
+        dest.writeTypedList(mLaunchedFragments);
     }
 
     public static final Parcelable.Creator<FragmentManagerState> CREATOR

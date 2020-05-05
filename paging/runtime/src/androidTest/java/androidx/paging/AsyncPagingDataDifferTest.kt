@@ -21,12 +21,11 @@ import androidx.paging.ListUpdateEvent.Changed
 import androidx.paging.ListUpdateEvent.Inserted
 import androidx.paging.ListUpdateEvent.Moved
 import androidx.paging.ListUpdateEvent.Removed
-import androidx.paging.LoadState.Done
-import androidx.paging.LoadState.Idle
 import androidx.paging.LoadState.Loading
-import androidx.paging.LoadType.END
+import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.APPEND
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.LoadType.START
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.test.filters.SmallTest
@@ -114,7 +113,7 @@ class AsyncPagingDataDifferTest {
             loadEvents.add(LoadEvent(loadType, loadState))
         }
 
-        val pagingDataFlow = PagingDataFlow(
+        val pager = Pager(
             config = PagingConfig(
                 pageSize = 2,
                 prefetchDistance = 1,
@@ -127,7 +126,7 @@ class AsyncPagingDataDifferTest {
         }
 
         val job = launch {
-            pagingDataFlow.collect {
+            pager.flow.collect {
                 differ.presentData(it)
             }
         }
@@ -138,11 +137,17 @@ class AsyncPagingDataDifferTest {
         // empty previous list.
         assertEvents(
             listOf(
-                LoadEvent(REFRESH, Idle),
-                LoadEvent(START, Idle),
-                LoadEvent(END, Idle),
-                LoadEvent(REFRESH, Loading),
-                LoadEvent(REFRESH, Idle)
+                LoadEvent(
+                    REFRESH,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                ),
+                LoadEvent(
+                    PREPEND,
+                    NotLoading(endOfPaginationReached = false, fromMediator = false)
+                ),
+                LoadEvent(APPEND, NotLoading(endOfPaginationReached = false, fromMediator = false)),
+                LoadEvent(REFRESH, Loading(fromMediator = false)),
+                LoadEvent(REFRESH, NotLoading(endOfPaginationReached = false, fromMediator = false))
             ),
             loadEvents
         )
@@ -157,8 +162,8 @@ class AsyncPagingDataDifferTest {
         // empty next list.
         assertEvents(
             listOf(
-                LoadEvent(START, Done),
-                LoadEvent(END, Done)
+                LoadEvent(PREPEND, NotLoading(endOfPaginationReached = true, fromMediator = false)),
+                LoadEvent(APPEND, NotLoading(endOfPaginationReached = true, fromMediator = false))
             ),
             loadEvents
         )
@@ -170,7 +175,7 @@ class AsyncPagingDataDifferTest {
         //  to directly construct a flow of PagedData.
         pauseDispatcher {
             var currentPagedSource: TestPagingSource? = null
-            val pagedDataFlow = PagingDataFlow(
+            val pager = Pager(
                 config = PagingConfig(
                     pageSize = 1,
                     prefetchDistance = 1,
@@ -183,7 +188,7 @@ class AsyncPagingDataDifferTest {
                 currentPagedSource!!
             }
 
-            val job = launch { pagedDataFlow.collectLatest { differ.presentData(it) } }
+            val job = launch { pager.flow.collectLatest { differ.presentData(it) } }
 
             // Load REFRESH [50, 51]
             advanceUntilIdle()
@@ -216,11 +221,11 @@ class AsyncPagingDataDifferTest {
     @Test
     fun presentData_cancelsLastSubmit() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pagedDataFlow = PagingDataFlow(
+            val pager = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
             ) { TestPagingSource() }
-            val pagedDataFlow2 = PagingDataFlow(
+            val pager2 = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
             ) { TestPagingSource() }
@@ -228,7 +233,7 @@ class AsyncPagingDataDifferTest {
             val lifecycle = TestLifecycleOwner()
             var jobSubmitted = false
             val job = launch {
-                pagedDataFlow.collectLatest {
+                pager.flow.collectLatest {
                     differ.submitData(lifecycle.lifecycle, it)
                     jobSubmitted = true
                 }
@@ -237,7 +242,7 @@ class AsyncPagingDataDifferTest {
             advanceUntilIdle()
 
             val job2 = launch {
-                pagedDataFlow2.collectLatest {
+                pager2.flow.collectLatest {
                     differ.presentData(it)
                 }
             }
@@ -254,11 +259,11 @@ class AsyncPagingDataDifferTest {
     @Test
     fun submitData_cancelsLast() = testScope.runBlockingTest {
         pauseDispatcher {
-            val pagedDataFlow = PagingDataFlow(
+            val pager = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
             ) { TestPagingSource() }
-            val pagedDataFlow2 = PagingDataFlow(
+            val pager2 = Pager(
                 config = PagingConfig(2),
                 initialKey = 50
             ) { TestPagingSource() }
@@ -266,7 +271,7 @@ class AsyncPagingDataDifferTest {
             val lifecycle = TestLifecycleOwner()
             var jobSubmitted = false
             val job = launch {
-                pagedDataFlow.collectLatest {
+                pager.flow.collectLatest {
                     differ.submitData(lifecycle.lifecycle, it)
                     jobSubmitted = true
                 }
@@ -276,7 +281,7 @@ class AsyncPagingDataDifferTest {
 
             var job2Submitted = false
             val job2 = launch {
-                pagedDataFlow2.collectLatest {
+                pager2.flow.collectLatest {
                     differ.submitData(lifecycle.lifecycle, it)
                     job2Submitted = true
                 }

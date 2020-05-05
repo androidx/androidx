@@ -16,13 +16,13 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.composed
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
@@ -47,15 +47,14 @@ import kotlin.math.absoluteValue
  * [onScaleSlopExceeded] will be called (both pointers are slightly more than 5 pixels away from
  * the average of the pointers than they were).
  */
-@Composable
 fun Modifier.scaleSlopExceededGestureFilter(
     onScaleSlopExceeded: () -> Unit
-): Modifier {
+): Modifier = composed {
     val scaleSlop = with(DensityAmbient.current) { ScaleSlop.toPx() }
     val filter = remember { ScaleSlopExceededGestureFilter(scaleSlop) }
     // TODO(b/129784010): Consider also allowing onStart, onScale, and onEnd to be set individually.
     filter.onScaleSlopExceeded = onScaleSlopExceeded
-    return this + PointerInputModifierImpl(filter)
+    PointerInputModifierImpl(filter)
 }
 
 /**

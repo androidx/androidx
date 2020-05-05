@@ -18,6 +18,7 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.VerticalAlignmentLine
@@ -25,6 +26,7 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredWidth
@@ -46,6 +48,37 @@ fun SimpleColumn() {
         Box(
             Modifier.preferredHeight(80.dp)
                 .weight(1f, fill = false),
+            backgroundColor = Color.Green
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun SimpleGravityInColumn() {
+    Column(Modifier.fillMaxWidth()) {
+        // The child with no gravity modifier is positioned by default so that its start edge
+        // aligned with the start edge of the horizontal axis.
+        Box(Modifier.preferredSize(80.dp, 40.dp), backgroundColor = Color.Magenta)
+        // Gravity.Start, the child will be positioned so that its start edge is aligned with
+        // the start edge of the horizontal axis.
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(Alignment.Start),
+            backgroundColor = Color.Red
+        )
+        // Gravity.Center, the child will be positioned so that its center is in the middle of
+        // the horizontal axis.
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(Alignment.CenterHorizontally),
+            backgroundColor = Color.Yellow
+        )
+        // Gravity.End, the child will be positioned so that its end edge aligned to the end of
+        // the horizontal axis.
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(Alignment.End),
             backgroundColor = Color.Green
         )
     }

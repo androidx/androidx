@@ -23,16 +23,13 @@ import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.ToggleableState.Indeterminate
 import androidx.ui.foundation.selection.ToggleableState.Off
 import androidx.ui.foundation.selection.ToggleableState.On
-import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.layout.Column
-import androidx.ui.semantics.accessibilityValue
 import androidx.ui.test.assertHasNoClickAction
+import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsOff
 import androidx.ui.test.assertIsOn
-import androidx.ui.test.assertSemanticsIsEqualTo
-import androidx.ui.test.copyWith
+import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.unit.dp
@@ -47,18 +44,6 @@ class CheckboxUiTest {
 
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
-
-    // TODO(b/126881459): this should be the default semantic for checkbox
-    private val defaultCheckboxCheckedSemantics = createFullSemantics(
-        isEnabled = true,
-        value = Strings.Checked,
-        toggleableState = On
-    )
-
-    private val defaultCheckboxUncheckedSemantics = defaultCheckboxCheckedSemantics.copyWith {
-        accessibilityValue = Strings.Unchecked
-        toggleableState = Off
-    }
 
     private val defaultTag = "myCheckbox"
 
@@ -76,10 +61,14 @@ class CheckboxUiTest {
         }
 
         findByTag("checkboxUnchecked")
-            .assertSemanticsIsEqualTo(defaultCheckboxUncheckedSemantics)
+            .assertIsEnabled()
+            .assertIsOff()
+            .assertValueEquals(Strings.Unchecked)
 
         findByTag("checkboxChecked")
-            .assertSemanticsIsEqualTo(defaultCheckboxCheckedSemantics)
+            .assertIsEnabled()
+            .assertIsOn()
+            .assertValueEquals(Strings.Checked)
     }
 
     @Test

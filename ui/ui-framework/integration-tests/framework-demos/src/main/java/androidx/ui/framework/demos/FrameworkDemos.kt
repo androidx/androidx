@@ -35,6 +35,7 @@ import androidx.ui.framework.demos.gestures.RawDragGestureDetectorDemo
 import androidx.ui.framework.demos.gestures.ScaleGestureDetectorDemo
 import androidx.ui.framework.demos.gestures.TouchSlopDragGestureDetectorDemo
 import androidx.ui.framework.demos.gestures.TouchSlopExceededGestureDetectorDemo
+import androidx.ui.framework.demos.viewinterop.ViewInComposeDemo
 
 private val GestureDemos = DemoCategory("Gestures", listOf(
     DemoCategory("Simple - Non-Movement", listOf(
@@ -62,11 +63,17 @@ private val GestureDemos = DemoCategory("Gestures", listOf(
     ))
 ))
 
+private val GraphicsDemos = DemoCategory("Graphics", listOf(
+    ComposableDemo("VectorGraphicsDemo") { VectorGraphicsDemo() },
+    ComposableDemo("DeclarativeGraphicsDemo") { DeclarativeGraphicsDemo() }
+))
+
 val FrameworkDemos = DemoCategory("Framework", listOf(
     ComposableDemo("Explicit autofill types") { ExplicitAutofillTypesDemo() },
     ComposableDemo("Focus") { FocusableDemo() },
     ComposableDemo("Multiple collects measure") { MultipleCollectTest() },
     ComposableDemo("Popup") { PopupDemo() },
-    ComposableDemo("Vector graphics") { VectorGraphicsDemo() },
-    GestureDemos
+    GraphicsDemos,
+    GestureDemos,
+    ComposableDemo("View in compose") { ViewInComposeDemo() }
 ))

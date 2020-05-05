@@ -45,6 +45,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewTreeLifecycleOwner;
+import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 
 /**
  * Base class for activities that wish to use some of the newer platform features on older
@@ -167,22 +170,34 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
+        initViewTreeOwners();
         getDelegate().setContentView(layoutResID);
     }
 
     @Override
     public void setContentView(View view) {
+        initViewTreeOwners();
         getDelegate().setContentView(view);
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
+        initViewTreeOwners();
         getDelegate().setContentView(view, params);
     }
 
     @Override
     public void addContentView(View view, ViewGroup.LayoutParams params) {
+        initViewTreeOwners();
         getDelegate().addContentView(view, params);
+    }
+
+    private void initViewTreeOwners() {
+        // Set the view tree owners before setting the content view so that the inflation process
+        // and attach listeners will see them already present
+        ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
+        ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
+        ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
     }
 
     @Override

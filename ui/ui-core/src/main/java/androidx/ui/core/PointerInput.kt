@@ -199,20 +199,30 @@ private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = 
 // Consumption querying functions
 
 /**
- * True if any of this [PointerInputChange]s movement has been consumed.
+ * True if any of this [PointerInputChange]'s movement has been consumed.
  */
 fun PointerInputChange.anyPositionChangeConsumed() =
     consumed.positionChange.x.value != 0f || consumed.positionChange.y.value != 0f
 
+/**
+ * True if any aspect of this [PointerInputChange] has been consumed.
+ */
+fun PointerInputChange.anyChangeConsumed() = anyPositionChangeConsumed() || consumed.downChange
+
 // Consume functions
 
 /**
- * Consume the up or down change of this [PointerInputChange].
+ * Consume the up or down change of this [PointerInputChange] if there is an up or down change to
+ * consume.
  *
  * Note: This function creates a modified copy of this [PointerInputChange].
  */
 fun PointerInputChange.consumeDownChange() =
-    copy(consumed = this.consumed.copy(downChange = true))
+    if (current.down != previous.down) {
+        copy(consumed = consumed.copy(downChange = true))
+    } else {
+        this
+    }
 
 /**
  * Consumes some portion of the position change of this [PointerInputChange].
@@ -238,4 +248,16 @@ fun PointerInputChange.consumePositionChange(
             )
         )
     )
+}
+
+/**
+ * Consumes all changes associated with the [PointerInputChange]
+ *
+ * Note: This function creates a modified copy of this [PointerInputChange]
+ */
+fun PointerInputChange.consumeAllChanges(): PointerInputChange {
+    val remainingPositionChange = this.positionChange()
+    return this
+        .consumeDownChange()
+        .consumePositionChange(remainingPositionChange.x, remainingPositionChange.y)
 }

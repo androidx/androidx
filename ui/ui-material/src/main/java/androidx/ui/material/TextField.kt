@@ -22,7 +22,6 @@ import androidx.animation.TweenBuilder
 import androidx.animation.transitionDefinition
 import androidx.compose.Composable
 import androidx.compose.Providers
-import androidx.compose.emptyContent
 import androidx.compose.getValue
 import androidx.compose.remember
 import androidx.compose.setValue
@@ -32,15 +31,18 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.DpPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
-import androidx.ui.core.FocusManagerAmbient
-import androidx.ui.text.FirstBaseline
-import androidx.ui.text.LastBaseline
+import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutDirection
+import androidx.ui.core.LayoutModifier
+import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Placeable
 import androidx.ui.core.drawBehind
 import androidx.ui.core.offset
 import androidx.ui.core.tag
+import androidx.ui.focus.FocusModifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentColorAmbient
@@ -54,10 +56,15 @@ import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Shape
+import androidx.ui.input.ImeAction
+import androidx.ui.input.KeyboardType
+import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple
 import androidx.ui.semantics.Semantics
+import androidx.ui.text.FirstBaseline
+import androidx.ui.text.LastBaseline
 import androidx.ui.text.TextRange
 import androidx.ui.text.TextStyle
 import androidx.ui.text.lerp
@@ -65,30 +72,76 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
+import androidx.ui.unit.ipx
 import androidx.ui.unit.max
-import java.util.UUID
 
 /**
  * Material Design implementation of the
  * [Material Filled TextField](https://material.io/components/text-fields/#filled-text-field)
  *
+ * A simple example looks like:
+ *
+ * @sample androidx.ui.material.samples.SimpleFilledTextFieldSample
+ *
+ * You may provide a placeholder:
+ *
+ * @sample androidx.ui.material.samples.FilledTextFieldWithPlaceholder
+ *
+ * You can also provide leading and trailing icons:
+ *
+ * @sample androidx.ui.material.samples.FilledTextFieldWithIcons
+ *
+ * To handle the error input state, use [isErrorValue] parameter:
+ *
+ * @sample androidx.ui.material.samples.FilledTextFieldWithErrorState
+ *
+ * Additionally, you may provide additional message at the bottom:
+ *
+ * @sample androidx.ui.material.samples.TextFieldWithHelperMessage
+ *
+ * Password text field example:
+ *
+ * @sample androidx.ui.material.samples.PasswordFilledTextField
+ *
+ * If apart from input text change you also want to observe the cursor location or selection range,
+ * use a FilledTextField overload with the [TextFieldValue] parameter instead.
+ *
  * @param value the input text to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text. An
  * updated text comes as a parameter of the callback
- * If you want to observe the cursor location or selection range, use a FilledTextField override
- * with the [TextFieldValue] parameter instead
- * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
- * [currentTextStyle] defined by a theme.
  * @param label the label to be displayed inside the text field container. The default text style
  * for internal [Text] is [Typography.caption] when the text field is in focus and
- * [Typography.subtitle1] when text field is not in focus.
+ * [Typography.subtitle1] when text field is not in focus
+ * @param modifier a [Modifier] for this text field
+ * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
+ * [currentTextStyle] defined by the theme
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
- * the input text is empty. The default text style for internal [Text] is [Typography.subtitle1].
- * @param onFocusChange the callback triggered when the text field gets or loses the focus.
- * If the boolean parameter value is `true`, it means the text field has a focus, and vice versa.
+ * the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
+ * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
+ * container
+ * @param trailingIcon the optional trailing icon to be displayed at the end of the text field
+ * container
+ * If the boolean parameter value is `true`, it means the text field has a focus, and vice versa
+ * @param isErrorValue indicates if the text field's current value is in error. If set to true, the
+ * label, bottom indicator and trailing icon will be displayed in [errorColor] color
+ * @param keyboardType the keyboard type to be used with the text field.
+ * Note that the input type is not guaranteed. For example, an IME may send a non-ASCII character
+ * even if you set the keyboard type to [KeyboardType.Ascii]
+ * @param imeAction the IME action honored by the IME. The 'enter' key on the soft keyboard input
+ * will show a corresponding icon. For example, search icon may be shown if [ImeAction.Search] is
+ * selected. When a user taps on that 'enter' key, the [onImeActionPerformed] callback is called
+ * with the specified [ImeAction]
+ * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
+ * Note that the emitted IME action may be different from what you specified through the
+ * [imeAction] field
+ * @param visualTransformation transforms the visual output of the input [value]. For example, you
+ * can use [androidx.ui.input.PasswordVisualTransformation] to create a password text field
+ * @param onFocusChange the callback triggered when the text field gets or loses the focus
  * @param activeColor the color of the label and bottom indicator when the text field is in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
  * focus, and the color of label and bottom indicator when the text field is not in focus
+ * @param errorColor the alternative color of the label, bottom indicator and trailing icon used
+ * when [isErrorValue] is set to true
  * @param backgroundColor the background color of the text field's container. To a color provided
  * here there will be applied a transparency alpha defined by Material Design specifications
  * @param shape the shape of the text field's container
@@ -97,13 +150,21 @@ import java.util.UUID
 fun FilledTextField(
     value: String,
     onValueChange: (String) -> Unit,
+    label: @Composable() () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
-    label: @Composable() () -> Unit,
-    placeholder: @Composable() () -> Unit = emptyContent(),
+    placeholder: @Composable() (() -> Unit)? = null,
+    leadingIcon: @Composable() (() -> Unit)? = null,
+    trailingIcon: @Composable() (() -> Unit)? = null,
+    isErrorValue: Boolean = false,
+    visualTransformation: VisualTransformation? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Unspecified,
+    onImeActionPerformed: (ImeAction) -> Unit = {},
     onFocusChange: (Boolean) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
+    errorColor: Color = MaterialTheme.colors.error,
     backgroundColor: Color = MaterialTheme.colors.onSurface,
     shape: Shape =
         MaterialTheme.shapes.small.copy(bottomLeft = ZeroCornerSize, bottomRight = ZeroCornerSize)
@@ -129,9 +190,17 @@ fun FilledTextField(
         textStyle = textStyle,
         label = label,
         placeholder = placeholder,
+        leading = leadingIcon,
+        trailing = trailingIcon,
+        isErrorValue = isErrorValue,
+        visualTransformation = visualTransformation,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        onImeActionPerformed = onImeActionPerformed,
         onFocusChange = onFocusChange,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
+        errorColor = errorColor,
         backgroundColor = backgroundColor,
         shape = shape
     )
@@ -141,23 +210,49 @@ fun FilledTextField(
  * Material Design implementation of the
  * [Material Filled TextField](https://material.io/components/text-fields/#filled-text-field)
  *
+ *
+ * See example usage:
+ * @sample androidx.ui.material.samples.FilledTextFieldSample
+ *
+ * If you only want to observe an input text change, use a FilledTextField overload with the
+ * [String] parameter instead.
+ *
  * @param value the input [TextFieldValue] to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text,
  * selection or cursor. An updated [TextFieldValue] comes as a parameter of the callback
- * If you only want to observe the text change, use a [FilledTextField] override with the String
- * parameter instead
- * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
- * [currentTextStyle] defined by a theme.
  * @param label the label to be displayed inside the text field container. The default text style
  * for internal [Text] is [Typography.caption] when the text field is in focus and
- * [Typography.subtitle1] when text field is not in focus.
+ * [Typography.subtitle1] when text field is not in focus
+ * @param modifier a [Modifier] for this text field
+ * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
+ * [currentTextStyle] defined by the theme
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
- * the input text is empty. The default text style for internal [Text] is [Typography.subtitle1].
- * @param onFocusChange the callback triggered when the text field gets or loses the focus.
- * If the boolean parameter value is `true`, it means the text field has a focus, and vice versa.
+ * the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
+ * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
+ * container
+ * @param trailingIcon the optional trailing icon to be displayed at the end of the text field
+ * container
+ * If the boolean parameter value is `true`, it means the text field has a focus, and vice versa
+ * @param isErrorValue indicates if the text field's current value is in error state. If set to
+ * true, the label, bottom indicator and trailing icon will be displayed in [errorColor] color
+ * @param keyboardType the keyboard type to be used with the text field.
+ * Note that the input type is not guaranteed. For example, an IME may send a non-ASCII character
+ * even if you set the keyboard type to [KeyboardType.Ascii]
+ * @param imeAction the IME action honored by the IME. The 'enter' key on the soft keyboard input
+ * will show a corresponding icon. For example, search icon may be shown if [ImeAction.Search] is
+ * selected. When a user taps on that 'enter' key, the [onImeActionPerformed] callback is called
+ * with the specified [ImeAction]
+ * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
+ * Note that the emitted IME action may be different from what you specified through the
+ * [imeAction] field
+ * @param visualTransformation transforms the visual output of the input [value]. For example, you
+ * can use [androidx.ui.input.PasswordVisualTransformation] to create a password text field
+ * @param onFocusChange the callback triggered when the text field gets or loses the focus
  * @param activeColor the color of the label and bottom indicator when the text field is in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
  * focus, and the color of label and bottom indicator when the text field is not in focus
+ * @param errorColor the alternative color of the label, bottom indicator and trailing icon used
+ * when [isErrorValue] is set to true
  * @param backgroundColor the background color of the text field's container. To a color provided
  * here there will be applied a transparency alpha defined by Material Design specifications
  * @param shape the shape of the text field's container
@@ -166,13 +261,21 @@ fun FilledTextField(
 fun FilledTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
+    label: @Composable() () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
-    label: @Composable() () -> Unit,
-    placeholder: @Composable() () -> Unit = emptyContent(),
+    placeholder: @Composable() (() -> Unit)? = null,
+    leadingIcon: @Composable() (() -> Unit)? = null,
+    trailingIcon: @Composable() (() -> Unit)? = null,
+    isErrorValue: Boolean = false,
+    visualTransformation: VisualTransformation? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Unspecified,
+    onImeActionPerformed: (ImeAction) -> Unit = {},
     onFocusChange: (Boolean) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
+    errorColor: Color = MaterialTheme.colors.error,
     backgroundColor: Color = MaterialTheme.colors.onSurface,
     shape: Shape =
         MaterialTheme.shapes.small.copy(bottomLeft = ZeroCornerSize, bottomRight = ZeroCornerSize)
@@ -184,9 +287,17 @@ fun FilledTextField(
         textStyle = textStyle,
         label = label,
         placeholder = placeholder,
+        leading = leadingIcon,
+        trailing = trailingIcon,
+        isErrorValue = isErrorValue,
+        visualTransformation = visualTransformation,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        onImeActionPerformed = onImeActionPerformed,
         onFocusChange = onFocusChange,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
+        errorColor = errorColor,
         backgroundColor = backgroundColor,
         shape = shape
     )
@@ -202,15 +313,22 @@ private fun FilledTextFieldImpl(
     modifier: Modifier,
     textStyle: TextStyle,
     label: @Composable() () -> Unit,
-    placeholder: @Composable() () -> Unit,
-    // TODO (b/152968058) finalise this API
+    placeholder: @Composable() (() -> Unit)?,
+    leading: @Composable() (() -> Unit)?,
+    trailing: @Composable() (() -> Unit)?,
+    isErrorValue: Boolean,
+    visualTransformation: VisualTransformation?,
+    keyboardType: KeyboardType,
+    imeAction: ImeAction,
+    onImeActionPerformed: (ImeAction) -> Unit,
     onFocusChange: (Boolean) -> Unit,
     activeColor: Color,
     inactiveColor: Color,
+    errorColor: Color,
     backgroundColor: Color,
     shape: Shape
 ) {
-    val focusIdentifier = remember { UUID.randomUUID().toString() }
+    val focusModifier = FocusModifier()
     var shouldFocus by state { false }
     var focused by state { false }
     val inputState = stateFor(value.text, focused) {
@@ -221,16 +339,18 @@ private fun FilledTextFieldImpl(
         }
     }
 
-    val decoratedPlaceholder = @Composable {
-        if (inputState.value == InputPhase.Focused && value.text.isEmpty()) {
-            Decoration(
-                contentColor = inactiveColor,
-                typography = MaterialTheme.typography.subtitle1,
-                emphasis = EmphasisAmbient.current.medium,
-                children = placeholder
-            )
-        }
-    }
+    val decoratedPlaceholder: @Composable() (() -> Unit)? =
+        if (placeholder != null && inputState.value == InputPhase.Focused && value.text.isEmpty()) {
+            {
+                Decoration(
+                    contentColor = inactiveColor,
+                    typography = MaterialTheme.typography.subtitle1,
+                    emphasis = EmphasisAmbient.current.medium,
+                    children = placeholder
+                )
+            }
+        } else null
+
     val decoratedTextField = @Composable { tagModifier: Modifier ->
         Decoration(
             contentColor = inactiveColor,
@@ -239,14 +359,18 @@ private fun FilledTextFieldImpl(
         ) {
             TextField(
                 value = value,
-                modifier = tagModifier,
+                modifier = tagModifier + focusModifier,
                 textStyle = textStyle,
                 onValueChange = onValueChange,
                 onFocusChange = {
                     focused = it
                     onFocusChange(it)
                 },
-                focusIdentifier = focusIdentifier
+                cursorColor = if (isErrorValue) errorColor else MaterialTheme.colors.primary,
+                visualTransformation = visualTransformation,
+                keyboardType = keyboardType,
+                imeAction = imeAction,
+                onImeActionPerformed = onImeActionPerformed
             )
         }
     }
@@ -264,7 +388,7 @@ private fun FilledTextFieldImpl(
         ) {
             Clickable(onClick = { shouldFocus = true }, modifier = Modifier.ripple(false)) {
                 if (shouldFocus) {
-                    FocusManagerAmbient.current.requestFocusById(focusIdentifier)
+                    focusModifier.requestFocus()
                     shouldFocus = false
                 }
 
@@ -278,13 +402,19 @@ private fun FilledTextFieldImpl(
                     activeColor = emphasizedActiveColor,
                     labelInactiveColor = labelInactiveColor,
                     indicatorInactiveColor = indicatorInactiveColor
-                ) { labelProgress, labelColor, indicatorWidth, indicatorColor ->
+                ) { labelProgress, animatedLabelColor, indicatorWidth, indicatorColor ->
                     // TODO(soboleva): figure out how this will play with the textStyle provided in label slot
                     val labelAnimatedStyle = lerp(
                         MaterialTheme.typography.subtitle1,
                         MaterialTheme.typography.caption,
                         labelProgress
                     )
+
+                    val leadingColor = inactiveColor.copy(alpha = TrailingLeadingAlpha)
+                    val trailingColor = if (isErrorValue) errorColor else leadingColor
+
+                    // text field with label and placeholder
+                    val labelColor = if (isErrorValue) errorColor else animatedLabelColor
                     val decoratedLabel = @Composable {
                         Decoration(
                             contentColor = labelColor,
@@ -292,15 +422,30 @@ private fun FilledTextFieldImpl(
                             children = label
                         )
                     }
-                    val paddingAndIndicator = Modifier
-                        .drawIndicatorLine(indicatorWidth, indicatorColor)
-                        .padding(start = TextHorizontalPadding, end = TextHorizontalPadding)
-                    TextFieldLayout(
-                        animationProgress = labelProgress,
-                        modifier = paddingAndIndicator,
-                        placeholder = decoratedPlaceholder,
-                        label = decoratedLabel,
-                        textField = decoratedTextField
+
+                    // places leading icon, text field with label, trailing icon
+                    IconsTextFieldLayout(
+                        modifier = Modifier.drawIndicatorLine(
+                            lineWidth = indicatorWidth,
+                            color = if (isErrorValue) errorColor else indicatorColor
+                        ),
+                        textField = {
+                            TextFieldLayout(
+                                animationProgress = labelProgress,
+                                modifier = Modifier
+                                    .padding(
+                                        start = HorizontalTextFieldPadding,
+                                        end = HorizontalTextFieldPadding
+                                    ),
+                                placeholder = decoratedPlaceholder,
+                                label = decoratedLabel,
+                                textField = decoratedTextField
+                            )
+                        },
+                        leading = leading,
+                        trailing = trailing,
+                        leadingColor = leadingColor,
+                        trailingColor = trailingColor
                     )
                 }
             }
@@ -314,19 +459,16 @@ private fun FilledTextFieldImpl(
 @Composable
 private fun Decoration(
     contentColor: Color,
-    typography: TextStyle,
+    typography: TextStyle? = null,
     emphasis: Emphasis? = null,
     children: @Composable() () -> Unit
 ) {
-    Providers(ContentColorAmbient provides contentColor) {
-        ProvideTextStyle(typography) {
-            if (emphasis != null) {
-                ProvideEmphasis(emphasis, children)
-            } else {
-                children()
-            }
+    val colorAndEmphasis = @Composable {
+        Providers(ContentColorAmbient provides contentColor) {
+            if (emphasis != null) ProvideEmphasis(emphasis, children) else children()
         }
     }
+    if (typography != null) ProvideTextStyle(typography, colorAndEmphasis) else colorAndEmphasis()
 }
 
 /**
@@ -336,13 +478,15 @@ private fun Decoration(
 private fun TextFieldLayout(
     animationProgress: Float,
     modifier: Modifier,
-    placeholder: @Composable() () -> Unit,
+    placeholder: @Composable() (() -> Unit)?,
     label: @Composable() () -> Unit,
     textField: @Composable() (Modifier) -> Unit
 ) {
     Layout(
         children = {
-            Box(modifier = Modifier.tag(PlaceholderTag), children = placeholder)
+            if (placeholder != null) {
+                Box(modifier = Modifier.tag(PlaceholderTag), children = placeholder)
+            }
             Box(modifier = Modifier.tag(LabelTag), children = label)
             textField(Modifier.tag(TextFieldTag))
         },
@@ -387,17 +531,111 @@ private fun TextFieldLayout(
                     height,
                     textfieldPlaceable,
                     labelPlaceable,
+                    placeholderPlaceable,
                     labelEndPosition,
                     textfieldPositionY,
                     animationProgress
                 )
             } else {
-                placeTextfield(width, height, textfieldPlaceable)
+                placeTextfield(width, height, textfieldPlaceable, placeholderPlaceable)
             }
-            placeholderPlaceable?.place(IntPx.Zero, textfieldPositionY)
         }
     }
 }
+
+/**
+ * Layout of the leading and trailing icons and the text field.
+ * It differs from the Row as it does not lose the minHeight constraint which is needed to
+ * correctly place the text field and label.
+ * Should be revisited if b/154202249 is fixed so that Row could be used instead
+ */
+@Composable
+private fun IconsTextFieldLayout(
+    modifier: Modifier = Modifier,
+    textField: @Composable() () -> Unit,
+    leading: @Composable() (() -> Unit)?,
+    trailing: @Composable() (() -> Unit)?,
+    leadingColor: Color,
+    trailingColor: Color
+) {
+    Layout(
+        children = {
+            if (leading != null) {
+                Box(Modifier.tag("leading").iconPadding(start = HorizontalIconPadding)) {
+                    Decoration(contentColor = leadingColor, children = leading)
+                }
+            }
+            if (trailing != null) {
+                Box(Modifier.tag("trailing").iconPadding(end = HorizontalIconPadding)) {
+                    Decoration(contentColor = trailingColor, children = trailing)
+                }
+            }
+            textField()
+        },
+        modifier = modifier
+    ) { measurables, incomingConstraints, _ ->
+        val constraints = incomingConstraints.copy(minWidth = IntPx.Zero, minHeight = IntPx.Zero)
+        var occupiedSpace = 0.ipx
+
+        val leadingPlaceable = measurables.find { it.tag == "leading" }?.measure(constraints)
+        occupiedSpace += leadingPlaceable?.width ?: 0.ipx
+
+        val trailingPlaceable = measurables.find { it.tag == "trailing" }
+            ?.measure(constraints.offset(horizontal = -occupiedSpace))
+        occupiedSpace += trailingPlaceable?.width ?: 0.ipx
+
+        val textFieldPlaceable = measurables.first {
+            it.tag != "leading" && it.tag != "trailing"
+        }.measure(incomingConstraints.offset(horizontal = -occupiedSpace).copy(minWidth = 0.ipx))
+        occupiedSpace += textFieldPlaceable.width
+
+        val width = max(occupiedSpace, incomingConstraints.minWidth)
+        val height = max(
+            listOf(
+                leadingPlaceable,
+                trailingPlaceable,
+                textFieldPlaceable
+            ).maxBy { it?.height ?: 0.ipx }?.height ?: 0.ipx,
+            incomingConstraints.minHeight
+        )
+        layout(width, height) {
+            leadingPlaceable?.place(
+                0.ipx,
+                Alignment.CenterVertically.align(height - leadingPlaceable.height)
+            )
+            textFieldPlaceable.place(
+                leadingPlaceable?.width ?: 0.ipx,
+                Alignment.CenterVertically.align(height - textFieldPlaceable.height)
+            )
+            trailingPlaceable?.place(
+                width - trailingPlaceable.width,
+                Alignment.CenterVertically.align(height - trailingPlaceable.height)
+            )
+        }
+    }
+}
+
+private fun Modifier.iconPadding(start: Dp = 0.dp, end: Dp = 0.dp) =
+    this + object : LayoutModifier {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints,
+            layoutDirection: LayoutDirection
+        ): MeasureScope.MeasureResult {
+            val horizontal = start.toIntPx() + end.toIntPx()
+            val placeable = measurable.measure(constraints.offset(-horizontal))
+            val width = if (placeable.nonZero) {
+                (placeable.width + horizontal).coerceIn(constraints.minWidth, constraints.maxWidth)
+            } else {
+                0.ipx
+            }
+            return layout(width, placeable.height) {
+                placeable.place(start.toIntPx(), 0.ipx)
+            }
+        }
+    }
+
+private val Placeable.nonZero: Boolean get() = this.width != 0.ipx || this.height != 0.ipx
 
 /**
  * A draw modifier that draws a bottom indicator line
@@ -419,13 +657,14 @@ private fun Modifier.drawIndicatorLine(lineWidth: Dp, color: Color): Modifier {
 }
 
 /**
- * Places a text field and a label with respect to the baseline offsets
+ * Places the provided text field, placeholder and label with respect to the baseline offsets
  */
 private fun Placeable.PlacementScope.placeLabelAndTextfield(
     width: IntPx,
     height: IntPx,
     textfieldPlaceable: Placeable,
     labelPlaceable: Placeable,
+    placeholderPlaceable: Placeable?,
     labelEndPosition: IntPx,
     textPosition: IntPx,
     animationProgress: Float
@@ -442,15 +681,17 @@ private fun Placeable.PlacementScope.placeLabelAndTextfield(
     labelPlaceable.place(IntPx.Zero, labelPositionY)
 
     textfieldPlaceable.place(IntPx.Zero, textPosition)
+    placeholderPlaceable?.place(IntPx.Zero, textPosition)
 }
 
 /**
- * Places a text field center vertically
+ * Places the provided text field and placeholder center vertically
  */
 private fun Placeable.PlacementScope.placeTextfield(
     width: IntPx,
     height: IntPx,
-    textPlaceable: Placeable
+    textPlaceable: Placeable,
+    placeholderPlaceable: Placeable?
 ) {
     val textCenterPosition = Alignment.CenterStart.align(
         IntPxSize(
@@ -459,6 +700,7 @@ private fun Placeable.PlacementScope.placeTextfield(
         )
     )
     textPlaceable.place(IntPx.Zero, textCenterPosition.y)
+    placeholderPlaceable?.place(IntPx.Zero, textCenterPosition.y)
 }
 
 private object TextFieldTransitionScope {
@@ -549,10 +791,12 @@ private object TextFieldTransitionScope {
         IndicatorColorProp using tweenAnimation()
         IndicatorWidthProp using tweenAnimation()
     }
+
     private fun TransitionSpec<InputPhase>.labelTransition() {
         LabelColorProp using tweenAnimation()
         LabelProgressProp using tweenAnimation()
     }
+
     private fun <T> tweenAnimation() = TweenBuilder<T>().apply { duration = AnimationDuration }
 }
 
@@ -576,9 +820,11 @@ private const val AnimationDuration = 150
 private val IndicatorUnfocusedWidth = 1.dp
 private val IndicatorFocusedWidth = 2.dp
 private const val IndicatorInactiveAlpha = 0.42f
+private const val TrailingLeadingAlpha = 0.54f
 private const val ContainerAlpha = 0.12f
 private val TextFieldMinHeight = 56.dp
 private val TextFieldMinWidth = 280.dp
 private val FirstBaselineOffset = 20.dp
-private val TextHorizontalPadding = 16.dp
 private val LastBaselineOffset = 16.dp
+private val HorizontalTextFieldPadding = 16.dp
+private val HorizontalIconPadding = 12.dp

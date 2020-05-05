@@ -47,13 +47,13 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     // Queue of all futures for ImageProxys which have not yet been closed.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    BlockingQueue<ListenableFuture<Void>> mImageProxyBlockingQueue;
+            BlockingQueue<ListenableFuture<Void>> mImageProxyBlockingQueue;
 
     // Queue of ImageProxys which have not yet been acquired.
     private BlockingQueue<ImageProxy> mImageProxyAcquisitionQueue;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    ImageReaderProxy.OnImageAvailableListener mListener;
+            ImageReaderProxy.OnImageAvailableListener mListener;
 
     /**
      * Create a new {@link FakeImageReaderProxy} instance.
@@ -140,6 +140,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         mSurface = surface;
     }
 
+    public void setImageFormat(int imageFormat) {
+        mImageFormat = imageFormat;
+    }
+
     /**
      * Manually trigger OnImageAvailableListener to notify the Image is ready.
      *
@@ -152,12 +156,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
         final ListenableFuture<Void> future = fakeImageProxy.getCloseFuture();
         mImageProxyBlockingQueue.put(future);
-        future.addListener(new Runnable() {
-            @Override
-            public void run() {
-                mImageProxyBlockingQueue.remove(future);
-            }
-            },
+        future.addListener(() -> mImageProxyBlockingQueue.remove(future),
                 CameraXExecutors.directExecutor()
         );
 
@@ -183,13 +182,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
         final ListenableFuture<Void> future = fakeImageProxy.getCloseFuture();
         if (mImageProxyBlockingQueue.offer(future, timeout, timeUnit)) {
-
-            future.addListener(new Runnable() {
-                @Override
-                public void run() {
-                    mImageProxyBlockingQueue.remove(future);
-                }
-                },
+            future.addListener(() -> mImageProxyBlockingQueue.remove(future),
                     CameraXExecutors.directExecutor()
             );
 

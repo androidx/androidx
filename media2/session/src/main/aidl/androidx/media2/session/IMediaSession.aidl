@@ -61,6 +61,7 @@ oneway interface IMediaSession {
     void setPlaylist(IMediaController caller, int seq, in List<String> list,
             in ParcelImpl metadata) = 21;
     void setMediaItem(IMediaController caller, int seq, String mediaId) = 22;
+    void setMediaUri(IMediaController caller, int seq, in Uri uri, in Bundle extras) = 44;
     void updatePlaylistMetadata(IMediaController caller, int seq, in ParcelImpl metadata) = 23;
     void addPlaylistItem(IMediaController caller, int seq, int index, String mediaId) = 24;
     void removePlaylistItem(IMediaController caller, int seq, int index) = 25;
@@ -91,5 +92,5 @@ oneway interface IMediaSession {
     void subscribe(IMediaController caller, int seq, String parentId,
             in ParcelImpl libraryParams) = 38;
     void unsubscribe(IMediaController caller, int seq, String parentId) = 39;
-    // Next Id : 44
+    // Next Id : 45
 }

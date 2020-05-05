@@ -19,7 +19,6 @@ package androidx.ui.foundation
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.SmallTest
-import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.input.CommitTextEditOp
@@ -67,7 +66,6 @@ class TextFieldOnValueChangeTextFieldValueTest {
 
     @Before
     fun setUp() {
-        val focusManager = TextFieldTest.FakeFocusManager()
         val textInputService = mock<TextInputService>()
         val inputSessionToken = 10 // any positive number is fine.
 
@@ -76,7 +74,6 @@ class TextFieldOnValueChangeTextFieldValueTest {
 
         composeTestRule.setContent {
             Providers(
-                FocusManagerAmbient provides focusManager,
                 TextInputServiceAmbient provides textInputService
             ) {
                 TestTag(tag = "textField") {

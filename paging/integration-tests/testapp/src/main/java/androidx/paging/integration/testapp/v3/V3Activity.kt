@@ -76,19 +76,17 @@ class V3Activity : AppCompatActivity() {
             if (type != LoadType.REFRESH) return@addLoadStateListener
 
             when (state) {
-                is LoadState.Idle -> {
-                    button.text = "Refresh"
-                    button.isEnabled = true
-                    button.setOnClickListener {
-                        adapter.refresh()
+                is LoadState.NotLoading -> {
+                    button.text = if (state.endOfPaginationReached) "Refresh" else "Done"
+                    button.isEnabled = state.endOfPaginationReached
+                    if (state.endOfPaginationReached) {
+                        button.setOnClickListener {
+                            adapter.refresh()
+                        }
                     }
                 }
                 is Loading -> {
                     button.text = "Loading"
-                    button.isEnabled = false
-                }
-                is LoadState.Done -> {
-                    button.text = "Done"
                     button.isEnabled = false
                 }
                 is Error -> {

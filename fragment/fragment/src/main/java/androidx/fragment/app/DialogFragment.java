@@ -182,8 +182,22 @@ public class DialogFragment extends Fragment
     }
 
     /**
-     * Alternate constructor that can be used to provide a default layout
-     * that will be inflated by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * Alternate constructor that can be called from your default, no argument constructor to
+     * provide a default layout that will be inflated by
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     *
+     * <pre class="prettyprint">
+     * class MyDialogFragment extends DialogFragment {
+     *   public MyDialogFragment() {
+     *     super(R.layout.dialog_fragment_main);
+     *   }
+     * }
+     * </pre>
+     *
+     * You must
+     * {@link FragmentManager#setFragmentFactory(FragmentFactory) set a custom FragmentFactory}
+     * if you want to use a non-default constructor to ensure that your constructor is called
+     * when the fragment is re-instantiated.
      *
      * @see #DialogFragment()
      * @see #onCreateView(LayoutInflater, ViewGroup, Bundle)
@@ -489,7 +503,10 @@ public class DialogFragment extends Fragment
                 if (dialogView != null) {
                     return dialogView;
                 }
-                return fragmentContainer.onFindViewById(id);
+                if (fragmentContainer.onHasView()) {
+                    return fragmentContainer.onFindViewById(id);
+                }
+                return null;
             }
 
             @Override
@@ -625,9 +642,9 @@ public class DialogFragment extends Fragment
                 // with setting up the dialog if mShowsDialog is still true
                 if (mShowsDialog) {
                     setupDialog(mDialog, mStyle);
-                    final Activity activity = getActivity();
-                    if (activity != null) {
-                        mDialog.setOwnerActivity(activity);
+                    final Context context = getContext();
+                    if (context instanceof Activity) {
+                        mDialog.setOwnerActivity((Activity) context);
                     }
                     mDialog.setCancelable(mCancelable);
                     mDialog.setOnCancelListener(mOnCancelListener);

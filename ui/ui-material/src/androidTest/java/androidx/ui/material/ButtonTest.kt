@@ -40,11 +40,11 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
-import androidx.ui.test.assertSemanticsIsEqualTo
+import androidx.ui.test.assertIsEnabled
+import androidx.ui.test.assertIsNotEnabled
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
@@ -74,10 +74,6 @@ class ButtonTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val defaultButtonSemantics = createFullSemantics(
-        isEnabled = true
-    )
-
     @Test
     fun buttonTest_defaultSemantics() {
         composeTestRule.setMaterialContent {
@@ -91,7 +87,7 @@ class ButtonTest {
         }
 
         findByTag("myButton")
-            .assertSemanticsIsEqualTo(defaultButtonSemantics)
+            .assertIsEnabled()
     }
 
     @Test
@@ -107,11 +103,7 @@ class ButtonTest {
         }
 
         findByTag("myButton")
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = false
-                )
-            )
+            .assertIsNotEnabled()
     }
 
     @Test
@@ -156,19 +148,11 @@ class ButtonTest {
         findByTag(tag)
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = true
-                )
-            )
+            .assertIsEnabled()
             .doClick()
             // Then confirm it's disabled with no click action after clicking it
             .assertHasNoClickAction()
-            .assertSemanticsIsEqualTo(
-                createFullSemantics(
-                    isEnabled = false
-                )
-            )
+            .assertIsNotEnabled()
     }
 
     @Test
@@ -237,7 +221,7 @@ class ButtonTest {
             Button(onClick = {}) {
                 Text(
                     text = "Test button",
-                    style = TextStyle(fontSize = 50.sp)
+                    fontSize = 50.sp
                 )
             }
         }

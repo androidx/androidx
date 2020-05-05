@@ -16,7 +16,6 @@
 
 package androidx.ui.core.gesture
 
-import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.PointerEventPass
@@ -24,6 +23,7 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToUp
+import androidx.ui.core.composed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.unit.IntPxSize
@@ -46,14 +46,13 @@ import androidx.ui.util.fastAny
  *   @param onTap Called when a tap has occurred.
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
-@Composable
 fun Modifier.tapGestureFilter(
     onTap: () -> Unit
-): Modifier {
+): Modifier = composed {
     val filter = remember { TapGestureFilter() }
     filter.onTap = onTap
     filter.consumeDownOnStart = false
-    return this + PointerInputModifierImpl(filter)
+    PointerInputModifierImpl(filter)
 }
 
 internal class TapGestureFilter : PointerInputFilter() {

@@ -24,7 +24,6 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.DensityAmbient
-import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.FontLoaderAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutCoordinates
@@ -35,8 +34,10 @@ import androidx.ui.core.drawBehind
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.core.input.FocusNode
 import androidx.ui.core.onPositioned
+import androidx.ui.focus.FocusModifier
+import androidx.ui.focus.FocusState
+import androidx.ui.focus.focusState
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorValue
 import androidx.ui.input.ImeAction
@@ -60,10 +61,10 @@ fun CoreTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocusChange: (Boolean) -> Unit = {},
-    focusIdentifier: String? = null,
     onImeActionPerformed: (ImeAction) -> Unit = {},
     visualTransformation: VisualTransformation? = null,
-    onTextLayout: (TextLayoutResult) -> Unit = {}
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
 ) {
     // If developer doesn't pass new value to TextField, recompose won't happen but internal state
     // and IME may think it is updated. To fix this inconsistent state, enforce recompose by
@@ -104,9 +105,24 @@ fun CoreTextField(
             resourceLoader = resourceLoader
         )
 
+        // TODO: Stop lookup FocusModifier from modifier chain. (b/155434146)
+        var focusModifier: FocusModifier? = null
+        modifier.foldIn(Unit) { _, element ->
+            if (element is FocusModifier) {
+                focusModifier = element
+                return@foldIn
+            }
+        }
+
+        val updatedModifier = if (focusModifier == null) {
+            modifier + FocusModifier().also { focusModifier = it }
+        } else {
+            modifier
+        }
+
         state.processor.onNewState(value, textInputService, state.inputSession)
         TextInputEventObserver(
-            focusIdentifier = focusIdentifier,
+            focusModifier = focusModifier!!,
             onPress = { },
             onFocus = {
                 state.hasFocus = true
@@ -119,6 +135,14 @@ fun CoreTextField(
                     onValueChangeWrapper,
                     onImeActionPerformed
                 )
+                if (state.inputSession != NO_SESSION && textInputService != null) {
+                    onTextInputStarted(
+                        SoftwareKeyboardController(
+                            textInputService,
+                            state.inputSession
+                        )
+                    )
+                }
                 state.layoutCoordinates?.let { coords ->
                     textInputService?.let { textInputService ->
                         state.layoutResult?.let { layoutResult ->
@@ -165,14 +189,13 @@ fun CoreTextField(
         ) {
             Layout(
                 emptyContent(),
-                modifier.drawBehind {
+                updatedModifier.drawBehind {
                     state.layoutResult?.let { layoutResult ->
                         TextFieldDelegate.draw(
                             this,
                             value,
                             offsetMap,
                             layoutResult,
-                            state.hasFocus,
                             DefaultSelectionColor
                         )
                     }
@@ -243,50 +266,42 @@ private fun TextInputEventObserver(
     onRelease: (PxPosition) -> Unit,
     onFocus: () -> Unit,
     onBlur: (hasNextClient: Boolean) -> Unit,
-    focusIdentifier: String?,
+    focusModifier: FocusModifier,
     children: @Composable() () -> Unit
 ) {
-    val focused = state { false }
-    val focusManager = FocusManagerAmbient.current
+    val prevState = state { FocusState.NotFocused }
+    if (focusModifier.focusState == FocusState.Focused &&
+        prevState.value == FocusState.NotFocused) {
+        onFocus()
+    }
 
-    val focusNode = remember {
-        FocusNode().also {
-            focusManager.registerObserver(it) { fromNode, toNode ->
-                if (fromNode == it) { // Focus lost
-                    onBlur(toNode != null)
-                    focused.value = false
-                } else { // Focus gain
-                    onFocus()
-                    focused.value = true
-                }
-            }
-            if (focusIdentifier != null)
-                focusManager.registerFocusNode(focusIdentifier, it)
+    if (focusModifier.focusState == FocusState.NotFocused &&
+        prevState.value == FocusState.Focused) {
+        onBlur(false) // TODO: Need to know if there is next focus element
+    }
+
+    prevState.value = focusModifier.focusState
+
+    val doFocusIn = {
+        if (focusModifier.focusState == FocusState.NotFocused) {
+            focusModifier.requestFocus()
         }
     }
 
     onDispose {
-        if (focused.value) {
-            focusManager.blur(focusNode)
-        }
-        if (focusIdentifier != null)
-            focusManager.unregisterFocusNode(focusIdentifier)
-    }
-
-    val doFocusIn = {
-        if (!focused.value) {
-            focusManager.requestFocus(focusNode)
-        }
+        onBlur(false)
     }
 
     Semantics(
+        container = true,
+        mergeAllDescendants = true,
         properties = {
             onClick(action = doFocusIn)
         }
     ) {
         val drag = Modifier.dragPositionGestureFilter(
             onPress = {
-                if (focused.value) {
+                if (focusModifier.focusState == FocusState.Focused) {
                     onPress(it)
                 } else {
                     doFocusIn()

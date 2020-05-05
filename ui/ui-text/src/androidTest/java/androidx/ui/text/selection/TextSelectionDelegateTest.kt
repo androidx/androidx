@@ -892,6 +892,113 @@ class TextSelectionDelegateTest {
     }
 
     @Test
+    fun getBoundingBox_valid() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "hello\nworld\n"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = mock(),
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                val textOffset = text.indexOf('w')
+
+                // Act.
+                val box = selectable.getBoundingBox(textOffset)
+
+                // Assert.
+                assertThat(box.left).isZero()
+                assertThat(box.right).isEqualTo(fontSizeInPx)
+                assertThat(box.top).isEqualTo(fontSizeInPx)
+                assertThat(box.bottom).isEqualTo((2f + 1 / 5f) * fontSizeInPx)
+            }
+        }
+    }
+
+    @Test
+    fun getBoundingBox_negative_offset_should_return_zero_rect() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "hello\nworld\n"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = mock(),
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                // Act.
+                val box = selectable.getBoundingBox(-2)
+
+                // Assert.
+                assertThat(box.left).isZero()
+                assertThat(box.right).isEqualTo(fontSizeInPx)
+                assertThat(box.top).isZero()
+                assertThat(box.bottom).isEqualTo(fontSizeInPx)
+            }
+        }
+    }
+
+    @Test
+    fun getBoundingBox_offset_larger_than_range_should_return_largest() {
+        with(defaultDensity) {
+            composeTestRule.setContent {
+                val text = "hello\nworld"
+                val fontSize = 20.sp
+                val fontSizeInPx = fontSize.toPx().value
+
+                val layoutResult = simpleTextLayout(
+                    text = text,
+                    fontSize = fontSize,
+                    density = defaultDensity
+                )
+
+                val layoutCoordinates = mock<LayoutCoordinates>()
+                whenever(layoutCoordinates.isAttached).thenReturn(true)
+
+                val selectable = TextSelectionDelegate(
+                    selectionRangeUpdate = mock(),
+                    coordinatesCallback = { layoutCoordinates },
+                    layoutResultCallback = { layoutResult }
+                )
+
+                // Act.
+                val box = selectable.getBoundingBox(text.indexOf('d') + 5)
+
+                // Assert.
+                assertThat(box.left).isEqualTo(4 * fontSizeInPx)
+                assertThat(box.right).isEqualTo(5 * fontSizeInPx)
+                assertThat(box.top).isEqualTo(fontSizeInPx)
+                assertThat(box.bottom).isEqualTo((2f + 1 / 5f) * fontSizeInPx)
+            }
+        }
+    }
+
+    @Test
     fun getTextSelectionInfo_long_press_select_word_ltr() {
         val text = "hello world\n"
         val fontSize = 20.sp

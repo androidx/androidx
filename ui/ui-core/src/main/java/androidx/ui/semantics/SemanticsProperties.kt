@@ -68,7 +68,7 @@ class SemanticsActions {
 
         // custom actions which are defined by app developers
         val CustomActions =
-            SemanticsPropertyKey<List<AccessibilityAction<() -> Unit>>>("CustomActions")
+            SemanticsPropertyKey<List<CustomAccessibilityAction>>("CustomActions")
     }
 }
 
@@ -124,11 +124,34 @@ open class SemanticsPropertyKey<T>(
     }
 }
 
-// This needs to be in core because it needs to be accessible from platform
-data class AccessibilityAction<T : Function<Unit>>(val label: String?, val action: T) {
+/**
+ * Data class for standard accessibility action.
+ *
+ * @param label The description of this action
+ * @param action The function to invoke when this action is performed
+ */
+// TODO(b/154873019): Change Function<Unit> to Function<Boolean>
+data class AccessibilityAction<T : Function<Unit>>(val label: CharSequence?, val action: T) {
     // TODO(b/145951226): Workaround for a bytecode issue, remove this
     override fun hashCode(): Int {
         var result = label?.hashCode() ?: 0
+        // (action as Any) is the workaround
+        result = 31 * result + (action as Any).hashCode()
+        return result
+    }
+}
+
+/**
+ * Data class for custom accessibility action.
+ *
+ * @param label The description of this action
+ * @param action The function to invoke when this action is performed. The function should have no
+ * arguments and return a boolean result indicating whether the action is successfully handled.
+ */
+data class CustomAccessibilityAction(val label: CharSequence, val action: () -> Boolean) {
+    // TODO(b/145951226): Workaround for a bytecode issue, remove this
+    override fun hashCode(): Int {
+        var result = label.hashCode()
         // (action as Any) is the workaround
         result = 31 * result + (action as Any).hashCode()
         return result

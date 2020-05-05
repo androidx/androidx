@@ -23,6 +23,7 @@ import androidx.compose.setValue
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
+import androidx.ui.core.TestTag
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.Demo
@@ -43,6 +44,7 @@ import androidx.ui.material.icons.Icons
 import androidx.ui.material.icons.filled.ArrowBack
 import androidx.ui.material.icons.filled.Search
 import androidx.ui.material.icons.filled.Settings
+import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.unit.dp
 
 @Composable
@@ -63,7 +65,7 @@ fun DemoApp(
         }
     }).takeIf { canNavigateUp }
 
-    var filterText by mutableStateOf(TextFieldValue())
+    var filterText by savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
 
     Scaffold(topAppBar = {
         DemoAppBar(
@@ -153,10 +155,16 @@ private fun DemoAppBar(
         )
     } else {
         TopAppBar(
-            title = { Text(title) },
+            title = {
+                TestTag(Tags.AppBarTitle) {
+                    Text(title)
+                }
+            },
             navigationIcon = navigationIcon,
             actions = {
-                AppBarIcons.Filter(onClick = onStartFiltering)
+                TestTag(Tags.FilterButton) {
+                    AppBarIcons.Filter(onClick = onStartFiltering)
+                }
                 AppBarIcons.Settings(onClick = launchSettings)
             }
         )

@@ -32,22 +32,18 @@ internal val SemanticsNode.siblings: List<SemanticsNode>
  * none or more than one element is found.
  */
 fun SemanticsNodeInteraction.parent(): SemanticsNodeInteraction {
-    val node = fetchSemanticsNode("Failed to retrieve a parent.")
-
-    val parentMatcher = selector.appendSelector("parent") { listOfNotNull(node.parent) }
-    return SemanticsNodeInteraction(parentMatcher)
+    return SemanticsNodeInteraction(
+        selector.addSelectionFromSingleNode("parent") { listOfNotNull(it.parent) }
+    )
 }
 
 /**
  * Returns children of this node.
  */
-fun SemanticsNodeInteraction.children(): List<SemanticsNodeInteraction> {
-    val node = fetchSemanticsNode("Failed to retrieve children.")
-
-    val childrenMatcher = selector.appendSelector("children") { node.children }
-    return childrenMatcher.match(getAllSemanticsNodes()).map {
-        SemanticsNodeInteraction(it, childrenMatcher)
-    }
+fun SemanticsNodeInteraction.children(): SemanticsNodeInteractionCollection {
+    return SemanticsNodeInteractionCollection(
+        selector.addSelectionFromSingleNode("children") { it.children }
+    )
 }
 
 /**
@@ -60,11 +56,17 @@ fun SemanticsNodeInteraction.children(): List<SemanticsNodeInteraction> {
  * none or more than one element is found.
  */
 fun SemanticsNodeInteraction.child(): SemanticsNodeInteraction {
-    val node = fetchSemanticsNode("Failed to retrieve a child.")
-
-    val childMatcher = selector.appendSelector("child") { node.children }
-    return SemanticsNodeInteraction(childMatcher)
+    return SemanticsNodeInteraction(
+        selector.addSelectionFromSingleNode("child") { it.children }
+    )
 }
+
+/**
+ * Returns child of this node at the given index.
+ *
+ * This is just a shortcut for "children[index]".
+ */
+fun SemanticsNodeInteraction.childAt(index: Int): SemanticsNodeInteraction = children()[index]
 
 /**
  * Returns all siblings of this node.
@@ -78,13 +80,10 @@ fun SemanticsNodeInteraction.child(): SemanticsNodeInteraction {
  * Returns B1, B3
  * ```
  */
-fun SemanticsNodeInteraction.siblings(): List<SemanticsNodeInteraction> {
-    val node = fetchSemanticsNode("Failed to retrieve siblings.")
-
-    val siblingsMatcher = selector.appendSelector("siblings") { node.siblings }
-    return siblingsMatcher.match(getAllSemanticsNodes()).map {
-        SemanticsNodeInteraction(it, siblingsMatcher)
-    }
+fun SemanticsNodeInteraction.siblings(): SemanticsNodeInteractionCollection {
+    return SemanticsNodeInteractionCollection(
+        selector.addSelectionFromSingleNode("siblings") { it.siblings }
+    )
 }
 
 /**
@@ -97,10 +96,9 @@ fun SemanticsNodeInteraction.siblings(): List<SemanticsNodeInteraction> {
  * none or more than one element is found.
  */
 fun SemanticsNodeInteraction.sibling(): SemanticsNodeInteraction {
-    val node = fetchSemanticsNode("Failed to retrieve a sibling.")
-
-    val siblingsMatcher = selector.appendSelector("sibling") { node.siblings }
-    return SemanticsNodeInteraction(siblingsMatcher)
+    return SemanticsNodeInteraction(
+        selector.addSelectionFromSingleNode("sibling") { it.siblings }
+    )
 }
 
 /**
@@ -114,11 +112,19 @@ fun SemanticsNodeInteraction.sibling(): SemanticsNodeInteraction {
  * Returns B, A
  * ```
  */
-fun SemanticsNodeInteraction.ancestors(): List<SemanticsNodeInteraction> {
-    val node = fetchSemanticsNode("Failed to retrieve ancestors.")
+fun SemanticsNodeInteraction.ancestors(): SemanticsNodeInteractionCollection {
+    return SemanticsNodeInteractionCollection(
+        selector.addSelectionFromSingleNode("ancestors") { it.ancestors.toList() }
+    )
+}
 
-    val ancestorsMatcher = selector.appendSelector("ancestors") { node.ancestors }
-    return ancestorsMatcher.match(getAllSemanticsNodes()).map {
-        SemanticsNodeInteraction(it, ancestorsMatcher)
-    }
+/**
+ * Retrieve the first node in this collection.
+ *
+ * Any subsequent operation on its result will expect exactly one element found (unless
+ * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
+ * no element is found.
+ */
+fun SemanticsNodeInteractionCollection.first(): SemanticsNodeInteraction {
+    return get(0)
 }

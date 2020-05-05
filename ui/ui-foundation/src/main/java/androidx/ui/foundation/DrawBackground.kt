@@ -18,9 +18,10 @@ package androidx.ui.foundation
 
 import androidx.compose.Composable
 import androidx.compose.remember
-import androidx.ui.core.DrawModifier
 import androidx.ui.core.ContentDrawScope
+import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier
+import androidx.ui.core.composed
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
@@ -97,7 +98,6 @@ fun Modifier.drawBackground(
  * @param color color to paint background with
  * @param shape desired shape of the background
  */
-@Composable
 fun Modifier.drawBackground(
     color: Color,
     shape: Shape = RectangleShape
@@ -109,11 +109,17 @@ fun Modifier.drawBackground(
  * @param brush brush to paint background with
  * @param shape desired shape of the background
  */
-@Composable
 fun Modifier.drawBackground(
     brush: Brush,
     shape: Shape = RectangleShape
-) = drawBackground(remember(brush) { Paint().also { brush.applyTo(it) } }, shape)
+) = composed {
+    drawBackground(
+        remember(brush) {
+            Paint().also { brush.applyTo(it) }
+        },
+        shape
+    )
+}
 
 data class DrawBackground internal constructor(
     private val paint: Paint,

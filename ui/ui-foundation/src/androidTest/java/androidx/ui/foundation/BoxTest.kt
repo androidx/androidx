@@ -24,6 +24,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
+import androidx.ui.core.globalPosition
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
@@ -32,6 +33,7 @@ import androidx.ui.layout.Stack
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
 import androidx.ui.layout.rtl
+import androidx.ui.layout.size
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.semantics.Semantics
 import androidx.ui.test.assertShape
@@ -177,6 +179,53 @@ class BoxTest {
             )
             Truth.assertThat(childSize!!.height)
                 .isEqualTo(size.toIntPx() - top.toIntPx() - bottom.toIntPx())
+        }
+    }
+
+    @Test
+    fun box_testLayout_multipleChildren() {
+        val size = 100.dp
+        val childSize = 20.dp
+        var childPosition1: PxPosition? = null
+        var childPosition2: PxPosition? = null
+        var childPosition3: PxPosition? = null
+        composeTestRule.setContent {
+            SemanticsParent {
+                Box(
+                    modifier = Modifier.preferredSize(size),
+                    gravity = Alignment(-0.5f, 0f)
+                ) {
+                    Box(Modifier.size(childSize).onPositioned {
+                        childPosition1 = it.globalPosition
+                    })
+                    Box(Modifier.size(childSize).onPositioned {
+                        childPosition2 = it.globalPosition
+                    })
+                    Box(Modifier.size(childSize).onPositioned {
+                        childPosition3 = it.globalPosition
+                    })
+                }
+            }
+        }
+        with(composeTestRule.density) {
+            Truth.assertThat(childPosition1).isEqualTo(
+                PxPosition(
+                    (size.toIntPx() - childSize.toIntPx()) / 2,
+                    (size.toIntPx() - childSize.toIntPx() * 3) / 4
+                )
+            )
+            Truth.assertThat(childPosition2).isEqualTo(
+                PxPosition(
+                    (size.toIntPx() - childSize.toIntPx()) / 2,
+                    (size.toIntPx() - childSize.toIntPx() * 3) / 4 + childSize.toIntPx()
+                )
+            )
+            Truth.assertThat(childPosition3).isEqualTo(
+                PxPosition(
+                    (size.toIntPx() - childSize.toIntPx()) / 2,
+                    (size.toIntPx() - childSize.toIntPx() * 3) / 4 + childSize.toIntPx() * 2
+                )
+            )
         }
     }
 

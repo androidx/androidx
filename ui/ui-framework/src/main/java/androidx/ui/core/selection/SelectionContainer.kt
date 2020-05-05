@@ -29,6 +29,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Placeable
 import androidx.ui.core.Popup
+import androidx.ui.core.TextToolbarAmbient
 import androidx.ui.core.enforce
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.longPressDragGestureFilter
@@ -77,6 +78,7 @@ fun SelectionContainer(
 
     manager.hapticFeedBack = HapticFeedBackAmbient.current
     manager.clipboardManager = ClipboardManagerAmbient.current
+    manager.textToolbar = TextToolbarAmbient.current
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
 
@@ -96,18 +98,25 @@ fun SelectionContainer(
         // cross-composable selection.
         Wrap(modifier) {
             children()
-            addHandle(manager, isStartHandle = true) {
+            Handle(manager, isStartHandle = true) {
                 StartSelectionHandle(selection = selection)
             }
-            addHandle(manager, isStartHandle = false) {
+            Handle(manager, isStartHandle = false) {
                 EndSelectionHandle(selection = selection)
             }
+            SelectionFloatingToolBar(manager = manager, selection = selection)
         }
     }
 }
 
 @Composable
-private fun addHandle(
+private fun SelectionFloatingToolBar(manager: SelectionManager, selection: Selection?) {
+    if (selection == null) return
+    manager.showSelectionToolbar()
+}
+
+@Composable
+private fun Handle(
     manager: SelectionManager,
     isStartHandle: Boolean,
     handle: @Composable() () -> Unit

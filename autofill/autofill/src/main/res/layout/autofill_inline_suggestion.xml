@@ -27,7 +27,6 @@
         style="?attr/autofillInlineSuggestionStartIconStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:contentDescription="autofill_inline_suggestion_start_icon"
         android:visibility="gone"/>
 
     <TextView
@@ -55,6 +54,5 @@
         style="?attr/autofillInlineSuggestionEndIconStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:contentDescription="autofill_inline_suggestion_end_icon"
         android:visibility="gone"/>
 </LinearLayout>

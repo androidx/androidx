@@ -17,10 +17,10 @@
 package androidx.ui.livedata
 
 import androidx.compose.Composable
-import androidx.compose.CompositionLifecycleObserver
+import androidx.compose.FrameManager
 import androidx.compose.State
-import androidx.compose.mutableStateOf
-import androidx.compose.remember
+import androidx.compose.onPreCommit
+import androidx.compose.state
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -54,37 +54,11 @@ inline fun <T> LiveData<T>.observeAsState(): State<T?> = observeAsState(value)
 @Composable
 fun <R, T : R> LiveData<T>.observeAsState(initial: R): State<R> {
     val lifecycleOwner = LifecycleOwnerAmbient.current
-    val observer = remember { DisposableObserver<R, T>(initial, lifecycleOwner) }
-    observer.source = this
-    return observer.state
-}
-
-private class DisposableObserver<R, T : R>(
-    initial: R,
-    private val lifecycleOwner: LifecycleOwner
-) : Observer<T>, CompositionLifecycleObserver {
-
-    val state = mutableStateOf(initial)
-
-    var source: LiveData<T>? = null
-        set(source) {
-            if (source !== field) {
-                field?.removeObserver(this)
-                field = source
-                source?.observe(lifecycleOwner, this)
-            }
-        }
-
-    override fun onChanged(t: T) {
-        state.value = t
+    val state = state { initial }
+    onPreCommit(this, lifecycleOwner) {
+        val observer = Observer<T> { state.value = it }
+        observe(lifecycleOwner, observer)
+        onDispose { removeObserver(observer) }
     }
-
-    override fun onLeave() {
-        // the same as onDispose()
-        source = null
-    }
-
-    override fun onEnter() {
-        // do nothing
-    }
+    return state
 }

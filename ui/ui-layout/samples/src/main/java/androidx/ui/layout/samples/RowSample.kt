@@ -18,6 +18,7 @@ package androidx.ui.layout.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
+import androidx.ui.core.Alignment
 import androidx.ui.text.FirstBaseline
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
@@ -42,6 +43,37 @@ fun SimpleRow() {
         // Has weight and does not fill, the child will occupy at most half of the remaining width.
         Box(
             Modifier.preferredHeight(80.dp).weight(1f, fill = false),
+            backgroundColor = Color.Green
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun SimpleGravityInRow() {
+    Row(Modifier.fillMaxHeight()) {
+        // The child with no gravity modifier is positioned by default so that its top edge is
+        // aligned to the top of the vertical axis.
+        Box(Modifier.preferredSize(80.dp, 40.dp), backgroundColor = Color.Magenta)
+        // Gravity.Top, the child will be positioned so that its top edge is aligned to the top
+        // of the vertical axis.
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(Alignment.Top),
+            backgroundColor = Color.Red
+        )
+        // Gravity.Center, the child will be positioned so that its center is in the middle of
+        // the vertical axis.
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(Alignment.CenterVertically),
+            backgroundColor = Color.Yellow
+        )
+        // Gravity.Bottom, the child will be positioned so that its bottom edge is aligned to the
+        // bottom of the vertical axis.
+        Box(
+            Modifier.preferredSize(80.dp, 40.dp)
+                .gravity(Alignment.Bottom),
             backgroundColor = Color.Green
         )
     }

@@ -28,7 +28,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Build;
 import android.util.Base64;
 import android.util.Rational;
@@ -116,28 +115,6 @@ public class ImageUtilTest {
 
         // Assert: return the original value.
         assertThat(ImageUtil.getRotatedAspectRatio(180, aspectRatio)).isEqualTo(aspectRatio);
-    }
-
-    @Test
-    public void fitNarrowRectIntoContainer() {
-        // Arrange.
-        RectF rect = new RectF(10, 10, 50, 40);
-
-        // Assert.
-        // The aspect ratio is narrower than the container.
-        assertThat(ImageUtil.fitCenter(rect, new Rational(1, 1))).isEqualTo(
-                new RectF(15, 10, 45, 40));
-    }
-
-    @Test
-    public void fitWideRectIntoContainer() {
-        // Arrange.
-        RectF rect = new RectF(10, 10, 50, 40);
-
-        // Assert.
-        // The aspect ratio is wider than the container.
-        assertThat(ImageUtil.fitCenter(rect, new Rational(2, 1))).isEqualTo(
-                new RectF(10, 15, 50, 35));
     }
 
     @Test
