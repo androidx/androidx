@@ -16,9 +16,12 @@
 
 package androidx.activity.result;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,7 +31,8 @@ import androidx.annotation.Nullable;
  * {@link androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult}
  * Activity Contract.
  */
-public final class IntentSenderRequest {
+@SuppressLint("BanParcelableUsage")
+public final class IntentSenderRequest implements Parcelable {
     @NonNull
     private final IntentSender mIntentSender;
     @Nullable
@@ -81,6 +85,40 @@ public final class IntentSenderRequest {
      */
     public int getFlagsValues() {
         return mFlagsValues;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    IntentSenderRequest(@NonNull Parcel in) {
+        mIntentSender = in.readParcelable(IntentSender.class.getClassLoader());
+        mFillInIntent = in.readParcelable(Intent.class.getClassLoader());
+        mFlagsMask = in.readInt();
+        mFlagsValues = in.readInt();
+    }
+
+    @NonNull
+    public static final Creator<IntentSenderRequest> CREATOR = new Creator<IntentSenderRequest>() {
+        @Override
+        public IntentSenderRequest createFromParcel(Parcel in) {
+            return new IntentSenderRequest(in);
+        }
+
+        @Override
+        public IntentSenderRequest[] newArray(int size) {
+            return new IntentSenderRequest[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeParcelable(mIntentSender, flags);
+        dest.writeParcelable(mFillInIntent, flags);
+        dest.writeInt(mFlagsMask);
+        dest.writeInt(mFlagsValues);
     }
 
     /**
