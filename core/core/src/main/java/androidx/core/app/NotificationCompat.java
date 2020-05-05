@@ -758,7 +758,6 @@ public class NotificationCompat {
         Notification.Builder mBuilder;
         Notification mNotification;
         boolean mSilent;
-        Icon mSmallIcon;
 
         /**
          * @deprecated This field was not meant to be public.
@@ -834,7 +833,7 @@ public class NotificationCompat {
          */
         @RequiresApi(23)
         public @NonNull Builder setSmallIcon(@Nullable Icon icon) {
-            this.mSmallIcon = icon;
+            mBuilder.setSmallIcon(icon);
             return this;
         }
 
