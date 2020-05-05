@@ -62,8 +62,21 @@ internal class ModifiedLayoutNode(
             measureScope.maxIntrinsicHeight(wrapped, width, layoutDirection)
         }
 
-    override operator fun get(line: AlignmentLine): IntPx? =
-        measureResult.alignmentLines.getOrElse(line, { wrapped[line] })
+    override operator fun get(line: AlignmentLine): IntPx? {
+        if (measureResult.alignmentLines.containsKey(line)) {
+            return measureResult.alignmentLines[line]
+        }
+        val positionInWrapped = wrapped[line] ?: return null
+        // Place our wrapped to obtain their position inside ourselves.
+        isShallowPlacing = true
+        place(this.position)
+        isShallowPlacing = false
+        return if (line is HorizontalAlignmentLine) {
+            positionInWrapped + wrapped.position.y
+        } else {
+            positionInWrapped + wrapped.position.x
+        }
+    }
 
     override fun draw(canvas: Canvas) {
         withPositionTranslation(canvas) {

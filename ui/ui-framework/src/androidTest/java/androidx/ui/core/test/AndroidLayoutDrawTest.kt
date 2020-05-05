@@ -74,6 +74,7 @@ import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
 import androidx.ui.layout.ltr
+import androidx.ui.layout.offset
 import androidx.ui.layout.padding
 import androidx.ui.layout.rtl
 import androidx.ui.unit.Density
@@ -116,12 +117,14 @@ class AndroidLayoutDrawTest {
     val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
     private lateinit var activity: TestActivity
     private lateinit var drawLatch: CountDownLatch
+    private lateinit var density: Density
 
     @Before
     fun setup() {
         activity = activityTestRule.activity
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
         drawLatch = CountDownLatch(1)
+        density = Density(activity)
     }
 
     // Tests that simple drawing works with layered squares
@@ -1424,6 +1427,157 @@ class AndroidLayoutDrawTest {
         // Two layouts again, since alignment lines were not queried during last layout,
         // so we did not calculate them speculatively anymore.
         assertEquals(8, childLayouts)
+    }
+
+    @Test
+    fun testAlignmentLines_readFromModifier_duringMeasurement() = with(density) {
+        val testVerticalLine = VerticalAlignmentLine(::min)
+        val testHorizontalLine = HorizontalAlignmentLine(::max)
+
+        val assertLines: Modifier.(IntPx, IntPx) -> Modifier = { vertical, horizontal ->
+            this + object : LayoutModifier {
+                override fun MeasureScope.measure(
+                    measurable: Measurable,
+                    constraints: Constraints,
+                    layoutDirection: LayoutDirection
+                ): MeasureScope.MeasureResult {
+                    val placeable = measurable.measure(constraints)
+                    assertEquals(vertical, placeable[testVerticalLine])
+                    assertEquals(horizontal, placeable[testHorizontalLine])
+                    return layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                    }
+                }
+            }
+        }
+
+        testAlignmentLinesReads(testVerticalLine, testHorizontalLine, assertLines)
+    }
+
+    @Test
+    fun testAlignmentLines_readFromModifier_duringPositioning_before() = with(density) {
+        val testVerticalLine = VerticalAlignmentLine(::min)
+        val testHorizontalLine = HorizontalAlignmentLine(::max)
+
+        val assertLines: Modifier.(IntPx, IntPx) -> Modifier = { vertical, horizontal ->
+            this + object : LayoutModifier {
+                override fun MeasureScope.measure(
+                    measurable: Measurable,
+                    constraints: Constraints,
+                    layoutDirection: LayoutDirection
+                ): MeasureScope.MeasureResult {
+                    val placeable = measurable.measure(constraints)
+                    return layout(placeable.width, placeable.height) {
+                        assertEquals(vertical, placeable[testVerticalLine])
+                        assertEquals(horizontal, placeable[testHorizontalLine])
+                        placeable.place(0.ipx, 0.ipx)
+                    }
+                }
+            }
+        }
+
+        testAlignmentLinesReads(testVerticalLine, testHorizontalLine, assertLines)
+    }
+
+    @Test
+    fun testAlignmentLines_readFromModifier_duringPositioning_after() = with(density) {
+        val testVerticalLine = VerticalAlignmentLine(::min)
+        val testHorizontalLine = HorizontalAlignmentLine(::max)
+
+        val assertLines: Modifier.(IntPx, IntPx) -> Modifier = { vertical, horizontal ->
+            this + object : LayoutModifier {
+                override fun MeasureScope.measure(
+                    measurable: Measurable,
+                    constraints: Constraints,
+                    layoutDirection: LayoutDirection
+                ): MeasureScope.MeasureResult {
+                    val placeable = measurable.measure(constraints)
+                    return layout(placeable.width, placeable.height) {
+                        placeable.place(0.ipx, 0.ipx)
+                        assertEquals(vertical, placeable[testVerticalLine])
+                        assertEquals(horizontal, placeable[testHorizontalLine])
+                    }
+                }
+            }
+        }
+
+        testAlignmentLinesReads(testVerticalLine, testHorizontalLine, assertLines)
+    }
+
+    private fun Density.testAlignmentLinesReads(
+        testVerticalLine: VerticalAlignmentLine,
+        testHorizontalLine: HorizontalAlignmentLine,
+        assertLines: Modifier.(IntPx, IntPx) -> Modifier
+    ) {
+        val layoutLatch = CountDownLatch(7)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                val layout = @Composable { modifier: Modifier ->
+                    Layout(modifier = modifier, children = {}) { _, _, _ ->
+                        layout(
+                            0.ipx,
+                            0.ipx,
+                            mapOf(
+                                testVerticalLine to 10.ipx,
+                                testHorizontalLine to 20.ipx
+                            )
+                        ) {
+                            layoutLatch.countDown()
+                        }
+                    }
+                }
+
+                layout(Modifier.assertLines(10.ipx, 20.ipx))
+                layout(Modifier.assertLines(30.ipx, 30.ipx).offset(20.ipx.toDp(), 10.ipx.toDp()))
+                layout(Modifier
+                    .assertLines(30.ipx, 30.ipx)
+                    .drawLayer()
+                    .offset(20.ipx.toDp(), 10.ipx.toDp())
+                )
+                layout(Modifier
+                    .assertLines(30.ipx, 30.ipx)
+                    .background(Color.Blue)
+                    .drawLayer()
+                    .offset(20.ipx.toDp(), 10.ipx.toDp())
+                    .drawLayer()
+                    .background(Color.Blue)
+                )
+                layout(Modifier
+                    .background(Color.Blue)
+                    .assertLines(30.ipx, 30.ipx)
+                    .background(Color.Blue)
+                    .drawLayer()
+                    .offset(20.ipx.toDp(), 10.ipx.toDp())
+                    .drawLayer()
+                    .background(Color.Blue)
+                )
+                Wrap(
+                    Modifier
+                        .background(Color.Blue)
+                        .assertLines(30.ipx, 30.ipx)
+                        .background(Color.Blue)
+                        .drawLayer()
+                        .offset(20.ipx.toDp(), 10.ipx.toDp())
+                        .drawLayer()
+                        .background(Color.Blue)
+                ) {
+                    layout(Modifier)
+                }
+                Wrap(
+                    Modifier
+                        .background(Color.Blue)
+                        .assertLines(40.ipx, 50.ipx)
+                        .background(Color.Blue)
+                        .drawLayer()
+                        .offset(20.ipx.toDp(), 10.ipx.toDp())
+                        .drawLayer()
+                        .background(Color.Blue)
+                ) {
+                    layout(Modifier.offset(10.ipx.toDp(), 20.ipx.toDp()))
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
     }
 
     @Test

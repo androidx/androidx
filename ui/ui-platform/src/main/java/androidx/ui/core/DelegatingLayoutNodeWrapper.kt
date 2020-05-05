@@ -23,8 +23,6 @@ import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.ipx
-import androidx.ui.unit.round
-import androidx.ui.unit.toPx
 
 /**
  * [LayoutNodeWrapper] with default implementations for methods.
@@ -64,15 +62,18 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         }
     }
 
-    override fun get(line: AlignmentLine): IntPx? {
-        val value = wrapped[line] ?: return null
-        val px = value.toPx()
-        val pos = wrapped.toParentPosition(PxPosition(px, px))
-        return if (line is HorizontalAlignmentLine) pos.y.round() else pos.y.round()
-    }
+    override fun get(line: AlignmentLine): IntPx? = wrapped[line]
 
     override fun place(position: IntPxPosition) {
         this.position = position
+
+        // The wrapper only runs their placement block to obtain our position, which allows them
+        // to calculate the offset of an alignment line we have already provided a position for.
+        // No need to place our wrapped as well (we might have actually done this already in
+        // get(line), to obtain the position of the alignment line the wrapper currently needs
+        // our position in order ot know how to offset the value we provided).
+        if (wrappedBy?.isShallowPlacing == true) return
+
         with(InnerPlacementScope) {
             this.parentLayoutDirection = measureScope.layoutDirection
             val previousParentWidth = parentWidth
