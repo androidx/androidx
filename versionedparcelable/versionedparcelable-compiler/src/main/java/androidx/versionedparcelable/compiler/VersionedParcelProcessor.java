@@ -201,6 +201,7 @@ public class VersionedParcelProcessor extends AbstractProcessor {
         return true;
     }
 
+    @SuppressWarnings("StringSplitter")
     private void parseDeprecated(ArrayList<String> takenIds, String deprecatedIds) {
         deprecatedIds = deprecatedIds.replace("{", "").replace("}", "");
         String[] ids = deprecatedIds.split(",");
