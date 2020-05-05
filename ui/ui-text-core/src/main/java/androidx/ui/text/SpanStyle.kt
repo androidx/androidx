@@ -127,7 +127,7 @@ data class SpanStyle(
  * @param b An sp value. Maybe [TextUnit.Inherit]
  */
 internal fun lerpTextUnitInheritable(a: TextUnit, b: TextUnit, t: Float): TextUnit {
-    if (a.isInherit && b.isInherit) return a
+    if (a.isInherit || b.isInherit) return lerpDiscrete(a, b, t)
     return lerp(a, b, t)
 }
 
