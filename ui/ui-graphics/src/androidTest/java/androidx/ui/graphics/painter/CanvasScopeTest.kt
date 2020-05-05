@@ -41,7 +41,7 @@ class CanvasScopeTest {
 
     private val width: Int = 100
     private val height: Int = 100
-    private val dstSize = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+    private val dstSize = Size(width.toFloat(), height.toFloat())
 
     private fun createTestDstImage(): ImageAsset {
         val dst = ImageAsset(width, height)
@@ -211,12 +211,12 @@ class CanvasScopeTest {
             val bottom = 12.0f
             inset(left, top, right, bottom) {
                 drawRect(color = Color.Red)
-                assertEquals(dstSize.width.value - (left + right), size.width)
-                assertEquals(dstSize.height.value - (top + bottom), size.height)
+                assertEquals(dstSize.width - (left + right), size.width)
+                assertEquals(dstSize.height - (top + bottom), size.height)
             }
 
-            assertEquals(dstSize.width.value, size.width)
-            assertEquals(dstSize.height.value, size.height)
+            assertEquals(dstSize.width, size.width)
+            assertEquals(dstSize.height, size.height)
         }
     }
 
@@ -263,7 +263,7 @@ class CanvasScopeTest {
 
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
         canvasScope.draw(Canvas(imageAsset), size) {
@@ -292,7 +292,7 @@ class CanvasScopeTest {
 
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
         canvasScope.draw(Canvas(imageAsset), size) {
@@ -335,7 +335,7 @@ class CanvasScopeTest {
 
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
         try {
@@ -356,7 +356,7 @@ class CanvasScopeTest {
 
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
         try {
@@ -377,7 +377,7 @@ class CanvasScopeTest {
 
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
         canvasScope.draw(Canvas(imageAsset), size) {
@@ -410,7 +410,7 @@ class CanvasScopeTest {
     fun testRotationCenterPivot() {
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
         CanvasScope().draw(Canvas(imageAsset), size) {
             drawRect(color = Color.Red)
@@ -440,7 +440,7 @@ class CanvasScopeTest {
     fun testRotationTopLeftPivot() {
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
         CanvasScope().draw(Canvas(imageAsset), size) {
             drawRect(color = Color.Red)
@@ -466,7 +466,7 @@ class CanvasScopeTest {
     fun testBatchTransformEquivalent() {
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset1 = ImageAsset(width, height)
         CanvasScope().draw(Canvas(imageAsset1), size) {
             drawRect(color = Color.Red)

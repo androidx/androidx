@@ -652,10 +652,10 @@ private fun Modifier.drawIndicatorLine(lineWidth: Dp, color: Color): Modifier {
         val strokeWidth = lineWidth.value * density
         paint.strokeWidth = strokeWidth
         paint.color = color
-        val y = size.height.value - strokeWidth / 2
+        val y = size.height - strokeWidth / 2
         drawLine(
             Offset(0f, y),
-            Offset(size.width.value, y),
+            Offset(size.width, y),
             paint
         )
     }

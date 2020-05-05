@@ -48,6 +48,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.paint
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.vector.VectorPainter

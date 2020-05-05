@@ -66,6 +66,7 @@ import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Paint
@@ -85,7 +86,6 @@ import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
 import androidx.ui.unit.px
-import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -351,7 +351,7 @@ class AndroidLayoutDrawTest {
                         paint.color = model.outerColor
                         drawRect(size.toRect(), paint)
                         nativeCanvas.save()
-                        val offset = size.width.value / 3
+                        val offset = size.width / 3
                         // clip drawing to the inner rectangle
                         clipRect(Rect(offset, offset, offset * 2, offset * 2))
                         drawContent()
@@ -359,8 +359,8 @@ class AndroidLayoutDrawTest {
                         // Fill bottom half with innerColor -- should be clipped
                         paint.color = model.innerColor
                         val paintRect = Rect(
-                            0f, size.height.value / 2f,
-                            size.width.value, size.height.value
+                            0f, size.height / 2f,
+                            size.width, size.height
                         )
                         drawRect(paintRect, paint)
                         // restore the canvas
@@ -374,8 +374,8 @@ class AndroidLayoutDrawTest {
                     val paint = Paint()
                     paint.color = model.innerColor
                     val paintRect = Rect(
-                        0f, 0f, size.width.value,
-                        size.height.value / 2f
+                        0f, 0f, size.width,
+                        size.height / 2f
                     )
                     drawRect(paintRect, paint)
                 }
@@ -1740,8 +1740,8 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val drawnContent = Modifier.drawBehind {
-                    assertEquals(100.px, size.width)
-                    assertEquals(100.px, size.height)
+                    assertEquals(100.0f, size.width)
+                    assertEquals(100.0f, size.height)
                     latch.countDown()
                 }
                 AtLeastSize(100.ipx, PaddingModifier(10.ipx) + drawnContent) {
@@ -1760,8 +1760,8 @@ class AndroidLayoutDrawTest {
                     100.ipx,
                     PaddingModifier(10.ipx).drawLayer()
                         .drawBehind {
-                            assertEquals(100.px, size.width)
-                            assertEquals(100.px, size.height)
+                            assertEquals(100.0f, size.width)
+                            assertEquals(100.0f, size.height)
                             latch.countDown()
                         }
                 ) {

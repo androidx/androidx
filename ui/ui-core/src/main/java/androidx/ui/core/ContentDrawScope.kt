@@ -15,9 +15,9 @@
  */
 package androidx.ui.core
 
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
 
 /**
  * Receiver scope for drawing content into a layout.
@@ -28,7 +28,7 @@ interface DrawScope : Canvas, Density {
     /**
      * The size of layout being drawn in.
      */
-    val size: PxSize
+    val size: Size
 
     /**
      * The layout direction of the layout being drawn in.

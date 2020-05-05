@@ -27,6 +27,7 @@ import androidx.ui.core.drawBehind
 import androidx.ui.core.setContent
 import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.unit.ipx

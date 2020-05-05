@@ -25,6 +25,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.onPositioned
 import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.RectangleShape
@@ -38,11 +39,8 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.setContentAndCollectSizes
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPxSize
-import androidx.ui.unit.center
 import androidx.ui.unit.dp
 import androidx.ui.unit.px
-import androidx.ui.unit.toOffset
-import androidx.ui.unit.toRect
 import com.google.common.truth.Truth
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -120,7 +118,7 @@ class CanvasTest {
                 ) {
                     drawRect(size.toRect(), Paint().apply { color = Color.Red })
                     drawCircle(
-                        size.center().toOffset(),
+                        size.center(),
                         10f,
                         Paint().apply { color = Color.Blue }
                     )

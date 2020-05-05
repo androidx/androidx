@@ -33,6 +33,7 @@ import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorder
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.withSave
 import androidx.ui.layout.Column

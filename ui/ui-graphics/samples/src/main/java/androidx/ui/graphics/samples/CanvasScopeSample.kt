@@ -18,6 +18,7 @@ package androidx.ui.graphics.samples
 
 import androidx.annotation.Sampled
 import androidx.ui.geometry.Offset
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ImageAsset
@@ -34,10 +35,10 @@ import androidx.ui.unit.PxSize
  */
 @Sampled
 fun canvasScopeSample() {
-    val pxSize = PxSize(Px(300.0f), Px(300.0f))
+    val pxSize = Size(300.0f, 300.0f)
     val imageAsset = ImageAsset(
-        pxSize.width.value.toInt(),
-        pxSize.height.value.toInt()
+        pxSize.width.toInt(),
+        pxSize.height.toInt()
     )
 
     // create a Canvas to draw contents into the ImageAsset
@@ -66,10 +67,10 @@ fun canvasScopeSample() {
 
 @Sampled
 fun canvasScopeBatchedTransformSample() {
-    val pxSize = PxSize(Px(300.0f), Px(300.0f))
+    val pxSize = Size(300.0f, 300.0f)
     val imageAsset = ImageAsset(
-        pxSize.width.value.toInt(),
-        pxSize.height.value.toInt()
+        pxSize.width.toInt(),
+        pxSize.height.toInt()
     )
 
     // create a Canvas to draw contents into the ImageAsset

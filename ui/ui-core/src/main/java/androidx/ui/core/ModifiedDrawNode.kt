@@ -30,8 +30,6 @@ import androidx.ui.graphics.Picture
 import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.Vertices
 import androidx.ui.graphics.vectormath.Matrix4
-import androidx.ui.unit.PxSize
-import androidx.ui.unit.toPxSize
 
 internal class ModifiedDrawNode(
     wrapped: LayoutNodeWrapper,
@@ -62,8 +60,11 @@ internal class ModifiedDrawNode(
         override val fontScale: Float
             get() = layoutNode.requireOwner().density.fontScale
 
-        override val size: PxSize
-            get() = this@ModifiedDrawNode.measuredSize.toPxSize()
+        override val size: Size
+            get() {
+                val pxSize = this@ModifiedDrawNode.measuredSize
+                return Size(pxSize.width.value.toFloat(), pxSize.height.value.toFloat())
+            }
 
         override val nativeCanvas: NativeCanvas
             get() = canvas!!.nativeCanvas

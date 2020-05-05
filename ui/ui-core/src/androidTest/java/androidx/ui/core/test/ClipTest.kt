@@ -372,8 +372,8 @@ class ClipTest {
                 Rect(
                     -100f,
                     -100f,
-                    size.width.value + 100f,
-                    size.height.value + 100f
+                    size.width + 100f,
+                    size.height + 100f
                 ), Paint().apply {
                     this.color = Color.Cyan
                 })
@@ -450,8 +450,8 @@ class ClipTest {
                 Rect(
                     -100f,
                     -100f,
-                    size.width.value + 100f,
-                    size.height.value + 100f
+                    size.width + 100f,
+                    size.height + 100f
                 ), Paint().apply {
                     this.color = color
                 })

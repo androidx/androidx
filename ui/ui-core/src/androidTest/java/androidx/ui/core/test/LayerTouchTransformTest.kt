@@ -88,8 +88,8 @@ class LayerTouchTransformTest {
                     Rect.fromLTWH(
                         0.0f,
                         0.0f,
-                        size.width.value,
-                        size.height.value
+                        size.width,
+                        size.height
                     ),
                     Paint().apply { this.color = Color.Gray }
                 )
@@ -122,8 +122,8 @@ class LayerTouchTransformTest {
                                     Rect.fromLTWH(
                                         0.0f,
                                         0.0f,
-                                        size.width.value,
-                                        size.height.value
+                                        size.width,
+                                        size.height
                                     ),
                                     paint
                                 )

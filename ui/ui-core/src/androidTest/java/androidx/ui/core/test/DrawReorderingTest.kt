@@ -37,6 +37,7 @@ import androidx.ui.core.drawLayer
 import androidx.ui.core.setContent
 import androidx.ui.core.zIndex
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.unit.IntPx

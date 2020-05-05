@@ -40,6 +40,7 @@ import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.addOutline
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
+import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.minDimension
 import androidx.ui.unit.px
@@ -172,14 +173,14 @@ class DrawBorder internal constructor(
         val canvas = this
         with(cache) {
             drawContent()
-            modifierSize = size
+            modifierSize = PxSize(Px(size.width), Px(size.height))
             val outline = modifierSizeOutline(density)
             val borderSize =
                 if (borderWidth == Dp.Hairline) 1f else borderWidth.value * density.density
             brush.applyTo(paint)
             paint.strokeWidth = borderSize
 
-            if (borderSize <= 0 || size.minDimension <= 0.px) {
+            if (borderSize <= 0 || size.minDimension <= 0.0f) {
                 return
             } else if (outline is Outline.Rectangle) {
                 drawRoundRectBorder(borderSize, outline.rect, 0f, canvas, paint)

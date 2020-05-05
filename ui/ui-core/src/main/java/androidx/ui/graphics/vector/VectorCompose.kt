@@ -27,6 +27,8 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.drawBehind
+import androidx.ui.core.scale
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
@@ -38,7 +40,6 @@ import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import kotlin.math.ceil
 
 /**
@@ -194,12 +195,12 @@ fun Modifier.drawVector(
 
     val vectorWidth = defaultWidth.value
     val vectorHeight = defaultHeight.value
-    val vectorPxSize = PxSize(Px(vectorWidth), Px(vectorHeight))
+    val vectorSize = Size(vectorWidth, vectorHeight)
 
     drawBehind {
-        val parentWidth = size.width.value
-        val parentHeight = size.height.value
-        val scale = contentScale.scale(vectorPxSize, size)
+        val parentWidth = size.width
+        val parentHeight = size.height
+        val scale = contentScale.scale(vectorSize, size)
 
         val alignedPosition = alignment.align(
             IntPxSize(

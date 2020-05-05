@@ -66,6 +66,7 @@ import androidx.ui.core.texttoolbar.AndroidTextToolbar
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.focus.FocusDetailedState.Active
 import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
@@ -75,6 +76,7 @@ import androidx.ui.text.font.Font
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
+import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
@@ -530,14 +532,15 @@ internal class AndroidComposeView constructor(
                     if (onPaintWithChildren != null) {
                         val ownerData = node.ownerData
                         val receiver: DrawScopeImpl
+                        val size = Size(parentSize.width.value, parentSize.height.value)
                         if (ownerData == null) {
-                            receiver = DrawScopeImpl(node, canvas, parentSize, density)
+                            receiver = DrawScopeImpl(node, canvas, size, density)
                             node.ownerData = receiver
                         } else {
                             receiver = ownerData as DrawScopeImpl
                             receiver.childDrawn = false
                             receiver.canvas = canvas
-                            receiver.size = parentSize
+                            receiver.size = size
                             receiver.currentDensity = density
                         }
                         onPaintWithChildren(receiver, canvas, parentSize)
@@ -862,7 +865,7 @@ internal class AndroidComposeView constructor(
     private inner class DrawScopeImpl(
         private val drawNode: DrawNode,
         var canvas: Canvas,
-        override var size: PxSize,
+        override var size: Size,
         var currentDensity: Density
     ) : Canvas by canvas, Density by currentDensity, ContentDrawScope {
         internal var childDrawn = false
@@ -875,8 +878,9 @@ internal class AndroidComposeView constructor(
                 throw IllegalStateException("Cannot call drawContent() twice within Draw element")
             }
             childDrawn = true
+            val pxSize = PxSize(Px(size.width), Px(size.height))
             drawNode.visitChildren { child ->
-                callDraw(canvas, child, size)
+                callDraw(canvas, child, pxSize)
             }
         }
     }

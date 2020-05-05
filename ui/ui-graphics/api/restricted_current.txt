@@ -720,7 +720,7 @@ package androidx.ui.graphics.painter {
 
   @androidx.ui.graphics.painter.CanvasScopeMarker public final class CanvasScope {
     ctor public CanvasScope();
-    method public void draw(androidx.ui.graphics.Canvas canvas, androidx.ui.unit.PxSize size, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.painter.CanvasScope,kotlin.Unit> block);
+    method public void draw-mEaFHtM(androidx.ui.graphics.Canvas canvas, long size, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.painter.CanvasScope,kotlin.Unit> block);
     method public kotlin.Unit? drawArc-_aGsT6c(androidx.ui.graphics.Brush brush, float startAngle, float sweepAngle, boolean useCenter, long topLeft = Offset.zero, long size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public kotlin.Unit? drawArc-eUb3Eo4(long color, float startAngle, float sweepAngle, boolean useCenter, long topLeft = Offset.zero, long size = this.size, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);
     method public kotlin.Unit? drawCircle-0EImeI8(long color, float radius = size.minDimension / 2.0, long center = this.center, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = DefaultBlendMode);

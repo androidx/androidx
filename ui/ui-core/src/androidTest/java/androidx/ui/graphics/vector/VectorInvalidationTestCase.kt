@@ -66,8 +66,8 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
             Rect.fromLTWH(
                 0.0f,
                 0.0f,
-                size.width.value,
-                size.height.value
+                size.width,
+                size.height
             ),
             Paint().apply { this.color = Color.White }
         )

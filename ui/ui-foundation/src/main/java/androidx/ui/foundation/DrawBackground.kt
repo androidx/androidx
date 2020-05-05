@@ -22,6 +22,8 @@ import androidx.ui.core.ContentDrawScope
 import androidx.ui.core.DrawModifier
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
+import androidx.ui.geometry.Size
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
@@ -30,8 +32,8 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.drawOutline
+import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
-import androidx.ui.unit.toRect
 
 /**
  * Returns a [DrawModifier] that draws [shape] with a solid [color], with the size of the
@@ -127,7 +129,7 @@ data class DrawBackground internal constructor(
 ) : DrawModifier {
 
     // naive cache outline calculation if size is the same
-    private var lastSize: PxSize? = null
+    private var lastSize: Size? = null
     private var lastOutline: Outline? = null
 
     override fun ContentDrawScope.draw() {
@@ -136,7 +138,12 @@ data class DrawBackground internal constructor(
             drawRect(size.toRect(), paint)
         } else {
             val localOutline =
-                if (size == lastSize) lastOutline!! else shape.createOutline(size, this)
+                if (size == lastSize) {
+                    lastOutline!!
+                } else {
+                    val pxSize = PxSize(Px(size.width), Px(size.height))
+                    shape.createOutline(pxSize, this)
+                }
             drawOutline(localOutline, paint)
             lastOutline = localOutline
             lastSize = size
