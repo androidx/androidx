@@ -100,6 +100,14 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         differ.submitData(lifecycle, pagingData)
     }
 
+    /**
+     * Retry any failed load requests that would result in a [LoadState.Error] update to this
+     * [PagingDataAdapter].
+     *
+     * [LoadState.Error] can be generated from two types of load requests:
+     *  * [PagingSource.load] returning [PagingSource.LoadResult.Error]
+     *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
+     */
     fun retry() {
         differ.retry()
     }
