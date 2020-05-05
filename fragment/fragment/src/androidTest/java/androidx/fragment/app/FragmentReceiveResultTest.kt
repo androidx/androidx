@@ -54,6 +54,20 @@ class FragmentReceiveResultTest {
         fragment = attachTestFragment()
     }
 
+    @Suppress("DEPRECATION")
+    @Test
+    fun testNoFragmentOnActivityResult() {
+        // 0xffff is the request code for the startActivityResult launcher in FragmentManager
+        activity.onActivityResult(0xffff, Activity.RESULT_OK, Intent())
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun testNoFragmentOnRequestPermissionsResult() {
+        // 0xffff + 2 is the request code for the requestPermissions launcher in FragmentManager
+        activity.onRequestPermissionsResult(0xffff + 2, arrayOf("permission"), intArrayOf(1))
+    }
+
     @Test
     fun testStartActivityForResultOk() {
         startActivityForResult(10, Activity.RESULT_OK, "content 10")
