@@ -847,7 +847,10 @@ class LayoutNode : ComponentNode(), Measurable {
         val parent = parentLayoutNode
         // The more idiomatic, `if (parentLayoutNode?.isMeasuring == true)` causes boxing
         affectsParentSize = parent != null && parent.isMeasuring == true
-        if (this.constraints == constraints && !needsRemeasure) {
+        if (this.constraints == constraints &&
+            layoutNodeWrapper.measureScope.layoutDirection == layoutDirection &&
+            !needsRemeasure
+        ) {
             return layoutNodeWrapper // we're already measured to this size, don't do anything
         }
 
