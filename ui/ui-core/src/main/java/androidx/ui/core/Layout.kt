@@ -18,12 +18,14 @@ package androidx.ui.core
 
 import android.content.Context
 import androidx.compose.Composable
+import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
 import androidx.compose.Untracked
 import androidx.compose.compositionReference
 import androidx.compose.currentComposer
+import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -476,6 +478,9 @@ fun WithConstraints(
     if (!layoutNode.needsRemeasure && layoutNode.owner != null) {
         state.subcompose()
     }
+    onDispose {
+        state.composition?.dispose()
+    }
 }
 
 private class WithConstrainsState {
@@ -486,6 +491,7 @@ private class WithConstrainsState {
     var lastConstraints: Constraints? = null
     var children: @Composable() (Constraints, LayoutDirection) -> Unit = { _, _ -> }
     var forceRecompose = false
+    var composition: Composition? = null
 
     val measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks(
         error = "Intrinsic measurements are not supported by WithConstraints"
@@ -529,7 +535,7 @@ private class WithConstrainsState {
         val node = nodeRef.value!!
         val constraints = lastConstraints!!
         // TODO(b/150390669): Review use of @Untracked
-        subcomposeInto(context, node, recomposer, compositionRef) @Untracked {
+        composition = subcomposeInto(context, node, recomposer, compositionRef) @Untracked {
             children(constraints, node.measureScope.layoutDirection)
         }
         forceRecompose = false
