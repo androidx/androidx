@@ -51,7 +51,7 @@ abstract class IndexBasedArrayIterator<T> implements Iterator<T> {
             throw new IllegalStateException();
         }
         // Attempt removal first so an UnsupportedOperationException retains a valid state.
-        removeAt(mIndex--);
+        removeAt(--mIndex);
         mSize--;
         mCanRemove = false;
     }
