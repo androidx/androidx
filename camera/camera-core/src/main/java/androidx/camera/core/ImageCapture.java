@@ -364,10 +364,10 @@ public final class ImageCapture extends UseCase {
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
             clearPipeline();
-            // Ensure the bound camera has not changed before resetting.
-            // TODO(b/143915543): Ensure this never gets called by a camera that is not bound
+            // Ensure the attached camera has not changed before resetting.
+            // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
             //  to this use case so we don't need to do this check.
-            if (isCurrentlyBoundCamera(cameraId)) {
+            if (isCurrentCamera(cameraId)) {
                 // Only reset the pipeline when the bound camera is the same.
                 mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
                 updateSessionConfig(mSessionConfigBuilder.build());
@@ -456,7 +456,7 @@ public final class ImageCapture extends UseCase {
         // ready, directly updating the flash mode into camera control. If the camera control has
         // been not ready yet, just saving the flash mode and updating into camera control when
         // camera control ready callback is called.
-        if (getBoundCamera() != null) {
+        if (getCamera() != null) {
             getCameraControl().setFlashMode(flashMode);
         }
     }
@@ -724,18 +724,18 @@ public final class ImageCapture extends UseCase {
             @Nullable Executor listenerExecutor, OnImageCapturedCallback callback) {
 
         // TODO(b/143734846): From here on, the image capture request should be
-        //  self-contained and use this camera ID for everything. Currently the pre-capture
+        //  self-contained and use this camera for everything. Currently the pre-capture
         //  sequence does not follow this approach and could fail if this use case is unbound
-        //  or unbound to a different camera in the middle of pre-capture.
-        CameraInternal boundCamera = getBoundCamera();
-        if (boundCamera == null) {
+        //  or reattached to a different camera in the middle of pre-capture.
+        CameraInternal attachedCamera = getCamera();
+        if (attachedCamera == null) {
             // Not bound. Notify callback.
             callback.onError(new ImageCaptureException(ERROR_INVALID_CAMERA,
                     "Not bound to a valid Camera [" + ImageCapture.this + "]", null));
             return;
         }
 
-        CameraInfoInternal cameraInfoInternal = boundCamera.getCameraInfoInternal();
+        CameraInfoInternal cameraInfoInternal = attachedCamera.getCameraInfoInternal();
         int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
                 mConfig.getTargetRotation(Surface.ROTATION_0));
 
@@ -979,7 +979,7 @@ public final class ImageCapture extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        mSessionConfigBuilder = createPipeline(getBoundCameraId(), mConfig, suggestedResolution);
+        mSessionConfigBuilder = createPipeline(getCameraId(), mConfig, suggestedResolution);
 
         updateSessionConfig(mSessionConfigBuilder.build());
 

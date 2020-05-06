@@ -150,9 +150,9 @@ public final class UseCaseGroup {
         Map<String, Set<UseCase>> cameraIdToUseCases = new HashMap<>();
         synchronized (mUseCasesLock) {
             for (UseCase useCase : mUseCases) {
-                CameraInternal boundCamera = useCase.getBoundCamera();
-                if (boundCamera != null) {
-                    String cameraId = boundCamera.getCameraInfoInternal().getCameraId();
+                CameraInternal attachedCamera = useCase.getCamera();
+                if (attachedCamera != null) {
+                    String cameraId = attachedCamera.getCameraInfoInternal().getCameraId();
                     Set<UseCase> useCaseSet = cameraIdToUseCases.get(cameraId);
                     if (useCaseSet == null) {
                         useCaseSet = new HashSet<>();

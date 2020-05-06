@@ -334,17 +334,17 @@ public final class CameraX {
 
         List<UseCase> originalUseCases = new ArrayList<>();
 
-        // Collect original use cases bound to the camera
+        // Collect original use cases attached to the camera
         for (UseCase useCase : useCaseGroupToBind.getUseCases()) {
-            CameraInternal boundCamera = useCase.getBoundCamera();
-            if (boundCamera != null) {
-                if (camera.equals(boundCamera)) {
+            CameraInternal attachedCamera = useCase.getCamera();
+            if (attachedCamera != null) {
+                if (camera.equals(attachedCamera)) {
                     originalUseCases.add(useCase);
                 }
             }
         }
 
-        // Only do resolution calculation if UseCases were bound
+        // Only do resolution calculation if UseCases were attached
         if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(originalUseCases,
                 Arrays.asList(useCases))) {
             throw new IllegalArgumentException("Attempting to bind too many ImageCapture or "

@@ -210,7 +210,7 @@ public final class UseCaseAttachState {
 
     private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(UseCase useCase) {
         Preconditions.checkArgument(
-                useCase.getBoundCamera().getCameraInfoInternal().getCameraId().equals(mCameraId));
+                useCase.getCamera().getCameraInfoInternal().getCameraId().equals(mCameraId));
         UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
         if (useCaseAttachInfo == null) {
             useCaseAttachInfo = new UseCaseAttachInfo(useCase.getSessionConfig());

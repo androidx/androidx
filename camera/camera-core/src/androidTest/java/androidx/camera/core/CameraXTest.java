@@ -547,7 +547,7 @@ public final class CameraXTest {
         Camera camera = CameraX.bindToLifecycle(mLifecycle, CameraSelector.DEFAULT_BACK_CAMERA,
                 fakeUseCase);
 
-        assertThat(fakeUseCase.getBoundCamera()).isEqualTo(camera);
+        assertThat(fakeUseCase.getCamera()).isEqualTo(camera);
     }
 
     @Test
