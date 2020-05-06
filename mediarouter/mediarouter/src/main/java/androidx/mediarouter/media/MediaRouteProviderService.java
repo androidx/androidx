@@ -70,6 +70,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -81,11 +82,13 @@ import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
+import androidx.mediarouter.media.MediaRouteProvider.RouteController;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Base class for media route provider services.
@@ -612,7 +615,7 @@ public abstract class MediaRouteProviderService extends Service {
                 String memberId) {
             ClientRecord client = getClient(messenger);
             if (client != null) {
-                MediaRouteProvider.RouteController controller =
+                RouteController controller =
                         client.getRouteController(controllerId);
                 if (controller instanceof MediaRouteProvider.DynamicGroupRouteController) {
                     ((MediaRouteProvider.DynamicGroupRouteController) controller)
@@ -633,7 +636,7 @@ public abstract class MediaRouteProviderService extends Service {
                 String memberId) {
             ClientRecord client = getClient(messenger);
             if (client != null) {
-                MediaRouteProvider.RouteController controller =
+                RouteController controller =
                         client.getRouteController(controllerId);
                 if (controller instanceof MediaRouteProvider.DynamicGroupRouteController) {
                     ((MediaRouteProvider.DynamicGroupRouteController) controller)
@@ -654,7 +657,7 @@ public abstract class MediaRouteProviderService extends Service {
                 List<String> memberIds) {
             ClientRecord client = getClient(messenger);
             if (client != null) {
-                MediaRouteProvider.RouteController controller =
+                RouteController controller =
                         client.getRouteController(controllerId);
                 if (controller instanceof MediaRouteProvider.DynamicGroupRouteController) {
                     ((MediaRouteProvider.DynamicGroupRouteController) controller)
@@ -692,7 +695,7 @@ public abstract class MediaRouteProviderService extends Service {
                 int controllerId) {
             ClientRecord client = getClient(messenger);
             if (client != null) {
-                MediaRouteProvider.RouteController controller =
+                RouteController controller =
                         client.getRouteController(controllerId);
                 if (controller != null) {
                     controller.onSelect();
@@ -712,7 +715,7 @@ public abstract class MediaRouteProviderService extends Service {
                 int controllerId, int reason) {
             ClientRecord client = getClient(messenger);
             if (client != null) {
-                MediaRouteProvider.RouteController controller =
+                RouteController controller =
                         client.getRouteController(controllerId);
                 if (controller != null) {
                     controller.onUnselect(reason);
@@ -732,7 +735,7 @@ public abstract class MediaRouteProviderService extends Service {
                 int controllerId, int volume) {
             ClientRecord client = getClient(messenger);
             if (client != null) {
-                MediaRouteProvider.RouteController controller =
+                RouteController controller =
                         client.getRouteController(controllerId);
                 if (controller != null) {
                     controller.onSetVolume(volume);
@@ -752,7 +755,7 @@ public abstract class MediaRouteProviderService extends Service {
                 int controllerId, int delta) {
             ClientRecord client = getClient(messenger);
             if (client != null) {
-                MediaRouteProvider.RouteController controller =
+                RouteController controller =
                         client.getRouteController(controllerId);
                 if (controller != null) {
                     controller.onUpdateVolume(delta);
@@ -772,7 +775,7 @@ public abstract class MediaRouteProviderService extends Service {
                 final int controllerId, final Intent intent) {
             final ClientRecord client = getClient(messenger);
             if (client != null) {
-                MediaRouteProvider.RouteController controller =
+                RouteController controller =
                         client.getRouteController(controllerId);
                 if (controller != null) {
                     MediaRouter.ControlRequestCallback callback = null;
@@ -934,8 +937,7 @@ public abstract class MediaRouteProviderService extends Service {
             public final String mPackageName;
             public MediaRouteDiscoveryRequest mDiscoveryRequest;
 
-            final SparseArray<MediaRouteProvider.RouteController> mControllers =
-                    new SparseArray<MediaRouteProvider.RouteController>();
+            final SparseArray<RouteController> mControllers = new SparseArray<>();
 
             final DynamicGroupRouteController.OnDynamicRoutesChangedListener
                     mDynamicRoutesChangedListener =
@@ -983,7 +985,7 @@ public abstract class MediaRouteProviderService extends Service {
             public boolean createRouteController(String routeId, String routeGroupId,
                     int controllerId) {
                 if (mControllers.indexOfKey(controllerId) < 0) {
-                    MediaRouteProvider.RouteController controller = routeGroupId == null
+                    RouteController controller = routeGroupId == null
                             ? mService.getMediaRouteProvider().onCreateRouteController(routeId)
                             : mService.getMediaRouteProvider()
                                     .onCreateRouteController(routeId, routeGroupId);
@@ -1019,7 +1021,7 @@ public abstract class MediaRouteProviderService extends Service {
             }
 
             public boolean releaseRouteController(int controllerId) {
-                MediaRouteProvider.RouteController controller = mControllers.get(controllerId);
+                RouteController controller = mControllers.get(controllerId);
                 if (controller != null) {
                     mControllers.remove(controllerId);
                     controller.onRelease();
@@ -1028,7 +1030,7 @@ public abstract class MediaRouteProviderService extends Service {
                 return false;
             }
 
-            public MediaRouteProvider.RouteController getRouteController(int controllerId) {
+            public RouteController getRouteController(int controllerId) {
                 return mControllers.get(controllerId);
             }
 
@@ -1118,6 +1120,8 @@ public abstract class MediaRouteProviderService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.R)
     static class MediaRouteProviderServiceImplApi30 extends MediaRouteProviderServiceImplBase {
         MediaRoute2ProviderServiceAdapter mMR2ProviderServiceAdapter;
+        // Maps the route ID to route controller.
+        final Map<String, RouteController> mRouteIdToControllerMap = new ArrayMap<>();
 
         MediaRouteProviderServiceImplApi30(MediaRouteProviderService instance) {
             super(instance);
@@ -1157,10 +1161,29 @@ public abstract class MediaRouteProviderService extends Service {
                 Messenger messenger, int version, String packageName) {
             return new ClientRecord(messenger, version, packageName);
         }
+        @Override
+        ClientRecord getClientForPackageName(String packageName) {
+            return (ClientRecord) super.getClientForPackageName(packageName);
+        }
+
+        RouteController getControllerForRouteId(String routeId) {
+            return mRouteIdToControllerMap.get(routeId);
+        }
 
         class ClientRecord extends MediaRouteProviderServiceImplBase.ClientRecord {
             ClientRecord(Messenger messenger, int version, String packageName) {
                 super(messenger, version, packageName);
+            }
+
+            public boolean saveRouteController(String routeId, RouteController controller,
+                    int controllerId) {
+                mRouteIdToControllerMap.put(routeId, controller);
+
+                if (mControllers.indexOfKey(controllerId) < 0) {
+                    mControllers.put(controllerId, controller);
+                    return true;
+                }
+                return false;
             }
 
             @Override
@@ -1172,6 +1195,9 @@ public abstract class MediaRouteProviderService extends Service {
                 if (routeGroupId == null && result && mPackageName != null) {
                     mMR2ProviderServiceAdapter.addRouteController(mControllers.get(controllerId),
                             controllerId, mPackageName, routeId);
+                }
+                if (result) {
+                    mRouteIdToControllerMap.put(routeId, mControllers.get(controllerId));
                 }
                 return result;
             }
@@ -1191,6 +1217,16 @@ public abstract class MediaRouteProviderService extends Service {
             @Override
             public boolean releaseRouteController(int controllerId) {
                 mMR2ProviderServiceAdapter.removeRouteController(controllerId);
+                RouteController controller = mControllers.get(controllerId);
+                if (controller != null) {
+                    for (Map.Entry<String, RouteController> entry :
+                            mRouteIdToControllerMap.entrySet()) {
+                        if (entry.getValue() == controller) {
+                            mRouteIdToControllerMap.remove(entry.getKey());
+                            break;
+                        }
+                    }
+                }
                 return super.releaseRouteController(controllerId);
             }
 
