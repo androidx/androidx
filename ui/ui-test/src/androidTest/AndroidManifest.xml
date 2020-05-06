@@ -28,5 +28,6 @@
         <activity android:name="androidx.ui.test.MultipleActivitiesClickTest$Activity2" />
         <activity android:name="androidx.ui.test.MultipleActivitiesFirstDrawTest$Activity1" />
         <activity android:name="androidx.ui.test.MultipleActivitiesFirstDrawTest$Activity2" />
+        <activity android:name="androidx.ui.test.LateSetContentTest$Activity" />
     </application>
 </manifest>
