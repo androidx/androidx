@@ -377,7 +377,7 @@ private fun Modifier.dragPositionGestureFilter(
             DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
                 tracker.value.onDrag(dragDistance)
-                return tracker.value.getPosition()
+                return PxPosition.Origin
             }
         })
 }
