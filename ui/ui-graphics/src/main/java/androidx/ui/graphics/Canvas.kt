@@ -386,7 +386,7 @@ interface Canvas {
      * in incorrect blending at the clip boundary. See [saveLayer] for a
      * discussion of how to address that.
      */
-    fun clipPath(path: Path)
+    fun clipPath(path: Path, clipOp: ClipOp = ClipOp.intersect)
 
     /**
      * Draws a line between the given points using the given paint. The line is

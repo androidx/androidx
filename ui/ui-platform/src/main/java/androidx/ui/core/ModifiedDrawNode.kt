@@ -95,7 +95,7 @@ internal class ModifiedDrawNode(
             clipOp: ClipOp
         ) = canvas!!.clipRect(left, top, right, bottom, clipOp)
 
-        override fun clipPath(path: Path) = canvas!!.clipPath(path)
+        override fun clipPath(path: Path, clipOp: ClipOp) = canvas!!.clipPath(path, clipOp)
 
         override fun drawLine(p1: Offset, p2: Offset, paint: Paint) =
             canvas!!.drawLine(p1, p2, paint)
