@@ -22,6 +22,7 @@ import static androidx.sqlite.inspection.SqliteInspectionExecutors.directExecuto
 
 import android.annotation.SuppressLint;
 import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
@@ -30,6 +31,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteStatement;
 import android.os.CancellationSignal;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -354,12 +356,12 @@ final class SqliteInspector extends Inspector {
                 rawQueryMethodSignature, new EntryExitMatchingHookRegistry.OnExitCallback() {
                     @Override
                     public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
-                        SQLiteCursor cursor = (SQLiteCursor) exitFrame.mResult;
-                        String query = (String) exitFrame.mArgs.get(1);
+                        SQLiteCursor cursor = cursorParam(exitFrame.mResult);
+                        String query = stringParam(exitFrame.mArgs.get(1));
 
                         // Only track cursors that might modify the database.
                         // TODO: handle PRAGMA select queries, e.g. PRAGMA_TABLE_INFO
-                        if (query != null && getSqlStatementType(query)
+                        if (cursor != null && query != null && getSqlStatementType(query)
                                 != DatabaseUtils.STATEMENT_SELECT) {
                             trackedCursors.put(cursor, null);
                         }
@@ -378,6 +380,28 @@ final class SqliteInspector extends Inspector {
                         }
                     });
         }
+    }
+
+    // Gets a SQLiteCursor from a passed-in Object (if possible)
+    private @Nullable SQLiteCursor cursorParam(Object cursor) {
+        if (cursor instanceof SQLiteCursor) {
+            return (SQLiteCursor) cursor;
+        }
+
+        if (cursor instanceof CursorWrapper) {
+            CursorWrapper wrapper = (CursorWrapper) cursor;
+            return cursorParam(wrapper.getWrappedCursor());
+        }
+
+        // TODO: add support for more cursor types
+        Log.w(SqliteInspector.class.getName(), String.format(
+                "Unsupported Cursor type: %s. Invalidation might not work correctly.", cursor));
+        return null;
+    }
+
+    // Gets a String from a passed-in Object (if possible)
+    private @Nullable String stringParam(Object string) {
+        return string instanceof String ? (String) string : null;
     }
 
     private void dispatchDatabaseOpenedEvent(int databaseId, String path) {
