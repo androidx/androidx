@@ -150,17 +150,16 @@ class DatabaseRegistry {
             int id = getIdForDatabase(database);
 
             // Guaranteed up to date:
-            // - either called before the newly created connection is returned from the creation
-            // method,
+            // - either called in a secure context (e.g. before the newly created connection is
+            // returned from the creation; or with an already acquiredReference on it),
             // - or called after the last reference was released which cannot be undone.
             final boolean isOpen = database.isOpen();
 
             if (id == NOT_TRACKED) { // handling a transition: not tracked -> tracked
-                id = mNextId++;
-                registerReference(id, database);
+                // TODO: notify of found closed databases
                 if (isOpen) {
-                    // isOpen should be true here, but in case we missed a connection creation
-                    // method, we shouldn't report the database as open.
+                    id = mNextId++;
+                    registerReference(id, database);
                     notifyOpenedId = id;
                 }
             } else if (isOpen) { // handling a transition: tracked(closed) -> tracked(open)
