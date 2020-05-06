@@ -67,12 +67,14 @@ import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.PaintingStyle
 import androidx.ui.graphics.Path
 import androidx.ui.graphics.Shape
+import androidx.ui.graphics.painter.Stroke
+import androidx.ui.graphics.painter.clipRect
+import androidx.ui.graphics.painter.translate
 import androidx.ui.layout.ltr
 import androidx.ui.layout.offset
 import androidx.ui.layout.padding
@@ -85,8 +87,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
-import androidx.ui.unit.px
-import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -348,37 +348,28 @@ class AndroidLayoutDrawTest {
                 val contentDrawing = object : DrawModifier {
                     override fun ContentDrawScope.draw() {
                         // Fill the space with the outerColor
-                        val paint = Paint()
-                        paint.color = model.outerColor
-                        drawRect(size.toRect(), paint)
-                        nativeCanvas.save()
-                        val offset = size.width.value / 3
+                        drawRect(model.outerColor)
+                        val offset = size.width / 3
                         // clip drawing to the inner rectangle
-                        clipRect(Rect(offset, offset, offset * 2, offset * 2))
-                        drawContent()
+                        clipRect(offset, offset, offset * 2, offset * 2) {
+                            this@draw.drawContent()
 
-                        // Fill bottom half with innerColor -- should be clipped
-                        paint.color = model.innerColor
-                        val paintRect = Rect(
-                            0f, size.height.value / 2f,
-                            size.width.value, size.height.value
-                        )
-                        drawRect(paintRect, paint)
-                        // restore the canvas
-                        nativeCanvas.restore()
+                            // Fill bottom half with innerColor -- should be clipped
+                            drawRect(model.innerColor,
+                                topLeft = Offset(0f, size.height / 2f),
+                                size = Size(size.width, size.height / 2f)
+                            )
+                        }
                     }
                 }
 
                 val paddingContent = Modifier.drawBehind {
                     // Fill top half with innerColor -- should be clipped
                     drawLatch.countDown()
-                    val paint = Paint()
-                    paint.color = model.innerColor
-                    val paintRect = Rect(
-                        0f, 0f, size.width.value,
-                        size.height.value / 2f
+                    drawRect(
+                        model.innerColor,
+                        size = Size(size.width, size.height / 2f)
                     )
-                    drawRect(paintRect, paint)
                 }
                 Padding(size = (model.size * 3), modifier = contentDrawing + paddingContent) {
                 }
@@ -466,18 +457,14 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 Layout(
                     modifier = Modifier.drawBehind {
-                        val paint = Paint()
-                        paint.color = model.outerColor
-                        drawRect(size.toRect(), paint)
+                        drawRect(model.outerColor)
                     },
                     children = {
                         AtLeastSize(
                             size = model.size,
                             modifier = Modifier.drawBehind {
                                 drawLatch.countDown()
-                                val paint = Paint()
-                                paint.color = model.innerColor
-                                drawRect(size.toRect(), paint)
+                                drawRect(model.innerColor)
                             }
                         )
                     }, measureBlock = { measurables, constraints, _ ->
@@ -683,9 +670,7 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 AtLeastSize(size = 30.ipx, modifier = Modifier.drawBehind {
                     drawLatch.countDown()
-                    val paint = Paint()
-                    paint.color = outerColor
-                    drawRect(size.toRect(), paint)
+                    drawRect(outerColor)
                 }) {
                     AtLeastSize(size = 30.ipx) {
                         if (drawChild.value) {
@@ -694,9 +679,7 @@ class AndroidLayoutDrawTest {
                                     size = 10.ipx,
                                     modifier = Modifier.drawBehind {
                                         drawLatch.countDown()
-                                        val paint = Paint()
-                                        paint.color = innerColor
-                                        drawRect(size.toRect(), paint)
+                                        drawRect(innerColor)
                                     }
                                 )
                             }
@@ -727,9 +710,7 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 AtLeastSize(size = 30.ipx, modifier = Modifier.drawBehind {
                     drawLatch.countDown()
-                    val paint = Paint()
-                    paint.color = outerColor
-                    drawRect(size.toRect(), paint)
+                    drawRect(outerColor)
                 }) {
                     Padding(size = 20.ipx) {
                         if (drawChild.value) {
@@ -737,9 +718,7 @@ class AndroidLayoutDrawTest {
                                 size = 20.ipx,
                                 modifier = Modifier.drawBehind {
                                     drawLatch.countDown()
-                                    val paint = Paint()
-                                    paint.color = innerColor
-                                    drawRect(size.toRect(), paint)
+                                    drawRect(innerColor)
                                 }
                             )
                         }
@@ -1741,8 +1720,8 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val drawnContent = Modifier.drawBehind {
-                    assertEquals(100.px, size.width)
-                    assertEquals(100.px, size.height)
+                    assertEquals(100.0f, size.width)
+                    assertEquals(100.0f, size.height)
                     latch.countDown()
                 }
                 AtLeastSize(100.ipx, PaddingModifier(10.ipx) + drawnContent) {
@@ -1761,8 +1740,8 @@ class AndroidLayoutDrawTest {
                     100.ipx,
                     PaddingModifier(10.ipx).drawLayer()
                         .drawBehind {
-                            assertEquals(100.px, size.width)
-                            assertEquals(100.px, size.height)
+                            assertEquals(100.0f, size.width)
+                            assertEquals(100.0f, size.height)
                             latch.countDown()
                         }
                 ) {
@@ -1978,12 +1957,12 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val colorModifier = Modifier.drawBehind {
-                    val paint = Paint()
-                    paint.style = PaintingStyle.fill
-                    paint.color = outerColor
-                    drawRect(size.toRect(), paint)
-                    paint.color = innerColor
-                    drawRect(Rect(10f, 10f, 20f, 20f), paint)
+                    drawRect(outerColor)
+                    drawRect(
+                        innerColor,
+                        topLeft = Offset(10f, 10f),
+                        size = Size(10f, 10f)
+                    )
                     drawLatch.countDown()
                 }
                 FixedSize(30.ipx, colorModifier)
@@ -2040,11 +2019,10 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val drawAndOffset = Modifier.drawWithContent {
-                    val paint = Paint().apply { color = outerColor }
-                    drawRect(size.toRect(), paint)
-                    translate(10f, 10f)
-                    drawContent()
-                    translate(-10f, -10f)
+                    drawRect(outerColor)
+                    translate(10f, 10f) {
+                        this@drawWithContent.drawContent()
+                    }
                 }
                 FixedSize(30.ipx, drawAndOffset) {
                     FixedSize(
@@ -2067,16 +2045,14 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 FixedSize(30.ipx, modifier = Modifier.drawBehind {
-                    drawRect(size.toRect(), Paint().apply { color = green })
+                    drawRect(green)
                 }) {
                     FixedSize(
                         model.offset,
                         modifier = AlignTopLeft.drawLayer()
                             .drawBehind {
                                 drawLatch.countDown()
-                                drawRect(
-                                    size.toRect(),
-                                    Paint().apply { color = blue })
+                                drawRect(blue)
                             }
                     ) {
                     }
@@ -2268,11 +2244,11 @@ class AndroidLayoutDrawTest {
                                 clipToOutline = false
                             )
                             .drawBehind {
-                                val paint = Paint().apply {
-                                    color = Color.Blue
-                                    style = PaintingStyle.fill
-                                }
-                                drawRect(Rect(-10f, -10f, 20f, 20f), paint)
+                                drawRect(
+                                    Color.Blue,
+                                    topLeft = Offset(-10f, -10f),
+                                    size = Size(30.0f, 30.0f)
+                                )
                             }
                             .background(Color.Red)
                             .latch(drawLatch)
@@ -2334,13 +2310,11 @@ class AndroidLayoutDrawTest {
                     Modifier.drawBehind { outerLatch.countDown() }.drawLayer()
                 ) {
                     FixedSize(10.ipx, Modifier.drawBehind {
-                        val paint = Paint().apply {
-                            color = Color.Blue
-                        }
                         drawLine(
+                            Color.Blue,
                             Offset(model.offset.value.toFloat(), 0f),
                             Offset(0f, model.offset.value.toFloat()),
-                            paint
+                            stroke = Stroke(width = 0.0f) // 0.0f represents hairline stroke
                         )
                         drawLatch.countDown()
                     })
@@ -2421,15 +2395,11 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Padding(size = model.size, modifier = Modifier.drawBehind {
-                    val paint = Paint()
-                    paint.color = model.outerColor
-                    drawRect(size.toRect(), paint)
+                    drawRect(model.outerColor)
                 }) {
                     AtLeastSize(size = model.size, modifier = Modifier.drawBehind {
                         drawLatch.countDown()
-                        val paint = Paint()
-                        paint.color = model.innerColor
-                        drawRect(size.toRect(), paint)
+                        drawRect(model.innerColor)
                     })
                 }
             }
@@ -2490,21 +2460,16 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 val fillColorModifier = Modifier.drawBehind {
-                    drawRect(size.toRect(), Paint().apply {
-                        this.color = model.innerColor
-                    })
+                    drawRect(model.innerColor)
                     drawLatch.countDown()
                 }
                 val innerDrawWithContentModifier = drawWithContent {
-                    val paint = Paint()
-                    paint.color = model.outerColor
-                    drawRect(size.toRect(), paint)
+                    drawRect(model.outerColor)
                     val start = model.size.value.toFloat()
                     val end = start * 2
-                    nativeCanvas.save()
-                    clipRect(Rect(start, start, end, end))
-                    drawContent()
-                    nativeCanvas.restore()
+                    clipRect(start, start, end, end) {
+                        this@drawWithContent.drawContent()
+                    }
                 }
                 AtLeastSize(size = (model.size * 3), modifier = innerDrawWithContentModifier) {
                     AtLeastSize(size = (model.size * 3), modifier = fillColorModifier)
@@ -2533,9 +2498,7 @@ class AndroidLayoutDrawTest {
     @Composable
     private fun fillColor(color: Color, doCountDown: Boolean = true): Modifier =
         Modifier.drawBehind {
-            drawRect(size.toRect(), Paint().apply {
-                this.color = color
-            })
+            drawRect(color)
             if (doCountDown) {
                 drawLatch.countDown()
             }
@@ -2547,9 +2510,7 @@ class AndroidLayoutDrawTest {
         isInner: Boolean,
         doCountDown: Boolean = true
     ): Modifier = Modifier.drawBehind {
-        drawRect(size.toRect(), Paint().apply {
-            this.color = if (isInner) squareModel.innerColor else squareModel.outerColor
-        })
+        drawRect(if (isInner) squareModel.innerColor else squareModel.outerColor)
         if (doCountDown) {
             drawLatch.countDown()
         }
@@ -3054,22 +3015,14 @@ fun ActivityTestRule<*>.waitAndScreenShot(): Bitmap {
 }
 
 fun Modifier.background(color: Color) = drawBehind {
-    val paint = Paint().apply { this.color = color }
-    drawRect(size.toRect(), paint)
+    drawRect(color)
 }
 
 fun Modifier.background(model: SquareModel, isInner: Boolean) = drawBehind {
-    val paint = Paint().apply {
-        this.color = if (isInner) model.innerColor else model.outerColor
-    }
-    drawRect(size.toRect(), paint)
+    drawRect(if (isInner) model.innerColor else model.outerColor)
 }
 
-class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
-    val paint = Paint().also { paint ->
-        paint.color = color
-        paint.style = PaintingStyle.fill
-    }
+class CombinedModifier(val color: Color) : LayoutModifier, DrawModifier {
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -3086,7 +3039,7 @@ class CombinedModifier(color: Color) : LayoutModifier, DrawModifier {
     }
 
     override fun ContentDrawScope.draw() {
-        drawRect(size.toRect(), paint)
+        drawRect(color)
     }
 }
 

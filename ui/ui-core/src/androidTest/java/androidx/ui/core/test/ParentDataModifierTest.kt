@@ -28,9 +28,7 @@ import androidx.ui.core.setContent
 import androidx.ui.core.tag
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -150,9 +148,7 @@ class ParentDataModifierTest {
 @Composable
 fun SimpleDrawChild(drawLatch: CountDownLatch) {
     AtLeastSize(size = 10.ipx, modifier = Modifier.drawBehind {
-        val paint = Paint()
-        paint.color = Color(0xFF008000)
-        drawRect(size.toRect(), paint)
+        drawRect(Color(0xFF008000))
         drawLatch.countDown()
     }) {}
 }

@@ -27,18 +27,21 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.drawBehind
+import androidx.ui.core.scale
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.BlendMode
 import androidx.ui.graphics.Brush
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
+import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.painter.translate
 import androidx.ui.graphics.withSave
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import kotlin.math.ceil
 
 /**
@@ -194,12 +197,12 @@ fun Modifier.drawVector(
 
     val vectorWidth = defaultWidth.value
     val vectorHeight = defaultHeight.value
-    val vectorPxSize = PxSize(Px(vectorWidth), Px(vectorHeight))
+    val vectorSize = Size(vectorWidth, vectorHeight)
 
     drawBehind {
-        val parentWidth = size.width.value
-        val parentHeight = size.height.value
-        val scale = contentScale.scale(vectorPxSize, size)
+        val parentWidth = size.width
+        val parentHeight = size.height
+        val scale = contentScale.scale(vectorSize, size)
 
         val alignedPosition = alignment.align(
             IntPxSize(
@@ -215,9 +218,10 @@ fun Modifier.drawVector(
         vector.root.scaleX = (vectorWidth / viewportWidth) * scale
         vector.root.scaleY = (vectorHeight / viewportHeight) * scale
 
-        withSave {
-            translate(translateX, translateY)
-            vector.draw(this, DefaultAlpha, ColorFilter(tintColor, tintBlendMode))
+        translate(translateX, translateY) {
+            drawCanvas { canvas, _ ->
+                vector.draw(canvas, DefaultAlpha, ColorFilter(tintColor, tintBlendMode))
+            }
         }
     }
 }

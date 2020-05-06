@@ -49,7 +49,6 @@ import androidx.ui.core.paint
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.vector.VectorPainter
 import androidx.ui.layout.Constraints
 import androidx.ui.layout.DpConstraints
@@ -62,7 +61,6 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.PxPosition
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -151,16 +149,12 @@ class WithConstraintsTest {
             activity.setContent {
                 WithConstraints {
                     val outerModifier = Modifier.drawBehind {
-                        val paint = Paint()
-                        paint.color = model.outerColor
-                        drawRect(size.toRect(), paint)
+                        drawRect(model.outerColor)
                     }
                     Layout(children = {
                         val innerModifier = Modifier.drawBehind {
                             drawLatch.countDown()
-                            val paint = Paint()
-                            paint.color = model.innerColor
-                            drawRect(size.toRect(), paint)
+                            drawRect(model.innerColor)
                         }
                         Layout(
                             children = {},
@@ -807,9 +801,7 @@ class WithConstraintsTest {
 
     private fun countdownLatchBackgroundModifier(color: Color) =
         Modifier.drawBehind {
-            val paint = Paint()
-            paint.color = color
-            drawRect(size.toRect(), paint)
+            drawRect(color)
             drawLatch.countDown()
         }
 
@@ -915,9 +907,7 @@ private fun ChangingLayoutDirectionLayout(
 }
 
 fun backgroundModifier(color: Color) = Modifier.drawBehind {
-    val paint = Paint()
-    paint.color = color
-    drawRect(size.toRect(), paint)
+    drawRect(color)
 }
 
 val infiniteConstraints = object : LayoutModifier {

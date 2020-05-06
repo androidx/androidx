@@ -34,7 +34,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.animation.fling
 import androidx.ui.foundation.gestures.DragDirection
@@ -211,7 +211,7 @@ private fun Track(
 ) {
     val activeTickColor = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha)
     val inactiveTickColor = color.copy(alpha = TickColorAlpha)
-    Canvas2(modifier) {
+    Canvas(modifier) {
         val sliderStart = Offset(thumbPx, center.dy)
         val sliderMax = Offset(size.width - thumbPx, center.dy)
         drawLine(

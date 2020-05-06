@@ -26,7 +26,7 @@ import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.rawDragGestureFilter
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
@@ -67,7 +67,7 @@ fun SpringBackScrollingDemo() {
                 })
             }
         })
-        Canvas2(gesture.fillMaxWidth().preferredHeight(400.dp)) {
+        Canvas(gesture.fillMaxWidth().preferredHeight(400.dp)) {
             itemWidth.value = size.width / 2f
             if (isFlinging.value) {
                 // Figure out what position to spring back to

@@ -30,7 +30,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.rawDragGestureFilter
 import androidx.ui.core.onPositioned
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
@@ -122,7 +122,7 @@ private fun SwipeToDismiss() {
 
     val heightDp = with(DensityAmbient.current) { height.toDp() }
 
-    Canvas2(
+    Canvas(
         modifier.fillMaxWidth()
             .preferredHeight(heightDp)
             .onPositioned { coordinates ->

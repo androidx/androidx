@@ -18,7 +18,7 @@ package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.ScrollerPosition
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
@@ -70,7 +70,7 @@ class ScrollerTestCase() : ComposeTestCase, ToggleableTestCase {
 
     @Composable
     fun ColorStripe(red: Int, green: Int, blue: Int) {
-        Canvas2(Modifier.preferredSize(45.dp, 5.dp)) {
+        Canvas(Modifier.preferredSize(45.dp, 5.dp)) {
             drawRect(Color(red = red, green = green, blue = blue))
         }
     }

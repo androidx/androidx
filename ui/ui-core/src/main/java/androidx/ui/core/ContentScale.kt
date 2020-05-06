@@ -16,11 +16,28 @@
 
 package androidx.ui.core
 
+import androidx.ui.geometry.Size
+import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 import kotlin.math.max
 import kotlin.math.min
 
 private const val OriginalScale = 1.0f
+
+/**
+ * Convenience method to compute the scale factor from [Size] parameters
+ */
+fun ContentScale.scale(srcSize: Size, dstSize: Size): Float =
+    scale(
+        PxSize(
+            Px(srcSize.width),
+            Px(srcSize.height)
+        ),
+        PxSize(
+            Px(dstSize.width),
+            Px(dstSize.height)
+        )
+    )
 
 /**
  * Represents a rule to apply to scale a source rectangle to be inscribed into a destination

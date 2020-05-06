@@ -33,7 +33,9 @@ import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorder
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.painter.clipRect
 import androidx.ui.graphics.withSave
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
@@ -120,9 +122,8 @@ private fun Draggable(children: @Composable() () -> Unit) {
 
 val ClipModifier = object : DrawModifier {
     override fun ContentDrawScope.draw() {
-        withSave {
-            clipRect(size.toRect())
-            drawContent()
+        clipRect {
+            this@draw.drawContent()
         }
     }
 }

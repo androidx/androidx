@@ -27,7 +27,7 @@ import androidx.ui.core.clipToBounds
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.layout.DpConstraints
@@ -262,7 +262,7 @@ private fun Scrim(
     // TODO: use enabled = false here when it will be available
     val scrimContent = @Composable {
         val color = MaterialTheme.colors.onSurface
-        Canvas2(Modifier.fillMaxSize()) {
+        Canvas(Modifier.fillMaxSize()) {
             drawRect(color, alpha = fraction() * ScrimDefaultOpacity)
         }
     }

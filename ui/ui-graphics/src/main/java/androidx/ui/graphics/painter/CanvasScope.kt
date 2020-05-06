@@ -249,7 +249,7 @@ inline fun CanvasScope.withTransform(
  * @sample androidx.ui.graphics.samples.canvasScopeSample
  */
 @CanvasScopeMarker
-class CanvasScope {
+open class CanvasScope {
 
     @PublishedApi internal var canvas: Canvas? = null
 
@@ -905,7 +905,7 @@ class CanvasScope {
      * should draw within
      * @param block lambda that is called to issue drawing commands on this [CanvasScope]
      */
-    fun draw(canvas: Canvas, size: PxSize, block: CanvasScope.() -> Unit) {
+    fun draw(canvas: Canvas, size: Size, block: CanvasScope.() -> Unit) {
         val previousSize = this.size
         // Remember the previous canvas in case we are temporarily re-directing our drawing
         // to a separate Layer/RenderNode only to draw that content back into the original Canvas
@@ -913,7 +913,7 @@ class CanvasScope {
         // parameter back to null defensively
         val previousCanvas = this.canvas
         this.canvas = canvas
-        setSize(Size(size.width.value, size.height.value))
+        setSize(size)
         canvas.save()
         this.block()
         canvas.restore()

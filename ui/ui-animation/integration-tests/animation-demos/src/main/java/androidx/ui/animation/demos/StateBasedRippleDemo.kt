@@ -30,7 +30,7 @@ import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
@@ -68,7 +68,7 @@ private fun RippleRect() {
 
 @Composable
 private fun RippleRectFromState(modifier: Modifier = Modifier, state: TransitionState) {
-    Canvas2(modifier.fillMaxSize()) {
+    Canvas(modifier.fillMaxSize()) {
         // TODO: file bug for when "down" is not a file level val, it's not memoized correctly
         drawCircle(
             Color(

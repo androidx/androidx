@@ -27,7 +27,7 @@ import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.rawDragGestureFilter
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
@@ -77,7 +77,7 @@ fun FancyScrollingDemo() {
             }
         })
 
-        Canvas2(gesture.fillMaxWidth().preferredHeight(400.dp)) {
+        Canvas(gesture.fillMaxWidth().preferredHeight(400.dp)) {
             val width = size.width / 2f
             val scroll = animScroll.value + width / 2
             itemWidth.value = width

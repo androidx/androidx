@@ -30,6 +30,7 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
+import androidx.ui.graphics.painter.Stroke
 import androidx.ui.graphics.useOrElse
 import androidx.ui.input.EditorValue
 import androidx.ui.input.ImeAction
@@ -217,9 +218,7 @@ private fun Modifier.drawCursor(
     cursorState: CursorState,
     editorValue: EditorValue,
     transformedText: TransformedText
-): Modifier = composed {
-    val paint = remember { Paint() }
-
+): Modifier =
     drawBehind {
         if (cursorState.focused && editorValue.selection.collapsed) {
             val cursorWidth = CursorThickness.value * density
@@ -234,15 +233,12 @@ private fun Modifier.drawCursor(
             val cursorX = (cursorRect.left + cursorRect.right) / 2
 
             drawLine(
+                cursorColor,
                 Offset(cursorX, cursorRect.top),
                 Offset(cursorX, cursorRect.bottom),
-                paint.apply {
-                    this.color = cursorColor
-                    this.strokeWidth = cursorWidth
-                }
+                stroke = Stroke(cursorWidth)
             )
         }
     }
-}
 
 private val DefaultTextFieldWidth = 280.dp

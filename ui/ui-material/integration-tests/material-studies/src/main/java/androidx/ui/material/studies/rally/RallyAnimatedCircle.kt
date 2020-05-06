@@ -24,7 +24,7 @@ import androidx.compose.Composable
 import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
@@ -68,7 +68,7 @@ fun AnimatedCircle(
 ) {
     val stroke = Stroke(5.dp.value * DensityAmbient.current.density)
     Transition(definition = CircularTransition, initState = 0, toState = 1) { state ->
-        Canvas2(modifier) {
+        Canvas(modifier) {
             val innerRadius = (size.minDimension - stroke.width) / 2
             val halfSize = size / 2.0f
             val topLeft = Offset(
