@@ -32,6 +32,7 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.drawOutline
+import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
 
@@ -133,21 +134,23 @@ data class DrawBackground internal constructor(
     private var lastOutline: Outline? = null
 
     override fun ContentDrawScope.draw() {
-        if (shape === RectangleShape) {
-            // shortcut to avoid Outline calculation and allocation
-            drawRect(size.toRect(), paint)
-        } else {
-            val localOutline =
-                if (size == lastSize) {
-                    lastOutline!!
-                } else {
-                    val pxSize = PxSize(Px(size.width), Px(size.height))
-                    shape.createOutline(pxSize, this)
-                }
-            drawOutline(localOutline, paint)
-            lastOutline = localOutline
-            lastSize = size
+        drawCanvas { canvas, _ ->
+            if (shape === RectangleShape) {
+                // shortcut to avoid Outline calculation and allocation
+                canvas.drawRect(size.toRect(), paint)
+            } else {
+                val localOutline =
+                    if (size == lastSize) {
+                        lastOutline!!
+                    } else {
+                        val pxSize = PxSize(Px(size.width), Px(size.height))
+                        shape.createOutline(pxSize, this)
+                    }
+                canvas.drawOutline(localOutline, paint)
+                lastOutline = localOutline
+                lastSize = size
+            }
+            drawContent()
         }
-        drawContent()
     }
 }

@@ -28,7 +28,7 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.core.LayoutDirection
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.DeterminateProgressIndicator
 import androidx.ui.foundation.Strings
 import androidx.ui.geometry.Offset
@@ -68,7 +68,7 @@ fun LinearProgressIndicator(
             )
         }
         val backgroundColor = color.copy(alpha = BackgroundOpacity)
-        Canvas2(modifier.preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
+        Canvas(modifier.preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
             drawLinearIndicatorBackground(backgroundColor, stroke)
             drawLinearIndicator(0f, progress, color, stroke)
         }
@@ -105,7 +105,7 @@ fun LinearProgressIndicator(
                     cap = StrokeCap.butt
                 )
             }
-            Canvas2(modifier.preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
+            Canvas(modifier.preferredSize(LinearIndicatorWidth, LinearIndicatorHeight)) {
                 drawLinearIndicatorBackground(backgroundColor, stroke)
                 if (firstLineHead - firstLineTail > 0) {
                     drawLinearIndicator(
@@ -172,7 +172,7 @@ fun CircularProgressIndicator(
         val stroke = with(DensityAmbient.current) {
             Stroke(width = strokeWidth.toPx().value, cap = StrokeCap.butt)
         }
-        Canvas2(
+        Canvas(
             modifier
                 .padding(CircularIndicatorPadding)
                 .preferredSize(CircularIndicatorDiameter)
@@ -223,7 +223,7 @@ fun CircularProgressIndicator(
             startAngle += StartAngleOffset + currentRotationAngleOffset
             startAngle += baseRotation
 
-            Canvas2(
+            Canvas(
                 modifier.padding(CircularIndicatorPadding)
                     .preferredSize(CircularIndicatorDiameter)
             ) {

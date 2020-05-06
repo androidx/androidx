@@ -22,6 +22,8 @@ import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.painter.Painter
+import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.painter.withTransform
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
@@ -238,17 +240,19 @@ private data class PainterModifier(
         val dx = alignedPosition.x.value.toFloat()
         val dy = alignedPosition.y.value.toFloat()
 
-        save()
-        translate(dx, dy)
-        scale(scale, scale)
-
-        painter.draw(
-            canvas = this,
-            size = PxSize(Px(srcSize.width), Px(srcSize.height)),
-            alpha = alpha,
-            colorFilter = colorFilter,
-            rtl = rtl)
-
-        restore()
+        withTransform({
+            translate(dx, dy)
+            scale(scale, scale, 0.0f, 0.0f)
+        }) {
+            drawCanvas { canvas, _ ->
+                painter.draw(
+                    canvas = canvas,
+                    size = PxSize(Px(srcSize.width), Px(srcSize.height)),
+                    alpha = alpha,
+                    colorFilter = colorFilter,
+                    rtl = rtl
+                )
+            }
+        }
     }
 }

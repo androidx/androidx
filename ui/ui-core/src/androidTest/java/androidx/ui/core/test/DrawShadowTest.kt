@@ -30,10 +30,8 @@ import androidx.ui.core.drawLayer
 import androidx.ui.core.drawShadow
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.luminance
 import androidx.ui.unit.Density
@@ -222,9 +220,7 @@ class DrawShadowTest {
     }
 
     private fun background(color: Color) = Modifier.drawBehind {
-        drawRect(size.toRect(), Paint().apply {
-            this.color = color
-        })
+        drawRect(color)
         drawLatch.countDown()
     }
 

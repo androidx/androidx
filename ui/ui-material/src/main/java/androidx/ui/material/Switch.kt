@@ -21,7 +21,7 @@ import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.geometry.Offset
@@ -118,7 +118,7 @@ private fun DrawSwitch(
         trackWidth = TrackWidth.toPx().value
         thumbDiameter = ThumbDiameter.toPx().value
     }
-    Canvas2(modifier.preferredSize(SwitchWidth, SwitchHeight)) {
+    Canvas(modifier.preferredSize(SwitchWidth, SwitchHeight)) {
         drawTrack(trackColor, trackWidth, trackStroke)
         drawThumb(thumbValue.value, thumbDiameter, thumbColor)
     }

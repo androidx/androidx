@@ -249,7 +249,7 @@ inline fun CanvasScope.withTransform(
  * @sample androidx.ui.graphics.samples.canvasScopeSample
  */
 @CanvasScopeMarker
-class CanvasScope {
+open class CanvasScope {
 
     @PublishedApi internal var canvas: Canvas? = null
 

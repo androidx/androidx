@@ -27,6 +27,7 @@ import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.text.style.TextDirection
 import androidx.ui.unit.Dp
 import androidx.ui.unit.dp
@@ -40,33 +41,35 @@ private fun SelectionHandle(left: Boolean) {
     val paint = remember { Paint().also { it.isAntiAlias = true } }
     paint.color = HANDLE_COLOR
     HandleDrawLayout(width = HANDLE_WIDTH, height = HANDLE_HEIGHT) {
-        val path = Path().apply {
-            addRect(
-                Rect(
-                    top = 0f,
-                    bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
-                    left = if (left) {
-                        0.5f * HANDLE_WIDTH.toPx().value
-                    } else {
-                        0f
-                    },
-                    right = if (left) {
-                        HANDLE_WIDTH.toPx().value
-                    } else {
-                        0.5f * HANDLE_WIDTH.toPx().value
-                    }
+        drawCanvas { canvas, _ ->
+            val path = Path().apply {
+                addRect(
+                    Rect(
+                        top = 0f,
+                        bottom = 0.5f * HANDLE_HEIGHT.toPx().value,
+                        left = if (left) {
+                            0.5f * HANDLE_WIDTH.toPx().value
+                        } else {
+                            0f
+                        },
+                        right = if (left) {
+                            HANDLE_WIDTH.toPx().value
+                        } else {
+                            0.5f * HANDLE_WIDTH.toPx().value
+                        }
+                    )
                 )
-            )
-            addOval(
-                Rect(
-                    top = 0f,
-                    bottom = HANDLE_HEIGHT.toPx().value,
-                    left = 0f,
-                    right = HANDLE_WIDTH.toPx().value
+                addOval(
+                    Rect(
+                        top = 0f,
+                        bottom = HANDLE_HEIGHT.toPx().value,
+                        left = 0f,
+                        right = HANDLE_WIDTH.toPx().value
+                    )
                 )
-            )
+            }
+            canvas.drawPath(path, paint)
         }
-        drawPath(path, paint)
     }
 }
 

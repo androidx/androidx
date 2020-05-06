@@ -18,15 +18,10 @@ package androidx.ui.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.Canvas2
 import androidx.ui.geometry.Offset
-import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
-import androidx.ui.graphics.painter.CanvasScope
 import androidx.ui.graphics.painter.Stroke
 import androidx.ui.graphics.painter.inset
 import androidx.ui.layout.preferredSize
@@ -34,24 +29,9 @@ import androidx.ui.unit.dp
 
 @Sampled
 @Composable
-@Suppress("DEPRECATION")
-@Deprecated("Prefer usage of Canvas2", ReplaceWith("Canvas2Sample"))
 fun CanvasSample() {
-    val paint = remember { Paint().apply { color = Color.Magenta } }
     Canvas(modifier = Modifier.preferredSize(100.dp)) {
-        drawRect(size.toRect(), paint)
-    }
-}
-
-/**
- * Sample showing how to create a composable that supports issuing
- * drawing commands through a [CanvasScope]
- */
-@Sampled
-@Composable
-fun Canvas2Sample() {
-    Canvas2(modifier = Modifier.preferredSize(20.dp)) {
-        drawRect(color = Color.White)
+        drawRect(Color.Magenta)
         inset(10.0f) {
             drawLine(
                 p1 = Offset.zero,

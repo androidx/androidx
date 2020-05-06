@@ -59,6 +59,7 @@ import androidx.ui.graphics.Shape
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
+import androidx.ui.graphics.painter.Stroke
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple
@@ -647,16 +648,14 @@ private val Placeable.nonZero: Boolean get() = this.width != 0.ipx || this.heigh
  */
 @Composable
 private fun Modifier.drawIndicatorLine(lineWidth: Dp, color: Color): Modifier {
-    val paint = remember { Paint() }
     return drawBehind {
         val strokeWidth = lineWidth.value * density
-        paint.strokeWidth = strokeWidth
-        paint.color = color
         val y = size.height - strokeWidth / 2
         drawLine(
+            color,
             Offset(0f, y),
             Offset(size.width, y),
-            paint
+            stroke = Stroke(width = strokeWidth)
         )
     }
 }

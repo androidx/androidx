@@ -30,9 +30,7 @@ import androidx.ui.core.TransformOrigin
 import androidx.ui.core.drawBehind
 import androidx.ui.core.drawLayer
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.toArgb
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.offset
@@ -84,15 +82,7 @@ class LayerTouchTransformTest {
             }
 
             val background = Modifier.drawBehind {
-                drawRect(
-                    Rect.fromLTWH(
-                        0.0f,
-                        0.0f,
-                        size.width,
-                        size.height
-                    ),
-                    Paint().apply { this.color = Color.Gray }
-                )
+                drawRect(Color.Gray)
             }
 
             val latchDrawModifier = Modifier.drawBehind { latch?.countDown() }
@@ -117,16 +107,7 @@ class LayerTouchTransformTest {
                                 transformOrigin =
                                     TransformOrigin(1.0f, 1.0f)
                             ).drawBehind {
-                                val paint = Paint().apply { this.color = color }
-                                drawRect(
-                                    Rect.fromLTWH(
-                                        0.0f,
-                                        0.0f,
-                                        size.width,
-                                        size.height
-                                    ),
-                                    paint
-                                )
+                                drawRect(color)
                             }
                                 .plus(latchDrawModifier)
                                 .preferredSize(boxDp)

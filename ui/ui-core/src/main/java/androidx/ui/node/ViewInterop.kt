@@ -30,6 +30,7 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
+import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
@@ -100,7 +101,9 @@ internal fun AndroidViewHolder.toComponentNode(): ComponentNode {
     val layoutNode = LayoutNode()
     layoutNode.modifier = Modifier
         .pointerInteropModifier(this)
-        .drawBehind { draw(nativeCanvas) }
+        .drawBehind {
+            drawCanvas { canvas, _ -> draw(canvas.nativeCanvas) }
+        }
     layoutNode.onAttach = { owner ->
         (owner as? AndroidOwner)?.addAndroidView(this, layoutNode)
     }

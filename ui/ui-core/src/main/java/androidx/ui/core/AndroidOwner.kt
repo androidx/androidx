@@ -68,6 +68,7 @@ import androidx.ui.focus.FocusDetailedState.Active
 import androidx.ui.focus.FocusDetailedState.Inactive
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TextInputServiceAndroid
 import androidx.ui.savedinstancestate.UiSavedStateRegistry
@@ -534,16 +535,17 @@ internal class AndroidComposeView constructor(
                         val receiver: DrawScopeImpl
                         val size = Size(parentSize.width.value, parentSize.height.value)
                         if (ownerData == null) {
-                            receiver = DrawScopeImpl(node, canvas, size, density)
+                            receiver = DrawScopeImpl(node, density)
                             node.ownerData = receiver
                         } else {
                             receiver = ownerData as DrawScopeImpl
                             receiver.childDrawn = false
-                            receiver.canvas = canvas
-                            receiver.size = size
                             receiver.currentDensity = density
                         }
-                        onPaintWithChildren(receiver, canvas, parentSize)
+                        receiver.draw(canvas, size) {
+                            onPaintWithChildren(receiver, canvas, parentSize)
+                        }
+
                         if (!receiver.childDrawn) {
                             with(receiver) {
                                 with(density) {
@@ -864,10 +866,8 @@ internal class AndroidComposeView constructor(
 
     private inner class DrawScopeImpl(
         private val drawNode: DrawNode,
-        var canvas: Canvas,
-        override var size: Size,
         var currentDensity: Density
-    ) : Canvas by canvas, Density by currentDensity, ContentDrawScope {
+    ) : Density by currentDensity, ContentDrawScope() {
         internal var childDrawn = false
         // Draw composable does not support Rtl and will be removed soon anyway.
         // The only place where Draw is in use is Table which will be updated anyway b/150276337.
@@ -878,9 +878,10 @@ internal class AndroidComposeView constructor(
                 throw IllegalStateException("Cannot call drawContent() twice within Draw element")
             }
             childDrawn = true
-            val pxSize = PxSize(Px(size.width), Px(size.height))
-            drawNode.visitChildren { child ->
-                callDraw(canvas, child, pxSize)
+            drawCanvas { canvas, pxSize ->
+                drawNode.visitChildren { child ->
+                    callDraw(canvas, child, pxSize)
+                }
             }
         }
     }

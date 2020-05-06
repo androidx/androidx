@@ -36,6 +36,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.core.selection.Selectable
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.text.font.Font
 import androidx.ui.text.selection.TextSelectionDelegate
 import androidx.ui.text.style.TextAlign
@@ -115,16 +116,18 @@ fun CoreText(
         children = emptyContent(),
         modifier = modifier.drawBehind {
             state.layoutResult?.let { layoutResult ->
-                state.selectionRange?.let {
-                    TextDelegate.paintBackground(
-                        it.min,
-                        it.max,
-                        DefaultSelectionColor,
-                        this,
-                        layoutResult
-                    )
+                drawCanvas { canvas, _ ->
+                    state.selectionRange?.let {
+                        TextDelegate.paintBackground(
+                            it.min,
+                            it.max,
+                            DefaultSelectionColor,
+                            canvas,
+                            layoutResult
+                        )
+                    }
+                    TextDelegate.paint(canvas, layoutResult)
                 }
-                TextDelegate.paint(this, layoutResult)
             }
         }.onPositioned {
             // Get the layout coordinates of the text composable. This is for hit test of

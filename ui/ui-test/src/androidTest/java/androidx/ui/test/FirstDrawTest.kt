@@ -25,7 +25,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.test.android.AndroidComposeTestRule
@@ -46,7 +46,7 @@ class FirstDrawTest {
     fun waitsForFirstDraw() {
         var drawn = false
         testRule.setContent {
-            Canvas2(Modifier.fillMaxSize()) {
+            Canvas(Modifier.fillMaxSize()) {
                 drawn = true
             }
         }
@@ -61,7 +61,7 @@ class FirstDrawTest {
     fun waitsForFirstDraw_withoutOnIdle() {
         var drawn = false
         testRule.setContent {
-            Canvas2(Modifier.fillMaxSize()) {
+            Canvas(Modifier.fillMaxSize()) {
                 drawn = true
             }
         }
@@ -104,7 +104,7 @@ class FirstDrawTest {
             outOfBoundsView.setContent(Recomposer.current()) {
                 // If you see this box when running the test, the test is setup incorrectly
                 Box(Modifier, backgroundColor = Color.Yellow)
-                Canvas2(Modifier) {
+                Canvas(Modifier) {
                     drawn = true
                 }
             }

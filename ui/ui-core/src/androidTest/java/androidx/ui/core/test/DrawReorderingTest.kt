@@ -37,12 +37,9 @@ import androidx.ui.core.drawLayer
 import androidx.ui.core.setContent
 import androidx.ui.core.zIndex
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toRect
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -649,9 +646,7 @@ private fun Modifier.background(
     color: State<Color>
 ) = drawBehind {
     if (color.value != Color.Transparent) {
-        drawRect(size.toRect(), Paint().apply {
-            this.color = color.value
-        })
+        drawRect(color.value)
     }
 }
 

@@ -18,7 +18,7 @@ package androidx.ui.framework.demos
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.inset
 import androidx.ui.graphics.painter.rotate
@@ -35,7 +35,7 @@ fun DeclarativeGraphicsDemo() {
      * Demo that shows how to leverage CanvasScope to draw 4 rectangular quadrants
      * inset by a given dimension with a diamond drawn within each of the quadrants
      */
-    Canvas2(modifier =
+    Canvas(modifier =
         Modifier.fillMaxSize()
             .wrapContentSize(Alignment.Center)
             .preferredSize(120.dp, 120.dp)

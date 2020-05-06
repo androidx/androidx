@@ -38,6 +38,7 @@ import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.addOutline
+import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
 import androidx.ui.unit.Px
@@ -170,27 +171,34 @@ class DrawBorder internal constructor(
 
     override fun ContentDrawScope.draw() {
         val density = this
-        val canvas = this
-        with(cache) {
-            drawContent()
-            modifierSize = PxSize(Px(size.width), Px(size.height))
-            val outline = modifierSizeOutline(density)
-            val borderSize =
-                if (borderWidth == Dp.Hairline) 1f else borderWidth.value * density.density
-            brush.applyTo(paint)
-            paint.strokeWidth = borderSize
+        drawCanvas { canvas, _ ->
+            with(cache) {
+                drawContent()
+                modifierSize = PxSize(Px(size.width), Px(size.height))
+                val outline = modifierSizeOutline(density)
+                val borderSize =
+                    if (borderWidth == Dp.Hairline) 1f else borderWidth.value * density.density
+                brush.applyTo(paint)
+                paint.strokeWidth = borderSize
 
-            if (borderSize <= 0 || size.minDimension <= 0.0f) {
-                return
-            } else if (outline is Outline.Rectangle) {
-                drawRoundRectBorder(borderSize, outline.rect, 0f, canvas, paint)
-            } else if (outline is Outline.Rounded && outline.rrect.isSimple) {
-                val radius = outline.rrect.bottomLeftRadiusY
-                drawRoundRectBorder(borderSize, outline.rrect.outerRect(), radius, canvas, paint)
-            } else {
-                val path = borderPath(density, borderSize)
-                paint.style = PaintingStyle.fill
-                drawPath(path, paint)
+                if (borderSize <= 0 || size.minDimension <= 0.0f) {
+                    return
+                } else if (outline is Outline.Rectangle) {
+                    drawRoundRectBorder(borderSize, outline.rect, 0f, canvas, paint)
+                } else if (outline is Outline.Rounded && outline.rrect.isSimple) {
+                    val radius = outline.rrect.bottomLeftRadiusY
+                    drawRoundRectBorder(
+                        borderSize,
+                        outline.rrect.outerRect(),
+                        radius,
+                        canvas,
+                        paint
+                    )
+                } else {
+                    val path = borderPath(density, borderSize)
+                    paint.style = PaintingStyle.fill
+                    canvas.drawPath(path, paint)
+                }
             }
         }
     }

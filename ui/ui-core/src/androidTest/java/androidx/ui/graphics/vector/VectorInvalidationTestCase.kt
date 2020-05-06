@@ -25,9 +25,7 @@ import androidx.ui.core.drawBehind
 import androidx.ui.core.paint
 import androidx.ui.core.test.AtLeastSize
 import androidx.ui.core.test.R
-import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.res.loadVectorResource
 import java.util.concurrent.CountDownLatch
 
@@ -62,15 +60,7 @@ class VectorInvalidationTestCase(var latch: CountDownLatch) {
     }
 
     val WhiteBackground = Modifier.drawBehind {
-        drawRect(
-            Rect.fromLTWH(
-                0.0f,
-                0.0f,
-                size.width,
-                size.height
-            ),
-            Paint().apply { this.color = Color.White }
-        )
+        drawRect(Color.White)
     }
 
     fun toggle() {
