@@ -16,8 +16,8 @@
 
 package androidx.serialization.compiler.processing.steps
 
-import androidx.serialization.compiler.schema.Enum
-import androidx.serialization.schema.Reserved
+import androidx.serialization.compiler.models.Enum
+import androidx.serialization.compiler.models.Reserved
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
@@ -33,7 +33,11 @@ import javax.tools.JavaFileObject
 class EnumProcessingStepTest {
     private val enumValueCorrespondence = Correspondence.from({
             actual: Enum.Value?, expected: Pair<Int, String>? ->
-        actual?.id == expected?.first && actual?.name == expected?.second
+        if (actual != null && expected != null) {
+            actual.id == expected.first && actual.element.simpleName.contentEquals(expected.second)
+        } else {
+            actual == null && expected == null
+        }
     }, "has ID and name")
 
     @Test

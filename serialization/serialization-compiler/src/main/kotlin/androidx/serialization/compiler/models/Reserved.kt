@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.serialization.schema
+package androidx.serialization.compiler.models
 
-/**
- * Root of the serialization type hierarchy.
- *
- * See [ComplexType], [Scalar], and [WellKnownType] for the main branches of the type tree.
- */
-interface Type {
-    /** The kind of type represented by this type. */
-    val typeKind: Kind
+internal class Reserved(
+    val ids: Set<Int>,
+    val names: Set<String>,
+    val idRanges: Set<IntRange>
+) {
+    companion object {
+        private val EMPTY = Reserved(emptySet(), emptySet(), emptySet())
 
-    enum class Kind {
-        /** Types declared by the client, including [Message], [Enum], and [Service]. */
-        DECLARED,
-
-        /** Scalar types. */
-        SCALAR,
-
-        /** Well-known complex types from the `google.protobuf` package. */
-        WELL_KNOWN
+        fun empty(): Reserved = EMPTY
     }
 }

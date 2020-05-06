@@ -17,7 +17,7 @@
 package androidx.serialization.compiler.processing.parsers
 
 import androidx.serialization.compiler.processing.ext.asTypeElement
-import androidx.serialization.schema.Reserved
+import androidx.serialization.compiler.models.Reserved
 import com.google.auto.common.BasicAnnotationProcessor
 import com.google.auto.common.BasicAnnotationProcessor.ProcessingStep
 import com.google.common.collect.SetMultimap
