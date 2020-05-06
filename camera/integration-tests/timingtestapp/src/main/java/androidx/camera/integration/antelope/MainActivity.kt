@@ -32,7 +32,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.activity.invoke
+import androidx.activity.result.launch
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.integration.antelope.cameracontrollers.camera2Abort
@@ -261,12 +261,12 @@ class MainActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED) {
             // Launch the permission request for CAMERA
-            requestPermission(Manifest.permission.CAMERA)
+            requestPermission.launch(Manifest.permission.CAMERA)
             return false
         } else if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // Launch the permission request for WRITE_EXTERNAL_STORAGE
-            requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             return false
         }
 
