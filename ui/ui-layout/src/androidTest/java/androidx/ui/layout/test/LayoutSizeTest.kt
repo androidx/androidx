@@ -632,6 +632,27 @@ class LayoutSizeTest : LayoutTest() {
     }
 
     @Test
+    fun testDefaultMinSizeConstraints_withCoercingMaxConstraints() = with(density) {
+        val latch = CountDownLatch(1)
+        show {
+            Layout(
+                {},
+                Modifier.wrapContentSize()
+                    .sizeIn(maxWidth = 30.dp, maxHeight = 40.dp)
+                    .defaultMinSizeConstraints(minWidth = 70.dp, minHeight = 80.dp)
+            ) { _, constraints, _ ->
+                assertEquals(30.dp.toIntPx(), constraints.minWidth)
+                assertEquals(40.dp.toIntPx(), constraints.minHeight)
+                assertEquals(30.dp.toIntPx(), constraints.maxWidth)
+                assertEquals(40.dp.toIntPx(), constraints.maxHeight)
+                latch.countDown()
+                layout(0.ipx, 0.ipx) {}
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
     fun testMinWidthModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(Modifier.preferredWidthIn(minWidth = 10.dp)) {
