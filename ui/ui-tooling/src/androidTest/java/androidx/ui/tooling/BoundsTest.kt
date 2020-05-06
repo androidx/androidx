@@ -37,8 +37,9 @@ class BoundsTest : ToolingTest() {
 
     @Test
     fun testBounds() {
+        val slotTableRecord = SlotTableRecord.create()
         show {
-            Inspectable {
+            Inspectable(slotTableRecord) {
                 Box {
                     Column(Modifier.padding(10.dp)) {
                         Text("Hello", Modifier.padding(5.dp))
@@ -48,7 +49,7 @@ class BoundsTest : ToolingTest() {
         }
 
         activityTestRule.runOnUiThread {
-            val boundingBoxes = tables.findGroupForFile("BoundsTest")!!.all()
+            val boundingBoxes = slotTableRecord.findGroupForFile("BoundsTest")!!.all()
                 .filter {
                     val name = it.position
                     name != null && name.contains("BoundsTest.kt")
