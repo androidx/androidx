@@ -1028,7 +1028,7 @@ class LayoutSizeTest : LayoutTest() {
         val latch = CountDownLatch(1)
         show {
             Layout({
-                WithConstraints(modifier) { constraints, _ ->
+                WithConstraints(modifier) {
                     assertEquals(expectedConstraints, constraints)
                     latch.countDown()
                 }
