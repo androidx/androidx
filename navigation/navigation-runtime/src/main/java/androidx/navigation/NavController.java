@@ -485,6 +485,9 @@ public class NavController {
                 Lifecycle.State newState = upwardStateTransitions.get(entry);
                 if (newState != null) {
                     entry.setMaxLifecycle(newState);
+                } else {
+                    // Ensure the state is up to date
+                    entry.updateState();
                 }
             }
 
@@ -625,6 +628,8 @@ public class NavController {
                 // if we haven't deep linked to a destination
                 navigate(mGraph, startDestinationArgs, null, null);
             }
+        } else {
+            dispatchOnDestinationChanged();
         }
     }
 
