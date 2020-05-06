@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.activity
+package androidx.activity.result
 
-import androidx.activity.result.ActivityResultCaller
-import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContract
 
 /**

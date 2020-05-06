@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.activity
+package androidx.activity.result
 
-import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 
 /**

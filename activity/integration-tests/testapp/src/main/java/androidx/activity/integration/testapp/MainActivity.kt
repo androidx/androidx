@@ -30,8 +30,8 @@ import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.invoke
-import androidx.activity.registerForActivityResult
+import androidx.activity.result.invoke
+import androidx.activity.result.registerForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
