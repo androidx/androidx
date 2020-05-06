@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.serialization.schema
+package androidx.serialization.compiler.models
 
-/** A message type, either well-known or client-declared as a Java or Kotlin class or interface. */
-interface Message : ComplexType {
-    /** The fields of the message. */
-    val fields: Collection<Field>
+import javax.lang.model.element.AnnotationMirror
+import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 
-    /** Alias for [fields]. */
-    override val members: Collection<Field>
-        get() = fields
-
-    /** A field of a message, usually derived from [androidx.serialization.Field] annotations. */
-    interface Field : ComplexType.Member {
-        /** The type of the field. May be any type including scalars and well-known types. */
-        val type: Type
-    }
+internal class Enum(
+    val element: TypeElement,
+    val values: List<Value>,
+    val reserved: Reserved
+) {
+    class Value(
+        val element: VariableElement,
+        val annotation: AnnotationMirror,
+        val id: Int
+    )
 }

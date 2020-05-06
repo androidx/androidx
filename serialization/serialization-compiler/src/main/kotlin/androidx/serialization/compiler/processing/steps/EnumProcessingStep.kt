@@ -25,8 +25,7 @@ import androidx.serialization.compiler.processing.ext.get
 import androidx.serialization.compiler.processing.ext.isPrivate
 import androidx.serialization.compiler.processing.ext.isVisibleToPackage
 import androidx.serialization.compiler.processing.parsers.parseReserved
-import androidx.serialization.compiler.schema.Enum
-import androidx.serialization.compiler.schema.ext.toTypeName
+import androidx.serialization.compiler.models.Enum
 import com.google.auto.common.BasicAnnotationProcessor.ProcessingStep
 import com.google.common.collect.SetMultimap
 import javax.annotation.processing.Messager
@@ -120,10 +119,9 @@ internal class EnumProcessingStep(
 
                 if (annotation != null) {
                     values += Enum.Value(
-                        id = annotation["value"].asInt(),
-                        name = element.simpleName.toString(),
                         element = element.asVariableElement(),
-                        annotation = annotation
+                        annotation = annotation,
+                        id = annotation["value"].asInt()
                     )
                 } else {
                     messager.error(element) {
@@ -136,7 +134,7 @@ internal class EnumProcessingStep(
         }
 
         if (!hasError) {
-            onEnum(Enum(enumClass.toTypeName(), values, parseReserved(enumClass), enumClass))
+            onEnum(Enum(enumClass, values, parseReserved(enumClass)))
         }
     }
 }

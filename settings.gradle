@@ -271,7 +271,6 @@ includeProject(":serialization:serialization-compiler", "serialization/serializa
 includeProject(":serialization:serialization-runtime", "serialization/serialization-runtime")
 includeProject(":serialization:serialization-runtime-parcel", "serialization/serialization-runtime-parcel")
 includeProject(":serialization:serialization-runtime-proto", "serialization/serialization-runtime-proto")
-includeProject(":serialization:serialization-schema", "serialization/serialization-schema")
 includeProject(":sharetarget:sharetarget", "sharetarget/sharetarget")
 includeProject(":sharetarget:integration-tests:testapp", "sharetarget/integration-tests/testapp")
 includeProject(":slice-core", "slices/core")
