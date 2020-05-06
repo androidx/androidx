@@ -488,7 +488,8 @@ private class WithConstrainsState {
     var compositionRef: CompositionReference? = null
     lateinit var context: Context
     val nodeRef = Ref<LayoutNode>()
-    var lastConstraints: Constraints? = null
+    private var lastConstraints: Constraints? = null
+    private var lastDirection: LayoutDirection? = null
     var children: @Composable() (Constraints, LayoutDirection) -> Unit = { _, _ -> }
     var forceRecompose = false
     var composition: Composition? = null
@@ -503,8 +504,12 @@ private class WithConstrainsState {
             layoutDirection: LayoutDirection
         ): MeasureScope.MeasureResult {
             val root = nodeRef.value!!
-            if (lastConstraints != constraints || forceRecompose) {
+            if (lastConstraints != constraints ||
+                lastDirection != layoutDirection ||
+                forceRecompose
+            ) {
                 lastConstraints = constraints
+                lastDirection = layoutDirection
                 root.ignoreModelReads { subcompose() }
                 // if there were models created and read inside this subcomposition
                 // and we are going to modify this models within the same frame

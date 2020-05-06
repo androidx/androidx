@@ -18,6 +18,7 @@ package androidx.ui.core.test
 
 import android.os.Build
 import androidx.compose.Composable
+import androidx.compose.mutableStateOf
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -144,6 +145,39 @@ class RtlLayoutTest {
         Assert.assertEquals(PxPosition(size * 2, 0.ipx), position[0].value)
         Assert.assertEquals(PxPosition(size, size), position[1].value)
         Assert.assertEquals(PxPosition(0.ipx, size * 2), position[2].value)
+    }
+
+    @Test
+    fun customLayout_updatingDirectionCausesRemeasure() {
+        val direction = mutableStateOf(LayoutDirection.Rtl)
+        var latch = CountDownLatch(1)
+        var actualDirection: LayoutDirection? = null
+
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                val children = @Composable {
+                    Layout({}) { _, _, layoutDirection ->
+                        actualDirection = layoutDirection
+                        latch.countDown()
+                        layout(100.ipx, 100.ipx) {}
+                    }
+                }
+                Layout(children) { measurables, constraints, _ ->
+                    layout(100.ipx, 100.ipx) {
+                        measurables.first().measure(constraints, direction.value)
+                            .place(0.ipx, 0.ipx)
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(LayoutDirection.Rtl, actualDirection)
+
+        latch = CountDownLatch(1)
+        activityTestRule.runOnUiThread { direction.value = LayoutDirection.Ltr }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(LayoutDirection.Ltr, actualDirection)
     }
 
     @Test

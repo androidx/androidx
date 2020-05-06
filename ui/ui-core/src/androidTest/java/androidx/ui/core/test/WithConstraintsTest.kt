@@ -21,6 +21,7 @@ package androidx.ui.core.test
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.compose.Composable
+import androidx.compose.State
 import androidx.compose.emptyContent
 import androidx.compose.getValue
 import androidx.compose.mutableStateOf
@@ -312,6 +313,34 @@ class WithConstraintsTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(Constraints.fixed(100.ipx, 100.ipx), actualConstraints)
+    }
+
+    @Test
+    fun updateLayoutDirectionRecomposingWithConstraints() {
+        val direction = mutableStateOf(LayoutDirection.Rtl)
+        var latch = CountDownLatch(1)
+        var actualDirection: LayoutDirection? = null
+
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                ChangingLayoutDirectionLayout(direction) {
+                    WithConstraints { _, layoutDirection ->
+                        actualDirection = layoutDirection
+                        assertEquals(1, latch.count)
+                        latch.countDown()
+                        Container(width = 100.ipx, height = 100.ipx, children = emptyContent())
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(LayoutDirection.Rtl, actualDirection)
+
+        latch = CountDownLatch(1)
+        rule.runOnUiThread { direction.value = LayoutDirection.Ltr }
+
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertEquals(LayoutDirection.Ltr, actualDirection)
     }
 
     @Test
@@ -817,6 +846,19 @@ private fun ChangingConstraintsLayout(size: ValueModel<IntPx>, children: @Compos
         layout(100.ipx, 100.ipx) {
             val constraints = Constraints.fixed(size.value, size.value)
             measurables.first().measure(constraints).place(0.ipx, 0.ipx)
+        }
+    }
+}
+
+@Composable
+private fun ChangingLayoutDirectionLayout(
+    direction: State<LayoutDirection>,
+    children: @Composable() () -> Unit
+) {
+    Layout(children) { measurables, _, _ ->
+        layout(100.ipx, 100.ipx) {
+            val constraints = Constraints.fixed(100.ipx, 100.ipx)
+            measurables.first().measure(constraints, direction.value).place(0.ipx, 0.ipx)
         }
     }
 }
