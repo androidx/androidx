@@ -313,7 +313,7 @@ class AlignmentLineTest : LayoutTest() {
             Stack {
                 ConstrainedBox(DpConstraints(minHeight = minHeight)) {
                     AlignmentLineOffset(testLine) {
-                        WithConstraints { constraints, _ ->
+                        WithConstraints {
                             Assert.assertEquals(minHeight.toIntPx(), constraints.minHeight)
                             latch.countDown()
                         }
@@ -333,7 +333,7 @@ class AlignmentLineTest : LayoutTest() {
             Stack {
                 ConstrainedBox(DpConstraints(minWidth = minWidth)) {
                     AlignmentLineOffset(testLine) {
-                        WithConstraints { constraints, _ ->
+                        WithConstraints {
                             Assert.assertEquals(minWidth.toIntPx(), constraints.minWidth)
                             latch.countDown()
                         }
@@ -353,7 +353,7 @@ class AlignmentLineTest : LayoutTest() {
             Stack {
                 ConstrainedBox(DpConstraints(minHeight = minHeight)) {
                     CenterAlignmentLine(testLine) {
-                        WithConstraints { constraints, _ ->
+                        WithConstraints {
                             Assert.assertEquals(minHeight.toIntPx(), constraints.minHeight)
                             latch.countDown()
                         }
@@ -373,7 +373,7 @@ class AlignmentLineTest : LayoutTest() {
             Stack {
                 ConstrainedBox(DpConstraints(minWidth = minWidth)) {
                     CenterAlignmentLine(testLine) {
-                        WithConstraints { constraints, _ ->
+                        WithConstraints {
                             Assert.assertEquals(minWidth.toIntPx(), constraints.minWidth)
                             latch.countDown()
                         }

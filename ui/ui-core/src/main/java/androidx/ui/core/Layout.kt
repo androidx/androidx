@@ -22,15 +22,18 @@ import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
+import androidx.compose.Stable
 import androidx.compose.Untracked
 import androidx.compose.compositionReference
 import androidx.compose.currentComposer
 import androidx.compose.onDispose
 import androidx.compose.remember
 import androidx.ui.unit.Density
+import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
+import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
 
@@ -439,7 +442,7 @@ private inline fun Density.MeasuringMaxIntrinsicHeight(
 
 /**
  * A composable that defines its own content according to the available space, based on the incoming
- * constraints. Example usage:
+ * constraints or the current [LayoutDirection]. Example usage:
  * @sample androidx.ui.framework.samples.WithConstraintsSample
  *
  * The composable will compose the given children, and will position the resulting layout composables
@@ -453,7 +456,7 @@ private inline fun Density.MeasuringMaxIntrinsicHeight(
 @Composable
 fun WithConstraints(
     modifier: Modifier = Modifier,
-    children: @Composable() (Constraints, LayoutDirection) -> Unit
+    children: @Composable() WithConstraintsScope.() -> Unit
 ) {
     val state = remember { WithConstrainsState() }
     state.children = children
@@ -483,16 +486,61 @@ fun WithConstraints(
     }
 }
 
+/**
+ * Receiver scope being used by the children parameter of [WithConstraints]
+ */
+@Stable
+interface WithConstraintsScope {
+    /**
+     * The constraints given by the parent layout in pixels.
+     *
+     * Use [minWidth], [maxWidth], [minHeight] or [maxHeight] if you need value in [Dp].
+     */
+    val constraints: Constraints
+    /**
+     * The current [LayoutDirection] to be used by this layout.
+     */
+    val layoutDirection: LayoutDirection
+    /**
+     * The minimum width in [Dp].
+     *
+     * @see constraints for the values in pixels.
+     */
+    val minWidth: Dp
+    /**
+     * The maximum width in [Dp].
+     *
+     * @see constraints for the values in pixels.
+     */
+    val maxWidth: Dp
+    /**
+     * The minimum height in [Dp].
+     *
+     * @see constraints for the values in pixels.
+     */
+    val minHeight: Dp
+    /**
+     * The minimum height in [Dp].
+     *
+     * @see constraints for the values in pixels.
+     */
+    val maxHeight: Dp
+}
+
 private class WithConstrainsState {
     lateinit var recomposer: Recomposer
     var compositionRef: CompositionReference? = null
     lateinit var context: Context
     val nodeRef = Ref<LayoutNode>()
-    private var lastConstraints: Constraints? = null
-    private var lastDirection: LayoutDirection? = null
-    var children: @Composable() (Constraints, LayoutDirection) -> Unit = { _, _ -> }
+    var children: @Composable() WithConstraintsScope.() -> Unit = { }
     var forceRecompose = false
     var composition: Composition? = null
+
+    private var scope: WithConstraintsScope = WithConstraintsScopeImpl(
+        Density(1f),
+        Constraints.fixed(0.ipx, 0.ipx),
+        LayoutDirection.Ltr
+    )
 
     val measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks(
         error = "Intrinsic measurements are not supported by WithConstraints"
@@ -504,12 +552,11 @@ private class WithConstrainsState {
             layoutDirection: LayoutDirection
         ): MeasureScope.MeasureResult {
             val root = nodeRef.value!!
-            if (lastConstraints != constraints ||
-                lastDirection != layoutDirection ||
+            if (scope.constraints != constraints ||
+                scope.layoutDirection != measureScope.layoutDirection ||
                 forceRecompose
             ) {
-                lastConstraints = constraints
-                lastDirection = layoutDirection
+                scope = WithConstraintsScopeImpl(measureScope, constraints, layoutDirection)
                 root.ignoreModelReads { subcompose() }
                 // if there were models created and read inside this subcomposition
                 // and we are going to modify this models within the same frame
@@ -537,12 +584,26 @@ private class WithConstrainsState {
     }
 
     fun subcompose() {
-        val node = nodeRef.value!!
-        val constraints = lastConstraints!!
         // TODO(b/150390669): Review use of @Untracked
-        composition = subcomposeInto(context, node, recomposer, compositionRef) @Untracked {
-            children(constraints, node.measureScope.layoutDirection)
-        }
+        composition =
+            subcomposeInto(context, nodeRef.value!!, recomposer, compositionRef) @Untracked {
+                scope.children()
+            }
         forceRecompose = false
+    }
+
+    private data class WithConstraintsScopeImpl(
+        private val density: Density,
+        override val constraints: Constraints,
+        override val layoutDirection: LayoutDirection
+    ) : WithConstraintsScope {
+        override val minWidth: Dp
+            get() = with(density) { constraints.minWidth.toDp() }
+        override val maxWidth: Dp
+            get() = with(density) { constraints.maxWidth.toDp() }
+        override val minHeight: Dp
+            get() = with(density) { constraints.minHeight.toDp() }
+        override val maxHeight: Dp
+            get() = with(density) { constraints.maxHeight.toDp() }
     }
 }

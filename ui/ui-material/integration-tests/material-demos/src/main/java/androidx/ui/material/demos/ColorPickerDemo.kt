@@ -95,7 +95,7 @@ private fun ColorPicker(onColorChange: (Color) -> Unit) {
         Modifier.padding(50.dp)
             .fillMaxSize()
             .aspectRatio(1f)
-    ) { constraints, _ ->
+    ) {
         val diameter = constraints.maxWidth.value
         var position by state { PxPosition.Origin }
         val colorWheel = remember(diameter) { ColorWheel(diameter) }
