@@ -427,17 +427,21 @@ final class SqliteInspector extends Inspector {
     }
 
     private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
-        SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
+        SQLiteDatabase database = acquireReference(command.getDatabaseId(), callback);
         if (database == null) return;
 
-        callback.reply(querySchema(database).toByteArray());
+        try {
+            callback.reply(querySchema(database).toByteArray());
+        } finally {
+            database.releaseReference();
+        }
     }
 
     private void handleQuery(final QueryCommand command, final CommandCallback callback) {
-        final SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
-        final CancellationSignal cancellationSignal = new CancellationSignal();
-
+        final SQLiteDatabase database = acquireReference(command.getDatabaseId(), callback);
         if (database == null) return;
+
+        final CancellationSignal cancellationSignal = new CancellationSignal();
         final Future<?> future = SqliteInspectionExecutors.submit(mIOExecutor, new Runnable() {
             @Override
             public void run() {
@@ -461,6 +465,7 @@ final class SqliteInspector extends Inspector {
                     if (cursor != null) {
                         cursor.close();
                     }
+                    database.releaseReference();
                 }
 
             }
@@ -539,11 +544,13 @@ final class SqliteInspector extends Inspector {
      * Tries to find a database for an id. If no such database is found, it replies with an
      * {@link ErrorOccurredResponse} via the {@code callback} provided.
      *
+     * Consumer of this method must release the reference when done using it.
+     *
      * @return null if no database found for the provided id. A database reference otherwise.
      */
     @Nullable
-    private SQLiteDatabase handleDatabaseId(int databaseId, CommandCallback callback) {
-        SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
+    private SQLiteDatabase acquireReference(int databaseId, CommandCallback callback) {
+        SQLiteDatabase database = mDatabaseRegistry.acquireReference(databaseId);
         if (database == null) {
             replyNoDatabaseWithId(callback, databaseId);
             return null;
@@ -590,8 +597,9 @@ final class SqliteInspector extends Inspector {
     }
 
     private void replyNoDatabaseWithId(CommandCallback callback, int databaseId) {
-        callback.reply(createErrorOccurredResponse("No database with id=" + databaseId,
-                null, true).toByteArray());
+        String message = String.format("Unable to perform an operation on database (id=%s)."
+                + " The database may have already been closed.", databaseId);
+        callback.reply(createErrorOccurredResponse(message, null, true).toByteArray());
     }
 
     private @NonNull Response querySchema(SQLiteDatabase database) {
