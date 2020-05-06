@@ -507,9 +507,12 @@ private fun TextFieldLayout(
         val labelEndPosition = (baseLineOffset - labelBaseline).coerceAtLeast(IntPx.Zero)
         val effectiveLabelBaseline = max(labelBaseline, baseLineOffset)
 
+        val textFieldConstraints = constraints
+            .offset(vertical = -LastBaselineOffset.toIntPx() - effectiveLabelBaseline)
+            .copy(minHeight = IntPx.Zero)
         val textfieldPlaceable = measurables
             .first { it.tag == TextFieldTag }
-            .measure(labelConstraints.offset(vertical = -effectiveLabelBaseline))
+            .measure(textFieldConstraints)
         val textfieldFirstBaseline = requireNotNull(textfieldPlaceable[FirstBaseline]) {
             "No text first baseline."
         }
@@ -588,7 +591,7 @@ private fun IconsTextFieldLayout(
 
         val textFieldPlaceable = measurables.first {
             it.tag != "leading" && it.tag != "trailing"
-        }.measure(incomingConstraints.offset(horizontal = -occupiedSpace).copy(minWidth = 0.ipx))
+        }.measure(incomingConstraints.offset(horizontal = -occupiedSpace))
         occupiedSpace += textFieldPlaceable.width
 
         val width = max(occupiedSpace, incomingConstraints.minWidth)
