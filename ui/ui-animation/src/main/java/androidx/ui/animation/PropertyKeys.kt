@@ -32,36 +32,53 @@ import androidx.ui.unit.px
 
 /**
  * Built-in property key for [Px] properties.
+ *
+ * @param label Label for distinguishing different prop keys in Android Studio.
  */
-class PxPropKey : PropKey<Px, AnimationVector1D> {
+class PxPropKey(override val label: String = "PxPropKey") : PropKey<Px, AnimationVector1D> {
     override val typeConverter = PxToVectorConverter
 }
 
 /**
  * Built-in property key for [Dp] properties.
+ *
+ * @param label Label for distinguishing different prop keys in Android Studio.
  */
-class DpPropKey : PropKey<Dp, AnimationVector1D> {
+class DpPropKey(override val label: String = "DpPropKey") : PropKey<Dp, AnimationVector1D> {
     override val typeConverter = DpToVectorConverter
 }
 
 /**
  * Built-in property key for [PxPosition] properties.
+ *
+ * @param label Label for distinguishing different prop keys in Android Studio.
  */
-class PxPositionPropKey : PropKey<PxPosition, AnimationVector2D> {
+class PxPositionPropKey(
+    override val label: String = "PxPositionPropKey"
+) : PropKey<PxPosition, AnimationVector2D> {
     override val typeConverter = PxPositionToVectorConverter
 }
 
 /**
  * Built-in property key for [Color] properties.
+ *
+ * @param label Label for distinguishing different prop keys in Android Studio.
  */
-class ColorPropKey(colorSpace: ColorSpace = ColorSpaces.Srgb) : PropKey<Color, AnimationVector4D> {
+class ColorPropKey(
+    colorSpace: ColorSpace = ColorSpaces.Srgb,
+    override val label: String = "ColorPropKey"
+) : PropKey<Color, AnimationVector4D> {
     override val typeConverter = ColorToVectorConverter(colorSpace)
 }
 
 /**
  * Built-in property key for [Rect] properties.
+ *
+ * @param label Label for distinguishing different prop keys in Android Studio.
  */
-class RectPropKey : PropKey<Rect, AnimationVector4D> {
+class RectPropKey(
+    override val label: String = "RectPropKey"
+) : PropKey<Rect, AnimationVector4D> {
     override val typeConverter = RectToVectorConverter
 }
 
