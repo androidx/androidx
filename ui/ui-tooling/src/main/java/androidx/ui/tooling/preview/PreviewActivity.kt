@@ -16,6 +16,7 @@
 
 package androidx.ui.tooling.preview
 
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -35,6 +36,12 @@ class PreviewActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE == 0) {
+            Log.d("PreviewActivity", "Application is not debuggable. Compose Preview not allowed.")
+            finish()
+            return
+        }
+
         intent?.getStringExtra("composable")?.let {
             Log.d("PreviewActivity", "PreviewActivity has composable $it")
             val className = it.substringBeforeLast('.')
