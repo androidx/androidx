@@ -91,5 +91,5 @@ fun findAll(matcher: SemanticsMatcher): SemanticsNodeInteractionCollection {
 }
 
 internal fun getAllSemanticsNodes(): List<SemanticsNode> {
-    return SynchronizedTreeCollector.collectOwners().getAllSemanticNodes()
+    return SynchronizedTreeCollector.collectAllSemanticsNodes()
 }

@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.AndroidOwner
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.findClosestParentNode
 import androidx.ui.core.semantics.SemanticsNode
@@ -23,9 +24,9 @@ import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.test.android.SynchronizedTreeCollector
 import androidx.ui.unit.PxBounds
 import androidx.ui.unit.PxPosition
+import androidx.ui.unit.PxSize
 import androidx.ui.unit.height
 import androidx.ui.unit.px
 import androidx.ui.unit.toPx
@@ -296,30 +297,29 @@ private fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
 
     // check node doesn't clip unintentionally (e.g. row too small for content)
     val globalRect = node.globalBounds
-    if (!isInScreenBounds(globalRect)) {
+    if (!node.isInScreenBounds()) {
         return false
     }
 
     return (globalRect.width > 0.px && globalRect.height > 0.px)
 }
 
-internal fun isInScreenBounds(rectangle: PxBounds): Boolean {
-    if (rectangle.width == 0.px && rectangle.height == 0.px) {
+private fun SemanticsNode.isInScreenBounds(): Boolean {
+    val nodeBounds = globalBounds
+    if (nodeBounds.width == 0.px && nodeBounds.height == 0.px) {
         return false
     }
-    val displayMetrics = SynchronizedTreeCollector.collectOwners()
-        .findActivity()
-        .resources
-        .displayMetrics
 
-    val bottomRight = PxPosition(
-        displayMetrics.widthPixels.px,
-        displayMetrics.heightPixels.px
+    val displayMetrics = (componentNode.owner as AndroidOwner).view.resources.displayMetrics
+    val screenBounds = PxBounds(
+        PxPosition.Origin,
+        PxSize(displayMetrics.widthPixels.px, displayMetrics.heightPixels.px)
     )
-    return rectangle.top >= 0.px &&
-            rectangle.left >= 0.px &&
-            rectangle.right <= bottomRight.x &&
-            rectangle.bottom <= bottomRight.y
+
+    return nodeBounds.top >= screenBounds.top &&
+            nodeBounds.left >= screenBounds.left &&
+            nodeBounds.right <= screenBounds.right &&
+            nodeBounds.bottom <= screenBounds.bottom
 }
 
 /**

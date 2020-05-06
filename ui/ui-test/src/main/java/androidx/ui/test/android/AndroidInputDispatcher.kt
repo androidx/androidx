@@ -239,7 +239,7 @@ internal class AndroidInputDispatcher constructor(
     }
 
     /**
-     * Sends the [event] to the [CollectedOwners] and [recycles][MotionEvent.recycle] it
+     * Sends the [event] to the MotionEvent dispatcher and [recycles][MotionEvent.recycle] it
      * regardless of the result. This method blocks until the event is sent.
      */
     private fun sendAndRecycleEvent(event: MotionEvent) {
