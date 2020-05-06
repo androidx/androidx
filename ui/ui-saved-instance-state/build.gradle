@@ -43,7 +43,7 @@ dependencies {
     testImplementation(TRUTH)
 
     androidTestImplementation project(':ui:ui-test')
-    androidTestImplementation project(':ui:ui-framework')
+    androidTestImplementation project(':ui:ui-core')
     androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RULES)

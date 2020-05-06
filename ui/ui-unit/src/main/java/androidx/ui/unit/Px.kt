@@ -430,7 +430,6 @@ inline class PxInverse(val value: Float) : Comparable<PxInverse> {
 /**
  * A two dimensional size using [Px] for units
  */
-@OptIn(ExperimentalUnsignedTypes::class)
 @Immutable
 data class PxSize @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
 
@@ -498,7 +497,6 @@ data class PxSize @PublishedApi internal constructor(@PublishedApi internal val 
 /**
  * Constructs a [PxSize] from width and height [Px] values.
  */
-@OptIn(ExperimentalUnsignedTypes::class)
 inline fun PxSize(width: Px, height: Px): PxSize = PxSize(packFloats(width.value, height.value))
 
 /**
@@ -532,7 +530,6 @@ val PxSize.minDimension get() = min(width, height)
 /**
  * A two-dimensional position using [Px] for units
  */
-@OptIn(ExperimentalUnsignedTypes::class)
 @Immutable
 data class PxPosition @PublishedApi internal constructor(@PublishedApi internal val value: Long) {
     /**
@@ -586,7 +583,6 @@ data class PxPosition @PublishedApi internal constructor(@PublishedApi internal 
 /**
  * Constructs a [PxPosition] from [x] and [y] position [Px] values.
  */
-@OptIn(ExperimentalUnsignedTypes::class)
 inline fun PxPosition(x: Px, y: Px): PxPosition = PxPosition(packFloats(x.value, y.value))
 
 /**

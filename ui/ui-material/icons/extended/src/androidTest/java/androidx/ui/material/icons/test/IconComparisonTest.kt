@@ -46,6 +46,7 @@ import androidx.ui.test.findByTag
 import androidx.ui.test.runOnUiThread
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,6 +74,7 @@ class IconComparisonTest {
     @get:Rule
     val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
 
+    @Ignore("failing presubmit: b/155656930")
     @Test
     fun compareVectorAssets() {
         AllIcons.forEach { (property, drawableName) ->

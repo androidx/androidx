@@ -43,6 +43,7 @@ inline class IntSize(@PublishedApi internal val value: Long) {
     /**
      * Returns an IntSize scaled by multiplying [width] and [height] by [other]
      */
+
     operator fun times(other: Int): IntSize =
         IntSize(width = width * other, height = height * other)
 
