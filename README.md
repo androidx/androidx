@@ -1,4 +1,4 @@
-# Android Jetpack 
+# Android Jetpack
 
 Jetpack is a suite of libraries, tools, and guidance to help developers write high-quality apps easier. These components help you follow best practices, free you from writing boilerplate code, and simplify complex tasks, so you can focus on the code you care about.
 
