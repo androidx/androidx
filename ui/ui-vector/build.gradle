@@ -31,7 +31,7 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
-    api project(':ui:ui-core')
+    api project(':ui:ui-graphics')
     api project(":compose:compose-runtime")
     implementation (KOTLIN_STDLIB)
 }

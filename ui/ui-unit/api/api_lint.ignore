@@ -1,4 +1,16 @@
 // Baseline format: 1.0
+AcronymName: androidx.ui.core.Constraints#copy-Q13GOEE(int, int, int, int):
+    Acronyms should not be capitalized in method names: was `copy-Q13GOEE`, should this be `copy-Q13Goee`?
+AcronymName: androidx.ui.core.Constraints2Kt#getHasFixedHeight-ybNdgAI(long):
+    Acronyms should not be capitalized in method names: was `getHasFixedHeight-ybNdgAI`, should this be `getHasFixedHeight-ybNdgAi`?
+AcronymName: androidx.ui.core.Constraints2Kt#getHasFixedWidth-ybNdgAI(long):
+    Acronyms should not be capitalized in method names: was `getHasFixedWidth-ybNdgAI`, should this be `getHasFixedWidth-ybNdgAi`?
+AcronymName: androidx.ui.core.Constraints2Kt#isZero-ybNdgAI(long):
+    Acronyms should not be capitalized in method names: was `isZero-ybNdgAI`, should this be `isZero-ybNdgAi`?
+AcronymName: androidx.ui.core.Constraints2Kt#offset-xOKVbDg(long, int, int):
+    Acronyms should not be capitalized in method names: was `offset-xOKVbDg`, should this be `offset-xOkVbDg`?
+AcronymName: androidx.ui.core.ConstraintsKt#offset-3L2DHGc(androidx.ui.core.Constraints, int, int):
+    Acronyms should not be capitalized in method names: was `offset-3L2DHGc`, should this be `offset-3L2DhGc`?
 AcronymName: androidx.ui.unit.Density#toPx-kAYDl8w(long):
     Acronyms should not be capitalized in method names: was `toPx-kAYDl8w`, should this be `toPx-kAyDl8w`?
 AcronymName: androidx.ui.unit.DpKt#center-kAYDl8w(long):
@@ -45,3 +57,7 @@ AcronymName: androidx.ui.unit.TextUnitKt#times-MVx5XBU(float, long):
 
 MethodNameUnits: androidx.ui.unit.Durations#inSeconds(androidx.ui.unit.Duration):
     Returned time values must be in milliseconds, was `inSeconds`
+
+
+MissingNullability: androidx.ui.core.Constraints2#toString-impl(long):
+    Missing nullability on method `toString-impl` return

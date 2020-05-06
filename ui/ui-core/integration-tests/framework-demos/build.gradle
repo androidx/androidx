@@ -1,0 +1,34 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import static androidx.build.dependencies.DependenciesKt.*
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXUiPlugin")
+    id("org.jetbrains.kotlin.android")
+}
+
+dependencies {
+    kotlinPlugin project(path: ":compose:compose-compiler")
+
+    implementation(KOTLIN_STDLIB)
+
+    implementation project(":compose:compose-runtime")
+    implementation project(":ui:integration-tests:demos:common")
+    implementation project(":ui:ui-core")
+    implementation project(":ui:ui-layout")
+    implementation project(":ui:ui-text-core")
+    implementation project(":ui:ui-animation")
+    implementation project(":ui:ui-foundation")
+    implementation project(":ui:ui-material")
+    implementation project(":ui:ui-vector")
+}
+
+android {
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            useIR = true
+        }
+    }
+}

@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-CallbackName: androidx.ui.core.ModelObserver:
-    Class should be named ModelCallback
