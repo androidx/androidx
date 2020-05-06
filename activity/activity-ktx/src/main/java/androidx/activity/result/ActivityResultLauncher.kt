@@ -19,24 +19,14 @@ package androidx.activity.result
 import androidx.core.app.ActivityOptionsCompat
 
 /**
- * Convenience method to launch a prepared call using an invoke operator.
+ * Convenience method to launch a no-argument registered call without needing to pass in `null`.
  */
-operator fun <I> ActivityResultLauncher<I>.invoke(
-    input: I,
-    options: ActivityOptionsCompat? = null
-) = launch(input, options)
-
-/**
- * Convenience method to launch a no-argument prepared call using an invoke operator
- * without arguments.
- */
-operator fun ActivityResultLauncher<Void?>.invoke(options: ActivityOptionsCompat? = null) =
+fun ActivityResultLauncher<Void?>.launch(options: ActivityOptionsCompat? = null) =
     launch(null, options)
 
 /**
- * Convenience method to launch a no-argument prepared call using an invoke operator
- * without arguments.
+ * Convenience method to launch a no-argument registered call without needing to pass in `Unit`.
  */
-@JvmName("invokeUnit")
-operator fun ActivityResultLauncher<Unit>.invoke(options: ActivityOptionsCompat? = null) =
+@JvmName("launchUnit")
+fun ActivityResultLauncher<Unit>.launch(options: ActivityOptionsCompat? = null) =
     launch(null, options)

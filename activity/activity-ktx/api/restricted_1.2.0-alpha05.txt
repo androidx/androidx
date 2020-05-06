@@ -19,9 +19,8 @@ package androidx.activity.result {
   }
 
   public final class ActivityResultLauncherKt {
-    method public static operator <I> void invoke(androidx.activity.result.ActivityResultLauncher<I>, I? input, androidx.core.app.ActivityOptionsCompat? options = null);
-    method public static operator void invoke(androidx.activity.result.ActivityResultLauncher<java.lang.Void>, androidx.core.app.ActivityOptionsCompat? options = null);
-    method public static operator void invokeUnit(androidx.activity.result.ActivityResultLauncher<kotlin.Unit>, androidx.core.app.ActivityOptionsCompat? options = null);
+    method public static void launch(androidx.activity.result.ActivityResultLauncher<java.lang.Void>, androidx.core.app.ActivityOptionsCompat? options = null);
+    method public static void launchUnit(androidx.activity.result.ActivityResultLauncher<kotlin.Unit>, androidx.core.app.ActivityOptionsCompat? options = null);
   }
 
 }
