@@ -146,7 +146,7 @@ class AndroidViewCompatTest {
             Align {
                 TestTag("content") {
                     Semantics(container = true) {
-                        Container(Modifier.drawLayer(clipToBounds = false)) {
+                        Container(Modifier.drawLayer()) {
                             ColoredSquareView(color = colorModel.color, ref = squareRef)
                         }
                     }

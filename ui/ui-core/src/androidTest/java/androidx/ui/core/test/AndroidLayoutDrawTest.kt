@@ -2237,11 +2237,7 @@ class AndroidLayoutDrawTest {
                     FixedSize(
                         size = 10.ipx,
                         modifier = PaddingModifier(10.ipx)
-                            .drawLayer(
-                                outlineShape = triangleShape,
-                                clipToBounds = false,
-                                clipToOutline = false
-                            )
+                            .drawLayer(shape = triangleShape)
                             .drawBehind {
                                 drawRect(
                                     Color.Blue,

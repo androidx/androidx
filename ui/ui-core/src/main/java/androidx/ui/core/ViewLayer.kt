@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Path
+import androidx.ui.graphics.RectangleShape
 import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.toPxSize
@@ -73,13 +74,20 @@ internal class ViewLayer(
         this.rotation = drawLayerModifier.rotationZ
         this.rotationX = drawLayerModifier.rotationX
         this.rotationY = drawLayerModifier.rotationY
-        this.clipToBounds = drawLayerModifier.clipToBounds
         this.pivotX = mTransformOrigin.pivotFractionX * width
         this.pivotY = mTransformOrigin.pivotFractionY * height
+        val shape = drawLayerModifier.shape
+        val clip = drawLayerModifier.clip
+        this.clipToBounds = clip && shape === RectangleShape
         resetClipBounds()
         val wasClippingManually = manualClipPath != null
-        this.clipToOutline = drawLayerModifier.clipToOutline
-        val shapeChanged = outlineResolver.update(drawLayerModifier.outlineShape, this.alpha)
+        this.clipToOutline = clip && shape !== RectangleShape
+        val shapeChanged = outlineResolver.update(
+            shape,
+            this.alpha,
+            this.clipToOutline,
+            this.elevation
+        )
         updateOutlineResolver()
         val isClippingManually = manualClipPath != null
         if (wasClippingManually != isClippingManually || (isClippingManually && shapeChanged)) {
@@ -91,7 +99,7 @@ internal class ViewLayer(
     }
 
     private fun updateOutlineResolver() {
-        this.outlineProvider = if (outlineResolver.supportsNativeOutline) {
+        this.outlineProvider = if (outlineResolver.outline != null) {
             OutlineProvider
         } else {
             null
