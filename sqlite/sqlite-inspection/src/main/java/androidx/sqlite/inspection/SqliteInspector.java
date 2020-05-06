@@ -18,6 +18,7 @@ package androidx.sqlite.inspection;
 
 import static android.database.DatabaseUtils.getSqlStatementType;
 
+import static androidx.sqlite.inspection.DatabaseExtensions.tryAcquireReference;
 import static androidx.sqlite.inspection.SqliteInspectionExecutors.directExecutor;
 
 import android.annotation.SuppressLint;
@@ -258,7 +259,14 @@ final class SqliteInspector extends Inspector {
 
         List<SQLiteDatabase> instances = mEnvironment.findInstances(SQLiteDatabase.class);
         for (SQLiteDatabase instance : instances) {
-            onDatabaseOpened(instance);
+            // TODO: notify of found closed databases
+            if (tryAcquireReference(instance)) {
+                try {
+                    onDatabaseOpened(instance);
+                } finally {
+                    instance.releaseReference();
+                }
+            }
         }
     }
 
