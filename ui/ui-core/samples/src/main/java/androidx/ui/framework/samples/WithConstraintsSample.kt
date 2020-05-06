@@ -30,10 +30,9 @@ import androidx.ui.unit.dp
 @Sampled
 @Composable
 fun WithConstraintsSample() {
-    WithConstraints { constraints, _ ->
+    WithConstraints {
         val rectangleHeight = 100.dp
-        val threshold = with(DensityAmbient.current) { (rectangleHeight * 2).toIntPx() }
-        if (constraints.maxHeight < threshold) {
+        if (maxHeight < rectangleHeight * 2) {
             Box(Modifier.preferredSize(50.dp, rectangleHeight), backgroundColor = Color.Blue)
         } else {
             Column {

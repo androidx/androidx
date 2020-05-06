@@ -86,15 +86,15 @@ fun ModalDrawerLayout(
     bodyContent: @Composable() () -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
-        WithConstraints { pxConstraints, _ ->
+        WithConstraints {
             // TODO : think about Infinite max bounds case
-            if (!pxConstraints.hasBoundedWidth) {
+            if (!constraints.hasBoundedWidth) {
                 throw IllegalStateException("Drawer shouldn't have infinite width")
             }
-            val constraints = with(DensityAmbient.current) {
-                DpConstraints(pxConstraints)
+            val dpConstraints = with(DensityAmbient.current) {
+                DpConstraints(constraints)
             }
-            val minValue = -pxConstraints.maxWidth.value.toFloat()
+            val minValue = -constraints.maxWidth.value.toFloat()
             val maxValue = 0f
 
             val anchors = listOf(minValue to DrawerState.Closed, maxValue to DrawerState.Opened)
@@ -113,7 +113,7 @@ fun ModalDrawerLayout(
                     Scrim(drawerState, onStateChange, fraction = {
                         calculateFraction(minValue, maxValue, model.value)
                     })
-                    DrawerContent(model, constraints, drawerContent)
+                    DrawerContent(model, dpConstraints, drawerContent)
                 }
             }
         }
@@ -152,16 +152,16 @@ fun BottomDrawerLayout(
     bodyContent: @Composable() () -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
-        WithConstraints { pxConstraints, _ ->
+        WithConstraints {
             // TODO : think about Infinite max bounds case
-            if (!pxConstraints.hasBoundedHeight) {
+            if (!constraints.hasBoundedHeight) {
                 throw IllegalStateException("Drawer shouldn't have infinite height")
             }
-            val constraints = with(DensityAmbient.current) {
-                DpConstraints(pxConstraints)
+            val dpConstraints = with(DensityAmbient.current) {
+                DpConstraints(constraints)
             }
             val minValue = 0f
-            val maxValue = pxConstraints.maxHeight.value.toFloat()
+            val maxValue = constraints.maxHeight.value.toFloat()
 
             // TODO: add proper landscape support
             val isLandscape = constraints.maxWidth > constraints.maxHeight
@@ -196,7 +196,7 @@ fun BottomDrawerLayout(
                         // as we scroll "from height to 0" , need to reverse fraction
                         1 - calculateFraction(openedValue, maxValue, model.value)
                     })
-                    BottomDrawerContent(model, constraints, drawerContent)
+                    BottomDrawerContent(model, dpConstraints, drawerContent)
                 }
             }
         }
