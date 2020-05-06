@@ -50,8 +50,11 @@ final class DatabaseExtensions {
      * was already closed; otherwise re-throws the exception thrown by
      * {@link SQLiteDatabase#acquireReference}.
      */
-    // TODO: use in all places where a database operation is being performed (b/154908055)
-    static boolean tryAcquireReference(SQLiteDatabase database) {
+    static boolean tryAcquireReference(@NonNull SQLiteDatabase database) {
+        if (!database.isOpen()) {
+            return false;
+        }
+
         try {
             database.acquireReference();
             return true; // success

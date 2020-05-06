@@ -129,7 +129,7 @@ class DatabaseRegistry {
                 mKeepDatabasesOpen = true;
 
                 for (int id : mDatabases.keySet()) {
-                    acquireKeepOpenReference(id);
+                    secureKeepOpenReference(id);
                 }
             } else { // keepOpen -> allowClose
                 mKeepDatabasesOpen = false;
@@ -191,7 +191,7 @@ class DatabaseRegistry {
                 }
             }
 
-            acquireKeepOpenReference(id);
+            secureKeepOpenReference(id);
 
             // notify of changes if any
             if (notifyOpenedId != null) {
@@ -204,12 +204,13 @@ class DatabaseRegistry {
 
     /**
      * Returns a currently active database reference if one is available. Null otherwise.
+     * Consumer of this method must release the reference when done using it.
      * Thread-safe
      */
     @Nullable
-    SQLiteDatabase getDatabase(int databaseId) {
+    SQLiteDatabase acquireReference(int databaseId) {
         synchronized (mLock) {
-            return getActiveReference(databaseId);
+            return acquireReferenceImpl(databaseId);
         }
     }
 
@@ -237,11 +238,11 @@ class DatabaseRegistry {
 
     @Nullable
     @GuardedBy("mLock")
-    private SQLiteDatabase getActiveReference(int databaseId) {
+    private SQLiteDatabase acquireReferenceImpl(int databaseId) {
         final Set<SQLiteDatabase> references = mDatabases.get(databaseId);
         if (references != null) {
             for (SQLiteDatabase reference : references) {
-                if (reference.isOpen()) {
+                if (tryAcquireReference(reference)) {
                     return reference;
                 }
             }
@@ -249,31 +250,17 @@ class DatabaseRegistry {
         return null;
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @GuardedBy("mLock")
-    private void acquireKeepOpenReference(int id) {
+    private void secureKeepOpenReference(int id) {
         if (!mKeepDatabasesOpen || mKeepOpenReferences.containsKey(id)) {
             // Keep-open is disabled or we already have a keep-open-reference for that id.
             return;
         }
 
         // Try secure a keep-open reference
-        Set<SQLiteDatabase> databases = mDatabases.get(id);
-        if (databases == null) {
-            return; // no databases with that id
-        }
-
-        for (SQLiteDatabase database : databases) {
-            if (!database.isOpen()) {
-                continue;
-            }
-
-            if (tryAcquireReference(database)) {
-                mKeepOpenReferences.put(id, database);
-                return; // secured a reference, so done
-            } else {
-                // The connection is already closed. Continuing the search.
-            }
+        SQLiteDatabase database = acquireReferenceImpl(id);
+        if (database != null) {
+            mKeepOpenReferences.put(id, database);
         }
     }
 
