@@ -502,24 +502,24 @@ private data class AlignmentModifier(
     }
 }
 
-    private data class UnspecifiedConstraintsModifier(
-        val minWidth: Dp = Dp.Unspecified,
-        val minHeight: Dp = Dp.Unspecified
-    ) : LayoutModifier {
-        override fun MeasureScope.measure(
-            measurable: Measurable,
-            constraints: Constraints,
-            layoutDirection: LayoutDirection
-        ): MeasureScope.MeasureResult {
+private data class UnspecifiedConstraintsModifier(
+    val minWidth: Dp = Dp.Unspecified,
+    val minHeight: Dp = Dp.Unspecified
+) : LayoutModifier {
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints,
+        layoutDirection: LayoutDirection
+    ): MeasureScope.MeasureResult {
         val wrappedConstraints = Constraints(
             if (minWidth != Dp.Unspecified && constraints.minWidth == 0.ipx) {
-                minWidth.toIntPx()
+                minWidth.toIntPx().coerceAtMost(constraints.maxWidth)
             } else {
                 constraints.minWidth
             },
             constraints.maxWidth,
             if (minHeight != Dp.Unspecified && constraints.minHeight == 0.ipx) {
-                minHeight.toIntPx()
+                minHeight.toIntPx().coerceAtMost(constraints.maxHeight)
             } else {
                 constraints.minHeight
             },
