@@ -234,8 +234,9 @@ package androidx.ui.core {
     method public androidx.ui.unit.PxPosition getPositionChange();
   }
 
-  public interface ContentDrawScope extends androidx.ui.core.DrawScope {
-    method public void drawContent();
+  public abstract class ContentDrawScope extends androidx.ui.core.DrawScope {
+    ctor public ContentDrawScope();
+    method public abstract void drawContent();
   }
 
   public interface ContentScale {
@@ -259,6 +260,7 @@ package androidx.ui.core {
   }
 
   public final class ContentScaleKt {
+    method public static float scale-iWWM28M(androidx.ui.core.ContentScale, long srcSize, long dstSize);
   }
 
   public interface CustomEvent {
@@ -351,11 +353,10 @@ package androidx.ui.core {
     property public final kotlin.jvm.functions.Function3<androidx.ui.core.ContentDrawScope,androidx.ui.graphics.Canvas,androidx.ui.unit.PxSize,kotlin.Unit>? onPaintWithChildren;
   }
 
-  public interface DrawScope extends androidx.ui.graphics.Canvas androidx.ui.unit.Density {
-    method public androidx.ui.core.LayoutDirection getLayoutDirection();
-    method public androidx.ui.unit.PxSize getSize();
+  public abstract class DrawScope extends androidx.ui.graphics.painter.CanvasScope implements androidx.ui.unit.Density {
+    ctor public DrawScope();
+    method public abstract androidx.ui.core.LayoutDirection getLayoutDirection();
     property public abstract androidx.ui.core.LayoutDirection layoutDirection;
-    property public abstract androidx.ui.unit.PxSize size;
   }
 
   public final class DrawShadowKt {

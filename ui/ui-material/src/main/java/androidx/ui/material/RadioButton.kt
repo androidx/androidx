@@ -26,7 +26,7 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
 import androidx.ui.geometry.Offset
@@ -218,7 +218,7 @@ fun RadioButton(
                     gapWidth = state[GapProp].toPx().value
                     radioStroke = Stroke(RadioStrokeWidth.toPx().value)
                 }
-                Canvas2(Modifier.padding(RadioButtonPadding).preferredSize(RadioButtonSize)) {
+                Canvas(Modifier.padding(RadioButtonPadding).preferredSize(RadioButtonSize)) {
                     drawRadio(
                         state[ColorProp],
                         outerPx,

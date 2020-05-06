@@ -24,7 +24,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
@@ -232,7 +232,7 @@ class IsDisplayedTests {
 
         val drawRect = @Composable { color: Color ->
             Semantics(container = true) {
-                Canvas2(Modifier.preferredSize(100.dp)) {
+                Canvas(Modifier.preferredSize(100.dp)) {
                     drawRect(color)
 
                     elementHeight = Px(size.height)

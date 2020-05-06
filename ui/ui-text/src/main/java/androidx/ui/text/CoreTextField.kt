@@ -38,6 +38,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.focus.FocusModifier
 import androidx.ui.focus.FocusState
 import androidx.ui.focus.focusState
+import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorValue
 import androidx.ui.input.ImeAction
@@ -191,13 +192,15 @@ fun CoreTextField(
                 emptyContent(),
                 updatedModifier.drawBehind {
                     state.layoutResult?.let { layoutResult ->
-                        TextFieldDelegate.draw(
-                            this,
-                            value,
-                            offsetMap,
-                            layoutResult,
-                            DefaultSelectionColor
-                        )
+                        drawCanvas { canvas, _ ->
+                            TextFieldDelegate.draw(
+                                canvas,
+                                value,
+                                offsetMap,
+                                layoutResult,
+                                DefaultSelectionColor
+                            )
+                        }
                     }
                 }.onPositioned {
                     if (textInputService != null) {

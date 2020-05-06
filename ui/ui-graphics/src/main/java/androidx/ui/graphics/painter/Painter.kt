@@ -16,6 +16,7 @@
 package androidx.ui.graphics.painter
 
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
@@ -192,16 +193,17 @@ abstract class Painter {
         configureColorFilter(colorFilter)
         configureRtl(rtl)
 
+        val scopeSize = Size(size.width.value, size.height.value)
         if (alpha > 0.0f) {
             if (useLayer) {
                 val layerRect =
                     Rect.fromLTWH(0.0f, 0.0f, size.width.value, size.height.value)
                 // TODO (b/154550724) njawad replace with RenderNode/Layer API usage
                 canvas.withSaveLayer(layerRect, obtainPaint()) {
-                    canvasScope.draw(canvas, size, drawLambda)
+                    canvasScope.draw(canvas, scopeSize, drawLambda)
                 }
             } else {
-                canvasScope.draw(canvas, size, drawLambda)
+                canvasScope.draw(canvas, scopeSize, drawLambda)
             }
         }
     }

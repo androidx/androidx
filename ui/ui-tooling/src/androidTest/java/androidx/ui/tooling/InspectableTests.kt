@@ -23,13 +23,13 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
+import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -48,8 +48,7 @@ class InspectableTests : ToolingTest() {
             Inspectable {
                 Column {
                     Box(Modifier.preferredSize(100.dp).drawBehind {
-                        val paint = Paint().also { it.color = Color(0xFF) }
-                        drawRect(size.toRect(), paint)
+                        drawRect(Color(0xFF))
                     })
                 }
             }

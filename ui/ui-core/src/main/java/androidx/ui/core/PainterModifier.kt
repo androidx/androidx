@@ -18,9 +18,12 @@ package androidx.ui.core
 
 import androidx.compose.Composable
 import androidx.compose.remember
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.DefaultAlpha
 import androidx.ui.graphics.painter.Painter
+import androidx.ui.graphics.painter.drawCanvas
+import androidx.ui.graphics.painter.withTransform
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.Px
@@ -213,40 +216,43 @@ private data class PainterModifier(
     override fun ContentDrawScope.draw() {
         val intrinsicSize = painter.intrinsicSize
         val srcWidth = if (intrinsicSize.width.value != Float.POSITIVE_INFINITY) {
-            intrinsicSize.width
+            intrinsicSize.width.value
         } else {
             size.width
         }
 
         val srcHeight = if (intrinsicSize.height.value != Float.POSITIVE_INFINITY) {
-            intrinsicSize.height
+            intrinsicSize.height.value
         } else {
             size.height
         }
 
-        val scale = contentScale.scale(PxSize(srcWidth, srcHeight), size)
+        val srcSize = Size(srcWidth, srcHeight)
+        val scale = contentScale.scale(srcSize, size)
 
         val alignedPosition = alignment.align(
             IntPxSize(
-                IntPx(ceil(size.width.value - (srcWidth.value * scale)).toInt()),
-                IntPx(ceil(size.height.value - (srcHeight.value * scale)).toInt())
+                IntPx(ceil(size.width - (srcWidth * scale)).toInt()),
+                IntPx(ceil(size.height - (srcHeight * scale)).toInt())
             )
         )
 
         val dx = alignedPosition.x.value.toFloat()
         val dy = alignedPosition.y.value.toFloat()
 
-        save()
-        translate(dx, dy)
-        scale(scale, scale)
-
-        painter.draw(
-            canvas = this,
-            size = PxSize(srcWidth, srcHeight),
-            alpha = alpha,
-            colorFilter = colorFilter,
-            rtl = rtl)
-
-        restore()
+        withTransform({
+            translate(dx, dy)
+            scale(scale, scale, 0.0f, 0.0f)
+        }) {
+            drawCanvas { canvas, _ ->
+                painter.draw(
+                    canvas = canvas,
+                    size = PxSize(Px(srcSize.width), Px(srcSize.height)),
+                    alpha = alpha,
+                    colorFilter = colorFilter,
+                    rtl = rtl
+                )
+            }
+        }
     }
 }

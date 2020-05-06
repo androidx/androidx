@@ -29,9 +29,11 @@ import androidx.ui.core.clipToBounds
 import androidx.ui.core.drawBehind
 import androidx.ui.core.setContent
 import androidx.ui.framework.test.TestActivity
+import androidx.ui.geometry.Offset
 import androidx.ui.geometry.RRect
 import androidx.ui.geometry.Radius
 import androidx.ui.geometry.Rect
+import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Outline
 import androidx.ui.graphics.Paint
@@ -369,14 +371,10 @@ class ClipTest {
         // is not causing invalidation as the DrawModifier didn't change
         val drawCallback: DrawScope.() -> Unit = {
             drawRect(
-                Rect(
-                    -100f,
-                    -100f,
-                    size.width.value + 100f,
-                    size.height.value + 100f
-                ), Paint().apply {
-                    this.color = Color.Cyan
-                })
+                Color.Cyan,
+                topLeft = Offset(-100f, -100f),
+                size = Size(size.width + 200f, size.height + 200f)
+            )
             drawLatch.countDown()
         }
 
@@ -447,14 +445,10 @@ class ClipTest {
     private fun FillColor(color: Color): Modifier {
         return Modifier.drawBehind {
             drawRect(
-                Rect(
-                    -100f,
-                    -100f,
-                    size.width.value + 100f,
-                    size.height.value + 100f
-                ), Paint().apply {
-                    this.color = color
-                })
+                color,
+                topLeft = Offset(-100f, -100f),
+                size = Size(size.width + 200f, size.height + 200f)
+            )
             drawLatch.countDown()
         }
     }

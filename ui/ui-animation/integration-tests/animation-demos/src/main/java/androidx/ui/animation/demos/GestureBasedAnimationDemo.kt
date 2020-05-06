@@ -24,7 +24,7 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Color
@@ -72,7 +72,7 @@ fun GestureBasedAnimationDemo() {
 
 @Composable
 private fun ScaledColorRect(modifier: Modifier = Modifier, scale: Float, color: Color) {
-    Canvas2(modifier.fillMaxSize()) {
+    Canvas(modifier.fillMaxSize()) {
         drawRect(
             color,
             topLeft = Offset(center.dx - halfSize * scale, center.dy - halfSize * scale),

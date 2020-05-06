@@ -32,7 +32,7 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.gesture.rawDragGestureFilter
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
@@ -67,7 +67,7 @@ fun AnimatableSeekBarDemo() {
                 initState = "start",
                 toState = "end"
             ) { state ->
-                Canvas2(Modifier.preferredSize(600.dp, 400.dp)) {
+                Canvas(Modifier.preferredSize(600.dp, 400.dp)) {
                     val rectSize = size * 0.2f
                     drawRect(Color(1.0f, 0f, 0f, state[alphaKey]), size = rectSize)
 
@@ -123,7 +123,7 @@ fun MovingTargetExample(clock: ManualAnimationClock) {
 
 @Composable
 fun DrawSeekBar(modifier: Modifier = Modifier, x: Float, clock: ManualAnimationClock) {
-    Canvas2(modifier.fillMaxWidth().preferredHeight(60.dp)) {
+    Canvas(modifier.fillMaxWidth().preferredHeight(60.dp)) {
         val xConstraint = x.coerceIn(0f, size.width)
         clock.clockTimeMillis = (400 * (x / size.width)).toLong().coerceIn(0, 399)
         // draw bar
