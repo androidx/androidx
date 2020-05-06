@@ -29,6 +29,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     implementation("com.google.crypto.tink:tink-android:1.4.0-rc2")
+    implementation(project(":collection:collection"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -40,7 +41,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 21
     }
 }
 
