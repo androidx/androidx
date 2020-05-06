@@ -36,6 +36,7 @@ import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
+import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.listSaver
@@ -101,10 +102,6 @@ data class TextFieldValue(
  * [TextFieldValue]. If you want to observe the composition text, use [TextField] with
  * compositionRange instead.
  * @param modifier optional [Modifier] for this text field.
- * By default, text field will occupy all available space granted to it. You can use
- * [androidx.ui.layout.preferredWidthIn] or [androidx.ui.layout.preferredWidth] modifiers to
- * constrain the horizontal space occupied by the text field. Do not pass [FocusModifier] to this
- * argument. Pass it to focusModifier argument instead.
  * @param textColor [Color] to apply to the text. If [Color.Unset], and [textStyle] has no color
  * set, this will be [contentColor].
  * @param textStyle Style configuration that applies at character level such as color, font etc.
@@ -177,7 +174,7 @@ fun TextField(
     CoreTextField(
         value = fullModel.value,
         modifier = modifier
-            .fillMaxWidth()
+            .defaultMinSizeConstraints(minWidth = DefaultTextFieldWidth)
             .drawCursor(cursorColor, cursorState, fullModel.value, transformedText),
         onValueChange = {
             val prevState = fullModel.value
@@ -247,3 +244,5 @@ private fun Modifier.drawCursor(
         }
     }
 }
+
+private val DefaultTextFieldWidth = 280.dp
