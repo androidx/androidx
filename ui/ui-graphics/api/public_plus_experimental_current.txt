@@ -161,6 +161,11 @@ package androidx.ui.graphics {
 
   public final inline class Color {
     ctor public Color();
+    method public static operator float component1-impl(long $this);
+    method public static operator float component2-impl(long $this);
+    method public static operator float component3-impl(long $this);
+    method public static operator float component4-impl(long $this);
+    method public static operator androidx.ui.graphics.colorspace.ColorSpace component5-impl(long $this);
     method public static long constructor-impl(long value);
     method public static long convert-impl(long $this, androidx.ui.graphics.colorspace.ColorSpace colorSpace);
     method public static long copy-impl(long $this, float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
