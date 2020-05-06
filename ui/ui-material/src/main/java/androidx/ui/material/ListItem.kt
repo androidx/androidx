@@ -147,7 +147,7 @@ fun ListItem(
 
     val item = @Composable {
         if (styledSecondaryText == null && styledOverlineText == null) {
-            OneLine.ListItem(icon, styledText, styledTrailing)
+            OneLine.ListItem(modifier, icon, styledText, styledTrailing)
         } else if ((styledOverlineText == null && singleLineSecondaryText) ||
             styledSecondaryText == null
         ) {
@@ -201,12 +201,13 @@ private object OneLine {
 
     @Composable
     fun ListItem(
+        modifier: Modifier = Modifier,
         icon: @Composable() (() -> Unit)?,
         text: @Composable() (() -> Unit),
         trailing: @Composable() (() -> Unit)?
     ) {
         val minHeight = if (icon == null) MinHeight else MinHeightWithIcon
-        Row(Modifier.preferredHeightIn(minHeight = minHeight)) {
+        Row(modifier.preferredHeightIn(minHeight = minHeight)) {
             if (icon != null) {
                 Box(
                     Modifier.gravity(Alignment.CenterVertically)
