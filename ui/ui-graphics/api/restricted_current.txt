@@ -489,6 +489,8 @@ package androidx.ui.graphics {
 
   public final class SolidColor extends androidx.ui.graphics.Brush {
     method public void applyTo(androidx.ui.graphics.Paint p);
+    method public long component1();
+    method public androidx.ui.graphics.SolidColor copy-QEYXlZo(long value);
     method public long getValue();
   }
 
