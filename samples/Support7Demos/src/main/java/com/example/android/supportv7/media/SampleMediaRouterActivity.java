@@ -49,6 +49,7 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.FragmentManager;
@@ -128,15 +129,20 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onRouteSelected(MediaRouter router, RouteInfo route) {
-            Log.d(TAG, "onRouteSelected: route=" + route);
+        public void onRouteSelected(@NonNull MediaRouter router, @NonNull RouteInfo route,
+                int reason) {
+            Log.d(TAG, "onRouteSelected: route=" + route + ", reason=" + reason);
 
             mPlayer = Player.create(SampleMediaRouterActivity.this, route, mMediaSession);
             if (isPresentationApiSupported()) {
                 mPlayer.updatePresentation();
             }
             mSessionManager.setPlayer(mPlayer);
-            mSessionManager.unsuspend();
+            if (reason == MediaRouter.UNSELECT_REASON_STOPPED) {
+                mSessionManager.stop();
+            } else {
+                mSessionManager.unsuspend();
+            }
 
             updateUi();
         }
