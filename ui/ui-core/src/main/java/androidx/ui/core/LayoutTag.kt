@@ -31,7 +31,7 @@ fun Modifier.tag(tag: Any) = this + LayoutTag(tag)
  * composable children to [Measurable]s when doing layout, as shown below.
  *
  * Example usage:
- * @sample androidx.ui.framework.samples.LayoutTagChildrenUsage
+ * @sample androidx.ui.core.samples.LayoutTagChildrenUsage
  */
 @Immutable
 data class LayoutTag
