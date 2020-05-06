@@ -225,7 +225,7 @@ class LayoutPaddingTest : LayoutTest() {
 
     @Test
     fun testRtlSupport() = with(density) {
-        val sizeDp = 150.ipx.toDp()
+        val sizeDp = 100.ipx.toDp()
         val size = sizeDp.toIntPx()
         val padding1Dp = 5.dp
         val padding2Dp = 10.dp
