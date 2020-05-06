@@ -23,7 +23,9 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -67,6 +69,7 @@ class Camera2CaptureRequestBuilder {
         return surfaceList;
     }
 
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     private static void applyImplementationOptionToCaptureBuilder(
             CaptureRequest.Builder builder, Config config) {
         Camera2ImplConfig camera2Config = new Camera2ImplConfig(config);

@@ -27,10 +27,12 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureConfig;
@@ -257,6 +259,7 @@ final class CaptureSession {
         }
     }
 
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     @NonNull
     private ListenableFuture<Void> openCaptureSession(@NonNull List<Surface> configuredSurfaces,
             @NonNull SessionConfig sessionConfig, @NonNull CameraDevice cameraDevice) {
