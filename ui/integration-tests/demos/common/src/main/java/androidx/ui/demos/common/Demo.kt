@@ -24,7 +24,9 @@ import kotlin.reflect.KClass
 /**
  * Generic demo with a [title] that will be displayed in the list of demos.
  */
-sealed class Demo(val title: String)
+sealed class Demo(val title: String) {
+    override fun toString() = title
+}
 
 /**
  * Demo that launches an [Activity] when selected.
