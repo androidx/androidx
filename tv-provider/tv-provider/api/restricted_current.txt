@@ -115,7 +115,7 @@ package androidx.tvprovider.media.tv {
     method public androidx.tvprovider.media.tv.PreviewChannel! build();
     method public androidx.tvprovider.media.tv.PreviewChannel.Builder! setAppLinkIntent(android.content.Intent!);
     method public androidx.tvprovider.media.tv.PreviewChannel.Builder! setAppLinkIntentUri(android.net.Uri!);
-    method public androidx.tvprovider.media.tv.PreviewChannel.Builder! setDescription(CharSequence!);
+    method public androidx.tvprovider.media.tv.PreviewChannel.Builder setDescription(CharSequence?);
     method public androidx.tvprovider.media.tv.PreviewChannel.Builder! setDisplayName(CharSequence!);
     method public androidx.tvprovider.media.tv.PreviewChannel.Builder! setInternalProviderData(byte[]!);
     method public androidx.tvprovider.media.tv.PreviewChannel.Builder! setInternalProviderFlag1(long);

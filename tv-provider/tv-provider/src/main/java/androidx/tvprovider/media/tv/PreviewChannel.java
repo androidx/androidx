@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels;
@@ -396,8 +397,11 @@ public class PreviewChannel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @see TvContractCompat.Channels#COLUMN_DESCRIPTION
          */
-        public Builder setDescription(CharSequence description) {
-            mValues.put(Channels.COLUMN_DESCRIPTION, description.toString());
+        @NonNull
+        public Builder setDescription(@Nullable CharSequence description) {
+            if (description != null) {
+                mValues.put(Channels.COLUMN_DESCRIPTION, description.toString());
+            }
             return this;
         }
 
