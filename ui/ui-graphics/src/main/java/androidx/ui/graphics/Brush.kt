@@ -23,7 +23,7 @@ sealed class Brush {
     abstract fun applyTo(p: Paint)
 }
 
-class SolidColor(val value: Color) : Brush() {
+data class SolidColor(val value: Color) : Brush() {
     override fun applyTo(p: Paint) {
         if (p.color != value) p.color = value
         if (p.shader != null) p.shader = null

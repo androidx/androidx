@@ -35,7 +35,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.ColorFilter
 import androidx.ui.graphics.vector.VectorAsset
 import androidx.ui.graphics.vector.VectorPainter
-import androidx.ui.layout.Column
+import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.preferredSize
 import androidx.ui.res.vectorResource
@@ -44,13 +44,14 @@ import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.findByTag
 import androidx.ui.test.runOnUiThread
+import androidx.ui.test.waitForIdle
 import androidx.ui.unit.ipx
 import com.google.common.truth.Truth
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
+import kotlin.reflect.KProperty0
 import kotlin.reflect.jvm.javaGetter
 
 const val ProgrammaticTestTag = "programmatic"
@@ -60,24 +61,43 @@ const val XmlTestTag = "Xml"
  * Test to ensure equality (both structurally, and visually) between programmatically generated
  * Material [androidx.ui.material.icons.Icons] and their XML source.
  */
+@Suppress("unused")
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@RunWith(JUnit4::class)
-class IconComparisonTest {
+@RunWith(Parameterized::class)
+class IconComparisonTest(
+    private val iconSublist: List<Pair<KProperty0<VectorAsset>, String>>,
+    private val debugParameterName: String
+) {
 
-    /**
-     * Running all comparisons inside one test method instead of using a Parameterized test
-     * runner so we can re-use the same Activity instance between test runs. Most of the cost of a
-     * simple test like this is in Activity instantiation so re-using the same activity reduces time
-     * to run this test ~tenfold.
-     */
+    companion object {
+        /**
+         * Arbitrarily split [AllIcons] into equal parts. This is needed as one test with the
+         * whole of [AllIcons] will exceed the timeout allowed for a test in CI, so we split it
+         * up to stay under the limit.
+         *
+         * Additionally, we run large batches of comparisons per method, instead of one icon per
+         * method, so that we can re-use the same Activity instance between test runs. Most of the
+         * cost of a simple test like this is in Activity instantiation so re-using the same
+         * activity reduces time to run this test ~tenfold.
+         */
+        @JvmStatic
+        @Parameterized.Parameters(name = "{1}")
+        fun initIconSublist(): Array<Array<Any>> {
+            val numberOfChunks = 4
+            val subLists = AllIcons.chunked(AllIcons.size / numberOfChunks)
+            return subLists.mapIndexed { index, list ->
+                arrayOf(list, "${index + 1}of$numberOfChunks")
+            }.toTypedArray()
+        }
+    }
+
     @get:Rule
     val composeTestRule = AndroidComposeTestRule<ComponentActivity>()
 
-    @Ignore("failing presubmit: b/155656930")
     @Test
     fun compareVectorAssets() {
-        AllIcons.forEach { (property, drawableName) ->
+        iconSublist.forEach { (property, drawableName) ->
             var xmlVector: VectorAsset? = null
             val programmaticVector = property.get()
             var composition: Composition? = null
@@ -88,6 +108,8 @@ class IconComparisonTest {
                     DrawVectors(programmaticVector, xmlVector!!)
                 }
             }
+
+            waitForIdle()
 
             val iconName = property.javaGetter!!.declaringClass.canonicalName!!
 
@@ -175,20 +197,24 @@ private fun DrawVectors(programmaticVector: VectorAsset, xmlVector: VectorAsset)
         val layoutSize = with(DensityAmbient.current) {
             Modifier.preferredSize(72.ipx.toDp())
         }
-        Column(Modifier.gravity(Alignment.Center)) {
+        Row(Modifier.gravity(Alignment.Center)) {
             TestTag(ProgrammaticTestTag) {
                 Semantics(container = true) {
                     Box(
-                        modifier = layoutSize.paint(VectorPainter(programmaticVector),
-                            colorFilter = ColorFilter.tint(Color.Red))
+                        modifier = layoutSize.paint(
+                            VectorPainter(programmaticVector),
+                            colorFilter = ColorFilter.tint(Color.Red)
+                        )
                     )
                 }
             }
             TestTag(XmlTestTag) {
                 Semantics(container = true) {
                     Box(
-                        modifier = layoutSize.paint(VectorPainter(xmlVector),
-                            colorFilter = ColorFilter.tint(Color.Red))
+                        modifier = layoutSize.paint(
+                            VectorPainter(xmlVector),
+                            colorFilter = ColorFilter.tint(Color.Red)
+                        )
                     )
                 }
             }
