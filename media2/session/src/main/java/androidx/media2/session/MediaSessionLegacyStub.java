@@ -132,51 +132,17 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPrepareFromMediaId(final String mediaId, final Bundle extras) {
-        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
-                new SessionTask() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        if (TextUtils.isEmpty(mediaId)) {
-                            Log.w(TAG, "onPrepareFromMediaId(): Ignoring empty mediaId from "
-                                    + controller);
-                            return;
-                        }
-                        mSessionImpl.getCallback().onPrepareFromMediaId(mSessionImpl.getInstance(),
-                                controller, mediaId, extras);
-                    }
-                });
+        // TODO(b/145644087): Support this
     }
 
     @Override
     public void onPrepareFromSearch(final String query, final Bundle extras) {
-        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
-                new SessionTask() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        if (TextUtils.isEmpty(query)) {
-                            Log.w(TAG, "onPrepareFromSearch(): Ignoring empty query from "
-                                    + controller);
-                            return;
-                        }
-                        mSessionImpl.getCallback().onPrepareFromSearch(mSessionImpl.getInstance(),
-                                controller, query, extras);
-                    }
-                });
+        // TODO(b/145644087): Support this
     }
 
     @Override
     public void onPrepareFromUri(final Uri uri, final Bundle extras) {
-        if (uri == null) {
-            return;
-        }
-        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI,
-                new SessionTask() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getCallback().onPrepareFromUri(mSessionImpl.getInstance(),
-                                controller, uri, extras);
-                    }
-                });
+        // TODO(b/145644087): Support this
     }
 
     @Override
@@ -193,51 +159,17 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPlayFromMediaId(final String mediaId, final Bundle extras) {
-        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
-                new SessionTask() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        if (TextUtils.isEmpty(mediaId)) {
-                            Log.w(TAG, "onPlayFromMediaId(): Ignoring empty mediaId from "
-                                    + controller);
-                            return;
-                        }
-                        mSessionImpl.getCallback().onPlayFromMediaId(mSessionImpl.getInstance(),
-                                controller, mediaId, extras);
-                    }
-                });
+        // TODO(b/145644087): Support this
     }
 
     @Override
     public void onPlayFromSearch(final String query, final Bundle extras) {
-        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
-                new SessionTask() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        if (TextUtils.isEmpty(query)) {
-                            Log.w(TAG, "onPlayFromSearch(): Ignoring empty query from "
-                                    + controller);
-                            return;
-                        }
-                        mSessionImpl.getCallback().onPlayFromSearch(mSessionImpl.getInstance(),
-                                controller, query, extras);
-                    }
-                });
+        // TODO(b/145644087): Support this
     }
 
     @Override
     public void onPlayFromUri(final Uri uri, final Bundle extras) {
-        if (uri == null) {
-            return;
-        }
-        dispatchSessionTask(SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI,
-                new SessionTask() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getCallback().onPlayFromUri(mSessionImpl.getInstance(),
-                                controller, uri, extras);
-                    }
-                });
+        // TODO(b/145644087): Support this
     }
 
     @Override
