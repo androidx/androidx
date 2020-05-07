@@ -34,3 +34,11 @@ inline fun <T> List<T>.fastAny(predicate: (T) -> Boolean): Boolean {
     fastForEach { if (predicate(it)) return true }
     return false
 }
+
+/**
+ * Returns the first value that [predicate] returns `true` for or `null` if nothing matches.
+ */
+inline fun <T> List<T>.fastFirstOrNull(predicate: (T) -> Boolean): T? {
+    fastForEach { if (predicate(it)) return it }
+    return null
+}

@@ -418,7 +418,7 @@ package androidx.ui.text {
   }
 
   public final class ParagraphIntrinsicsKt {
-    method public static androidx.ui.text.ParagraphIntrinsics ParagraphIntrinsics(String text, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles = listOf(), java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> placeholders = listOf(), androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    method public static androidx.ui.text.ParagraphIntrinsics ParagraphIntrinsics(String text, androidx.ui.text.TextStyle style, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.SpanStyle>> spanStyles = emptyList(), java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.Placeholder>> placeholders = emptyList(), androidx.ui.unit.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
   }
 
   public final class ParagraphKt {

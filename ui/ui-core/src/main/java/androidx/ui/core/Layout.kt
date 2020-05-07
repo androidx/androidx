@@ -36,6 +36,7 @@ import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.ipx
 import androidx.ui.unit.max
 import androidx.ui.unit.min
+import androidx.ui.util.fastForEach
 
 /**
  * [Layout] is the main core component for layout. It can be used to measure and position
@@ -199,7 +200,7 @@ fun PassThroughLayout(
             val width = placeables.maxBy { it.width }?.width ?: constraints.minWidth
             val height = placeables.maxBy { it.height }?.height ?: constraints.minHeight
             layout(width, height) {
-                placeables.forEach { it.place(IntPx.Zero, IntPx.Zero) }
+                placeables.fastForEach { it.place(IntPx.Zero, IntPx.Zero) }
             }
         }
         MeasuringIntrinsicsMeasureBlocks(measureBlock)
@@ -568,7 +569,7 @@ private class WithConstrainsState {
             val layoutChildren = root.layoutChildren
             var maxWidth: IntPx = constraints.minWidth
             var maxHeight: IntPx = constraints.minHeight
-            layoutChildren.forEach {
+            layoutChildren.fastForEach {
                 it.measure(constraints, layoutDirection)
                 maxWidth = max(maxWidth, it.width)
                 maxHeight = max(maxHeight, it.height)
@@ -577,7 +578,7 @@ private class WithConstrainsState {
             maxHeight = min(maxHeight, constraints.maxHeight)
 
             return measureScope.layout(maxWidth, maxHeight) {
-                layoutChildren.forEach { it.place(IntPx.Zero, IntPx.Zero) }
+                layoutChildren.fastForEach { it.place(IntPx.Zero, IntPx.Zero) }
             }
         }
     }

@@ -32,6 +32,7 @@ import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.ipx
 import androidx.ui.unit.isFinite
+import androidx.ui.util.fastFirstOrNull
 import androidx.ui.viewinterop.AndroidViewHolder
 
 /**
@@ -157,7 +158,7 @@ internal class MergedViewAdapter : ViewAdapter {
 
     inline fun <T : ViewAdapter> get(id: Int, factory: () -> T): T {
         @Suppress("UNCHECKED_CAST")
-        val existing = adapters.firstOrNull { it.id == id } as? T
+        val existing = adapters.fastFirstOrNull { it.id == id } as? T
         if (existing != null) return existing
         val next = factory()
         adapters.add(next)
