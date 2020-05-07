@@ -30,7 +30,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -67,7 +66,6 @@ import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -568,175 +566,6 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
             RemoteMediaControllerCompat controller = new RemoteMediaControllerCompat(
                     mContext, session.getSessionCompat().getSessionToken(), true);
             controller.getTransportControls().rewind();
-            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        }
-    }
-
-    @Test
-    @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testPlayFromSearch() throws InterruptedException {
-        final String request = "random query";
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
-        final CountDownLatch latch = new CountDownLatch(1);
-        final SessionCallback callback = new SessionCallback() {
-            @Override
-            public int onPlayFromSearch(@NonNull MediaSession session,
-                    @NonNull ControllerInfo controller, @NonNull String query, Bundle extras) {
-                super.onPlayFromSearch(session, controller, query, extras);
-                assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, query);
-                assertTrue(TestUtils.equals(bundle, extras));
-                latch.countDown();
-                return RESULT_SUCCESS;
-            }
-        };
-        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
-                .setSessionCallback(sHandlerExecutor, callback)
-                .setId("testPlayFromSearch").build()) {
-            RemoteMediaControllerCompat controller = new RemoteMediaControllerCompat(
-                    mContext, session.getSessionCompat().getSessionToken(), true);
-            controller.getTransportControls().playFromSearch(request, bundle);
-            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        }
-    }
-
-    @Test
-    @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testPlayFromUri() throws InterruptedException {
-        final Uri request = Uri.parse("foo://boo");
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
-        final CountDownLatch latch = new CountDownLatch(1);
-        final SessionCallback callback = new SessionCallback() {
-            @Override
-            public int onPlayFromUri(@NonNull MediaSession session,
-                    @NonNull ControllerInfo controller, @NonNull Uri uri, Bundle extras) {
-                assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, uri);
-                assertTrue(TestUtils.equals(bundle, extras));
-                latch.countDown();
-                return RESULT_SUCCESS;
-            }
-        };
-        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
-                .setSessionCallback(sHandlerExecutor, callback)
-                .setId("testPlayFromUri").build()) {
-            RemoteMediaControllerCompat controller = new RemoteMediaControllerCompat(
-                    mContext, session.getSessionCompat().getSessionToken(), true);
-            controller.getTransportControls().playFromUri(request, bundle);
-            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        }
-    }
-
-    @Test
-    @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testPlayFromMediaId() throws InterruptedException {
-        final String request = "media_id";
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
-        final CountDownLatch latch = new CountDownLatch(1);
-        final SessionCallback callback = new SessionCallback() {
-            @Override
-            public int onPlayFromMediaId(@NonNull MediaSession session,
-                    @NonNull ControllerInfo controller, @NonNull String mediaId, Bundle extras) {
-                assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, mediaId);
-                assertTrue(TestUtils.equals(bundle, extras));
-                latch.countDown();
-                return RESULT_SUCCESS;
-            }
-        };
-        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
-                .setSessionCallback(sHandlerExecutor, callback)
-                .setId("testPlayFromMediaId").build()) {
-            RemoteMediaControllerCompat controller = new RemoteMediaControllerCompat(
-                    mContext, session.getSessionCompat().getSessionToken(), true);
-            controller.getTransportControls().playFromMediaId(request, bundle);
-            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        }
-    }
-
-    @Test
-    @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testPrepareFromSearch() throws InterruptedException {
-        final String request = "random query";
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
-        final CountDownLatch latch = new CountDownLatch(1);
-        final SessionCallback callback = new SessionCallback() {
-            @Override
-            public int onPrepareFromSearch(@NonNull MediaSession session,
-                    @NonNull ControllerInfo controller, @NonNull String query, Bundle extras) {
-                assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, query);
-                assertTrue(TestUtils.equals(bundle, extras));
-                latch.countDown();
-                return RESULT_SUCCESS;
-            }
-        };
-        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
-                .setSessionCallback(sHandlerExecutor, callback)
-                .setId("testPrepareFromSearch").build()) {
-            RemoteMediaControllerCompat controller = new RemoteMediaControllerCompat(
-                    mContext, session.getSessionCompat().getSessionToken(), true);
-            controller.getTransportControls().prepareFromSearch(request, bundle);
-            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        }
-    }
-
-    @Test
-    @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testPrepareFromUri() throws InterruptedException {
-        final Uri request = Uri.parse("foo://boo");
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
-        final CountDownLatch latch = new CountDownLatch(1);
-        final SessionCallback callback = new SessionCallback() {
-            @Override
-            public int onPrepareFromUri(@NonNull MediaSession session,
-                    @NonNull ControllerInfo controller, @NonNull Uri uri, Bundle extras) {
-                assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, uri);
-                assertTrue(TestUtils.equals(bundle, extras));
-                latch.countDown();
-                return RESULT_SUCCESS;
-            }
-        };
-        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
-                .setSessionCallback(sHandlerExecutor, callback)
-                .setId("testPrepareFromUri").build()) {
-            RemoteMediaControllerCompat controller = new RemoteMediaControllerCompat(
-                    mContext, session.getSessionCompat().getSessionToken(), true);
-            controller.getTransportControls().prepareFromUri(request, bundle);
-            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        }
-    }
-
-    @Test
-    @Ignore("This tests hidden API, which isn't public at this moment.")
-    public void testPrepareFromMediaId() throws InterruptedException {
-        final String request = "media_id";
-        final Bundle bundle = new Bundle();
-        bundle.putString("key", "value");
-        final CountDownLatch latch = new CountDownLatch(1);
-        final SessionCallback callback = new SessionCallback() {
-            @Override
-            public int onPrepareFromMediaId(@NonNull MediaSession session,
-                    @NonNull ControllerInfo controller, @NonNull String mediaId, Bundle extras) {
-                assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(request, mediaId);
-                assertTrue(TestUtils.equals(bundle, extras));
-                latch.countDown();
-                return RESULT_SUCCESS;
-            }
-        };
-        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
-                .setSessionCallback(sHandlerExecutor, callback)
-                .setId("testPrepareFromMediaId").build()) {
-            RemoteMediaControllerCompat controller = new RemoteMediaControllerCompat(
-                    mContext, session.getSessionCompat().getSessionToken(), true);
-            controller.getTransportControls().prepareFromMediaId(request, bundle);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
