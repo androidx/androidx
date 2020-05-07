@@ -199,6 +199,7 @@ class IsDisplayedTests {
             Semantics(container = true, properties = {
                 ScrollTo(action = { _, _ ->
                     wasScrollToCalled = true
+                    return@ScrollTo true
                 })
             }) {
                 Box {
@@ -247,6 +248,7 @@ class IsDisplayedTests {
                 ScrollTo(action = { x, y ->
                     currentScrollPositionY = y
                     currentScrollPositionX = x
+                    return@ScrollTo true
                 })
             }) {
                 val red = Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0)

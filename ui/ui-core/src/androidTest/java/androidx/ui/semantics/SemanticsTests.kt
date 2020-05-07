@@ -357,7 +357,10 @@ class SemanticsTests {
         composeTestRule.setContent {
             Semantics(container = true, properties = {
                 accessibilityLabel = if (isAfter.value) afterLabel else beforeLabel
-                onClick(action = if (isAfter.value) afterAction else beforeAction)
+                onClick(action = {
+                    if (isAfter.value) afterAction() else beforeAction()
+                    return@onClick true
+                })
                 testTag = TestTag
             }) {
                 SimpleTestLayout {

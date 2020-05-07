@@ -60,11 +60,11 @@ object SemanticsProperties {
 class SemanticsActions {
     companion object {
         // action to be performed when the node is clicked
-        val OnClick = SemanticsPropertyKey<AccessibilityAction<() -> Unit>>("OnClick")
+        val OnClick = SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>("OnClick")
 
         // action to scroll to a specified position
         val ScrollTo =
-            SemanticsPropertyKey<AccessibilityAction<(x: Px, y: Px) -> Unit>>("ScrollTo")
+            SemanticsPropertyKey<AccessibilityAction<(x: Px, y: Px) -> Boolean>>("ScrollTo")
 
         // custom actions which are defined by app developers
         val CustomActions =
@@ -128,10 +128,12 @@ open class SemanticsPropertyKey<T>(
  * Data class for standard accessibility action.
  *
  * @param label The description of this action
- * @param action The function to invoke when this action is performed
+ * @param action The function to invoke when this action is performed. The function should return
+ * a boolean result indicating whether the action is successfully handled. For example, a scroll
+ * forward action should return false if the widget is not enabled or has reached the end of the
+ * list.
  */
-// TODO(b/154873019): Change Function<Unit> to Function<Boolean>
-data class AccessibilityAction<T : Function<Unit>>(val label: CharSequence?, val action: T) {
+data class AccessibilityAction<T : Function<Boolean>>(val label: CharSequence?, val action: T) {
     // TODO(b/145951226): Workaround for a bytecode issue, remove this
     override fun hashCode(): Int {
         var result = label?.hashCode() ?: 0
@@ -184,11 +186,11 @@ var SemanticsPropertyReceiver.onClick by SemanticsActions.OnClick
 
 var SemanticsPropertyReceiver.ScrollTo by SemanticsActions.ScrollTo
 
-fun SemanticsPropertyReceiver.onClick(label: String? = null, action: () -> Unit) {
+fun SemanticsPropertyReceiver.onClick(label: String? = null, action: () -> Boolean) {
     this[SemanticsActions.OnClick] = AccessibilityAction(label, action)
 }
 
-fun SemanticsPropertyReceiver.ScrollTo(label: String? = null, action: (x: Px, y: Px) -> Unit) {
+fun SemanticsPropertyReceiver.ScrollTo(label: String? = null, action: (x: Px, y: Px) -> Boolean) {
     this[SemanticsActions.ScrollTo] = AccessibilityAction(label, action)
 }
 

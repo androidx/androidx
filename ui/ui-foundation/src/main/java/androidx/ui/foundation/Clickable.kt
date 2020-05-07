@@ -67,7 +67,7 @@ fun Clickable(
         properties = {
             this.enabled = enabled
             if (enabled) {
-                onClick(action = onClick, label = onClickLabel)
+                onClick(action = { onClick(); return@onClick true }, label = onClickLabel)
             }
         }
     ) {
