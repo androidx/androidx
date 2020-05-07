@@ -219,38 +219,38 @@ private class WrappedComposition(
     private var addedToLifecycle: Lifecycle? = null
 
     override fun setContent(content: @Composable () -> Unit) {
-        val lifecycle = owner.lifecycleOwner?.lifecycle
-        if (lifecycle != null) {
-            if (addedToLifecycle == null) {
-                addedToLifecycle = lifecycle
-                lifecycle.addObserver(this)
-            }
-            if (owner.savedStateRegistry != null) {
-                original.setContent {
-                    @Suppress("UNCHECKED_CAST")
-                    (owner.view.getTag(R.id.inspection_slot_table_set) as? MutableSet<SlotTable>)
+        owner.setOnViewTreeOwnersAvailable {
+            if (!disposed) {
+                if (addedToLifecycle == null) {
+                    val lifecycle = it.lifecycleOwner.lifecycle
+                    lifecycle.addObserver(this)
+                    addedToLifecycle = lifecycle
+                }
+                if (owner.savedStateRegistry != null) {
+                    original.setContent {
+                        @Suppress("UNCHECKED_CAST")
+                        (owner.view.getTag(R.id.inspection_slot_table_set) as?
+                                MutableSet<SlotTable>)
                             ?.let {
                                 val composer = currentComposer
                                 @OptIn(InternalComposeApi::class)
                                 composer.collectKeySourceInformation()
                                 it.add(composer.slotTable)
                             }
-                    ProvideAndroidAmbients(owner) {
-                        WrapWithSelectionContainer(content)
+                        ProvideAndroidAmbients(owner) {
+                            WrapWithSelectionContainer(content)
+                        }
+                    }
+                } else {
+                    // TODO(Andrey) unify setOnSavedStateRegistryAvailable and
+                    //  whenViewTreeOwnersAvailable so we will postpone until we have everything.
+                    //  we should migrate to androidx SavedStateRegistry first
+                    // we will postpone the composition until composeView restores the state.
+                    owner.setOnSavedStateRegistryAvailable {
+                        if (!disposed) setContent(content)
                     }
                 }
-            } else {
-                // TODO(Andrey) unify setOnSavedStateRegistryAvailable and
-                //  setOnLifecycleOwnerAvailable so we will postpone until we have everything.
-                //  we should migrate to androidx SavedStateRegistry first
-                // we will postpone the composition until composeView restores the state.
-                owner.setOnSavedStateRegistryAvailable {
-                    if (!disposed) setContent(content)
-                }
             }
-        } else {
-            // we will postpone the composition until we got the lifecycle owner
-            owner.setOnLifecycleOwnerAvailable { if (!disposed) setContent(content) }
         }
     }
 

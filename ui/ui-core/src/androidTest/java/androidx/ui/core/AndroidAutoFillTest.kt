@@ -19,7 +19,6 @@ package androidx.ui.core
 import android.graphics.Rect
 import android.util.SparseArray
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.autofill.AutofillValue
 import androidx.autofill.HintConstants.AUTOFILL_HINT_PERSON_NAME
@@ -47,13 +46,12 @@ class AndroidAutoFillTest {
 
     private var autofill: Autofill? = null
     private lateinit var autofillTree: AutofillTree
-    private lateinit var ownerView: ViewGroup
+    private lateinit var ownerView: View
 
     @Before
     fun setup() {
         composeTestRule.setContent {
-            @Suppress("DEPRECATION")
-            ownerView = OwnerAmbient.current as ViewGroup
+            ownerView = ViewAmbient.current
             autofill = AutofillAmbient.current
             autofillTree = AutofillTreeAmbient.current
         }

@@ -16,12 +16,12 @@
 
 package androidx.ui.core.focus
 
-import android.view.ViewGroup
+import android.view.View
 import androidx.compose.Composable
 import androidx.test.filters.SmallTest
 import androidx.ui.core.focus.FocusDetailedState.Active
 import androidx.ui.core.focus.FocusDetailedState.Inactive
-import androidx.ui.core.OwnerAmbient
+import androidx.ui.core.ViewAmbient
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdleCompose
@@ -41,7 +41,7 @@ class OwnerFocusTest {
     @Test
     fun requestFocus_bringsViewInFocus() {
         // Arrange.
-        lateinit var ownerView: ViewGroup
+        lateinit var ownerView: View
         val modifier = FocusModifierImpl(Inactive)
         composeTestRule.setFocusableContent {
             ownerView = getOwner()
@@ -63,7 +63,7 @@ class OwnerFocusTest {
     @Test
     fun whenOwnerGainsFocus_focusModifiersAreUpdated() {
         // Arrange.
-        lateinit var ownerView: ViewGroup
+        lateinit var ownerView: View
         val modifier = FocusModifierImpl(Inactive)
         composeTestRule.setFocusableContent {
             ownerView = getOwner()
@@ -85,7 +85,7 @@ class OwnerFocusTest {
     @Test
     fun whenWindowGainsFocus_focusModifiersAreUpdated() {
         // Arrange.
-        lateinit var ownerView: ViewGroup
+        lateinit var ownerView: View
         val modifier = FocusModifierImpl(Inactive)
         composeTestRule.setFocusableContent {
             ownerView = getOwner()
@@ -106,7 +106,7 @@ class OwnerFocusTest {
     @Test
     fun whenOwnerLosesFocus_focusModifiersAreUpdated() {
         // Arrange.
-        lateinit var ownerView: ViewGroup
+        lateinit var ownerView: View
         val modifier = FocusModifierImpl(Inactive)
         composeTestRule.setFocusableContent {
             ownerView = getOwner()
@@ -130,7 +130,7 @@ class OwnerFocusTest {
     @Test
     fun whenWindowLosesFocus_focusStateIsUnchanged() {
         // Arrange.
-        lateinit var ownerView: ViewGroup
+        lateinit var ownerView: View
         lateinit var modifier: FocusModifier
         composeTestRule.setFocusableContent {
             ownerView = getOwner()
@@ -152,7 +152,6 @@ class OwnerFocusTest {
         }
     }
 
-    @Suppress("DEPRECATION")
     @Composable
-    private fun getOwner() = OwnerAmbient.current as ViewGroup
+    private fun getOwner() = ViewAmbient.current
 }

@@ -34,18 +34,26 @@ dependencies {
     implementation(KOTLIN_COROUTINES_ANDROID)
 
     api "androidx.annotation:annotation:1.1.0"
-    api "androidx.activity:activity:1.2.0-alpha02"
+    api "androidx.activity:activity:1.2.0-alpha05"
+
     api project(":ui:ui-unit")
     api project(":ui:ui-graphics")
     api project(":ui:ui-text-core")
     api project(":ui:ui-vector")
     api project(":ui:ui-animation-core")
+    api project(":ui:ui-saved-instance-state")
     implementation project(":ui:ui-util")
 
     implementation project(":compose:compose-runtime")
-    implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
-    implementation project(":ui:ui-saved-instance-state")
     implementation "androidx.autofill:autofill:1.0.0"
+
+    // we don't use these dependencies but we need to ensure at least these versions are used if
+    // the user adds these dependencies as otherwise AppCompatActivity and Fragment will not
+    // propagate ViewTree*Owners we are relying on and we will crash.
+    implementation "androidx.fragment:fragment:1.3.0-alpha05"
+    // due to b/152023266 we can't add these dependency right now
+    // to be fixed as part of b/158301343
+    // implementation "androidx.appcompat:appcompat:1.3.0-alpha01"
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
@@ -73,6 +81,8 @@ dependencies {
     androidTestImplementation project(":ui:ui-test-font")
     androidTestImplementation project(":ui:ui-layout")
     androidTestImplementation project(":ui:ui-foundation")
+    androidTestImplementation "androidx.fragment:fragment:1.2.4"
+    androidTestImplementation "androidx.appcompat:appcompat:1.1.0"
 }
 
 androidx {

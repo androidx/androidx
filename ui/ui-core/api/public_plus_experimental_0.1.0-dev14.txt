@@ -188,6 +188,7 @@ package androidx.ui.core {
     method public static androidx.compose.ProvidableAmbient<android.content.res.Configuration> getConfigurationAmbient();
     method public static androidx.compose.ProvidableAmbient<android.content.Context> getContextAmbient();
     method public static androidx.compose.ProvidableAmbient<androidx.lifecycle.LifecycleOwner> getLifecycleOwnerAmbient();
+    method public static androidx.compose.ProvidableAmbient<android.view.View> getViewAmbient();
   }
 
   public final class AndroidComposeViewKt {
@@ -198,14 +199,19 @@ package androidx.ui.core {
   public interface AndroidOwner extends androidx.ui.core.Owner {
     method public void addAndroidView(android.view.View view, androidx.ui.core.LayoutNode layoutNode);
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getConfigurationChangeObserver();
-    method public androidx.lifecycle.LifecycleOwner? getLifecycleOwner();
     method public android.view.View getView();
+    method public androidx.ui.core.AndroidOwner.ViewTreeOwners? getViewTreeOwners();
     method public void removeAndroidView(android.view.View view);
     method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setOnLifecycleOwnerAvailable(kotlin.jvm.functions.Function1<? super androidx.lifecycle.LifecycleOwner,kotlin.Unit> callback);
+    method public void setOnViewTreeOwnersAvailable(kotlin.jvm.functions.Function1<? super androidx.ui.core.AndroidOwner.ViewTreeOwners,kotlin.Unit> callback);
     property public abstract kotlin.jvm.functions.Function0<kotlin.Unit> configurationChangeObserver;
-    property public abstract androidx.lifecycle.LifecycleOwner? lifecycleOwner;
     property public abstract android.view.View view;
+    property public abstract androidx.ui.core.AndroidOwner.ViewTreeOwners? viewTreeOwners;
+  }
+
+  public static final class AndroidOwner.ViewTreeOwners {
+    ctor public AndroidOwner.ViewTreeOwners(androidx.lifecycle.LifecycleOwner lifecycleOwner);
+    method public androidx.lifecycle.LifecycleOwner getLifecycleOwner();
   }
 
   public final class ClipKt {

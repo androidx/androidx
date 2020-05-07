@@ -19,7 +19,9 @@
         <activity
             android:name="androidx.ui.framework.test.TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
-        <activity android:name="androidx.activity.ComponentActivity" />
         <activity android:name="androidx.ui.core.AndroidPointerInputTestActivity" />
+        <activity android:name="androidx.appcompat.app.AppCompatActivity"
+            android:theme="@style/Theme.AppCompat"/>
+        <activity android:name="androidx.fragment.app.FragmentActivity"/>
     </application>
 </manifest>

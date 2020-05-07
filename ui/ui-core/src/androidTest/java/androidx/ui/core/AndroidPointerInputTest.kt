@@ -16,11 +16,11 @@
 
 package androidx.ui.core
 
-import android.app.Activity
 import android.content.Context
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.activity.ComponentActivity
 import androidx.compose.Composable
 import androidx.compose.FrameManager
 import androidx.compose.Recomposer
@@ -445,4 +445,4 @@ fun countDown(block: (CountDownLatch) -> Unit) {
     assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue()
 }
 
-class AndroidPointerInputTestActivity : Activity()
+class AndroidPointerInputTestActivity : ComponentActivity()
