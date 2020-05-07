@@ -36,8 +36,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.toArgb
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
+import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.asTree
-import androidx.ui.tooling.tables
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxBounds
 import androidx.ui.unit.PxBounds
@@ -118,6 +118,7 @@ internal class ComposeViewAdapter : FrameLayout {
      */
     private var debugPaintBounds = false
     internal var viewInfos: List<ViewInfo> = emptyList()
+    private val slotTableRecord = SlotTableRecord.create()
 
     private val debugBoundsPaint = Paint().apply {
         pathEffect = DashPathEffect(floatArrayOf(5f, 10f, 15f, 20f), 0f)
@@ -188,7 +189,7 @@ internal class ComposeViewAdapter : FrameLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
-        viewInfos = tables.map { it.asTree() }.map { it.toViewInfo() }.toList()
+        viewInfos = slotTableRecord.store.map { it.asTree() }.map { it.toViewInfo() }.toList()
 
         if (debugViewInfos) {
             viewInfos.forEach {
@@ -230,7 +231,7 @@ internal class ComposeViewAdapter : FrameLayout {
         // ResourcesCompat can not load fonts within Layoutlib and, since Layoutlib always runs
         // the latest version, we do not need it.
         Providers(FontLoaderAmbient provides LayoutlibFontResourceLoader(context)) {
-            Inspectable(children)
+            Inspectable(slotTableRecord, children)
         }
     }
 
