@@ -34,6 +34,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -756,6 +757,7 @@ public class NotificationCompat {
         BubbleMetadata mBubbleMetadata;
         Notification mNotification = new Notification();
         boolean mSilent;
+        Icon mSmallIcon;
 
         /**
          * @deprecated This field was not meant to be public.
@@ -780,7 +782,6 @@ public class NotificationCompat {
         public Builder(@NonNull Context context, @NonNull String channelId) {
             mContext = context;
             mChannelId = channelId;
-
             // Set defaults to match the defaults of a Notification
             mNotification.when = System.currentTimeMillis();
             mNotification.audioStreamType = Notification.STREAM_DEFAULT;
@@ -813,6 +814,19 @@ public class NotificationCompat {
          */
         public Builder setShowWhen(boolean show) {
             mShowWhen = show;
+            return this;
+        }
+
+        /**
+         * Set the small icon to use in the notification layouts.  Different classes of devices
+         * may return different sizes.  See the UX guidelines for more information on how to
+         * design these icons.
+         *
+         * @param icon The small Icon object to use
+         */
+        @RequiresApi(23)
+        public @NonNull Builder setSmallIcon(@NonNull IconCompat icon) {
+            this.mSmallIcon = icon.toIcon(mContext);
             return this;
         }
 
