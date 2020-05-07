@@ -28,25 +28,4 @@ import androidx.annotation.FloatRange
  */
 fun Modifier.drawOpacity(
     @FloatRange(from = 0.0, to = 1.0) opacity: Float
-) = this + drawLayer(alpha = opacity, clipToBounds = true)
-
-/**
- * Makes its children partially transparent.
- *
- * Example usage:
- *
- * @sample androidx.ui.framework.samples.OpacitySample
- *
- * @param opacity the fraction of children's alpha value.
- */
-@Deprecated(
-    "Use Modifier.drawOpacity",
-    replaceWith = ReplaceWith(
-        "Modifier.drawOpacity(opacity)",
-        "androidx.ui.core.Modifier",
-        "androidx.ui.core.drawOpacity"
-    )
-)
-fun drawOpacity(
-    @FloatRange(from = 0.0, to = 1.0) opacity: Float
-): Modifier = Modifier.drawOpacity(opacity)
+) = drawLayer(alpha = opacity, clip = true)

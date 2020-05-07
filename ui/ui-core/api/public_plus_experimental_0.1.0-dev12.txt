@@ -171,8 +171,6 @@ package androidx.ui.core {
   public final class ClipKt {
     method public static androidx.ui.core.Modifier clip(androidx.ui.core.Modifier, androidx.ui.graphics.Shape shape);
     method public static androidx.ui.core.Modifier clipToBounds(androidx.ui.core.Modifier);
-    method @Deprecated public static androidx.ui.core.Modifier drawClip(androidx.ui.graphics.Shape shape);
-    method @Deprecated public static androidx.ui.core.Modifier getDrawClipToBounds();
   }
 
   public final class CombinedModifier implements androidx.ui.core.Modifier {
@@ -295,28 +293,26 @@ package androidx.ui.core {
 
   public interface DrawLayerModifier extends androidx.ui.core.Modifier.Element {
     method @FloatRange(from=0.0, to=1.0) public default float getAlpha();
-    method public default boolean getClipToBounds();
-    method public default boolean getClipToOutline();
-    method public default androidx.ui.graphics.Shape? getOutlineShape();
+    method public default boolean getClip();
     method @FloatRange(from=0.0, to=360.0) public default float getRotationX();
     method @FloatRange(from=0.0, to=360.0) public default float getRotationY();
     method @FloatRange(from=0.0, to=360.0) public default float getRotationZ();
     method public default float getScaleX();
     method public default float getScaleY();
     method @FloatRange(from=0.0) public default float getShadowElevation();
+    method public default androidx.ui.graphics.Shape getShape();
     method public default long getTransformOrigin();
     method public default float getTranslationX();
     method public default float getTranslationY();
     property @FloatRange(from=0.0, to=1.0) public default float alpha;
-    property public default boolean clipToBounds;
-    property public default boolean clipToOutline;
-    property public default androidx.ui.graphics.Shape? outlineShape;
+    property public default boolean clip;
     property @FloatRange(from=0.0, to=360.0) public default float rotationX;
     property @FloatRange(from=0.0, to=360.0) public default float rotationY;
     property @FloatRange(from=0.0, to=360.0) public default float rotationZ;
     property public default float scaleX;
     property public default float scaleY;
     property @FloatRange(from=0.0) public default float shadowElevation;
+    property public default androidx.ui.graphics.Shape shape;
     property public default long transformOrigin;
     property public default float translationX;
     property public default float translationY;
@@ -324,8 +320,7 @@ package androidx.ui.core {
 
   public final class DrawLayerModifierKt {
     method public static inline long TransformOrigin(float pivotFractionX, float pivotFractionY);
-    method public static androidx.ui.core.Modifier drawLayer-Z3WMmso(androidx.ui.core.Modifier, float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float translationX = 0f, float translationY = 0f, float shadowElevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, long transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = false, boolean clipToOutline = false);
-    method @Deprecated public static androidx.ui.core.Modifier drawLayer-ebHciuY(float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float translationX = 0f, float translationY = 0f, float elevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, long transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape? outlineShape = null, boolean clipToBounds = false, boolean clipToOutline = false);
+    method public static androidx.ui.core.Modifier drawLayer-RgGWxk0(androidx.ui.core.Modifier, float scaleX = 1f, float scaleY = 1f, float alpha = 1f, float translationX = 0f, float translationY = 0f, float shadowElevation = 0f, float rotationX = 0f, float rotationY = 0f, float rotationZ = 0f, long transformOrigin = TransformOrigin.Center, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, boolean clip = false);
   }
 
   public interface DrawModifier extends androidx.ui.core.Modifier.Element {
@@ -360,8 +355,7 @@ package androidx.ui.core {
   }
 
   public final class DrawShadowKt {
-    method @Deprecated public static androidx.ui.core.Modifier drawShadow-IFvMOQI(androidx.ui.graphics.Shape shape, float elevation, boolean clipToOutline = true, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
-    method public static androidx.ui.core.Modifier drawShadow-xWKVMPI(androidx.ui.core.Modifier, float elevation, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, boolean clipToOutline = elevation > 0.dp, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
+    method public static androidx.ui.core.Modifier drawShadow-xWKVMPI(androidx.ui.core.Modifier, float elevation, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, boolean clip = elevation > 0.dp, @FloatRange(from=0.0, to=1.0) float opacity = 1f);
   }
 
   public enum DropDownAlignment {
@@ -647,7 +641,6 @@ package androidx.ui.core {
 
   public final class OpacityKt {
     method public static androidx.ui.core.Modifier drawOpacity(androidx.ui.core.Modifier, @FloatRange(from=0.0, to=1.0) float opacity);
-    method @Deprecated public static androidx.ui.core.Modifier drawOpacity(@FloatRange(from=0.0, to=1.0) float opacity);
   }
 
   public interface OwnedLayer {
