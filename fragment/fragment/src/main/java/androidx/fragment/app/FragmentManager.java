@@ -2768,6 +2768,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                                 + fragmentWho);
                                 return;
                             }
+                            noteStateNotSaved();
                             fragment.onActivityResult(requestCode, result.getResultCode(),
                                     result.getData());
                         }
@@ -2796,6 +2797,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                                 + fragmentWho);
                                 return;
                             }
+                            noteStateNotSaved();
                             fragment.onActivityResult(requestCode, result.getResultCode(),
                                     result.getData());
                         }
@@ -2831,6 +2833,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                         + "Fragment " + fragmentWho);
                                 return;
                             }
+                            noteStateNotSaved();
                             fragment.onRequestPermissionsResult(requestCode, permissions,
                                     grantResults);
                         }
