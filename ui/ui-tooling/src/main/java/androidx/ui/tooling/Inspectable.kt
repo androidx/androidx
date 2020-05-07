@@ -24,17 +24,38 @@ import java.util.Collections
 import java.util.WeakHashMap
 
 /**
- * A wrapper for compositions in inspection mode. The composition inside the Inspectable component
- * is in inspection mode.
+ * Storage for the preview generated [SlotTable]s.
  */
-@Composable
-fun Inspectable(children: @Composable() () -> Unit) {
-    currentComposer.collectKeySourceInformation()
-    tables.add(currentComposer.slotTable)
-    Providers(InspectionMode provides true, children = children)
+internal interface SlotTableRecord {
+    val store: Set<SlotTable>
+
+    companion object {
+        fun create(): SlotTableRecord = SlotTableRecordImpl()
+    }
 }
 
-val tables = Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>())
+private class SlotTableRecordImpl : SlotTableRecord {
+    override val store: MutableSet<SlotTable> =
+        Collections.newSetFromMap(WeakHashMap<SlotTable, Boolean>())
+}
+
+/**
+ * A wrapper for compositions in inspection mode. The composition inside the Inspectable component
+ * is in inspection mode.
+ *
+ * @param slotTableRecord [SlotTableRecord] to record the SlotTable used in the composition of [children]
+ *
+ * @suppress
+ */
+@Composable
+internal fun Inspectable(
+    slotTableRecord: SlotTableRecord,
+    children: @Composable() () -> Unit
+) {
+    currentComposer.collectKeySourceInformation()
+    (slotTableRecord as SlotTableRecordImpl).store.add(currentComposer.slotTable)
+    Providers(InspectionMode provides true, children = children)
+}
 
 /**
  * A wrapper for inspection-mode-only behavior. The children of this component will only be included
