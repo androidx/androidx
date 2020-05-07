@@ -19,6 +19,7 @@ import androidx.datastore.handlers.NoOpCorruptionHandler
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -43,12 +44,10 @@ import java.io.IOException
 import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicReference
 
-@ObsoleteCoroutinesApi
-@kotlinx.coroutines.ExperimentalCoroutinesApi
-@FlowPreview
 /**
  * Single process implementation of DataStore. This is NOT multi-process safe.
  */
+@OptIn(ExperimentalCoroutinesApi::class, ObsoleteCoroutinesApi::class, FlowPreview::class)
 class SingleProcessDataStore<T>(
     private val produceFile: () -> File,
     private val serializer: DataStore.Serializer<T>,

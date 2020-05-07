@@ -16,10 +16,15 @@
 
 package androidx.datastore
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+
 /**
  * Returns an initializer function created from a list of DataMigrations.
+ * @hide
  */
-internal class DataMigrationInitializer<T>() {
+@RestrictTo(LIBRARY_GROUP)
+class DataMigrationInitializer<T>() {
     companion object {
         /**
          * Creates an initializer from DataMigrations for use with DataStore.
