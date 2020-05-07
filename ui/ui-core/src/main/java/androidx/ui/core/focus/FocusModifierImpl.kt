@@ -16,14 +16,16 @@
 
 package androidx.ui.core.focus
 
-import androidx.compose.Model
+import androidx.compose.getValue
+import androidx.compose.mutableStateOf
+import androidx.compose.setValue
 
-@Model
 internal class FocusModifierImpl(
-    override var focusDetailedState: FocusDetailedState,
+    focusDetailedState: FocusDetailedState,
     var focusNode: ModifiedFocusNode? = null
 ) : FocusModifier {
 
+    override var focusDetailedState: FocusDetailedState by mutableStateOf(focusDetailedState)
     var focusedChild: ModifiedFocusNode? = null
 
     override fun requestFocus() {
