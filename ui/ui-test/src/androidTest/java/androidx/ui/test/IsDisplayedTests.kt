@@ -42,7 +42,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.sp
-import androidx.ui.unit.toRect
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Rule

@@ -26,7 +26,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutDirection
 import androidx.ui.graphics.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.input.EditorValue
 import androidx.ui.input.OffsetMap
 import androidx.ui.text.font.Font

@@ -33,10 +33,8 @@ import androidx.ui.foundation.Border
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.foundation.drawBorder
-import androidx.ui.geometry.toRect
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.clipRect
-import androidx.ui.graphics.withSave
 import androidx.ui.layout.Column
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.preferredHeight
@@ -47,7 +45,6 @@ import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
 import androidx.ui.unit.px
 import androidx.ui.unit.round
-import androidx.ui.unit.toRect
 
 /**
  * Demonstration for how multiple DragGestureDetectors interact.

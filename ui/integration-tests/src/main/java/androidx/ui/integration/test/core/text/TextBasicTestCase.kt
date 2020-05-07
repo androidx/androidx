@@ -25,7 +25,6 @@ import androidx.ui.integration.test.RandomTextGenerator
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.wrapContentSize
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.text.TextStyle
 import androidx.ui.unit.dp
 import androidx.ui.unit.sp
 
