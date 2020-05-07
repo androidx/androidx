@@ -16,6 +16,35 @@
 
 package androidx.activity.result;
 
+import static android.content.Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
+import static android.content.Intent.FLAG_ACTIVITY_FORWARD_RESULT;
+import static android.content.Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY;
+import static android.content.Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT;
+import static android.content.Intent.FLAG_ACTIVITY_MATCH_EXTERNAL;
+import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
+import static android.content.Intent.FLAG_ACTIVITY_NO_HISTORY;
+import static android.content.Intent.FLAG_ACTIVITY_NO_USER_ACTION;
+import static android.content.Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT;
+import static android.content.Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
+import static android.content.Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
+import static android.content.Intent.FLAG_DEBUG_LOG_RESOLUTION;
+import static android.content.Intent.FLAG_EXCLUDE_STOPPED_PACKAGES;
+import static android.content.Intent.FLAG_FROM_BACKGROUND;
+import static android.content.Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION;
+import static android.content.Intent.FLAG_GRANT_PREFIX_URI_PERMISSION;
+import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
+import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+import static android.content.Intent.FLAG_INCLUDE_STOPPED_PACKAGES;
+
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -23,6 +52,7 @@ import android.content.IntentSender;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -130,6 +160,21 @@ public final class IntentSenderRequest implements Parcelable {
         private int mFlagsMask;
         private int mFlagsValues;
 
+        @IntDef({FLAG_GRANT_READ_URI_PERMISSION, FLAG_GRANT_WRITE_URI_PERMISSION,
+                FLAG_FROM_BACKGROUND, FLAG_DEBUG_LOG_RESOLUTION, FLAG_EXCLUDE_STOPPED_PACKAGES,
+                FLAG_INCLUDE_STOPPED_PACKAGES, FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
+                FLAG_GRANT_PREFIX_URI_PERMISSION, FLAG_ACTIVITY_MATCH_EXTERNAL,
+                FLAG_ACTIVITY_NO_HISTORY, FLAG_ACTIVITY_SINGLE_TOP, FLAG_ACTIVITY_NEW_TASK,
+                FLAG_ACTIVITY_MULTIPLE_TASK, FLAG_ACTIVITY_CLEAR_TOP,
+                FLAG_ACTIVITY_FORWARD_RESULT, FLAG_ACTIVITY_PREVIOUS_IS_TOP,
+                FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS, FLAG_ACTIVITY_BROUGHT_TO_FRONT,
+                FLAG_ACTIVITY_RESET_TASK_IF_NEEDED, FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY,
+                FLAG_ACTIVITY_NEW_DOCUMENT, FLAG_ACTIVITY_NO_USER_ACTION,
+                FLAG_ACTIVITY_REORDER_TO_FRONT, FLAG_ACTIVITY_NO_ANIMATION,
+                FLAG_ACTIVITY_CLEAR_TASK, FLAG_ACTIVITY_TASK_ON_HOME,
+                FLAG_ACTIVITY_RETAIN_IN_RECENTS, FLAG_ACTIVITY_LAUNCH_ADJACENT})
+        private @interface Flag {}
+
         /**
          * Constructor that takes an {@link IntentSender} and sets it for the builder.
          *
@@ -174,7 +219,7 @@ public final class IntentSenderRequest implements Parcelable {
          * @return This builder.
          */
         @NonNull
-        public Builder setFlags(int values, int mask) {
+        public Builder setFlags(@Flag int values, int mask) {
             mFlagsValues = values;
             mFlagsMask = mask;
             return this;
