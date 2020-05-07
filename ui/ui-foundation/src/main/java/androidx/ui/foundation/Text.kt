@@ -217,7 +217,7 @@ private val TextStyleAmbient = ambientOf(StructurallyEqual) { TextStyle() }
  * styled explicitly.
  */
 @Composable
-fun ProvideTextStyle(value: TextStyle, children: @Composable() () -> Unit) {
+fun ProvideTextStyle(value: TextStyle, children: @Composable () -> Unit) {
     val mergedStyle = currentTextStyle().merge(value)
     Providers(TextStyleAmbient provides mergedStyle, children = children)
 }

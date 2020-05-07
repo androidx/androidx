@@ -35,7 +35,7 @@ import androidx.compose.Composable
             "layout children to recognize them inside the measure block."
 )
 @Composable
-inline fun ParentData(data: Any, crossinline children: @Composable() () -> Unit) {
+inline fun ParentData(data: Any, crossinline children: @Composable () -> Unit) {
     DataNode(key = ParentDataKey, value = data) {
         children()
     }

@@ -98,7 +98,7 @@ fun ExplicitAutofillTypesDemo() {
 private fun Autofill(
     autofillTypes: List<AutofillType>,
     onFill: ((String) -> Unit),
-    children: @Composable() (AutofillNode) -> Unit
+    children: @Composable (AutofillNode) -> Unit
 ) {
     val autofillNode = AutofillNode(onFill = onFill, autofillTypes = autofillTypes)
 

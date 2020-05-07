@@ -76,7 +76,7 @@ private fun HorizontalTailFollowingTextField(
     textStyle: TextStyle = TextStyle(fontSize = fontSize8)
 ) {
     Layout(
-        children = @Composable() {
+        children = @Composable {
             TextField(
                 value = value,
                 onValueChange = onValueChange,
@@ -112,7 +112,7 @@ private fun VerticalTailFollowintTextField(
     textStyle: TextStyle = TextStyle(fontSize = fontSize8)
 ) {
     Layout(
-        children = @Composable() {
+        children = @Composable {
             TextField(
                 value = value,
                 onValueChange = onValueChange,

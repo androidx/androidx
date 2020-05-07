@@ -46,7 +46,7 @@ open class ToolingTest {
         activityTestRule.onUiThread { handler = Handler() }
     }
 
-    internal fun show(composable: @Composable() () -> Unit) {
+    internal fun show(composable: @Composable () -> Unit) {
         positionedLatch = CountDownLatch(1)
         activityTestRule.onUiThread {
             activity.setContent {

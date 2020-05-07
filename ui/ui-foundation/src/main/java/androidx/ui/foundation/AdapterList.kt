@@ -64,7 +64,7 @@ private inline class LayoutIndex(val value: Int)
 
 private class ListState<T> {
     lateinit var recomposer: Recomposer
-    lateinit var itemCallback: @Composable() (T) -> Unit
+    lateinit var itemCallback: @Composable (T) -> Unit
     lateinit var data: List<T>
 
     var forceRecompose = false
@@ -513,7 +513,7 @@ private class ListState<T> {
 fun <T> AdapterList(
     data: List<T>,
     modifier: Modifier = Modifier,
-    itemCallback: @Composable() (T) -> Unit
+    itemCallback: @Composable (T) -> Unit
 ) {
     val state = remember { ListState<T>() }
     state.recomposer = currentComposer.recomposer
