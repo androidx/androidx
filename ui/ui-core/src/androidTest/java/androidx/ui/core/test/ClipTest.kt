@@ -378,11 +378,9 @@ class ClipTest {
         }
 
         val clip = object : DrawLayerModifier {
-            override val outlineShape: Shape?
+            override val shape: Shape
                 get() = model.value
-            override val clipToBounds: Boolean
-                get() = true
-            override val clipToOutline: Boolean
+            override val clip: Boolean
                 get() = true
         }
 

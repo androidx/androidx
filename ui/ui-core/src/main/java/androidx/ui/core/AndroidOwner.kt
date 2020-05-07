@@ -115,7 +115,7 @@ internal class AndroidComposeView constructor(
         it.measureBlocks = RootMeasureBlocks
         it.layoutDirection =
             context.applicationContext.resources.configuration.localeLayoutDirection
-        it.modifier = Modifier.drawLayer(clipToBounds = false) + focusModifier
+        it.modifier = Modifier.drawLayer() + focusModifier
     }
 
     // LayoutNodes that need measure and layout

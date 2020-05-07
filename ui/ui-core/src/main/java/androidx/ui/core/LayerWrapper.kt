@@ -125,8 +125,7 @@ internal class LayerWrapper(
     }
 
     override fun rectInParent(bounds: RectF) {
-        if ((modifier.clipToBounds ||
-                    (modifier.clipToOutline && modifier.outlineShape != null)) &&
+        if (modifier.clip &&
             !bounds.intersect(0f, 0f, size.width.value.toFloat(), size.height.value.toFloat())
         ) {
             bounds.setEmpty()

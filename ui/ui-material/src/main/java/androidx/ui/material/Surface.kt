@@ -89,7 +89,7 @@ fun Surface(
     content: @Composable() () -> Unit
 ) {
     SurfaceLayout(
-        modifier.drawShadow(elevation = elevation, shape = shape, clipToOutline = false)
+        modifier.drawShadow(elevation = elevation, shape = shape, clip = false)
             .zIndex(elevation.value)
             .plus(if (border != null) Modifier.drawBorder(border, shape) else Modifier)
             .drawBackground(
