@@ -30,6 +30,7 @@ import androidx.compose.onActive
 import androidx.compose.onCommit
 import androidx.compose.remember
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.core.ViewAmbient
 import androidx.ui.core.setContent
 import androidx.ui.foundation.semantics.dialog
@@ -89,6 +90,7 @@ private class DialogWrapper(
         window!!.setBackgroundDrawableResource(android.R.color.transparent)
         setContentView(frameLayout)
         ViewTreeLifecycleOwner.set(frameLayout, ViewTreeLifecycleOwner.get(composeView))
+        ViewTreeViewModelStoreOwner.set(frameLayout, ViewTreeViewModelStoreOwner.get(composeView))
     }
 
     fun setContent(children: @Composable () -> Unit) {

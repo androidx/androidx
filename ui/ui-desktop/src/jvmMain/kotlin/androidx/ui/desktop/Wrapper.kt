@@ -28,7 +28,9 @@ import androidx.compose.Recomposer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.ui.core.setContent
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.input.TextInputService
@@ -56,6 +58,9 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
                 currentState = Lifecycle.State.RESUMED
             }
             override fun getLifecycle() = lifecycleRegistry
+        })
+        ViewTreeViewModelStoreOwner.set(viewGroup, ViewModelStoreOwner {
+            throw IllegalStateException("ViewModels creation is not supported")
         })
         viewGroup.setContent(Recomposer.current(), @Composable {
             Providers(TextInputServiceAmbient provides TextInputService(
