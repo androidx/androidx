@@ -17,44 +17,24 @@
 package androidx.ui.text.demos
 
 import androidx.compose.Composable
-import androidx.compose.emptyContent
-import androidx.compose.state
 import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
-import androidx.ui.core.tag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
 import androidx.ui.foundation.TextField
-import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.drawBackground
-import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.input.ImeAction
-import androidx.ui.input.KeyboardType
-import androidx.ui.input.OffsetMap
-import androidx.ui.input.PasswordVisualTransformation
-import androidx.ui.input.TransformedText
-import androidx.ui.input.VisualTransformation
 import androidx.ui.layout.Column
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.LocaleList
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.layout.height
 import androidx.ui.layout.padding
 import androidx.ui.savedinstancestate.savedInstanceState
-import androidx.ui.text.TextLayoutResult
 import androidx.ui.text.TextStyle
-import androidx.ui.text.toUpperCase
-import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.max
 import androidx.ui.unit.min
-import androidx.ui.unit.px
 
 @Composable
 fun TailFollowingTextFieldDemo() {

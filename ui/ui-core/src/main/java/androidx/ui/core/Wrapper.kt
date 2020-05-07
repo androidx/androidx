@@ -51,7 +51,6 @@ import androidx.ui.core.hapticfeedback.HapticFeedback
 import androidx.ui.core.input.FocusManager
 import androidx.ui.core.input.FocusManagerImpl
 import androidx.ui.core.selection.SelectionContainer
-import androidx.ui.core.R
 import androidx.ui.core.texttoolbar.TextToolbar
 import androidx.ui.input.TextInputService
 import androidx.ui.node.UiComposer

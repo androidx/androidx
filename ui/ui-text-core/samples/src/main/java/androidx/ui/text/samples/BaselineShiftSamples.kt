@@ -21,7 +21,6 @@ import androidx.compose.Composable
 import androidx.ui.foundation.Text
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SpanStyle
-import androidx.ui.text.TextStyle
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.withStyle
 import androidx.ui.unit.sp
