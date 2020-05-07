@@ -505,7 +505,7 @@ class ButtonTest {
 
     private fun assertLeftPaddingIs(
         padding: Dp,
-        button: @Composable() (@Composable() () -> Unit) -> Unit
+        button: @Composable (@Composable () -> Unit) -> Unit
     ) {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null

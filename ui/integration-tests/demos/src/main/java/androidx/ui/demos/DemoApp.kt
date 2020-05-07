@@ -138,7 +138,7 @@ private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Un
 @Composable
 private fun DemoAppBar(
     title: String,
-    navigationIcon: @Composable() (() -> Unit)?,
+    navigationIcon: @Composable (() -> Unit)?,
     isFiltering: Boolean,
     filterText: TextFieldValue,
     onFilter: (TextFieldValue) -> Unit,

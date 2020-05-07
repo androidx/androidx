@@ -30,9 +30,9 @@ import androidx.ui.unit.ipx
 
 @Composable
 fun HeaderFooterLayout(
-    header: @Composable() () -> Unit,
-    footer: @Composable() () -> Unit,
-    content: @Composable() () -> Unit
+    header: @Composable () -> Unit,
+    footer: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     Layout({
         Box(Modifier.tag("header"), children = header)

@@ -30,7 +30,7 @@ import androidx.ui.unit.sp
 val rallyGreen = Color(0xFF1EB980)
 
 @Composable
-fun RallyTheme(content: @Composable() () -> Unit) {
+fun RallyTheme(content: @Composable () -> Unit) {
     val colors = darkColorPalette(
         primary = Color.White,
         surface = Color(0xFF26282F),
@@ -104,7 +104,7 @@ fun RallyTheme(content: @Composable() () -> Unit) {
 }
 
 @Composable
-fun RallyDialogThemeOverlay(content: @Composable() () -> Unit) {
+fun RallyDialogThemeOverlay(content: @Composable () -> Unit) {
     val dialogColors = darkColorPalette(
         primary = Color.White,
         surface = Color(0xFF1E1E1E),

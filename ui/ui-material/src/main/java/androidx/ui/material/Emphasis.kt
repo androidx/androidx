@@ -97,7 +97,7 @@ interface EmphasisLevels {
  * @sample androidx.ui.material.samples.EmphasisSample
  */
 @Composable
-fun ProvideEmphasis(emphasis: Emphasis, content: @Composable() () -> Unit) {
+fun ProvideEmphasis(emphasis: Emphasis, content: @Composable () -> Unit) {
     val emphasizedColor = emphasis.emphasize(contentColor())
     Providers(ContentColorAmbient provides emphasizedColor, children = content)
 }

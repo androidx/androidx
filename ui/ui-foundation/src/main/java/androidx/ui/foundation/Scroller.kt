@@ -207,7 +207,7 @@ fun VerticalScroller(
     scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier,
     isScrollable: Boolean = true,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     Scroller(scrollerPosition, modifier, true, isScrollable, child)
 }
@@ -237,7 +237,7 @@ fun HorizontalScroller(
     scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier,
     isScrollable: Boolean = true,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     Scroller(scrollerPosition, modifier, false, isScrollable, child)
 }
@@ -248,7 +248,7 @@ private fun Scroller(
     modifier: Modifier,
     isVertical: Boolean,
     isScrollable: Boolean,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     val direction =
         if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
@@ -282,7 +282,7 @@ private fun ScrollerLayout(
     scrollerPosition: ScrollerPosition,
     modifier: Modifier,
     isVertical: Boolean,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     Layout(
         modifier = modifier.clipToBounds(),

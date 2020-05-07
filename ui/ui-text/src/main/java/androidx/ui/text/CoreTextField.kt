@@ -72,7 +72,7 @@ fun CoreTextField(
     // incrementing generation counter when we callback to the developer and reset the state with
     // the latest state.
     val generation = state { 0 }
-    val Wrapper: @Composable() (Int, @Composable() () -> Unit) -> Unit = { _, child -> child() }
+    val Wrapper: @Composable (Int, @Composable () -> Unit) -> Unit = { _, child -> child() }
     val onValueChangeWrapper: (EditorValue) -> Unit = { onValueChange(it); generation.value++ }
 
     Wrapper(generation.value) {
@@ -270,7 +270,7 @@ private fun TextInputEventObserver(
     onFocus: () -> Unit,
     onBlur: (hasNextClient: Boolean) -> Unit,
     focusModifier: FocusModifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     val prevState = state { FocusState.NotFocused }
     if (focusModifier.focusState == FocusState.Focused &&

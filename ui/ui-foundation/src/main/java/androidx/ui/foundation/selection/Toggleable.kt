@@ -53,7 +53,7 @@ fun Toggleable(
     onValueChange: (Boolean) -> Unit,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     TriStateToggleable(
         state = ToggleableState(value),
@@ -91,7 +91,7 @@ fun TriStateToggleable(
     onClick: () -> Unit,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     // TODO(pavlis): Handle multiple states for Semantics
     Semantics(container = true, properties = {

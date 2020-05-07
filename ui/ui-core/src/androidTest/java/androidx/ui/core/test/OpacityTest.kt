@@ -232,7 +232,7 @@ class OpacityTest {
 }
 
 @Composable
-fun Row(modifier: Modifier = Modifier, children: @Composable() () -> Unit) {
+fun Row(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
         var width = 0.ipx

@@ -44,7 +44,7 @@ fun MutuallyExclusiveSetItem(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     // TODO: when semantics can be merged, we should make this use Clickable internally rather
     //  than duplicating logic

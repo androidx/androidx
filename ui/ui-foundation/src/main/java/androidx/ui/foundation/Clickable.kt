@@ -60,7 +60,7 @@ fun Clickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     interactionState: InteractionState? = null,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Semantics(
         container = true,

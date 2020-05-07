@@ -47,7 +47,7 @@ fun NestedPressDemo() {
 @Composable
 private fun PressableContainer(
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit = {}
+    children: @Composable () -> Unit = {}
 ) {
     val defaultColor = DefaultBackgroundColor
     val pressedColor = PressedColor

@@ -392,7 +392,7 @@ private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: Semanti
  * children reasonably.  Useful for Semantics hierarchy testing
  */
 @Composable
-private fun SimpleTestLayout(children: @Composable() () -> Unit) {
+private fun SimpleTestLayout(children: @Composable () -> Unit) {
     Layout(children = children) { measurables, constraints, _ ->
         if (measurables.isEmpty()) {
             layout(constraints.minWidth, constraints.minHeight) {}

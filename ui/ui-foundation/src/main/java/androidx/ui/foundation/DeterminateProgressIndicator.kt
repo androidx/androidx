@@ -38,7 +38,7 @@ import kotlin.math.roundToInt
 @Composable
 fun DeterminateProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     if (progress !in 0f..1f) {
         throw IllegalArgumentException("Progress must be between 0.0 and 1.0")

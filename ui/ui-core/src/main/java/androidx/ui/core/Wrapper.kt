@@ -71,7 +71,7 @@ import kotlin.coroutines.CoroutineContext
 // TODO: Remove this API when View/ComponentNode mixed trees work
 fun ViewGroup.setViewContent(
     parent: CompositionReference? = null,
-    composable: @Composable() () -> Unit
+    composable: @Composable () -> Unit
 ): Composition = compositionFor(
     context = context,
     container = this,
@@ -92,7 +92,7 @@ fun ViewGroup.setViewContent(
  * @see Activity.setContentView
  */
 // TODO: Remove this API when View/ComponentNode mixed trees work
-fun Activity.setViewContent(composable: @Composable() () -> Unit): Composition {
+fun Activity.setViewContent(composable: @Composable () -> Unit): Composition {
     // TODO(lmr): add ambients here, or remove API entirely if we can
     // If there is already a FrameLayout in the root, we assume we want to compose
     // into it instead of create a new one. This allows for `setContent` to be
@@ -114,7 +114,7 @@ fun subcomposeInto(
     container: ComponentNode,
     recomposer: Recomposer,
     parent: CompositionReference? = null,
-    composable: @Composable() () -> Unit
+    composable: @Composable () -> Unit
 ): Composition = compositionFor(context, container, recomposer, parent).apply {
     setContent(composable)
 }
@@ -131,7 +131,7 @@ fun subcomposeInto(
     container: ComponentNode,
     context: Context,
     parent: CompositionReference? = null,
-    composable: @Composable() () -> Unit
+    composable: @Composable () -> Unit
 ): Composition = subcomposeInto(context, container, Recomposer.current(), parent, composable)
 
 /**
@@ -147,7 +147,7 @@ fun ComponentActivity.setContent(
     // Note: Recomposer.current() is the default here since all Activity view trees are hosted
     // on the main thread.
     recomposer: Recomposer = Recomposer.current(),
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ): Composition = setContent(this, recomposer, content)
 
 /**
@@ -161,13 +161,13 @@ fun ComponentActivity.setContent(
             "or AppCompatActivity"
 )
 fun Activity.setContent(
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ): Composition = setContent(null, Recomposer.current(), content)
 
 private fun Activity.setContent(
     lifecycleOwner: LifecycleOwner?,
     recomposer: Recomposer,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ): Composition {
     FrameManager.ensureStarted()
     val composeView: AndroidOwner = window.decorView
@@ -184,7 +184,7 @@ private fun Activity.setContent(
  * level [SelectionContainer] is installed at the root.
  */
 @Composable
-private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
+private fun WrapWithSelectionContainer(content: @Composable () -> Unit) {
     SelectionContainer(children = content)
 }
 
@@ -199,7 +199,7 @@ private fun WrapWithSelectionContainer(content: @Composable() () -> Unit) {
  */
 fun ViewGroup.setContent(
     recomposer: Recomposer,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ): Composition {
     FrameManager.ensureStarted()
     val composeView =
@@ -228,14 +228,14 @@ fun ViewGroup.setContent(
     )
 )
 fun ViewGroup.setContent(
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ): Composition = setContent(Recomposer.current(), content)
 
 private fun doSetContent(
     context: Context,
     owner: AndroidOwner,
     recomposer: Recomposer,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ): Composition {
     val original = compositionFor(context, owner.root, recomposer)
     val wrapped = owner.view.getTag(R.id.wrapped_composition_tag)
@@ -255,7 +255,7 @@ private class WrappedComposition(
     private var disposed = false
     private var addedToLifecycle: Lifecycle? = null
 
-    override fun setContent(content: @Composable() () -> Unit) {
+    override fun setContent(content: @Composable () -> Unit) {
         val lifecycle = owner.lifecycleOwner?.lifecycle
         if (lifecycle != null) {
             if (addedToLifecycle == null) {
@@ -305,7 +305,7 @@ private fun WrapWithAmbients(
     owner: Owner,
     context: Context,
     coroutineContext: CoroutineContext,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
     //             with nested AndroidComposeView case
