@@ -38,7 +38,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -65,7 +65,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -96,7 +96,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -124,7 +124,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -152,7 +152,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -181,7 +181,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -210,7 +210,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -241,7 +241,7 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             fontSize = fontSize.sp,
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             width = Float.MAX_VALUE
         )
         val placeholderRects = paragraph.placeholderRects
@@ -273,9 +273,9 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
+                AnnotatedString.Range(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
             ),
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             fontSize = fontSize.sp,
             width = Float.MAX_VALUE
         )
@@ -305,9 +305,9 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
+                AnnotatedString.Range(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
             ),
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             fontSize = fontSize.sp,
             width = Float.MAX_VALUE
         )
@@ -337,9 +337,9 @@ class ParagraphPlaceholderIntegrationTest {
         val paragraph = simpleParagraph(
             text = text,
             spanStyles = listOf(
-                AnnotatedString.Item(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
+                AnnotatedString.Range(SpanStyle(fontSize = fontSizeSpan.sp), 2, 3)
             ),
-            placeholders = listOf(AnnotatedString.Item(placeholder, 1, 2)),
+            placeholders = listOf(AnnotatedString.Range(placeholder, 1, 2)),
             fontSize = fontSize.sp,
             width = Float.MAX_VALUE
         )
@@ -365,8 +365,8 @@ class ParagraphPlaceholderIntegrationTest {
 
         val placeholder = Placeholder(1.em, 1.em, PlaceholderVerticalAlign.TextCenter)
         val placeholders = listOf(
-            AnnotatedString.Item(placeholder, 0, 1),
-            AnnotatedString.Item(placeholder, 2, 3)
+            AnnotatedString.Range(placeholder, 0, 1),
+            AnnotatedString.Range(placeholder, 2, 3)
         )
         val paragraph = simpleParagraph(
             text = text,
@@ -390,8 +390,8 @@ class ParagraphPlaceholderIntegrationTest {
     private fun simpleParagraph(
         text: String = "",
         fontSize: TextUnit = TextUnit.Inherit,
-        spanStyles: List<AnnotatedString.Item<SpanStyle>> = listOf(),
-        placeholders: List<AnnotatedString.Item<Placeholder>> = listOf(),
+        spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
+        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
         width: Float = Float.MAX_VALUE,
         maxLines: Int = Int.MAX_VALUE,
         ellipsis: Boolean = false

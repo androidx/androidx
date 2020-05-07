@@ -66,7 +66,7 @@ class MultiParagraph(
     constructor(
         annotatedString: AnnotatedString,
         style: TextStyle,
-        placeholders: List<AnnotatedString.Item<Placeholder>> = listOf(),
+        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
         maxLines: Int = Int.MAX_VALUE,
         ellipsis: Boolean = false,
         constraints: ParagraphConstraints,
