@@ -53,7 +53,7 @@ import org.jetbrains.annotations.TestOnly
  * The popup is positioned relative to its parent, using the [alignment] and [offset].
  * The popup is visible as long as it is part of the composition hierarchy.
  *
- * @sample androidx.ui.framework.samples.PopupSample
+ * @sample androidx.ui.core.samples.PopupSample
  *
  * @param alignment The alignment relative to the parent.
  * @param offset An offset from the original aligned position of the popup. Offset respects the
@@ -91,7 +91,7 @@ fun Popup(
  * The dropdown popup is positioned below its parent, using the [dropDownAlignment] and [offset].
  * The dropdown popup is visible as long as it is part of the composition hierarchy.
  *
- * @sample androidx.ui.framework.samples.DropdownPopupSample
+ * @sample androidx.ui.core.samples.DropdownPopupSample
  *
  * @param dropDownAlignment The start or end alignment below the parent.
  * @param offset An offset from the original aligned position of the popup.
