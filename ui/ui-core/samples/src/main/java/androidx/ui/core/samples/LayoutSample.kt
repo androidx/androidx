@@ -27,7 +27,7 @@ import androidx.ui.unit.ipx
 
 @Sampled
 @Composable
-fun LayoutWithProvidedIntrinsicsUsage(children: @Composable() () -> Unit) {
+fun LayoutWithProvidedIntrinsicsUsage(children: @Composable () -> Unit) {
     // We build a layout that will occupy twice as much space as its children,
     // and will position them to be bottom right aligned.
     Layout(
@@ -71,7 +71,7 @@ fun LayoutWithProvidedIntrinsicsUsage(children: @Composable() () -> Unit) {
 
 @Sampled
 @Composable
-fun LayoutUsage(children: @Composable() () -> Unit) {
+fun LayoutUsage(children: @Composable () -> Unit) {
     // We build a layout that will occupy twice as much space as its children,
     // and will position them to be bottom right aligned.
     Layout(children) { measurables, constraints, _ ->
@@ -98,7 +98,7 @@ fun LayoutUsage(children: @Composable() () -> Unit) {
 
 @Sampled
 @Composable
-fun LayoutTagChildrenUsage(header: @Composable() () -> Unit, footer: @Composable() () -> Unit) {
+fun LayoutTagChildrenUsage(header: @Composable () -> Unit, footer: @Composable () -> Unit) {
     Layout({
         // Here the Containers are only needed to apply the modifiers. You could use the
         // modifier on header and footer directly if they are composables accepting modifiers.

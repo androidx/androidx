@@ -51,7 +51,7 @@ class LayoutDirectionModifierTest : LayoutTest() {
 
         show {
             Layout(
-                children = @Composable() {},
+                children = @Composable {},
                 modifier = Modifier.rtl
             ) { _, _, incomingLayoutDirection ->
                 layoutDirection.value = incomingLayoutDirection
@@ -71,7 +71,7 @@ class LayoutDirectionModifierTest : LayoutTest() {
 
         show {
             Layout(
-                children = @Composable() {},
+                children = @Composable {},
                 modifier = Modifier.preferredWidth(IntrinsicSize.Max).rtl,
                 minIntrinsicWidthMeasureBlock = { _, _, _ -> 0.ipx },
                 minIntrinsicHeightMeasureBlock = { _, _, _ -> 0.ipx },

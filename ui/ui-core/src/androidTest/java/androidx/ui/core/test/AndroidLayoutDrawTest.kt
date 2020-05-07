@@ -503,7 +503,7 @@ class AndroidLayoutDrawTest {
         fun FixedSizeRow(
             width: IntPx,
             height: IntPx,
-            children: @Composable() () -> Unit
+            children: @Composable () -> Unit
         ) {
             Layout(children = children, measureBlock = { measurables, constraints, _ ->
                 val resolvedWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)
@@ -1566,7 +1566,7 @@ class AndroidLayoutDrawTest {
         var laidOut = false
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
-                val container = @Composable { children: @Composable() () -> Unit ->
+                val container = @Composable { children: @Composable () -> Unit ->
                     // This simulates a Container optimisation, when the child does not
                     // affect parent size.
                     Layout(children) { measurables, constraints, _ ->
@@ -1575,7 +1575,7 @@ class AndroidLayoutDrawTest {
                         }
                     }
                 }
-                val recomposingChild = @Composable { children: @Composable() (IntPx) -> Unit ->
+                val recomposingChild = @Composable { children: @Composable (IntPx) -> Unit ->
                     // This simulates a child that recomposes, for example due to a transition.
                     children(model.offset)
                 }
@@ -2261,8 +2261,8 @@ class AndroidLayoutDrawTest {
         val innerColor = mutableStateOf(Color.Red)
         activityTestRule.runOnUiThread {
             activity.setContent {
-                val children: @Composable() () -> Unit = remember {
-                    @Composable() {
+                val children: @Composable () -> Unit = remember {
+                    @Composable {
                         FixedSize(
                             size = 10.ipx,
                             modifier = Modifier.drawLayer()
@@ -2585,7 +2585,7 @@ fun assertColorsEqual(
 fun AtLeastSize(
     size: IntPx,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit = emptyContent()
+    children: @Composable () -> Unit = emptyContent()
 ) {
     Layout(
         measureBlock = { measurables, constraints, _ ->
@@ -2619,7 +2619,7 @@ fun AtLeastSize(
 fun FixedSize(
     size: IntPx,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit = emptyContent()
+    children: @Composable () -> Unit = emptyContent()
 ) {
     Layout(children = children, modifier = modifier) { measurables, _, _ ->
         val newConstraints = Constraints.fixed(size, size)
@@ -2635,7 +2635,7 @@ fun FixedSize(
 }
 
 @Composable
-fun Align(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit) {
+fun Align(modifier: Modifier = Modifier.None, children: @Composable () -> Unit) {
     Layout(
         modifier = modifier,
         measureBlock = { measurables, constraints, _ ->
@@ -2667,7 +2667,7 @@ fun Align(modifier: Modifier = Modifier.None, children: @Composable() () -> Unit
 internal fun Padding(
     size: IntPx,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Layout(
         modifier = modifier,
@@ -2702,7 +2702,7 @@ fun TwoMeasureLayout(
     size: IntPx,
     latch: CountDownLatch,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Layout(modifier = modifier, children = children) { measurables, _, _ ->
         val testConstraints = Constraints()
@@ -2729,7 +2729,7 @@ fun Position(
     size: IntPx,
     offset: OffsetModel,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { m ->
@@ -2748,7 +2748,7 @@ fun Wrap(
     modifier: Modifier = Modifier,
     minWidth: IntPx = 0.ipx,
     minHeight: IntPx = 0.ipx,
-    children: @Composable() () -> Unit = {}
+    children: @Composable () -> Unit = {}
 ) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
@@ -2765,7 +2765,7 @@ fun Scroller(
     modifier: Modifier = Modifier,
     onScrollPositionChanged: (position: IntPx, maxPosition: IntPx) -> Unit,
     offset: OffsetModel,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     val maxPosition = state { IntPx.Infinity }
     ScrollerLayout(
@@ -2784,7 +2784,7 @@ private fun ScrollerLayout(
     modifier: Modifier = Modifier,
     @Suppress("UNUSED_PARAMETER") maxPosition: IntPx,
     onMaxPositionChanged: () -> Unit,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     Layout(modifier = modifier, children = child) { measurables, constraints, _ ->
         val childConstraints = constraints.copy(
@@ -2805,7 +2805,7 @@ private fun ScrollerLayout(
 fun WrapForceRelayout(
     model: OffsetModel,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         val placeables = measurables.map { it.measure(constraints) }
@@ -2819,7 +2819,7 @@ fun WrapForceRelayout(
 }
 
 @Composable
-fun SimpleRow(modifier: Modifier = Modifier, children: @Composable() () -> Unit) {
+fun SimpleRow(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
     Layout(modifier = modifier, children = children) { measurables, constraints, _ ->
         var width = 0.ipx
         var height = 0.ipx
@@ -2840,7 +2840,7 @@ fun SimpleRow(modifier: Modifier = Modifier, children: @Composable() () -> Unit)
 }
 
 @Composable
-fun JustConstraints(modifier: Modifier, children: @Composable() () -> Unit) {
+fun JustConstraints(modifier: Modifier, children: @Composable () -> Unit) {
     Layout(children, modifier) { _, constraints, _ ->
         layout(constraints.minWidth, constraints.minHeight) {}
     }

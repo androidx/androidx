@@ -129,7 +129,7 @@ class RadioGroupScope internal constructor() {
     fun RadioGroupItem(
         selected: Boolean,
         onSelect: () -> Unit,
-        content: @Composable() () -> Unit
+        content: @Composable () -> Unit
     ) {
         Semantics(container = true, mergeAllDescendants = true) {
             Box {

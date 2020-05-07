@@ -423,7 +423,7 @@ class DraggableTest {
         }
     }
 
-    private fun setDraggableContent(draggableFactory: @Composable() () -> Modifier) {
+    private fun setDraggableContent(draggableFactory: @Composable () -> Modifier) {
         composeTestRule.setContent {
             Stack {
                 val draggable = draggableFactory()

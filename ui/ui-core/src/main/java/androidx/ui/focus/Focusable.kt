@@ -40,7 +40,7 @@ import androidx.compose.Composable
     level = DeprecationLevel.ERROR
 )
 @Composable
-fun Focusable(focusOperator: Any, children: @Composable() (Any) -> Unit) {
+fun Focusable(focusOperator: Any, children: @Composable (Any) -> Unit) {
 }
 
 /**

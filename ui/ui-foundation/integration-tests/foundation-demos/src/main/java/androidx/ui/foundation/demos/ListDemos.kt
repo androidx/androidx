@@ -82,7 +82,7 @@ private fun ListAddRemoveItemsDemo() {
 }
 
 @Composable
-fun Button(modifier: Modifier, onClick: () -> Unit, children: @Composable() () -> Unit) {
+fun Button(modifier: Modifier, onClick: () -> Unit, children: @Composable () -> Unit) {
     Clickable(onClick = onClick) {
         Box(
             modifier = modifier,

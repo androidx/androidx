@@ -72,7 +72,7 @@ fun <T> Transition(
     clock: AnimationClockObservable = AnimationClockAmbient.current,
     initState: T = toState,
     onStateChangeFinished: ((T) -> Unit)? = null,
-    children: @Composable() (state: TransitionState) -> Unit
+    children: @Composable (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
         val disposableClock = clock.asDisposableClock()

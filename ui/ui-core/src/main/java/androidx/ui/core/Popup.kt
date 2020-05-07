@@ -67,7 +67,7 @@ fun Popup(
     alignment: Alignment = Alignment.TopStart,
     offset: IntPxPosition = IntPxPosition(IntPx.Zero, IntPx.Zero),
     popupProperties: PopupProperties = PopupProperties(),
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     // Memoize the object, but change the value of the properties if a recomposition happens
     val popupPositionProperties = remember {
@@ -103,7 +103,7 @@ fun DropdownPopup(
     dropDownAlignment: DropDownAlignment = DropDownAlignment.Start,
     offset: IntPxPosition = IntPxPosition(IntPx.Zero, IntPx.Zero),
     popupProperties: PopupProperties = PopupProperties(),
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     // Memoize the object, but change the value of the properties if a recomposition happens
     val popupPositionProperties = remember {
@@ -127,7 +127,7 @@ fun DropdownPopup(
 private val PopupTestTagAmbient = ambientOf { "DEFAULT_TEST_TAG" }
 
 @Composable
-internal fun PopupTestTag(tag: String, children: @Composable() () -> Unit) {
+internal fun PopupTestTag(tag: String, children: @Composable () -> Unit) {
     Providers(PopupTestTagAmbient provides tag, children = children)
 }
 
@@ -136,7 +136,7 @@ private fun Popup(
     popupProperties: PopupProperties,
     popupPositionProperties: PopupPositionProperties,
     calculatePopupPosition: ((PopupPositionProperties) -> IntPxPosition),
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     val context = ContextAmbient.current
     // TODO(b/139866476): Decide if we want to expose the AndroidComposeView
@@ -203,7 +203,7 @@ private fun Popup(
 // Popup's SimpleStack and Stack.
 @Suppress("NOTHING_TO_INLINE")
 @Composable
-private inline fun SimpleStack(modifier: Modifier, noinline children: @Composable() () -> Unit) {
+private inline fun SimpleStack(modifier: Modifier, noinline children: @Composable () -> Unit) {
     Layout(children = children, modifier = modifier) { measurables, constraints, _ ->
         when (measurables.size) {
             0 -> layout(0.ipx, 0.ipx) {}

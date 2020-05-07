@@ -77,7 +77,7 @@ fun Box(
     paddingEnd: Dp = Dp.Unspecified,
     paddingBottom: Dp = Dp.Unspecified,
     gravity: ContentGravity = ContentGravity.TopStart,
-    children: @Composable() () -> Unit = emptyContent()
+    children: @Composable () -> Unit = emptyContent()
 ) {
     val borderModifier =
         if (border != null) Modifier.drawBorder(border, shape) else Modifier

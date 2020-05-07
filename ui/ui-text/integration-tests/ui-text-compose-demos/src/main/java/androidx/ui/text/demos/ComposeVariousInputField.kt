@@ -279,7 +279,7 @@ private fun VariousEditLine(
 }
 
 @Composable
-private fun HintEditText(hintText: @Composable() () -> Unit) {
+private fun HintEditText(hintText: @Composable () -> Unit) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
 
     val inputField = @Composable {
@@ -310,7 +310,7 @@ private fun HintEditText(hintText: @Composable() () -> Unit) {
 }
 
 @Composable
-private fun CustomCursorTextField(cursor: @Composable() () -> Unit) {
+private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) { TextFieldValue() }
     val layoutResult = state<TextLayoutResult?> { null }
     Layout({

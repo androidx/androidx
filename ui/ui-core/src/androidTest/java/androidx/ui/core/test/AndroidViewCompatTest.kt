@@ -445,7 +445,7 @@ class AndroidViewCompatTest {
     @Composable
     fun Container(
         modifier: Modifier = Modifier,
-        children: @Composable() () -> Unit
+        children: @Composable () -> Unit
     ) {
         Layout(children, modifier) { measurables, constraints, _ ->
             val placeable = measurables[0].measure(constraints)

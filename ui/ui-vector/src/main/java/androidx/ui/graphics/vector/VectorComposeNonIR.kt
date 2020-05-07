@@ -35,7 +35,7 @@ fun composeVector(
     container: VectorComponent,
     recomposer: Recomposer,
     parent: CompositionReference? = null,
-    composable: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    composable: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Composition = compositionFor(
     container = container,
     recomposer = recomposer,
@@ -59,7 +59,7 @@ fun composeVector(
 fun composeVector(
     container: VectorComponent,
     parent: CompositionReference? = null,
-    composable: @Composable() VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
+    composable: @Composable VectorScope.(viewportWidth: Float, viewportHeight: Float) -> Unit
 ): Composition = composeVector(container, Recomposer.current(), parent, composable)
 
 class VectorComposer(

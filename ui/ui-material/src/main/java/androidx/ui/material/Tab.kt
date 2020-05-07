@@ -142,15 +142,15 @@ fun <T> TabRow(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     scrollable: Boolean = false,
-    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
+    indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
         TabRow.IndicatorContainer(tabPositions, selectedIndex) {
             TabRow.Indicator()
         }
     },
-    divider: @Composable() () -> Unit = {
+    divider: @Composable () -> Unit = {
         Divider(thickness = 1.dp, color = contentColor().copy(alpha = DividerOpacity))
     },
-    tab: @Composable() (Int, T) -> Unit
+    tab: @Composable (Int, T) -> Unit
 ) {
     Surface(modifier = modifier, color = backgroundColor, contentColor = contentColor) {
         WithConstraints {
@@ -183,9 +183,9 @@ fun <T> TabRow(
 private fun FixedTabRow(
     width: IntPx,
     tabCount: Int,
-    tabs: @Composable() (Modifier) -> Unit,
-    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit,
-    divider: @Composable() () -> Unit
+    tabs: @Composable (Modifier) -> Unit,
+    indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
+    divider: @Composable () -> Unit
 ) {
     val tabWidth = width / tabCount
 
@@ -211,9 +211,9 @@ private fun FixedTabRow(
 private fun ScrollableTabRow(
     width: IntPx,
     selectedIndex: Int,
-    tabs: @Composable() () -> Unit,
-    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit,
-    divider: @Composable() () -> Unit
+    tabs: @Composable () -> Unit,
+    indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit,
+    divider: @Composable () -> Unit
 ) {
     val edgeOffset = with(DensityAmbient.current) { ScrollableTabRowEdgeOffset.toIntPx() }
 
@@ -383,7 +383,7 @@ object TabRow {
     fun IndicatorContainer(
         tabPositions: List<TabPosition>,
         selectedIndex: Int,
-        indicator: @Composable() () -> Unit
+        indicator: @Composable () -> Unit
     ) {
         // TODO: should we animate the width of the indicator as it moves between tabs of different
         // sizes inside a scrollable tab row?
@@ -421,7 +421,7 @@ object TabRow {
     internal fun IndicatorTransition(
         tabPositions: List<TabPosition>,
         selectedIndex: Int,
-        indicator: @Composable() (indicatorOffset: Px) -> Unit
+        indicator: @Composable (indicatorOffset: Px) -> Unit
     ) {
         val transitionDefinition = remember(tabPositions) {
             transitionDefinition {
@@ -476,8 +476,8 @@ object TabRow {
  */
 @Composable
 fun Tab(
-    text: @Composable() () -> Unit = emptyContent(),
-    icon: @Composable() () -> Unit = emptyContent(),
+    text: @Composable () -> Unit = emptyContent(),
+    icon: @Composable () -> Unit = emptyContent(),
     selected: Boolean,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
@@ -514,7 +514,7 @@ fun Tab(
     selected: Boolean,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     MutuallyExclusiveSetItem(
         selected = selected,
@@ -537,7 +537,7 @@ private fun TabTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val transitionDefinition = remember(activeColor, inactiveColor) {
         transitionDefinition {
@@ -577,8 +577,8 @@ private fun TabTransition(
  */
 @Composable
 private fun TabBaselineLayout(
-    text: @Composable() () -> Unit,
-    icon: @Composable() () -> Unit
+    text: @Composable () -> Unit,
+    icon: @Composable () -> Unit
 ) {
     Layout(
         {

@@ -61,7 +61,7 @@ fun AlignmentLineOffset(
     modifier: Modifier = Modifier,
     before: Dp = 0.dp,
     after: Dp = 0.dp,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Layout(children, modifier) { measurables, constraints, _ ->
         require(measurables.isNotEmpty()) { "No child found in AlignmentLineOffset" }

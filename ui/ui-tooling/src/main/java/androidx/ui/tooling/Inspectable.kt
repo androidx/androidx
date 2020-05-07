@@ -50,7 +50,7 @@ private class SlotTableRecordImpl : SlotTableRecord {
 @Composable
 internal fun Inspectable(
     slotTableRecord: SlotTableRecord,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     currentComposer.collectKeySourceInformation()
     (slotTableRecord as SlotTableRecordImpl).store.add(currentComposer.slotTable)
@@ -62,7 +62,7 @@ internal fun Inspectable(
  * in the composition when the composition is in inspection mode.
  */
 @Composable
-fun InInspectionModeOnly(children: @Composable() () -> Unit) {
+fun InInspectionModeOnly(children: @Composable () -> Unit) {
     if (InspectionMode.current) {
         children()
     }

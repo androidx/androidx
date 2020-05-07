@@ -54,7 +54,7 @@ fun NestedScalingDemo() {
 private fun Scalable(
     minPercent: Float,
     color: Color,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
 
     val currentPercent = state { 1f }

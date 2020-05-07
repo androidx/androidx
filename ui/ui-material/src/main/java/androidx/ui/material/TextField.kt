@@ -151,12 +151,12 @@ import androidx.ui.unit.max
 fun FilledTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: @Composable() () -> Unit,
+    label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
-    placeholder: @Composable() (() -> Unit)? = null,
-    leadingIcon: @Composable() (() -> Unit)? = null,
-    trailingIcon: @Composable() (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     isErrorValue: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -263,12 +263,12 @@ fun FilledTextField(
 fun FilledTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    label: @Composable() () -> Unit,
+    label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
-    placeholder: @Composable() (() -> Unit)? = null,
-    leadingIcon: @Composable() (() -> Unit)? = null,
-    trailingIcon: @Composable() (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     isErrorValue: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -314,10 +314,10 @@ private fun FilledTextFieldImpl(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier,
     textStyle: TextStyle,
-    label: @Composable() () -> Unit,
-    placeholder: @Composable() (() -> Unit)?,
-    leading: @Composable() (() -> Unit)?,
-    trailing: @Composable() (() -> Unit)?,
+    label: @Composable () -> Unit,
+    placeholder: @Composable (() -> Unit)?,
+    leading: @Composable (() -> Unit)?,
+    trailing: @Composable (() -> Unit)?,
     isErrorValue: Boolean,
     visualTransformation: VisualTransformation,
     keyboardType: KeyboardType,
@@ -341,7 +341,7 @@ private fun FilledTextFieldImpl(
         }
     }
 
-    val decoratedPlaceholder: @Composable() (() -> Unit)? =
+    val decoratedPlaceholder: @Composable (() -> Unit)? =
         if (placeholder != null && inputState.value == InputPhase.Focused && value.text.isEmpty()) {
             {
                 Decoration(
@@ -463,7 +463,7 @@ private fun Decoration(
     contentColor: Color,
     typography: TextStyle? = null,
     emphasis: Emphasis? = null,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     val colorAndEmphasis = @Composable {
         Providers(ContentColorAmbient provides contentColor) {
@@ -480,9 +480,9 @@ private fun Decoration(
 private fun TextFieldLayout(
     animationProgress: Float,
     modifier: Modifier,
-    placeholder: @Composable() (() -> Unit)?,
-    label: @Composable() () -> Unit,
-    textField: @Composable() (Modifier) -> Unit
+    placeholder: @Composable (() -> Unit)?,
+    label: @Composable () -> Unit,
+    textField: @Composable (Modifier) -> Unit
 ) {
     Layout(
         children = {
@@ -557,9 +557,9 @@ private fun TextFieldLayout(
 @Composable
 private fun IconsTextFieldLayout(
     modifier: Modifier = Modifier,
-    textField: @Composable() () -> Unit,
-    leading: @Composable() (() -> Unit)?,
-    trailing: @Composable() (() -> Unit)?,
+    textField: @Composable () -> Unit,
+    leading: @Composable (() -> Unit)?,
+    trailing: @Composable (() -> Unit)?,
     leadingColor: Color,
     trailingColor: Color
 ) {
@@ -718,7 +718,7 @@ private object TextFieldTransitionScope {
         activeColor: Color,
         labelInactiveColor: Color,
         indicatorInactiveColor: Color,
-        children: @Composable() (
+        children: @Composable (
             labelProgress: Float,
             labelColor: Color,
             indicatorWidth: Dp,

@@ -44,7 +44,7 @@ fun NestedLongPressDemo() {
 @Composable
 private fun LongPressableContainer(
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     val defaultColor = DefaultBackgroundColor
     val pressedColor = PressedColor
