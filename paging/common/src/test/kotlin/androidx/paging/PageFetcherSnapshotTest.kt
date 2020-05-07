@@ -1219,7 +1219,155 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
-    fun remoteMediator_endOfPaginationNotReachedLoadState() = testScope.runBlockingTest {
+    fun remoteMediator_endOfPaginationNotReachedLoadStatePrepend() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                super.load(loadType, state)
+                return MediatorResult.Success(endOfPaginationReached = false)
+            }
+        }
+
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 1,
+            maxSize = 5
+        )
+        val pager = PageFetcherSnapshot(
+            initialKey = 0,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
+        )
+
+        collectPagerData(pager) { pageEvents, _ ->
+            advanceUntilIdle()
+
+            assertEvents(
+                listOf(
+                    LoadStateUpdate(loadType = REFRESH, loadState = Loading(fromMediator = false)),
+                    Refresh(
+                        pages = listOf(
+                            TransformablePage(
+                                originalPageOffset = 0,
+                                data = listOf(0),
+                                originalPageSize = 1,
+                                originalIndices = null
+                            )
+                        ),
+                        placeholdersBefore = 0,
+                        placeholdersAfter = 99,
+                        loadStates = mapOf(
+                            REFRESH to NotLoading.Idle,
+                            PREPEND to NotLoading.Idle,
+                            APPEND to NotLoading.Idle
+                        )
+                    ),
+                    LoadStateUpdate(loadType = PREPEND, loadState = Loading(fromMediator = true)),
+                    Prepend(
+                        pages = listOf(
+                            TransformablePage(
+                                originalPageOffset = -1,
+                                data = listOf(),
+                                originalPageSize = 0,
+                                originalIndices = null
+                            )
+                        ),
+                        placeholdersBefore = 0,
+                        loadStates = mapOf(
+                            REFRESH to NotLoading.Idle,
+                            PREPEND to NotLoading.IdleRemote,
+                            APPEND to NotLoading.Idle
+                        )
+                    )
+                ),
+                pageEvents
+            )
+        }
+    }
+
+    @Test
+    fun remoteMediator_endOfPaginationReachedLoadStatePrepend() = testScope.runBlockingTest {
+        @OptIn(ExperimentalPagingApi::class)
+        val remoteMediator = object : RemoteMediatorMock() {
+            override suspend fun load(
+                loadType: LoadType,
+                state: PagingState<Int, Int>
+            ): MediatorResult {
+                super.load(loadType, state)
+                return MediatorResult.Success(endOfPaginationReached = true)
+            }
+        }
+
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 2,
+            enablePlaceholders = true,
+            initialLoadSize = 1,
+            maxSize = 5
+        )
+        val pager = PageFetcherSnapshot(
+            initialKey = 0,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            retryFlow = retryCh.asFlow(),
+            remoteMediatorAccessor = RemoteMediatorAccessor(remoteMediator)
+        )
+
+        collectPagerData(pager) { pageEvents, _ ->
+            advanceUntilIdle()
+
+            assertEvents(
+                listOf(
+                    LoadStateUpdate(loadType = REFRESH, loadState = Loading(fromMediator = false)),
+                    Refresh(
+                        pages = listOf(
+                            TransformablePage(
+                                originalPageOffset = 0,
+                                data = listOf(0),
+                                originalPageSize = 1,
+                                originalIndices = null
+                            )
+                        ),
+                        placeholdersBefore = 0,
+                        placeholdersAfter = 99,
+                        loadStates = mapOf(
+                            REFRESH to NotLoading.Idle,
+                            PREPEND to NotLoading.Idle,
+                            APPEND to NotLoading.Idle
+                        )
+                    ),
+                    LoadStateUpdate(loadType = PREPEND, loadState = Loading(fromMediator = true)),
+                    Prepend(
+                        pages = listOf(
+                            TransformablePage(
+                                originalPageOffset = -1,
+                                data = listOf(),
+                                originalPageSize = 0,
+                                originalIndices = null
+                            )
+                        ),
+                        placeholdersBefore = 0,
+                        loadStates = mapOf(
+                            REFRESH to NotLoading.Idle,
+                            PREPEND to NotLoading.DoneRemote,
+                            APPEND to NotLoading.Idle
+                        )
+                    )
+                ),
+                pageEvents
+            )
+        }
+    }
+
+    @Test
+    fun remoteMediator_endOfPaginationNotReachedLoadStateAppend() = testScope.runBlockingTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
@@ -1252,7 +1400,6 @@ class PageFetcherSnapshotTest {
             assertEvents(
                 listOf(
                     LoadStateUpdate(loadType = REFRESH, loadState = Loading(fromMediator = false)),
-                    LoadStateUpdate(loadType = APPEND, loadState = Loading(fromMediator = true)),
                     Refresh(
                         pages = listOf(
                             TransformablePage(
@@ -1269,6 +1416,23 @@ class PageFetcherSnapshotTest {
                             PREPEND to NotLoading.Idle,
                             APPEND to NotLoading.Idle
                         )
+                    ),
+                    LoadStateUpdate(loadType = APPEND, loadState = Loading(fromMediator = true)),
+                    Append(
+                        pages = listOf(
+                            TransformablePage(
+                                originalPageOffset = 1,
+                                data = listOf(),
+                                originalPageSize = 0,
+                                originalIndices = null
+                            )
+                        ),
+                        placeholdersAfter = 0,
+                        loadStates = mapOf(
+                            REFRESH to NotLoading.Idle,
+                            PREPEND to NotLoading.Idle,
+                            APPEND to NotLoading.IdleRemote
+                        )
                     )
                 ),
                 pageEvents
@@ -1277,7 +1441,7 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
-    fun remoteMediator_endOfPaginationReachedLoadState() = testScope.runBlockingTest {
+    fun remoteMediator_endOfPaginationReachedLoadStateAppend() = testScope.runBlockingTest {
         @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
@@ -1310,7 +1474,6 @@ class PageFetcherSnapshotTest {
             assertEvents(
                 listOf(
                     LoadStateUpdate(loadType = REFRESH, loadState = Loading(fromMediator = false)),
-                    LoadStateUpdate(loadType = APPEND, loadState = Loading(fromMediator = true)),
                     Refresh(
                         pages = listOf(
                             TransformablePage(
@@ -1325,7 +1488,24 @@ class PageFetcherSnapshotTest {
                         loadStates = mapOf(
                             REFRESH to NotLoading.Idle,
                             PREPEND to NotLoading.Idle,
-                            APPEND to NotLoading.Done
+                            APPEND to NotLoading.Idle
+                        )
+                    ),
+                    LoadStateUpdate(loadType = APPEND, loadState = Loading(fromMediator = true)),
+                    Append(
+                        pages = listOf(
+                            TransformablePage(
+                                originalPageOffset = 1,
+                                data = listOf(),
+                                originalPageSize = 0,
+                                originalIndices = null
+                            )
+                        ),
+                        placeholdersAfter = 0,
+                        loadStates = mapOf(
+                            REFRESH to NotLoading.Idle,
+                            PREPEND to NotLoading.Idle,
+                            APPEND to NotLoading.DoneRemote
                         )
                     )
                 ),
