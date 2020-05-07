@@ -59,7 +59,7 @@ includeProject(":ui:ui-animation-core:samples", "ui-animation-core/samples")
 includeProject(":ui:ui-animation:integration-tests:ui-animation-demos", "ui-animation/integration-tests/animation-demos")
 includeProject(":ui:ui-animation:samples", "ui-animation/samples")
 includeProject(":ui:ui-core", "ui-core")
-includeProject(":ui:ui-core:integration-tests:ui-core-demos", "ui-core/integration-tests/framework-demos")
+includeProject(":ui:ui-core:integration-tests:ui-core-demos", "ui-core/integration-tests/ui-core-demos")
 includeProject(":ui:ui-core:samples", "ui-core/samples")
 if (startParameter.projectProperties.containsKey('compose.desktop')) {
     includeProject(":ui:ui-desktop", "ui-desktop")

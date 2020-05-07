@@ -32,7 +32,7 @@ import androidx.ui.unit.dp
  *
  * Example usage:
  *
- * @sample androidx.ui.framework.samples.DrawShadowSample
+ * @sample androidx.ui.core.samples.DrawShadowSample
  *
  * @param elevation The elevation for the shadow in pixels
  * @param shape Defines a shape of the physical object

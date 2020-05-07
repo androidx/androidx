@@ -57,7 +57,7 @@ import androidx.ui.unit.min
  * see [WithConstraints].
  *
  * Example usage:
- * @sample androidx.ui.framework.samples.LayoutWithProvidedIntrinsicsUsage
+ * @sample androidx.ui.core.samples.LayoutWithProvidedIntrinsicsUsage
  *
  * @param children The children composable to be laid out.
  * @param modifier Modifiers to be applied to the layout.
@@ -134,7 +134,7 @@ import androidx.ui.unit.min
  * see [WithConstraints].
  *
  * Example usage:
- * @sample androidx.ui.framework.samples.LayoutUsage
+ * @sample androidx.ui.core.samples.LayoutUsage
  *
  * @param children The children composable to be laid out.
  * @param modifier Modifiers to be applied to the layout.
@@ -443,7 +443,7 @@ private inline fun Density.MeasuringMaxIntrinsicHeight(
 /**
  * A composable that defines its own content according to the available space, based on the incoming
  * constraints or the current [LayoutDirection]. Example usage:
- * @sample androidx.ui.framework.samples.WithConstraintsSample
+ * @sample androidx.ui.core.samples.WithConstraintsSample
  *
  * The composable will compose the given children, and will position the resulting layout composables
  * in a parent [Layout]. This layout will be as small as possible such that it can fit its
