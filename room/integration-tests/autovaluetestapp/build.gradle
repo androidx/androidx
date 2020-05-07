@@ -41,7 +41,6 @@ dependencies {
     androidTestAnnotationProcessor(AUTO_VALUE)
     androidTestAnnotationProcessor(AUTO_VALUE_PARCEL)
 
-    androidTestImplementation(project(":arch:core-runtime")) // Added for b/155802460
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(AUTO_VALUE_ANNOTATIONS)
