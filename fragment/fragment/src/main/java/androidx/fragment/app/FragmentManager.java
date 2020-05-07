@@ -2881,7 +2881,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (mStartIntentSenderForResult != null) {
             IntentSenderRequest request =
                     new IntentSenderRequest.Builder(intent).setFillInIntent(fillInIntent)
-                            .setFlags(flagsMask, flagsValues).build();
+                            .setFlags(flagsValues, flagsMask).build();
             if (options != null) {
                 if (fillInIntent == null) {
                     fillInIntent = new Intent();

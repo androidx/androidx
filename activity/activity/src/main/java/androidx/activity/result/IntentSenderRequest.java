@@ -166,17 +166,17 @@ public final class IntentSenderRequest implements Parcelable {
         /**
          * Set the flag mask and flag values for the {@link IntentSenderRequest}.
          *
-         * @param mask mask to go in the IntentSenderRequest. Intent flags in the original
-         *             IntentSender that you would like to change.
          * @param values flagValues to go in the IntentSenderRequest. Desired values for any bits
          *             set in flagsMask
+         * @param mask mask to go in the IntentSenderRequest. Intent flags in the original
+         *             IntentSender that you would like to change.
          *
          * @return This builder.
          */
         @NonNull
-        public Builder setFlags(int mask, int values) {
-            mFlagsMask = mask;
+        public Builder setFlags(int values, int mask) {
             mFlagsValues = values;
+            mFlagsMask = mask;
             return this;
         }
 
