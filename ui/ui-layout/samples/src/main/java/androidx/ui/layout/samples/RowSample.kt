@@ -29,7 +29,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
 import androidx.ui.unit.dp
 
 @Sampled

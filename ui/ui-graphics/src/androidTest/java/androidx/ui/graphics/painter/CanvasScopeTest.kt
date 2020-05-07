@@ -27,8 +27,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.toPixelMap
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test

@@ -21,7 +21,6 @@ import androidx.compose.Composable
 import androidx.ui.foundation.Text
 import androidx.ui.res.fontResource
 import androidx.ui.res.loadFontResource
-import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.LoadedFontFamily
 

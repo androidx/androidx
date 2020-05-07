@@ -19,8 +19,8 @@ package androidx.ui.foundation {
 
   public final class BoxKt {
     method public static void Box-TInkGdk(androidx.ui.core.Modifier modifier = Modifier, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, long backgroundColor = Color.Transparent, androidx.ui.foundation.Border? border = null, float padding = elvis {
-    var var411925d7: androidx.ui.unit.Dp = border?.size
-    if (var411925d7 != null) var411925d7 else 0.dp
+    var var41191157: androidx.ui.unit.Dp = border?.size
+    if (var41191157 != null) var41191157 else 0.dp
 }, float paddingStart = Dp.Unspecified, float paddingTop = Dp.Unspecified, float paddingEnd = Dp.Unspecified, float paddingBottom = Dp.Unspecified, androidx.ui.core.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = emptyContent());
   }
 

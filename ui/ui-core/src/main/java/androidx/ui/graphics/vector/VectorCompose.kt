@@ -37,7 +37,6 @@ import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
 import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.graphics.painter.translate
-import androidx.ui.graphics.withSave
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
 import androidx.ui.unit.IntPxSize
