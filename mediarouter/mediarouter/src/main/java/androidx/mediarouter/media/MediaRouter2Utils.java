@@ -23,14 +23,19 @@ import static android.media.MediaRoute2Info.FEATURE_REMOTE_PLAYBACK;
 import android.annotation.SuppressLint;
 import android.content.IntentFilter;
 import android.media.MediaRoute2Info;
+import android.media.RouteDiscoveryPreference;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 //TODO: Remove SuppressLInt
 @SuppressLint("NewApi")
@@ -75,6 +80,19 @@ class MediaRouter2Utils {
             }
         }
         return features;
+    }
+
+    @NonNull
+    static RouteDiscoveryPreference toDiscoveryPreference(
+            @Nullable MediaRouteDiscoveryRequest discoveryRequest) {
+        if (discoveryRequest == null || !discoveryRequest.isValid()) {
+            return new RouteDiscoveryPreference.Builder(new ArrayList<>(), false).build();
+        }
+        boolean activeScan = discoveryRequest.isActiveScan();
+        List<String> routeFeatures = discoveryRequest.getSelector().getControlCategories()
+                .stream().map(MediaRouter2Utils::toRouteFeature)
+                .collect(Collectors.toList());
+        return new RouteDiscoveryPreference.Builder(routeFeatures, activeScan).build();
     }
 
     static String toRouteFeature(String controlCategory) {
