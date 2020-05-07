@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -63,9 +64,10 @@ public class UseCaseAttachStateTest {
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
         CameraXConfig cameraXConfig = FakeAppConfig.create();
         Context context = ApplicationProvider.getApplicationContext();
-        CameraThreadConfig mockThreadConfig = mock(CameraThreadConfig.class);
         CameraX.initialize(context, cameraXConfig).get();
         mCameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK);
         if (mCameraId == null) {
@@ -310,6 +312,8 @@ public class UseCaseAttachStateTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void setUseCaseOnlineWithWrongCamera() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
+
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
@@ -321,6 +325,8 @@ public class UseCaseAttachStateTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void setUseCaseActiveWithWrongCamera() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
+
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName(
                 "UseCase").getUseCaseConfig();
