@@ -35,7 +35,6 @@ import androidx.ui.input.OffsetMap
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.input.TransformedText
-import androidx.ui.input.VisualTransformation
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
@@ -296,22 +295,6 @@ class TextFieldDelegate {
             if (!hasNextClient) {
                 textInputService?.hideSoftwareKeyboard(token)
             }
-        }
-
-        /**
-         * Helper function of applying visual transformation method to the EditorModel.
-         *
-         * @param value An editor state
-         * @param visualTransformation A visual transformation
-         */
-        @JvmStatic
-        fun applyVisualFilter(
-            value: EditorValue,
-            visualTransformation: VisualTransformation?
-        ): TransformedText {
-            val annotatedString = AnnotatedString(value.text)
-            return visualTransformation?.filter(annotatedString)
-                    ?: TransformedText(annotatedString, OffsetMap.identityOffsetMap)
         }
 
         /**

@@ -33,8 +33,6 @@ import androidx.ui.graphics.Path
 import androidx.ui.graphics.PointMode
 import androidx.ui.graphics.StrokeCap
 import androidx.ui.graphics.StrokeJoin
-import androidx.ui.graphics.scale
-import androidx.ui.graphics.rotate
 import androidx.ui.graphics.vectormath.degrees
 import androidx.ui.unit.Px
 import androidx.ui.unit.PxSize
@@ -49,6 +47,7 @@ import androidx.ui.unit.PxSize
  * @param left number of pixels to inset the left drawing bound
  * @param top number of pixels to inset the top drawing bound
  * @param right number of pixels to inset the right drawing bound
+ * @param bottom number of pixels to inset the bottom drawing bound
  * @param block lambda that is called to issue drawing commands within the inset coordinate space
  */
 inline fun CanvasScope.inset(
@@ -57,11 +56,11 @@ inline fun CanvasScope.inset(
     right: Float,
     bottom: Float,
     block: CanvasScope.() -> Unit
-) {
-    doInset(left, top, right, bottom)
-    block()
-    doInset(-left, -top, -right, -bottom)
-}
+) = canvas?.apply {
+        transform.inset(left, top, right, bottom)
+        block()
+        transform.inset(-left, -top, -right, -bottom)
+    }
 
 /**
  * Convenience method modifies the [CanvasScope] bounds to inset both left and right bounds by
@@ -74,23 +73,26 @@ inline fun CanvasScope.inset(
  * @param block lambda that is called to issue additional drawing commands within the modified
  * coordinate space
  */
-inline fun CanvasScope.inset(dx: Float, dy: Float = dx, block: CanvasScope.() -> Unit) =
+inline fun CanvasScope.inset(dx: Float = 0.0f, dy: Float = 0.0f, block: CanvasScope.() -> Unit) =
     inset(dx, dy, dx, dy, block)
 
 /**
  * Translate the coordinate space by the given delta in pixels in both the x and y coordinates
  * respectively
  *
- * @param dx Pixels to translate the coordinate space in the x-axis
- * @param dy Pixels to translate the coordinate space in the y-axis
+ * @param left Pixels to translate the coordinate space in the x-axis
+ * @param top Pixels to translate the coordinate space in the y-axis
  * @param block lambda that is called to issue drawing commands within the
  * translated coordinate space
  */
-inline fun CanvasScope.translate(dx: Float, dy: Float, block: CanvasScope.() -> Unit) =
-    canvas?.apply {
-        translate(dx, dy)
+inline fun CanvasScope.translate(
+    left: Float = 0.0f,
+    top: Float = 0.0f,
+    block: CanvasScope.() -> Unit
+) = canvas?.apply {
+        translate(left, top)
         block()
-        translate(-dx, -dy)
+        translate(-left, -top)
     }
 
 /**
@@ -99,10 +101,10 @@ inline fun CanvasScope.translate(dx: Float, dy: Float, block: CanvasScope.() -> 
  *  lambda is invoked, the rotation transformation is undone.
  *
  *  @param degrees to rotate clockwise
- *  @param pivotX The x-coord for the pivot point, defaults to the center of the coordinate space
- *  along the x-axis
- *  @param pivotY The y-coord for the pivot point, defaults to the center of the coordinate space
- *  along the y-axis
+ *  @param pivotX The x-coordinate for the pivot point, defaults to the center of the
+ *  coordinate space horizontally
+ *  @param pivotY The y-coordinate for the pivot point, defaults to the center of the
+ *  coordinate space vertically
  *  @param block lambda that is called to issue drawing commands within the rotated
  *  coordinate space
  */
@@ -111,21 +113,17 @@ inline fun CanvasScope.rotate(
     pivotX: Float = center.dx,
     pivotY: Float = center.dy,
     block: CanvasScope.() -> Unit
-) = canvas?.apply {
-        rotate(degrees, pivotX, pivotY)
-        block()
-        rotate(-degrees, pivotX, pivotY)
-    }
+) = withTransform({ rotate(degrees, pivotX, pivotY) }, block)
 
 /**
  * Add a rotation (in radians clockwise) to the current transform at the given pivot point.
  * The pivot coordinate remains unchanged by the rotation transformation
  *
  * @param radians to rotate clockwise
- * @param pivotX The x-coord for the pivot point, defaults to the center of the coordinate space
- * along the x-axis
- * @param pivotY The y-coord for the pivot point, defaults to the center of the coordinate space
- * along the y-axis
+ *  @param pivotX The x-coordinate for the pivot point, defaults to the center of the
+ *  coordinate space horizontally
+ *  @param pivotY The y-coordinate for the pivot point, defaults to the center of the
+ *  coordinate space vertically
  * @param block lambda that is called to issue drawing commands within the rotated
  * coordinate space
  */
@@ -134,7 +132,7 @@ inline fun CanvasScope.rotateRad(
     pivotX: Float = center.dx,
     pivotY: Float = center.dy,
     block: CanvasScope.() -> Unit
-) = rotate(degrees(radians), pivotX, pivotY, block)
+) = withTransform({ rotate(degrees(radians), pivotX, pivotY) }, block)
 
 /**
  * Add an axis-aligned scale to the current transform, scaling by the first
@@ -147,68 +145,58 @@ inline fun CanvasScope.rotateRad(
  *
  * @param scaleX The amount to scale in X
  * @param scaleY The amount to scale in Y
- * @param pivotX The x-coord for the pivot point
- * @param pivotY The y-coord for the pivot point
+ * @param pivotX The x-coordinate for the pivot point, defaults to the center of the
+ * coordinate space horizontally
+ * @param pivotY The y-coordinate for the pivot point, defaults to the center of the
+ * coordinate space vertically
  * @param block lambda used to issue drawing commands within the scaled coordinate space
  */
 inline fun CanvasScope.scale(
     scaleX: Float,
-    scaleY: Float,
+    scaleY: Float = scaleX,
     pivotX: Float = center.dx,
     pivotY: Float = center.dy,
     block: CanvasScope.() -> Unit
-) = canvas?.apply {
-        save()
-        scale(scaleX, scaleY, pivotX, pivotY)
-        block()
-        restore()
-    }
+) = withTransform({ scale(scaleX, scaleY, pivotX, pivotY) }, block)
 
 /**
  * Reduces the clip region to the intersection of the current clip and the
- * given rectangle indicated by the given [Offset] from the top left as well as
- * the dimensions of the rectangle represeted by [size].
+ * given rectangle indicated by the given left, top, right and bottom bounds.
  *
  * Use [ClipOp.difference] to subtract the provided rectangle from the
  * current clip.
  *
- * @param topLeft Offset from the origin of the current translation to clip, defaults to 0, 0
- * @param size Dimensions of the rectangle to clip, defaults to the current size of the drawing
- * environment
+ * @param left Left bound of the rectangle to clip
+ * @param top Top bound of the rectangle to clip
+ * @param right Right bound ofthe rectangle to clip
+ * @param bottom Bottom bound of the rectangle to clip
  * @param clipOp Clipping operation to conduct on the given bounds, defaults to [ClipOp.intersect]
  * @param block Lambda callback with this CanvasScope as a receiver scope to issue drawing commands
  * within the provided clip
  */
 inline fun CanvasScope.clipRect(
-    topLeft: Offset = Offset.zero,
-    size: Size = this.size,
+    left: Float = 0.0f,
+    top: Float = 0.0f,
+    right: Float = size.width,
+    bottom: Float = size.height,
     clipOp: ClipOp = ClipOp.intersect,
     block: CanvasScope.() -> Unit
-) = canvas?.apply {
-        save()
-        clipRect(
-            topLeft.dx,
-            topLeft.dy,
-            topLeft.dx + size.width,
-            topLeft.dy + size.height,
-            clipOp
-        )
-        block()
-        restore()
-    }
+) = withTransform({ clipRect(left, top, right, bottom, clipOp) }, block)
 
 /**
  * Reduces the clip region to the intersection of the current clip and the
  * given rounded rectangle.
  *
+ * @param path Shape to clip drawing content within
+ * @param clipOp Clipping operation to conduct on the given bounds, defaults to [ClipOp.intersect]
+ * @param block Lambda callback with this CanvasScope as a receiver scope to issue drawing commands
+ * within the provided clip
  */
-inline fun CanvasScope.clipPath(path: Path, block: CanvasScope.() -> Unit) =
-    canvas?.apply {
-        save()
-        clipPath(path)
-        block()
-        restore()
-    }
+inline fun CanvasScope.clipPath(
+    path: Path,
+    clipOp: ClipOp = ClipOp.intersect,
+    block: CanvasScope.() -> Unit
+) = withTransform({ clipPath(path, clipOp) }, block)
 
 /**
  * Provides access to draw directly with the underlying [Canvas] along with the current
@@ -223,6 +211,32 @@ inline fun CanvasScope.drawCanvas(block: (Canvas, PxSize) -> Unit) =
     }
 
 /**
+ * Perform 1 or more transformations and execute drawing commands with the specified transformations
+ * applied. After this call is complete, the transformation before this call was made is restored
+ *
+ * @sample androidx.ui.graphics.samples.canvasScopeBatchedTransformSample
+ *
+ * @param transformBlock Callback invoked to issue transformations to be made before the drawing
+ * operations are issued
+ * @param drawBlock Callback invoked to issue drawing operations after the transformations are
+ * applied
+ */
+inline fun CanvasScope.withTransform(
+    transformBlock: CanvasTransform.() -> Unit,
+    drawBlock: CanvasScope.() -> Unit
+) = canvas?.apply {
+        // Transformation can include inset calls which change the drawing area
+        // so cache the previous size before the transformation is done
+        // and reset it afterwards
+        val previousSize = size
+        save()
+        transformBlock(transform)
+        drawBlock()
+        restore()
+        setSize(previousSize)
+    }
+
+/**
  * Creates a scoped drawing environment with the provided [Canvas]. This provides a
  * declarative, stateless API to draw shapes and paths without requiring
  * consumers to maintain underlying [Canvas] state information.
@@ -234,9 +248,64 @@ inline fun CanvasScope.drawCanvas(block: (Canvas, PxSize) -> Unit) =
  *
  * @sample androidx.ui.graphics.samples.canvasScopeSample
  */
-class CanvasScope {
+@CanvasScopeMarker
+open class CanvasScope {
 
     @PublishedApi internal var canvas: Canvas? = null
+
+    @PublishedApi internal val transform = object : CanvasTransform {
+
+        override val size: Size
+            get() = this@CanvasScope.size
+
+        override val center: Offset
+            get() = this@CanvasScope.center
+
+        override fun inset(left: Float, top: Float, right: Float, bottom: Float) {
+            this@CanvasScope.canvas?.let {
+                val updatedSize = size - Offset(left + right, top + bottom)
+                require(updatedSize.width > 0 && updatedSize.height > 0) {
+                    "Width and height must be greater than zero"
+                }
+                this@CanvasScope.setSize(updatedSize)
+                it.translate(left, top)
+            }
+        }
+
+        override fun clipRect(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            clipOp: ClipOp
+        ) {
+            this@CanvasScope.canvas?.clipRect(left, top, right, bottom, clipOp)
+        }
+
+        override fun clipPath(path: Path, clipOp: ClipOp) {
+            this@CanvasScope.canvas?.clipPath(path, clipOp)
+        }
+
+        override fun translate(left: Float, top: Float) {
+            this@CanvasScope.canvas?.translate(left, top)
+        }
+
+        override fun rotate(degrees: Float, pivotX: Float, pivotY: Float) {
+            this@CanvasScope.canvas?.apply {
+                translate(pivotX, pivotY)
+                rotate(degrees)
+                translate(-pivotX, -pivotY)
+            }
+        }
+
+        override fun scale(scaleX: Float, scaleY: Float, pivotX: Float, pivotY: Float) {
+            this@CanvasScope.canvas?.apply {
+                translate(pivotX, pivotY)
+                scale(scaleX, scaleY)
+                translate(-pivotX, -pivotY)
+            }
+        }
+    }
 
     /**
      * Internal [Paint] used only for drawing filled in shapes with a color or gradient
@@ -836,7 +905,7 @@ class CanvasScope {
      * should draw within
      * @param block lambda that is called to issue drawing commands on this [CanvasScope]
      */
-    fun draw(canvas: Canvas, size: PxSize, block: CanvasScope.() -> Unit) {
+    fun draw(canvas: Canvas, size: Size, block: CanvasScope.() -> Unit) {
         val previousSize = this.size
         // Remember the previous canvas in case we are temporarily re-directing our drawing
         // to a separate Layer/RenderNode only to draw that content back into the original Canvas
@@ -844,21 +913,12 @@ class CanvasScope {
         // parameter back to null defensively
         val previousCanvas = this.canvas
         this.canvas = canvas
-        setSize(Size(size.width.value, size.height.value))
+        setSize(size)
         canvas.save()
         this.block()
         canvas.restore()
         setSize(previousSize)
         this.canvas = previousCanvas
-    }
-
-    /**
-     * Configures the current size of the drawing environment, this is configured as part of
-     * the [draw] call
-     */
-    @PublishedApi
-    internal fun setSize(size: Size) {
-        this.size = size
     }
 
     /**
@@ -869,20 +929,13 @@ class CanvasScope {
      */
 
     /**
-     * Simultaneously translate the coordinate space by [left] and [top] as well as modify the
-     * width and height of the current painting area. This method reduces the width by Left +
-     * right as well as height by (top + bottom)
+     * Configures the current size of the drawing environment, this is configured as part of
+     * the [draw] call
      */
     @PublishedApi
-    internal fun doInset(left: Float, top: Float, right: Float, bottom: Float) =
-        canvas?.let {
-            val updatedSize = size - Offset(left + right, top + bottom)
-            require(updatedSize.width > 0 && updatedSize.height > 0) {
-                "Width and height must be greater than zero"
-            }
-            setSize(updatedSize)
-            it.translate(left, top)
-        }
+    internal fun setSize(size: Size) {
+        this.size = size
+    }
 
     /**
      * Selects the appropriate [Paint] object based on the style

@@ -541,6 +541,37 @@ class NavControllerTest {
     }
 
     @Test
+    fun testSaveRestoreStateDestinationChanged() {
+        val context = ApplicationProvider.getApplicationContext() as Context
+        var navController = NavController(context)
+        val navigator = SaveStateTestNavigator()
+        navController.navigatorProvider.addNavigator(navigator)
+
+        navController.setGraph(R.navigation.nav_simple)
+
+        val savedState = navController.saveState()
+        navController = NavController(context)
+        navController.navigatorProvider.addNavigator(navigator)
+
+        // Restore state doesn't recreate any graph
+        navController.restoreState(savedState)
+        assertNull(navController.currentDestination)
+
+        var destinationChangedCount = 0
+
+        navController.addOnDestinationChangedListener { _, _, _ ->
+            destinationChangedCount++
+        }
+
+        // Explicitly setting a graph then restores the state
+        navController.setGraph(R.navigation.nav_simple)
+        // Save state should be called on the navigator exactly once
+        assertEquals(1, navigator.saveStateCount)
+        // listener should have been fired again when state restored
+        assertThat(destinationChangedCount).isEqualTo(1)
+    }
+
+    @Test
     fun testSaveRestoreStateProgrammatic() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)

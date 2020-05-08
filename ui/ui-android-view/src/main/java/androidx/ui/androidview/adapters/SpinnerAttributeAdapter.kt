@@ -40,7 +40,7 @@ fun AbsSpinner.setData(data: Collection<Any>) {
     }
 }
 
-fun AbsSpinner.setComposeItem(composeItem: @Composable() (Any) -> Unit) {
+fun AbsSpinner.setComposeItem(composeItem: @Composable (Any) -> Unit) {
     composeAdapter.composable = composeItem
 }
 

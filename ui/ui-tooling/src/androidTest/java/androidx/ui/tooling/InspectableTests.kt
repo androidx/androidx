@@ -24,12 +24,10 @@ import androidx.ui.core.drawBehind
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.layout.Column
 import androidx.ui.layout.preferredSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.toRect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -44,19 +42,19 @@ import org.junit.runners.JUnit4
 class InspectableTests : ToolingTest() {
     @Test
     fun simpleInspection() {
+        val slotTableRecord = SlotTableRecord.create()
         show {
-            Inspectable {
+            Inspectable(slotTableRecord) {
                 Column {
                     Box(Modifier.preferredSize(100.dp).drawBehind {
-                        val paint = Paint().also { it.color = Color(0xFF) }
-                        drawRect(size.toRect(), paint)
+                        drawRect(Color(0xFF))
                     })
                 }
             }
         }
 
         // Should be able to find the group for this test
-        val group = tables.findGroupForFile("InspectableTests")
+        val group = slotTableRecord.findGroupForFile("InspectableTests")
         assertNotNull(group)
 
         // The group should have a non-empty bounding box
@@ -81,7 +79,7 @@ class InspectableTests : ToolingTest() {
     fun inInspectionMode() {
         var displayed = false
         show {
-            Inspectable {
+            Inspectable(SlotTableRecord.create()) {
                 Column {
                     InInspectionModeOnly {
                         Box(Modifier.preferredSize(100.dp).drawBackground(Color(0xFF)))
@@ -110,8 +108,8 @@ class InspectableTests : ToolingTest() {
     }
 }
 
-fun Iterable<SlotTable>.findGroupForFile(fileName: String) =
-    map { it.findGroupForFile(fileName) }.filterNotNull().firstOrNull()
+internal fun SlotTableRecord.findGroupForFile(fileName: String) =
+    store.map { it.findGroupForFile(fileName) }.filterNotNull().firstOrNull()
 
 fun SlotTable.findGroupForFile(fileName: String) = asTree().findGroupForFile(fileName)
 fun Group.findGroupForFile(fileName: String): Group? {

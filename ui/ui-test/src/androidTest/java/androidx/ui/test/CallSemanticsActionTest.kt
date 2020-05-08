@@ -42,7 +42,7 @@ class CallSemanticsActionTest {
         composeTestRule.setContent {
             val state = state { "Nothing" }
             BoundaryNode {
-                SetString("SetString") { state.value = it }
+                setString("SetString") { state.value = it; return@setString true }
                 accessibilityLabel = state.value
             }
         }
@@ -59,10 +59,10 @@ class CallSemanticsActionTest {
     }
 
     object MyActions {
-        val SetString = SemanticsPropertyKey<AccessibilityAction<(String) -> Unit>>("SetString")
+        val SetString = SemanticsPropertyKey<AccessibilityAction<(String) -> Boolean>>("SetString")
     }
 
-    fun SemanticsPropertyReceiver.SetString(label: String? = null, action: (String) -> Unit) {
+    fun SemanticsPropertyReceiver.setString(label: String? = null, action: (String) -> Boolean) {
         this[MyActions.SetString] = AccessibilityAction(label, action)
     }
 

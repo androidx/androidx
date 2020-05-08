@@ -119,7 +119,7 @@ fun SemanticsNodeInteraction.ancestors(): SemanticsNodeInteractionCollection {
 }
 
 /**
- * Retrieve the first node in this collection.
+ * Returns the first node in this collection.
  *
  * Any subsequent operation on its result will expect exactly one element found (unless
  * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
@@ -127,4 +127,41 @@ fun SemanticsNodeInteraction.ancestors(): SemanticsNodeInteractionCollection {
  */
 fun SemanticsNodeInteractionCollection.first(): SemanticsNodeInteraction {
     return get(0)
+}
+
+/**
+ * Returns the last node in this collection.
+ *
+ * Any subsequent operation on its result will expect exactly one element found (unless
+ * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
+ * no element is found.
+ */
+fun SemanticsNodeInteractionCollection.last(): SemanticsNodeInteraction {
+    return SemanticsNodeInteraction(selector.addLastNodeSelector())
+}
+
+/**
+ * Returns all the nodes matching the given [matcher].
+ *
+ * @param matcher Matcher to use for the filtering.
+ */
+fun SemanticsNodeInteractionCollection.filter(
+    matcher: SemanticsMatcher
+): SemanticsNodeInteractionCollection {
+    return SemanticsNodeInteractionCollection(selector.addSelectorViaMatcher("filter", matcher))
+}
+
+/**
+ * Expects to return exactly one node matching the given [matcher].
+ *
+ * Any subsequent operation on its result will expect exactly one element found (unless
+ * [SemanticsNodeInteraction.assertDoesNotExist] is used) and will throw [AssertionError] if
+ * no element is found.
+ *
+ * @param matcher Matcher to use for the filtering.
+ */
+fun SemanticsNodeInteractionCollection.filterToOne(
+    matcher: SemanticsMatcher
+): SemanticsNodeInteraction {
+    return SemanticsNodeInteraction(selector.addSelectorViaMatcher("filterToOne", matcher))
 }

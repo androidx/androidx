@@ -31,23 +31,48 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
     implementation(KOTLIN_STDLIB)
+    implementation(KOTLIN_COROUTINES_ANDROID)
 
     api "androidx.annotation:annotation:1.1.0"
+    api "androidx.activity:activity:1.2.0-alpha02"
     api project(":ui:ui-unit")
     api project(":ui:ui-graphics")
+    api project(":ui:ui-text-core")
+    api project(":ui:ui-vector")
+    api project(":ui:ui-animation-core")
     implementation project(":ui:ui-util")
 
     implementation project(":compose:compose-runtime")
+    implementation "androidx.lifecycle:lifecycle-runtime:2.3.0-alpha01"
+    implementation project(":ui:ui-saved-instance-state")
+    implementation "androidx.autofill:autofill:1.0.0"
 
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(ROBOLECTRIC)
+    testImplementation MOCKITO_KOTLIN, {
+        exclude group: 'org.mockito' // to keep control on the mockito version
+    }
+    testImplementation project(":ui:ui-test")
 
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(JUNIT)
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(TRUTH)
+    androidTestImplementation MOCKITO_KOTLIN, {
+        exclude group: 'org.mockito' // to keep control on the mockito version
+    }
+
+    androidTestImplementation project(":ui:ui-test")
+    androidTestImplementation project(":ui:ui-test-font")
+    androidTestImplementation project(":ui:ui-layout")
+    androidTestImplementation project(":ui:ui-foundation")
 }
 
 androidx {
@@ -66,3 +91,11 @@ tasks.withType(KotlinCompile).configureEach {
     }
 }
 
+android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // Breaks Kotlin compiler.
+        }
+    }
+    testOptions.unitTests.includeAndroidResources = true
+}

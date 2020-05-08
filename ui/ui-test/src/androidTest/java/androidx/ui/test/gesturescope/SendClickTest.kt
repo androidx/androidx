@@ -88,7 +88,7 @@ class ActivityWithActionBar : ComponentActivity() {
         setContentView(root)
     }
 
-    fun setContent(composable: @Composable() () -> Unit) {
+    fun setContent(composable: @Composable () -> Unit) {
         composeHolder.setContent(Recomposer.current(), composable)
     }
 }

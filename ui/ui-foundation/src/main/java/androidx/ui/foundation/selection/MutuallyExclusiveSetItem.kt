@@ -44,7 +44,7 @@ fun MutuallyExclusiveSetItem(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     // TODO: when semantics can be merged, we should make this use Clickable internally rather
     //  than duplicating logic
@@ -54,7 +54,7 @@ fun MutuallyExclusiveSetItem(
             inMutuallyExclusiveGroup = true
             this.selected = selected
             this.accessibilityValue = if (selected) Strings.Selected else Strings.NotSelected
-            onClick(action = onClick)
+            onClick(action = { onClick(); return@onClick true })
         }) {
         // TODO(b/150706555): This layout is temporary and should be removed once Semantics
         //  is implemented with modifiers.

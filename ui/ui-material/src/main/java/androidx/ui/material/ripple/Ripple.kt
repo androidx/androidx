@@ -41,6 +41,7 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.composed
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.graphics.useOrElse
 import androidx.ui.unit.Density
 import androidx.ui.unit.Dp
@@ -152,7 +153,9 @@ private class RippleModifier : DrawModifier, LayoutModifier, CompositionLifecycl
 
     override fun ContentDrawScope.draw() {
         drawContent()
-        effects.fastForEach { it.draw(this, this@RippleModifier.size, color) }
+        drawCanvas { canvas, _ ->
+            effects.fastForEach { it.draw(canvas, this@RippleModifier.size, color) }
+        }
     }
 
     override fun onEnter() {

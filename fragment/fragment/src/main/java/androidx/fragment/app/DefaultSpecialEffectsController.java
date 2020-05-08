@@ -26,6 +26,7 @@ import android.view.animation.Animation;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.os.CancellationSignal;
+import androidx.core.view.ViewGroupCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -224,25 +225,37 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         transitionInfo.getSignal());
             }
         } else {
+            ArrayList<View> enteringViews = new ArrayList<>();
             // These transitions run together, overlapping one another
             Object mergedTransition = null;
             // These transitions run only after all of the other transitions complete
             Object mergedNonOverlappingTransition = null;
             // Now iterate through the set of transitions and merge them together
             for (final TransitionInfo transitionInfo : transitionInfos) {
-                Object transition = transitionInfo.getTransition();
+                Object transition = transitionImpl.cloneTransition(transitionInfo.getTransition());
                 if (transition == null) {
                     // Nothing more to do if the transition is null
                     removeCancellationSignal(transitionInfo.getOperation(),
                             transitionInfo.getSignal());
-                } else if (transitionInfo.isOverlapAllowed()) {
-                    // Overlap is allowed, so add them to the mergeTransition set
-                    mergedTransition = transitionImpl.mergeTransitionsTogether(
-                            mergedTransition, transition, null);
                 } else {
-                    // Overlap is not allowed, add them to the mergedNonOverlappingTransition
-                    mergedNonOverlappingTransition = transitionImpl.mergeTransitionsTogether(
-                            mergedNonOverlappingTransition, transition, null);
+                    // Target the Transition to *only* the set of transitioning views
+                    ArrayList<View> transitioningViews = new ArrayList<>();
+                    captureTransitioningViews(transitioningViews,
+                            transitionInfo.getOperation().getFragment().mView);
+                    transitionImpl.addTargets(transition, transitioningViews);
+                    if (transitionInfo.getOperation().getType().equals(Operation.Type.ADD)) {
+                        enteringViews.addAll(transitioningViews);
+                    }
+                    // Now determine how this transition should be merged together
+                    if (transitionInfo.isOverlapAllowed()) {
+                        // Overlap is allowed, so add them to the mergeTransition set
+                        mergedTransition = transitionImpl.mergeTransitionsTogether(
+                                mergedTransition, transition, null);
+                    } else {
+                        // Overlap is not allowed, add them to the mergedNonOverlappingTransition
+                        mergedNonOverlappingTransition = transitionImpl.mergeTransitionsTogether(
+                                mergedNonOverlappingTransition, transition, null);
+                    }
                 }
             }
 
@@ -269,8 +282,41 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                             });
                 }
             }
+            // First, hide all of the entering views so they're in
+            // the correct initial state
+            FragmentTransition.setViewVisibility(enteringViews, View.INVISIBLE);
             // Now actually start the transition
             transitionImpl.beginDelayedTransition(getContainer(), mergedTransition);
+            // Then, show all of the entering views, putting them into
+            // the correct final state
+            FragmentTransition.setViewVisibility(enteringViews, View.VISIBLE);
+        }
+    }
+
+    /**
+     * Gets the Views in the hierarchy affected by entering and exiting transitions.
+     *
+     * @param transitioningViews This View will be added to transitioningViews if it is VISIBLE and
+     *                           a normal View or a ViewGroup with
+     *                           {@link android.view.ViewGroup#isTransitionGroup()} true.
+     * @param view               The base of the view hierarchy to look in.
+     */
+    void captureTransitioningViews(ArrayList<View> transitioningViews, View view) {
+        if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+            if (ViewGroupCompat.isTransitionGroup(viewGroup)) {
+                transitioningViews.add(viewGroup);
+            } else {
+                int count = viewGroup.getChildCount();
+                for (int i = 0; i < count; i++) {
+                    View child = viewGroup.getChildAt(i);
+                    if (child.getVisibility() == View.VISIBLE) {
+                        captureTransitioningViews(transitioningViews, child);
+                    }
+                }
+            }
+        } else {
+            transitioningViews.add(view);
         }
     }
 

@@ -17,6 +17,7 @@
 package androidx.ui.integration.test.foundation
 
 import androidx.compose.Composable
+import androidx.compose.key
 import androidx.compose.remember
 import androidx.ui.core.Alignment
 import androidx.ui.core.DensityAmbient
@@ -37,7 +38,6 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.Surface
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.text.TextStyle
 import androidx.ui.unit.px
 import kotlin.random.Random
 
@@ -56,7 +56,10 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                 VerticalScroller {
                     Column {
                         repeat(5) { index ->
-                            SquareRow(index == 0)
+                            // key is needed because of b/154920561
+                            key(index) {
+                                SquareRow(index == 0)
+                            }
                         }
                     }
                 }

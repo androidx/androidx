@@ -24,7 +24,7 @@ import androidx.ui.semantics.testTag
 @Composable
 fun BoundaryNode(
     testTag: String,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Semantics(container = true, properties = { this.testTag = testTag }) {
         Column { children() }

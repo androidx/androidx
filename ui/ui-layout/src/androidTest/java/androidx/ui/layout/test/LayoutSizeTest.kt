@@ -32,6 +32,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
@@ -568,6 +569,86 @@ class LayoutSizeTest : LayoutTest() {
     }
 
     @Test
+    fun testDefaultMinSizeConstraints() = with(density) {
+        val latch = CountDownLatch(3)
+        show {
+            // Constraints are applied.
+            Layout(
+                {},
+                Modifier.wrapContentSize()
+                    .sizeIn(maxWidth = 30.dp, maxHeight = 40.dp)
+                    .defaultMinSizeConstraints(minWidth = 10.dp, minHeight = 20.dp)
+            ) { _, constraints, _ ->
+                assertEquals(10.dp.toIntPx(), constraints.minWidth)
+                assertEquals(20.dp.toIntPx(), constraints.minHeight)
+                assertEquals(30.dp.toIntPx(), constraints.maxWidth)
+                assertEquals(40.dp.toIntPx(), constraints.maxHeight)
+                latch.countDown()
+                layout(0.ipx, 0.ipx) {}
+            }
+            // Constraints are not applied.
+            Layout(
+                {},
+                Modifier.sizeIn(
+                    minWidth = 10.dp,
+                    minHeight = 20.dp,
+                    maxWidth = 100.dp,
+                    maxHeight = 110.dp
+                ).defaultMinSizeConstraints(
+                    minWidth = 50.dp,
+                    minHeight = 50.dp
+                )
+            ) { _, constraints, _ ->
+                assertEquals(10.dp.toIntPx(), constraints.minWidth)
+                assertEquals(20.dp.toIntPx(), constraints.minHeight)
+                assertEquals(100.dp.toIntPx(), constraints.maxWidth)
+                assertEquals(110.dp.toIntPx(), constraints.maxHeight)
+                latch.countDown()
+                layout(0.ipx, 0.ipx) {}
+            }
+            // Defaults values are not changing.
+            Layout(
+                {},
+                Modifier.sizeIn(
+                    minWidth = 10.dp,
+                    minHeight = 20.dp,
+                    maxWidth = 100.dp,
+                    maxHeight = 110.dp
+                ).defaultMinSizeConstraints()
+            ) { _, constraints, _ ->
+                assertEquals(10.dp.toIntPx(), constraints.minWidth)
+                assertEquals(20.dp.toIntPx(), constraints.minHeight)
+                assertEquals(100.dp.toIntPx(), constraints.maxWidth)
+                assertEquals(110.dp.toIntPx(), constraints.maxHeight)
+                latch.countDown()
+                layout(0.ipx, 0.ipx) {}
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun testDefaultMinSizeConstraints_withCoercingMaxConstraints() = with(density) {
+        val latch = CountDownLatch(1)
+        show {
+            Layout(
+                {},
+                Modifier.wrapContentSize()
+                    .sizeIn(maxWidth = 30.dp, maxHeight = 40.dp)
+                    .defaultMinSizeConstraints(minWidth = 70.dp, minHeight = 80.dp)
+            ) { _, constraints, _ ->
+                assertEquals(30.dp.toIntPx(), constraints.minWidth)
+                assertEquals(40.dp.toIntPx(), constraints.minHeight)
+                assertEquals(30.dp.toIntPx(), constraints.maxWidth)
+                assertEquals(40.dp.toIntPx(), constraints.maxHeight)
+                latch.countDown()
+                layout(0.ipx, 0.ipx) {}
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Test
     fun testMinWidthModifier_hasCorrectIntrinsicMeasurements() = with(density) {
         testIntrinsics(@Composable {
             Container(Modifier.preferredWidthIn(minWidth = 10.dp)) {
@@ -897,6 +978,36 @@ class LayoutSizeTest : LayoutTest() {
         verifyIntrinsicMeasurements(Modifier.fillMaxSize())
     }
 
+    @Test
+    fun testDefaultMinSizeConstraintsModifier_hasCorrectIntrinsicMeasurements() = with(density) {
+        testIntrinsics(@Composable {
+            Container(Modifier.defaultMinSizeConstraints(40.dp, 50.dp)) {
+                Container(Modifier.aspectRatio(1f)) { }
+            }
+        }) { minIntrinsicWidth, minIntrinsicHeight, _, _ ->
+            // Min width.
+            assertEquals(40.dp.toIntPx(), minIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicWidth(35.dp.toIntPx()))
+            assertEquals(55.dp.toIntPx(), minIntrinsicWidth(55.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            // Min height.
+            assertEquals(50.dp.toIntPx(), minIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), minIntrinsicHeight(35.dp.toIntPx()))
+            assertEquals(55.dp.toIntPx(), minIntrinsicHeight(55.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+            // Max width.
+            assertEquals(40.dp.toIntPx(), minIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicWidth(35.dp.toIntPx()))
+            assertEquals(55.dp.toIntPx(), minIntrinsicWidth(55.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            // Max height.
+            assertEquals(50.dp.toIntPx(), minIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), minIntrinsicHeight(35.dp.toIntPx()))
+            assertEquals(55.dp.toIntPx(), minIntrinsicHeight(55.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
     private fun getSize(modifier: Modifier = Modifier): IntPxSize {
         val width = 100.dp
         val height = 80.dp
@@ -934,7 +1045,7 @@ class LayoutSizeTest : LayoutTest() {
         val latch = CountDownLatch(1)
         show {
             Layout({
-                WithConstraints(modifier) { constraints, _ ->
+                WithConstraints(modifier) {
                     assertEquals(expectedConstraints, constraints)
                     latch.countDown()
                 }

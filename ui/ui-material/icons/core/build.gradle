@@ -32,7 +32,6 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     api project(":ui:ui-core")
-    api project(":ui:ui-framework")
 }
 
 IconGenerationTask.registerCoreIconProject(project, android)

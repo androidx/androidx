@@ -16,7 +16,7 @@
 
 package androidx.serialization.compiler.codegen
 
-import androidx.serialization.compiler.schema.Enum
+import androidx.serialization.compiler.models.Enum
 import javax.annotation.processing.ProcessingEnvironment
 import androidx.serialization.compiler.codegen.java.javaEnumSerializer
 

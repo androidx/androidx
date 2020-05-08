@@ -380,7 +380,7 @@ class CachingTest {
                     )
                 }
                 is LoadParams.Prepend -> {
-                    val loadSize = minOf(params.key, params.pageSize)
+                    val loadSize = minOf(params.key, params.loadSize)
                     return doLoad(
                         position = params.key - params.loadSize,
                         size = loadSize

@@ -39,7 +39,7 @@ import androidx.ui.input.TextInputService
 import androidx.ui.layout.Row
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidthIn
+import androidx.ui.layout.preferredWidth
 import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.test.StateRestorationTester
 import androidx.ui.test.assertPixels
@@ -78,6 +78,8 @@ import java.util.concurrent.TimeUnit
 class TextFieldTest {
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    private val DefaultTextFieldWidth = 280.dp
 
     @Test
     fun textField_focusInSemantics() {
@@ -321,11 +323,10 @@ class TextFieldTest {
     }
 
     @Test
-    fun textField_occupiesAllAvailableSpace() {
-        val parentSize = 300.dp
+    fun textField_hasDefaultWidth() {
         var size: IntPx? = null
         composeTestRule.setContent {
-            Box(Modifier.preferredSize(parentSize)) {
+            Box {
                 TextField(
                     value = TextFieldValue(),
                     onValueChange = {},
@@ -337,22 +338,21 @@ class TextFieldTest {
         }
 
         with(composeTestRule.density) {
-            assertThat(size).isEqualTo(parentSize.toIntPx())
+            assertThat(size).isEqualTo(DefaultTextFieldWidth.toIntPx())
         }
     }
 
     @Test
-    fun textField_respectsMaxWidthSetByModifier() {
-        val parentSize = 300.dp
+    fun textField_respectsWidthSetByModifier() {
         val textFieldWidth = 100.dp
         var size: IntPx? = null
         composeTestRule.setContent {
-            Box(Modifier.preferredSize(parentSize)) {
+            Box {
                 TextField(
                     value = TextFieldValue(),
                     onValueChange = {},
                     modifier = Modifier
-                        .preferredWidthIn(maxWidth = textFieldWidth)
+                        .preferredWidth(textFieldWidth)
                         .onPositioned {
                             size = it.size.width
                         }
@@ -416,6 +416,7 @@ class TextFieldTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textFieldNotFocused_cursorNotRendered() {
         composeTestRule.setContent {
             TestTag("textField") {

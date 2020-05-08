@@ -48,13 +48,7 @@ oneway interface IMediaSession {
     void seekTo(IMediaController caller, int seq, long pos) = 11;
     void onCustomCommand(IMediaController caller, int seq, in ParcelImpl sessionCommand,
             in Bundle args) = 12;
-    void prepareFromUri(IMediaController caller, int seq, in Uri uri, in Bundle extras) = 13;
-    void prepareFromSearch(IMediaController caller, int seq, String query, in Bundle extras) = 14;
-    void prepareFromMediaId(IMediaController caller, int seq, String mediaId,
-            in Bundle extras) = 15;
-    void playFromUri(IMediaController caller, int seq, in Uri uri, in Bundle extras) = 16;
-    void playFromSearch(IMediaController caller, int seq, String query, in Bundle extras) = 17;
-    void playFromMediaId(IMediaController caller, int seq, String mediaId, in Bundle extras) = 18;
+    // 13~18: removed
     void setRating(IMediaController caller, int seq, String mediaId, in ParcelImpl rating) = 19;
     void setPlaybackSpeed(IMediaController caller, int seq, float speed) = 20;
 

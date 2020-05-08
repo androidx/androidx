@@ -158,6 +158,9 @@ package androidx.room {
     method public abstract String[] projection() default {};
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE}) public @interface RewriteQueriesToDropUnusedColumns {
+  }
+
   public class RoomWarnings {
     ctor @Deprecated public RoomWarnings();
     field public static final String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";

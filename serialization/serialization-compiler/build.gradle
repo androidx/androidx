@@ -34,7 +34,6 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     implementation(project(":serialization:serialization-annotation"))
-    implementation(project(":serialization:serialization-schema"))
 
     implementation(AUTO_COMMON)
     implementation(GUAVA)

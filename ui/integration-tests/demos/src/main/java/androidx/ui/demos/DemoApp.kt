@@ -18,7 +18,6 @@ package androidx.ui.demos
 
 import androidx.compose.Composable
 import androidx.compose.getValue
-import androidx.compose.mutableStateOf
 import androidx.compose.setValue
 import androidx.ui.animation.Crossfade
 import androidx.ui.core.Alignment
@@ -139,7 +138,7 @@ private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Un
 @Composable
 private fun DemoAppBar(
     title: String,
-    navigationIcon: @Composable() (() -> Unit)?,
+    navigationIcon: @Composable (() -> Unit)?,
     isFiltering: Boolean,
     filterText: TextFieldValue,
     onFilter: (TextFieldValue) -> Unit,

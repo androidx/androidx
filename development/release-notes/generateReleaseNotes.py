@@ -245,7 +245,7 @@ def generateGroupIdReleaseNotes(gitClient, releaseJsonObject, groupId, outputDir
 			versionArtifactIds,
 			version,
 			releaseJsonObject["releaseDate"],
-			fromSHA,
+			fromSHA if (fromSHA != "NULL") else "",
 			untilSHA,
 			groupIdCommonDir,
 			requiresSameVersion,

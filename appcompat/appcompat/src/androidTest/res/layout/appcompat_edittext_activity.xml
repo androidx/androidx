@@ -38,6 +38,19 @@
             android:hyphenationFrequency="full"
             android:breakStrategy="balanced"/>
 
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/view_edit_hint_enabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/text_hint_enabled"/>
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/view_edit_hint_disabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:hint="@string/text_hint_disabled"/>
+
     </LinearLayout>
 
 </ScrollView>

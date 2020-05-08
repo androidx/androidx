@@ -19,7 +19,6 @@ package androidx.paging.integration.testapp.custom
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.paging.ExperimentalPagingApi
-import androidx.paging.LoadType
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlinx.coroutines.delay
@@ -46,7 +45,7 @@ internal class ItemDataSource : PagingSource<Int, Item>() {
                     loadSize = params.loadSize
                 )
             is LoadParams.Prepend -> {
-                val loadSize = minOf(params.key, params.pageSize)
+                val loadSize = minOf(params.key, params.loadSize)
                 loadInternal(
                     position = params.key - loadSize,
                     loadSize = loadSize

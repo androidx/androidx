@@ -25,4 +25,6 @@ object Strings {
     val Indeterminate = "Indeterminate"
     val Selected = "Selected"
     val NotSelected = "Not selected"
+    val InProgress = "In progress"
+    val TemplatePercent = "%d percent"
 }

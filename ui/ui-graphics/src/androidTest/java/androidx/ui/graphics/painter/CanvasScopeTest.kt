@@ -27,8 +27,6 @@ import androidx.ui.graphics.Paint
 import androidx.ui.graphics.SolidColor
 import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.toPixelMap
-import androidx.ui.unit.Px
-import androidx.ui.unit.PxSize
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
@@ -41,7 +39,7 @@ class CanvasScopeTest {
 
     private val width: Int = 100
     private val height: Int = 100
-    private val dstSize = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+    private val dstSize = Size(width.toFloat(), height.toFloat())
 
     private fun createTestDstImage(): ImageAsset {
         val dst = ImageAsset(width, height)
@@ -211,12 +209,12 @@ class CanvasScopeTest {
             val bottom = 12.0f
             inset(left, top, right, bottom) {
                 drawRect(color = Color.Red)
-                assertEquals(dstSize.width.value - (left + right), size.width)
-                assertEquals(dstSize.height.value - (top + bottom), size.height)
+                assertEquals(dstSize.width - (left + right), size.width)
+                assertEquals(dstSize.height - (top + bottom), size.height)
             }
 
-            assertEquals(dstSize.width.value, size.width)
-            assertEquals(dstSize.height.value, size.height)
+            assertEquals(dstSize.width, size.width)
+            assertEquals(dstSize.height, size.height)
         }
     }
 
@@ -263,7 +261,7 @@ class CanvasScopeTest {
 
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
         canvasScope.draw(Canvas(imageAsset), size) {
@@ -292,7 +290,7 @@ class CanvasScopeTest {
 
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
         canvasScope.draw(Canvas(imageAsset), size) {
@@ -335,7 +333,7 @@ class CanvasScopeTest {
 
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
         try {
@@ -356,7 +354,7 @@ class CanvasScopeTest {
 
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
         try {
@@ -377,7 +375,7 @@ class CanvasScopeTest {
 
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
 
         canvasScope.draw(Canvas(imageAsset), size) {
@@ -410,7 +408,7 @@ class CanvasScopeTest {
     fun testRotationCenterPivot() {
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
         CanvasScope().draw(Canvas(imageAsset), size) {
             drawRect(color = Color.Red)
@@ -440,7 +438,7 @@ class CanvasScopeTest {
     fun testRotationTopLeftPivot() {
         val width = 200
         val height = 200
-        val size = PxSize(Px(width.toFloat()), Px(height.toFloat()))
+        val size = Size(width.toFloat(), height.toFloat())
         val imageAsset = ImageAsset(width, height)
         CanvasScope().draw(Canvas(imageAsset), size) {
             drawRect(color = Color.Red)
@@ -460,5 +458,80 @@ class CanvasScopeTest {
 
         assertEquals(Color.Red, pixelMap[50, 51])
         assertEquals(Color.Red, pixelMap[75, 76])
+    }
+
+    @Test
+    fun testBatchTransformEquivalent() {
+        val width = 200
+        val height = 200
+        val size = Size(width.toFloat(), height.toFloat())
+        val imageAsset1 = ImageAsset(width, height)
+        CanvasScope().draw(Canvas(imageAsset1), size) {
+            drawRect(color = Color.Red)
+            inset(20.0f, 12.0f, 10.0f, 8.0f) {
+                scale(2.0f, 0.5f) {
+                    rotate(-45.0f, 0.0f, 0.0f) {
+                        translate(7.0f, 9.0f) {
+                            drawRect(
+                                size = Size(100.0f, 100.0f),
+                                color = Color.Blue
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        val imageAsset2 = ImageAsset(width, height)
+        val saveCountCanvas = SaveCountCanvas(Canvas(imageAsset2))
+        CanvasScope().draw(saveCountCanvas, size) {
+            drawRect(color = Color.Red)
+            withTransform({
+                inset(20.0f, 12.0f, 10.0f, 8.0f)
+                scale(2.0f, 0.5f)
+                rotate(-45.0f, 0.0f, 0.0f)
+                translate(7.0f, 9.0f)
+            }) {
+                // 2 saves at this point, the initial draw call does a save
+                // as well as the withTransform call
+                assertEquals(2, saveCountCanvas.saveCount)
+                drawRect(
+                    size = Size(100.0f, 100.0f),
+                    color = Color.Blue
+                )
+            }
+
+            // Restore to the save count of the initial CanvasScope.draw call
+            assertEquals(1, saveCountCanvas.saveCount)
+        }
+
+        val pixelMap1 = imageAsset1.toPixelMap()
+        val pixelMap2 = imageAsset2.toPixelMap()
+        assertEquals(pixelMap1.width, pixelMap2.width)
+        assertEquals(pixelMap1.height, pixelMap2.height)
+        assertEquals(pixelMap1.stride, pixelMap2.stride)
+        assertEquals(pixelMap1.bufferOffset, pixelMap2.bufferOffset)
+        for (x in 0 until pixelMap1.width) {
+            for (y in 0 until pixelMap1.height) {
+                assertEquals("coordinate: " + x + ", " + y + " expected: " +
+                        pixelMap1[x, y] + " actual: " + pixelMap2[x, y],
+                    pixelMap1[x, y],
+                    pixelMap2[x, y]
+                )
+            }
+        }
+    }
+
+    class SaveCountCanvas(val canvas: Canvas) : Canvas by canvas {
+
+        var saveCount: Int = 0
+
+        override fun save() {
+            saveCount++
+        }
+
+        override fun restore() {
+            saveCount--
+        }
     }
 }

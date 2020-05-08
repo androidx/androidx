@@ -33,7 +33,6 @@ import androidx.ui.graphics.PathOperation
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
 import androidx.ui.graphics.addOutline
-import androidx.ui.layout.AlignmentLineOffset
 import androidx.ui.layout.Arrangement
 import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope
@@ -41,6 +40,7 @@ import androidx.ui.layout.Spacer
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.relativePaddingFrom
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredHeight
 import androidx.ui.layout.preferredWidth
@@ -79,10 +79,10 @@ import kotlin.math.sqrt
  */
 @Composable
 fun TopAppBar(
-    title: @Composable() () -> Unit,
+    title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable() (() -> Unit)? = null,
-    actions: @Composable() RowScope.() -> Unit = {},
+    navigationIcon: @Composable (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = TopAppBarElevation
@@ -97,15 +97,12 @@ fun TopAppBar(
             }
         }
 
-        // TODO(soboleva): rework this once AlignmentLineOffset is a modifier
         Box(Modifier.fillMaxHeight().weight(1f), gravity = ContentGravity.BottomStart) {
-            val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
-            AlignmentLineOffset(alignmentLine = LastBaseline, after = baselineOffset) {
-                Semantics(container = true) {
-                    ProvideTextStyle(value = MaterialTheme.typography.h6) {
-                        Row {
-                            ProvideEmphasis(emphasisLevels.high, title)
-                        }
+            Semantics(container = true) {
+                ProvideTextStyle(value = MaterialTheme.typography.h6) {
+                    val baselineOffset = with(DensityAmbient.current) { TitleBaselineOffset.toDp() }
+                    Row(Modifier.relativePaddingFrom(LastBaseline, after = baselineOffset)) {
+                        ProvideEmphasis(emphasisLevels.high, title)
                     }
                 }
             }
@@ -144,7 +141,7 @@ fun TopAppBar(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = TopAppBarElevation,
-    content: @Composable() RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit
 ) {
     AppBar(
         backgroundColor,
@@ -238,7 +235,7 @@ fun BottomAppBar(
     contentColor: Color = contentColorFor(backgroundColor),
     fabConfiguration: FabConfiguration? = null,
     cutoutShape: Shape? = null,
-    content: @Composable() RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit
 ) {
     val shape = if (cutoutShape == null || fabConfiguration == null) {
         RectangleShape
@@ -500,7 +497,7 @@ private fun AppBar(
     elevation: Dp,
     shape: Shape,
     modifier: Modifier = Modifier,
-    children: @Composable() RowScope.() -> Unit
+    children: @Composable RowScope.() -> Unit
 ) {
     Surface(
         color = backgroundColor,

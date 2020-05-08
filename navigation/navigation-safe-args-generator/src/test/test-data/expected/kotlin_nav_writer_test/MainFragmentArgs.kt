@@ -10,8 +10,6 @@ import java.lang.UnsupportedOperationException
 import java.nio.file.AccessMode
 import kotlin.Array
 import kotlin.Boolean
-import kotlin.Double
-import kotlin.DoubleArray
 import kotlin.Float
 import kotlin.FloatArray
 import kotlin.Int
@@ -26,8 +24,6 @@ data class MainFragmentArgs(
   val referenceZeroDefaultValue: Int = 0,
   val floatArg: Float = 1F,
   val floatArrayArg: FloatArray,
-  val doubleArg: Double = 1.2,
-  val doubleArrayArg: DoubleArray,
   val objectArrayArg: Array<ActivityInfo>,
   val boolArg: Boolean = true,
   val optionalParcelable: ActivityInfo? = null,
@@ -42,8 +38,6 @@ data class MainFragmentArgs(
     result.putInt("referenceZeroDefaultValue", this.referenceZeroDefaultValue)
     result.putFloat("floatArg", this.floatArg)
     result.putFloatArray("floatArrayArg", this.floatArrayArg)
-    result.putDouble("doubleArg", this.doubleArg)
-    result.putDoubleArray("doubleArrayArg", this.doubleArrayArg)
     result.putParcelableArray("objectArrayArg", this.objectArrayArg)
     result.putBoolean("boolArg", this.boolArg)
     if (Parcelable::class.java.isAssignableFrom(ActivityInfo::class.java)) {
@@ -106,21 +100,6 @@ data class MainFragmentArgs(
       } else {
         throw IllegalArgumentException("Required argument \"floatArrayArg\" is missing and does not have an android:defaultValue")
       }
-      val __doubleArg : Double
-      if (bundle.containsKey("doubleArg")) {
-        __doubleArg = bundle.getDouble("doubleArg")
-      } else {
-        __doubleArg = 1.2
-      }
-      val __doubleArrayArg : DoubleArray?
-      if (bundle.containsKey("doubleArrayArg")) {
-        __doubleArrayArg = bundle.getDoubleArray("doubleArrayArg")
-        if (__doubleArrayArg == null) {
-          throw IllegalArgumentException("Argument \"doubleArrayArg\" is marked as non-null but was passed a null value.")
-        }
-      } else {
-        throw IllegalArgumentException("Required argument \"doubleArrayArg\" is missing and does not have an android:defaultValue")
-      }
       val __objectArrayArg : Array<ActivityInfo>?
       if (bundle.containsKey("objectArrayArg")) {
         __objectArrayArg = bundle.getParcelableArray("objectArrayArg")?.map { it as ActivityInfo
@@ -165,8 +144,7 @@ data class MainFragmentArgs(
         __enumArg = AccessMode.READ
       }
       return MainFragmentArgs(__main, __optional, __reference, __referenceZeroDefaultValue,
-          __floatArg, __floatArrayArg, __doubleArg, __doubleArrayArg, __objectArrayArg, __boolArg,
-          __optionalParcelable, __enumArg)
+          __floatArg, __floatArrayArg, __objectArrayArg, __boolArg, __optionalParcelable, __enumArg)
     }
   }
 }

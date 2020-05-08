@@ -30,11 +30,14 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
 import androidx.ui.core.clipToBounds
+import androidx.ui.foundation.TextFieldValue.Companion.Saver
 import androidx.ui.foundation.animation.FlingConfig
 import androidx.ui.foundation.gestures.DragDirection
 import androidx.ui.foundation.gestures.ScrollableState
 import androidx.ui.foundation.gestures.scrollable
 import androidx.ui.layout.Constraints
+import androidx.ui.savedinstancestate.Saver
+import androidx.ui.savedinstancestate.rememberSavedInstanceState
 import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
 import androidx.ui.unit.IntPx
@@ -56,7 +59,10 @@ fun ScrollerPosition(
 ): ScrollerPosition {
     val clock = AnimationClockAmbient.current
     val config = FlingConfig()
-    return remember(clock, config) {
+    return rememberSavedInstanceState(
+        clock, config,
+        saver = ScrollerPosition.Saver(config, clock)
+    ) {
         ScrollerPosition(flingConfig = config, initial = initial, animationClock = clock)
     }
 }
@@ -164,6 +170,20 @@ class ScrollerPosition(
             value = newMax
         }
     }
+
+    companion object {
+        /**
+         * The default [Saver] implementation for [ScrollerPosition].
+         */
+        @Composable
+        fun Saver(
+            flingConfig: FlingConfig,
+            animationClock: AnimationClockObservable
+        ): Saver<ScrollerPosition, *> = Saver<ScrollerPosition, Float>(
+            save = { it.value },
+            restore = { ScrollerPosition(flingConfig, it, animationClock) }
+        )
+    }
 }
 
 // TODO(malkov): Test behavior during animation more extensively (including pressing on the scroller
@@ -187,7 +207,7 @@ fun VerticalScroller(
     scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier,
     isScrollable: Boolean = true,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     Scroller(scrollerPosition, modifier, true, isScrollable, child)
 }
@@ -217,7 +237,7 @@ fun HorizontalScroller(
     scrollerPosition: ScrollerPosition = ScrollerPosition(),
     modifier: Modifier = Modifier,
     isScrollable: Boolean = true,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     Scroller(scrollerPosition, modifier, false, isScrollable, child)
 }
@@ -228,7 +248,7 @@ private fun Scroller(
     modifier: Modifier,
     isVertical: Boolean,
     isScrollable: Boolean,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     val direction =
         if (isVertical) DragDirection.Vertical else DragDirection.Horizontal
@@ -240,6 +260,7 @@ private fun Scroller(
                 } else {
                     scrollerPosition.scrollBy(x.value)
                 }
+                return@ScrollTo true
             })
         }
     }) {
@@ -261,7 +282,7 @@ private fun ScrollerLayout(
     scrollerPosition: ScrollerPosition,
     modifier: Modifier,
     isVertical: Boolean,
-    child: @Composable() () -> Unit
+    child: @Composable () -> Unit
 ) {
     Layout(
         modifier = modifier.clipToBounds(),

@@ -26,7 +26,7 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.ContentGravity
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.selection.TriStateToggleable
@@ -138,7 +138,7 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: M
             strokeWidthPx = StrokeWidth.toPx().value
             radiusPx = RadiusSize.toPx().value
         }
-        Canvas2(modifier.preferredSize(CheckboxSize)) {
+        Canvas(modifier.preferredSize(CheckboxSize)) {
             drawBox(
                 color = state[BoxColorProp],
                 innerRadiusFraction = state[InnerRadiusFractionProp],
@@ -188,9 +188,7 @@ private fun CanvasScope.drawBox(
     val innerStrokeWidth = innerRadiusFraction * checkboxSize / 2
     if (innerStrokeWidth > strokeWidth) {
         val clipRect = outer.shrink(strokeWidth / 2 - offset).outerRect()
-        val topLeft = Offset(clipRect.left, clipRect.top)
-        val size = Size(clipRect.width, clipRect.height)
-        clipRect(topLeft, size, ClipOp.difference) {
+        clipRect(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom, ClipOp.difference) {
             drawRoundRect(
                 color,
                 Offset(outer.left, outer.top),
@@ -200,7 +198,7 @@ private fun CanvasScope.drawBox(
             )
         }
 
-        clipRect(topLeft, size) {
+        clipRect(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom) {
             val innerHalfStrokeWidth = innerStrokeWidth / 2
             val rect = outer.shrink(innerHalfStrokeWidth - offset).outerRect()
             drawRect(

@@ -297,7 +297,7 @@ private fun ObservableColorPalette.updateColorsFrom(other: ColorPalette): Observ
  * just provides the given palette in the [ColorAmbient] [Ambient].
  */
 @Composable
-internal fun ProvideColorPalette(colorPalette: ColorPalette, content: @Composable() () -> Unit) {
+internal fun ProvideColorPalette(colorPalette: ColorPalette, content: @Composable () -> Unit) {
     val palette = when (colorPalette) {
         is ObservableColorPalette -> {
             (remember { ObservableColorPalette(colorPalette) }).updateColorsFrom(colorPalette)

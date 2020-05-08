@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.work.WorkManager#getWorkInfos(androidx.work.WorkQuery):
+    Added method androidx.work.WorkManager.getWorkInfos(androidx.work.WorkQuery)
+AddedAbstractMethod: androidx.work.WorkManager#getWorkInfosLiveData(androidx.work.WorkQuery):
+    Added method androidx.work.WorkManager.getWorkInfosLiveData(androidx.work.WorkQuery)

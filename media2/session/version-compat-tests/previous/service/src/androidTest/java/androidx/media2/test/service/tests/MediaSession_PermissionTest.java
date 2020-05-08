@@ -29,12 +29,6 @@ import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_REWIND;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SKIP_BACKWARD;
@@ -47,13 +41,10 @@ import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -398,126 +389,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void playFromMediaId() throws InterruptedException {
-        prepareLooper();
-        final String mediaId = "testPlayFromMediaId";
-        createSessionWithAllowedActions(
-                createCommandGroupWith(COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID));
-        createRemoteController(mSession.getToken()).playFromMediaId(mediaId, null);
-
-        assertTrue(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertTrue(mCallback.mOnPlayFromMediaIdCalled);
-        assertEquals(mediaId, mCallback.mMediaId);
-        assertNull(mCallback.mExtras);
-
-        createSessionWithAllowedActions(
-                createCommandGroupWithout(COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID));
-        createRemoteController(mSession.getToken()).playFromMediaId(mediaId, null);
-        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertFalse(mCallback.mOnPlayFromMediaIdCalled);
-    }
-
-    @Test
-    public void playFromUri() throws InterruptedException {
-        prepareLooper();
-        final Uri uri = Uri.parse("play://from.uri");
-        createSessionWithAllowedActions(
-                createCommandGroupWith(COMMAND_CODE_SESSION_PLAY_FROM_URI));
-        createRemoteController(mSession.getToken()).playFromUri(uri, null);
-
-        assertTrue(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertTrue(mCallback.mOnPlayFromUriCalled);
-        assertEquals(uri, mCallback.mUri);
-        assertNull(mCallback.mExtras);
-
-        createSessionWithAllowedActions(
-                createCommandGroupWithout(COMMAND_CODE_SESSION_PLAY_FROM_URI));
-        createRemoteController(mSession.getToken()).playFromUri(uri, null);
-        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertFalse(mCallback.mOnPlayFromUriCalled);
-    }
-
-    @Test
-    public void playFromSearch() throws InterruptedException {
-        prepareLooper();
-        final String query = "testPlayFromSearch";
-        createSessionWithAllowedActions(
-                createCommandGroupWith(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH));
-        createRemoteController(mSession.getToken()).playFromSearch(query, null);
-
-        assertTrue(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertTrue(mCallback.mOnPlayFromSearchCalled);
-        assertEquals(query, mCallback.mQuery);
-        assertNull(mCallback.mExtras);
-
-        createSessionWithAllowedActions(
-                createCommandGroupWithout(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH));
-        createRemoteController(mSession.getToken()).playFromSearch(query, null);
-        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertFalse(mCallback.mOnPlayFromSearchCalled);
-    }
-
-    @Test
-    public void prepareFromMediaId() throws InterruptedException {
-        prepareLooper();
-        final String mediaId = "testPrepareFromMediaId";
-        createSessionWithAllowedActions(
-                createCommandGroupWith(COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID));
-        createRemoteController(mSession.getToken()).prepareFromMediaId(mediaId, null);
-
-        assertTrue(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertTrue(mCallback.mOnPrepareFromMediaIdCalled);
-        assertEquals(mediaId, mCallback.mMediaId);
-        assertNull(mCallback.mExtras);
-
-        createSessionWithAllowedActions(
-                createCommandGroupWithout(COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID));
-        createRemoteController(mSession.getToken()).prepareFromMediaId(mediaId, null);
-        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertFalse(mCallback.mOnPrepareFromMediaIdCalled);
-    }
-
-    @Test
-    public void prepareFromUri() throws InterruptedException {
-        prepareLooper();
-        final Uri uri = Uri.parse("prepare://from.uri");
-        createSessionWithAllowedActions(
-                createCommandGroupWith(COMMAND_CODE_SESSION_PREPARE_FROM_URI));
-        createRemoteController(mSession.getToken()).prepareFromUri(uri, null);
-
-        assertTrue(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertTrue(mCallback.mOnPrepareFromUriCalled);
-        assertEquals(uri, mCallback.mUri);
-        assertNull(mCallback.mExtras);
-
-        createSessionWithAllowedActions(
-                createCommandGroupWithout(COMMAND_CODE_SESSION_PREPARE_FROM_URI));
-        createRemoteController(mSession.getToken()).prepareFromUri(uri, null);
-        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertFalse(mCallback.mOnPrepareFromUriCalled);
-    }
-
-    @Test
-    public void prepareFromSearch() throws InterruptedException {
-        prepareLooper();
-        final String query = "testPrepareFromSearch";
-        createSessionWithAllowedActions(
-                createCommandGroupWith(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH));
-        createRemoteController(mSession.getToken()).prepareFromSearch(query, null);
-
-        assertTrue(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertTrue(mCallback.mOnPrepareFromSearchCalled);
-        assertEquals(query, mCallback.mQuery);
-        assertNull(mCallback.mExtras);
-
-        createSessionWithAllowedActions(
-                createCommandGroupWithout(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH));
-        createRemoteController(mSession.getToken()).prepareFromSearch(query, null);
-        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertFalse(mCallback.mOnPrepareFromSearchCalled);
-    }
-
-    @Test
     public void setRating() throws InterruptedException {
         prepareLooper();
         final String mediaId = "testSetRating";
@@ -541,23 +412,24 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
     @Test
     public void changingPermissionWithSetAllowedCommands() throws InterruptedException {
         prepareLooper();
-        final String query = "testChangingPermissionWithSetAllowedCommands";
+        final String mediaId = "testSetRating";
+        final Rating rating = new StarRating(5, 3.5f);
         createSessionWithAllowedActions(
-                createCommandGroupWith(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH));
+                createCommandGroupWith(COMMAND_CODE_SESSION_SET_RATING));
         RemoteMediaController controller = createRemoteController(mSession.getToken());
+        controller.setRating(mediaId, rating);
 
-        controller.prepareFromSearch(query, null);
         assertTrue(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertTrue(mCallback.mOnPrepareFromSearchCalled);
-        assertEquals(query, mCallback.mQuery);
-        assertNull(mCallback.mExtras);
+        assertTrue(mCallback.mOnSetRatingCalled);
+        assertEquals(mediaId, mCallback.mMediaId);
+        assertEquals(rating, mCallback.mRating);
         mCallback.reset();
 
         // Change allowed commands.
         mSession.setAllowedCommands(getTestControllerInfo(),
-                createCommandGroupWithout(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH));
+                createCommandGroupWithout(COMMAND_CODE_SESSION_SET_RATING));
 
-        controller.prepareFromSearch(query, null);
+        controller.setRating(mediaId, rating);
         assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -583,18 +455,9 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
         public SessionCommand mCommand;
         public String mMediaId;
-        public String mQuery;
-        public Uri mUri;
-        public Bundle mExtras;
         public Rating mRating;
 
         public boolean mOnCommandRequestCalled;
-        public boolean mOnPlayFromMediaIdCalled;
-        public boolean mOnPlayFromSearchCalled;
-        public boolean mOnPlayFromUriCalled;
-        public boolean mOnPrepareFromMediaIdCalled;
-        public boolean mOnPrepareFromSearchCalled;
-        public boolean mOnPrepareFromUriCalled;
         public boolean mOnFastForwardCalled;
         public boolean mOnRewindCalled;
         public boolean mOnSkipForwardCalled;
@@ -611,17 +474,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
 
             mCommand = null;
             mMediaId = null;
-            mQuery = null;
-            mUri = null;
-            mExtras = null;
 
             mOnCommandRequestCalled = false;
-            mOnPlayFromMediaIdCalled = false;
-            mOnPlayFromSearchCalled = false;
-            mOnPlayFromUriCalled = false;
-            mOnPrepareFromMediaIdCalled = false;
-            mOnPrepareFromSearchCalled = false;
-            mOnPrepareFromUriCalled = false;
             mOnFastForwardCalled = false;
             mOnRewindCalled = false;
             mOnSetRatingCalled = false;
@@ -665,72 +519,6 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         public int onSkipBackward(MediaSession session, ControllerInfo controller) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnSkipBackwardCalled = true;
-            mCountDownLatch.countDown();
-            return RESULT_SUCCESS;
-        }
-
-        @Override
-        public int onPlayFromMediaId(MediaSession session, ControllerInfo controller,
-                String mediaId, Bundle extras) {
-            assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
-            mOnPlayFromMediaIdCalled = true;
-            mMediaId = mediaId;
-            mExtras = extras;
-            mCountDownLatch.countDown();
-            return RESULT_SUCCESS;
-        }
-
-        @Override
-        public int onPlayFromSearch(MediaSession session, ControllerInfo controller,
-                String query, Bundle extras) {
-            assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
-            mOnPlayFromSearchCalled = true;
-            mQuery = query;
-            mExtras = extras;
-            mCountDownLatch.countDown();
-            return RESULT_SUCCESS;
-        }
-
-        @Override
-        public int onPlayFromUri(MediaSession session, ControllerInfo controller,
-                Uri uri, Bundle extras) {
-            assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
-            mOnPlayFromUriCalled = true;
-            mUri = uri;
-            mExtras = extras;
-            mCountDownLatch.countDown();
-            return RESULT_SUCCESS;
-        }
-
-        @Override
-        public int onPrepareFromMediaId(MediaSession session, ControllerInfo controller,
-                String mediaId, Bundle extras) {
-            assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
-            mOnPrepareFromMediaIdCalled = true;
-            mMediaId = mediaId;
-            mExtras = extras;
-            mCountDownLatch.countDown();
-            return RESULT_SUCCESS;
-        }
-
-        @Override
-        public int onPrepareFromSearch(MediaSession session, ControllerInfo controller,
-                String query, Bundle extras) {
-            assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
-            mOnPrepareFromSearchCalled = true;
-            mQuery = query;
-            mExtras = extras;
-            mCountDownLatch.countDown();
-            return RESULT_SUCCESS;
-        }
-
-        @Override
-        public int onPrepareFromUri(MediaSession session, ControllerInfo controller,
-                Uri uri, Bundle extras) {
-            assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
-            mOnPrepareFromUriCalled = true;
-            mUri = uri;
-            mExtras = extras;
             mCountDownLatch.countDown();
             return RESULT_SUCCESS;
         }

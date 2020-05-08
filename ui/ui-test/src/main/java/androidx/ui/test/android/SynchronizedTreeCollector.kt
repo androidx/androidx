@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.view.Choreographer
 import androidx.compose.onCommit
-import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso
 import androidx.ui.core.AndroidOwner
 import androidx.ui.core.semantics.SemanticsNode
@@ -47,18 +46,13 @@ internal object SynchronizedTreeCollector {
      * surfaces only in incorrect tests.
      */
     internal fun collectOwners(): CollectedOwners {
-        waitForIdle()
         check(AndroidOwnerRegistry.isSetup) {
             "Test not setup properly. Use a ComposeTestRule in your test to be able to interact " +
                     "with composables"
         }
-        return CollectedOwners(AndroidOwnerRegistry.getAllOwners().filterTo(mutableSetOf()) {
-            // lifecycleOwner can only be null if it.view is not yet attached, and since owners
-            // are only in the registry when they're attached we don't care about the
-            // lifecycleOwner being null.
-            val lifecycleOwner = it.lifecycleOwner ?: return@filterTo false
-            lifecycleOwner.lifecycle.currentState == Lifecycle.State.RESUMED
-        }.also {
+        waitForIdle()
+
+        return CollectedOwners(AndroidOwnerRegistry.getOwners().also {
             // TODO(b/153632210): This check should be done by callers of collectOwners
             check(it.isNotEmpty()) { "No AndroidOwners found. Is your Activity resumed?" }
         })
@@ -74,7 +68,20 @@ internal object SynchronizedTreeCollector {
      */
     internal fun waitForIdle() {
         registerComposeWithEspresso()
+        // First wait for Android mechanisms to settle down
         Espresso.onIdle()
+        // Then wait until we have an AndroidOwner (in case an Activity is being started)
+        waitForAndroidOwners()
+        // And when we have an AndroidOwner, we need to wait until it has composed
+        Espresso.onIdle()
+
+        // TODO(b/155774664): waitForAndroidOwners() may be satisfied by an AndroidOwner from an
+        //  Activity that is about to be paused, in cases where a new Activity is being started.
+        //  That means that AndroidOwnerRegistry.getOwners() may still return an empty list
+        //  between now and when the new Activity has created its AndroidOwner, even though
+        //  waitForAndroidOwners() suggests that we are now guaranteed one.
+
+        // Wait for onCommit callbacks last, as they might be posted while waiting for idle
         waitForOnCommitCallbacks()
     }
 
@@ -88,6 +95,29 @@ internal object SynchronizedTreeCollector {
             Choreographer.getInstance().postFrameCallbackDelayed({ latch.countDown() }, 1)
         }
         latch.await(1, TimeUnit.SECONDS)
+    }
+
+    private fun waitForAndroidOwners() {
+        fun hasAndroidOwners(): Boolean = AndroidOwnerRegistry.getOwners().isNotEmpty()
+
+        if (!hasAndroidOwners()) {
+            val latch = CountDownLatch(1)
+            val listener = object : AndroidOwnerRegistry.OnRegistrationChangedListener {
+                override fun onRegistrationChanged(owner: AndroidOwner, registered: Boolean) {
+                    if (hasAndroidOwners()) {
+                        latch.countDown()
+                    }
+                }
+            }
+            try {
+                AndroidOwnerRegistry.addOnRegistrationChangedListener(listener)
+                if (!hasAndroidOwners()) {
+                    latch.await(2, TimeUnit.SECONDS)
+                }
+            } finally {
+                AndroidOwnerRegistry.removeOnRegistrationChangedListener(listener)
+            }
+        }
     }
 }
 

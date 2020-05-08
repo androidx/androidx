@@ -154,19 +154,22 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
     @SuppressWarnings("deprecation")
     override fun clipRect(left: Float, top: Float, right: Float, bottom: Float, clipOp: ClipOp) {
         @Suppress("DEPRECATION")
-        when (clipOp) {
-            ClipOp.intersect -> internalCanvas.clipRect(left, top, right, bottom)
-            ClipOp.difference -> internalCanvas.clipRect(left, top, right, bottom,
-                android.graphics.Region.Op.DIFFERENCE)
-        }
+        internalCanvas.clipRect(left, top, right, bottom, clipOp.toRegionOp())
     }
 
     /**
      * @see Canvas.clipPath
      */
-    override fun clipPath(path: Path) {
-        internalCanvas.clipPath(path.asAndroidPath())
+    override fun clipPath(path: Path, clipOp: ClipOp) {
+        @Suppress("DEPRECATION")
+        internalCanvas.clipPath(path.asAndroidPath(), clipOp.toRegionOp())
     }
+
+    fun ClipOp.toRegionOp(): android.graphics.Region.Op =
+        when (this) {
+            ClipOp.difference -> android.graphics.Region.Op.DIFFERENCE
+            else -> android.graphics.Region.Op.INTERSECT
+        }
 
     /**
      * @see Canvas.drawLine

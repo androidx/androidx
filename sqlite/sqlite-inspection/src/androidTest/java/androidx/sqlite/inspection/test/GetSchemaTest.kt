@@ -164,7 +164,9 @@ class GetSchemaTest {
         testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).let { response ->
             assertThat(response.hasErrorOccurred()).isEqualTo(true)
             val error = response.errorOccurred.content
-            assertThat(error.message).isEqualTo("No database with id=$databaseId")
+            assertThat(error.message).contains(
+                "Unable to perform an operation on database (id=$databaseId).")
+            assertThat(error.message).contains("The database may have already been closed.")
             assertThat(error.recoverability.isRecoverable).isEqualTo(true)
         }
     }

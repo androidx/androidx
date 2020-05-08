@@ -58,7 +58,8 @@ public abstract class ActivityResultRegistry {
 
     private static final String LOG_TAG = "ActivityResultRegistry";
 
-    private final AtomicInteger mNextRc = new AtomicInteger(0);
+    // Use upper 16 bits for request codes
+    private final AtomicInteger mNextRc = new AtomicInteger(0x0000ffff);
     private final Map<Integer, String> mRcToKey = new HashMap<>();
     private final Map<String, Integer> mKeyToRc = new HashMap<>();
 

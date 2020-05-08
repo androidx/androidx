@@ -42,10 +42,8 @@ dependencies {
     implementation(JUNIT)
 
     androidTestImplementation project(":ui:ui-core")
-    androidTestImplementation project(":ui:ui-framework")
     androidTestImplementation project(":ui:ui-layout")
     androidTestImplementation project(":ui:ui-material")
-    androidTestImplementation project(":ui:ui-platform")
     androidTestImplementation project(":ui:ui-test")
     androidTestImplementation project(":compose:compose-runtime")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

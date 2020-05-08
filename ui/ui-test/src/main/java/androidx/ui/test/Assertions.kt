@@ -18,8 +18,10 @@ package androidx.ui.test
 
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.findClosestParentNode
+import androidx.ui.core.semantics.SemanticsNode
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
+import androidx.ui.semantics.AccessibilityRangeInfo
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.test.android.SynchronizedTreeCollector
 import androidx.ui.unit.PxBounds
@@ -167,6 +169,16 @@ fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInte
     assert(hasValue(value))
 
 /**
+ * Asserts the component's range info equals the given value.
+ *
+ * For further details please check [SemanticsProperties.AccessibilityRangeInfo].
+ * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
+ */
+fun SemanticsNodeInteraction.assertRangeInfoEquals(value: AccessibilityRangeInfo):
+        SemanticsNodeInteraction =
+    assert(hasRangeInfo(value))
+
+/**
  * Asserts that the current component has a click action.
  *
  * Throws [AssertionError] if the component is doesn't have a click action.
@@ -219,6 +231,55 @@ fun SemanticsNodeInteractionCollection.assertCountEquals(
             selector = selector,
             foundNodes = matchedNodes,
             expectedCount = expectedSize))
+    }
+    return this
+}
+
+/**
+ * Asserts that this collection contains at least one element that satisfies the given [matcher].
+ *
+ * @param matcher Matcher that has to be satisfied by at least one of the nodes in the collection.
+ *
+ * @throws AssertionError if not at least one matching node was node.
+ */
+fun SemanticsNodeInteractionCollection.assertAny(
+    matcher: SemanticsMatcher
+): SemanticsNodeInteractionCollection {
+    val errorOnFail = "Failed to assertAny(${matcher.description})"
+    val nodes = fetchSemanticsNodes(errorOnFail)
+    if (nodes.isEmpty()) {
+        throw AssertionError(buildErrorMessageForAtLeastOneNodeExpected(errorOnFail, selector))
+    }
+    if (!matcher.matchesAny(nodes)) {
+        throw AssertionError(buildErrorMessageForAssertAnyFail(selector, nodes, matcher))
+    }
+    return this
+}
+
+/**
+ * Asserts that all the nodes in this collection satisfy the given [matcher].
+ *
+ * This passes also for empty collections.
+ *
+ * @param matcher Matcher that has to be satisfied by all the nodes in the collection.
+ *
+ * @throws AssertionError if the collection contains at least one element that does not satisfy
+ * the given matcher.
+ */
+fun SemanticsNodeInteractionCollection.assertAll(
+    matcher: SemanticsMatcher
+): SemanticsNodeInteractionCollection {
+    val errorOnFail = "Failed to assertAll(${matcher.description})"
+    val nodes = fetchSemanticsNodes(errorOnFail)
+
+    val violations = mutableListOf<SemanticsNode>()
+    nodes.forEach {
+        if (!matcher.matches(it)) {
+            violations.add(it)
+        }
+    }
+    if (violations.isNotEmpty()) {
+        throw AssertionError(buildErrorMessageForAssertAllFail(selector, violations, matcher))
     }
     return this
 }

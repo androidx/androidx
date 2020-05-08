@@ -48,6 +48,7 @@ import android.view.textclassifier.TextClassifier;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.annotation.GuardedBy;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.test.R;
@@ -204,18 +205,32 @@ public class AppCompatTextViewTest
                 textView.getCurrentTextColor());
     }
 
-    private void verifyTextLinkColor(TextView textView) {
+    private void verifyTextLinkColor(TextView textView,
+            @ColorRes int expectedEnabledColor, @ColorRes int expectedDisabledColor) {
         ColorStateList linkColorStateList = textView.getLinkTextColors();
-        assertEquals(ContextCompat.getColor(textView.getContext(), R.color.lilac_default),
+        assertEquals(ContextCompat.getColor(textView.getContext(), expectedEnabledColor),
                 linkColorStateList.getColorForState(new int[]{android.R.attr.state_enabled}, 0));
-        assertEquals(ContextCompat.getColor(textView.getContext(), R.color.lilac_disabled),
+        assertEquals(ContextCompat.getColor(textView.getContext(), expectedDisabledColor),
                 linkColorStateList.getColorForState(new int[]{-android.R.attr.state_enabled}, 0));
     }
 
     @Test
+    @UiThreadTest
     public void testTextLinkColor() {
-        verifyTextLinkColor((TextView) mContainer.findViewById(R.id.view_text_link_enabled));
-        verifyTextLinkColor((TextView) mContainer.findViewById(R.id.view_text_link_disabled));
+        TextView textLinkEnabledView = mContainer.findViewById(R.id.view_text_link_enabled);
+        TextView textLinkDisabledView = mContainer.findViewById(R.id.view_text_link_disabled);
+
+        // Verify initial enabled and disabled text link colors set from the activity theme
+        verifyTextLinkColor(textLinkEnabledView, R.color.lilac_default, R.color.lilac_disabled);
+        verifyTextLinkColor(textLinkDisabledView, R.color.lilac_default, R.color.lilac_disabled);
+
+        // Set new text appearance on the two views - the appearance has new text link color
+        // state list that references theme-level attributes. And verify that the new text
+        // link colors are correctly resolved.
+        TextViewCompat.setTextAppearance(textLinkEnabledView, R.style.TextStyleNew);
+        verifyTextLinkColor(textLinkEnabledView, R.color.ocean_default, R.color.ocean_disabled);
+        TextViewCompat.setTextAppearance(textLinkDisabledView, R.style.TextStyleNew);
+        verifyTextLinkColor(textLinkDisabledView, R.color.ocean_default, R.color.ocean_disabled);
     }
 
     @Test

@@ -270,7 +270,8 @@ inline class Size(@PublishedApi internal val value: Long) {
      *
      * See also [Rect.center].
      */
-    fun center(origin: Offset): Offset = Offset(origin.dx + width / 2.0f, origin.dy + height / 2.0f)
+    fun center(origin: Offset = Offset.zero): Offset = Offset(origin.dx + width / 2.0f, origin.dy +
+            height / 2.0f)
 
     /**
      * The offset to the center of the right edge of the rectangle described by the
@@ -325,4 +326,11 @@ inline class Size(@PublishedApi internal val value: Long) {
     fun getFlipped() = Size(height, width)
 
     override fun toString() = "Size(${width.toStringAsFixed(1)}, ${height.toStringAsFixed(1)})"
+}
+
+/**
+ * Convert a [Size] to a [Rect].
+ */
+fun Size.toRect(): Rect {
+    return Rect(0f, 0f, width, height)
 }

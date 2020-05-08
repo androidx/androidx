@@ -89,7 +89,6 @@ public final class NavBackStackEntry implements
         if (navControllerLifecycleOwner != null) {
             mHostLifecycle = navControllerLifecycleOwner.getLifecycle().getCurrentState();
         }
-        updateState();
     }
 
     /**
@@ -140,7 +139,7 @@ public final class NavBackStackEntry implements
     /**
      * Update the state to be the lower of the two constraints:
      */
-    private void updateState() {
+    void updateState() {
         if (mHostLifecycle.ordinal() < mMaxLifecycle.ordinal()) {
             mLifecycle.setCurrentState(mHostLifecycle);
         } else {

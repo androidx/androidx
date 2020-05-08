@@ -16,9 +16,11 @@
 
 package androidx.ui.material
 
+import android.os.Build
 import androidx.compose.Providers
 import androidx.compose.state
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.core.Modifier
 import androidx.ui.core.Ref
 import androidx.ui.core.TestTag
@@ -634,6 +636,7 @@ class FilledTextFieldTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testVisualTransformationPropagated() {
         testRule.setMaterialContent {
             TestTag("textField") {
