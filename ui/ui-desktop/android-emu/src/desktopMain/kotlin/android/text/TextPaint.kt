@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package android.view.accessibility
+package android.text
 
-class AccessibilityManager() {
-    fun isEnabled(): Boolean = false
-}
+import android.graphics.Paint
+
+class TextPaint(flags: Int) : Paint(flags)

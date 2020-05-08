@@ -14,8 +14,18 @@
  * limitations under the License.
  */
 
-package android.view.accessibility
+package android.graphics
 
-class AccessibilityManager() {
-    fun isEnabled(): Boolean = false
+private const val DEFAULT_FONT_NAME = "Arial Unicode"
+
+class Typeface(val skijaTypeface: org.jetbrains.skija.Typeface) {
+    companion object {
+        @JvmField
+        // TODO: Skija should make it possible to make fonts from non-file in-memory source
+        val DEFAULT = Typeface(org.jetbrains.skija.Typeface.makeFromFile(getFontPathAsString()))
+    }
+}
+
+fun getFontPathAsString(): String {
+    return Typeface::class.java.getClassLoader().getResource("NotoSans-Regular.ttf").getFile()
 }
