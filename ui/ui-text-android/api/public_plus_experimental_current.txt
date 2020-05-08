@@ -11,6 +11,9 @@ package androidx.ui.text.platform {
 
 package androidx.ui.text.platform.style {
 
+  public final class FontWeightStyleSpanKt {
+  }
+
   public final class PlaceholderSpanKt {
   }
 

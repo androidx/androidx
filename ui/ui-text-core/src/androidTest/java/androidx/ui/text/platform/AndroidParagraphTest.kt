@@ -19,7 +19,6 @@ import androidx.ui.text.platform.style.LetterSpacingSpanEm
 import androidx.ui.text.platform.style.LetterSpacingSpanPx
 import androidx.ui.text.platform.style.ShadowSpan
 import androidx.ui.text.platform.style.SkewXSpan
-import androidx.ui.text.platform.style.TypefaceSpan
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shadow
@@ -37,6 +36,7 @@ import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.text.matchers.assertThat
+import androidx.ui.text.platform.style.FontSpan
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
@@ -49,6 +49,7 @@ import androidx.ui.unit.px
 import androidx.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
@@ -714,8 +715,8 @@ class AndroidParagraphTest {
 
         assertThat(paragraph.charSequence.toString()).isEqualTo(text)
         assertThat(paragraph.charSequence)
-            .hasSpan(TypefaceSpan::class, expectedStart, expectedEnd) { span ->
-                span.typeface == expectedTypeface
+            .hasSpan(FontSpan::class, expectedStart, expectedEnd) { span ->
+                span.getTypeface(FontWeight.Bold.weight, true) == expectedTypeface
             }
     }
 
@@ -751,8 +752,8 @@ class AndroidParagraphTest {
 
         assertThat(paragraph.charSequence.toString()).isEqualTo(text)
         assertThat(paragraph.charSequence)
-            .hasSpan(TypefaceSpan::class, expectedStart, expectedEnd) { span ->
-                span.typeface == expectedTypeface
+            .hasSpan(FontSpan::class, expectedStart, expectedEnd) { span ->
+                span.getTypeface(FontWeight.Bold.weight, true) == expectedTypeface
             }
     }
 
@@ -883,7 +884,7 @@ class AndroidParagraphTest {
             constraints = ParagraphConstraints(width = Float.MAX_VALUE)
         )
 
-        verify(typefaceAdapter, times(1)).create(
+        verify(typefaceAdapter, atLeastOnce()).create(
             fontFamily = eq(basicFontFamily),
             fontWeight = eq(FontWeight.Normal),
             fontStyle = eq(FontStyle.Normal),
@@ -892,6 +893,23 @@ class AndroidParagraphTest {
         val typeface = paragraph.textPaint.typeface
         assertThat(typeface.isBold).isFalse()
         assertThat(typeface.isItalic).isFalse()
+    }
+
+    @Test
+    fun testFontFamily_appliedAsSpan() {
+        val text = "abc"
+        val typefaceAdapter = spy(TypefaceAdapter())
+        val paragraph = simpleParagraph(
+            text = text,
+            style = TextStyle(
+                fontFamily = basicFontFamily
+            ),
+            typefaceAdapter = typefaceAdapter,
+            constraints = ParagraphConstraints(width = Float.MAX_VALUE)
+        )
+
+        val charSequence = paragraph.charSequence
+        assertThat(charSequence).hasSpan(FontSpan::class, 0, text.length)
     }
 
     @Test

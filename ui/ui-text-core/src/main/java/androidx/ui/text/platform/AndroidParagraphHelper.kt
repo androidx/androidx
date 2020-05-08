@@ -41,7 +41,6 @@ import androidx.ui.text.platform.style.LineHeightSpan
 import androidx.ui.text.platform.style.PlaceholderSpan
 import androidx.ui.text.platform.style.ShadowSpan
 import androidx.ui.text.platform.style.SkewXSpan
-import androidx.ui.text.platform.style.TypefaceSpan
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.isSet
 import androidx.ui.unit.Density
@@ -55,9 +54,13 @@ import androidx.ui.text.LocaleList
 import androidx.ui.text.Placeholder
 import androidx.ui.text.PlaceholderVerticalAlign
 import androidx.ui.text.SpanStyle
+import androidx.ui.text.font.FontFamily
+import androidx.ui.text.font.FontListFontFamily
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
+import androidx.ui.text.platform.style.FontSpan
+import androidx.ui.text.platform.style.FontWeightStyleSpan
 import androidx.ui.text.style.BaselineShift
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirectionAlgorithm
@@ -74,6 +77,8 @@ private const val SPAN_PRIORITY_MIN = 0
 // Span priority is in the range of [0, 255]. Here we used 127 as default priority(instead of 0)
 // in case some spans need  lower priority.
 private const val SPAN_PRIORITY_NORMAL = 127
+//  FontSpan must be applied after FontWeightStyleSpan, but before LetterSpacingSpan.
+private const val SPAN_PRIORITY_FONTSPAN = 1
 //  LetterSpacingSpanPx or LetterSpacingSpanEm must be applied after all other spans
 //  that change fontSize and scaleX.
 private const val SPAN_PRIORITY_LETTERSPACING = 0
@@ -147,10 +152,18 @@ internal fun TextPaint.applySpanStyle(
         }
     }
 
+    // When FontFamily is a custom font(FontListFontFamily), it needs to be applied on Paint to
+    // compute empty paragraph height. Meanwhile, we also need a FontSpan for
+    // FontStyle/FontWeight span to work correctly.
     // letterSpacing with unit Sp needs to be handled by span.
     // baselineShift and bgColor is reset in the Android Layout constructor,
     // therefore we cannot apply them on paint, have to use spans.
     return SpanStyle(
+        fontFamily = if (style.fontFamily != null && style.fontFamily is FontListFontFamily) {
+            style.fontFamily
+        } else {
+            null
+        },
         letterSpacing = if (style.letterSpacing.type == TextUnitType.Sp &&
                     style.letterSpacing.value != 0f) {
             style.letterSpacing
@@ -304,9 +317,36 @@ internal fun createStyledText(
             )
         }
 
-        if (style.hasFontAttributes()) {
+        style.fontFamily?.let {
             spannableString.setSpanWithPriority(
-                TypefaceSpan(createTypeface(style, typefaceAdapter)),
+                FontSpan { weight, isItalic ->
+                    createTypeface(
+                        fontFamily = it,
+                        weight = weight,
+                        isItalic = isItalic,
+                        fontSynthesis = style.fontSynthesis,
+                        typefaceAdapter = typefaceAdapter
+                    )
+                },
+                start,
+                end,
+                if (it is FontListFontFamily) {
+                    SPAN_PRIORITY_FONTSPAN
+                } else {
+                    SPAN_PRIORITY_NORMAL
+                }
+            )
+        }
+
+        if (style.fontStyle != null || style.fontWeight != null) {
+            val weight = style.fontWeight?.weight ?: 0
+            val fontStyle = when (style.fontStyle) {
+                FontStyle.Normal -> FontWeightStyleSpan.STYLE_NORMAL
+                FontStyle.Italic -> FontWeightStyleSpan.STYLE_ITALIC
+                else -> FontWeightStyleSpan.STYLE_NONE
+            }
+            spannableString.setSpanWithPriority(
+                FontWeightStyleSpan(weight, fontStyle),
                 start,
                 end,
                 SPAN_PRIORITY_NORMAL
@@ -428,6 +468,24 @@ private fun createTypeface(style: SpanStyle, typefaceAdapter: TypefaceAdapter): 
         fontWeight = style.fontWeight ?: FontWeight.Normal,
         fontStyle = style.fontStyle ?: FontStyle.Normal,
         fontSynthesis = style.fontSynthesis ?: FontSynthesis.All
+    )
+}
+
+private fun createTypeface(
+    fontFamily: FontFamily?,
+    weight: Int,
+    isItalic: Boolean,
+    fontSynthesis: FontSynthesis?,
+    typefaceAdapter: TypefaceAdapter
+): Typeface {
+    val fontWeight = FontWeight(weight)
+    val fontStyle = if (isItalic) FontStyle.Italic else FontStyle.Normal
+
+    return typefaceAdapter.create(
+        fontFamily = fontFamily,
+        fontWeight = fontWeight,
+        fontStyle = fontStyle,
+        fontSynthesis = fontSynthesis ?: FontSynthesis.All
     )
 }
 

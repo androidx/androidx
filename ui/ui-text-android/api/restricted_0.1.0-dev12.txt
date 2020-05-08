@@ -85,6 +85,31 @@ package androidx.ui.text.platform.style {
     method public void updateMeasureState(android.text.TextPaint textPaint);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class FontSpan extends android.text.style.MetricAffectingSpan {
+    ctor public FontSpan(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Boolean,? extends android.graphics.Typeface> getTypeface);
+    method public kotlin.jvm.functions.Function2<java.lang.Integer,java.lang.Boolean,android.graphics.Typeface> getGetTypeface();
+    method public void updateDrawState(android.text.TextPaint textPaint);
+    method public void updateMeasureState(android.text.TextPaint textPaint);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class FontWeightStyleSpan extends android.text.style.MetricAffectingSpan {
+    ctor public FontWeightStyleSpan(@IntRange(from=null, to=null) int weight, int style);
+    method public int getStyle();
+    method public int getWeight();
+    method public void updateDrawState(android.text.TextPaint textPaint);
+    method public void updateMeasureState(android.text.TextPaint textPaint);
+    field public static final androidx.ui.text.platform.style.FontWeightStyleSpan.Companion! Companion;
+    field public static final int STYLE_ITALIC = 2; // 0x2
+    field public static final int STYLE_NONE = -1; // 0xffffffff
+    field public static final int STYLE_NORMAL = 0; // 0x0
+  }
+
+  public static final class FontWeightStyleSpan.Companion {
+  }
+
+  public final class FontWeightStyleSpanKt {
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class LetterSpacingSpanEm extends android.text.style.MetricAffectingSpan {
     ctor public LetterSpacingSpanEm(float letterSpacing);
     method public float getLetterSpacing();
