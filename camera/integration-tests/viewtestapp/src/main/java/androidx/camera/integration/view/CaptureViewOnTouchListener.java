@@ -134,7 +134,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
 
                         @Override
                         public void onError(@NonNull ImageCaptureException exception) {
-                            report("Failure: " + exception.getMessage());
+                            report("Failure: " + exception.getMessage(), exception.getCause());
                         }
                     });
         }
@@ -158,7 +158,7 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
                         @Override
                         public void onError(int videoCaptureError, @NonNull String message,
                                 @Nullable Throwable cause) {
-                            report("Failure: " + message);
+                            report("Failure: " + message, cause);
                         }
                     });
         }
@@ -225,16 +225,25 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
     }
 
     private File createNewFile(String extension) {
+        File dirFile =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        if (dirFile != null && !dirFile.exists()) {
+            dirFile.mkdirs();
+        }
         // Use Locale.US to ensure we get ASCII digits
-        return new File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+        return new File(dirFile,
                 new SimpleDateFormat(FILENAME, Locale.US).format(System.currentTimeMillis())
                         + extension);
     }
 
     @SuppressWarnings("WeakerAccess")
-    void report(String msg) {
-        Log.d(TAG, msg);
+    void report(@NonNull String msg) {
+        report(msg, null);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    void report(@NonNull String msg, @Nullable Throwable cause) {
+        Log.d(TAG, msg, cause);
         Toast.makeText(mCameraView.getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
