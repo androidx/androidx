@@ -251,6 +251,39 @@ public class IconCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    public void testCreateWithResource_toFromBundle() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Drawable original = context.getDrawable(R.drawable.test_drawable_red);
+        IconCompat compat = IconCompat.createWithResource(context, R.drawable.test_drawable_red);
+
+        IconCompat recovered = IconCompat.createFromIcon(compat.toIcon(context));
+
+        assertEquals(mContext.getPackageName(), recovered.getResPackage());
+        assertEquals(R.drawable.test_drawable_red, recovered.getResId());
+        assertEquals(original.getClass(), recovered.loadDrawable(context).getClass());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
+    public void testCreateWithResource_parcelize() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Drawable original = context.getDrawable(R.drawable.test_drawable_red);
+        IconCompat compat = IconCompat.createWithResource(context, R.drawable.test_drawable_red);
+
+        Parcel parcel = Parcel.obtain();
+        parcel.writeParcelable(ParcelUtils.toParcelable(compat), 0);
+        parcel.setDataPosition(0);
+        IconCompat recovered =
+                ParcelUtils.fromParcelable(parcel.readParcelable(getClass().getClassLoader()));
+        parcel.recycle();
+
+        assertEquals(mContext.getPackageName(), recovered.getResPackage());
+        assertEquals(R.drawable.test_drawable_red, recovered.getResId());
+        assertEquals(original.getClass(), recovered.loadDrawable(context).getClass());
+    }
+
+    @Test
     public void testBitmapIconCompat() {
         verifyIconCompatValidity(
                 IconCompat.createWithBitmap(Bitmap.createBitmap(16, 16, Bitmap.Config.ARGB_8888)));
