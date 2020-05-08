@@ -56,6 +56,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * A request for a
  * {@link androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult}
@@ -173,6 +176,7 @@ public final class IntentSenderRequest implements Parcelable {
                 FLAG_ACTIVITY_REORDER_TO_FRONT, FLAG_ACTIVITY_NO_ANIMATION,
                 FLAG_ACTIVITY_CLEAR_TASK, FLAG_ACTIVITY_TASK_ON_HOME,
                 FLAG_ACTIVITY_RETAIN_IN_RECENTS, FLAG_ACTIVITY_LAUNCH_ADJACENT})
+        @Retention(RetentionPolicy.SOURCE)
         private @interface Flag {}
 
         /**

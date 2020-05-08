@@ -18,8 +18,11 @@ package androidx.activity.integration.testapp
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -30,13 +33,15 @@ import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.result.launch
-import androidx.activity.result.registerForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
+import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
+import androidx.activity.result.launch
+import androidx.activity.result.registerForActivityResult
 import androidx.core.content.FileProvider
 import java.io.File
 
@@ -67,6 +72,11 @@ class MainActivity : ComponentActivity() {
         toast("Got documents: $docs")
     }
 
+    val intentSender = registerForActivityResult(ActivityResultContracts
+        .StartIntentSenderForResult()) {
+        toast("Received intent sender callback")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -90,6 +100,13 @@ class MainActivity : ComponentActivity() {
                 }
                 button("Open documents") {
                     openDocuments.launch(arrayOf("*/*"))
+                }
+                button("Start IntentSender") {
+                    val request = IntentSenderRequest.Builder(PendingIntent.getActivity(context,
+                        0, Intent(MediaStore.ACTION_IMAGE_CAPTURE), 0).intentSender)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK, 1)
+                        .build()
+                    intentSender.launch(request)
                 }
             }
         }
