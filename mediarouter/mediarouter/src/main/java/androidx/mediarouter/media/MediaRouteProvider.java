@@ -421,7 +421,7 @@ public abstract class MediaRouteProvider {
          *
          * @param reason The reason for unselecting the route.
          */
-        public void onUnselect(int reason) {
+        public void onUnselect(@MediaRouter.UnselectReason int reason) {
             onUnselect();
         }
 
