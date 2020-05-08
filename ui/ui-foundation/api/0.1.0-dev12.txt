@@ -53,17 +53,10 @@ package androidx.ui.foundation {
     method public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class DrawBackground implements androidx.ui.core.DrawModifier {
-    method public androidx.ui.foundation.DrawBackground copy(androidx.ui.graphics.Paint paint, androidx.ui.graphics.Shape shape);
-    method public void draw(androidx.ui.core.ContentDrawScope);
-  }
-
   public final class DrawBackgroundKt {
-    method @Deprecated public static androidx.ui.foundation.DrawBackground DrawBackground(androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
-    method @Deprecated public static androidx.ui.foundation.DrawBackground DrawBackground-qSsqlCY(long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
-    method public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Paint paint, androidx.ui.graphics.Shape shape);
-    method public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
-    method public static androidx.ui.core.Modifier drawBackground-IZZjS-Q(androidx.ui.core.Modifier, long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape);
+    method @Deprecated public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Paint paint, androidx.ui.graphics.Shape shape);
+    method public static androidx.ui.core.Modifier drawBackground(androidx.ui.core.Modifier, androidx.ui.graphics.Brush brush, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = CanvasScope.DefaultBlendMode);
+    method public static androidx.ui.core.Modifier drawBackground-s1Ed2t0(androidx.ui.core.Modifier, long color, androidx.ui.graphics.Shape shape = androidx.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.ui.graphics.painter.DrawStyle style = Fill, androidx.ui.graphics.ColorFilter? colorFilter = null, androidx.ui.graphics.BlendMode blendMode = CanvasScope.DefaultBlendMode);
   }
 
   public final class DrawBorder implements androidx.ui.core.DrawModifier {
