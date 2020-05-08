@@ -98,6 +98,11 @@ public final class MediaRouter {
     static final String TAG = "MediaRouter";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
+    @IntDef({UNSELECT_REASON_UNKNOWN, UNSELECT_REASON_DISCONNECTED, UNSELECT_REASON_STOPPED,
+            UNSELECT_REASON_ROUTE_CHANGED})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface UnselectReason {}
+
     /**
      * Passed to {@link MediaRouteProvider.RouteController#onUnselect(int)},
      * {@link Callback#onRouteUnselected(MediaRouter, RouteInfo, int)} and
@@ -443,7 +448,7 @@ public final class MediaRouter {
      *
      * @param reason The reason for disconnecting the current route.
      */
-    public void unselect(int reason) {
+    public void unselect(@UnselectReason int reason) {
         if (reason < MediaRouter.UNSELECT_REASON_UNKNOWN ||
                 reason > MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
             throw new IllegalArgumentException("Unsupported reason to unselect route");
@@ -2007,7 +2012,7 @@ public final class MediaRouter {
          * @param reason The reason for unselecting the previous route.
          */
         public void onRouteSelected(@NonNull MediaRouter router, @NonNull RouteInfo route,
-                int reason) {
+                @UnselectReason int reason) {
             onRouteSelected(router, route);
         }
 
@@ -2040,7 +2045,8 @@ public final class MediaRouter {
          * @param route The route that has been unselected.
          * @param reason The reason for unselecting the route.
          */
-        public void onRouteUnselected(MediaRouter router, RouteInfo route, int reason) {
+        public void onRouteUnselected(MediaRouter router, RouteInfo route,
+                @UnselectReason int reason) {
             onRouteUnselected(router, route);
         }
 
