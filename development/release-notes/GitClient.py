@@ -90,7 +90,7 @@ class GitClient:
 
 		gitLogCmd = GIT_LOG_CMD_PREFIX + " " + gitLogOptions + " "
 		if n is not None:
-			gitLogCmd += " -n " + str(n)
+			gitLogCmd += " -n " + str(n) + " "
 		if fromExclusiveSha != "":
 			gitLogCmd += " " + fromExclusiveSha + ".."
 		gitLogCmd += untilInclusiveSha
