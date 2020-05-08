@@ -658,36 +658,8 @@ class LayoutNode : ComponentNode(), Measurable {
             return _layoutChildren
         }
 
-    /**
-     * `true` when parentDataNode has to be rediscovered. This is when the
-     * LayoutNode has been attached.
-     */
-    private var parentDataDirty = false
-
     override val parentData: Any?
         get() = layoutNodeWrapper.parentData
-
-    /**
-     * The parentData [DataNode] for this LayoutNode.
-     */
-    internal var parentDataNode: DataNode<*>? = null
-        get() {
-            if (parentDataDirty) {
-                // walk up to find ParentData
-                field = null
-                var node = parent
-                val parentLayoutNode = parentLayoutNode
-                while (node != null && node !== parentLayoutNode) {
-                    if (node is DataNode<*> && node.key === ParentDataKey) {
-                        field = node
-                        break
-                    }
-                    node = node.parent
-                }
-                parentDataDirty = false
-            }
-            return field
-        }
 
     internal val innerLayoutNodeWrapper: LayoutNodeWrapper = InnerPlaceable(this)
     internal var layoutNodeWrapper = innerLayoutNodeWrapper
@@ -792,7 +764,6 @@ class LayoutNode : ComponentNode(), Measurable {
     override fun attach(owner: Owner) {
         super.attach(owner)
         requestRemeasure()
-        parentDataDirty = true
         parentLayoutNode?.layoutChildrenDirty = true
         layoutNodeWrapper.attach()
         onAttach?.invoke(owner)
@@ -811,7 +782,6 @@ class LayoutNode : ComponentNode(), Measurable {
             parentLayoutNode.layoutChildrenDirty = true
             parentLayoutNode.requestRemeasure()
         }
-        parentDataDirty = true
         alignmentLinesQueryOwner = null
         onDetach?.invoke(owner)
         layoutNodeWrapper.detach()

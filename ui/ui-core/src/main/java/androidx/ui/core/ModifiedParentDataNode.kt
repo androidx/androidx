@@ -26,7 +26,6 @@ internal class ModifiedParentDataNode(
              * ParentData provided through the parentData node will override the data provided
              * through a modifier
              */
-            layoutNode.parentDataNode?.value
-                ?: layoutNode.measureScope.modifyParentData(wrapped.parentData)
+            layoutNode.measureScope.modifyParentData(wrapped.parentData)
         }
 }
