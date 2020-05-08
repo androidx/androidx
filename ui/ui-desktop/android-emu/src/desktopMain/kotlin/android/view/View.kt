@@ -18,8 +18,16 @@ package android.view
 
 import android.content.Context
 import android.graphics.Canvas
+import android.util.LayoutDirection
 
 open class View(val context: Context) {
+    companion object {
+        @JvmField
+        val LAYOUT_DIRECTION_LTR = LayoutDirection.LTR
+        @JvmField
+        val LAYOUT_DIRECTION_RTL = LayoutDirection.RTL
+    }
+
     open class AccessibilityDelegate()
 
     interface OnApplyWindowInsetsListener {

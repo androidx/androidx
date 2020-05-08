@@ -35,6 +35,8 @@ private class SkijaState {
     var renderTarget: BackendRenderTarget? = null
     var surface: Surface? = null
     var canvas: Canvas? = null
+    var textureId: Int = 0
+    val intBuf1 = IntBuffer.allocate(1)
 
     fun clear() {
         if (surface != null) {
@@ -43,6 +45,7 @@ private class SkijaState {
         if (renderTarget != null) {
             renderTarget!!.close()
         }
+        textureId = 0
     }
 }
 
@@ -73,6 +76,7 @@ class SkiaWindow(
         val profile = GLProfile.get(GLProfile.GL3)
         val capabilities = GLCapabilities(profile)
         glCanvas = GLCanvas(capabilities)
+        capabilities.doubleBuffered = true
         val skijaState = SkijaState()
         glCanvas.autoSwapBufferMode = true
 
@@ -84,12 +88,12 @@ class SkiaWindow(
                 width: Int,
                 height: Int
             ) {
-                initSkija(glCanvas, skijaState)
+                initSkija(glCanvas, skijaState, false)
                 renderer!!.onReshape(width, height)
             }
 
             override fun init(drawable: GLAutoDrawable?) {
-                initSkija(glCanvas, skijaState)
+                initSkija(glCanvas, skijaState, true)
                 renderer!!.onInit()
             }
 
@@ -99,11 +103,15 @@ class SkiaWindow(
 
             override fun display(drawable: GLAutoDrawable?) {
                 skijaState.apply {
+                    val gl = drawable!!.gl!!
+                    gl.glBindTexture(GL.GL_TEXTURE_2D, textureId)
                     canvas!!.clear(0xFFFFFFFF)
                     renderer!!.onRender(
                         canvas!!, glCanvas.width, glCanvas.height
                     )
                     context!!.flush()
+                    gl.glGetIntegerv(GL.GL_TEXTURE_BINDING_2D, intBuf1)
+                    textureId = intBuf1[0]
                 }
             }
         })
@@ -128,7 +136,7 @@ class SkiaWindow(
         }
     }
 
-    private fun initSkija(glCanvas: GLCanvas, skijaState: SkijaState) {
+    private fun initSkija(glCanvas: GLCanvas, skijaState: SkijaState, reinitTexture: Boolean) {
         with(skijaState) {
             val width = glCanvas.width
             val height = glCanvas.height
@@ -154,6 +162,10 @@ class SkiaWindow(
             )
             canvas = surface!!.canvas
             canvas!!.scale(dpi, dpi)
+            if (reinitTexture) {
+                glCanvas.gl.glGetIntegerv(GL.GL_TEXTURE_BINDING_2D, intBuf1)
+                skijaState.textureId = intBuf1[0]
+            }
         }
     }
 }

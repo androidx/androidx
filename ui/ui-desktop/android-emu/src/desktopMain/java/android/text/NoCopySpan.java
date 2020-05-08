@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,18 @@
  * limitations under the License.
  */
 
-package android.view.accessibility
+package android.text;
 
-class AccessibilityManager() {
-    fun isEnabled(): Boolean = false
+/**
+ * This interface should be added to a span object that should not be copied
+ * into a new Spanned when performing a slice or copy operation on the original
+ * Spanned it was placed in.
+ */
+public interface NoCopySpan {
+    /**
+     * Convenience equivalent for when you would just want a new Object() for
+     * a span but want it to be no-copy.  Use this instead.
+     */
+    class Concrete implements NoCopySpan {
+    }
 }
