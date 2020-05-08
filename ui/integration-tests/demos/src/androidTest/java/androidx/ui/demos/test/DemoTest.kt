@@ -21,29 +21,29 @@ import androidx.test.filters.LargeTest
 import androidx.ui.demos.AllDemosCategory
 import androidx.ui.demos.DemoActivity
 import androidx.ui.demos.Tags
-import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.Demo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.demos.common.allDemos
 import androidx.ui.demos.common.allLaunchableDemos
+import androidx.ui.test.SemanticsNodeInteractionCollection
 import androidx.ui.test.android.AndroidComposeTestRule
 import androidx.ui.test.assertLabelEquals
 import androidx.ui.test.doClick
 import androidx.ui.test.doScrollTo
 import androidx.ui.test.find
+import androidx.ui.test.findAll
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import androidx.ui.test.hasClickAction
 import androidx.ui.test.hasText
+import androidx.ui.test.isDialog
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-// TODO: expand testing here to include Activity based demos, which are harder to handle
-// synchronization between
 @LargeTest
 @RunWith(JUnit4::class)
 class DemoTest {
@@ -57,12 +57,14 @@ class DemoTest {
         findByTag(Tags.FilterButton).doClick()
         // TODO: use keyboard input APIs when available to actually filter the list
         val testDemo = AllDemosCategory.allLaunchableDemos()
+            // ActivityDemos don't set the title in the AppBar, so we can't verify if we've
+            // opened the right one. So, only use ComposableDemos
             .filterIsInstance<ComposableDemo>()
             .sortedBy { it.title }
             .first()
         // Click on the first demo
         val demoTitle = testDemo.title
-        findByText(demoTitle).doClick()
+        findByText(demoTitle).doScrollTo().doClick()
         assertAppBarHasTitle(demoTitle)
         Espresso.pressBack()
         assertIsOnRootScreen()
@@ -79,8 +81,7 @@ class DemoTest {
         assertIsOnRootScreen()
 
         // Ensure that we visited all the demos we expected to, in the order we expected to.
-        val nonActivityDemos = AllDemosCategory.allDemos().filter { it !is ActivityDemo<*> }
-        assertThat(visitedDemos).isEqualTo(nonActivityDemos)
+        assertThat(visitedDemos).isEqualTo(AllDemosCategory.allDemos())
     }
 
     /**
@@ -89,7 +90,7 @@ class DemoTest {
      * @param path The path of categories that leads to this demo
      */
     private fun DemoCategory.visitDemos(visitedDemos: MutableList<Demo>, path: List<DemoCategory>) {
-        demos.filter { it !is ActivityDemo<*> }.forEach { demo ->
+        demos.forEach { demo ->
             visitedDemos.add(demo)
             demo.visit(visitedDemos, path)
         }
@@ -107,11 +108,8 @@ class DemoTest {
         val navigationTitle = if (path.size == 1) {
             path.first().title
         } else {
-            path.drop(1).joinToString(" > ") { it.title }
+            path.drop(1).joinToString(" > ")
         }
-
-        // TODO: b/154796168 remove this when we can check for dialogs and dismiss them
-        if (title in listOf("Dialog", "AlertDialog")) return
 
         find(hasText(title) and hasClickAction())
             .assertExists("Couldn't find \"$title\" in \"$navigationTitle\"")
@@ -120,6 +118,13 @@ class DemoTest {
 
         if (this is DemoCategory) {
             visitDemos(visitedDemos, path + this)
+        }
+
+        // Don't `findAll` in WebComponentActivity, it doesn't have an AndroidOwner
+        if (title != "WebComponent") {
+            while (findAll(isDialog()).isNotEmpty()) {
+                Espresso.pressBack()
+            }
         }
 
         Espresso.pressBack()
@@ -138,3 +143,7 @@ private fun assertIsOnRootScreen() = assertAppBarHasTitle(AllDemosCategory.title
  */
 private fun assertAppBarHasTitle(title: String) =
     findByTag(Tags.AppBarTitle).assertLabelEquals(title)
+
+private fun SemanticsNodeInteractionCollection.isNotEmpty(): Boolean {
+    return fetchSemanticsNodes().isNotEmpty()
+}

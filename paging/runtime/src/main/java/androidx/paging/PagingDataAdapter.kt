@@ -100,6 +100,14 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         differ.submitData(lifecycle, pagingData)
     }
 
+    /**
+     * Retry any failed load requests that would result in a [LoadState.Error] update to this
+     * [PagingDataAdapter].
+     *
+     * [LoadState.Error] can be generated from two types of load requests:
+     *  * [PagingSource.load] returning [PagingSource.LoadResult.Error]
+     *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
+     */
     fun retry() {
         differ.retry()
     }
@@ -108,7 +116,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
         differ.refresh()
     }
 
-    protected open fun getItem(position: Int) = differ.getItem(position)
+    protected fun getItem(position: Int) = differ.getItem(position)
 
     override fun getItemCount() = differ.itemCount
 
@@ -122,7 +130,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      *
      * @see removeLoadStateListener
      */
-    open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.addLoadStateListener(listener)
     }
 
@@ -132,7 +140,7 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>(
      * @param listener Previously registered listener.
      * @see addLoadStateListener
      */
-    open fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
+    fun removeLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
         differ.removeLoadStateListener(listener)
     }
 

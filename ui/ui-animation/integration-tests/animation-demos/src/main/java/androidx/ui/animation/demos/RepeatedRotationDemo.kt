@@ -25,7 +25,7 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.rotate
@@ -61,7 +61,7 @@ fun RepeatedRotationDemo() {
             definition = definition,
             toState = state.value
         ) { state ->
-            Canvas2(Modifier.preferredSize(100.dp)) {
+            Canvas(Modifier.preferredSize(100.dp)) {
                 rotate(state[rotation], 0.0f, 0.0f) {
                     drawRect(Color(0xFF00FF00))
                 }

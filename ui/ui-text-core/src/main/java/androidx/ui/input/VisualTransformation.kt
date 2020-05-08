@@ -104,6 +104,16 @@ interface VisualTransformation {
      * @return the pair of filtered text and offset translator.
      */
     fun filter(text: AnnotatedString): TransformedText
+
+    companion object {
+        /**
+         * A special visual transformation object indicating that no transformation is applied.
+         */
+        val None: VisualTransformation = object : VisualTransformation {
+            override fun filter(text: AnnotatedString) =
+                TransformedText(text, OffsetMap.identityOffsetMap)
+        }
+    }
 }
 
 /**

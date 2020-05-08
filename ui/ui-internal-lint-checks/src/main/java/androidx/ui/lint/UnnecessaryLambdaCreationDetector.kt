@@ -69,7 +69,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
      *    such as val foo = @Composable {}
      * 4. The receiver type of the function call is `Function0` (i.e, we are invoking something
      *    that matches `() -> Unit` - this both avoids non-lambda invocations but also makes sure
-     *    that we don't warn for lambdas that have parameters, such as @Composable() (Int) -> Unit
+     *    that we don't warn for lambdas that have parameters, such as @Composable (Int) -> Unit
      *    - this cannot be inlined.)
      * 5. The outer function call that contains this lambda is not a call to a `ComponentNode`
      *    (because these are technically constructor invocations that we just intercept calls to
@@ -189,7 +189,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
  */
 private val KtCallableDeclaration.isComposable: Boolean
     // Unfortunately as Composability isn't carried through UAST, and there are many types of
-    // declarations (types such as foo: @Composable() () -> Unit, properties such as val
+    // declarations (types such as foo: @Composable () -> Unit, properties such as val
     // foo = @Composable {}) the best way to cover this is just check if we contain this annotation
     // in text. Definitely not ideal, but it should cover most cases and ignores false positives, so
     // it's the best solution for now.

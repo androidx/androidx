@@ -61,7 +61,7 @@ fun Row(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalGravity: Alignment.Vertical = Alignment.Top,
-    children: @Composable() RowScope.() -> Unit
+    children: @Composable RowScope.() -> Unit
 ) {
     RowColumnImpl(
         orientation = LayoutOrientation.Horizontal,

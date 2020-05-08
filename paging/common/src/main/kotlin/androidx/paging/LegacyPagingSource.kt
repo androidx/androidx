@@ -50,6 +50,7 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
             params.key,
             params.loadSize,
             params.placeholdersEnabled,
+            @Suppress("DEPRECATION")
             params.pageSize
         )
 

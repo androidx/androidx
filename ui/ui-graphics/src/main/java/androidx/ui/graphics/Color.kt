@@ -231,6 +231,16 @@ inline class Color(val value: ULong) {
             }
         }
 
+    operator fun component1(): Float = red
+
+    operator fun component2(): Float = green
+
+    operator fun component3(): Float = blue
+
+    operator fun component4(): Float = alpha
+
+    operator fun component5(): ColorSpace = colorSpace
+
     /**
      * Copies the existing color, changing only the provided values. The [ColorSpace][colorSpace]
      * of the returned [Color] is the same as this [colorSpace].

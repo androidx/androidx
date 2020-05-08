@@ -564,7 +564,7 @@ public class GuidedAction extends Action {
     public static class Builder extends BuilderBase<Builder> {
 
         /**
-         * @deprecated Use {@link GuidedAction.Builder#GuidedAction.Builder(Context)}.
+         * @deprecated Use {@link GuidedAction.Builder#Builder(Context)}.
          */
         @Deprecated
         public Builder() {

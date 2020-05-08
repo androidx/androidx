@@ -28,6 +28,7 @@ import androidx.ui.foundation.ProvideTextStyle
 import androidx.ui.foundation.Text
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.Shape
+import androidx.ui.graphics.compositeOver
 import androidx.ui.layout.InnerPadding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple
@@ -58,10 +59,13 @@ import androidx.ui.unit.dp
  * be clickable
  * @param elevation The z-coordinate at which to place this button. This controls the size
  * of the shadow below the button
+ * @param disabledElevation The elevation used when [enabled] is false
  * @param shape Defines the button's shape as well as its shadow
  * @param border Border to draw around the button
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
+ * @param disabledBackgroundColor The background color used when [enabled] is false
  * @param contentColor The preferred content color. Will be used by text and iconography
+ * @param disabledContentColor The preferred content color used when [enabled] is false
  * @param padding The spacing values to apply internally between the container and the content
  */
 @Composable
@@ -70,22 +74,25 @@ fun Button(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     elevation: Dp = 2.dp,
+    disabledElevation: Dp = 0.dp,
     shape: Shape = MaterialTheme.shapes.small,
     border: Border? = null,
     backgroundColor: Color = MaterialTheme.colors.primary,
+    disabledBackgroundColor: Color = Button.defaultDisabledBackgroundColor,
     contentColor: Color = contentColorFor(backgroundColor),
+    disabledContentColor: Color = Button.defaultDisabledContentColor,
     padding: InnerPadding = Button.DefaultInnerPadding,
-    text: @Composable() () -> Unit
+    text: @Composable () -> Unit
 ) {
     // Since we're adding layouts in between the clickable layer and the content, we need to
     // merge all descendants, or we'll get multiple nodes
     Semantics(container = true, mergeAllDescendants = true) {
         Surface(
             shape = shape,
-            color = backgroundColor,
-            contentColor = contentColor,
+            color = if (enabled) backgroundColor else disabledBackgroundColor,
+            contentColor = if (enabled) contentColor else disabledContentColor,
             border = border,
-            elevation = elevation,
+            elevation = if (enabled) elevation else disabledElevation,
             modifier = modifier
         ) {
             Clickable(
@@ -141,6 +148,7 @@ fun Button(
  * @param border Border to draw around the button
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
  * @param contentColor The preferred content color. Will be used by text and iconography
+ * @param disabledContentColor The preferred content color used when [enabled] is false
  * @param padding The spacing values to apply internally between the container and the content
  */
 @Composable
@@ -154,18 +162,22 @@ inline fun OutlinedButton(
         1.dp, MaterialTheme.colors.onSurface.copy(alpha = OutlinedStrokeOpacity)
     ),
     backgroundColor: Color = MaterialTheme.colors.surface,
-    contentColor: Color = MaterialTheme.colors.primary,
+    contentColor: Color = contentColorFor(backgroundColor),
+    disabledContentColor: Color = Button.defaultDisabledContentColor,
     padding: InnerPadding = Button.DefaultInnerPadding,
-    noinline text: @Composable() () -> Unit
+    noinline text: @Composable () -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
     enabled = enabled,
     elevation = elevation,
+    disabledElevation = 0.dp,
     shape = shape,
     border = border,
     backgroundColor = backgroundColor,
+    disabledBackgroundColor = backgroundColor,
     contentColor = contentColor,
+    disabledContentColor = disabledContentColor,
     padding = padding,
     text = text
 )
@@ -197,6 +209,7 @@ inline fun OutlinedButton(
  * @param border Border to draw around the button
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
  * @param contentColor The preferred content color. Will be used by text and iconography
+ * @param disabledContentColor The preferred content color used when [enabled] is false
  * @param padding The spacing values to apply internally between the container and the content
  */
 @Composable
@@ -209,17 +222,21 @@ inline fun TextButton(
     border: Border? = null,
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colors.primary,
+    disabledContentColor: Color = Button.defaultDisabledContentColor,
     padding: InnerPadding = TextButton.DefaultInnerPadding,
-    noinline text: @Composable() () -> Unit
+    noinline text: @Composable () -> Unit
 ) = Button(
     modifier = modifier,
     onClick = onClick,
     enabled = enabled,
     elevation = elevation,
+    disabledElevation = 0.dp,
     shape = shape,
     border = border,
     backgroundColor = backgroundColor,
+    disabledBackgroundColor = backgroundColor,
     contentColor = contentColor,
+    disabledContentColor = disabledContentColor,
     padding = padding,
     text = text
 )
@@ -243,6 +260,27 @@ object Button {
         end = ButtonHorizontalPadding,
         bottom = ButtonVerticalPadding
     )
+
+    /**
+     * The default disabled background color used by Contained [Button]s
+     */
+    @Composable
+    val defaultDisabledBackgroundColor
+        get(): Color = with(MaterialTheme.colors) {
+            // we have to composite it over surface here as if we provide a transparent background for
+            // Surface and non-zero elevation the artifacts from casting the shadow will be visible
+            // below the background.
+            onSurface.copy(alpha = 0.12f).compositeOver(surface)
+        }
+
+    /**
+     * The default disabled content color used by all types of [Button]s
+     */
+    @Composable
+    val defaultDisabledContentColor
+        get(): Color = with(MaterialTheme.colors) {
+            EmphasisAmbient.current.disabled.emphasize(onSurface)
+        }
 }
 
 /**

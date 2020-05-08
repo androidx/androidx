@@ -27,7 +27,7 @@ import androidx.serialization.compiler.codegen.java.ext.parameterized
 import androidx.serialization.compiler.codegen.java.ext.switchCase
 import androidx.serialization.compiler.codegen.java.ext.switchDefault
 import androidx.serialization.compiler.codegen.java.ext.toClassName
-import androidx.serialization.compiler.schema.Enum
+import androidx.serialization.compiler.models.Enum
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName

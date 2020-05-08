@@ -17,7 +17,6 @@
 package androidx.ui.livedata
 
 import androidx.compose.Composable
-import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.compose.onPreCommit
 import androidx.compose.state

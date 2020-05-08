@@ -38,6 +38,7 @@ import androidx.ui.core.onPositioned
 import androidx.ui.focus.FocusModifier
 import androidx.ui.focus.FocusState
 import androidx.ui.focus.focusState
+import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorValue
 import androidx.ui.input.ImeAction
@@ -62,7 +63,7 @@ fun CoreTextField(
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocusChange: (Boolean) -> Unit = {},
     onImeActionPerformed: (ImeAction) -> Unit = {},
-    visualTransformation: VisualTransformation? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
 ) {
@@ -71,7 +72,7 @@ fun CoreTextField(
     // incrementing generation counter when we callback to the developer and reset the state with
     // the latest state.
     val generation = state { 0 }
-    val Wrapper: @Composable() (Int, @Composable() () -> Unit) -> Unit = { _, child -> child() }
+    val Wrapper: @Composable (Int, @Composable () -> Unit) -> Unit = { _, child -> child() }
     val onValueChangeWrapper: (EditorValue) -> Unit = { onValueChange(it); generation.value++ }
 
     Wrapper(generation.value) {
@@ -82,7 +83,7 @@ fun CoreTextField(
 
         // State
         val (visualText, offsetMap) = remember(value, visualTransformation) {
-            val transformed = TextFieldDelegate.applyVisualFilter(value, visualTransformation)
+            val transformed = visualTransformation.filter(AnnotatedString(value.text))
             value.composition?.let {
                 TextFieldDelegate.applyCompositionDecoration(it, transformed)
             } ?: transformed
@@ -191,13 +192,15 @@ fun CoreTextField(
                 emptyContent(),
                 updatedModifier.drawBehind {
                     state.layoutResult?.let { layoutResult ->
-                        TextFieldDelegate.draw(
-                            this,
-                            value,
-                            offsetMap,
-                            layoutResult,
-                            DefaultSelectionColor
-                        )
+                        drawCanvas { canvas, _ ->
+                            TextFieldDelegate.draw(
+                                canvas,
+                                value,
+                                offsetMap,
+                                layoutResult,
+                                DefaultSelectionColor
+                            )
+                        }
                     }
                 }.onPositioned {
                     if (textInputService != null) {
@@ -267,7 +270,7 @@ private fun TextInputEventObserver(
     onFocus: () -> Unit,
     onBlur: (hasNextClient: Boolean) -> Unit,
     focusModifier: FocusModifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     val prevState = state { FocusState.NotFocused }
     if (focusModifier.focusState == FocusState.Focused &&
@@ -296,7 +299,7 @@ private fun TextInputEventObserver(
         container = true,
         mergeAllDescendants = true,
         properties = {
-            onClick(action = doFocusIn)
+            onClick(action = { doFocusIn(); return@onClick true })
         }
     ) {
         val drag = Modifier.dragPositionGestureFilter(
@@ -377,7 +380,7 @@ private fun Modifier.dragPositionGestureFilter(
             DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
                 tracker.value.onDrag(dragDistance)
-                return tracker.value.getPosition()
+                return PxPosition.Origin
             }
         })
 }

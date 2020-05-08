@@ -37,8 +37,7 @@ dependencies {
     implementation(AUTO_VALUE_ANNOTATIONS)
 
     annotationProcessor(AUTO_VALUE)
-
-    testImplementation(KOTLIN_STDLIB)
+    
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)

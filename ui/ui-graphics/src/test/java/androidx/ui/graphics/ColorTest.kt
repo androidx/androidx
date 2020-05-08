@@ -34,7 +34,7 @@ class ColorTest {
     private val srgbColor = Color(0xFFFF8000)
     private val adobeColor = Color(red = 0.8916f, green = 0.4980f, blue = 0.1168f,
             colorSpace = ColorSpaces.AdobeRgb)
-    private val epsilon = 0.0001f // Float16 squished into ColorLong isn't very accurate.
+    private val epsilon = 0.0005f // Float16 squished into ColorLong isn't very accurate.
 
     @Test
     fun colorSpace() {
@@ -244,5 +244,37 @@ class ColorTest {
         assertTrue(Color.Red.isSet)
         assertEquals(Color.Transparent.toArgb(), Color.Unset.toArgb())
         assertNotEquals(Color.Transparent, Color.Unset)
+    }
+
+    @Test
+    fun testDestructuring() {
+        val c = Color(0.15f, 0.2f, 0.3f, 0.5f, ColorSpaces.DisplayP3)
+        val (red, green, blue, alpha, colorSpace) = c
+
+        assertEquals(0.15f, red, epsilon)
+        assertEquals(0.2f, green, epsilon)
+        assertEquals(0.3f, blue, epsilon)
+        assertEquals(0.5f, alpha, epsilon)
+        assertEquals(ColorSpaces.DisplayP3, colorSpace)
+    }
+
+    @Test
+    fun testDestructuringSubset() {
+        val color = Color(0.2f, 0.3f, 0.4f, 0.6f, ColorSpaces.Aces)
+        val (red, green, blue) = color
+
+        assertEquals(0.2f, red, epsilon)
+        assertEquals(0.3f, green, epsilon)
+        assertEquals(0.4f, blue, epsilon)
+    }
+
+    @Test
+    fun testDestructuringMiddleSubset() {
+        val color = Color(0.2f, 0.3f, 0.4f, 0.6f, ColorSpaces.Aces)
+        val (_, green, blue, alpha) = color
+
+        assertEquals(0.3f, green, epsilon)
+        assertEquals(0.4f, blue, epsilon)
+        assertEquals(0.6f, alpha, epsilon)
     }
 }

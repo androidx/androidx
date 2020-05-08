@@ -96,7 +96,7 @@
         <activity
             android:name="androidx.appcompat.widget.AppCompatEditTextActivity"
             android:label="@string/app_compat_edit_text_activity"
-            android:theme="@style/Theme.AppCompat.Light"/>
+            android:theme="@style/Theme.TextColors"/>
 
         <activity
             android:name="androidx.appcompat.widget.AppCompatButtonAutoSizeActivity"

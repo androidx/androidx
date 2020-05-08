@@ -17,13 +17,8 @@
 package androidx.room.processor
 
 import COMMON
-import androidx.room.ColumnInfo
 import androidx.room.Dao
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.Query
-import androidx.room.Relation
-import androidx.room.Transaction
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -67,6 +62,7 @@ import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
+import org.junit.AssumptionViolatedException
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -729,6 +725,51 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
+    fun pojo_removeUnusedColumns() {
+        if (!enableVerification) {
+            throw AssumptionViolatedException("nothing to test w/o db verification")
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                public static class Pojo {
+                    public String name;
+                    public String lastName;
+                }
+                @RewriteQueriesToDropUnusedColumns
+                @Query("select * from user LIMIT 1")
+                abstract Pojo loadUsers();
+                """
+        ) { method, _ ->
+            val adapter = method.queryResultBinder.adapter?.rowAdapter
+            check(adapter is PojoRowAdapter)
+            assertThat(method.query.original)
+                .isEqualTo("SELECT `name`, `lastName` FROM (select * from user LIMIT 1)")
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun pojo_dontRemoveUnusedColumnsWhenColumnNamesConflict() {
+        if (!enableVerification) {
+            throw AssumptionViolatedException("nothing to test w/o db verification")
+        }
+        singleQueryMethod<ReadQueryMethod>(
+            """
+                public static class Pojo {
+                    public String name;
+                    public String lastName;
+                }
+                @RewriteQueriesToDropUnusedColumns
+                @Query("select * from user u, user u2 LIMIT 1")
+                abstract Pojo loadUsers();
+                """
+        ) { method, _ ->
+            val adapter = method.queryResultBinder.adapter?.rowAdapter
+            check(adapter is PojoRowAdapter)
+            assertThat(method.query.original).isEqualTo("select * from user u, user u2 LIMIT 1")
+        }.compilesWithoutError().withWarningContaining("The query returns some columns [uid")
+    }
+
+    @Test
     fun pojo_nonJavaName() {
         pojoTest("""
             @ColumnInfo(name = "MAX(ageColumn)")
@@ -931,11 +972,10 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 ) + jfos
             )
             .withCompilerOptions(options)
+            .withCompilerOptions("-Xlint:-processing") // remove unclaimed annotation warnings
             .processedWith(TestProcessor.builder()
                 .forAnnotations(
-                    Query::class, Dao::class, ColumnInfo::class,
-                    Entity::class, PrimaryKey::class, Relation::class,
-                    Transaction::class
+                    Query::class
                 )
                 .nextRunHandler { invocation ->
                     val (owner, methods) = invocation.roundEnv

@@ -135,7 +135,7 @@ private fun <T> OverviewScreenCard(
     amount: Float,
     onClickSeeAll: () -> Unit,
     data: List<T>,
-    row: @Composable() (T) -> Unit
+    row: @Composable (T) -> Unit
 ) {
     Card {
         Column {

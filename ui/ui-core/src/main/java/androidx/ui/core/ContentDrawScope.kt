@@ -15,25 +15,20 @@
  */
 package androidx.ui.core
 
-import androidx.ui.graphics.Canvas
+import androidx.ui.graphics.painter.CanvasScope
 import androidx.ui.unit.Density
-import androidx.ui.unit.PxSize
 
 /**
  * Receiver scope for drawing content into a layout.
  * @see Modifier.drawBehind
  * @see androidx.ui.foundation.Canvas
  */
-interface DrawScope : Canvas, Density {
-    /**
-     * The size of layout being drawn in.
-     */
-    val size: PxSize
+abstract class DrawScope() : CanvasScope(), Density {
 
     /**
      * The layout direction of the layout being drawn in.
      */
-    val layoutDirection: LayoutDirection
+    abstract val layoutDirection: LayoutDirection
 }
 
 /**
@@ -43,9 +38,9 @@ interface DrawScope : Canvas, Density {
  *
  * @see DrawModifier
  */
-interface ContentDrawScope : DrawScope {
+abstract class ContentDrawScope() : DrawScope() {
     /**
      * Causes child drawing operations to run during the `onPaint` lambda.
      */
-    fun drawContent()
+    abstract fun drawContent()
 }

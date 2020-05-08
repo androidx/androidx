@@ -23,23 +23,23 @@ import androidx.compose.remember
 import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.Modifier
-import androidx.ui.core.composed
 import androidx.ui.core.drawBehind
 import androidx.ui.focus.FocusModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
+import androidx.ui.graphics.painter.Stroke
 import androidx.ui.graphics.useOrElse
 import androidx.ui.input.EditorValue
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TransformedText
 import androidx.ui.input.VisualTransformation
-import androidx.ui.layout.fillMaxWidth
+import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.savedinstancestate.Saver
 import androidx.ui.savedinstancestate.listSaver
 import androidx.ui.text.CoreTextField
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.SoftwareKeyboardController
 import androidx.ui.text.TextFieldDelegate
 import androidx.ui.text.TextLayoutResult
@@ -100,10 +100,6 @@ data class TextFieldValue(
  * [TextFieldValue]. If you want to observe the composition text, use [TextField] with
  * compositionRange instead.
  * @param modifier optional [Modifier] for this text field.
- * By default, text field will occupy all available space granted to it. You can use
- * [androidx.ui.layout.preferredWidthIn] or [androidx.ui.layout.preferredWidth] modifiers to
- * constrain the horizontal space occupied by the text field. Do not pass [FocusModifier] to this
- * argument. Pass it to focusModifier argument instead.
  * @param textColor [Color] to apply to the text. If [Color.Unset], and [textStyle] has no color
  * set, this will be [contentColor].
  * @param textStyle Style configuration that applies at character level such as color, font etc.
@@ -120,7 +116,8 @@ data class TextFieldValue(
  * @param onImeActionPerformed Called when the input service requested an IME action. When the
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
- * @param visualTransformation Optional visual filter for changing visual output of input field.
+ * @param visualTransformation The visual transformation filter for changing the visual
+ * representation of the input. By default no visual transformation is applied.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
  * @param onTextInputStarted Callback that is executed when the initialization has done for
  * communicating with platform text input service, e.g. software keyboard on Android. Called with
@@ -144,7 +141,7 @@ fun TextField(
     imeAction: ImeAction = ImeAction.Unspecified,
     onFocusChange: (Boolean) -> Unit = {},
     onImeActionPerformed: (ImeAction) -> Unit = {},
-    visualTransformation: VisualTransformation? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     cursorColor: Color = contentColor()
@@ -165,8 +162,7 @@ fun TextField(
     val mergedStyle = textStyle.merge(TextStyle(color = color))
 
     val transformedText: TransformedText = remember(fullModel.value, visualTransformation) {
-        val transformed =
-            TextFieldDelegate.applyVisualFilter(fullModel.value, visualTransformation)
+        val transformed = visualTransformation.filter(AnnotatedString(fullModel.value.text))
         fullModel.value.composition?.let {
             TextFieldDelegate.applyCompositionDecoration(it, transformed)
         } ?: transformed
@@ -176,7 +172,7 @@ fun TextField(
     CoreTextField(
         value = fullModel.value,
         modifier = modifier
-            .fillMaxWidth()
+            .defaultMinSizeConstraints(minWidth = DefaultTextFieldWidth)
             .drawCursor(cursorColor, cursorState, fullModel.value, transformedText),
         onValueChange = {
             val prevState = fullModel.value
@@ -219,9 +215,7 @@ private fun Modifier.drawCursor(
     cursorState: CursorState,
     editorValue: EditorValue,
     transformedText: TransformedText
-): Modifier = composed {
-    val paint = remember { Paint() }
-
+): Modifier =
     drawBehind {
         if (cursorState.focused && editorValue.selection.collapsed) {
             val cursorWidth = CursorThickness.value * density
@@ -236,13 +230,12 @@ private fun Modifier.drawCursor(
             val cursorX = (cursorRect.left + cursorRect.right) / 2
 
             drawLine(
+                cursorColor,
                 Offset(cursorX, cursorRect.top),
                 Offset(cursorX, cursorRect.bottom),
-                paint.apply {
-                    this.color = cursorColor
-                    this.strokeWidth = cursorWidth
-                }
+                stroke = Stroke(cursorWidth)
             )
         }
     }
-}
+
+private val DefaultTextFieldWidth = 280.dp

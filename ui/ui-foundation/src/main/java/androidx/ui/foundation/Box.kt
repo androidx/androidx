@@ -19,10 +19,8 @@ package androidx.ui.foundation
 import androidx.compose.Composable
 import androidx.compose.emptyContent
 import androidx.ui.core.Alignment
-import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
-import androidx.ui.core.offset
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.graphics.Shape
@@ -31,11 +29,9 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.padding
 import androidx.ui.unit.Dp
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.IntPxPosition
 import androidx.ui.unit.IntPxSize
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.max
 
 /**
  * A convenience composable that combines common layout and draw logic.
@@ -81,7 +77,7 @@ fun Box(
     paddingEnd: Dp = Dp.Unspecified,
     paddingBottom: Dp = Dp.Unspecified,
     gravity: ContentGravity = ContentGravity.TopStart,
-    children: @Composable() () -> Unit = emptyContent()
+    children: @Composable () -> Unit = emptyContent()
 ) {
     val borderModifier =
         if (border != null) Modifier.drawBorder(border, shape) else Modifier

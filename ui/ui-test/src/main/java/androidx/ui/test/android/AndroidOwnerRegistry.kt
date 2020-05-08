@@ -32,6 +32,7 @@ internal object AndroidOwnerRegistry {
     private val owners = Collections.newSetFromMap(WeakHashMap<AndroidOwner, Boolean>())
     private val notYetDrawn = Collections.newSetFromMap(WeakHashMap<AndroidOwner, Boolean>())
     private var onDrawnCallback: (() -> Unit)? = null
+    private val registryListeners = mutableSetOf<OnRegistrationChangedListener>()
 
     /**
      * Returns if the registry is setup to receive registrations from [AndroidOwner]s
@@ -58,10 +59,45 @@ internal object AndroidOwnerRegistry {
     }
 
     /**
-     * Returns a copy of the set of all registered [AndroidOwner]s
+     * Returns a copy of the set of all registered [AndroidOwner]s, including ones that are
+     * normally not relevant (like those whose lifecycle state is not RESUMED).
      */
-    fun getAllOwners(): Set<AndroidOwner> {
+    fun getUnfilteredOwners(): Set<AndroidOwner> {
         return owners.toSet()
+    }
+
+    /**
+     * Returns a copy of the set of all registered [AndroidOwner]s that can be interacted with.
+     * This method is almost always preferred over [getUnfilteredOwners].
+     */
+    fun getOwners(): Set<AndroidOwner> {
+        return owners.filterTo(mutableSetOf()) {
+            // lifecycleOwner can only be null if it.view is not yet attached, and since owners
+            // are only in the registry when they're attached we don't care about the
+            // lifecycleOwner being null.
+            val lifecycleOwner = it.lifecycleOwner ?: return@filterTo false
+            lifecycleOwner.lifecycle.currentState == Lifecycle.State.RESUMED
+        }
+    }
+
+    /**
+     * Adds the given [listener], to be notified when an [AndroidOwner] registers or unregisters.
+     */
+    fun addOnRegistrationChangedListener(listener: OnRegistrationChangedListener) {
+        registryListeners.add(listener)
+    }
+
+    /**
+     * Removes the given [listener].
+     */
+    fun removeOnRegistrationChangedListener(listener: OnRegistrationChangedListener) {
+        registryListeners.remove(listener)
+    }
+
+    private fun dispatchOnRegistrationChanged(owner: AndroidOwner, isRegistered: Boolean) {
+        registryListeners.toList().forEach {
+            it.onRegistrationChanged(owner, isRegistered)
+        }
     }
 
     /**
@@ -89,6 +125,7 @@ internal object AndroidOwnerRegistry {
         owners.add(owner)
         notYetDrawn.add(owner)
         owner.view.viewTreeObserver.addOnDrawListener(FirstDrawListener(owner))
+        dispatchOnRegistrationChanged(owner, true)
     }
 
     /**
@@ -98,12 +135,15 @@ internal object AndroidOwnerRegistry {
         owners.remove(owner)
         notYetDrawn.remove(owner)
         dispatchOnDrawn()
+        dispatchOnRegistrationChanged(owner, false)
     }
 
     /**
      * Should be called when a registered owner has drawn for the first time. Can be called after
      * subsequent draws as well, but that is not required.
      */
+    // TODO(b/155742511): Move all onDrawn functionality to another class, so the registry
+    //  remains purely about tracking AndroidOwners.
     private fun notifyOwnerDrawn(owner: AndroidOwner) {
         notYetDrawn.remove(owner)
         dispatchOnDrawn()
@@ -114,6 +154,14 @@ internal object AndroidOwnerRegistry {
             onDrawnCallback?.invoke()
             onDrawnCallback = null
         }
+    }
+
+    /**
+     * Interface to be implemented by components that want to be notified when an [AndroidOwner]
+     * registers or unregisters at this registry.
+     */
+    interface OnRegistrationChangedListener {
+        fun onRegistrationChanged(owner: AndroidOwner, registered: Boolean)
     }
 
     private class FirstDrawListener(private val owner: AndroidOwner) :

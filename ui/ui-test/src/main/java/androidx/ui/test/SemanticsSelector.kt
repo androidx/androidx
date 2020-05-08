@@ -119,3 +119,33 @@ internal fun SemanticsSelector.addIndexSelector(
         }
     }
 }
+
+/**
+ * Chains a new selector that retrieves the last node returned from this selector.
+ */
+internal fun SemanticsSelector.addLastNodeSelector(): SemanticsSelector {
+    return SemanticsSelector(
+        "(${this.description}).last",
+        requiresExactlyOneNode = false,
+        chainedInputSelector = this
+    ) { nodes ->
+        SelectionResult(nodes.toList().takeLast(1))
+    }
+}
+
+/**
+ * Chains a new selector that selects all the nodes matching the given [matcher] from the nodes
+ * returned by this selector.
+ */
+internal fun SemanticsSelector.addSelectorViaMatcher(
+    selectorName: String,
+    matcher: SemanticsMatcher
+): SemanticsSelector {
+    return SemanticsSelector(
+        "(${this.description}).$selectorName(${matcher.description})",
+        requiresExactlyOneNode = false,
+        chainedInputSelector = this
+    ) { nodes ->
+        SelectionResult(nodes.filter { matcher.matches(it) })
+    }
+}

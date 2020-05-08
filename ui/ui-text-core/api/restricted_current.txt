@@ -188,6 +188,12 @@ package androidx.ui.input {
 
   public interface VisualTransformation {
     method public androidx.ui.input.TransformedText filter(androidx.ui.text.AnnotatedString text);
+    field public static final androidx.ui.input.VisualTransformation.Companion! Companion;
+  }
+
+  public static final class VisualTransformation.Companion {
+    method public androidx.ui.input.VisualTransformation getNone();
+    property public final androidx.ui.input.VisualTransformation None;
   }
 
 }

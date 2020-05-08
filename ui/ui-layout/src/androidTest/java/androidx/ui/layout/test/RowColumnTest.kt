@@ -1576,11 +1576,11 @@ class RowColumnTest : LayoutTest() {
             WithInfiniteConstraints {
                 ConstrainedBox(DpConstraints(minWidth = rowMinWidth)) {
                     Row {
-                        WithConstraints { constraints, _ ->
+                        WithConstraints {
                             assertEquals(Constraints(), constraints)
                             FixedSizeLayout(noWeightChildWidth.toIntPx(), 0.ipx, mapOf())
                         }
-                        WithConstraints { constraints, _ ->
+                        WithConstraints {
                             assertEquals(Constraints(), constraints)
                             FixedSizeLayout(noWeightChildWidth.toIntPx(), 0.ipx, mapOf())
                         }
@@ -1621,7 +1621,7 @@ class RowColumnTest : LayoutTest() {
                     )
                 ) {
                     Row {
-                        WithConstraints { constraints, _ ->
+                        WithConstraints {
                             assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx(),
@@ -1631,7 +1631,7 @@ class RowColumnTest : LayoutTest() {
                             )
                             FixedSizeLayout(childWidth.toIntPx(), childHeight.toIntPx(), mapOf())
                         }
-                        WithConstraints { constraints, _ ->
+                        WithConstraints {
                             assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx() - childWidth.toIntPx(),
@@ -2026,11 +2026,11 @@ class RowColumnTest : LayoutTest() {
                 WithInfiniteConstraints {
                     ConstrainedBox(DpConstraints(minHeight = columnMinHeight)) {
                         Column {
-                            WithConstraints { constraints, _ ->
+                            WithConstraints {
                                 assertEquals(Constraints(), constraints)
                                 FixedSizeLayout(0.ipx, noWeightChildHeight.toIntPx(), mapOf())
                             }
-                            WithConstraints { constraints, _ ->
+                            WithConstraints {
                                 assertEquals(Constraints(), constraints)
                                 FixedSizeLayout(0.ipx, noWeightChildHeight.toIntPx(), mapOf())
                             }
@@ -2070,7 +2070,7 @@ class RowColumnTest : LayoutTest() {
                     )
                 ) {
                     Column {
-                        WithConstraints { constraints, _ ->
+                        WithConstraints {
                             assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx(),
@@ -2080,7 +2080,7 @@ class RowColumnTest : LayoutTest() {
                             )
                             FixedSizeLayout(childWidth.toIntPx(), childHeight.toIntPx(), mapOf())
                         }
-                        WithConstraints { constraints, _ ->
+                        WithConstraints {
                             assertEquals(
                                 Constraints(
                                     maxWidth = availableWidth.toIntPx(),
@@ -3666,7 +3666,7 @@ private fun BaselineTestLayout(
     height: Dp,
     baseline: Dp,
     modifier: Modifier,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     Layout(children = children, modifier = modifier, measureBlock = { _, constraints, _ ->
         val widthPx = max(width.toIntPx(), constraints.minWidth)
@@ -3680,7 +3680,7 @@ private fun BaselineTestLayout(
 
 // Center composable function is deprected whereas FlexTest tests heavily depend on it.
 @Composable
-private fun Center(children: @Composable() () -> Unit) {
+private fun Center(children: @Composable () -> Unit) {
     Layout(children) { measurables, constraints, _ ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.

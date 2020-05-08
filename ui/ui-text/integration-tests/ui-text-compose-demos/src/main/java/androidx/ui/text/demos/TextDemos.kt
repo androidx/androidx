@@ -30,6 +30,7 @@ val TextDemos = DemoCategory("Text", listOf(
         ComposableDemo("Various input fields") { VariousInputFieldDemo() },
         ComposableDemo("Tricky input field") { InputFieldTrickyUseCase() },
         ComposableDemo("Focus transition") { TextFieldFocusTransition() },
-        ComposableDemo("Tail Following Text Field") { TailFollowingTextFieldDemo() }
+        ComposableDemo("Tail Following Text Field") { TailFollowingTextFieldDemo() },
+        ComposableDemo("TextField in Scroller") { TextFieldWithScrollerDemo() }
     ))
 ))

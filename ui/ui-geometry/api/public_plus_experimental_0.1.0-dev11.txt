@@ -222,7 +222,7 @@ package androidx.ui.geometry {
     method public static long bottomCenter-RIqb49o(long $this, long origin);
     method public static long bottomLeft-RIqb49o(long $this, long origin);
     method public static long bottomRight-RIqb49o(long $this, long origin);
-    method public static long center-RIqb49o(long $this, long origin);
+    method public static long center-RIqb49o(long $this, long origin = Offset.zero);
     method public static long centerLeft-RIqb49o(long $this, long origin);
     method public static long centerRight-RIqb49o(long $this, long origin);
     method public static long constructor-impl(internal long value);
@@ -265,6 +265,7 @@ package androidx.ui.geometry {
 
   public final class SizeKt {
     method public static long Size(float width, float height);
+    method public static androidx.ui.geometry.Rect toRect-b2zCL34(long);
   }
 
 }

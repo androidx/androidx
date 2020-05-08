@@ -22,7 +22,7 @@ import androidx.serialization.compiler.processing.ext.asInt
 import androidx.serialization.compiler.processing.ext.asList
 import androidx.serialization.compiler.processing.ext.asString
 import androidx.serialization.compiler.processing.ext.get
-import androidx.serialization.schema.Reserved
+import androidx.serialization.compiler.models.Reserved
 import javax.lang.model.element.TypeElement
 import androidx.serialization.Reserved as ReservedAnnotation
 

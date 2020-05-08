@@ -18,10 +18,12 @@ package androidx.sqlite.inspection;
 
 import static android.database.DatabaseUtils.getSqlStatementType;
 
+import static androidx.sqlite.inspection.DatabaseExtensions.tryAcquireReference;
 import static androidx.sqlite.inspection.SqliteInspectionExecutors.directExecutor;
 
 import android.annotation.SuppressLint;
 import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
@@ -30,6 +32,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteStatement;
 import android.os.CancellationSignal;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -256,7 +259,14 @@ final class SqliteInspector extends Inspector {
 
         List<SQLiteDatabase> instances = mEnvironment.findInstances(SQLiteDatabase.class);
         for (SQLiteDatabase instance : instances) {
-            onDatabaseOpened(instance);
+            // TODO: notify of found closed databases
+            if (tryAcquireReference(instance)) {
+                try {
+                    onDatabaseOpened(instance);
+                } finally {
+                    instance.releaseReference();
+                }
+            }
         }
     }
 
@@ -354,12 +364,12 @@ final class SqliteInspector extends Inspector {
                 rawQueryMethodSignature, new EntryExitMatchingHookRegistry.OnExitCallback() {
                     @Override
                     public void onExit(EntryExitMatchingHookRegistry.Frame exitFrame) {
-                        SQLiteCursor cursor = (SQLiteCursor) exitFrame.mResult;
-                        String query = (String) exitFrame.mArgs.get(1);
+                        SQLiteCursor cursor = cursorParam(exitFrame.mResult);
+                        String query = stringParam(exitFrame.mArgs.get(1));
 
                         // Only track cursors that might modify the database.
                         // TODO: handle PRAGMA select queries, e.g. PRAGMA_TABLE_INFO
-                        if (query != null && getSqlStatementType(query)
+                        if (cursor != null && query != null && getSqlStatementType(query)
                                 != DatabaseUtils.STATEMENT_SELECT) {
                             trackedCursors.put(cursor, null);
                         }
@@ -378,6 +388,28 @@ final class SqliteInspector extends Inspector {
                         }
                     });
         }
+    }
+
+    // Gets a SQLiteCursor from a passed-in Object (if possible)
+    private @Nullable SQLiteCursor cursorParam(Object cursor) {
+        if (cursor instanceof SQLiteCursor) {
+            return (SQLiteCursor) cursor;
+        }
+
+        if (cursor instanceof CursorWrapper) {
+            CursorWrapper wrapper = (CursorWrapper) cursor;
+            return cursorParam(wrapper.getWrappedCursor());
+        }
+
+        // TODO: add support for more cursor types
+        Log.w(SqliteInspector.class.getName(), String.format(
+                "Unsupported Cursor type: %s. Invalidation might not work correctly.", cursor));
+        return null;
+    }
+
+    // Gets a String from a passed-in Object (if possible)
+    private @Nullable String stringParam(Object string) {
+        return string instanceof String ? (String) string : null;
     }
 
     private void dispatchDatabaseOpenedEvent(int databaseId, String path) {
@@ -403,17 +435,21 @@ final class SqliteInspector extends Inspector {
     }
 
     private void handleGetSchema(GetSchemaCommand command, CommandCallback callback) {
-        SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
+        SQLiteDatabase database = acquireReference(command.getDatabaseId(), callback);
         if (database == null) return;
 
-        callback.reply(querySchema(database).toByteArray());
+        try {
+            callback.reply(querySchema(database).toByteArray());
+        } finally {
+            database.releaseReference();
+        }
     }
 
     private void handleQuery(final QueryCommand command, final CommandCallback callback) {
-        final SQLiteDatabase database = handleDatabaseId(command.getDatabaseId(), callback);
-        final CancellationSignal cancellationSignal = new CancellationSignal();
-
+        final SQLiteDatabase database = acquireReference(command.getDatabaseId(), callback);
         if (database == null) return;
+
+        final CancellationSignal cancellationSignal = new CancellationSignal();
         final Future<?> future = SqliteInspectionExecutors.submit(mIOExecutor, new Runnable() {
             @Override
             public void run() {
@@ -437,6 +473,7 @@ final class SqliteInspector extends Inspector {
                     if (cursor != null) {
                         cursor.close();
                     }
+                    database.releaseReference();
                 }
 
             }
@@ -515,11 +552,13 @@ final class SqliteInspector extends Inspector {
      * Tries to find a database for an id. If no such database is found, it replies with an
      * {@link ErrorOccurredResponse} via the {@code callback} provided.
      *
+     * Consumer of this method must release the reference when done using it.
+     *
      * @return null if no database found for the provided id. A database reference otherwise.
      */
     @Nullable
-    private SQLiteDatabase handleDatabaseId(int databaseId, CommandCallback callback) {
-        SQLiteDatabase database = mDatabaseRegistry.getDatabase(databaseId);
+    private SQLiteDatabase acquireReference(int databaseId, CommandCallback callback) {
+        SQLiteDatabase database = mDatabaseRegistry.acquireReference(databaseId);
         if (database == null) {
             replyNoDatabaseWithId(callback, databaseId);
             return null;
@@ -566,8 +605,9 @@ final class SqliteInspector extends Inspector {
     }
 
     private void replyNoDatabaseWithId(CommandCallback callback, int databaseId) {
-        callback.reply(createErrorOccurredResponse("No database with id=" + databaseId,
-                null, true).toByteArray());
+        String message = String.format("Unable to perform an operation on database (id=%s)."
+                + " The database may have already been closed.", databaseId);
+        callback.reply(createErrorOccurredResponse(message, null, true).toByteArray());
     }
 
     private @NonNull Response querySchema(SQLiteDatabase database) {

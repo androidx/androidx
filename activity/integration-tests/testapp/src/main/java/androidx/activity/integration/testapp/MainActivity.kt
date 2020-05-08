@@ -30,8 +30,8 @@ import android.widget.LinearLayout
 import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.invoke
-import androidx.activity.registerForActivityResult
+import androidx.activity.result.launch
+import androidx.activity.result.registerForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.OpenMultipleDocuments
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
@@ -78,18 +78,18 @@ class MainActivity : ComponentActivity() {
                     requestLocation()
                 }
                 button("Get picture thumbnail") {
-                    takePicturePreview()
+                    takePicturePreview.launch()
                 }
                 button("Take pic") {
                     val file = File(filesDir, "image")
                     val uri = FileProvider.getUriForFile(this@MainActivity, packageName, file)
-                    takePicture(uri)
+                    takePicture.launch(uri)
                 }
                 button("Pick an image") {
-                    getContent("image/*")
+                    getContent.launch("image/*")
                 }
                 button("Open documents") {
-                    openDocuments(arrayOf("*/*"))
+                    openDocuments.launch(arrayOf("*/*"))
                 }
             }
         }

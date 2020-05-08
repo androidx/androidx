@@ -18,19 +18,18 @@ package androidx.ui.benchmark.test.autofill
 
 import android.graphics.Rect
 import android.util.SparseArray
+import android.view.ViewGroup
 import android.view.autofill.AutofillValue
-import androidx.activity.ComponentActivity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.annotation.UiThreadTest
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
 import androidx.ui.autofill.AutofillNode
 import androidx.test.filters.SdkSuppress
 import androidx.ui.autofill.AutofillType
-import androidx.ui.core.AndroidOwner
-import androidx.ui.core.createOwner
+import androidx.ui.core.Owner
+import androidx.ui.core.OwnerAmbient
+import androidx.ui.test.createComposeRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -42,19 +41,23 @@ import org.junit.runners.JUnit4
 class AndroidAutofillBenchmark {
 
     @get:Rule
-    val activityRule = ActivityTestRule(ComponentActivity::class.java)
+    val composeTestRule = createComposeRule()
 
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
-    private lateinit var owner: AndroidOwner
+    private lateinit var owner: Owner
+    private lateinit var composeView: ViewGroup
 
     @Before
     fun setup() {
-        owner = createOwner(activityRule.activity)
+        composeTestRule.setContent {
+            @Suppress("DEPRECATION") // Owner Ambient will be removed by b/139866476.
+            owner = OwnerAmbient.current
+            composeView = owner as ViewGroup
+        }
     }
 
-    @FlakyTest
     @Test
     @UiThreadTest
     @SdkSuppress(minSdkVersion = 26)
@@ -73,7 +76,7 @@ class AndroidAutofillBenchmark {
 
         // Assess.
         benchmarkRule.measureRepeated {
-            owner.view.autofill(autofillValues)
+            composeView.autofill(autofillValues)
         }
     }
 }

@@ -33,6 +33,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.OutlinedButton
+import androidx.ui.material.TextButton
 import androidx.ui.material.samples.ButtonSample
 import androidx.ui.material.samples.IconButtonSample
 import androidx.ui.material.samples.IconToggleButtonSample
@@ -74,11 +75,19 @@ private fun Buttons() {
         Button(onClick = {}, backgroundColor = MaterialTheme.colors.secondary) {
             Text("Secondary Color")
         }
-        // TODO(Andrey): Disabled button has wrong bg and text color for now.
-        // Need to figure out where will we store their styling. Not a part of
-        // ColorPalette right now and specs are not clear about this.
         Button(onClick = {}, enabled = false) {
-            Text("DISABLED. TODO")
+            Text("Disabled")
+        }
+    }
+
+    Spacer(Modifier.preferredHeight(DefaultSpace))
+
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        OutlinedButton(onClick = {}, enabled = false) {
+            Text("Disabled")
+        }
+        TextButton(onClick = {}, enabled = false) {
+            Text("Disabled")
         }
     }
 }

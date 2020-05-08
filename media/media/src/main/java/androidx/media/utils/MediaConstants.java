@@ -16,9 +16,13 @@
 
 package androidx.media.utils;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.annotation.SuppressLint;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Media constants for sharing constants between media provider and consumer apps
@@ -56,7 +60,9 @@ public final class MediaConstants {
      *
      * @see MediaControllerCompat#getExtras
      * @see MediaSessionCompat#setExtras
+     * @hide
      */
+    @RestrictTo(LIBRARY)
     @SuppressLint("IntentName")
     public static final String SESSION_EXTRAS_KEY_AUTHTOKEN =
             "androidx.media.MediaSessionCompat.Extras.KEY_AUTHTOKEN";

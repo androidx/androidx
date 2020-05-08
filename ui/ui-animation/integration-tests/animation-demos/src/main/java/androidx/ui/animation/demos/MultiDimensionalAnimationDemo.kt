@@ -25,7 +25,7 @@ import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.RectPropKey
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Clickable
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
@@ -53,7 +53,7 @@ fun MultiDimensionalAnimationDemo() {
             },
             toState = currentState.value
         ) { state ->
-            Canvas2(modifier = Modifier.fillMaxSize()) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
                 width.value = size.width
                 height.value = size.height
 

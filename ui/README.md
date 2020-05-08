@@ -51,22 +51,18 @@ The modules within UI are structured as follows:
    Internal declarations for the animations system
 * `ui-core/`
 
-   Base classes used across the system covering primitives, graphics and drawing
+   Classes and components used across the system for layout, drawing, root
+   views, etc.
+
 * `integration-tests/demos/`
 
    Module that collects all demos across ui and packages them into one demo APK
-* `ui-framework/`
-
-   Base components exposed by the system as building blocks. This includes Draw, Layout, Text, etc.
 * `ui-layout/`
 
    Basic layout components
 * `ui-material/`
 
    Set of UI components built according to the Material spec
-* `ui-platform/`
-
-   Internal implementation that allows separation of android implementation from host-side tests
 * `ui-test/`
 
    Testing framework

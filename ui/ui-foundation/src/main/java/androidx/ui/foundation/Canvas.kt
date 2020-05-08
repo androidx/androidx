@@ -17,11 +17,9 @@
 package androidx.ui.foundation
 
 import androidx.compose.Composable
-import androidx.compose.remember
 import androidx.ui.core.Modifier
 import androidx.ui.core.DrawScope
 import androidx.ui.core.drawBehind
-import androidx.ui.graphics.painter.CanvasScope
 import androidx.ui.layout.ColumnScope
 import androidx.ui.layout.Spacer
 
@@ -38,33 +36,6 @@ import androidx.ui.layout.Spacer
  * called during draw stage, you have no access to composition scope, meaning that [Composable]
  * function invocation inside it will result to runtime exception
  */
-@Deprecated("Favor usage of Canvas2 which leverages the CanvasScope API. CanvasScope" +
-        " introduces a stateless, declarative API surface without the requirement of maintaining" +
-        "a Paint object",
-    ReplaceWith("Canvas2"))
 @Composable
-fun Canvas(modifier: Modifier, onCanvas: DrawScope.() -> Unit) {
-    Spacer(
-        modifier.drawBehind(onCanvas)
-    )
-}
-
-/**
- * Creates a composable that lays out and draws content within a [CanvasScope].
- * The size of this [Canvas2] is purely dictated by the given modifier chain.
- *
- * @sample androidx.ui.foundation.samples.Canvas2Sample
- *
- * @param modifier Modifier used to adjust the layout algorithm or draw decoration content (ex.
- * background)
- * @param block Lambda callback invoked on the created [CanvasScope] to issue drawing commands
- */
-@Composable
-fun Canvas2(modifier: Modifier, block: CanvasScope.() -> Unit) {
-    val canvasScope = remember { CanvasScope() }
-    Spacer(
-        modifier.drawBehind {
-            canvasScope.draw(this, size, block)
-        }
-    )
-}
+fun Canvas(modifier: Modifier, onCanvas: DrawScope.() -> Unit) =
+    Spacer(modifier.drawBehind(onCanvas))

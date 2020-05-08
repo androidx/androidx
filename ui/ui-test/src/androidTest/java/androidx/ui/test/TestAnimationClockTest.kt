@@ -29,7 +29,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.animation.Transition
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.drawBackground
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Size
@@ -178,7 +178,7 @@ class TestAnimationClockTest {
                 onStateChangeFinished = { animationRunning = false }
             ) { state ->
                 hasRecomposed = true
-                Canvas2(modifier = Modifier.fillMaxSize()) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
                     val xValue = state[x]
                     recordedAnimatedValues.add(xValue)
                     drawRect(Color.Cyan, Offset(xValue, 0.0f), size)

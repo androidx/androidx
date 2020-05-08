@@ -33,7 +33,6 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     api "androidx.annotation:annotation:1.1.0"
-    implementation "androidx.dynamicanimation:dynamicanimation:1.0.0"
     implementation project(":ui:ui-util")
 
     testImplementation(ANDROIDX_TEST_RULES)

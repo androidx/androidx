@@ -18,6 +18,7 @@ package androidx.fragment.app;
 
 import static androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult.EXTRA_ACTIVITY_OPTIONS_BUNDLE;
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.ACTION_INTENT_SENDER_REQUEST;
+import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.EXTRA_INTENT_SENDER_REQUEST;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.Animator;
@@ -2750,7 +2751,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     new ActivityResultCallback<ActivityResult>() {
                         @Override
                         public void onActivityResult(ActivityResult result) {
-                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.removeFirst();
+                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.pollFirst();
+                            if (requestInfo == null) {
+                                Log.w(TAG, "No Activities were started for result for " + this);
+                                return;
+                            }
                             String fragmentWho = requestInfo.mWho;
                             int requestCode = requestInfo.mRequestCode;
                             Fragment fragment =  mFragmentStore.findFragmentByWho(fragmentWho);
@@ -2763,6 +2768,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                                 + fragmentWho);
                                 return;
                             }
+                            noteStateNotSaved();
                             fragment.onActivityResult(requestCode, result.getResultCode(),
                                     result.getData());
                         }
@@ -2774,7 +2780,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     new ActivityResultCallback<ActivityResult>() {
                         @Override
                         public void onActivityResult(ActivityResult result) {
-                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.removeFirst();
+                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.pollFirst();
+                            if (requestInfo == null) {
+                                Log.w(TAG, "No IntentSenders were started for " + this);
+                                return;
+                            }
                             String fragmentWho = requestInfo.mWho;
                             int requestCode = requestInfo.mRequestCode;
                             Fragment fragment =  mFragmentStore.findFragmentByWho(fragmentWho);
@@ -2787,6 +2797,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                                 + fragmentWho);
                                 return;
                             }
+                            noteStateNotSaved();
                             fragment.onActivityResult(requestCode, result.getResultCode(),
                                     result.getData());
                         }
@@ -2806,7 +2817,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                         ? PackageManager.PERMISSION_GRANTED
                                         : PackageManager.PERMISSION_DENIED;
                             }
-                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.removeFirst();
+                            LaunchedFragmentInfo requestInfo = mLaunchedFragments.pollFirst();
+                            if (requestInfo == null) {
+                                Log.w(TAG, "No permissions were requested for " + this);
+                                return;
+                            }
                             String fragmentWho = requestInfo.mWho;
                             int requestCode = requestInfo.mRequestCode;
                             Fragment fragment =  mFragmentStore.findFragmentByWho(fragmentWho);
@@ -2818,6 +2833,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                         + "Fragment " + fragmentWho);
                                 return;
                             }
+                            noteStateNotSaved();
                             fragment.onRequestPermissionsResult(requestCode, permissions,
                                     grantResults);
                         }
@@ -2865,7 +2881,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (mStartIntentSenderForResult != null) {
             IntentSenderRequest request =
                     new IntentSenderRequest.Builder(intent).setFillInIntent(fillInIntent)
-                            .setFlagsMask(flagsMask).setFlagsValues(flagsValues).build();
+                            .setFlags(flagsValues, flagsMask).build();
             if (options != null) {
                 if (fillInIntent == null) {
                     fillInIntent = new Intent();
@@ -3472,6 +3488,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     result.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, activityOptions);
                 }
             }
+            result.putExtra(EXTRA_INTENT_SENDER_REQUEST, input);
             return result;
         }
 

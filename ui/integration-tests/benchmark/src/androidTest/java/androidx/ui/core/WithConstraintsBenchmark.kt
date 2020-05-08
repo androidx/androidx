@@ -89,7 +89,7 @@ private class WithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
     override fun emitContent() {
         val size = state { 200.dp }
         this.state = size
-        WithConstraints { _, _ ->
+        WithConstraints {
             Box(Modifier.preferredSize(300.dp), gravity = ContentGravity.Center) {
                 Spacer(Modifier.preferredSize(width = size.value, height = size.value))
             }
@@ -110,7 +110,7 @@ private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase 
         val size = state { 100.ipx }
         this.state = size
         ChangingConstraintsLayout(state) {
-            WithConstraints { _, _ ->
+            WithConstraints {
                 Box(Modifier.fillMaxSize())
             }
         }
@@ -122,7 +122,7 @@ private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase 
 }
 
 @Composable
-private fun ChangingConstraintsLayout(size: State<IntPx>, children: @Composable() () -> Unit) {
+private fun ChangingConstraintsLayout(size: State<IntPx>, children: @Composable () -> Unit) {
     Layout(children) { measurables, _, _ ->
         val constraints = Constraints.fixed(size.value, size.value)
         with(PlacementScope) { measurables.first().measure(constraints).place(0.ipx, 0.ipx) }

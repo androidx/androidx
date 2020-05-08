@@ -23,17 +23,17 @@ package androidx.paging {
     method @Deprecated public void onCurrentListChanged(androidx.paging.PagedList<T>? previousList, androidx.paging.PagedList<T>? currentList);
   }
 
-  public class AsyncPagingDataDiffer<T> {
+  public final class AsyncPagingDataDiffer<T> {
     ctor public AsyncPagingDataDiffer(kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, androidx.recyclerview.widget.ListUpdateCallback updateCallback);
     method public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method public T? getItem(int index);
     method public int getItemCount();
-    method public final suspend Object? presentData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
-    method public final void refresh();
+    method public suspend Object? presentData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public void refresh();
     method public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
-    method public final void retry();
-    method public final void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
-    property public int itemCount;
+    method public void retry();
+    method public void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
+    property public final int itemCount;
   }
 
   public final class LivePagedListBuilder<Key, Value> {
@@ -93,13 +93,13 @@ package androidx.paging {
 
   public abstract class PagingDataAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
     ctor public PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback, kotlinx.coroutines.CoroutineDispatcher mainDispatcher, kotlinx.coroutines.CoroutineDispatcher workerDispatcher);
-    method public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
-    method protected T? getItem(int position);
+    method public final void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
+    method protected final T? getItem(int position);
     method public int getItemCount();
     method public final long getItemId(int position);
     method public final suspend Object? presentData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final void refresh();
-    method public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
+    method public final void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method public final void retry();
     method public final void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
     method public final androidx.recyclerview.widget.MergeAdapter withLoadStateFooter(androidx.paging.LoadStateAdapter<?> footer);

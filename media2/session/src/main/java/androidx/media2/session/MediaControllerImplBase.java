@@ -41,12 +41,6 @@ import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH;
-import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_REWIND;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SET_MEDIA_URI;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING;
@@ -384,78 +378,6 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> playFromMediaId(@NonNull final String mediaId,
-            @Nullable final Bundle extras) {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
-                new RemoteSessionTask() {
-                    @Override
-                    public void run(IMediaSession iSession, int seq) throws RemoteException {
-                        iSession.playFromMediaId(mControllerStub, seq, mediaId, extras);
-                    }
-                });
-    }
-
-    @Override
-    public ListenableFuture<SessionResult> playFromSearch(@NonNull final String query,
-            @Nullable final Bundle extras) {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
-                new RemoteSessionTask() {
-                    @Override
-                    public void run(IMediaSession iSession, int seq) throws RemoteException {
-                        iSession.playFromSearch(mControllerStub, seq, query, extras);
-                    }
-                });
-    }
-
-    @Override
-    public ListenableFuture<SessionResult> playFromUri(@NonNull final Uri uri,
-            @Nullable final Bundle extras) {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PLAY_FROM_URI,
-                new RemoteSessionTask() {
-                    @Override
-                    public void run(IMediaSession iSession, int seq) throws RemoteException {
-                        iSession.playFromUri(mControllerStub, seq, uri, extras);
-                    }
-                });
-    }
-
-    @Override
-    public ListenableFuture<SessionResult> prepareFromMediaId(@NonNull final String mediaId,
-            @Nullable final Bundle extras) {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
-                new RemoteSessionTask() {
-                    @Override
-                    public void run(IMediaSession iSession, int seq) throws RemoteException {
-                        iSession.prepareFromMediaId(mControllerStub, seq, mediaId, extras);
-                    }
-                });
-    }
-
-    @Override
-    public ListenableFuture<SessionResult> prepareFromSearch(@NonNull final String query,
-            @Nullable final Bundle extras) {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
-                new RemoteSessionTask() {
-                    @Override
-                    public void run(IMediaSession iSession, int seq) throws RemoteException {
-                        iSession.prepareFromSearch(mControllerStub, seq, query, extras);
-                    }
-                });
-    }
-
-    @Override
-    public ListenableFuture<SessionResult> prepareFromUri(@NonNull final Uri uri,
-            @Nullable final Bundle extras) {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREPARE_FROM_URI,
-                new RemoteSessionTask() {
-                    @Override
-                    public void run(IMediaSession iSession, int seq) throws RemoteException {
-                        iSession.prepareFromUri(mControllerStub, seq, uri, extras);
-                    }
-                });
-    }
-
-    @Override
     public ListenableFuture<SessionResult> setVolumeTo(final int value,
             final @VolumeFlags int flags) {
         return dispatchRemoteSessionTask(COMMAND_CODE_VOLUME_SET_VOLUME, new RemoteSessionTask() {
@@ -626,7 +548,6 @@ class MediaControllerImplBase implements MediaControllerImpl {
                     }
                 });
     }
-
 
     @Override
     public ListenableFuture<SessionResult> setMediaUri(@NonNull final Uri uri,

@@ -143,7 +143,7 @@ fun SemanticsNodeInteraction.doPartialGesture(
  *
  * @throws AssertionError If the semantics action is not defined on this node.
  */
-fun <T : Function<Unit>> SemanticsNodeInteraction.callSemanticsAction(
+fun <T : Function<Boolean>> SemanticsNodeInteraction.callSemanticsAction(
     key: SemanticsPropertyKey<AccessibilityAction<T>>,
     invocation: (T) -> Unit
 ) {
@@ -175,7 +175,7 @@ fun <T : Function<Unit>> SemanticsNodeInteraction.callSemanticsAction(
  * @throws AssertionError If the semantics action is not defined on this node.
  */
 fun SemanticsNodeInteraction.callSemanticsAction(
-    key: SemanticsPropertyKey<AccessibilityAction<() -> Unit>>
+    key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
 ) {
     callSemanticsAction(key) { it.invoke() }
 }

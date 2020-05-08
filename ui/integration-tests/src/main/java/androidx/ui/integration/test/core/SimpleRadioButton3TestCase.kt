@@ -18,7 +18,7 @@ package androidx.ui.integration.test.core
 
 import androidx.compose.Composable
 import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas2
+import androidx.ui.foundation.Canvas
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.painter.Stroke
 import androidx.ui.layout.preferredSize
@@ -30,7 +30,7 @@ class SimpleRadioButton3TestCase : BaseSimpleRadioButtonTestCase() {
     override fun emitContent() {
         val innerSize = getInnerSize()
         val stroke = Stroke()
-        Canvas2(Modifier.preferredSize(48.dp)) {
+        Canvas(Modifier.preferredSize(48.dp)) {
             drawCircle(Color.Black, size.minDimension, style = stroke)
             drawCircle(Color.Black, innerSize.value.value / 2f, center)
         }

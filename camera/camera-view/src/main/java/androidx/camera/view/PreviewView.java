@@ -215,7 +215,8 @@ public class PreviewView extends FrameLayout {
      */
     @NonNull
     public MeteringPointFactory createMeteringPointFactory(@NonNull CameraSelector cameraSelector) {
-        Preconditions.checkNotNull(mImplementation);
+        Preconditions.checkNotNull(mImplementation,
+                "Must set the Preview's surfaceProvider and bind it to a lifecycle first");
         return new PreviewViewMeteringPointFactory(getDisplay(), cameraSelector,
                 mImplementation.getResolution(), mPreviewTransform.getScaleType(), getWidth(),
                 getHeight());

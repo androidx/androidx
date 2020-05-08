@@ -20,6 +20,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RawQuery
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.RoomTypeNames
@@ -261,6 +262,9 @@ object ProcessorErrors {
                 The query returns some columns [${unusedColumns.joinToString(", ")}] which are not
                 used by $pojoTypeName. You can use @ColumnInfo annotation on the fields to specify
                 the mapping.
+                You can annotate the method with @RewriteQueriesToDropUnusedColumns to direct Room
+                to rewrite your query to avoid fetching unused columns.
+        ""${'"'}.trimIndent()
             """.trim()
         } else {
             ""
@@ -275,6 +279,7 @@ object ProcessorErrors {
         } else {
             ""
         }
+
         return """
             $unusedColumnsWarning
             $unusedFieldsWarning
@@ -683,6 +688,12 @@ object ProcessorErrors {
             "or @Delete must be annotated with @Entity."
 
     val INVALID_RELATION_IN_PARTIAL_ENTITY = "Partial entities cannot have relations."
+
+    val EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED = """
+        Using @${RewriteQueriesToDropUnusedColumns::class.simpleName} annotation when
+        room.expandProjection compiler flag is enabled will disable expandProjection for queries
+        covered with @${RewriteQueriesToDropUnusedColumns::class.simpleName}.
+    """.trim()
 
     fun missingPrimaryKeysInPartialEntityForInsert(
         partialEntityName: String,

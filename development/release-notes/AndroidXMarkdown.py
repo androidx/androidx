@@ -83,7 +83,10 @@ def getGitilesDiffLogLink(version, startSHA, endSHA, projectDir):
 	if ("frameworks/support" in projectDir):
 		print_e("Gitiles directory should be relative to frameworks/support; received incorrect directory: $projectDir")
 		exit(1)
-	return GitilesDiffLogLink("Version %s contains these commits." % version, "%s%s..%s/%s" % (baseGitilesUrl, startSHA, endSHA, projectDir))
+	if startSHA != "":
+		return GitilesDiffLogLink("Version %s contains these commits." % version, "%s%s..%s/%s" % (baseGitilesUrl, startSHA, endSHA, projectDir))
+	else:
+		return GitilesDiffLogLink("Version %s contains these commits." % version, "%s%s/%s" % (baseGitilesUrl, endSHA, projectDir))
 
 class LibraryHeader(MarkdownHeader):
 	"""

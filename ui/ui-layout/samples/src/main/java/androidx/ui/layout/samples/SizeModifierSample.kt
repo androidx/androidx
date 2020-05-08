@@ -26,6 +26,7 @@ import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Stack
 import androidx.ui.layout.aspectRatio
+import androidx.ui.layout.defaultMinSizeConstraints
 import androidx.ui.layout.fillMaxHeight
 import androidx.ui.layout.fillMaxSize
 import androidx.ui.layout.fillMaxWidth
@@ -35,6 +36,7 @@ import androidx.ui.layout.preferredSize
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.layout.preferredWidth
 import androidx.ui.layout.size
+import androidx.ui.layout.sizeIn
 import androidx.ui.layout.width
 import androidx.ui.layout.wrapContentHeight
 import androidx.ui.layout.wrapContentSize
@@ -183,4 +185,25 @@ fun SimpleWrapContentHorizontallyAlignedModifier() {
             .preferredWidth(20.dp),
         backgroundColor = Color.Blue
     )
+}
+
+@Sampled
+@Composable
+fun DefaultMinSizeConstraintsSample() {
+    @Composable
+    fun DefaultMinBox(modifier: Modifier = Modifier) {
+        Box(
+            modifier.defaultMinSizeConstraints(minWidth = 100.dp, minHeight = 100.dp),
+            backgroundColor = Color.Blue
+        )
+    }
+    // This will be a 10.dp x 10.dp blue box. Because we are not providing any min constraints
+    // to the DefaultMinBox, defaultMinSizeConstraints will apply its min constraints.
+    DefaultMinBox()
+    // This will be a 5.dp x 5.dp blue box. Because we are providing min constraints
+    // to the DefaultMinBox, defaultMinSizeConstraints will not apply its min constraints.
+    DefaultMinBox(Modifier.sizeIn(minWidth = 50.dp, minHeight = 50.dp))
+    // Note that if DefaultMinBox used sizeIn or preferredSizeIn rather than
+    // defaultMinSizeConstraints, the min constraints would have been applied with either
+    // of the above usages.
 }

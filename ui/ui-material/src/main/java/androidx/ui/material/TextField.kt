@@ -54,11 +54,11 @@ import androidx.ui.foundation.currentTextStyle
 import androidx.ui.foundation.shape.corner.ZeroCornerSize
 import androidx.ui.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
 import androidx.ui.graphics.Shape
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.VisualTransformation
+import androidx.ui.graphics.painter.Stroke
 import androidx.ui.layout.padding
 import androidx.ui.layout.preferredSizeIn
 import androidx.ui.material.ripple.ripple
@@ -134,8 +134,9 @@ import androidx.ui.unit.max
  * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
  * Note that the emitted IME action may be different from what you specified through the
  * [imeAction] field
- * @param visualTransformation transforms the visual output of the input [value]. For example, you
- * can use [androidx.ui.input.PasswordVisualTransformation] to create a password text field
+ * @param visualTransformation transforms the visual representation of the input [value].
+ * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
+ * text field. By default no visual transformation is applied
  * @param onFocusChange the callback triggered when the text field gets or loses the focus
  * @param activeColor the color of the label and bottom indicator when the text field is in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
@@ -150,14 +151,14 @@ import androidx.ui.unit.max
 fun FilledTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: @Composable() () -> Unit,
+    label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
-    placeholder: @Composable() (() -> Unit)? = null,
-    leadingIcon: @Composable() (() -> Unit)? = null,
-    trailingIcon: @Composable() (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     isErrorValue: Boolean = false,
-    visualTransformation: VisualTransformation? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction) -> Unit = {},
@@ -245,8 +246,9 @@ fun FilledTextField(
  * @param onImeActionPerformed is triggered when the input service performs an [ImeAction].
  * Note that the emitted IME action may be different from what you specified through the
  * [imeAction] field
- * @param visualTransformation transforms the visual output of the input [value]. For example, you
- * can use [androidx.ui.input.PasswordVisualTransformation] to create a password text field
+ * @param visualTransformation transforms the visual representation of the input [value].
+ * For example, you can use [androidx.ui.input.PasswordVisualTransformation] to create a password
+ * text field. By default no visual transformation is applied
  * @param onFocusChange the callback triggered when the text field gets or loses the focus
  * @param activeColor the color of the label and bottom indicator when the text field is in focus
  * @param inactiveColor the color of the input text or placeholder when the text field is in
@@ -261,14 +263,14 @@ fun FilledTextField(
 fun FilledTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    label: @Composable() () -> Unit,
+    label: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = currentTextStyle(),
-    placeholder: @Composable() (() -> Unit)? = null,
-    leadingIcon: @Composable() (() -> Unit)? = null,
-    trailingIcon: @Composable() (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     isErrorValue: Boolean = false,
-    visualTransformation: VisualTransformation? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction) -> Unit = {},
@@ -312,12 +314,12 @@ private fun FilledTextFieldImpl(
     onValueChange: (TextFieldValue) -> Unit,
     modifier: Modifier,
     textStyle: TextStyle,
-    label: @Composable() () -> Unit,
-    placeholder: @Composable() (() -> Unit)?,
-    leading: @Composable() (() -> Unit)?,
-    trailing: @Composable() (() -> Unit)?,
+    label: @Composable () -> Unit,
+    placeholder: @Composable (() -> Unit)?,
+    leading: @Composable (() -> Unit)?,
+    trailing: @Composable (() -> Unit)?,
     isErrorValue: Boolean,
-    visualTransformation: VisualTransformation?,
+    visualTransformation: VisualTransformation,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     onImeActionPerformed: (ImeAction) -> Unit,
@@ -339,7 +341,7 @@ private fun FilledTextFieldImpl(
         }
     }
 
-    val decoratedPlaceholder: @Composable() (() -> Unit)? =
+    val decoratedPlaceholder: @Composable (() -> Unit)? =
         if (placeholder != null && inputState.value == InputPhase.Focused && value.text.isEmpty()) {
             {
                 Decoration(
@@ -461,7 +463,7 @@ private fun Decoration(
     contentColor: Color,
     typography: TextStyle? = null,
     emphasis: Emphasis? = null,
-    children: @Composable() () -> Unit
+    children: @Composable () -> Unit
 ) {
     val colorAndEmphasis = @Composable {
         Providers(ContentColorAmbient provides contentColor) {
@@ -478,9 +480,9 @@ private fun Decoration(
 private fun TextFieldLayout(
     animationProgress: Float,
     modifier: Modifier,
-    placeholder: @Composable() (() -> Unit)?,
-    label: @Composable() () -> Unit,
-    textField: @Composable() (Modifier) -> Unit
+    placeholder: @Composable (() -> Unit)?,
+    label: @Composable () -> Unit,
+    textField: @Composable (Modifier) -> Unit
 ) {
     Layout(
         children = {
@@ -505,9 +507,12 @@ private fun TextFieldLayout(
         val labelEndPosition = (baseLineOffset - labelBaseline).coerceAtLeast(IntPx.Zero)
         val effectiveLabelBaseline = max(labelBaseline, baseLineOffset)
 
+        val textFieldConstraints = constraints
+            .offset(vertical = -LastBaselineOffset.toIntPx() - effectiveLabelBaseline)
+            .copy(minHeight = IntPx.Zero)
         val textfieldPlaceable = measurables
             .first { it.tag == TextFieldTag }
-            .measure(labelConstraints.offset(vertical = -effectiveLabelBaseline))
+            .measure(textFieldConstraints)
         val textfieldFirstBaseline = requireNotNull(textfieldPlaceable[FirstBaseline]) {
             "No text first baseline."
         }
@@ -552,9 +557,9 @@ private fun TextFieldLayout(
 @Composable
 private fun IconsTextFieldLayout(
     modifier: Modifier = Modifier,
-    textField: @Composable() () -> Unit,
-    leading: @Composable() (() -> Unit)?,
-    trailing: @Composable() (() -> Unit)?,
+    textField: @Composable () -> Unit,
+    leading: @Composable (() -> Unit)?,
+    trailing: @Composable (() -> Unit)?,
     leadingColor: Color,
     trailingColor: Color
 ) {
@@ -586,7 +591,7 @@ private fun IconsTextFieldLayout(
 
         val textFieldPlaceable = measurables.first {
             it.tag != "leading" && it.tag != "trailing"
-        }.measure(incomingConstraints.offset(horizontal = -occupiedSpace).copy(minWidth = 0.ipx))
+        }.measure(incomingConstraints.offset(horizontal = -occupiedSpace))
         occupiedSpace += textFieldPlaceable.width
 
         val width = max(occupiedSpace, incomingConstraints.minWidth)
@@ -642,16 +647,14 @@ private val Placeable.nonZero: Boolean get() = this.width != 0.ipx || this.heigh
  */
 @Composable
 private fun Modifier.drawIndicatorLine(lineWidth: Dp, color: Color): Modifier {
-    val paint = remember { Paint() }
     return drawBehind {
         val strokeWidth = lineWidth.value * density
-        paint.strokeWidth = strokeWidth
-        paint.color = color
-        val y = size.height.value - strokeWidth / 2
+        val y = size.height - strokeWidth / 2
         drawLine(
+            color,
             Offset(0f, y),
-            Offset(size.width.value, y),
-            paint
+            Offset(size.width, y),
+            stroke = Stroke(width = strokeWidth)
         )
     }
 }
@@ -715,7 +718,7 @@ private object TextFieldTransitionScope {
         activeColor: Color,
         labelInactiveColor: Color,
         indicatorInactiveColor: Color,
-        children: @Composable() (
+        children: @Composable (
             labelProgress: Float,
             labelColor: Color,
             indicatorWidth: Dp,

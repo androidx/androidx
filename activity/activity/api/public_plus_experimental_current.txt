@@ -88,11 +88,14 @@ package androidx.activity.result {
     method public androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
   }
 
-  public final class IntentSenderRequest {
+  public final class IntentSenderRequest implements android.os.Parcelable {
+    method public int describeContents();
     method public android.content.Intent? getFillInIntent();
     method public int getFlagsMask();
     method public int getFlagsValues();
     method public android.content.IntentSender getIntentSender();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<androidx.activity.result.IntentSenderRequest!> CREATOR;
   }
 
   public static final class IntentSenderRequest.Builder {
@@ -100,8 +103,7 @@ package androidx.activity.result {
     ctor public IntentSenderRequest.Builder(android.app.PendingIntent);
     method public androidx.activity.result.IntentSenderRequest build();
     method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent?);
-    method public androidx.activity.result.IntentSenderRequest.Builder setFlagsMask(int);
-    method public androidx.activity.result.IntentSenderRequest.Builder setFlagsValues(int);
+    method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int, int);
   }
 
 }
@@ -200,6 +202,7 @@ package androidx.activity.result.contract {
     method public android.content.Intent createIntent(android.content.Context, androidx.activity.result.IntentSenderRequest);
     method public androidx.activity.result.ActivityResult parseResult(int, android.content.Intent?);
     field public static final String ACTION_INTENT_SENDER_REQUEST = "androidx.activity.result.contract.action.INTENT_SENDER_REQUEST";
+    field public static final String EXTRA_INTENT_SENDER_REQUEST = "androidx.activity.result.contract.extra.INTENT_SENDER_REQUEST";
     field public static final String EXTRA_SEND_INTENT_EXCEPTION = "androidx.activity.result.contract.extra.SEND_INTENT_EXCEPTION";
   }
 

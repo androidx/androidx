@@ -41,7 +41,7 @@ class UnnecessaryLambdaCreationDetectorTest {
         fun function() {}
 
         @Composable
-        fun ComposableFunction(children: @Composable() () -> Unit) {
+        fun ComposableFunction(children: @Composable () -> Unit) {
             children()
         }
     """).indented().within("src")
@@ -99,8 +99,8 @@ src/test/test.kt:10: Error: Creating an unnecessary lambda to emit a captured la
 
             @Composable
             fun MultipleChildComposableFunction(
-                firstChild: @Composable() () -> Unit, 
-                secondChild: @Composable() () -> Unit
+                firstChild: @Composable () -> Unit, 
+                secondChild: @Composable () -> Unit
             ) {}
 
             @Composable
@@ -140,7 +140,7 @@ src/test/test.kt:12: Error: Creating an unnecessary lambda to emit a captured la
         check("""
             package test
 
-            val property: @Composable() () -> Unit = {
+            val property: @Composable () -> Unit = {
                 lambda()
             }
         """).expectClean()
@@ -169,7 +169,7 @@ src/test/test.kt:12: Error: Creating an unnecessary lambda to emit a captured la
 
             @Composable
             fun ComposableFunctionWithParams(
-                child: @Composable() (child: @Composable() () -> Unit) -> Unit
+                child: @Composable (child: @Composable () -> Unit) -> Unit
             ) {}
 
             @Composable
@@ -179,7 +179,7 @@ src/test/test.kt:12: Error: Creating an unnecessary lambda to emit a captured la
                 }
             }
 
-            val parameterizedLambda: (@Composable() () -> Unit) -> Unit = { it() }
+            val parameterizedLambda: (@Composable () -> Unit) -> Unit = { it() }
             val differentlyParameterizedLambda: (Int) -> Unit = { }
 
             @Composable
@@ -212,15 +212,15 @@ src/test/test.kt:21: Error: Creating an unnecessary lambda to emit a captured la
             class OtherScope
 
             @Composable
-            fun ScopedComposableFunction(children: @Composable() SomeScope.() -> Unit) {
+            fun ScopedComposableFunction(children: @Composable SomeScope.() -> Unit) {
                 children()
             }
 
             @Composable
             fun Test() {
                 val unscopedLambda: () -> Unit = {}
-                val scopedLambda: @Composable() SomeScope.() -> Unit = {}
-                val differentlyScopedLambda: @Composable() OtherScope.() -> Unit = {}
+                val scopedLambda: @Composable SomeScope.() -> Unit = {}
+                val differentlyScopedLambda: @Composable OtherScope.() -> Unit = {}
 
                 ScopedComposableFunction {
                     unscopedLambda()

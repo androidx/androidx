@@ -77,7 +77,7 @@ abstract class PagingSource<Key : Any, Value : Any> {
     /**
      * Params for a load request on a [PagingSource] from [PagingSource.load].
      */
-    sealed class LoadParams<Key : Any>(
+    sealed class LoadParams<Key : Any> constructor(
         /**
          * Requested number of items to load.
          *
@@ -94,96 +94,69 @@ abstract class PagingSource<Key : Any, Value : Any> {
         /**
          * From [PagingConfig.pageSize], the configured page size.
          */
-        val pageSize: Int
+        @Deprecated(
+            message = "PagingConfig.pageSize will be removed in future versions, use " +
+                    "PagingConfig.loadSize instead.",
+            replaceWith = ReplaceWith("loadSize")
+        )
+        val pageSize: Int = loadSize
     ) {
         /**
          * Key for the page to be loaded.
+         *
+         * [key] can be `null` only if this [LoadParams] is [Refresh], and either no `initialKey`
+         * is provided to the [Pager] or [PagingSource.getRefreshKey] from the previous
+         * [PagingSource] returns `null`.
+         *
+         * The value of [key] is dependent on the type of [LoadParams]:
+         *  * [Refresh]
+         *      * On initial load, the nullable `initialKey` passed to the [Pager].
+         *      * On subsequent loads due to invalidation or refresh, the result of
+         *      [PagingSource.getRefreshKey].
+         *  * [Prepend] - [LoadResult.Page.prevKey] of the loaded page at the front of the list.
+         *  * [Append] - [LoadResult.Page.nextKey] of the loaded page at the end of the list.
          */
         abstract val key: Key?
 
-        class Refresh<Key : Any>(
-            /**
-             * Key for the page to be loaded.
-             *
-             * This value might be `null` if this is the initial load and no `initialKey` is
-             * provided to the [Pager]. If this [PagingSource] was created as a replacement for
-             * a previous [PagingSource] due to refresh, this `key` is the `key` returned via
-             * [PagingSource.getRefreshKey].
-             */
+        /**
+         * Params for an initial load request on a [PagingSource] from [PagingSource.load] or a
+         * refresh triggered by [invalidate].
+         */
+        class Refresh<Key : Any> @JvmOverloads constructor(
             override val key: Key?,
-            /**
-             * Requested number of items to load.
-             *
-             * Note: It is valid for [PagingSource.load] to return a [LoadResult] that has a
-             * different number of items than the requested load size.
-             */
             loadSize: Int,
-            /**
-             * From [PagingConfig.enablePlaceholders], true if placeholders are enabled and the load
-             * request for this [LoadParams] should populate [LoadResult.Page.itemsBefore] and
-             * [LoadResult.Page.itemsAfter] if possible.
-             */
             placeholdersEnabled: Boolean,
-            /**
-             * From [PagingConfig.pageSize], the configured page size.
-             */
-            pageSize: Int
+            pageSize: Int = loadSize
         ) : LoadParams<Key>(
             loadSize = loadSize,
             placeholdersEnabled = placeholdersEnabled,
             pageSize = pageSize
         )
 
-        class Append<Key : Any>(
-            /**
-             * Key for the page to be loaded.
-             */
+        /**
+         * Params to load a page of data from a [PagingSource] via [PagingSource.load] to be
+         * appended to the end of the list.
+         */
+        class Append<Key : Any> @JvmOverloads constructor(
             override val key: Key,
-            /**
-             * Requested number of items to load.
-             *
-             * Note: It is valid for [PagingSource.load] to return a [LoadResult] that has a
-             * different number of items than the requested load size.
-             */
             loadSize: Int,
-            /**
-             * From [PagingConfig.enablePlaceholders], true if placeholders are enabled and the load
-             * request for this [LoadParams] should populate [LoadResult.Page.itemsBefore] and
-             * [LoadResult.Page.itemsAfter] if possible.
-             */
             placeholdersEnabled: Boolean,
-            /**
-             * From [PagingConfig.pageSize], the configured page size.
-             */
-            pageSize: Int
+            pageSize: Int = loadSize
         ) : LoadParams<Key>(
             loadSize = loadSize,
             placeholdersEnabled = placeholdersEnabled,
             pageSize = pageSize
         )
 
-        class Prepend<Key : Any>(
-            /**
-             * Key for the page to be loaded.
-             */
+        /**
+         * Params to load a page of data from a [PagingSource] via [PagingSource.load] to be
+         * prepended to the start of the list.
+         */
+        class Prepend<Key : Any> @JvmOverloads constructor(
             override val key: Key,
-            /**
-             * Requested number of items to load.
-             *
-             * Note: It is valid for [PagingSource.load] to return a [LoadResult] that has a
-             * different number of items than the requested load size.
-             */
             loadSize: Int,
-            /**
-             * From [PagingConfig.enablePlaceholders], true if placeholders are enabled and the load
-             * request for this [LoadParams] should populate [LoadResult.Page.itemsBefore] and
-             * [LoadResult.Page.itemsAfter] if possible.
-             */
             placeholdersEnabled: Boolean,
-            /**
-             * From [PagingConfig.pageSize], the configured page size.
-             */
-            pageSize: Int
+            pageSize: Int = loadSize
         ) : LoadParams<Key>(
             loadSize = loadSize,
             placeholdersEnabled = placeholdersEnabled,

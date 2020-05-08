@@ -18,7 +18,6 @@ package androidx.ui.layout.demos
 
 import androidx.compose.Composable
 import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Layout
 import androidx.ui.core.LayoutDirection
 import androidx.ui.core.Modifier
@@ -155,14 +154,12 @@ private fun CustomLayout(rtlSupport: Boolean) {
 
 @Composable
 private fun LayoutWithConstraints(modifier: Modifier = Modifier, text: String) {
-    WithConstraints(modifier) { constraints, direction ->
-        with(DensityAmbient.current) {
-            val w = (constraints.maxWidth / 3).toDp()
-            val h = (constraints.maxHeight / 2).toDp()
-            val color = if (direction == LayoutDirection.Ltr) Color.Red else Color.Magenta
-            Stack(Modifier.preferredSize(w, h).drawBackground(color)) {
-                Text(text, Modifier.gravity(Alignment.Center))
-            }
+    WithConstraints(modifier) {
+        val w = maxWidth / 3
+        val h = maxHeight / 2
+        val color = if (layoutDirection == LayoutDirection.Ltr) Color.Red else Color.Magenta
+        Stack(Modifier.preferredSize(w, h).drawBackground(color)) {
+            Text(text, Modifier.gravity(Alignment.Center))
         }
     }
 }

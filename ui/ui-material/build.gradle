@@ -44,7 +44,6 @@ dependencies {
     api project(":ui:ui-text")
     api project(":ui:ui-animation-core")
 
-    implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-animation")
     implementation project(":ui:ui-vector")
@@ -55,7 +54,6 @@ dependencies {
     testImplementation(TRUTH)
 
     androidTestImplementation project(":ui:ui-material:samples")
-    androidTestImplementation project(":ui:ui-platform")
     androidTestImplementation project(":ui:ui-test")
     androidTestImplementation project(":test-screenshot")
 
