@@ -25,27 +25,39 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
-dependencies {
-    implementation(KOTLIN_STDLIB)
+kotlin {
+    android()
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
+            api project(":ui:ui-geometry")
 
-    api "androidx.annotation:annotation:1.1.0"
-    implementation project(":ui:ui-util")
-    api project(":ui:ui-geometry")
+            implementation project(":ui:ui-util")
+            implementation project(":compose:compose-runtime")
+        }
+        jvmMain.dependencies {
+            implementation(KOTLIN_STDLIB)
+        }
+        androidMain.dependencies {
+            api "androidx.annotation:annotation:1.1.0"
+        }
 
-    implementation project(":compose:compose-runtime")
-
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
-
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(JUNIT)
+        commonTest.dependencies {
+            implementation kotlin("test-junit")
+        }
+        // TODO: should be unitTest, figure out why that doesn't work
+        androidTest.dependencies {
+            implementation(TRUTH)
+        }
+        androidAndroidTest.dependencies {
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(ESPRESSO_CORE)
+        }
+    }
 }
 
 androidx {
@@ -59,7 +71,7 @@ androidx {
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xuse-experimental=kotlin.Experimental", "-XXLanguage:+InlineClasses"]
+        freeCompilerArgs += ["-XXLanguage:+InlineClasses"]
         useIR = true
     }
 }
