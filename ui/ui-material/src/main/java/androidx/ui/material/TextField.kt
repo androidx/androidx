@@ -645,7 +645,6 @@ private val Placeable.nonZero: Boolean get() = this.width != 0.ipx || this.heigh
 /**
  * A draw modifier that draws a bottom indicator line
  */
-@Composable
 private fun Modifier.drawIndicatorLine(lineWidth: Dp, color: Color): Modifier {
     return drawBehind {
         val strokeWidth = lineWidth.value * density

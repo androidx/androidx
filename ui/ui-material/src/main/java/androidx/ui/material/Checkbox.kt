@@ -23,7 +23,6 @@ import androidx.compose.Composable
 import androidx.compose.remember
 import androidx.ui.animation.ColorPropKey
 import androidx.ui.animation.Transition
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Modifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Canvas
@@ -132,17 +131,12 @@ private fun DrawCheckbox(value: ToggleableState, activeColor: Color, modifier: M
         generateTransitionDefinition(activeColor, unselectedColor)
     }
     Transition(definition = definition, toState = value) { state ->
-        val strokeWidthPx: Float
-        val radiusPx: Float
-        with(DensityAmbient.current) {
-            strokeWidthPx = StrokeWidth.toPx().value
-            radiusPx = RadiusSize.toPx().value
-        }
         Canvas(modifier.preferredSize(CheckboxSize)) {
+            val strokeWidthPx = StrokeWidth.toPx().value
             drawBox(
                 color = state[BoxColorProp],
                 innerRadiusFraction = state[InnerRadiusFractionProp],
-                radius = radiusPx,
+                radius = RadiusSize.toPx().value,
                 strokeWidth = strokeWidthPx
             )
             drawCheck(
