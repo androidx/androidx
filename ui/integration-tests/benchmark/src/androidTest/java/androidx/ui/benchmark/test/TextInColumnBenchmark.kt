@@ -29,6 +29,7 @@ import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
 import androidx.ui.integration.test.foundation.RectsInColumnTestCase
+import androidx.ui.integration.test.foundation.TextInColumnTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,7 +40,7 @@ import org.junit.runners.Parameterized
  */
 @LargeTest
 @RunWith(Parameterized::class)
-class RectsInColumnBenchmark(private val numberOfRectangles: Int) {
+class TextInColumnBenchmark(private val numberOfTexts: Int) {
 
     companion object {
         @JvmStatic
@@ -50,55 +51,55 @@ class RectsInColumnBenchmark(private val numberOfRectangles: Int) {
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
-    private val rectsInColumnCaseFactory = { RectsInColumnTestCase(numberOfRectangles) }
+    private val textInColumnCaseFactory = { TextInColumnTestCase(numberOfTexts) }
 
     @Test
     fun first_compose() {
-        benchmarkRule.benchmarkFirstCompose(rectsInColumnCaseFactory)
+        benchmarkRule.benchmarkFirstCompose(textInColumnCaseFactory)
     }
 
     @Test
     fun first_measure() {
-        benchmarkRule.benchmarkFirstMeasure(rectsInColumnCaseFactory)
+        benchmarkRule.benchmarkFirstMeasure(textInColumnCaseFactory)
     }
 
     @Test
     fun first_layout() {
-        benchmarkRule.benchmarkFirstLayout(rectsInColumnCaseFactory)
+        benchmarkRule.benchmarkFirstLayout(textInColumnCaseFactory)
     }
 
     @Test
     fun first_draw() {
-        benchmarkRule.benchmarkFirstDraw(rectsInColumnCaseFactory)
+        benchmarkRule.benchmarkFirstDraw(textInColumnCaseFactory)
     }
 
     @Test
     fun toggleRectangleColor_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(rectsInColumnCaseFactory)
+        benchmarkRule.toggleStateBenchmarkRecompose(textInColumnCaseFactory)
     }
 
     @Test
     fun toggleRectangleColor_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(rectsInColumnCaseFactory)
+        benchmarkRule.toggleStateBenchmarkMeasure(textInColumnCaseFactory)
     }
 
     @Test
     fun toggleRectangleColor_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(rectsInColumnCaseFactory)
+        benchmarkRule.toggleStateBenchmarkLayout(textInColumnCaseFactory)
     }
 
     @Test
     fun toggleRectangleColor_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(rectsInColumnCaseFactory)
+        benchmarkRule.toggleStateBenchmarkDraw(textInColumnCaseFactory)
     }
 
     @Test
     fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(rectsInColumnCaseFactory)
+        benchmarkRule.benchmarkLayoutPerf(textInColumnCaseFactory)
     }
 
     @Test
     fun draw() {
-        benchmarkRule.benchmarkDrawPerf(rectsInColumnCaseFactory)
+        benchmarkRule.benchmarkDrawPerf(textInColumnCaseFactory)
     }
 }
