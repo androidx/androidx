@@ -21,6 +21,7 @@ import static androidx.camera.view.PreviewView.ImplementationMode.TEXTURE_VIEW;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 import android.Manifest;
 import android.content.Context;
+import android.os.Build;
 import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,7 +108,26 @@ public class PreviewViewTest {
 
     @Test
     @UiThreadTest
-    public void usesSurfaceView_whenNonLegacyDevice_andPreferredImplModeSurfaceView() {
+    public void usesTextureView_whenAPILevelNotNewerThanN() {
+        assumeTrue(Build.VERSION.SDK_INT <= 24);
+        final CameraInfo cameraInfo = mock(CameraInfo.class);
+        when(cameraInfo.getImplementationType()).thenReturn(
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+
+        final PreviewView previewView = new PreviewView(mContext);
+        setContentView(previewView);
+        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        mSurfaceRequest = createSurfaceRequest(cameraInfo);
+        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+
+        assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
+    }
+
+    @Test
+    @UiThreadTest
+    public void usesSurfaceView_whenNonLegacyDevice_andAPILevelNewerThanN() {
+        assumeTrue(Build.VERSION.SDK_INT > 24);
         final CameraInfo cameraInfo = mock(CameraInfo.class);
         when(cameraInfo.getImplementationType()).thenReturn(
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);

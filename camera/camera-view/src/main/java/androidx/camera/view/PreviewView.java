@@ -123,7 +123,8 @@ public class PreviewView extends FrameLayout {
      * Specifies the preferred {@link ImplementationMode} to use for preview.
      * <p>
      * When the preferred {@link ImplementationMode} is {@link ImplementationMode#SURFACE_VIEW}
-     * but the device doesn't support this mode (e.g. devices with a supported camera hardware level
+     * but the device doesn't support this mode (e.g. devices with API level not newer than
+     * Android 7.0 or a supported camera hardware level
      * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}),
      * the actual implementation mode will be {@link ImplementationMode#TEXTURE_VIEW}.
      *
@@ -223,9 +224,9 @@ public class PreviewView extends FrameLayout {
     }
 
     @NonNull
-    private ImplementationMode computeImplementationMode(@Nullable CameraInfo cameraInfo,
+    private ImplementationMode computeImplementationMode(@NonNull CameraInfo cameraInfo,
             @NonNull final ImplementationMode preferredMode) {
-        return cameraInfo == null || cameraInfo.getImplementationType().equals(
+        return Build.VERSION.SDK_INT <= 24 || cameraInfo.getImplementationType().equals(
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY) ? ImplementationMode.TEXTURE_VIEW
                 : preferredMode;
     }
