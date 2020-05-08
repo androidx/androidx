@@ -35,6 +35,32 @@ ArrayReturn: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Obje
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 
 
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#name(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.name(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder#noBackupDirectory(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder.noBackupDirectory(boolean)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#builder(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.builder(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#columns(String[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.columns(String[])
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#create():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.create()
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#distinct():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.distinct()
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#groupBy(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.groupBy(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#having(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.having(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#limit(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.limit(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#orderBy(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.orderBy(String)
+BuilderSetStyle: androidx.sqlite.db.SupportSQLiteQueryBuilder#selection(String, Object[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.sqlite.db.SupportSQLiteQueryBuilder.selection(String,Object[])
+
+
 MissingBuildMethod: androidx.sqlite.db.SupportSQLiteQueryBuilder:
     androidx.sqlite.db.SupportSQLiteQueryBuilder does not declare a `build()` method, but builder classes are expected to
 

@@ -273,10 +273,6 @@ MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setAppLi
     Missing nullability on method `setAppLinkIntentUri` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setAppLinkIntentUri(android.net.Uri) parameter #0:
     Missing nullability on parameter `appLinkIntentUri` in method `setAppLinkIntentUri`
-MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setDescription(CharSequence):
-    Missing nullability on method `setDescription` return
-MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setDescription(CharSequence) parameter #0:
-    Missing nullability on parameter `description` in method `setDescription`
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setDisplayName(CharSequence):
     Missing nullability on method `setDisplayName` return
 MissingNullability: androidx.tvprovider.media.tv.PreviewChannel.Builder#setDisplayName(CharSequence) parameter #0:
