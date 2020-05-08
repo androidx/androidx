@@ -66,6 +66,6 @@ class MarkdownDate:
     def __init__(self, inputDate="01-01-1970"):
         self.date = datetime.datetime.strptime(inputDate, "%m-%d-%Y")
     def __str__(self):
-        return self.date.strftime("%B %d, %Y")
+        return self.date.strftime("%B %-d, %Y")
 
 
