@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.contentaccess
+package androidx.contentaccess.compiler.vo
 
-import kotlin.reflect.KClass
-
-/**
- * Represents an object that will be used for accessing and interacting with a content provider.
- *
- * @property contentEntity The content entity to associate the access object with.
- */
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.CLASS)
-annotation class ContentAccessObject(val contentEntity: KClass<*> = Void::class)
+data class SelectionVO(
+    val selection: String,
+    val selectionArgs: List<String>
+)
