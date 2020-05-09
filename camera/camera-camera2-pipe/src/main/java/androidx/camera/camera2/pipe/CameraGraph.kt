@@ -16,13 +16,15 @@
 
 package androidx.camera.camera2.pipe
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
-import org.junit.Test
-import org.junit.runner.RunWith
+/**
+ * A CameraGraph represents the combined configuration and state of a camera.
+ */
+interface CameraGraph {
+    fun start()
+    fun stop()
 
-@SmallTest
-@RunWith(AndroidJUnit4::class)
-class CameraPipeTest {
-    @Test fun test() {}
+    data class Config(
+        val camera: String,
+        val streams: List<StreamConfig>
+    )
 }
