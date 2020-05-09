@@ -243,6 +243,7 @@ private fun TestingText(
         softWrap = true,
         maxLines = Int.MAX_VALUE,
         overflow = TextOverflow.Clip,
+        inlineContent = mapOf(),
         onTextLayout = onTextLayout
     )
 }

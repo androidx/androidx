@@ -103,7 +103,8 @@ fun CoreTextField(
             text = visualText,
             style = textStyle,
             density = density,
-            resourceLoader = resourceLoader
+            resourceLoader = resourceLoader,
+            placeholders = emptyList()
         )
 
         // TODO: Stop lookup FocusModifier from modifier chain. (b/155434146)
