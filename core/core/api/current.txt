@@ -3149,15 +3149,6 @@ package androidx.core.widget {
     method public static void showAsDropDown(android.widget.PopupWindow, android.view.View, int, int, int);
   }
 
-  public abstract class RichContentReceiverCompat<T extends android.view.View> {
-    ctor public RichContentReceiverCompat();
-    method public abstract java.util.Set<java.lang.String!> getSupportedMimeTypes();
-    method public abstract boolean onReceive(T, android.content.ClipData, int, int);
-    field public static final int FLAG_CONVERT_TO_PLAIN_TEXT = 1; // 0x1
-    field public static final int SOURCE_CLIPBOARD = 0; // 0x0
-    field public static final int SOURCE_INPUT_METHOD = 1; // 0x1
-  }
-
   @Deprecated public final class ScrollerCompat {
     method @Deprecated public void abortAnimation();
     method @Deprecated public boolean computeScrollOffset();
@@ -3210,12 +3201,6 @@ package androidx.core.widget {
     method public static void setTextMetricsParams(android.widget.TextView, androidx.core.text.PrecomputedTextCompat.Params);
     field public static final int AUTO_SIZE_TEXT_TYPE_NONE = 0; // 0x0
     field public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = 1; // 0x1
-  }
-
-  public abstract class TextViewRichContentReceiverCompat extends androidx.core.widget.RichContentReceiverCompat<android.widget.TextView> {
-    ctor public TextViewRichContentReceiverCompat();
-    method public java.util.Set<java.lang.String!> getSupportedMimeTypes();
-    method public boolean onReceive(android.widget.TextView, android.content.ClipData, int, int);
   }
 
   public interface TintableCompoundButton {
