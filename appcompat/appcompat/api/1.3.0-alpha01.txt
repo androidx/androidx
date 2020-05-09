@@ -517,11 +517,9 @@ package androidx.appcompat.widget {
     ctor public AppCompatEditText(android.content.Context);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet?, int);
-    method public androidx.core.widget.RichContentReceiverCompat<android.widget.TextView!>? getRichContentReceiverCompat();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
-    method public void setRichContentReceiverCompat(androidx.core.widget.RichContentReceiverCompat<android.widget.TextView!>?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
     method public void setTextAppearance(android.content.Context!, int);
