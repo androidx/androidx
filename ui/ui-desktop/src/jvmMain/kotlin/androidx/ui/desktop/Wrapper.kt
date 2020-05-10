@@ -35,9 +35,13 @@ import org.jetbrains.skija.Canvas
 
 fun SkiaWindow.setContent(content: @Composable () -> Unit) {
     SwingUtilities.invokeLater {
-        println("start composing!")
-
-        rootAnimationClockFactory = { ManualAnimationClock(0L) }
+        val fps = 60
+        val clocks = mutableListOf<ManualAnimationClock>()
+        rootAnimationClockFactory = {
+            ManualAnimationClock(0L).also {
+                clocks.add(it)
+            }
+        }
         val context = object : Context() {}
         val viewGroup = object : ViewGroup(context) {}
         viewGroup.setContent(Recomposer.current(), content)
@@ -46,12 +50,16 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
         (view as Owner).root.modifier = Modifier.padding(0.dp)
         view.onAttachedToWindow()
 
-        this.renderer = Renderer(view)
-        this.setFps(60)
+        this.renderer = Renderer(view, clocks, fps)
+        this.setFps(fps)
     }
 }
 
-private class Renderer(val view: View) : SkiaRenderer {
+private class Renderer(
+    val view: View,
+    val clocks: List<ManualAnimationClock>,
+    val fps: Int
+) : SkiaRenderer {
     var androidCanvas: android.graphics.Canvas? = null
 
     override fun onInit() {
@@ -65,6 +73,9 @@ private class Renderer(val view: View) : SkiaRenderer {
     }
 
     override fun onRender(canvas: Canvas, width: Int, height: Int) {
+        clocks.forEach {
+            it.clockTimeMillis += 1000 / fps
+        }
         if (androidCanvas == null) {
             androidCanvas = android.graphics.Canvas(canvas)
         }
