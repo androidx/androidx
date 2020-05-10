@@ -17,6 +17,7 @@
 package android.view
 
 import android.content.Context
+import android.graphics.Canvas
 
 abstract class ViewGroup(context: Context) : View(context) {
     var clipChildren: Boolean = true
@@ -29,8 +30,17 @@ abstract class ViewGroup(context: Context) : View(context) {
         children.clear()
     }
 
+    fun addView(child: android.view.View) {
+        children.add(child)
+    }
+
     fun addView(child: android.view.View, params: ViewGroup.LayoutParams?) {
         children.add(child)
+    }
+
+    fun drawChild(canvas: Canvas, view: View, drawingTime: Long): Boolean {
+        println("ViewGroup.drawChild")
+        return true
     }
 
     class LayoutParams(width: Int, height: Int) {

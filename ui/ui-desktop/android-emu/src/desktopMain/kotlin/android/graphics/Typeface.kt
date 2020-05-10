@@ -16,16 +16,48 @@
 
 package android.graphics
 
-private const val DEFAULT_FONT_NAME = "Arial Unicode"
+private const val NORMAL_FONT_NAME = "NotoSans-Regular"
+private const val BOLD_FONT_NAME = "NotoSans-Bold"
+private const val ITALIC_FONT_NAME = "NotoSans-Italic"
+private const val BOLD_ITALIC_FONT_NAME = "NotoSans-BoldItalic"
 
 class Typeface(val skijaTypeface: org.jetbrains.skija.Typeface) {
     companion object {
-        @JvmField
         // TODO: Skija should make it possible to make fonts from non-file in-memory source
-        val DEFAULT = Typeface(org.jetbrains.skija.Typeface.makeFromFile(getFontPathAsString()))
+        val NORMAL_TYPEFACE = Typeface(org.jetbrains.skija.Typeface.makeFromFile(
+            getFontPathAsString(NORMAL_FONT_NAME)))
+        val BOLD_TYPEFACE = Typeface(org.jetbrains.skija.Typeface.makeFromFile(
+            getFontPathAsString(BOLD_FONT_NAME)))
+        val ITALIC_TYPEFACE = Typeface(org.jetbrains.skija.Typeface.makeFromFile(
+            getFontPathAsString(ITALIC_FONT_NAME)))
+        val BOLD_ITALIC_TYPEFACE = Typeface(org.jetbrains.skija.Typeface.makeFromFile(
+            getFontPathAsString(BOLD_ITALIC_FONT_NAME)))
+
+        @JvmField
+        val DEFAULT = NORMAL_TYPEFACE
+
+        @JvmField
+        val NORMAL = 0x0
+
+        @JvmField
+        val BOLD = 0x1
+
+        @JvmField
+        val ITALIC = 0x2
+
+        @JvmField
+        val BOLD_ITALIC = 0x3
+
+        @JvmStatic
+        fun defaultFromStyle(style: Int): Typeface = when (style) {
+            BOLD -> BOLD_TYPEFACE
+            ITALIC -> ITALIC_TYPEFACE
+            BOLD_ITALIC -> BOLD_ITALIC_TYPEFACE
+            else -> DEFAULT
+        }
     }
 }
 
-fun getFontPathAsString(): String {
-    return Typeface::class.java.getClassLoader().getResource("NotoSans-Regular.ttf").getFile()
+fun getFontPathAsString(font: String): String {
+    return Typeface::class.java.getClassLoader().getResource("$font.ttf").getFile()
 }
