@@ -331,17 +331,6 @@ class PointerInputNode : ComponentNode() {
 }
 
 /**
- * Backing node that implements focus.
- *
- * TODO(b/154633015): Deprecated in Dev11. Delete for Dev12.
- */
-@Deprecated(
-    message = "FocusNode is deprecated. Use androidx.ui.core.focus.FocusModifier instead.",
-    level = DeprecationLevel.ERROR
-)
-class FocusNode : ComponentNode()
-
-/**
  * Backing node for the Draw component.
  */
 class DrawNode : ComponentNode() {

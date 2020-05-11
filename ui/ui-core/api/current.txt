@@ -370,10 +370,6 @@ package androidx.ui.core {
     method public float scale(androidx.ui.unit.PxSize srcSize, androidx.ui.unit.PxSize dstSize);
   }
 
-  @Deprecated public final class FocusNode extends androidx.ui.core.ComponentNode {
-    ctor @Deprecated public FocusNode();
-  }
-
   public final class HorizontalAlignmentLine extends androidx.ui.core.AlignmentLine {
     ctor public HorizontalAlignmentLine(kotlin.jvm.functions.Function2<? super androidx.ui.unit.IntPx,? super androidx.ui.unit.IntPx,androidx.ui.unit.IntPx> merger);
   }
@@ -988,10 +984,6 @@ package androidx.ui.core.focus {
   public final class FocusNodeUtilsKt {
   }
 
-  @Deprecated public final class FocusOperator {
-    ctor @Deprecated public FocusOperator();
-  }
-
   public enum FocusState {
     enum_constant public static final androidx.ui.core.focus.FocusState Focused;
     enum_constant public static final androidx.ui.core.focus.FocusState NotFocusable;
@@ -1000,10 +992,6 @@ package androidx.ui.core.focus {
 
   public final class FocusStateKt {
     method public static androidx.ui.core.focus.FocusState focusState(androidx.ui.core.focus.FocusDetailedState);
-  }
-
-  public final class FocusableKt {
-    method @Deprecated public static void Focusable(Object focusOperator, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> children);
   }
 
 }
