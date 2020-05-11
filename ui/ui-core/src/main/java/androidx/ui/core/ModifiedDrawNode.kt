@@ -18,22 +18,21 @@ package androidx.ui.core
 
 import androidx.ui.geometry.Size
 import androidx.ui.graphics.Canvas
-import androidx.ui.graphics.drawscope.drawCanvas
 
 internal class ModifiedDrawNode(
     wrapped: LayoutNodeWrapper,
     drawModifier: DrawModifier
 ) : DelegatingLayoutNodeWrapper<DrawModifier>(wrapped, drawModifier) {
-    private val drawScope = DrawScopeImpl()
 
     // This is not thread safe
     override fun draw(canvas: Canvas) {
+        val drawScope = layoutNode.mDrawScope
         withPositionTranslation(canvas) {
             val size = Size(
                 measuredSize.width.value.toFloat(),
                 measuredSize.height.value.toFloat()
             )
-            drawScope.draw(canvas, size) {
+            drawScope.draw(canvas, size, wrapped) {
                 with(drawScope) {
                     with(modifier) {
                         draw()
@@ -41,22 +40,5 @@ internal class ModifiedDrawNode(
                 }
             }
         }
-    }
-
-    inner class DrawScopeImpl() : ContentDrawScope() {
-        override fun drawContent() {
-            drawCanvas { canvas, _ ->
-                wrapped.draw(canvas)
-            }
-        }
-
-        override val density: Float
-            get() = layoutNode.requireOwner().density.density
-
-        override val fontScale: Float
-            get() = layoutNode.requireOwner().density.fontScale
-
-        override val layoutDirection: LayoutDirection
-            get() = this@ModifiedDrawNode.measureScope.layoutDirection
     }
 }
