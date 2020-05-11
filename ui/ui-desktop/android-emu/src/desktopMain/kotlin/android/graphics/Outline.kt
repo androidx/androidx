@@ -17,12 +17,43 @@
 package android.graphics
 
 class Outline {
-    var alpha: Float = 0.0f
+    var alpha: Float = 1f
 
-    fun setEmpty() {}
-    fun isEmpty(): Boolean = true
+    var rect: Rect? = null
+    var radius: Float? = null
+    var path: Path? = null
+
+    fun set(outline: Outline) {
+        rect = outline.rect
+        radius = outline.radius
+        path = outline.path
+    }
+
+    fun isEmpty() = rect == null && radius == null && path == null
+
+    fun canClip() = true
+
+    fun setEmpty() {
+        rect = null
+        radius = null
+        path = null
+    }
+
+    fun setRect(left: Int, top: Int, right: Int, bottom: Int) {
+        rect = Rect(left, top, right, bottom)
+        radius = null
+        path = null
+    }
 
     fun setRoundRect(left: Int, top: Int, right: Int, bottom: Int, radius: Float) {
-        println("Outline.setRoundRect")
+        rect = Rect(left, top, right, bottom)
+        this.radius = radius
+        path = null
+    }
+
+    fun setConvexPath(convexPath: Path) {
+        path = convexPath
+        rect = null
+        radius = null
     }
 }

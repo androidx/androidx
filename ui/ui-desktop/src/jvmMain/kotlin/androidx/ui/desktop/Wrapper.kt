@@ -23,11 +23,7 @@ import androidx.animation.rootAnimationClockFactory
 import androidx.animation.ManualAnimationClock
 import androidx.compose.Composable
 import androidx.compose.Recomposer
-import androidx.ui.core.Modifier
-import androidx.ui.core.Owner
 import androidx.ui.core.setContent
-import androidx.ui.layout.padding
-import androidx.ui.unit.dp
 
 import javax.swing.SwingUtilities
 
@@ -46,8 +42,6 @@ fun SkiaWindow.setContent(content: @Composable () -> Unit) {
         val viewGroup = object : ViewGroup(context) {}
         viewGroup.setContent(Recomposer.current(), content)
         val view = viewGroup.getChildAt(0)
-        // we need this to override the root drawLayer() - RenderNode are not ported yet
-        (view as Owner).root.modifier = Modifier.padding(0.dp)
         view.onAttachedToWindow()
 
         this.renderer = Renderer(view, clocks, fps)

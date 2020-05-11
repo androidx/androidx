@@ -79,7 +79,7 @@ open class View(val context: Context) {
         companion object {
             @JvmStatic
             fun getMode(measureSpec: Int): Int {
-                return 1073741824 // EXACTLY
+                return -2147483648 // AT_MOST
             }
 
             @JvmStatic
@@ -89,8 +89,9 @@ open class View(val context: Context) {
         }
     }
 
-    var id: Int = generateViewId()
+    var id: Int = 0
 
+    var alpha: Float = 1.0f
     var scaleX: Float = 1.0f
     var scaleY: Float = 1.0f
     var translationX: Float = 0.0f
@@ -104,11 +105,12 @@ open class View(val context: Context) {
 
     var left: Int = 0
     var top: Int = 0
-    var width: Int = 0
-    var height: Int = 0
+    var right: Int = 0
+    var bottom: Int = 0
+    val width: Int get() = right - left
+    val height: Int get() = bottom - top
 
-    var alpha: Float = 0.0f
-
+    var clipToBounds: Boolean = false
     var clipBounds: Rect? = null
 
     var clipToOutline: Boolean = false
@@ -119,8 +121,11 @@ open class View(val context: Context) {
 
     var mRecreateDisplayList: Boolean = false
 
-    fun layout(l: Int, t: Int, r: Int, b: Int) {
-        println("View.layout")
+    fun layout(left: Int, top: Int, right: Int, bottom: Int) {
+        this.left = left
+        this.top = top
+        this.right = right
+        this.bottom = bottom
     }
 
     fun updateDisplayListIfDirty() {
