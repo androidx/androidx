@@ -1185,7 +1185,6 @@ fun ComponentNode.findLastLayoutChild(block: (LayoutNode) -> Boolean): LayoutNod
  * for all ancestors.
  */
 fun ComponentNode.findClosestParentNode(selector: (ComponentNode) -> Boolean): ComponentNode? {
-    // TODO(b/143866294): move this to the testing side after the hierarchy isn't flattened anymore
     var currentParent = parent
     while (currentParent != null) {
         if (selector(currentParent)) {
