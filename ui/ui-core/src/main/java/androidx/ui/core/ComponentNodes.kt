@@ -287,49 +287,6 @@ private val ZIndexComparator = Comparator<ComponentNode> { node1, node2 ->
  */
 fun ComponentNode.isAttached() = owner != null
 
-// TODO(b/143778512): Why are the properties vars?  Shouldn't they be vals defined in the
-//  constructor such that they both must be provided?
-/**
- * Backing node for handling pointer events.
- */
-class PointerInputNode : ComponentNode() {
-
-    /**
-     * Invoked right after the [PointerInputNode] is hit by a pointer during hit testing.
-     *
-     * @See CustomEventDispatcher
-     */
-    var initHandler: ((CustomEventDispatcher) -> Unit)? = null
-
-    /**
-     * Invoked when pointers that previously hit this PointerInputNode have changed.
-     */
-    var pointerInputHandler: PointerInputHandler = { event, _, _ -> event }
-
-    /**
-     * Invoked when a [CustomEvent] is dispatched by a [PointerInputNode].
-     *
-     * Dispatch occurs over all passes of [PointerEventPass].
-     *
-     * The [CustomEvent] is the event being dispatched. The [PointerEventPass] is the pass that
-     * dispatch is currently on.
-     *
-     * @see CustomEvent
-     * @see PointerEventPass
-     */
-    var customEventHandler: ((CustomEvent, PointerEventPass) -> Unit)? = null
-
-    /**
-     * Invoked to notify the handler that no more calls to pointerInputHandler will be made, until
-     * at least new pointers exist.  This can occur for a few reasons:
-     * 1. Android dispatches ACTION_CANCEL to [AndroidComposeView.onTouchEvent].
-     * 2. The PointerInputNode has been removed from the compose hierarchy.
-     * 3. The PointerInputNode no longer has any descendant [LayoutNode]s and therefore does not
-     * know what region of the screen it should virtually exist in.
-     */
-    var cancelHandler: () -> Unit = { }
-}
-
 /**
  * Backing node that implements focus.
  *

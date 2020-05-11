@@ -118,7 +118,7 @@ internal class HitPathTracker {
     ) {
         val associatedPointers = dispatchingNode.pointerIds
 
-        // TODO(b/124523868): It may be more efficient for PointerInputNodes to be able to opt in
+        // TODO(b/124523868): It may be more efficient for PointerInputFilters to be able to opt in
         //  or out of passes.
         root.dispatchCustomEvent(
             event,
@@ -373,8 +373,7 @@ internal class Node(val pointerInputFilter: PointerInputFilter) : NodeParent() {
         upPass: PointerEventPass?,
         dispatchingNode: Node
     ) {
-        // If we have a PointerInputNode and we don't contain any of the relevant pointers, stop
-        // and back track up the tree.
+        // If we aren't tracking any of the relevant pointers, return.
         if (!relevantPointers.any { pointerIds.contains(it) }) {
             return
         }
