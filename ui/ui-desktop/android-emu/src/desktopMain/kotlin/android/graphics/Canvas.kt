@@ -26,6 +26,22 @@ public class Canvas(private val skijaCanvas: org.jetbrains.skija.Canvas) {
         skijaCanvas.translate(x, y)
     }
 
+    fun drawLine(
+        startX: Float,
+        startY: Float,
+        stopX: Float,
+        stopY: Float,
+        paint: Paint
+    ) {
+        skijaCanvas.drawLine(
+            startX,
+            startY,
+            stopX,
+            stopY,
+            paint.skijaPaint
+        )
+    }
+
     fun drawRect(rect: android.graphics.RectF, paint: android.graphics.Paint) {
         val skijaRect = Rect.makeLTRB(rect.left, rect.top, rect.right, rect.bottom)
         skijaCanvas.drawRect(skijaRect, paint.skijaPaint)
@@ -42,6 +58,28 @@ public class Canvas(private val skijaCanvas: org.jetbrains.skija.Canvas) {
         skijaCanvas.drawRect(skijaRect, paint.skijaPaint)
     }
 
+    fun drawArc(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        startAngle: Float,
+        sweepAngle: Float,
+        useCenter: Boolean,
+        paint: Paint
+    ) {
+        skijaCanvas.drawArc(
+            left,
+            top,
+            right,
+            bottom,
+            startAngle,
+            sweepAngle,
+            !useCenter,
+            paint.skijaPaint
+        )
+    }
+
     fun drawText(
         text: CharSequence,
         start: Int,
@@ -50,7 +88,6 @@ public class Canvas(private val skijaCanvas: org.jetbrains.skija.Canvas) {
         y: Float,
         paint: Paint
     ) {
-        println("Canvas.drawText1")
         val buffer = skijaFont.hbFont.shape(text.toString(), org.jetbrains.skija.FontFeature.EMPTY)
         skijaCanvas.drawTextBuffer(buffer, x, y, skijaFont.skFont, paint.skijaPaint)
     }
@@ -61,17 +98,14 @@ public class Canvas(private val skijaCanvas: org.jetbrains.skija.Canvas) {
         y: Float,
         paint: Paint
     ) {
-        println("Canvas.drawText2")
         drawText(text, 0, text.length, x, y, paint)
     }
 
     fun save(): Int {
-        println("Canvas.save")
         return skijaCanvas.save()
     }
 
     fun restore() {
-        println("Canvas.restore")
         skijaCanvas.restore()
     }
 }

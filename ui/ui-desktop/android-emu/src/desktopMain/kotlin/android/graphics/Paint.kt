@@ -23,16 +23,16 @@ open class Paint {
         STROKE
     }
 
-    enum class Cap {
-        BUTT,
-        ROUND,
-        SQUARE
+    enum class Cap(val skija: org.jetbrains.skija.Paint.Cap) {
+        BUTT(org.jetbrains.skija.Paint.Cap.BUTT),
+        ROUND(org.jetbrains.skija.Paint.Cap.ROUND),
+        SQUARE(org.jetbrains.skija.Paint.Cap.SQUARE)
     }
 
-    enum class Join {
-        BEVEL,
-        MITER,
-        ROUND
+    enum class Join(val skija: org.jetbrains.skija.Paint.Join) {
+        BEVEL(org.jetbrains.skija.Paint.Join.BEVEL),
+        MITER(org.jetbrains.skija.Paint.Join.MITER),
+        ROUND((org.jetbrains.skija.Paint.Join.ROUND))
     }
 
     open class FontMetricsInt {
@@ -83,5 +83,23 @@ open class Paint {
 
     fun setShadowLayer(radius: Float, dx: Float, dy: Float, shadowColor: Int) {
         println("Paint.setShadowLayer")
+    }
+
+    fun setStrokeCap(cap: Cap) {
+        skijaPaint.setStrokeCap(cap.skija)
+    }
+
+    fun setStrokeMiter(limit: Float) {
+        skijaPaint.setStrokeMiter(limit)
+    }
+
+    fun setStrokeJoin(join: Join) {
+        skijaPaint.setStrokeJoin(join.skija)
+    }
+
+    fun setPathEffect(effect: PathEffect?): PathEffect? {
+        if (effect != null)
+            println("setPathEffect not implemented yet")
+        return effect
     }
 }
