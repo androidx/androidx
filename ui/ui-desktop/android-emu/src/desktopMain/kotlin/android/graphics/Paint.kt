@@ -17,10 +17,10 @@
 package android.graphics
 
 open class Paint {
-    enum class Style {
-        FILL,
-        FILL_AND_STROKE,
-        STROKE
+    enum class Style(val skija: org.jetbrains.skija.Paint.Style) {
+        FILL(org.jetbrains.skija.Paint.Style.FILL),
+        FILL_AND_STROKE(org.jetbrains.skija.Paint.Style.STROKE_AND_FILL),
+        STROKE(org.jetbrains.skija.Paint.Style.STROKE)
     }
 
     enum class Cap(val skija: org.jetbrains.skija.Paint.Cap) {
@@ -54,18 +54,49 @@ open class Paint {
         }
     }
 
-    constructor(flags: Int) {}
-
     val skijaPaint = org.jetbrains.skija.Paint()
+
+    constructor(flags: Int) {
+        if (flags and 1 == 1) {
+            skijaPaint.setAntiAlias(true)
+        }
+    }
 
     var color: Int
         get() = skijaPaint.getColor().toInt()
         set(value) {
             skijaPaint.setColor(value.toLong())
         }
-    var strokeWidth: Float = 0f
-    var style: Style = Style.STROKE
-    var stokeCap: Cap = Cap.BUTT
+    var strokeWidth: Float
+        get() = skijaPaint.getStrokeWidth()
+        set(value) {
+            skijaPaint.setStrokeWidth(value)
+        }
+    var style: Style
+        get() = Style.values().first { it.skija == skijaPaint.getStyle() }
+        set(value) {
+            skijaPaint.setStyle(value.skija)
+        }
+    var strokeCap: Cap
+        get() = Cap.values().first { it.skija == skijaPaint.getStrokeCap() }
+        set(value) {
+            skijaPaint.setStrokeCap(value.skija)
+        }
+    var strokeMiter: Float
+        get() = skijaPaint.getStrokeMiter().toFloat()
+        set(value) {
+            skijaPaint.setStrokeMiter(value)
+        }
+    var strokeJoin: Join
+        get() = Join.values().first { it.skija == skijaPaint.getStrokeJoin() }
+        set(value) {
+            skijaPaint.setStrokeJoin(value.skija)
+        }
+    var antiAlias: Boolean
+        get() = skijaPaint.isAntiAlias()
+        set(value) {
+            skijaPaint.setAntiAlias(value)
+        }
 
     var textSize: Float = 0f
 
@@ -83,18 +114,6 @@ open class Paint {
 
     fun setShadowLayer(radius: Float, dx: Float, dy: Float, shadowColor: Int) {
         println("Paint.setShadowLayer")
-    }
-
-    fun setStrokeCap(cap: Cap) {
-        skijaPaint.setStrokeCap(cap.skija)
-    }
-
-    fun setStrokeMiter(limit: Float) {
-        skijaPaint.setStrokeMiter(limit)
-    }
-
-    fun setStrokeJoin(join: Join) {
-        skijaPaint.setStrokeJoin(join.skija)
     }
 
     fun setPathEffect(effect: PathEffect?): PathEffect? {

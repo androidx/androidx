@@ -14,20 +14,9 @@
  * limitations under the License.
  */
 
-package android.graphics
-
-class Rect(
-    var left: Int,
-    var top: Int,
-    var right: Int,
-    var bottom: Int
-) {
-    constructor() : this(0, 0, 0, 0)
-
-    fun set(left: Int, top: Int, right: Int, bottom: Int) {
-        this.left = left
-        this.top = top
-        this.right = right
-        this.bottom = bottom
+class Region {
+    enum class Op(val skija: org.jetbrains.skija.Canvas.ClipOp) {
+        DIFFERENCE(org.jetbrains.skija.Canvas.ClipOp.DIFFERENCE),
+        INTERSECT(org.jetbrains.skija.Canvas.ClipOp.INTERSECT)
     }
 }

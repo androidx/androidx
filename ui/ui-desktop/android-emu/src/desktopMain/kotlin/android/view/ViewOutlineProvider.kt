@@ -16,4 +16,6 @@
 
 package android.view
 
-public abstract class ViewOutlineProvider
+abstract class ViewOutlineProvider {
+    abstract fun getOutline(view: View, outline: android.graphics.Outline)
+}

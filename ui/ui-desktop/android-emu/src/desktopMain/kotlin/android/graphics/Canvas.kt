@@ -18,8 +18,9 @@ package android.graphics
 
 import org.jetbrains.skija.Canvas
 import org.jetbrains.skija.Rect
+import org.jetbrains.skija.RoundedRect
 
-public class Canvas(private val skijaCanvas: org.jetbrains.skija.Canvas) {
+public class Canvas(val skijaCanvas: org.jetbrains.skija.Canvas) {
     var skijaFont = org.jetbrains.skija.Font(Typeface.DEFAULT.skijaTypeface, 30f)
 
     fun translate(x: Float, y: Float) {
@@ -99,6 +100,34 @@ public class Canvas(private val skijaCanvas: org.jetbrains.skija.Canvas) {
         paint: Paint
     ) {
         drawText(text, 0, text.length, x, y, paint)
+    }
+
+    fun drawRoundRect(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        rx: Float,
+        ry: Float,
+        paint: android.graphics.Paint
+    ) {
+        val skijaRoundedRect = RoundedRect.makeLTRB(left, top, right, bottom, rx, ry)
+        skijaCanvas.drawRoundedRect(skijaRoundedRect, paint.skijaPaint)
+    }
+
+    fun clipRect(left: Float, top: Float, right: Float, bottom: Float, op: Region.Op): Boolean {
+        val skijaRect = Rect.makeLTRB(left, top, right, bottom)
+        skijaCanvas.clipRect(skijaRect, op.skija)
+        return true
+    }
+
+    fun clipPath(path: Path, op: Region.Op): Boolean {
+        skijaCanvas.clipPath(path.skijaPath, op.skija)
+        return true
+    }
+
+    fun scale(sx: Float, sy: Float) {
+        skijaCanvas.scale(sx, sy)
     }
 
     fun save(): Int {
