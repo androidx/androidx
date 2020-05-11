@@ -18,14 +18,14 @@ package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.impl.Config.Option;
+import androidx.camera.core.impl.ReadableConfig;
 
 import java.util.concurrent.Executor;
 
 /**
  * Configuration containing IO related options.
  */
-public interface IoConfig {
+public interface IoConfig extends ReadableConfig {
 
     // Option Declarations:
     // *********************************************************************************************
@@ -46,7 +46,9 @@ public interface IoConfig {
      * configuration.
      */
     @Nullable
-    Executor getIoExecutor(@Nullable Executor valueIfMissing);
+    default Executor getIoExecutor(@Nullable Executor valueIfMissing) {
+        return retrieveOption(OPTION_IO_EXECUTOR, valueIfMissing);
+    }
 
 
     /**
@@ -56,7 +58,9 @@ public interface IoConfig {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    Executor getIoExecutor();
+    default Executor getIoExecutor() {
+        return retrieveOption(OPTION_IO_EXECUTOR);
+    }
 
     /**
      * Builder for a {@link IoConfig}.

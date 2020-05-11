@@ -17,7 +17,6 @@
 package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ExtendableBuilder;
@@ -25,8 +24,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
-
-import java.util.Set;
+import androidx.camera.core.impl.ReadableConfig;
 
 /**
  * Wrapper for an empty Config
@@ -34,7 +32,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class FakeConfig implements Config {
+public final class FakeConfig implements ReadableConfig {
 
     private final Config mConfig;
 
@@ -42,52 +40,11 @@ public final class FakeConfig implements Config {
         mConfig = config;
     }
 
-    // Start of the default implementation of Config
-    // *********************************************************************************************
-
-    // Implementations of Config default methods
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public boolean containsOption(@NonNull Option<?> id) {
-        return mConfig.containsOption(id);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id) {
-        return mConfig.retrieveOption(id);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(@NonNull Option<ValueT> id,
-            @Nullable ValueT valueIfMissing) {
-        return mConfig.retrieveOption(id, valueIfMissing);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void findOptions(@NonNull String idStem, @NonNull OptionMatcher matcher) {
-        mConfig.findOptions(idStem, matcher);
-    }
-
-    /** @hide */
     @NonNull
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public Set<Option<?>> listOptions() {
-        return mConfig.listOptions();
+    public Config getConfig() {
+        return mConfig;
     }
-
-    // End of the default implementation of Config
-    // *********************************************************************************************
 
     /** Builder for an empty Config */
     public static final class Builder implements ExtendableBuilder<FakeConfig> {
