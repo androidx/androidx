@@ -17,8 +17,9 @@
 package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.impl.UseCaseGroup;
+import androidx.camera.core.impl.UseCaseMediator;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.LifecycleObserver;
@@ -33,17 +34,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A repository of {@link UseCaseGroupLifecycleController} instances.
+ * A repository of {@link UseCaseMediatorLifecycleController} instances.
  *
- * <p>Each {@link UseCaseGroupLifecycleController} is associated with a {@link LifecycleOwner} that
- * regulates the common lifecycle shared by all the use cases in the group.
+ * <p>Each {@link UseCaseMediatorLifecycleController} is associated with a {@link LifecycleOwner}
+ * that regulates the common lifecycle shared by all the use cases in the mediator.
  */
-final class UseCaseGroupRepository {
+final class UseCaseMediatorRepository {
     final Object mUseCasesLock = new Object();
 
     @GuardedBy("mUseCasesLock")
-    final Map<LifecycleOwner, UseCaseGroupLifecycleController>
-            mLifecycleToUseCaseGroupControllerMap =
+    final Map<LifecycleOwner, UseCaseMediatorLifecycleController>
+            mLifecycleToUseCaseMediatorControllerMap =
             new HashMap<>();
     @GuardedBy("mUseCasesLock")
     final List<LifecycleOwner> mActiveLifecycleOwnerList = new ArrayList<>();
@@ -51,77 +52,75 @@ final class UseCaseGroupRepository {
     LifecycleOwner mCurrentActiveLifecycleOwner = null;
 
     /**
-     * Gets an existing {@link UseCaseGroupLifecycleController} associated with the given {@link
-     * LifecycleOwner}, or creates a new {@link UseCaseGroupLifecycleController} if a group does not
-     * already exist.
+     * Gets an existing {@link UseCaseMediatorLifecycleController} associated with the given {@link
+     * LifecycleOwner}, or creates a new {@link UseCaseMediatorLifecycleController} if a mediator
+     * does not already exist.
      *
-     * <p>The {@link UseCaseGroupLifecycleController} is set to be an observer of the {@link
+     * <p>The {@link UseCaseMediatorLifecycleController} is set to be an observer of the {@link
      * LifecycleOwner}.
      *
-     * @param lifecycleOwner to associate with the group
+     * @param lifecycleOwner to associate with the mediator
      */
-    UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {
-        return getOrCreateUseCaseGroup(lifecycleOwner, new UseCaseGroupSetup() {
-            @Override
-            public void setup(UseCaseGroup useCaseGroup) {
-            }
+    UseCaseMediatorLifecycleController getOrCreateUseCaseMediator(LifecycleOwner lifecycleOwner) {
+        return getOrCreateUseCaseMediator(lifecycleOwner, useCaseMediator -> {
         });
     }
 
     /**
-     * Gets an existing {@link UseCaseGroupLifecycleController} associated with the given {@link
-     * LifecycleOwner}, or creates a new {@link UseCaseGroupLifecycleController} if a group does not
-     * already exist.
+     * Gets an existing {@link UseCaseMediatorLifecycleController} associated with the given {@link
+     * LifecycleOwner}, or creates a new {@link UseCaseMediatorLifecycleController} if a mediator
+     * does not already exist.
      *
-     * <p>The {@link UseCaseGroupLifecycleController} is set to be an observer of the {@link
+     * <p>The {@link UseCaseMediatorLifecycleController} is set to be an observer of the {@link
      * LifecycleOwner}.
      *
-     * @param lifecycleOwner to associate with the group
-     * @param groupSetup     additional setup to do on the group if a new instance is created
+     * @param lifecycleOwner to associate with the mediator
+     * @param mediatorSetup  additional setup to do on the mediator if a new instance is created
      */
-    UseCaseGroupLifecycleController getOrCreateUseCaseGroup(
-            LifecycleOwner lifecycleOwner, UseCaseGroupSetup groupSetup) {
-        UseCaseGroupLifecycleController useCaseGroupLifecycleController;
+    UseCaseMediatorLifecycleController getOrCreateUseCaseMediator(
+            LifecycleOwner lifecycleOwner, UseCaseMediatorSetup mediatorSetup) {
+        UseCaseMediatorLifecycleController useCaseMediatorLifecycleController;
         synchronized (mUseCasesLock) {
-            useCaseGroupLifecycleController = mLifecycleToUseCaseGroupControllerMap.get(
+            useCaseMediatorLifecycleController = mLifecycleToUseCaseMediatorControllerMap.get(
                     lifecycleOwner);
-            if (useCaseGroupLifecycleController == null) {
-                useCaseGroupLifecycleController = createUseCaseGroup(lifecycleOwner);
-                groupSetup.setup(useCaseGroupLifecycleController.getUseCaseGroup());
+            if (useCaseMediatorLifecycleController == null) {
+                useCaseMediatorLifecycleController = createUseCaseMediator(lifecycleOwner);
+                mediatorSetup.setup(useCaseMediatorLifecycleController.getUseCaseMediator());
             }
         }
-        return useCaseGroupLifecycleController;
+        return useCaseMediatorLifecycleController;
     }
 
     /**
-     * Creates a new {@link UseCaseGroupLifecycleController} associated with the given {@link
-     * LifecycleOwner} and adds the group to the repository.
+     * Creates a new {@link UseCaseMediatorLifecycleController} associated with the given {@link
+     * LifecycleOwner} and adds the mediator to the repository.
      *
-     * <p>The {@link UseCaseGroupLifecycleController} is set to be an observer of the {@link
+     * <p>The {@link UseCaseMediatorLifecycleController} is set to be an observer of the {@link
      * LifecycleOwner}.
      *
-     * @param lifecycleOwner to associate with the group
-     * @return a new {@link UseCaseGroupLifecycleController}
+     * @param lifecycleOwner to associate with the mediator
+     * @return a new {@link UseCaseMediatorLifecycleController}
      * @throws IllegalArgumentException if the {@link androidx.lifecycle.Lifecycle} of
      *                                  lifecycleOwner is already
      *                                  {@link androidx.lifecycle.Lifecycle.State.DESTROYED}.
      */
-    private UseCaseGroupLifecycleController createUseCaseGroup(LifecycleOwner lifecycleOwner) {
+    private UseCaseMediatorLifecycleController createUseCaseMediator(
+            LifecycleOwner lifecycleOwner) {
         if (lifecycleOwner.getLifecycle().getCurrentState() == State.DESTROYED) {
             throw new IllegalArgumentException(
-                    "Trying to create use case group with destroyed lifecycle.");
+                    "Trying to create use case mediator with destroyed lifecycle.");
         }
 
-        // Need to add observer before creating UseCaseGroupLifecycleController to make sure
-        // UseCaseGroups can be stopped before the latest active one is started.
+        // Need to add observer before creating UseCaseMediatorLifecycleController to make sure
+        // UseCaseMediators can be stopped before the latest active one is started.
         lifecycleOwner.getLifecycle().addObserver(createLifecycleObserver());
-        UseCaseGroupLifecycleController useCaseGroupLifecycleController =
-                new UseCaseGroupLifecycleController(lifecycleOwner.getLifecycle());
+        UseCaseMediatorLifecycleController useCaseMediatorLifecycleController =
+                new UseCaseMediatorLifecycleController(lifecycleOwner.getLifecycle());
         synchronized (mUseCasesLock) {
-            mLifecycleToUseCaseGroupControllerMap.put(lifecycleOwner,
-                    useCaseGroupLifecycleController);
+            mLifecycleToUseCaseMediatorControllerMap.put(lifecycleOwner,
+                    useCaseMediatorLifecycleController);
         }
-        return useCaseGroupLifecycleController;
+        return useCaseMediatorLifecycleController;
     }
 
     /**
@@ -133,18 +132,18 @@ final class UseCaseGroupRepository {
         return new LifecycleObserver() {
             /**
              * Monitors which {@link LifecycleOwner} receives an ON_START event and then stop
-             * others {@link UseCaseGroup} to keep only one active at a time.
+             * others {@link UseCaseMediator} to keep only one active at a time.
              */
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             public void onStart(LifecycleOwner lifecycleOwner) {
                 synchronized (mUseCasesLock) {
                     // Only keep the last {@link LifecycleOwner} active. Stop the others.
-                    for (Map.Entry<LifecycleOwner, UseCaseGroupLifecycleController> entry :
-                            mLifecycleToUseCaseGroupControllerMap.entrySet()) {
+                    for (Map.Entry<LifecycleOwner, UseCaseMediatorLifecycleController> entry :
+                            mLifecycleToUseCaseMediatorControllerMap.entrySet()) {
                         if (entry.getKey() != lifecycleOwner) {
-                            UseCaseGroup useCaseGroup = entry.getValue().getUseCaseGroup();
-                            if (useCaseGroup.isActive()) {
-                                useCaseGroup.stop();
+                            UseCaseMediator useCaseMediator = entry.getValue().getUseCaseMediator();
+                            if (useCaseMediator.isActive()) {
+                                useCaseMediator.stop();
                             }
                         }
                     }
@@ -164,11 +163,11 @@ final class UseCaseGroupRepository {
                     mActiveLifecycleOwnerList.remove(lifecycleOwner);
                     if (mCurrentActiveLifecycleOwner == lifecycleOwner) {
                         // If stopped lifecycleOwner is original active one, check whether there
-                        // is other active lifecycleOwner and start UseCaseGroup belong to it.
+                        // is other active lifecycleOwner and start UseCaseMediator belong to it.
                         if (mActiveLifecycleOwnerList.size() > 0) {
                             mCurrentActiveLifecycleOwner = mActiveLifecycleOwnerList.get(0);
-                            mLifecycleToUseCaseGroupControllerMap.get(
-                                    mCurrentActiveLifecycleOwner).getUseCaseGroup().start();
+                            mLifecycleToUseCaseMediatorControllerMap.get(
+                                    mCurrentActiveLifecycleOwner).getUseCaseMediator().start();
                         } else {
                             mCurrentActiveLifecycleOwner = null;
                         }
@@ -178,38 +177,38 @@ final class UseCaseGroupRepository {
 
             /**
              * Monitors which {@link LifecycleOwner} receives an ON_DESTROY event and then
-             * removes any {@link UseCaseGroupLifecycleController} associated with it from this
+             * removes any {@link UseCaseMediatorLifecycleController} associated with it from this
              * repository when that lifecycle is destroyed.
              */
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             public void onDestroy(LifecycleOwner lifecycleOwner) {
                 synchronized (mUseCasesLock) {
-                    mLifecycleToUseCaseGroupControllerMap.remove(lifecycleOwner);
+                    mLifecycleToUseCaseMediatorControllerMap.remove(lifecycleOwner);
                 }
                 lifecycleOwner.getLifecycle().removeObserver(this);
             }
         };
     }
 
-    Collection<UseCaseGroupLifecycleController> getUseCaseGroups() {
+    Collection<UseCaseMediatorLifecycleController> getUseCaseMediators() {
         synchronized (mUseCasesLock) {
             return Collections.unmodifiableCollection(
-                    mLifecycleToUseCaseGroupControllerMap.values());
+                    mLifecycleToUseCaseMediatorControllerMap.values());
         }
     }
 
     @VisibleForTesting
-    Map<LifecycleOwner, UseCaseGroupLifecycleController> getUseCasesMap() {
+    Map<LifecycleOwner, UseCaseMediatorLifecycleController> getUseCasesMap() {
         synchronized (mUseCasesLock) {
-            return mLifecycleToUseCaseGroupControllerMap;
+            return mLifecycleToUseCaseMediatorControllerMap;
         }
     }
 
     /**
-     * The interface for doing additional setup work on a newly created {@link UseCaseGroup}
+     * The interface for doing additional setup work on a newly created {@link UseCaseMediator}
      * instance.
      */
-    public interface UseCaseGroupSetup {
-        void setup(UseCaseGroup useCaseGroup);
+    public interface UseCaseMediatorSetup {
+        void setup(@NonNull UseCaseMediator useCaseMediator);
     }
 }

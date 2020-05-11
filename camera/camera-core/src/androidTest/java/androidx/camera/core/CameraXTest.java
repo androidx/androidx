@@ -405,10 +405,10 @@ public final class CameraXTest {
 
     @Test
     @UiThreadTest
-    public void bind_createsNewUseCaseGroup() {
+    public void bind_createsNewUseCaseMediator() {
         initCameraX();
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR, new FakeUseCase());
-        // One observer is the use case group. The other observer removes the use case upon the
+        // One observer is the use case mediator. The other observer removes the use case upon the
         // lifecycle's destruction.
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
     }
@@ -440,7 +440,7 @@ public final class CameraXTest {
 
     @Test
     @UiThreadTest
-    public void bind_createsDifferentUseCaseGroups_forDifferentLifecycles() {
+    public void bind_createsDifferentUseCaseMediators_forDifferentLifecycles() {
         initCameraX();
         CameraX.bindToLifecycle(mLifecycle, CAMERA_SELECTOR,
                 new FakeUseCaseConfig.Builder().setTargetName("config0").build());
@@ -449,7 +449,7 @@ public final class CameraXTest {
         CameraX.bindToLifecycle(anotherLifecycle, CAMERA_SELECTOR,
                 new FakeUseCaseConfig.Builder().setTargetName("config1").build());
 
-        // One observer is the use case group. The other observer removes the use case upon the
+        // One observer is the use case mediator. The other observer removes the use case upon the
         // lifecycle's destruction.
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
         assertThat(anotherLifecycle.getObserverCount()).isEqualTo(2);

@@ -17,87 +17,87 @@
 package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
-import androidx.camera.core.impl.UseCaseGroup;
+import androidx.camera.core.impl.UseCaseMediator;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 
-/** A {@link UseCaseGroup} whose starting and stopping is controlled by a {@link Lifecycle}. */
-final class UseCaseGroupLifecycleController implements LifecycleObserver {
-    private final Object mUseCaseGroupLock = new Object();
+/** A {@link UseCaseMediator} whose starting and stopping is controlled by a {@link Lifecycle}. */
+final class UseCaseMediatorLifecycleController implements LifecycleObserver {
+    private final Object mUseCaseMediatorLock = new Object();
 
-    @GuardedBy("mUseCaseGroupLock")
-    private final UseCaseGroup mUseCaseGroup;
+    @GuardedBy("mUseCaseMediatorLock")
+    private final UseCaseMediator mUseCaseMediator;
 
-    /** The lifecycle that controls the {@link UseCaseGroup}. */
+    /** The lifecycle that controls the {@link UseCaseMediator}. */
     private final Lifecycle mLifecycle;
 
-    /** Creates a new {@link UseCaseGroup} which gets controlled by lifecycle transitions. */
-    UseCaseGroupLifecycleController(Lifecycle lifecycle) {
-        this(lifecycle, new UseCaseGroup());
+    /** Creates a new {@link UseCaseMediator} which gets controlled by lifecycle transitions. */
+    UseCaseMediatorLifecycleController(Lifecycle lifecycle) {
+        this(lifecycle, new UseCaseMediator());
     }
 
-    /** Wraps an existing {@link UseCaseGroup} so it is controlled by lifecycle transitions. */
-    UseCaseGroupLifecycleController(Lifecycle lifecycle, UseCaseGroup useCaseGroup) {
-        this.mUseCaseGroup = useCaseGroup;
+    /** Wraps an existing {@link UseCaseMediator} so it is controlled by lifecycle transitions. */
+    UseCaseMediatorLifecycleController(Lifecycle lifecycle, UseCaseMediator useCaseMediator) {
+        this.mUseCaseMediator = useCaseMediator;
         this.mLifecycle = lifecycle;
         lifecycle.addObserver(this);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onStart(LifecycleOwner lifecycleOwner) {
-        synchronized (mUseCaseGroupLock) {
-            mUseCaseGroup.start();
+        synchronized (mUseCaseMediatorLock) {
+            mUseCaseMediator.start();
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onStop(LifecycleOwner lifecycleOwner) {
-        synchronized (mUseCaseGroupLock) {
-            mUseCaseGroup.stop();
+        synchronized (mUseCaseMediatorLock) {
+            mUseCaseMediator.stop();
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void onDestroy(LifecycleOwner lifecycleOwner) {
-        synchronized (mUseCaseGroupLock) {
-            mUseCaseGroup.destroy();
+        synchronized (mUseCaseMediatorLock) {
+            mUseCaseMediator.destroy();
         }
     }
 
     /**
-     * Starts the underlying {@link UseCaseGroup} so that its {@link
-     * UseCaseGroup.StateChangeCallback} can be notified.
+     * Starts the underlying {@link UseCaseMediator} so that its {@link
+     * UseCaseMediator.StateChangeCallback} can be notified.
      *
      * <p>This is required when the contained {@link Lifecycle} is in a STARTED state, since the
-     * default state for a {@link UseCaseGroup} is inactive. The explicit call forces a check on the
-     * actual state of the group.
+     * default state for a {@link UseCaseMediator} is inactive. The explicit call forces a check on
+     * the actual state of the mediator.
      */
     void notifyState() {
-        synchronized (mUseCaseGroupLock) {
+        synchronized (mUseCaseMediatorLock) {
             if (mLifecycle.getCurrentState().isAtLeast(State.STARTED)) {
-                mUseCaseGroup.start();
+                mUseCaseMediator.start();
             }
-            for (UseCase useCase : mUseCaseGroup.getUseCases()) {
+            for (UseCase useCase : mUseCaseMediator.getUseCases()) {
                 useCase.notifyState();
             }
         }
     }
 
-    UseCaseGroup getUseCaseGroup() {
-        synchronized (mUseCaseGroupLock) {
-            return mUseCaseGroup;
+    UseCaseMediator getUseCaseMediator() {
+        synchronized (mUseCaseMediatorLock) {
+            return mUseCaseMediator;
         }
     }
 
     /**
      * Stops observing lifecycle changes.
      *
-     * <p>Once released the wrapped {@link UseCaseGroup} is still valid, but will no longer be
+     * <p>Once released the wrapped {@link UseCaseMediator} is still valid, but will no longer be
      * triggered by lifecycle state transitions. In order to observe lifecycle changes again a new
-     * {@link UseCaseGroupLifecycleController} instance should be created.
+     * {@link UseCaseMediatorLifecycleController} instance should be created.
      *
      * <p>Calls subsequent to the first time will do nothing.
      */
