@@ -22,28 +22,18 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.Alignment
 import androidx.ui.core.Layout
 import androidx.ui.core.Modifier
-import androidx.ui.core.TestTag
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.layout.padding
-import androidx.ui.layout.preferredSize
-import androidx.ui.semantics.ScrollTo
 import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
 import androidx.ui.unit.IntPx
-import androidx.ui.unit.Px
 import androidx.ui.unit.dp
 import androidx.ui.unit.ipx
-import androidx.ui.unit.px
 import androidx.ui.unit.sp
-import com.google.common.truth.Truth.assertThat
-import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,7 +41,7 @@ import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class IsDisplayedTests {
+class IsDisplayedTest {
 
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
@@ -187,96 +177,6 @@ class IsDisplayedTests {
 
         findByText("90")
             .assertIsNotDisplayed()
-    }
-
-    @Test
-    fun checkSemanticsAction_scrollTo_isCalled() {
-        var wasScrollToCalled = false
-        val tag = "myTag"
-
-        composeTestRule.setContent {
-            Semantics(container = true, properties = {
-                ScrollTo(action = { _, _ ->
-                    wasScrollToCalled = true
-                    return@ScrollTo true
-                })
-            }) {
-                Box {
-                    TestTag(tag) {
-                        Semantics(container = true) {
-                            Box()
-                        }
-                    }
-                }
-            }
-        }
-
-        runOnIdleCompose {
-            Assert.assertTrue(!wasScrollToCalled)
-        }
-
-        findByTag(tag)
-            .doScrollTo()
-
-        runOnIdleCompose {
-            Assert.assertTrue(wasScrollToCalled)
-        }
-    }
-
-    @Test
-    fun checkSemanticsAction_scrollTo_coordAreCorrect() {
-        var currentScrollPositionY = 0.px
-        var currentScrollPositionX = 0.px
-        var elementHeight = 0.px
-        val tag = "myTag"
-
-        val drawRect = @Composable { color: Color ->
-            Semantics(container = true) {
-                Canvas(Modifier.preferredSize(100.dp)) {
-                    drawRect(color)
-
-                    elementHeight = Px(size.height)
-                }
-            }
-        }
-
-        composeTestRule.setContent {
-            // Need to make the "scrolling" container the semantics boundary so that it
-            // doesn't try to include the padding
-            Semantics(container = true, properties = {
-                ScrollTo(action = { x, y ->
-                    currentScrollPositionY = y
-                    currentScrollPositionX = x
-                    return@ScrollTo true
-                })
-            }) {
-                val red = Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0)
-                val blue = Color(alpha = 0xFF, red = 0, green = 0, blue = 0xFF)
-                val green = Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0)
-
-                Column {
-                    drawRect(red)
-                    drawRect(blue)
-                    TestTag(tag) {
-                        drawRect(green)
-                    }
-                }
-            }
-        }
-
-        runOnIdleCompose {
-            assertThat(currentScrollPositionY).isEqualTo(0.px)
-            assertThat(currentScrollPositionX).isEqualTo(0.px)
-        }
-
-        findByTag(tag)
-            .doScrollTo() // scroll to third element
-
-        runOnIdleCompose {
-            val expected = elementHeight * 2
-            assertThat(currentScrollPositionY).isEqualTo(expected)
-            assertThat(currentScrollPositionX).isEqualTo(0.px)
-        }
     }
 }
 
