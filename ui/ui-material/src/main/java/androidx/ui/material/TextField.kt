@@ -42,7 +42,7 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.drawBehind
 import androidx.ui.core.offset
 import androidx.ui.core.tag
-import androidx.ui.focus.FocusModifier
+import androidx.ui.core.focus.FocusModifier
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ContentColorAmbient

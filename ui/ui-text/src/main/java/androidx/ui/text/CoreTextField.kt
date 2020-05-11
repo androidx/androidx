@@ -35,9 +35,9 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.dragGestureFilter
 import androidx.ui.core.gesture.pressIndicatorGestureFilter
 import androidx.ui.core.onPositioned
-import androidx.ui.focus.FocusModifier
-import androidx.ui.focus.FocusState
-import androidx.ui.focus.focusState
+import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.focus.FocusState
+import androidx.ui.core.focus.focusState
 import androidx.ui.graphics.painter.drawCanvas
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorValue
@@ -274,12 +274,14 @@ private fun TextInputEventObserver(
 ) {
     val prevState = state { FocusState.NotFocused }
     if (focusModifier.focusState == FocusState.Focused &&
-        prevState.value == FocusState.NotFocused) {
+        prevState.value == FocusState.NotFocused
+    ) {
         onFocus()
     }
 
     if (focusModifier.focusState == FocusState.NotFocused &&
-        prevState.value == FocusState.Focused) {
+        prevState.value == FocusState.Focused
+    ) {
         onBlur(false) // TODO: Need to know if there is next focus element
     }
 

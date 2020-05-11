@@ -17,11 +17,11 @@ package androidx.ui.core.focus
 
 import androidx.ui.core.DelegatingLayoutNodeWrapper
 import androidx.ui.core.LayoutNodeWrapper
-import androidx.ui.focus.FocusDetailedState.Active
-import androidx.ui.focus.FocusDetailedState.ActiveParent
-import androidx.ui.focus.FocusDetailedState.Captured
-import androidx.ui.focus.FocusDetailedState.Disabled
-import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.core.focus.FocusDetailedState.Active
+import androidx.ui.core.focus.FocusDetailedState.ActiveParent
+import androidx.ui.core.focus.FocusDetailedState.Captured
+import androidx.ui.core.focus.FocusDetailedState.Disabled
+import androidx.ui.core.focus.FocusDetailedState.Inactive
 
 internal class ModifiedFocusNode(
     wrapped: LayoutNodeWrapper,

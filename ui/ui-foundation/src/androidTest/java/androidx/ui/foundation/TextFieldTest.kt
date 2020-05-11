@@ -27,9 +27,9 @@ import androidx.ui.core.Modifier
 import androidx.ui.core.TestTag
 import androidx.ui.core.TextInputServiceAmbient
 import androidx.ui.core.onPositioned
-import androidx.ui.focus.FocusModifier
-import androidx.ui.focus.FocusState
-import androidx.ui.focus.focusState
+import androidx.ui.core.focus.FocusModifier
+import androidx.ui.core.focus.FocusState
+import androidx.ui.core.focus.focusState
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.RectangleShape
 import androidx.ui.input.CommitTextEditOp

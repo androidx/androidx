@@ -18,7 +18,7 @@ package androidx.ui.text.demos
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.focus.FocusModifier
+import androidx.ui.core.focus.FocusModifier
 import androidx.ui.foundation.TextField
 import androidx.ui.foundation.TextFieldValue
 import androidx.ui.foundation.VerticalScroller
