@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.ui.focus
+package androidx.ui.core.focus
 
+import androidx.compose.Composable
+import androidx.compose.remember
 import androidx.ui.core.Modifier
 
 /**
@@ -57,3 +59,15 @@ interface FocusModifier : Modifier.Element {
      */
     fun freeFocus(): Boolean
 }
+
+/**
+ * Use this function to create an instance of [FocusModifier]. Adding a [FocusModifier] to a
+ * [Composable] makes it focusable.
+ */
+@Composable
+fun FocusModifier(): FocusModifier = remember { FocusModifierImpl(FocusDetailedState.Inactive) }
+
+/**
+ * This function returns the [FocusState] for the component wrapped by this [FocusModifier].
+ */
+val FocusModifier.focusState: FocusState get() = focusDetailedState.focusState()

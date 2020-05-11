@@ -24,7 +24,7 @@ import androidx.compose.setValue
 import androidx.compose.state
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawBehind
-import androidx.ui.focus.FocusModifier
+import androidx.ui.core.focus.FocusModifier
 import androidx.ui.geometry.Offset
 import androidx.ui.geometry.Rect
 import androidx.ui.graphics.Color

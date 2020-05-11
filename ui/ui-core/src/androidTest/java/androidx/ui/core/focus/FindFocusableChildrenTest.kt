@@ -18,13 +18,12 @@ package androidx.ui.core.focus
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Modifier
-import androidx.ui.focus.FocusDetailedState
 import androidx.ui.foundation.Box
 import androidx.ui.foundation.drawBackground
 import androidx.ui.graphics.Color.Companion.Red
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnUiThread
-import com.google.common.truth.Truth
+import androidx.ui.test.runOnIdleCompose
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,68 +37,84 @@ class FindFocusableChildrenTest {
 
     @Test
     fun returnsFirstFocusNodeInModifierChain() {
-        runOnUiThread {
-            // Arrange.
-            // layoutNode--focusNode1--focusNode2--focusNode3
-            val focusModifier1 = createFocusModifier(FocusDetailedState.Inactive)
-            val focusModifier2 = createFocusModifier(FocusDetailedState.Inactive)
-            val focusModifier3 = createFocusModifier(FocusDetailedState.Inactive)
-            composeTestRule.setContent {
-                Box(modifier = focusModifier1 + focusModifier2 + focusModifier3)
-            }
+        lateinit var focusModifier1: FocusModifier
+        lateinit var focusModifier2: FocusModifier
+        lateinit var focusModifier3: FocusModifier
+        // Arrange.
+        // layoutNode--focusNode1--focusNode2--focusNode3
+        composeTestRule.setContent {
+            focusModifier1 = FocusModifier()
+            focusModifier2 = FocusModifier()
+            focusModifier3 = FocusModifier()
+            Box(modifier = focusModifier1 + focusModifier2 + focusModifier3)
+        }
 
-            // Act.
-            val focusableChildren = focusModifier1.focusNode.focusableChildren()
+        // Act.
+        val focusableChildren = runOnIdleCompose {
+            focusModifier1.focusNode.focusableChildren()
+        }
 
-            // Assert.
-            Truth.assertThat(focusableChildren).containsExactly(focusModifier2.focusNode)
+        // Assert.
+        runOnIdleCompose {
+            assertThat(focusableChildren).containsExactly(focusModifier2.focusNode)
         }
     }
 
     @Test
     fun skipsNonFocusNodesAndReturnsFirstFocusNodeInModifierChain() {
-        runOnUiThread {
-            // Arrange.
-            // layoutNode--focusNode1--nonFocusNode--focusNode2
-            val focusModifier1 = createFocusModifier(FocusDetailedState.Inactive)
-            val focusModifier2 = createFocusModifier(FocusDetailedState.Inactive)
-            composeTestRule.setContent {
-                Box(modifier = focusModifier1 + Modifier.drawBackground(Red) + focusModifier2)
-            }
+        lateinit var focusModifier1: FocusModifier
+        lateinit var focusModifier2: FocusModifier
+        // Arrange.
+        // layoutNode--focusNode1--nonFocusNode--focusNode2
+        composeTestRule.setContent {
+            focusModifier1 = FocusModifier()
+            focusModifier2 = FocusModifier()
+            Box(modifier = focusModifier1 + Modifier.drawBackground(Red) + focusModifier2)
+        }
 
-            // Act.
-            val focusableChildren = focusModifier1.focusNode.focusableChildren()
+        // Act.
+        val focusableChildren = runOnIdleCompose {
+            focusModifier1.focusNode.focusableChildren()
+        }
 
-            // Assert.
-            Truth.assertThat(focusableChildren).containsExactly(focusModifier2.focusNode)
+        // Assert.
+        runOnIdleCompose {
+            assertThat(focusableChildren).containsExactly(focusModifier2.focusNode)
         }
     }
 
     @Test
     fun returnsFirstFocusChildOfEachChildLayoutNode() {
-        runOnUiThread {
-            // Arrange.
-            // parentLayoutNode--parentFocusNode
-            //       |___________________________________
-            //       |                                   |
-            // childLayoutNode1--focusNode1          childLayoutNode2--focusNode2--focusNode3
-            val parentFocusModifier = createFocusModifier(FocusDetailedState.Inactive)
-            val focusModifier1 = createFocusModifier(FocusDetailedState.Inactive)
-            val focusModifier2 = createFocusModifier(FocusDetailedState.Inactive)
-            val focusModifier3 = createFocusModifier(FocusDetailedState.Inactive)
-            composeTestRule.setContent {
-                Box(modifier = parentFocusModifier) {
-                    Box(modifier = focusModifier1)
-                    Box(modifier = focusModifier2 + focusModifier3)
-                }
+        // Arrange.
+        // parentLayoutNode--parentFocusNode
+        //       |___________________________________
+        //       |                                   |
+        // childLayoutNode1--focusNode1          childLayoutNode2--focusNode2--focusNode3
+        lateinit var parentFocusModifier: FocusModifier
+        lateinit var focusModifier1: FocusModifier
+        lateinit var focusModifier2: FocusModifier
+        lateinit var focusModifier3: FocusModifier
+        composeTestRule.setContent {
+            parentFocusModifier = FocusModifier()
+            focusModifier1 = FocusModifier()
+            focusModifier2 = FocusModifier()
+            focusModifier3 = FocusModifier()
+            Box(modifier = parentFocusModifier) {
+                Box(modifier = focusModifier1)
+                Box(modifier = focusModifier2 + focusModifier3)
             }
+        }
 
-            // Act.
-            val focusableChildren = parentFocusModifier.focusNode.focusableChildren()
+        // Act.
+        val focusableChildren = runOnIdleCompose {
+            parentFocusModifier.focusNode.focusableChildren()
+        }
 
-            // Assert.
-            Truth.assertThat(focusableChildren)
-                .containsExactly(focusModifier1.focusNode, focusModifier2.focusNode)
+        // Assert.
+        runOnIdleCompose {
+            assertThat(focusableChildren).containsExactly(
+                focusModifier1.focusNode, focusModifier2.focusNode
+            )
         }
     }
 }

@@ -17,15 +17,15 @@
 package androidx.ui.core.focus
 
 import androidx.test.filters.SmallTest
-import androidx.ui.focus.FocusDetailedState.Active
-import androidx.ui.focus.FocusDetailedState.ActiveParent
-import androidx.ui.focus.FocusDetailedState.Captured
-import androidx.ui.focus.FocusDetailedState.Disabled
-import androidx.ui.focus.FocusDetailedState.Inactive
+import androidx.ui.core.focus.FocusDetailedState.Active
+import androidx.ui.core.focus.FocusDetailedState.ActiveParent
+import androidx.ui.core.focus.FocusDetailedState.Captured
+import androidx.ui.core.focus.FocusDetailedState.Disabled
+import androidx.ui.core.focus.FocusDetailedState.Inactive
 import androidx.ui.foundation.Box
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.runOnUiThread
-import com.google.common.truth.Truth
+import androidx.ui.test.runOnIdleCompose
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,86 +39,106 @@ class CaptureFocusTest {
 
     @Test
     fun active_captureFocus_changesStateToCaptured() {
-        runOnUiThread {
-            // Arrange.
-            val focusModifier = createFocusModifier(Active).also {
-                composeTestRule.setContent { Box(modifier = it) }
-            }
+        // Arrange.
+        lateinit var focusModifier: FocusModifier
+        composeTestRule.setFocusableContent {
+            focusModifier = FocusModifierImpl(Active)
+            Box(modifier = focusModifier)
+        }
 
-            // Act.
-            val success = focusModifier.captureFocus()
+        // Act.
+        val success = runOnIdleCompose {
+            focusModifier.captureFocus()
+        }
 
-            // Assert.
-            Truth.assertThat(success).isTrue()
-            Truth.assertThat(focusModifier.focusDetailedState).isEqualTo(Captured)
+        // Assert.
+        runOnIdleCompose {
+            assertThat(success).isTrue()
+            assertThat(focusModifier.focusDetailedState).isEqualTo(Captured)
         }
     }
 
     @Test
     fun activeParent_captureFocus_retainsStateAsActiveParent() {
-        runOnUiThread {
-            // Arrange.
-            val focusModifier = createFocusModifier(ActiveParent).also {
-                composeTestRule.setContent { Box(modifier = it) }
-            }
+        // Arrange.
+        lateinit var focusModifier: FocusModifier
+        composeTestRule.setFocusableContent {
+            focusModifier = FocusModifierImpl(ActiveParent)
+            Box(modifier = focusModifier)
+        }
 
-            // Act.
-            val success = focusModifier.captureFocus()
+        // Act.
+        val success = runOnIdleCompose {
+            focusModifier.captureFocus()
+        }
 
-            // Assert.
-            Truth.assertThat(success).isFalse()
-            Truth.assertThat(focusModifier.focusDetailedState).isEqualTo(ActiveParent)
+        // Assert.
+        runOnIdleCompose {
+            assertThat(success).isFalse()
+            assertThat(focusModifier.focusDetailedState).isEqualTo(ActiveParent)
         }
     }
 
     @Test
     fun captured_captureFocus_retainsStateAsCaptured() {
-        runOnUiThread {
-            // Arrange.
-            val focusModifier = createFocusModifier(Captured).also {
-                composeTestRule.setContent { Box(modifier = it) }
-            }
+        // Arrange.
+        lateinit var focusModifier: FocusModifier
+        composeTestRule.setFocusableContent {
+            focusModifier = FocusModifierImpl(Captured)
+            Box(modifier = focusModifier)
+        }
 
-            // Act.
-            val success = focusModifier.captureFocus()
+        // Act.
+        val success = runOnIdleCompose {
+            focusModifier.captureFocus()
+        }
 
-            // Assert.
-            Truth.assertThat(success).isTrue()
-            Truth.assertThat(focusModifier.focusDetailedState).isEqualTo(Captured)
+        // Assert.
+        runOnIdleCompose {
+            assertThat(success).isTrue()
+            assertThat(focusModifier.focusDetailedState).isEqualTo(Captured)
         }
     }
 
     @Test
     fun disabled_captureFocus_retainsStateAsDisabled() {
-        runOnUiThread {
-            // Arrange.
-            val focusModifier = createFocusModifier(Disabled).also {
-                composeTestRule.setContent { Box(modifier = it) }
-            }
+        // Arrange.
+        lateinit var focusModifier: FocusModifier
+        composeTestRule.setFocusableContent {
+            focusModifier = FocusModifierImpl(Disabled)
+            Box(modifier = focusModifier)
+        }
 
-            // Act.
-            val success = focusModifier.captureFocus()
+        // Act.
+        val success = runOnIdleCompose {
+            focusModifier.captureFocus()
+        }
 
-            // Assert.
-            Truth.assertThat(success).isFalse()
-            Truth.assertThat(focusModifier.focusDetailedState).isEqualTo(Disabled)
+        // Assert.
+        runOnIdleCompose {
+            assertThat(success).isFalse()
+            assertThat(focusModifier.focusDetailedState).isEqualTo(Disabled)
         }
     }
 
     @Test
     fun inactive_captureFocus_retainsStateAsInactive() {
-        runOnUiThread {
-            // Arrange.
-            val focusModifier = createFocusModifier(Inactive).also {
-                composeTestRule.setContent { Box(modifier = it) }
-            }
+        // Arrange.
+        lateinit var focusModifier: FocusModifier
+        composeTestRule.setFocusableContent {
+            focusModifier = FocusModifierImpl(Inactive)
+            Box(modifier = focusModifier)
+        }
 
-            // Act.
-            val success = focusModifier.captureFocus()
+        // Act.
+        val success = runOnIdleCompose {
+            focusModifier.captureFocus()
+        }
 
-            // Assert.
-            Truth.assertThat(success).isFalse()
-            Truth.assertThat(focusModifier.focusDetailedState).isEqualTo(Inactive)
+        // Assert.
+        runOnIdleCompose {
+            assertThat(success).isFalse()
+            assertThat(focusModifier.focusDetailedState).isEqualTo(Inactive)
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.focus
+package androidx.ui.core.focus
 
 import androidx.compose.Composable
 
@@ -36,7 +36,7 @@ import androidx.compose.Composable
  */
 @Suppress("UNUSED_PARAMETER")
 @Deprecated(
-    message = "Focusable is deprecated. Use androidx.ui.focus.FocusModifier instead.",
+    message = "Focusable is deprecated. Use androidx.ui.core.focus.FocusModifier instead.",
     level = DeprecationLevel.ERROR
 )
 @Composable
@@ -51,7 +51,7 @@ fun Focusable(focusOperator: Any, children: @Composable (Any) -> Unit) {
  */
 @Deprecated(
     message = "FocusOperator is used along with a Focusable. Focusable is deprecated in favor of " +
-            "androidx.ui.focus.FocusModifier.",
+            "androidx.ui.core.focus.FocusModifier.",
     level = DeprecationLevel.ERROR
 )
 class FocusOperator

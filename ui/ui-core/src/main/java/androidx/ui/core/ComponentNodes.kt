@@ -21,7 +21,7 @@ import androidx.ui.core.pointerinput.PointerInputFilter
 import androidx.ui.core.pointerinput.PointerInputModifier
 import androidx.ui.core.semantics.SemanticsModifier
 import androidx.ui.core.semantics.SemanticsWrapper
-import androidx.ui.focus.FocusModifier
+import androidx.ui.core.focus.FocusModifier
 import androidx.ui.graphics.Canvas
 import androidx.ui.unit.Density
 import androidx.ui.unit.IntPx
@@ -336,7 +336,7 @@ class PointerInputNode : ComponentNode() {
  * TODO(b/154633015): Deprecated in Dev11. Delete for Dev12.
  */
 @Deprecated(
-    message = "FocusNode is deprecated. Use androidx.ui.focus.FocusModifier instead.",
+    message = "FocusNode is deprecated. Use androidx.ui.core.focus.FocusModifier instead.",
     level = DeprecationLevel.ERROR
 )
 class FocusNode : ComponentNode()
