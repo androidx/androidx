@@ -59,11 +59,10 @@ internal class InnerPlaceable(
     override val parentData: Any?
         @Suppress("DEPRECATION")
         get() = if (layoutNode.handlesParentData) {
-            layoutNode.parentDataNode?.value
+            null
         } else {
-            layoutNode.parentDataNode?.value
-                ?: layoutNode.layoutChildren
-                    .firstOrNull { it.layoutNodeWrapper.parentData != null }?.parentData
+            layoutNode.layoutChildren
+                    .firstOrNull { it.parentData != null }?.parentData
         }
 
     override fun findFocusWrapperWrappingThisWrapper() =

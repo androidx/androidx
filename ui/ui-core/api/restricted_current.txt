@@ -726,10 +726,6 @@ package androidx.ui.core {
     method public static androidx.ui.core.Modifier paint(androidx.ui.core.Modifier, androidx.ui.graphics.painter.Painter painter, boolean sizeToIntrinsics = true, androidx.ui.core.Alignment alignment = Alignment.Center, androidx.ui.core.ContentScale contentScale = ContentScale.Inside, float alpha = 1.0f, androidx.ui.graphics.ColorFilter? colorFilter = null, boolean rtl = false);
   }
 
-  public final class ParentDataKt {
-    method @Deprecated public static inline void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public interface ParentDataModifier extends androidx.ui.core.Modifier.Element {
     method public default Object? modifyParentData(androidx.ui.unit.Density, Object? parentData);
   }

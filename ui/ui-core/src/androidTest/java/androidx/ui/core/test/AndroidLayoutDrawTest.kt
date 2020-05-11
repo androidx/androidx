@@ -53,7 +53,6 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureScope
 import androidx.ui.core.Modifier
 import androidx.ui.core.Owner
-import androidx.ui.core.ParentData
 import androidx.ui.core.ParentDataModifier
 import androidx.ui.core.PassThroughLayout
 import androidx.ui.core.Ref
@@ -2339,30 +2338,10 @@ class AndroidLayoutDrawTest {
                     PassThroughLayout {
                         FixedSize(50.ipx, LayoutTag("1"))
                     }
-                    PassThroughLayout {
-                        ParentData(LayoutTag("2")) {
-                            FixedSize(50.ipx, LayoutTag("1"))
-                        }
-                    }
-                    ParentData(LayoutTag("3")) {
-                        PassThroughLayout {
-                            ParentData(LayoutTag("2")) {
-                                FixedSize(50.ipx, LayoutTag("1"))
-                            }
-                        }
-                    }
-                    PassThroughLayout(LayoutTag("4")) {
-                        ParentData(LayoutTag("2")) {
-                            FixedSize(50.ipx, LayoutTag("1"))
-                        }
-                    }
                 }) { measurables, constraints, _ ->
                     assertEquals("1", measurables[0].tag)
                     val placeable = measurables[0].measure(constraints)
                     assertEquals(50.ipx, placeable.width)
-                    assertEquals("2", measurables[1].tag)
-                    assertEquals("3", measurables[2].tag)
-                    assertEquals("4", measurables[3].tag)
                     latch.countDown()
                     layout(0.ipx, 0.ipx) {}
                 }
