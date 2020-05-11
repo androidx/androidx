@@ -188,7 +188,7 @@ public final class Preview extends UseCase {
         }
 
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution,
-                getBoundCamera().getCameraInfo());
+                getBoundCamera().getCameraInfo(), getViewPortCropRect());
         setUpSurfaceProviderWrap(surfaceRequest);
 
         if (captureProcessor != null) {

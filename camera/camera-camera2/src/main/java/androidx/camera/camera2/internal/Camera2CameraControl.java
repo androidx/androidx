@@ -282,9 +282,10 @@ final class Camera2CameraControl implements CameraControlInternal {
         return cropRect;
     }
 
+    @Override
     @WorkerThread
     @NonNull
-    Rect getSensorRect() {
+    public Rect getSensorRect() {
         return Preconditions.checkNotNull(
                 mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE));
     }

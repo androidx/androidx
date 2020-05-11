@@ -16,7 +16,10 @@
 
 package androidx.camera.core;
 
+import android.graphics.Rect;
+import android.media.ImageReader;
 import android.util.Size;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -56,10 +59,15 @@ public abstract class UseCase {
     private SessionConfig mAttachedSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
     /**
-     * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the surface
-     * resolution that have been attached to this UseCase
+     * The resolution assigned to the {@link UseCase} based on the attached camera.
      */
     private Size mAttachedResolution;
+
+    /**
+     * The crop rect calculated at the time of binding based on {@link ViewPort}.
+     */
+    @Nullable
+    private Rect mViewPortCropRect;
 
     private State mState = State.INACTIVE;
 
@@ -96,7 +104,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+    protected Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
         return null;
     }
 
@@ -119,7 +127,7 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
         // Attempt to retrieve builder containing defaults for this use case's config
-        UseCaseConfig.Builder<?, ?, ?> defaultBuilder =
+        Builder<?, ?, ?> defaultBuilder =
                 getDefaultBuilder(
                         getBoundCamera() == null ? null : getBoundCamera().getCameraInfo());
 
@@ -143,7 +151,7 @@ public abstract class UseCase {
     @NonNull
     protected UseCaseConfig<?> applyDefaults(
             @NonNull UseCaseConfig<?> userConfig,
-            @Nullable UseCaseConfig.Builder<?, ?, ?> defaultConfigBuilder) {
+            @Nullable Builder<?, ?, ?> defaultConfigBuilder) {
         if (defaultConfigBuilder == null) {
             // No default builder was retrieved, return config directly
             return userConfig;
@@ -205,6 +213,7 @@ public abstract class UseCase {
 
     /**
      * Get the current {@link SessionConfig}.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -317,7 +326,8 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void clear() {}
+    public void clear() {
+    }
 
     /**
      * Called use case is unbound from lifecycle or the bound lifecycle is destroyed.
@@ -331,7 +341,8 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onDestroy() {}
+    public void onDestroy() {
+    }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -390,12 +401,12 @@ public abstract class UseCase {
      * Called when binding new use cases via {@code CameraX#bindToLifecycle(LifecycleOwner,
      * CameraSelector, UseCase...)}.
      *
-     * <p>Override to create necessary objects like {@link android.media.ImageReader} depending
+     * <p>Override to create necessary objects like {@link ImageReader} depending
      * on the resolution.
      *
      * @param suggestedResolution The suggested resolution that depends on camera
-     *                               device capability and what and how many use cases will be
-     *                               bound.
+     *                            device capability and what and how many use cases will be
+     *                            bound.
      * @return The resolution that finally used to create the SessionConfig to
      * attach to the camera device.
      * @hide
@@ -494,6 +505,27 @@ public abstract class UseCase {
     }
 
     /**
+     * Sets the view port crop rect calculated at the time of binding.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected void setViewPortCropRect(@Nullable Rect viewPortCropRect) {
+        mViewPortCropRect = viewPortCropRect;
+    }
+
+    /**
+     * Gets the view port crop rect.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    protected Rect getViewPortCropRect() {
+        return mViewPortCropRect;
+    }
+
+    /**
      * Get image format for the use case.
      *
      * @return image format for the use case
@@ -549,7 +581,7 @@ public abstract class UseCase {
          * camera.
          *
          * <p>Updating certain parameters of the use case require a full reset of the camera. This
-         * includes updating the {@link android.view.Surface} used by the use case.
+         * includes updating the {@link Surface} used by the use case.
          */
         void onUseCaseReset(@NonNull UseCase useCase);
     }
@@ -559,7 +591,7 @@ public abstract class UseCase {
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public interface EventCallback {
 
         /**

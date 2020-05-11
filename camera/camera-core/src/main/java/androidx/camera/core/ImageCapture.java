@@ -44,6 +44,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
@@ -743,7 +744,7 @@ public final class ImageCapture extends UseCase {
 
         mPendingImageCaptureRequests.offer(
                 new ImageCaptureRequest(relativeRotation, getJpegQuality(), targetRatio,
-                        listenerExecutor, callback));
+                        getViewPortCropRect(), listenerExecutor, callback));
 
         issueImageCaptureRequests();
     }
@@ -1872,6 +1873,8 @@ public final class ImageCapture extends UseCase {
 
         AtomicBoolean mDispatched = new AtomicBoolean(false);
 
+        private final Rect mViewPortCropRect;
+
         /**
          * @param rotationDegrees The degrees to rotate the image buffer from sensor
          *                        coordinates into the final output coordinate space.
@@ -1883,6 +1886,7 @@ public final class ImageCapture extends UseCase {
                 @RotationValue int rotationDegrees,
                 @IntRange(from = 1, to = 100) int jpegQuality,
                 Rational targetRatio,
+                @Nullable Rect viewPortCropRect,
                 @NonNull Executor executor,
                 @NonNull OnImageCapturedCallback callback) {
             mRotationDegrees = rotationDegrees;
@@ -1893,6 +1897,7 @@ public final class ImageCapture extends UseCase {
                         + "positive");
             }
             mTargetRatio = targetRatio;
+            mViewPortCropRect = viewPortCropRect;
             mListenerExecutor = executor;
             mCallback = callback;
         }
@@ -1943,7 +1948,12 @@ public final class ImageCapture extends UseCase {
 
             // Update the crop rect aspect ratio after it has been rotated into the buffer
             // orientation
-            if (mTargetRatio != null) {
+            if (mViewPortCropRect != null) {
+                // ViewPort rect has higher priority than the custom aspect ratio.
+                dispatchedImageProxy.setViewPortRect(mViewPortCropRect);
+                dispatchedImageProxy.setCropRect(mViewPortCropRect);
+            } else if (mTargetRatio != null) {
+                // Fall back to custom aspect ratio if view port is not available.
                 Rational dispatchRatio = mTargetRatio;
                 if ((dispatchRotation % 180) != 0) {
                     dispatchRatio = new Rational(
