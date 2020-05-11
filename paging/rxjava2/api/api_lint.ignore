@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+BuilderSetStyle: androidx.paging.RxPagedListBuilder#buildFlowable(io.reactivex.BackpressureStrategy):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.paging.RxPagedListBuilder.buildFlowable(io.reactivex.BackpressureStrategy)
+BuilderSetStyle: androidx.paging.RxPagedListBuilder#buildObservable():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.paging.RxPagedListBuilder.buildObservable()
+
+
 MissingBuildMethod: androidx.paging.RxPagedListBuilder:
     androidx.paging.RxPagedListBuilder does not declare a `build()` method, but builder classes are expected to
 

@@ -1,6 +1,8 @@
 // Baseline format: 1.0
 AcronymName: androidx.ui.test.BitmapHelpersKt#assertPixelColor-9bBi3KA(android.graphics.Bitmap, long, int, int, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,java.lang.String>):
     Acronyms should not be capitalized in method names: was `assertPixelColor-9bBi3KA`, should this be `assertPixelColor-9bBi3Ka`?
+AcronymName: androidx.ui.test.BitmapHelpersKt#assertShape-2l1GYV8(android.graphics.Bitmap, androidx.ui.unit.Density, float, float, long, long, androidx.ui.graphics.Shape, float):
+    Acronyms should not be capitalized in method names: was `assertShape-2l1GYV8`, should this be `assertShape-2l1GyV8`?
 AcronymName: androidx.ui.test.BitmapHelpersKt#assertShape-nbwoFSQ(android.graphics.Bitmap, androidx.ui.unit.Density, androidx.ui.graphics.Shape, long, long, androidx.ui.graphics.Shape, float, float, float, float, float, float, float):
     Acronyms should not be capitalized in method names: was `assertShape-nbwoFSQ`, should this be `assertShape-nbwoFsq`?
 

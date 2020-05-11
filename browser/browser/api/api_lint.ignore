@@ -57,8 +57,10 @@ AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#toolbarColor:
     Must avoid boxed primitives (`java.lang.Integer`)
 
 
-CallbackMethodName: androidx.browser.customtabs.CustomTabsCallback:
-    Callback method names must follow the on<Something> style: extraCallback
+BuilderSetStyle: androidx.browser.customtabs.CustomTabsIntent.Builder#enableUrlBarHiding():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.browser.customtabs.CustomTabsIntent.Builder.enableUrlBarHiding()
+BuilderSetStyle: androidx.browser.trusted.TrustedWebActivityIntentBuilder#buildCustomTabsIntent():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.browser.trusted.TrustedWebActivityIntentBuilder.buildCustomTabsIntent()
 
 
 ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent#openBrowserAction(android.content.Context, android.net.Uri, int, java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>, android.app.PendingIntent) parameter #3:
@@ -75,6 +77,10 @@ IntentName: androidx.browser.browseractions.BrowserActionsIntent#KEY_ACTION:
 
 ListenerLast: androidx.browser.customtabs.CustomTabsClient#newSession(androidx.browser.customtabs.CustomTabsCallback, int) parameter #1:
     Listeners should always be at end of argument list (method `newSession`)
+
+
+OptionalBuilderConstructorAgrument: androidx.browser.customtabs.CustomTabsIntent.Builder#Builder(androidx.browser.customtabs.CustomTabsSession) parameter #0:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter session in androidx.browser.customtabs.CustomTabsIntent.Builder(androidx.browser.customtabs.CustomTabsSession session)
 
 
 PublicTypedef: androidx.browser.customtabs.CustomTabsService.Relation:

@@ -13,5 +13,19 @@ ArrayReturn: androidx.navigation.NavType.SerializableArrayType#put(android.os.Bu
     Method parameter should be Collection<D> (or subclass) instead of raw array; was `D[]`
 
 
+BuilderSetStyle: androidx.navigation.NavDeepLink.Builder#fromAction(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLink.Builder.fromAction(String)
+BuilderSetStyle: androidx.navigation.NavDeepLink.Builder#fromMimeType(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLink.Builder.fromMimeType(String)
+BuilderSetStyle: androidx.navigation.NavDeepLink.Builder#fromUriPattern(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLink.Builder.fromUriPattern(String)
+BuilderSetStyle: androidx.navigation.NavDeepLinkRequest.Builder#fromAction(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLinkRequest.Builder.fromAction(String)
+BuilderSetStyle: androidx.navigation.NavDeepLinkRequest.Builder#fromMimeType(String):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLinkRequest.Builder.fromMimeType(String)
+BuilderSetStyle: androidx.navigation.NavDeepLinkRequest.Builder#fromUri(android.net.Uri):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavDeepLinkRequest.Builder.fromUri(android.net.Uri)
+
+
 KotlinOperator: androidx.navigation.NavType#get(android.os.Bundle, String):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)

@@ -53,12 +53,18 @@ AutoBoxing: androidx.leanback.widget.ParallaxTarget.DirectPropertyTarget#directU
     Must avoid boxed primitives (`java.lang.Number`)
 
 
-CallbackMethodName: androidx.leanback.widget.DiffCallback:
-    Callback method names must follow the on<Something> style: areItemsTheSame
-CallbackMethodName: androidx.leanback.widget.GuidedActionDiffCallback:
-    Callback method names must follow the on<Something> style: getInstance
-CallbackMethodName: androidx.leanback.widget.SearchBar.SearchBarPermissionListener:
-    Listener method names must follow the on<Something> style: requestAudioPermission
+BuilderSetStyle: androidx.leanback.widget.ShadowOverlayHelper.Builder#keepForegroundDrawable(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.leanback.widget.ShadowOverlayHelper.Builder.keepForegroundDrawable(boolean)
+BuilderSetStyle: androidx.leanback.widget.ShadowOverlayHelper.Builder#needsOverlay(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.leanback.widget.ShadowOverlayHelper.Builder.needsOverlay(boolean)
+BuilderSetStyle: androidx.leanback.widget.ShadowOverlayHelper.Builder#needsRoundedCorner(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.leanback.widget.ShadowOverlayHelper.Builder.needsRoundedCorner(boolean)
+BuilderSetStyle: androidx.leanback.widget.ShadowOverlayHelper.Builder#needsShadow(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.leanback.widget.ShadowOverlayHelper.Builder.needsShadow(boolean)
+BuilderSetStyle: androidx.leanback.widget.ShadowOverlayHelper.Builder#options(androidx.leanback.widget.ShadowOverlayHelper.Options):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.leanback.widget.ShadowOverlayHelper.Builder.options(androidx.leanback.widget.ShadowOverlayHelper.Options)
+BuilderSetStyle: androidx.leanback.widget.ShadowOverlayHelper.Builder#preferZOrder(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.leanback.widget.ShadowOverlayHelper.Builder.preferZOrder(boolean)
 
 
 CallbackName: androidx.leanback.widget.ObjectAdapter.DataObserver:

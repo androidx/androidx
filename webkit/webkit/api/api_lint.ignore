@@ -7,6 +7,12 @@ ArrayReturn: androidx.webkit.WebViewCompat#createWebMessageChannel(android.webki
     Method should return Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
 
 
+BuilderSetStyle: androidx.webkit.ProxyConfig.Builder#bypassSimpleHostnames():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.webkit.ProxyConfig.Builder.bypassSimpleHostnames()
+BuilderSetStyle: androidx.webkit.ProxyConfig.Builder#removeImplicitRules():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.webkit.ProxyConfig.Builder.removeImplicitRules()
+
+
 IntentName: androidx.webkit.WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS:
     Intent action constant name must be ACTION_FOO: DISABLED_ACTION_MODE_MENU_ITEMS
 

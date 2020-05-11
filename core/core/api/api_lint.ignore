@@ -205,6 +205,30 @@ BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithP
     Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
 
 
+BuilderSetStyle: androidx.core.app.NotificationCompat.Action.Builder#extend(androidx.core.app.NotificationCompat.Action.Extender):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.NotificationCompat.Action.Builder.extend(androidx.core.app.NotificationCompat.Action.Extender)
+BuilderSetStyle: androidx.core.app.NotificationCompat.Builder#extend(androidx.core.app.NotificationCompat.Extender):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.NotificationCompat.Builder.extend(androidx.core.app.NotificationCompat.Extender)
+BuilderSetStyle: androidx.core.app.NotificationCompat.Builder#limitCharSequenceLength(CharSequence):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.NotificationCompat.Builder.limitCharSequenceLength(CharSequence)
+BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#createChooserIntent():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.createChooserIntent()
+BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#from(android.app.Activity):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.from(android.app.Activity)
+BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#startChooser():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.startChooser()
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#create(android.content.Context):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.create(android.content.Context)
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#editIntentAt(int):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.editIntentAt(int)
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#startActivities():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.startActivities()
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#startActivities(android.os.Bundle):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.startActivities(android.os.Bundle)
+BuilderSetStyle: androidx.core.text.BidiFormatter.Builder#stereoReset(boolean):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.text.BidiFormatter.Builder.stereoReset(boolean)
+
+
 ContextFirst: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #2:
     Context is distinct, so it must be the first argument (method `onCreateView`)
 ContextFirst: androidx.core.view.ViewConfigurationCompat#getScaledHorizontalScrollFactor(android.view.ViewConfiguration, android.content.Context) parameter #1:
@@ -2089,6 +2113,14 @@ NoClone: androidx.core.app.NotificationCompat.Action.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
 NoClone: androidx.core.app.NotificationCompat.WearableExtender#clone():
     Provide an explicit copy constructor instead of implementing `clone()`
+
+
+OptionalBuilderConstructorAgrument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #0:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter icon in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
+OptionalBuilderConstructorAgrument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #1:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter title in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
+OptionalBuilderConstructorAgrument: androidx.core.app.NotificationCompat.Action.Builder#Builder(androidx.core.graphics.drawable.IconCompat, CharSequence, android.app.PendingIntent) parameter #2:
+    Builder constructor arguments must be mandatory (i.e. not @Nullable): parameter intent in androidx.core.app.NotificationCompat.Action.Builder(androidx.core.graphics.drawable.IconCompat icon, CharSequence title, android.app.PendingIntent intent)
 
 
 PairedRegistration: androidx.core.view.OneShotPreDrawListener#removeListener():
